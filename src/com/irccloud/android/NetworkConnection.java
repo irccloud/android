@@ -1,12 +1,17 @@
 package com.irccloud.android;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +62,20 @@ public class NetworkConnection {
 	public void disconnect() {
 		if(client!=null)
 			client.disconnect();
+	}
+	
+	public String login(String email, String password) throws IOException {
+		String postdata = "email="+email+"&password="+password;
+		String response = doPost(new URL("https://irccloud.com/chat/login"), postdata);
+		try {
+			Log.d(TAG, "Result: " + response);
+			JSONObject o = new JSONObject(response);
+			return o.getString("session");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public void connect(String sk) {
@@ -141,7 +160,7 @@ public class NetworkConnection {
         	conn = (HttpURLConnection) url.openConnection();
         }
 		conn.setRequestMethod("GET");
-		conn.setRequestProperty("connection", "close");
+		conn.setRequestProperty("Connection", "close");
 		conn.setRequestProperty("Cookie", "session="+session);
 		conn.setRequestProperty("Accept", "application/json");
 		conn.setRequestProperty("Content-type", "application/json");
@@ -157,8 +176,56 @@ public class NetworkConnection {
 					reader = new BufferedReader(new InputStreamReader(conn.getInputStream()), 512);
 			}
 		} catch (IOException e) {
-			if(conn.getErrorStream() != null)
+			if(conn.getErrorStream() != null) {
+				if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
+					reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())), 512);
+				else
+					reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()), 512);
+			}
+		}
+
+		if(reader != null) {
+			response = toString(reader);
+			reader.close();
+		}
+		return response;
+	}
+
+	private String doPost(URL url, String postdata) throws IOException {
+		Log.d(TAG, "POSTing to: " + url);
+		
+		HttpURLConnection conn = null;
+
+        if (url.getProtocol().toLowerCase().equals("https")) {
+            HttpsURLConnection https = (HttpsURLConnection) url.openConnection();
+            conn = https;
+        } else {
+        	conn = (HttpURLConnection) url.openConnection();
+        }
+		conn.setRequestMethod("POST");
+		conn.setDoOutput(true);
+		conn.setRequestProperty("Connection", "close");
+		conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+		OutputStream ostr = null;
+		try {
+			ostr = conn.getOutputStream();
+			ostr.write(postdata.getBytes());
+		} finally {
+			if (ostr != null)
+				ostr.close();
+		}
+
+		BufferedReader reader = null;
+		String response = "";
+		conn.connect();
+		try {
+			if(conn.getInputStream() != null) {
+				reader = new BufferedReader(new InputStreamReader(conn.getInputStream()), 512);
+			}
+		} catch (IOException e) {
+			if(conn.getErrorStream() != null) {
 				reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()), 512);
+			}
 		}
 
 		if(reader != null) {

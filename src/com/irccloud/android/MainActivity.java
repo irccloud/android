@@ -6,6 +6,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -41,11 +42,18 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
     public void onResume() {
     	super.onResume();
     	
-    	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
-    	
-    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
-    		conn.connect("ba1938a9bc9a3b682adeaebba8c16892");
+    	String session = getSharedPreferences("prefs", 0).getString("session_key", "");
+    	if(session != null && session.length() > 0) {
+	    	conn = NetworkConnection.getInstance();
+	    	conn.addHandler(mHandler);
+	    	
+	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
+	    		conn.connect(session);
+    	} else {
+    		Intent i = new Intent(this, LoginActivity.class);
+    		startActivity(i);
+    		finish();
+    	}
     }
     
     public void onPause() {
