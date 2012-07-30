@@ -1,8 +1,5 @@
 package com.irccloud.android;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
-import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 
@@ -10,33 +7,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 
-public class MainActivity extends SherlockFragmentActivity implements ActionBar.TabListener {
+public class MainActivity extends SherlockFragmentActivity {
 	NetworkConnection conn;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-        final ActionBar ab = getSupportActionBar();
-
-        ab.setListNavigationCallbacks(ArrayAdapter
-                .createFromResource(this, R.array.sections,
-                        R.layout.sherlock_spinner_dropdown_item),
-                new OnNavigationListener() {
-                    public boolean onNavigationItemSelected(int itemPosition,
-                            long itemId) {
-                        // FIXME add proper implementation
-                        return false;
-                    }
-                });
-        
-        ab.setDisplayShowTitleEnabled(false);
-        ab.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
     }
 
     public void onResume() {
@@ -86,23 +65,4 @@ public class MainActivity extends SherlockFragmentActivity implements ActionBar.
 
         return super.onCreateOptionsMenu(menu);
     }
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-    
 }

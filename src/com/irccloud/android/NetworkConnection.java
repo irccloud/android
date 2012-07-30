@@ -1,17 +1,13 @@
 package com.irccloud.android;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,6 +43,10 @@ public class NetworkConnection {
 	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
+	public static final int EVENT_MAKESERVER = 2;
+	public static final int EVENT_MAKEBUFFER = 3;
+	public static final int EVENT_BACKLOG_START = 4;
+	public static final int EVENT_BACKLOG_END = 5;
 	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
@@ -132,10 +132,20 @@ public class NetworkConnection {
 	private void parse_object(JSONObject object) throws JSONException {
 		String type = object.getString("type");
 		if(type != null && type.length() > 0) {
-			Log.d(TAG, "New message! Type: " + type);
 			if(type.equalsIgnoreCase("stat_user")) {
 				userInfo = new UserInfo(object);
 				notifyHandlers(EVENT_USERINFO, userInfo);
+			} else if(type.equalsIgnoreCase("makeserver")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.deleteServer(object.getInt("cid"));
+				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
+						object.getInt("port"), object.getString("nick"), (object.has("connected") && object.getBoolean("connected"))?1:0);
+				notifyHandlers(EVENT_MAKESERVER, server);
+			} else if(type.equalsIgnoreCase("makebuffer")) {
+				BuffersDataSource b = BuffersDataSource.getInstance();
+				b.deleteBuffer(object.getInt("bid"));
+				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"), object.getInt("max_eid"), object.getInt("last_seen_eid"), object.getString("name"), object.getString("buffer_type"), (object.has("hidden") && object.getBoolean("hidden"))?1:0, (object.has("joined") && object.getBoolean("joined"))?1:0);
+				notifyHandlers(EVENT_MAKEBUFFER, buffer);
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
 					Looper.prepare();
@@ -144,6 +154,8 @@ public class NetworkConnection {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} else {
+				//Log.d(TAG, "Unhandled type: " + object);
 			}
 		}
 	}
@@ -309,26 +321,17 @@ public class NetworkConnection {
 		protected Boolean doInBackground(URL... url) {
 			try {
 				json = doGet(url[0]);
+				notifyHandlers(EVENT_BACKLOG_START, null);
+				JSONArray a = new JSONArray(json);
+				for(int i = 0; i < a.length(); i++)
+					parse_object(a.getJSONObject(i));
+				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return false;
-		}
-
-		@Override
-		public void onPostExecute(Boolean result) {
-			if(result) {
-				try {
-					JSONArray a = new JSONArray(json);
-					for(int i = 0; i < a.length(); i++)
-						parse_object(a.getJSONObject(i));
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		}
 	}
 }
