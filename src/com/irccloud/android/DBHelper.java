@@ -72,13 +72,22 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ "bid integer not null, "
 				+ "type text not null, "
 				+ "highlight integer not null, "
-				+ "event text not null, "
+				+ "event text not null "
 				+ ");");
+	}
+
+	@Override
+	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		onUpgrade(db,oldVersion,newVersion);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVERS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUFFERS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHANNELS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
 		onCreate(db);
 	}
 }
