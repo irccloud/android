@@ -162,25 +162,17 @@ public class BuffersListFragment extends SherlockListFragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_START:
-				Log.e("IRCCloud", "Backlog start");
 				isBacklog = true;
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-				Log.e("IRCCloud", "Backlog end");
 				isBacklog = false;
 				refresh();
 				break;
 			case NetworkConnection.EVENT_MAKESERVER:
-				if(!isBacklog) {
-					Log.i("IRCCloud", "New server connection: " + ((ServersDataSource.Server)msg.obj).hostname);
-					refresh();
-				}
-				break;
 			case NetworkConnection.EVENT_MAKEBUFFER:
-				if(!isBacklog) {
-					Log.i("IRCCloud", "New buffer: " + ((BuffersDataSource.Buffer)msg.obj).name);
+			case NetworkConnection.EVENT_DELETEBUFFER:
+				if(!isBacklog)
 					refresh();
-				}
 				break;
 			default:
 				break;

@@ -45,8 +45,11 @@ public class NetworkConnection {
 	public static final int EVENT_USERINFO = 1;
 	public static final int EVENT_MAKESERVER = 2;
 	public static final int EVENT_MAKEBUFFER = 3;
-	public static final int EVENT_BACKLOG_START = 4;
-	public static final int EVENT_BACKLOG_END = 5;
+	public static final int EVENT_DELETEBUFFER = 4;
+	
+	
+	public static final int EVENT_BACKLOG_START = 100;
+	public static final int EVENT_BACKLOG_END = 101;
 	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
@@ -144,8 +147,12 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteBuffer(object.getInt("bid"));
-				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"), object.getInt("max_eid"), object.getInt("last_seen_eid"), object.getString("name"), object.getString("buffer_type"), (object.has("hidden") && object.getBoolean("hidden"))?1:0, (object.has("joined") && object.getBoolean("joined"))?1:0);
+				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"), object.has("max_eid")?object.getInt("max_eid"):0, object.has("last_seen_eid")?object.getInt("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("hidden") && object.getBoolean("hidden"))?1:0, (object.has("joined") && object.getBoolean("joined"))?1:0);
 				notifyHandlers(EVENT_MAKEBUFFER, buffer);
+			} else if(type.equalsIgnoreCase("delete_buffer")) {
+				BuffersDataSource b = BuffersDataSource.getInstance();
+				b.deleteBuffer(object.getInt("bid"));
+				notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
 					Looper.prepare();
@@ -155,7 +162,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				//Log.d(TAG, "Unhandled type: " + object);
+				Log.d(TAG, "Unhandled type: " + object);
 			}
 		}
 	}
