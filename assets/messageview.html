@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+.timestamp {
+	padding: 8px;
+	color: #888;
+}
+.from {
+	font-weight: bold;
+	padding-right: 8px;
+}
+.highlight {
+	background: #ccf;
+}
+</style>
+<script type="text/javascript">
+function appendTest(msg) {
+	appendEvent({"chan":"#feedback","time":1343329699,"from":"akiro","highlight":false,"type":"buffer_msg","cid":1608,"msg":"\"You were banned from irc.atw-inter.net: You (unknown@88.198.6.68\/32) are banned from this server: BSP - Enable identd for access\", ircnet doesnt like your host anymore :\/","eid":15495,"bid":10214});
+}
+
+function appendEvent(msg) {
+	var messages = document.getElementById("messages");
+	var m = document.createElement("div");
+	if(msg.highlight)
+		m.className = msg.type + " highlight";
+	else
+		m.className = msg.type;
+	var d = new Date(msg.time*1000);
+	var hours = d.getHours();
+	var ampm = "AM";
+	if(hours > 12) {
+		hours = hours - 12;
+		ampm = "PM";
+	}
+	var minutes = d.getMinutes();
+	if(minutes < 10) {
+		minutes = "0" + minutes;
+	}
+	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm
+		+"</span><span class='from'>"+msg.from
+		+"</span><span class='message_text'>"+msg.msg
+		+"</span>";
+	messages.appendChild(m);
+}
+</script>
+</head>
+<body>
+<div id="messages"></div>
+</body>
+</html>

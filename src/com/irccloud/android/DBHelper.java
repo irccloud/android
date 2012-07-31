@@ -2,6 +2,7 @@ package com.irccloud.android;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 	public static final String TABLE_SERVERS = "servers";
@@ -14,6 +15,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
 
 	private static DBHelper instance = null;
+	private SQLiteDatabase batchDb;
 	
 	public static DBHelper getInstance() {
 		if(instance == null)
@@ -24,7 +26,32 @@ public class DBHelper extends SQLiteOpenHelper {
 	public DBHelper() {
 		super(IRCCloudApplication.getInstance().getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
 	}
-
+	
+	public SQLiteDatabase getWritableDatabase() {
+		if(batchDb != null)
+			return batchDb;
+		else
+			return super.getWritableDatabase();
+	}
+	
+	public void beginBatch() {
+		Log.d("IRCCloud", "+++ Starting batch transactions");
+		batchDb = getWritableDatabase();
+		batchDb.beginTransaction();
+	}
+	
+	public void endBatch() {
+		Log.d("IRCCloud", "--- Batch transactions finished");
+		batchDb.setTransactionSuccessful();
+		batchDb.endTransaction();
+		batchDb.close();
+		batchDb = null;
+	}
+	
+	public boolean isBatch() {
+		return(batchDb != null);
+	}
+	
 	@Override
 	public void onCreate(SQLiteDatabase database) {
 		database.execSQL("create table " + TABLE_SERVERS + " ("
@@ -67,13 +94,13 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ "PRIMARY KEY(cid,channel,nick));");
 		
 		database.execSQL("create table " + TABLE_EVENTS + " ("
-				+ "eid integer primary key, "
+				+ "eid integer not null, "
 				+ "cid integer not null, "
 				+ "bid integer not null, "
 				+ "type text not null, "
 				+ "highlight integer not null, "
-				+ "event text not null "
-				+ ");");
+				+ "event text not null, "
+				+ "PRIMARY KEY(eid,bid));");
 	}
 
 	@Override

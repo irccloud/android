@@ -44,11 +44,12 @@ public class BuffersDataSource {
 			values.put("hidden", hidden);
 			values.put("joined", joined);
 			db.insert(DBHelper.TABLE_BUFFERS, null, values);
-			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "bid = " + bid, null, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
 			cursor.moveToFirst();
 			Buffer newBuffer = cursorToBuffer(cursor);
 			cursor.close();
-			db.close();
+			if(!DBHelper.getInstance().isBatch())
+				db.close();
 			return newBuffer;
 		}
 	}
@@ -56,17 +57,31 @@ public class BuffersDataSource {
 	public void deleteBuffer(int bid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
-			db.delete(DBHelper.TABLE_BUFFERS, "bid = " + bid, null);
-			db.close();
+			db.delete(DBHelper.TABLE_BUFFERS, "bid = ?", new String[] {String.valueOf(bid)});
+			if(!DBHelper.getInstance().isBatch())
+				db.close();
 		}
 	}
 
+	public synchronized Buffer getBuffer(int bid) {
+		synchronized(dbHelper) {
+			SQLiteDatabase db = dbHelper.getReadableDatabase();
+			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
+	
+			cursor.moveToFirst();
+			Buffer buffer = cursorToBuffer(cursor);
+			cursor.close();
+			db.close();
+			return buffer;
+		}
+	}
+	
 	public synchronized ArrayList<Buffer> getBuffersForServer(int cid) {
 		synchronized(dbHelper) {
 			ArrayList<Buffer> buffers = new ArrayList<Buffer>();
 	
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "cid = " + cid, null, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, null);
 	
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {

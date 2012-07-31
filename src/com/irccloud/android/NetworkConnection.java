@@ -40,13 +40,13 @@ public class NetworkConnection {
 	UserInfo userInfo = null;
 	ArrayList<Handler> handlers = null;
 	String session = null;
-	
+
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
 	public static final int EVENT_MAKESERVER = 2;
 	public static final int EVENT_MAKEBUFFER = 3;
 	public static final int EVENT_DELETEBUFFER = 4;
-	
+	public static final int EVENT_BUFFERMSG = 5;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -100,7 +100,7 @@ public class NetworkConnection {
 		    public void onMessage(String message) {
 		    	if(message.length() > 0) {
 					try {
-			    		parse_object(new JSONObject(message));
+			    		parse_object(new JSONObject(message), false);
 					} catch (JSONException e) {
 						Log.e(TAG, "Unable to parse: " + message);
 						// TODO Auto-generated catch block
@@ -132,7 +132,7 @@ public class NetworkConnection {
 		client.connect();
 	}
 	
-	private void parse_object(JSONObject object) throws JSONException {
+	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
 		String type = object.getString("type");
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("stat_user")) {
@@ -143,16 +143,25 @@ public class NetworkConnection {
 				s.deleteServer(object.getInt("cid"));
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), (object.has("connected") && object.getBoolean("connected"))?1:0);
-				notifyHandlers(EVENT_MAKESERVER, server);
+				if(!backlog)
+					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteBuffer(object.getInt("bid"));
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"), object.has("max_eid")?object.getInt("max_eid"):0, object.has("last_seen_eid")?object.getInt("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("hidden") && object.getBoolean("hidden"))?1:0, (object.has("joined") && object.getBoolean("joined"))?1:0);
-				notifyHandlers(EVENT_MAKEBUFFER, buffer);
+				if(!backlog)
+					notifyHandlers(EVENT_MAKEBUFFER, buffer);
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteBuffer(object.getInt("bid"));
-				notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
+				if(!backlog)
+					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
+			} else if(type.equalsIgnoreCase("buffer_msg")) {
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.deleteEvent(object.getInt("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getInt("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), object.getBoolean("highlight")?1:0, object);
+				if(!backlog)
+					notifyHandlers(EVENT_BUFFERMSG, event);
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
 					Looper.prepare();
@@ -162,7 +171,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				Log.d(TAG, "Unhandled type: " + object);
+				//Log.d(TAG, "Unhandled type: " + object);
 			}
 		}
 	}
@@ -328,10 +337,14 @@ public class NetworkConnection {
 		protected Boolean doInBackground(URL... url) {
 			try {
 				json = doGet(url[0]);
+				Log.i("IRCCloud", "Beginning backlog...");
 				notifyHandlers(EVENT_BACKLOG_START, null);
+				DBHelper.getInstance().beginBatch();
 				JSONArray a = new JSONArray(json);
 				for(int i = 0; i < a.length(); i++)
-					parse_object(a.getJSONObject(i));
+					parse_object(a.getJSONObject(i), true);
+				DBHelper.getInstance().endBatch();
+				Log.i("IRCCloud", "Backlog complete!");
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;
 			} catch (Exception e) {
@@ -339,6 +352,18 @@ public class NetworkConnection {
 				e.printStackTrace();
 			}
 			return false;
+		}
+		
+		@Override
+		public void onPostExecute(Boolean result) {
+			Log.i("IRCCloud", "Hello?");
+			try {
+				if(result) {
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

@@ -9,7 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-public class MainActivity extends SherlockFragmentActivity {
+public class MainActivity extends SherlockFragmentActivity implements BuffersListFragment.OnBufferSelectedListener {
 	NetworkConnection conn;
 	
     @Override
@@ -39,7 +39,6 @@ public class MainActivity extends SherlockFragmentActivity {
     	super.onPause();
 
     	if(conn != null) {
-    		conn.disconnect();
         	conn.removeHandler(mHandler);
     	}
     }
@@ -65,4 +64,11 @@ public class MainActivity extends SherlockFragmentActivity {
 
         return super.onCreateOptionsMenu(menu);
     }
+
+	@Override
+	public void onBufferSelected(long bid) {
+		Intent i = new Intent(this, MessageActivity.class);
+		i.putExtra("bid", bid);
+		startActivity(i);
+	}
 }

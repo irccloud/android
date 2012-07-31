@@ -2,6 +2,8 @@ package com.irccloud.android;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -21,8 +24,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	
 	NetworkConnection conn;
 	BufferListAdapter adapter;
-	
-	boolean isBacklog = false;
+	OnBufferSelectedListener mListener;
 	
 	private class BufferListAdapter extends BaseAdapter {
 		ArrayList<BufferListEntry> data;
@@ -34,7 +36,6 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	
 		private class BufferListEntry {
-			int cid;
 			int bid;
 			int type;
 			boolean unread;
@@ -50,9 +51,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = new ArrayList<BufferListEntry>();
 		}
 		
-		public void addItem(int cid, int bid, int type, String name, boolean unread) {
+		public void addItem(int bid, int type, String name, boolean unread) {
 			BufferListEntry e = new BufferListEntry();
-			e.cid = cid;
 			e.bid = bid;
 			e.type = type;
 			e.name = name;
@@ -67,12 +67,14 @@ public class BuffersListFragment extends SherlockListFragment {
 
 		@Override
 		public Object getItem(int position) {
-			return data.get(position);
+			BufferListEntry e = data.get(position);
+			return e.bid;
 		}
 
 		@Override
 		public long getItemId(int position) {
-			return position;
+			BufferListEntry e = data.get(position);
+			return e.bid;
 		}
 
 		@Override
@@ -120,7 +122,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			for(int j = 0; j < buffers.size(); j++) {
 				BuffersDataSource.Buffer b = buffers.get(j);
 				if(b.type.equalsIgnoreCase("console")) {
-					adapter.addItem(b.cid, b.bid, TYPE_SERVER, s.name, false);
+					adapter.addItem(b.bid, TYPE_SERVER, s.name, false);
 					break;
 				}
 			}
@@ -132,7 +134,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				else if(b.type.equalsIgnoreCase("conversation"))
 					type = TYPE_CONVERSATION;
 				if(type > 0 && b.hidden == 0)
-					adapter.addItem(b.cid, b.bid, type, b.name, false);
+					adapter.addItem(b.bid, type, b.name, false);
 			}
 		}
 		adapter.notifyDataSetChanged();
@@ -156,27 +158,40 @@ public class BuffersListFragment extends SherlockListFragment {
     	super.onPause();
     	if(conn != null)
     		conn.removeHandler(mHandler);
-    	}
+    }
+    
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (OnBufferSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+        }
+    }
+    
+    public void onListItemClick(ListView l, View v, int position, long id) {
+    	mListener.onBufferSelected(adapter.getItemId(position));
+    }
     
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case NetworkConnection.EVENT_BACKLOG_START:
-				isBacklog = true;
-				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-				isBacklog = false;
 				refresh();
 				break;
 			case NetworkConnection.EVENT_MAKESERVER:
 			case NetworkConnection.EVENT_MAKEBUFFER:
 			case NetworkConnection.EVENT_DELETEBUFFER:
-				if(!isBacklog)
-					refresh();
+				refresh();
 				break;
 			default:
 				break;
 			}
 		}
 	};
+	
+	public interface OnBufferSelectedListener {
+		public void onBufferSelected(long bid);
+	}
 }

@@ -40,11 +40,12 @@ public class ServersDataSource {
 			values.put("nick", nick);
 			values.put("connected", connected);
 			db.insert(DBHelper.TABLE_SERVERS, null, values);
-			Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected"}, "cid = " + cid, null, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, null);
 			cursor.moveToFirst();
 			Server newServer = cursorToServer(cursor);
 			cursor.close();
-			db.close();
+			if(!DBHelper.getInstance().isBatch())
+				db.close();
 			return newServer;
 		}
 	}
@@ -52,8 +53,9 @@ public class ServersDataSource {
 	public void deleteServer(int cid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
-			db.delete(DBHelper.TABLE_SERVERS, "cid = " + cid, null);
-			db.close();
+			db.delete(DBHelper.TABLE_SERVERS, "cid = ?", new String[] {String.valueOf(cid)});
+			if(!DBHelper.getInstance().isBatch())
+				db.close();
 		}
 	}
 
