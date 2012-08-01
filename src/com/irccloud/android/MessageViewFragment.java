@@ -6,14 +6,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragment;
 
 public class MessageViewFragment extends SherlockFragment {
@@ -34,9 +32,7 @@ public class MessageViewFragment extends SherlockFragment {
     }
 
     private void insertEvent(EventsDataSource.Event event) {
-    	Log.d("IRCCloud", "Event ID: " + event.eid);
     	webView.loadUrl("javascript:appendEvent(("+event.event.toString()+"))");
-    	webView.pageDown(true);
     }
     
     public void onResume() {
@@ -74,8 +70,9 @@ public class MessageViewFragment extends SherlockFragment {
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
-				if(e.bid == buffer.bid)
+				if(e.bid == buffer.bid) {
 					insertEvent(e);
+				}
 				break;
 			default:
 				break;

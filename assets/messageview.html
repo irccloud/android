@@ -2,6 +2,12 @@
 <html>
 <head>
 <style type="text/css">
+body {
+	width: 95%;
+}
+#messages div {
+	word-wrap: break-word;
+}
 .timestamp {
 	padding: 8px;
 	color: #888;
@@ -13,15 +19,29 @@
 .highlight {
 	background: #ccf;
 }
+.self {
+	background: #eef;
+}
 </style>
 <script type="text/javascript">
+var scrollTimer = null;
+
+function scrollToBottom() {
+	window.scrollTo(0, document.body.scrollHeight);
+	scrollTimer = null;
+}
+
 function appendEvent(msg) {
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
+	m.className = msg.type;
+
 	if(msg.highlight)
-		m.className = msg.type + " highlight";
-	else
-		m.className = msg.type;
+		m.className += " highlight";
+
+	if(msg.self)
+		m.className += " self";
+
 	var d = new Date(msg.eid/1000);
 	var hours = d.getHours();
 	var ampm = "AM";
@@ -38,6 +58,10 @@ function appendEvent(msg) {
 		+"</span><span class='message_text'>"+msg.msg
 		+"</span>";
 	messages.appendChild(m);
+
+	if(typeof scrollTimer != "null")
+		window.clearTimeout(scrollTimer);
+	scrollTimer = window.setTimeout(scrollToBottom,100);
 }
 </script>
 </head>

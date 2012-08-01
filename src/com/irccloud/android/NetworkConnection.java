@@ -155,7 +155,7 @@ public class NetworkConnection {
 				b.deleteBuffer(object.getInt("bid"));
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
 						(object.has("max_eid") && !object.getString("max_eid").equalsIgnoreCase("undefined"))?object.getLong("max_eid"):0,
-								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("hidden") && object.getBoolean("hidden"))?1:0, (object.has("joined") && object.getBoolean("joined"))?1:0);
+								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
 			} else if(type.equalsIgnoreCase("delete_buffer")) {

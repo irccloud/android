@@ -148,7 +148,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					type = TYPE_CHANNEL;
 				else if(b.type.equalsIgnoreCase("conversation"))
 					type = TYPE_CONVERSATION;
-				if(type > 0 && b.hidden == 0) {
+				if(type > 0 && b.archived == 0) {
 					int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 					int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
 					adapter.addItem(b.bid, type, b.name, unread, highlights);

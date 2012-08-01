@@ -14,8 +14,8 @@ public class BuffersDataSource {
 		long last_seen_eid;
 		String name;
 		String type;
-		int hidden;
-		int joined;
+		int archived;
+		int deferred;
 	}
 
 	private DBHelper dbHelper;
@@ -31,7 +31,7 @@ public class BuffersDataSource {
 		dbHelper = DBHelper.getInstance();
 	}
 
-	public Buffer createBuffer(int bid, int cid, long max_eid, long last_seen_eid, String name, String type, int hidden, int joined) {
+	public Buffer createBuffer(int bid, int cid, long max_eid, long last_seen_eid, String name, String type, int archived, int deferred) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 			ContentValues values = new ContentValues();
@@ -41,10 +41,10 @@ public class BuffersDataSource {
 			values.put("last_seen_eid", last_seen_eid);
 			values.put("name", name);
 			values.put("type", type);
-			values.put("hidden", hidden);
-			values.put("joined", joined);
+			values.put("archived", archived);
+			values.put("deferred", deferred);
 			db.insert(DBHelper.TABLE_BUFFERS, null, values);
-			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
 			cursor.moveToFirst();
 			Buffer newBuffer = cursorToBuffer(cursor);
 			cursor.close();
@@ -66,7 +66,7 @@ public class BuffersDataSource {
 	public synchronized Buffer getBuffer(int bid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
 	
 			cursor.moveToFirst();
 			Buffer buffer = cursorToBuffer(cursor);
@@ -81,7 +81,7 @@ public class BuffersDataSource {
 			ArrayList<Buffer> buffers = new ArrayList<Buffer>();
 	
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, "type");
+			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, "type,name");
 	
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {
@@ -104,8 +104,8 @@ public class BuffersDataSource {
 		buffer.last_seen_eid = cursor.getLong(cursor.getColumnIndex("last_seen_eid"));
 		buffer.name = cursor.getString(cursor.getColumnIndex("name"));
 		buffer.type = cursor.getString(cursor.getColumnIndex("type"));
-		buffer.hidden = cursor.getInt(cursor.getColumnIndex("hidden"));
-		buffer.joined = cursor.getInt(cursor.getColumnIndex("joined"));
+		buffer.archived = cursor.getInt(cursor.getColumnIndex("archived"));
+		buffer.deferred = cursor.getInt(cursor.getColumnIndex("deferred"));
 		return buffer;
 	}
 }

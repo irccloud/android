@@ -12,7 +12,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TABLE_EVENTS = "events";
 
 	private static final String DATABASE_NAME = "irc.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 1;
 
 	private static DBHelper instance = null;
 	private SQLiteDatabase batchDb;
@@ -70,8 +70,8 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ "last_seen_eid integer not null, "
 				+ "name text not null, "
 				+ "type text not null, "
-				+ "hidden integer, "
-				+ "joined integer"
+				+ "archived integer, "
+				+ "deferred integer"
 				+ ");");
 		
 		database.execSQL("create table " + TABLE_CHANNELS + " ("
