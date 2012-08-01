@@ -54,6 +54,17 @@ public class BuffersDataSource {
 		}
 	}
 
+	public void updateLastSeenEid(int bid, long last_seen_eid) {
+		synchronized(dbHelper) {
+			SQLiteDatabase db = dbHelper.getWritableDatabase();
+			ContentValues values = new ContentValues();
+			values.put("last_seen_eid", last_seen_eid);
+			db.update(DBHelper.TABLE_BUFFERS, values, "bid = ?", new String[] {String.valueOf(bid)});
+			if(!DBHelper.getInstance().isBatch())
+				db.close();
+		}
+	}
+	
 	public void deleteBuffer(int bid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();

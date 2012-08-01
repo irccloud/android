@@ -196,12 +196,11 @@ public class BuffersListFragment extends SherlockListFragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
-				refresh();
-				break;
 			case NetworkConnection.EVENT_MAKESERVER:
 			case NetworkConnection.EVENT_MAKEBUFFER:
 			case NetworkConnection.EVENT_DELETEBUFFER:
 			case NetworkConnection.EVENT_BUFFERMSG:
+			case NetworkConnection.EVENT_HEARTBEATECHO:
 				refresh();
 				break;
 			default:

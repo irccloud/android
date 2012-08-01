@@ -10,6 +10,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -47,6 +48,7 @@ public class NetworkConnection {
 	public static final int EVENT_MAKEBUFFER = 3;
 	public static final int EVENT_DELETEBUFFER = 4;
 	public static final int EVENT_BUFFERMSG = 5;
+	public static final int EVENT_HEARTBEATECHO = 6;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -169,6 +171,21 @@ public class NetworkConnection {
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
 				if(!backlog)
 					notifyHandlers(EVENT_BUFFERMSG, event);
+			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
+				JSONObject seenEids = object.getJSONObject("seenEids");
+				Iterator<String> i = seenEids.keys();
+				while(i.hasNext()) {
+					String cid = i.next();
+					JSONObject eids = seenEids.getJSONObject(cid);
+					Iterator<String> j = eids.keys();
+					while(j.hasNext()) {
+						String bid = j.next();
+						long eid = eids.getLong(bid);
+						BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+					}
+				}
+				if(!backlog)
+					notifyHandlers(EVENT_HEARTBEATECHO, null);
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
 					Looper.prepare();
