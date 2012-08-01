@@ -204,6 +204,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_MAKESERVER:
 			case NetworkConnection.EVENT_MAKEBUFFER:
 			case NetworkConnection.EVENT_DELETEBUFFER:
+			case NetworkConnection.EVENT_BUFFERMSG:
 				refresh();
 				break;
 			default:
