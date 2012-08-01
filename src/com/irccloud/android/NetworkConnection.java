@@ -37,11 +37,12 @@ public class NetworkConnection {
 	public static final int STATE_CONNECTED = 2;
 	private int state = STATE_DISCONNECTED;
 
-	WebSocketClient client = null;
-	UserInfo userInfo = null;
-	ArrayList<Handler> handlers = null;
-	String session = null;
-
+	private WebSocketClient client = null;
+	private UserInfo userInfo = null;
+	private ArrayList<Handler> handlers = null;
+	private String session = null;
+	private int last_reqid = 0;
+	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
 	public static final int EVENT_MAKESERVER = 2;
@@ -134,12 +135,23 @@ public class NetworkConnection {
 		client.connect();
 	}
 	
-	public void say(int cid, String to, String message) {
-		client.send("{\"_reqid\":12345, \"_method\": \"say\", \"cid\":"+cid+", \"to\":\""+to+"\", \"msg\":\""+message+"\"}\n");
+	public int heartbeat(long selected_buffer, int cid, long bid, long last_seen_eid) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"heartbeat\", \"selectedBuffer\":"+selected_buffer+
+				", \"seenEids\":\"{\\\""+cid+"\\\":{\\\""+bid+"\\\":"+last_seen_eid+"}}\"}\n");
+		return last_reqid;
+	}
+	
+	public int say(int cid, String to, String message) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"say\", \"cid\":"+cid+", \"to\":\""+to+"\", \"msg\":\""+message+"\"}\n");
+		return last_reqid;
 	}
 	
 	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
 		//Log.d(TAG, "New event: " + object);
+		if(!object.has("type")) //TODO: This is probably a command response, parse it and send the result back up to the UI!
+			return;
 		String type = object.getString("type");
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("stat_user")) {

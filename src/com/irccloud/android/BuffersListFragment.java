@@ -42,6 +42,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			int type;
 			int unread;
 			int highlights;
+			long last_seen_eid;
 			String name;
 		}
 
@@ -54,7 +55,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = new ArrayList<BufferListEntry>();
 		}
 		
-		public void addItem(int cid, long bid, int type, String name, int unread, int highlights) {
+		public void addItem(int cid, long bid, int type, String name, int unread, int highlights, long last_seen_eid) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -62,6 +63,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.name = name;
 			e.unread = unread;
 			e.highlights = highlights;
+			e.last_seen_eid = last_seen_eid;
 			data.add(e);
 		}
 		
@@ -142,7 +144,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);
 					if(b.type.equalsIgnoreCase("console")) {
-						newAdapter.addItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, 0);
+						newAdapter.addItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, 0, b.last_seen_eid);
 						break;
 					}
 				}
@@ -156,7 +158,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						newAdapter.addItem(b.cid, b.bid, type, b.name, unread, highlights);
+						newAdapter.addItem(b.cid, b.bid, type, b.name, unread, highlights, b.last_seen_eid);
 					}
 				}
 			}
@@ -200,7 +202,7 @@ public class BuffersListFragment extends SherlockListFragment {
     
     public void onListItemClick(ListView l, View v, int position, long id) {
     	BufferListAdapter.BufferListEntry e = (BufferListAdapter.BufferListEntry)adapter.getItem(position);
-    	mListener.onBufferSelected(e.cid, e.bid, e.name);
+    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid);
     }
     
 	private final Handler mHandler = new Handler() {
@@ -221,6 +223,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(int cid, long bid, String name);
+		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid);
 	}
 }

@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 public class EventsDataSource {
 	public class Event {
 		long eid;
-		int bid;
+		long bid;
 		int cid;
 		String type;
 		int highlight;
