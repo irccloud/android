@@ -133,7 +133,7 @@ public class NetworkConnection {
 	}
 	
 	public void say(int cid, String to, String message) {
-		client.send("{_reqid:12345, _method: \"say\", cid:"+cid+", to:\""+to+"\", msg:\""+message+"\"}");
+		client.send("{\"_reqid\":12345, \"_method\": \"say\", \"cid\":"+cid+", \"to\":\""+to+"\", \"msg\":\""+message+"\"}\n");
 	}
 	
 	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
