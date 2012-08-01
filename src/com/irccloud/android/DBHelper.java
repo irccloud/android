@@ -41,12 +41,14 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 		if(batchDb != null)
 			return batchDb;
-		else
+		else {
 			return getWritableDatabase();
+		}
 	}
 
 	public SQLiteDatabase getSafeReadableDatabase() {
 		try {
+			writeSemaphore.acquire();
 			readSemaphore.acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -61,6 +63,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	
 	public void releaseReadableDatabase() {
 		readSemaphore.release();
+		writeSemaphore.release();
 	}
 	
 	public void beginBatch() {
