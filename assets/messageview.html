@@ -7,6 +7,8 @@ body {
 }
 #messages div {
 	word-wrap: break-word;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 .timestamp {
 	padding: 8px;
@@ -22,9 +24,14 @@ body {
 .self {
 	background: #eef;
 }
+.dateline {
+	background: #ddd;
+	text-align: center;
+}
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
+var lastDate = null;
 
 function scrollToBottom() {
 	window.scrollTo(0, document.body.scrollHeight);
@@ -53,6 +60,16 @@ function appendEvent(msg) {
 	if(minutes < 10) {
 		minutes = "0" + minutes;
 	}
+	
+	if(lastDate == null || d.getDate() != lastDate.getDate()) {
+		var dateline = document.createElement("div");
+		dateline.className = "dateline";
+		dateline.innerHTML = d.toLocaleDateString();
+		messages.appendChild(dateline);
+	}
+	
+	lastDate = d;
+	
 	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm
 		+"</span><span class='from'>"+msg.from
 		+"</span><span class='message_text'>"+msg.msg
