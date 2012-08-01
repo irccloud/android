@@ -10,7 +10,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class MessageActivity extends SherlockFragmentActivity {
-	BuffersDataSource.Buffer buffer;
+	int cid;
+	long bid;
+	String name;
 	TextView messageTxt;
 	
     @Override
@@ -25,7 +27,7 @@ public class MessageActivity extends SherlockFragmentActivity {
 			public void onClick(View v) {
 				NetworkConnection conn = NetworkConnection.getInstance();
 				if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
-					conn.say(buffer.cid, buffer.name, messageTxt.getText().toString());
+					conn.say(cid, name, messageTxt.getText().toString());
 					messageTxt.setText("");
 				}
 			}
@@ -36,8 +38,10 @@ public class MessageActivity extends SherlockFragmentActivity {
     @Override
     public void onResume() {
     	super.onResume();
-    	buffer = BuffersDataSource.getInstance().getBuffer((int)getIntent().getLongExtra("bid", 0));
-    	getSupportActionBar().setTitle(buffer.name);
+    	cid = getIntent().getIntExtra("cid", 0);
+    	bid = getIntent().getLongExtra("bid", 0);
+    	name = getIntent().getStringExtra("name");
+    	getSupportActionBar().setTitle(name);
     }
     
     @Override

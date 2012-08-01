@@ -377,17 +377,5 @@ public class NetworkConnection {
 			}
 			return false;
 		}
-		
-		@Override
-		public void onPostExecute(Boolean result) {
-			Log.i("IRCCloud", "Hello?");
-			try {
-				if(result) {
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 	}
 }

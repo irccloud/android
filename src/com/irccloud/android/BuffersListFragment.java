@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -36,7 +37,8 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	
 		private class BufferListEntry {
-			int bid;
+			int cid;
+			long bid;
 			int type;
 			int unread;
 			int highlights;
@@ -52,8 +54,9 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = new ArrayList<BufferListEntry>();
 		}
 		
-		public void addItem(int bid, int type, String name, int unread, int highlights) {
+		public void addItem(int cid, long bid, int type, String name, int unread, int highlights) {
 			BufferListEntry e = new BufferListEntry();
+			e.cid = cid;
 			e.bid = bid;
 			e.type = type;
 			e.name = name;
@@ -69,8 +72,7 @@ public class BuffersListFragment extends SherlockListFragment {
 
 		@Override
 		public Object getItem(int position) {
-			BufferListEntry e = data.get(position);
-			return e.bid;
+			return data.get(position);
 		}
 
 		@Override
@@ -128,48 +130,56 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	}
 	
-	public void refresh() {
-		adapter.clear();
-		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
-		for(int i = 0; i < servers.size(); i++) {
-			ServersDataSource.Server s = servers.get(i);
-			ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
-			for(int j = 0; j < buffers.size(); j++) {
-				BuffersDataSource.Buffer b = buffers.get(j);
-				if(b.type.equalsIgnoreCase("console")) {
-					adapter.addItem(b.bid, TYPE_SERVER, s.name, 0, 0);
-					break;
+	private class RefreshTask extends AsyncTask<Void, Void, Void> {
+		BufferListAdapter newAdapter = new BufferListAdapter(BuffersListFragment.this);
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+			for(int i = 0; i < servers.size(); i++) {
+				ServersDataSource.Server s = servers.get(i);
+				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
+				for(int j = 0; j < buffers.size(); j++) {
+					BuffersDataSource.Buffer b = buffers.get(j);
+					if(b.type.equalsIgnoreCase("console")) {
+						newAdapter.addItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, 0);
+						break;
+					}
+				}
+				for(int j = 0; j < buffers.size(); j++) {
+					BuffersDataSource.Buffer b = buffers.get(j);
+					int type = -1;
+					if(b.type.equalsIgnoreCase("channel"))
+						type = TYPE_CHANNEL;
+					else if(b.type.equalsIgnoreCase("conversation"))
+						type = TYPE_CONVERSATION;
+					if(type > 0 && b.archived == 0) {
+						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
+						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+						newAdapter.addItem(b.cid, b.bid, type, b.name, unread, highlights);
+					}
 				}
 			}
-			for(int j = 0; j < buffers.size(); j++) {
-				BuffersDataSource.Buffer b = buffers.get(j);
-				int type = -1;
-				if(b.type.equalsIgnoreCase("channel"))
-					type = TYPE_CHANNEL;
-				else if(b.type.equalsIgnoreCase("conversation"))
-					type = TYPE_CONVERSATION;
-				if(type > 0 && b.archived == 0) {
-					int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
-					int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-					adapter.addItem(b.bid, type, b.name, unread, highlights);
-				}
-			}
+			return null;
 		}
-		adapter.notifyDataSetChanged();
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			adapter = newAdapter;
+			setListAdapter(adapter);
+		}
 	}
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        adapter = new BufferListAdapter(this);
-        setListAdapter(adapter);
     }
     
     public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-    	refresh();
+    	new RefreshTask().execute((Void)null);
     }
     
     public void onPause() {
@@ -189,7 +199,8 @@ public class BuffersListFragment extends SherlockListFragment {
     }
     
     public void onListItemClick(ListView l, View v, int position, long id) {
-    	mListener.onBufferSelected(adapter.getItemId(position));
+    	BufferListAdapter.BufferListEntry e = (BufferListAdapter.BufferListEntry)adapter.getItem(position);
+    	mListener.onBufferSelected(e.cid, e.bid, e.name);
     }
     
 	private final Handler mHandler = new Handler() {
@@ -201,7 +212,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_DELETEBUFFER:
 			case NetworkConnection.EVENT_BUFFERMSG:
 			case NetworkConnection.EVENT_HEARTBEATECHO:
-				refresh();
+		    	new RefreshTask().execute((Void)null);
 				break;
 			default:
 				break;
@@ -210,6 +221,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(long bid);
+		public void onBufferSelected(int cid, long bid, String name);
 	}
 }

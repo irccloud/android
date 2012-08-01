@@ -66,9 +66,11 @@ public class MainActivity extends SherlockFragmentActivity implements BuffersLis
     }
 
 	@Override
-	public void onBufferSelected(long bid) {
+	public void onBufferSelected(int cid, long bid, String name) {
 		Intent i = new Intent(this, MessageActivity.class);
+		i.putExtra("cid", cid);
 		i.putExtra("bid", bid);
+		i.putExtra("name", name);
 		startActivity(i);
 	}
 }

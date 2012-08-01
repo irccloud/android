@@ -3,6 +3,7 @@ package com.irccloud.android;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,9 +16,9 @@ import android.webkit.WebViewClient;
 import com.actionbarsherlock.app.SherlockFragment;
 
 public class MessageViewFragment extends SherlockFragment {
-	NetworkConnection conn;
-	WebView webView;
-	private BuffersDataSource.Buffer buffer;
+	private NetworkConnection conn;
+	private WebView webView;
+	private long bid;
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	View v = inflater.inflate(R.layout.messageview, container, false);
@@ -28,7 +29,7 @@ public class MessageViewFragment extends SherlockFragment {
 	
     public void onAttach(Activity activity) {
     	super.onAttach(activity);
-    	buffer = BuffersDataSource.getInstance().getBuffer((int)activity.getIntent().getLongExtra("bid", 0));
+    	bid = activity.getIntent().getLongExtra("bid", 0);
     }
 
     private void insertEvent(EventsDataSource.Event event) {
@@ -39,22 +40,32 @@ public class MessageViewFragment extends SherlockFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-    	refresh();
+		new RefreshTask().execute((Void)null);
     }
     
-    private void refresh() {
-    	webView.setWebViewClient(new WebViewClient() {
-    	    @Override  
-    	    public void onPageFinished(WebView view, String url) {
-    	    	ArrayList<EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
-    	    	for(int i = 0; i < events.size(); i++) {
-    	    		insertEvent(events.get(i));
-    	    	}
-    	    	webView.setWebViewClient(null);
-    	    }
-    	});
-    	webView.loadUrl("file:///android_asset/messageview.html");
-    }
+	private class RefreshTask extends AsyncTask<Void, Void, Void> {
+		ArrayList<EventsDataSource.Event> events;
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+	    	webView.setWebViewClient(new WebViewClient() {
+	    	    @Override  
+	    	    public void onPageFinished(WebView view, String url) {
+	    	    	for(int i = 0; i < events.size(); i++) {
+	    	    		insertEvent(events.get(i));
+	    	    	}
+	    	    	webView.setWebViewClient(null);
+	    	    }
+	    	});
+	    	webView.loadUrl("file:///android_asset/messageview.html");
+		}
+	}
     
     public void onPause() {
     	super.onPause();
@@ -66,11 +77,11 @@ public class MessageViewFragment extends SherlockFragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
-				refresh();
+				new RefreshTask().execute((Void)null);
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
-				if(e.bid == buffer.bid) {
+				if(e.bid == bid) {
 					insertEvent(e);
 				}
 				break;
