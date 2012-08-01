@@ -22,7 +22,7 @@ function appendEvent(msg) {
 		m.className = msg.type + " highlight";
 	else
 		m.className = msg.type;
-	var d = new Date(msg.time*1000);
+	var d = new Date(msg.eid/1000);
 	var hours = d.getHours();
 	var ampm = "AM";
 	if(hours > 12) {

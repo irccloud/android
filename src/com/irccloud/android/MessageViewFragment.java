@@ -34,6 +34,7 @@ public class MessageViewFragment extends SherlockFragment {
     }
 
     private void insertEvent(EventsDataSource.Event event) {
+    	Log.d("IRCCloud", "Event ID: " + event.eid);
     	webView.loadUrl("javascript:appendEvent(("+event.event.toString()+"))");
     	webView.pageDown(true);
     }

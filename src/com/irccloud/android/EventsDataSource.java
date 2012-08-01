@@ -8,11 +8,10 @@ import org.json.JSONObject;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 public class EventsDataSource {
 	public class Event {
-		int eid;
+		long eid;
 		int bid;
 		int cid;
 		String type;
@@ -33,7 +32,7 @@ public class EventsDataSource {
 		dbHelper = DBHelper.getInstance();
 	}
 
-	public Event createEvent(int eid, int bid, int cid, String type, int highlight, JSONObject event) {
+	public Event createEvent(long eid, int bid, int cid, String type, int highlight, JSONObject event) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 			ContentValues values = new ContentValues();
@@ -54,7 +53,7 @@ public class EventsDataSource {
 		}
 	}
 
-	public void deleteEvent(int eid, int bid) {
+	public void deleteEvent(long eid, int bid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 			db.delete(DBHelper.TABLE_EVENTS, "eid = ? and bid = ?", new String[] {String.valueOf(eid), String.valueOf(bid)});
@@ -82,7 +81,7 @@ public class EventsDataSource {
 		}
 	}
 
-	public synchronized int getUnreadCountForBuffer(int bid, int last_seen_eid) {
+	public synchronized int getUnreadCountForBuffer(int bid, long last_seen_eid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
 			Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"count() as count"}, "bid = ? and eid > ? and (type='buffer_msg' or type='buffer_me_msg' or type='notice' or type='channel_invite' or type='callerid')", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)}, null, null, null);
@@ -94,7 +93,7 @@ public class EventsDataSource {
 		}
 	}
 
-	public synchronized int getHighlightCountForBuffer(int bid, int last_seen_eid) {
+	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
 			Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"count() as count"}, "bid = ? and eid > ? and highlight='1' and (type='buffer_msg' or type='buffer_me_msg' or type='notice' or type='channel_invite' or type='callerid')", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)}, null, null, null);
@@ -108,7 +107,7 @@ public class EventsDataSource {
 
 	private Event cursorToEvent(Cursor cursor) {
 		Event event = new Event();
-		event.eid = cursor.getInt(cursor.getColumnIndex("eid"));
+		event.eid = cursor.getLong(cursor.getColumnIndex("eid"));
 		event.bid = cursor.getInt(cursor.getColumnIndex("bid"));
 		event.cid = cursor.getInt(cursor.getColumnIndex("cid"));
 		event.type = cursor.getString(cursor.getColumnIndex("type"));

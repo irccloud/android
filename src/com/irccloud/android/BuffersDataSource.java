@@ -10,8 +10,8 @@ public class BuffersDataSource {
 	public class Buffer {
 		int bid;
 		int cid;
-		int max_eid;
-		int last_seen_eid;
+		long max_eid;
+		long last_seen_eid;
 		String name;
 		String type;
 		int hidden;
@@ -31,7 +31,7 @@ public class BuffersDataSource {
 		dbHelper = DBHelper.getInstance();
 	}
 
-	public Buffer createBuffer(int bid, int cid, int max_eid, int last_seen_eid, String name, String type, int hidden, int joined) {
+	public Buffer createBuffer(int bid, int cid, long max_eid, long last_seen_eid, String name, String type, int hidden, int joined) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getWritableDatabase();
 			ContentValues values = new ContentValues();
@@ -100,8 +100,8 @@ public class BuffersDataSource {
 		Buffer buffer = new Buffer();
 		buffer.bid = cursor.getInt(cursor.getColumnIndex("bid"));
 		buffer.cid = cursor.getInt(cursor.getColumnIndex("cid"));
-		buffer.max_eid = cursor.getInt(cursor.getColumnIndex("max_eid"));
-		buffer.last_seen_eid = cursor.getInt(cursor.getColumnIndex("last_seen_eid"));
+		buffer.max_eid = cursor.getLong(cursor.getColumnIndex("max_eid"));
+		buffer.last_seen_eid = cursor.getLong(cursor.getColumnIndex("last_seen_eid"));
 		buffer.name = cursor.getString(cursor.getColumnIndex("name"));
 		buffer.type = cursor.getString(cursor.getColumnIndex("type"));
 		buffer.hidden = cursor.getInt(cursor.getColumnIndex("hidden"));

@@ -69,7 +69,7 @@ public class NetworkConnection {
 	
 	public String login(String email, String password) throws IOException {
 		String postdata = "email="+email+"&password="+password;
-		String response = doPost(new URL("https://irccloud.com/chat/login"), postdata);
+		String response = doPost(new URL("https://alpha.irccloud.com/chat/login"), postdata);
 		try {
 			Log.d(TAG, "Result: " + response);
 			JSONObject o = new JSONObject(response);
@@ -88,7 +88,7 @@ public class NetworkConnection {
 		    new BasicNameValuePair("Cookie", "session="+session)
 		);
 
-		client = new WebSocketClient(URI.create("wss://irccloud.com"), new WebSocketClient.Listener() {
+		client = new WebSocketClient(URI.create("wss://alpha.irccloud.com"), new WebSocketClient.Listener() {
 		    @Override
 		    public void onConnect() {
 		        Log.d(TAG, "Connected!");
@@ -137,6 +137,7 @@ public class NetworkConnection {
 	}
 	
 	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
+		//Log.d(TAG, "New event: " + object);
 		String type = object.getString("type");
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("stat_user")) {
@@ -152,7 +153,9 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteBuffer(object.getInt("bid"));
-				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"), object.has("max_eid")?object.getInt("max_eid"):0, object.has("last_seen_eid")?object.getInt("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("hidden") && object.getBoolean("hidden"))?1:0, (object.has("joined") && object.getBoolean("joined"))?1:0);
+				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
+						(object.has("max_eid") && !object.getString("max_eid").equalsIgnoreCase("undefined"))?object.getLong("max_eid"):0,
+								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("hidden") && object.getBoolean("hidden"))?1:0, (object.has("joined") && object.getBoolean("joined"))?1:0);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
@@ -162,20 +165,20 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("buffer_msg")) {
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getInt("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getInt("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), object.getBoolean("highlight")?1:0, object);
+				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
 				if(!backlog)
 					notifyHandlers(EVENT_BUFFERMSG, event);
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
 					Looper.prepare();
-					new OOBIncludeTask().execute(new URL("https://irccloud.com" + object.getString("url")));
+					new OOBIncludeTask().execute(new URL("https://alpha.irccloud.com" + object.getString("url")));
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else {
-				//Log.d(TAG, "Unhandled type: " + object);
+				//Log.e(TAG, "Unhandled type: " + object);
 			}
 		}
 	}
