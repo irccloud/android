@@ -153,7 +153,6 @@ public class BuffersListFragment extends SherlockListFragment {
 				if(type > 0 && b.hidden == 0) {
 					int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 					int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-					Log.d("IRCCloud", "Buffer: " + b.name + " Unread: " + unread + " Highlights: " + highlights);
 					adapter.addItem(b.bid, type, b.name, unread, highlights);
 				}
 			}
@@ -187,7 +186,7 @@ public class BuffersListFragment extends SherlockListFragment {
         try {
             mListener = (OnBufferSelectedListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnArticleSelectedListener");
+            throw new ClassCastException(activity.toString() + " must implement OnBufferSelectedListener");
         }
     }
     
