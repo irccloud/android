@@ -177,7 +177,7 @@ public class NetworkConnection {
 				b.deleteBuffer(object.getInt("bid"));
 				if(!backlog)
 					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
-			} else if(type.equalsIgnoreCase("buffer_msg")) {
+			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
@@ -207,7 +207,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				//Log.e(TAG, "Unhandled type: " + object);
+				Log.e(TAG, "Unhandled type: " + object);
 			}
 		}
 	}
