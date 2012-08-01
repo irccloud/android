@@ -53,8 +53,6 @@ public class MessageViewFragment extends SherlockFragment {
 		protected Void doInBackground(Event... params) {
 			Event e = params[0];
 			
-			Log.d("IRCCloud", "Comparing: " + e.eid + " and " + last_seen_eid);
-			
 	    	if(e.eid > last_seen_eid) {
 	    		getActivity().getIntent().putExtra("last_seen_eid", e.eid);
 	    		NetworkConnection.getInstance().heartbeat(bid, e.cid, e.bid, e.eid);

@@ -1,5 +1,7 @@
 package com.irccloud.android;
 
+import java.util.concurrent.Semaphore;
+
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -17,6 +19,9 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static DBHelper instance = null;
 	private SQLiteDatabase batchDb;
 	
+	private Semaphore readSemaphore = new Semaphore(1);
+	private Semaphore writeSemaphore = new Semaphore(1);
+	
 	public static DBHelper getInstance() {
 		if(instance == null)
 			instance = new DBHelper();
@@ -26,15 +31,45 @@ public class DBHelper extends SQLiteOpenHelper {
 	public DBHelper() {
 		super(IRCCloudApplication.getInstance().getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
 	}
-	
-	public SQLiteDatabase getWritableDatabase() {
+
+	public SQLiteDatabase getSafeWritableDatabase() {
+		try {
+			writeSemaphore.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		}
 		if(batchDb != null)
 			return batchDb;
 		else
-			return super.getWritableDatabase();
+			return getWritableDatabase();
+	}
+
+	public SQLiteDatabase getSafeReadableDatabase() {
+		try {
+			readSemaphore.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return getReadableDatabase();
+	}
+	
+	public void releaseWriteableDatabase() {
+		writeSemaphore.release();
+	}
+	
+	public void releaseReadableDatabase() {
+		readSemaphore.release();
 	}
 	
 	public void beginBatch() {
+		try {
+			readSemaphore.acquire();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return;
+		}
 		Log.d("IRCCloud", "+++ Starting batch transactions");
 		batchDb = getWritableDatabase();
 		batchDb.beginTransaction();
@@ -46,6 +81,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		batchDb.endTransaction();
 		batchDb.close();
 		batchDb = null;
+		readSemaphore.release();
 	}
 	
 	public boolean isBatch() {
