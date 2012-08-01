@@ -33,12 +33,14 @@ public class BuffersListFragment extends SherlockListFragment {
 		private class ViewHolder {
 			int type;
 			TextView label;
+			TextView highlights;
 		}
 	
 		private class BufferListEntry {
 			int bid;
 			int type;
-			boolean unread;
+			int unread;
+			int highlights;
 			String name;
 		}
 
@@ -51,7 +53,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = new ArrayList<BufferListEntry>();
 		}
 		
-		public void addItem(int bid, int type, String name, boolean unread) {
+		public void addItem(int bid, int type, String name, int unread, int highlights) {
 			BufferListEntry e = new BufferListEntry();
 			e.bid = bid;
 			e.type = type;
@@ -95,6 +97,7 @@ public class BuffersListFragment extends SherlockListFragment {
 
 				holder = new ViewHolder();
 				holder.label = (TextView) row.findViewById(R.id.label);
+				holder.highlights = (TextView) row.findViewById(R.id.highlights);
 				holder.type = e.type;
 
 				row.setTag(holder);
@@ -103,10 +106,20 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 
 			holder.label.setText(e.name);
-			if(e.unread) {
+			if(e.unread > 0) {
 				row.setBackgroundColor(0xFF0000FF);
 			} else {
 				row.setBackgroundColor(0x00000000);
+			}
+			
+			if(holder.highlights != null) {
+				if(e.highlights > 0) {
+					holder.highlights.setVisibility(View.VISIBLE);
+					holder.highlights.setText("(" + e.highlights + ")");
+				} else {
+					holder.highlights.setVisibility(View.GONE);
+					holder.highlights.setText("");
+				}
 			}
 			
 			return row;
@@ -122,7 +135,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			for(int j = 0; j < buffers.size(); j++) {
 				BuffersDataSource.Buffer b = buffers.get(j);
 				if(b.type.equalsIgnoreCase("console")) {
-					adapter.addItem(b.bid, TYPE_SERVER, s.name, false);
+					adapter.addItem(b.bid, TYPE_SERVER, s.name, 0, 0);
 					break;
 				}
 			}
@@ -133,8 +146,11 @@ public class BuffersListFragment extends SherlockListFragment {
 					type = TYPE_CHANNEL;
 				else if(b.type.equalsIgnoreCase("conversation"))
 					type = TYPE_CONVERSATION;
-				if(type > 0 && b.hidden == 0)
-					adapter.addItem(b.bid, type, b.name, false);
+				if(type > 0 && b.hidden == 0) {
+					int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
+					int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+					adapter.addItem(b.bid, type, b.name, unread, highlights);
+				}
 			}
 		}
 		adapter.notifyDataSetChanged();
