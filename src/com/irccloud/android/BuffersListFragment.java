@@ -55,6 +55,22 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = new ArrayList<BufferListEntry>();
 		}
 		
+		public void setItems(ArrayList<BufferListEntry> items) {
+			data = items;
+		}
+		
+		public BufferListEntry buildItem(int cid, long bid, int type, String name, int unread, int highlights, long last_seen_eid) {
+			BufferListEntry e = new BufferListEntry();
+			e.cid = cid;
+			e.bid = bid;
+			e.type = type;
+			e.name = name;
+			e.unread = unread;
+			e.highlights = highlights;
+			e.last_seen_eid = last_seen_eid;
+			return e;
+		}
+		
 		public void addItem(int cid, long bid, int type, String name, int unread, int highlights, long last_seen_eid) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
@@ -133,18 +149,22 @@ public class BuffersListFragment extends SherlockListFragment {
 	}
 	
 	private class RefreshTask extends AsyncTask<Void, Void, Void> {
-		BufferListAdapter newAdapter = new BufferListAdapter(BuffersListFragment.this);
+		ArrayList<BufferListAdapter.BufferListEntry> entries = new ArrayList<BufferListAdapter.BufferListEntry>();
 		
 		@Override
 		protected Void doInBackground(Void... params) {
 			ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+			if(adapter == null) {
+				adapter = new BufferListAdapter(BuffersListFragment.this);
+			}
+
 			for(int i = 0; i < servers.size(); i++) {
 				ServersDataSource.Server s = servers.get(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);
 					if(b.type.equalsIgnoreCase("console")) {
-						newAdapter.addItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, 0, b.last_seen_eid);
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, 0, b.last_seen_eid));
 						break;
 					}
 				}
@@ -158,7 +178,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						newAdapter.addItem(b.cid, b.bid, type, b.name, unread, highlights, b.last_seen_eid);
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, unread, highlights, b.last_seen_eid));
 					}
 				}
 			}
@@ -167,8 +187,12 @@ public class BuffersListFragment extends SherlockListFragment {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			adapter = newAdapter;
-			setListAdapter(adapter);
+			adapter.setItems(entries);
+			
+			if(getListAdapter() == null)
+				setListAdapter(adapter);
+			else
+				adapter.notifyDataSetChanged();
 		}
 	}
 	

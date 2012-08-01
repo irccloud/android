@@ -10,7 +10,6 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:lines="1"
-        android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         android:text="Topic goes here and it&apos;s probably really long so here&apos;s some really long sample text" />
 
@@ -23,12 +22,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:paddingTop="2dp" >
 
         <EditText
             android:id="@+id/messageTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:ems="10"
             android:hint="Message"
@@ -40,7 +41,8 @@
         <Button
             android:id="@+id/sendBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical|center_horizontal"
             android:text="Send" />
 
     </LinearLayout>

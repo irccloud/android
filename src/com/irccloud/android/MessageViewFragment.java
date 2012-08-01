@@ -78,10 +78,10 @@ public class MessageViewFragment extends SherlockFragment {
 	    	webView.setWebViewClient(new WebViewClient() {
 	    	    @Override  
 	    	    public void onPageFinished(WebView view, String url) {
+	    	    	webView.setWebViewClient(null);
 	    	    	for(int i = 0; i < events.size(); i++) {
 	    	    		insertEvent(events.get(i));
 	    	    	}
-	    	    	webView.setWebViewClient(null);
 	    	    	if(events.size() > 0)
 	    	    		new HeartbeatTask().execute(events.get(events.size()-1));
 	    	    }
