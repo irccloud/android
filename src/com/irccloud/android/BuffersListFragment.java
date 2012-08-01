@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -59,6 +60,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.type = type;
 			e.name = name;
 			e.unread = unread;
+			e.highlights = highlights;
 			data.add(e);
 		}
 		
@@ -107,8 +109,10 @@ public class BuffersListFragment extends SherlockListFragment {
 
 			holder.label.setText(e.name);
 			if(e.unread > 0) {
+				holder.label.setTypeface(null, Typeface.BOLD);
 				row.setBackgroundColor(0xFF0000FF);
 			} else {
+				holder.label.setTypeface(null);
 				row.setBackgroundColor(0x00000000);
 			}
 			
@@ -149,6 +153,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				if(type > 0 && b.hidden == 0) {
 					int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 					int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+					Log.d("IRCCloud", "Buffer: " + b.name + " Unread: " + unread + " Highlights: " + highlights);
 					adapter.addItem(b.bid, type, b.name, unread, highlights);
 				}
 			}

@@ -64,7 +64,7 @@ public class ServersDataSource {
 			ArrayList<Server> servers = new ArrayList<Server>();
 	
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected"}, null, null, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected"}, null, null, null, null, "cid");
 	
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {

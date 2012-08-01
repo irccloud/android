@@ -81,7 +81,7 @@ public class BuffersDataSource {
 			ArrayList<Buffer> buffers = new ArrayList<Buffer>();
 	
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "max_eid", "last_seen_eid", "name", "type", "hidden", "joined"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, "type");
 	
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {

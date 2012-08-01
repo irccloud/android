@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class EventsDataSource {
 	public class Event {
@@ -67,7 +68,7 @@ public class EventsDataSource {
 			ArrayList<Event> events = new ArrayList<Event>();
 	
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"eid", "bid", "cid", "type", "highlight", "event"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"eid", "bid", "cid", "type", "highlight", "event"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, "eid");
 	
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {
@@ -96,7 +97,7 @@ public class EventsDataSource {
 	public synchronized int getHighlightCountForBuffer(int bid, int last_seen_eid) {
 		synchronized(dbHelper) {
 			SQLiteDatabase db = dbHelper.getReadableDatabase();
-			Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"count() as count"}, "bid = ? and eid > ? and highlight=1 and (type='buffer_msg' or type='buffer_me_msg' or type='notice' or type='channel_invite' or type='callerid')", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)}, null, null, null);
+			Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"count() as count"}, "bid = ? and eid > ? and highlight='1' and (type='buffer_msg' or type='buffer_me_msg' or type='notice' or type='channel_invite' or type='callerid')", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)}, null, null, null);
 	
 			cursor.moveToFirst();
 			int count = cursor.getInt(0);

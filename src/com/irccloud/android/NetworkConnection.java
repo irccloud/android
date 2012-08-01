@@ -132,6 +132,10 @@ public class NetworkConnection {
 		client.connect();
 	}
 	
+	public void say(int cid, String to, String message) {
+		client.send("{_reqid:12345, _method: \"say\", cid:"+cid+", to:\""+to+"\", msg:\""+message+"\"}");
+	}
+	
 	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
 		String type = object.getString("type");
 		if(type != null && type.length() > 0) {
