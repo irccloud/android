@@ -70,7 +70,13 @@ body {
 .quit .message_text {
 	color: #aaa;
 }
-
+.nickchange .from {
+	font-weight: normal;
+	color: #aaa;
+}
+.nickchange .message_text:before {
+	content:"-> ";
+}
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
@@ -109,6 +115,11 @@ function appendEvent(msg) {
 	if(msg.type == "quit") {
 		msg.from = msg.nick;
 		msg.msg = "quit (" + msg.hostmask + ") " + msg.msg;
+	}
+	
+	if(msg.type == "nickchange") {
+		msg.from = msg.oldnick;
+		msg.msg = msg.newnick;
 	}
 
 	m.className = msg.type;
