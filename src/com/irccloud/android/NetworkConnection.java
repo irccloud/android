@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -42,6 +44,7 @@ public class NetworkConnection {
 	private ArrayList<Handler> handlers = null;
 	private String session = null;
 	private int last_reqid = 0;
+	private Timer shutdownTimer = null;
 	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
@@ -312,10 +315,26 @@ public class NetworkConnection {
 		if(handlers == null)
 			handlers = new ArrayList<Handler>();
 		handlers.add(handler);
+		if(shutdownTimer != null) {
+			shutdownTimer.cancel();
+			shutdownTimer = null;
+		}
 	}
 
 	public void removeHandler(Handler handler) {
 		handlers.remove(handler);
+		if(handlers.isEmpty() && shutdownTimer == null) {
+			shutdownTimer = new Timer();
+
+			shutdownTimer.schedule( new TimerTask(){
+	             public void run() {
+	            	 if(handlers.isEmpty()) {
+		                 client.disconnect();
+	            	 }
+	                 shutdownTimer = null;
+	              }
+	           }, 5*60000); //TODO: Make this value configurable
+		}
 	}
 
 	private void notifyHandlers(int message, Object object) {
