@@ -37,6 +37,12 @@ body {
 .buffer_me_msg .message_text {
 	font-style: italic;
 }
+.channel_topic {
+	background: #ddd;
+}
+.channel_topic .from {
+	font-weight: normal;
+}
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
@@ -57,6 +63,11 @@ function appendEvent(msg) {
 
 	if(msg.self)
 		m.className += " self";
+
+	if(msg.type == "channel_topic") {
+		msg.from = msg.author;
+		msg.msg = "set the topic: " + msg.topic;
+	}
 
 	var d = new Date(msg.eid/1000);
 	var hours = d.getHours();

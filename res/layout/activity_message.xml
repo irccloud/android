@@ -4,15 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/topicView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:lines="1"
-        android:scrollHorizontally="true"
-        android:text="Topic goes here and it&apos;s probably really long so here&apos;s some really long sample text" />
-
     <fragment
         android:name="com.irccloud.android.MessageViewFragment"
         android:layout_width="match_parent"

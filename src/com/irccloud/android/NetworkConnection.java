@@ -53,6 +53,8 @@ public class NetworkConnection {
 	public static final int EVENT_DELETEBUFFER = 4;
 	public static final int EVENT_BUFFERMSG = 5;
 	public static final int EVENT_HEARTBEATECHO = 6;
+	public static final int EVENT_CHANNELINIT = 7;
+	public static final int EVENT_CHANNELTOPIC = 8;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -186,6 +188,22 @@ public class NetworkConnection {
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
 				if(!backlog)
 					notifyHandlers(EVENT_BUFFERMSG, event);
+			} else if(type.equalsIgnoreCase("channel_init")) {
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				c.deleteChannel(object.getLong("bid"));
+				ChannelsDataSource.Channel channel = c.createChannel(object.getLong("bid"), object.getString("chan"),
+						object.getJSONObject("topic").isNull("topic")?"":object.getJSONObject("topic").getString("text"), object.getJSONObject("topic").getLong("time"), 
+						object.getJSONObject("topic").getString("nick"), object.getString("channel_type"), object.getString("mode"));
+				if(!backlog)
+					notifyHandlers(EVENT_CHANNELINIT, channel);
+			} else if(type.equalsIgnoreCase("channel_topic")) {
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				c.updateTopic(object.getLong("bid"), object.getString("topic"), object.getLong("eid"), object.getString("author"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				if(!backlog)
+					notifyHandlers(EVENT_CHANNELTOPIC, event);
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
 				JSONObject seenEids = object.getJSONObject("seenEids");
 				Iterator<String> i = seenEids.keys();

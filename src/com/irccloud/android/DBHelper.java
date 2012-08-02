@@ -14,7 +14,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TABLE_EVENTS = "events";
 
 	private static final String DATABASE_NAME = "irc.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	private static DBHelper instance = null;
 	private SQLiteDatabase batchDb;
@@ -115,11 +115,11 @@ public class DBHelper extends SQLiteOpenHelper {
 		
 		database.execSQL("create table " + TABLE_CHANNELS + " ("
 				+ "bid integer primary key, "
-				+ "cid integer not null, "
 				+ "name text not null, "
 				+ "topic_text text not null, "
 				+ "topic_time integer not null, "
 				+ "topic_author text not null, "
+				+ "type text not null, "
 				+ "mode text"
 				+ ");");
 		
