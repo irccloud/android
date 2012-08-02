@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MessageActivity" >
+
+    <LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:orientation="vertical">
+    
+	    <fragment
+	        android:name="com.irccloud.android.MessageViewFragment"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        tools:layout="@layout/messageview" />
+	
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:paddingTop="2dp" >
+	
+	        <EditText
+	            android:id="@+id/messageTxt"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="bottom"
+	            android:layout_weight="1"
+	            android:ems="10"
+	            android:hint="Message"
+	            android:imeOptions="actionSend" >
+	
+	            <requestFocus />
+	        </EditText>
+	
+	        <Button
+	            android:id="@+id/sendBtn"
+	            android:layout_width="wrap_content"
+	            android:layout_height="match_parent"
+	            android:gravity="center_vertical|center_horizontal"
+	            android:text="Send" />
+	
+	    </LinearLayout>
+	</LinearLayout>
+
+    <fragment
+        android:name="com.irccloud.android.UsersListFragment"
+        android:layout_width="360dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
+
+</LinearLayout>

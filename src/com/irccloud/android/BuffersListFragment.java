@@ -51,10 +51,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = new ArrayList<BufferListEntry>();
 		}
 		
-		public void clear() {
-			data = new ArrayList<BufferListEntry>();
-		}
-		
 		public void setItems(ArrayList<BufferListEntry> items) {
 			data = items;
 		}
@@ -69,18 +65,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.highlights = highlights;
 			e.last_seen_eid = last_seen_eid;
 			return e;
-		}
-		
-		public void addItem(int cid, long bid, int type, String name, int unread, int highlights, long last_seen_eid) {
-			BufferListEntry e = new BufferListEntry();
-			e.cid = cid;
-			e.bid = bid;
-			e.type = type;
-			e.name = name;
-			e.unread = unread;
-			e.highlights = highlights;
-			e.last_seen_eid = last_seen_eid;
-			data.add(e);
 		}
 		
 		@Override

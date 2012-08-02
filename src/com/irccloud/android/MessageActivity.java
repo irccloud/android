@@ -1,6 +1,5 @@
 package com.irccloud.android;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
@@ -15,7 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MessageActivity extends SherlockFragmentActivity {
+public class MessageActivity extends UserListActivity {
 	int cid;
 	long bid;
 	String name;
@@ -107,6 +106,13 @@ public class MessageActivity extends SherlockFragmentActivity {
                 startActivity(parentActivityIntent);
                 finish();
                 return true;
+            case R.id.menu_userlist:
+            	Intent i = new Intent(this, UserListActivity.class);
+            	i.putExtra("cid", cid);
+            	i.putExtra("bid", bid);
+            	i.putExtra("name", name);
+            	startActivity(i);
+            	break;
         }
         return super.onOptionsItemSelected(item);
     }
