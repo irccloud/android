@@ -189,7 +189,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		protected void onPostExecute(Void result) {
 			adapter.setItems(entries);
 			
-			if(getListAdapter() == null)
+			if(getListAdapter() == null && entries.size() > 0)
 				setListAdapter(adapter);
 			else
 				adapter.notifyDataSetChanged();

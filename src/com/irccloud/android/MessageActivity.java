@@ -75,6 +75,16 @@ public class MessageActivity extends SherlockFragmentActivity {
     	bid = getIntent().getLongExtra("bid", 0);
     	name = getIntent().getStringExtra("name");
     	getSupportActionBar().setTitle(name);
+    	String session = getSharedPreferences("prefs", 0).getString("session_key", "");
+    	if(session != null && session.length() > 0) {
+	    	NetworkConnection conn = NetworkConnection.getInstance();
+	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
+	    		conn.connect(session);
+    	} else {
+    		Intent i = new Intent(this, LoginActivity.class);
+    		startActivity(i);
+    		finish();
+    	}
     }
     
     @Override
