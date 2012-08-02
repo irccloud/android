@@ -48,8 +48,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	public SQLiteDatabase getSafeReadableDatabase() {
 		try {
-			writeSemaphore.acquire();
 			readSemaphore.acquire();
+			writeSemaphore.acquire();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return null;
@@ -62,8 +62,8 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	public void releaseReadableDatabase() {
-		readSemaphore.release();
 		writeSemaphore.release();
+		readSemaphore.release();
 	}
 	
 	public void beginBatch() {

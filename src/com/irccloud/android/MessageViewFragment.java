@@ -134,6 +134,10 @@ public class MessageViewFragment extends SherlockFragment {
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
+			case NetworkConnection.EVENT_JOIN:
+			case NetworkConnection.EVENT_PART:
+			case NetworkConnection.EVENT_NICKCHANGE:
+			case NetworkConnection.EVENT_QUIT:
 			case NetworkConnection.EVENT_BUFFERMSG:
 				e = (EventsDataSource.Event)msg.obj;
 				if(e.bid == bid) {

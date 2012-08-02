@@ -55,6 +55,10 @@ public class NetworkConnection {
 	public static final int EVENT_HEARTBEATECHO = 6;
 	public static final int EVENT_CHANNELINIT = 7;
 	public static final int EVENT_CHANNELTOPIC = 8;
+	public static final int EVENT_JOIN = 9;
+	public static final int EVENT_PART = 10;
+	public static final int EVENT_NICKCHANGE = 11;
+	public static final int EVENT_QUIT = 12;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -192,8 +196,15 @@ public class NetworkConnection {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.deleteChannel(object.getLong("bid"));
 				ChannelsDataSource.Channel channel = c.createChannel(object.getLong("bid"), object.getString("chan"),
-						object.getJSONObject("topic").isNull("topic")?"":object.getJSONObject("topic").getString("text"), object.getJSONObject("topic").getLong("time"), 
+						object.getJSONObject("topic").isNull("text")?"":object.getJSONObject("topic").getString("text"), object.getJSONObject("topic").getLong("time"), 
 						object.getJSONObject("topic").getString("nick"), object.getString("channel_type"), object.getString("mode"));
+				UsersDataSource u = UsersDataSource.getInstance();
+				u.deleteUsersForChannel(object.getInt("cid"), object.getString("chan"));
+				JSONArray users = object.getJSONArray("members");
+				for(int i = 0; i < users.length(); i++) {
+					JSONObject user = users.getJSONObject(i);
+					u.createUser(object.getInt("cid"), object.getString("chan"), user.getString("nick"), user.getString("usermask"), user.getString("mode"), user.getBoolean("away")?1:0);
+				}
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELINIT, channel);
 			} else if(type.equalsIgnoreCase("channel_topic")) {
@@ -204,6 +215,45 @@ public class NetworkConnection {
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELTOPIC, event);
+			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
+				UsersDataSource u = UsersDataSource.getInstance();
+				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+				u.createUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"), object.getString("hostmask"), "", 0);
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				if(!backlog)
+					notifyHandlers(EVENT_JOIN, event);
+			} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
+				UsersDataSource u = UsersDataSource.getInstance();
+				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				if(!backlog)
+					notifyHandlers(EVENT_PART, event);
+			} else if(type.equalsIgnoreCase("quit")) {
+				UsersDataSource u = UsersDataSource.getInstance();
+				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				if(!backlog)
+					notifyHandlers(EVENT_QUIT, event);
+			} else if(type.equalsIgnoreCase("nickchange")) {
+				if(!DBHelper.getInstance().isBatch()) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+					if(chan != null) {
+						UsersDataSource u = UsersDataSource.getInstance();
+						u.updateNick(object.getInt("cid"), chan.name, object.getString("oldnick"), object.getString("newnick"));
+					}
+				}
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				if(!backlog)
+					notifyHandlers(EVENT_NICKCHANGE, event);
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
 				JSONObject seenEids = object.getJSONObject("seenEids");
 				Iterator<String> i = seenEids.keys();

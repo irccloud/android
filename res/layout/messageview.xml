@@ -12,7 +12,7 @@
         android:ellipsize="end"
         android:lines="1"
         android:scrollHorizontally="true"
-        android:text="Topic goes here and it&apos;s probably really long so here&apos;s some really long sample text" />
+        android:visibility="gone" />
 
     	<WebView xmlns:android="http://schemas.android.com/apk/res/android"
 	    android:id="@+id/messageview"

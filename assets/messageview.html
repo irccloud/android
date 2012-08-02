@@ -43,6 +43,34 @@ body {
 .channel_topic .from {
 	font-weight: normal;
 }
+.joined_channel .from:before {
+	content:"-> ";
+}
+.joined_channel .from {
+	font-weight: normal;
+}
+.joined_channel .message_text {
+	color: #aaa;
+}
+.parted_channel .from:before {
+	content:"<- ";
+}
+.parted_channel .from {
+	font-weight: normal;
+}
+.parted_channel .message_text {
+	color: #aaa;
+}
+.quit .from:before {
+	content:"<= ";
+}
+.quit .from {
+	font-weight: normal;
+}
+.quit .message_text {
+	color: #aaa;
+}
+
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
@@ -56,6 +84,33 @@ function scrollToBottom() {
 function appendEvent(msg) {
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
+
+	if(msg.type == "channel_topic") {
+		msg.from = msg.author;
+		msg.msg = "set the topic: " + msg.topic;
+	}
+
+	if(msg.type == "you_joined_channel")
+		msg.type = "joined_channel";
+		
+	if(msg.type == "you_parted_channel")
+		msg.type = "parted_channel";
+
+	if(msg.type == "joined_channel") {
+		msg.from = msg.nick;
+		msg.msg = "joined (" + msg.hostmask + ")";
+	}
+
+	if(msg.type == "parted_channel") {
+		msg.from = msg.nick;
+		msg.msg = "left (" + msg.hostmask + ")";
+	}
+
+	if(msg.type == "quit") {
+		msg.from = msg.nick;
+		msg.msg = "quit (" + msg.hostmask + ") " + msg.msg;
+	}
+
 	m.className = msg.type;
 
 	if(msg.highlight)
@@ -63,11 +118,6 @@ function appendEvent(msg) {
 
 	if(msg.self)
 		m.className += " self";
-
-	if(msg.type == "channel_topic") {
-		msg.from = msg.author;
-		msg.msg = "set the topic: " + msg.topic;
-	}
 
 	var d = new Date(msg.eid/1000);
 	var hours = d.getHours();

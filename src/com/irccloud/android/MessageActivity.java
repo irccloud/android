@@ -89,7 +89,7 @@ public class MessageActivity extends SherlockFragmentActivity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.activity_main, menu);
+        getSupportMenuInflater().inflate(R.menu.activity_message, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
