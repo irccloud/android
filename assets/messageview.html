@@ -151,9 +151,10 @@ function appendEvent(msg) {
 	
 	lastDate = d;
 	
-	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm
-		+"</span><span class='from'>"+msg.from
-		+"</span><span class='message_text'>"+msg.msg
+	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm;
+	if(typeof msg.from === "string")
+		m.innerHTML += "</span><span class='from'>"+msg.from
+	m.innerHTML += "</span><span class='message_text'>"+msg.msg
 		+"</span>";
 	messages.appendChild(m);
 

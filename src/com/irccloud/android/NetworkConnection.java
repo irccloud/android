@@ -186,7 +186,12 @@ public class NetworkConnection {
 				b.deleteBuffer(object.getInt("bid"));
 				if(!backlog)
 					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
-			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg")) {
+			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg")
+					 || type.equalsIgnoreCase("notice") || type.equalsIgnoreCase("server_welcome")
+					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop")
+					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local")
+					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response")
+					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
@@ -240,7 +245,7 @@ public class NetworkConnection {
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
 				if(!backlog)
 					notifyHandlers(EVENT_QUIT, event);
-			} else if(type.equalsIgnoreCase("nickchange")) {
+			} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
 				if(!DBHelper.getInstance().isBatch()) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
 					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
@@ -278,7 +283,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				//Log.e(TAG, "Unhandled type: " + object);
+				Log.e(TAG, "Unhandled type: " + object);
 			}
 		}
 	}

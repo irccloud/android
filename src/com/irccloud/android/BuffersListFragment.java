@@ -210,7 +210,19 @@ public class BuffersListFragment extends SherlockListFragment {
     
     public void onListItemClick(ListView l, View v, int position, long id) {
     	BufferListAdapter.BufferListEntry e = (BufferListAdapter.BufferListEntry)adapter.getItem(position);
-    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid);
+    	String type = null;
+    	switch(e.type) {
+    	case TYPE_SERVER:
+    		type = "console";
+    		break;
+    	case TYPE_CHANNEL:
+    		type = "channel";
+    		break;
+    	case TYPE_CONVERSATION:
+    		type = "conversation";
+    		break;
+    	}
+    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, type);
     }
     
 	private final Handler mHandler = new Handler() {
@@ -231,6 +243,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid);
+		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, String type);
 	}
 }

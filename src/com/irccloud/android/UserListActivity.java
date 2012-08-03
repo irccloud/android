@@ -56,6 +56,7 @@ public class UserListActivity extends SherlockFragmentActivity implements UsersL
                 parentActivityIntent.putExtra("cid", cid);
                 parentActivityIntent.putExtra("bid", bid);
                 parentActivityIntent.putExtra("name", channel);
+                parentActivityIntent.putExtra("type", "channel");
                 parentActivityIntent.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
                         Intent.FLAG_ACTIVITY_NEW_TASK);

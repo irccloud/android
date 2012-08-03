@@ -18,6 +18,7 @@ public class MessageActivity extends UserListActivity {
 	int cid;
 	long bid;
 	String name;
+	String type;
 	TextView messageTxt;
 	Button sendBtn;
 	
@@ -73,22 +74,18 @@ public class MessageActivity extends UserListActivity {
     	cid = getIntent().getIntExtra("cid", 0);
     	bid = getIntent().getLongExtra("bid", 0);
     	name = getIntent().getStringExtra("name");
+    	type = getIntent().getStringExtra("type");
     	getSupportActionBar().setTitle(name);
-    	String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-    	if(session != null && session.length() > 0) {
-	    	NetworkConnection conn = NetworkConnection.getInstance();
-	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
-	    		conn.connect(session);
-    	} else {
-    		Intent i = new Intent(this, LoginActivity.class);
-    		startActivity(i);
-    		finish();
-    	}
     }
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.activity_message, menu);
+    	if(type.equalsIgnoreCase("channel"))
+    		getSupportMenuInflater().inflate(R.menu.activity_message_channel, menu);
+    	else if(type.equalsIgnoreCase("conversation"))
+    		getSupportMenuInflater().inflate(R.menu.activity_message_conversation, menu);
+    	else if(type.equalsIgnoreCase("console"))
+    		getSupportMenuInflater().inflate(R.menu.activity_message_console, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
