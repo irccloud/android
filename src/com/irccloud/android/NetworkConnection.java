@@ -283,7 +283,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				Log.e(TAG, "Unhandled type: " + object);
+				//Log.e(TAG, "Unhandled type: " + object);
 			}
 		}
 	}

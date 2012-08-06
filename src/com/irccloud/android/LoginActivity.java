@@ -23,6 +23,7 @@ public class LoginActivity extends SherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
         
         email = (EditText)findViewById(R.id.email);
         password = (EditText)findViewById(R.id.password);

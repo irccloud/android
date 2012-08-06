@@ -1,13 +1,12 @@
 package com.irccloud.android;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Intent;
 import android.os.Bundle;
 
-public class UserListActivity extends SherlockFragmentActivity implements UsersListFragment.OnUserSelectedListener {
+public class UserListActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener {
 	int cid;
 	long bid;
 	String channel;
@@ -27,16 +26,6 @@ public class UserListActivity extends SherlockFragmentActivity implements UsersL
     	bid = getIntent().getLongExtra("bid", 0);
     	channel = getIntent().getStringExtra("name");
     	getSupportActionBar().setTitle(channel);
-    	String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-    	if(session != null && session.length() > 0) {
-	    	NetworkConnection conn = NetworkConnection.getInstance();
-	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
-	    		conn.connect(session);
-    	} else {
-    		Intent i = new Intent(this, LoginActivity.class);
-    		startActivity(i);
-    		finish();
-    	}
     }
     
     @Override

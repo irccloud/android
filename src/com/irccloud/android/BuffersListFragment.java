@@ -12,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -34,6 +36,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			int type;
 			TextView label;
 			TextView highlights;
+			LinearLayout unread;
+			ImageView key;
 		}
 	
 		private class BufferListEntry {
@@ -42,6 +46,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			int type;
 			int unread;
 			int highlights;
+			int key;
 			long last_seen_eid;
 			String name;
 		}
@@ -55,12 +60,13 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public BufferListEntry buildItem(int cid, long bid, int type, String name, int unread, int highlights, long last_seen_eid) {
+		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
 			e.type = type;
 			e.name = name;
+			e.key = key;
 			e.unread = unread;
 			e.highlights = highlights;
 			e.last_seen_eid = last_seen_eid;
@@ -102,6 +108,8 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder = new ViewHolder();
 				holder.label = (TextView) row.findViewById(R.id.label);
 				holder.highlights = (TextView) row.findViewById(R.id.highlights);
+				holder.unread = (LinearLayout) row.findViewById(R.id.unread);
+				holder.key = (ImageView) row.findViewById(R.id.key);
 				holder.type = e.type;
 
 				row.setTag(holder);
@@ -112,10 +120,20 @@ public class BuffersListFragment extends SherlockListFragment {
 			holder.label.setText(e.name);
 			if(e.unread > 0) {
 				holder.label.setTypeface(null, Typeface.BOLD);
-				row.setBackgroundColor(0xFF0000FF);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
+				holder.unread.setBackgroundResource(R.drawable.selected_blue);
 			} else {
 				holder.label.setTypeface(null);
-				row.setBackgroundColor(0x00000000);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+				holder.unread.setBackgroundResource(R.drawable.background_blue);
+			}
+
+			if(holder.key != null) {
+				if(e.key > 0) {
+					holder.key.setVisibility(View.VISIBLE);
+				} else {
+					holder.key.setVisibility(View.INVISIBLE);
+				}
 			}
 			
 			if(holder.highlights != null) {
@@ -148,21 +166,28 @@ public class BuffersListFragment extends SherlockListFragment {
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);
 					if(b.type.equalsIgnoreCase("console")) {
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, 0, b.last_seen_eid));
+						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
+						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid));
 						break;
 					}
 				}
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);
 					int type = -1;
-					if(b.type.equalsIgnoreCase("channel"))
+					int key = 0;
+					if(b.type.equalsIgnoreCase("channel")) {
 						type = TYPE_CHANNEL;
+						ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+						if(c != null && c.mode != null && c.mode.contains("k"))
+							key = 1;
+					}
 					else if(b.type.equalsIgnoreCase("conversation"))
 						type = TYPE_CONVERSATION;
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, unread, highlights, b.last_seen_eid));
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid));
 					}
 				}
 			}
@@ -185,6 +210,13 @@ public class BuffersListFragment extends SherlockListFragment {
         super.onCreate(savedInstanceState);
     }
     
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
+	        Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.bufferslist, null);
+		return view;
+	}
+	
     public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();

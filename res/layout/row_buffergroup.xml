@@ -1,36 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/bg"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
     android:minHeight="48dp"
     android:orientation="horizontal"
-    android:paddingLeft="8dp"
     android:paddingTop="8dp" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-    	android:background="#def"
-    	android:gravity="center_vertical"
-    	android:padding="4dp"
-        android:text="(W)" />
+    <LinearLayout
+        android:id="@+id/unread"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:paddingLeft="8dp"
+	   	android:background="@drawable/background_blue">
 
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-    	android:background="#def"
-    	android:gravity="center_vertical"
-        android:text="TextView" />
+      	    <LinearLayout
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:gravity="center_vertical"
+			   	android:background="@drawable/row_buffergroup_bg">
+	
+		        <ImageView
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_weight="0"
+			        android:padding="4dp"
+			        android:src="@drawable/world" />
+			    
+			    <TextView
+			        android:id="@+id/label"
+			        android:layout_width="wrap_content"
+			        android:layout_height="match_parent"
+			        android:layout_weight="1"
+			        android:textSize="16sp"
+			        android:textColor="@color/row_label"
+			    	android:gravity="center_vertical" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-	    android:background="#def"
-    	android:gravity="center_vertical"
-    	android:padding="4dp"
-        android:text="(+)" />
-
+   			    <TextView
+			        android:id="@+id/highlights"
+			        android:layout_width="wrap_content"
+			        android:layout_height="fill_parent"
+			        android:gravity="center_vertical"
+			        android:padding="4dp"
+			        android:textColor="#f00"
+			        android:textStyle="bold" />
+	      </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
