@@ -1,5 +1,6 @@
 package com.irccloud.android;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -28,6 +29,18 @@ public class BuffersListFragment extends SherlockListFragment {
 	BufferListAdapter adapter;
 	OnBufferSelectedListener mListener;
 	
+	private static class BufferListEntry implements Serializable {
+		private static final long serialVersionUID = 1848168221883194025L;
+		int cid;
+		long bid;
+		int type;
+		int unread;
+		int highlights;
+		int key;
+		long last_seen_eid;
+		String name;
+	}
+
 	private class BufferListAdapter extends BaseAdapter {
 		ArrayList<BufferListEntry> data;
 		private SherlockListFragment ctx;
@@ -40,17 +53,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			ImageView key;
 		}
 	
-		private class BufferListEntry {
-			int cid;
-			long bid;
-			int type;
-			int unread;
-			int highlights;
-			int key;
-			long last_seen_eid;
-			String name;
-		}
-
 		public BufferListAdapter(SherlockListFragment context) {
 			ctx = context;
 			data = new ArrayList<BufferListEntry>();
@@ -151,7 +153,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	}
 	
 	private class RefreshTask extends AsyncTask<Void, Void, Void> {
-		ArrayList<BufferListAdapter.BufferListEntry> entries = new ArrayList<BufferListAdapter.BufferListEntry>();
+		ArrayList<BufferListEntry> entries = new ArrayList<BufferListEntry>();
 		
 		@Override
 		protected Void doInBackground(Void... params) {
@@ -208,6 +210,11 @@ public class BuffersListFragment extends SherlockListFragment {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.containsKey("data")) {
+        	adapter = new BufferListAdapter(this);
+        	adapter.setItems((ArrayList<BufferListEntry>) savedInstanceState.getSerializable("data"));
+        	setListAdapter(adapter);
+        }
     }
     
 	@Override
@@ -216,6 +223,12 @@ public class BuffersListFragment extends SherlockListFragment {
 		View view = inflater.inflate(R.layout.bufferslist, null);
 		return view;
 	}
+	
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	if(adapter.data.size() > 0)
+    		state.putSerializable("data", adapter.data);
+    }
 	
     public void onResume() {
     	super.onResume();
@@ -241,7 +254,7 @@ public class BuffersListFragment extends SherlockListFragment {
     }
     
     public void onListItemClick(ListView l, View v, int position, long id) {
-    	BufferListAdapter.BufferListEntry e = (BufferListAdapter.BufferListEntry)adapter.getItem(position);
+    	BufferListEntry e = (BufferListEntry)adapter.getItem(position);
     	String type = null;
     	switch(e.type) {
     	case TYPE_SERVER:

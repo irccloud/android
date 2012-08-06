@@ -17,15 +17,30 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
         setContentView(R.layout.activity_user_list);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
+        	cid = savedInstanceState.getInt("cid");
+        	bid = savedInstanceState.getLong("bid");
+        	channel = savedInstanceState.getString("channel");
+        }
     }
 
     @Override
     public void onResume() {
     	super.onResume();
-    	cid = getIntent().getIntExtra("cid", 0);
-    	bid = getIntent().getLongExtra("bid", 0);
-    	channel = getIntent().getStringExtra("name");
+    	if(getIntent() != null && getIntent().hasExtra("cid")) {
+	    	cid = getIntent().getIntExtra("cid", 0);
+	    	bid = getIntent().getLongExtra("bid", 0);
+	    	channel = getIntent().getStringExtra("name");
+    	}
     	getSupportActionBar().setTitle(channel + " members");
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	state.putInt("cid", cid);
+    	state.putLong("bid", bid);
+    	state.putString("channel", channel);
     }
     
     @Override

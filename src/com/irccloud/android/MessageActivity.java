@@ -44,8 +44,24 @@ public class MessageActivity extends UserListActivity {
         });
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        
+        if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
+        	cid = savedInstanceState.getInt("cid");
+        	bid = savedInstanceState.getLong("bid");
+        	name = savedInstanceState.getString("name");
+        	type = savedInstanceState.getString("type");
+        }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	state.putInt("cid", cid);
+    	state.putLong("bid", bid);
+    	state.putString("name", name);
+    	state.putString("type", type);
+    }
+    
     private class SendTask extends AsyncTask<Void, Void, Void> {
     	@Override
     	protected void onPreExecute() {
@@ -71,10 +87,12 @@ public class MessageActivity extends UserListActivity {
     @Override
     public void onResume() {
     	super.onResume();
-    	cid = getIntent().getIntExtra("cid", 0);
-    	bid = getIntent().getLongExtra("bid", 0);
-    	name = getIntent().getStringExtra("name");
-    	type = getIntent().getStringExtra("type");
+    	if(getIntent() != null && getIntent().hasExtra("cid")) {
+	    	cid = getIntent().getIntExtra("cid", 0);
+	    	bid = getIntent().getLongExtra("bid", 0);
+	    	name = getIntent().getStringExtra("name");
+	    	type = getIntent().getStringExtra("type");
+    	}
     	getSupportActionBar().setTitle(name);
     }
     

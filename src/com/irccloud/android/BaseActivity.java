@@ -18,7 +18,6 @@ public class BaseActivity extends SherlockFragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
     }
 
     @Override
@@ -31,6 +30,13 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    	conn.addHandler(mHandler);
 	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
 	    		conn.connect(session);
+			if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+				setSupportProgressBarIndeterminateVisibility(true);
+				getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
+			} else {
+				setSupportProgressBarIndeterminateVisibility(false);
+				getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+			}
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
     		startActivity(i);
