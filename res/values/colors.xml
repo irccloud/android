@@ -6,4 +6,6 @@
     <drawable name="heading_bg_blue">#E2EDFF</drawable>
     <drawable name="row_bg_blue">#F2F7FC</drawable>
     <drawable name="selected_blue">#527DFF</drawable>
+    <drawable name="operator_bg_red">#FEF2F2</drawable>
+    <drawable name="voiced_bg_green">#F4FFED</drawable>
 </resources>

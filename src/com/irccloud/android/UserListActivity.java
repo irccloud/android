@@ -25,7 +25,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
     	cid = getIntent().getIntExtra("cid", 0);
     	bid = getIntent().getLongExtra("bid", 0);
     	channel = getIntent().getStringExtra("name");
-    	getSupportActionBar().setTitle(channel);
+    	getSupportActionBar().setTitle(channel + " members");
     }
     
     @Override

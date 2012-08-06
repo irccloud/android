@@ -41,6 +41,8 @@ public class UsersListFragment extends SherlockListFragment {
 			int type;
 			String text;
 			int count;
+			int color;
+			int bg_color;
 		}
 
 		public UserListAdapter(SherlockListFragment context) {
@@ -52,11 +54,13 @@ public class UsersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public UserListEntry buildItem(int type, String text, int count) {
+		public UserListEntry buildItem(int type, String text, int count, int color, int bg_color) {
 			UserListEntry e = new UserListEntry();
 			e.type = type;
 			e.text = text;
 			e.count = count;
+			e.color = color;
+			e.bg_color = bg_color;
 			return e;
 		}
 		
@@ -102,15 +106,18 @@ public class UsersListFragment extends SherlockListFragment {
 			}
 
 			holder.label.setText(e.text);
-			
 			if(e.type == TYPE_USER && e.count > 0) {
-				holder.label.setTextColor(0xFFAAAAAA);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_user_away));
+			} else {
+				holder.label.setTextColor(getResources().getColorStateList(e.color));
 			}
+			row.setBackgroundResource(e.bg_color);
 			
 			if(holder.count != null) {
 				if(e.count > 0) {
 					holder.count.setVisibility(View.VISIBLE);
 					holder.count.setText(String.valueOf(e.count));
+					holder.count.setTextColor(getResources().getColorStateList(e.color));
 				} else {
 					holder.count.setVisibility(View.GONE);
 					holder.count.setText("");
@@ -148,26 +155,26 @@ public class UsersListFragment extends SherlockListFragment {
 			}
 			
 			if(ops.size() > 0) {
-				entries.add(adapter.buildItem(TYPE_HEADING, "OPERATORS", ops.size()));
+				entries.add(adapter.buildItem(TYPE_HEADING, "OPERATORS", ops.size(), R.color.heading_operators, R.drawable.row_operator_bg));
 				for(int i = 0; i < ops.size(); i++) {
 					UsersDataSource.User user = ops.get(i);
-					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away));
+					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_operator_bg));
 				}
 			}
 			
 			if(voiced.size() > 0) {
-				entries.add(adapter.buildItem(TYPE_HEADING, "VOICED", voiced.size()));
+				entries.add(adapter.buildItem(TYPE_HEADING, "VOICED", voiced.size(), R.color.heading_voiced, R.drawable.row_voiced_bg));
 				for(int i = 0; i < voiced.size(); i++) {
 					UsersDataSource.User user = voiced.get(i);
-					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away));
+					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_voiced_bg));
 				}
 			}
 			
 			if(members.size() > 0) {
-				entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size()));
+				entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_buffergroup_bg));
 				for(int i = 0; i < members.size(); i++) {
 					UsersDataSource.User user = members.get(i);
-					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away));
+					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
 				}
 			}
 			
@@ -190,7 +197,14 @@ public class UsersListFragment extends SherlockListFragment {
         super.onCreate(savedInstanceState);
     }
     
-    public void onResume() {
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
+	        Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.userslist, null);
+		return view;
+	}
+
+	public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
