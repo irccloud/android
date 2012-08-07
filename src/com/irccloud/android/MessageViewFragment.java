@@ -139,6 +139,7 @@ public class MessageViewFragment extends SherlockFragment {
 			case NetworkConnection.EVENT_NICKCHANGE:
 			case NetworkConnection.EVENT_QUIT:
 			case NetworkConnection.EVENT_BUFFERMSG:
+			case NetworkConnection.EVENT_USERCHANNELMODE:
 				e = (EventsDataSource.Event)msg.obj;
 				if(e.bid == bid) {
 					insertEvent(e);

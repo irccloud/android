@@ -14,7 +14,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static final String TABLE_EVENTS = "events";
 
 	private static final String DATABASE_NAME = "irc.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 1;
 
 	private static DBHelper instance = null;
 	private SQLiteDatabase batchDb;
@@ -99,6 +99,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ "hostname text not null, "
 				+ "port integer not null, "
 				+ "nick text not null, "
+				+ "lag integer, "
 				+ "connected integer"
 				+ ");");
 

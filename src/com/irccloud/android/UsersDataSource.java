@@ -87,6 +87,26 @@ public class UsersDataSource {
 		dbHelper.releaseWriteableDatabase();
 	}
 	
+	public void updateHostmask(int cid, String channel, String nick, String hostmask) {
+		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("hostmask", hostmask);
+		db.update(DBHelper.TABLE_USERS, values, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick});
+		if(!DBHelper.getInstance().isBatch())
+			db.close();
+		dbHelper.releaseWriteableDatabase();
+	}
+	
+	public void updateMode(int cid, String channel, String nick, String mode) {
+		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("mode", mode);
+		db.update(DBHelper.TABLE_USERS, values, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick});
+		if(!DBHelper.getInstance().isBatch())
+			db.close();
+		dbHelper.releaseWriteableDatabase();
+	}
+	
 	public synchronized ArrayList<User> getUsersForChannel(int cid, String channel) {
 		ArrayList<User> users = new ArrayList<User>();
 

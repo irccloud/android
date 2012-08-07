@@ -45,6 +45,8 @@ public class NetworkConnection {
 	private String session = null;
 	private int last_reqid = 0;
 	private Timer shutdownTimer = null;
+	private Timer idleTimer = null;
+	private long idle_interval = 0;
 	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
@@ -59,6 +61,8 @@ public class NetworkConnection {
 	public static final int EVENT_PART = 10;
 	public static final int EVENT_NICKCHANGE = 11;
 	public static final int EVENT_QUIT = 12;
+	public static final int EVENT_MEMBERUPDATES = 13;
+	public static final int EVENT_USERCHANNELMODE = 14;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -156,14 +160,35 @@ public class NetworkConnection {
 		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"say\", \"cid\":"+cid+", \"to\":\""+to+"\", \"msg\":\""+message+"\"}\n");
 		return last_reqid;
 	}
+
+	private void schedule_idle_timer() {
+		if(idleTimer != null) {
+			idleTimer.cancel();
+			idleTimer = null;
+		}
+		idleTimer = new Timer();
+
+		idleTimer.schedule( new TimerTask(){
+             public void run() {
+            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
+            	 client.disconnect();
+            	 client.connect();
+                 idleTimer = null;
+              }
+           }, idle_interval + 10000);
+	}
 	
+	@SuppressWarnings("unchecked")
 	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) //TODO: This is probably a command response, parse it and send the result back up to the UI!
 			return;
 		String type = object.getString("type");
 		if(type != null && type.length() > 0) {
-			if(type.equalsIgnoreCase("stat_user")) {
+			if(type.equalsIgnoreCase("header")) {
+				idle_interval = object.getLong("idle_interval");
+			} else if(type.equalsIgnoreCase("idle")) {
+			} else if(type.equalsIgnoreCase("stat_user")) {
 				userInfo = new UserInfo(object);
 				notifyHandlers(EVENT_USERINFO, userInfo);
 			} else if(type.equalsIgnoreCase("makeserver")) {
@@ -259,6 +284,41 @@ public class NetworkConnection {
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
 				if(!backlog)
 					notifyHandlers(EVENT_NICKCHANGE, event);
+			} else if(type.equalsIgnoreCase("user_channel_mode")) {
+				if(!DBHelper.getInstance().isBatch()) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+					if(chan != null) {
+						UsersDataSource u = UsersDataSource.getInstance();
+						u.updateMode(object.getInt("cid"), chan.name, object.getString("nick"), object.getString("newmode"));
+					}
+				}
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
+				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				if(!backlog)
+					notifyHandlers(EVENT_USERCHANNELMODE, event);
+			} else if(type.equalsIgnoreCase("member_updates")) {
+				JSONObject updates = object.getJSONObject("updates");
+				Iterator<String> i = updates.keys();
+				while(i.hasNext()) {
+					String nick = i.next();
+					JSONObject user = updates.getJSONObject(nick);
+					if(!DBHelper.getInstance().isBatch()) {
+						ChannelsDataSource c = ChannelsDataSource.getInstance();
+						ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+						if(chan != null) {
+							UsersDataSource u = UsersDataSource.getInstance();
+							u.updateAway(object.getInt("cid"), chan.name, user.getString("nick"), user.getBoolean("away")?1:0);
+							u.updateHostmask(object.getInt("cid"), chan.name, user.getString("nick"), user.getString("usermask"));
+						}
+					}
+				}
+				if(!backlog)
+					notifyHandlers(EVENT_MEMBERUPDATES, null);
+			} else if(type.equalsIgnoreCase("connection_lag")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.updateLag(object.getInt("cid"), object.getInt("lag"));
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
 				JSONObject seenEids = object.getJSONObject("seenEids");
 				Iterator<String> i = seenEids.keys();
@@ -283,9 +343,11 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				//Log.e(TAG, "Unhandled type: " + object);
+				Log.e(TAG, "Unhandled type: " + object);
 			}
 		}
+		if(idle_interval > 0)
+			schedule_idle_timer();
 	}
 	
 	private String doGet(URL url) throws IOException {
@@ -437,6 +499,7 @@ public class NetworkConnection {
 		long limit_zombiehours;
 		boolean limit_download_logs;
 		long limit_maxhistorydays;
+		int num_invites;
 		
 		public UserInfo(JSONObject object) throws JSONException {
 			name = object.getString("name");

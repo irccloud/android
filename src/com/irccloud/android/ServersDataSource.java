@@ -14,6 +14,7 @@ public class ServersDataSource {
 		int port;
 		String nick;
 		int connected;
+		int lag;
 	}
 
 	private DBHelper dbHelper;
@@ -39,7 +40,7 @@ public class ServersDataSource {
 		values.put("nick", nick);
 		values.put("connected", connected);
 		db.insert(DBHelper.TABLE_SERVERS, null, values);
-		Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, null);
+		Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected", "lag"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, null);
 		cursor.moveToFirst();
 		Server newServer = cursorToServer(cursor);
 		cursor.close();
@@ -47,6 +48,16 @@ public class ServersDataSource {
 			db.close();
 		dbHelper.releaseWriteableDatabase();
 		return newServer;
+	}
+	
+	public void updateLag(int cid, int lag) {
+		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("lag", lag);
+		db.update(DBHelper.TABLE_SERVERS, values, "cid = ?", new String[] {String.valueOf(cid)});
+		if(!DBHelper.getInstance().isBatch())
+			db.close();
+		dbHelper.releaseWriteableDatabase();
 	}
 
 	public void deleteServer(int cid) {
@@ -61,7 +72,7 @@ public class ServersDataSource {
 		ArrayList<Server> servers = new ArrayList<Server>();
 
 		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected"}, null, null, null, null, "cid");
+		Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "connected", "lag"}, null, null, null, null, "cid");
 
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -83,6 +94,7 @@ public class ServersDataSource {
 		server.hostname = cursor.getString(cursor.getColumnIndex("hostname"));
 		server.port = cursor.getInt(cursor.getColumnIndex("port"));
 		server.nick = cursor.getString(cursor.getColumnIndex("nick"));
+		server.lag = cursor.getInt(cursor.getColumnIndex("lag"));
 		server.connected = cursor.getInt(cursor.getColumnIndex("connected"));
 		return server;
 	}

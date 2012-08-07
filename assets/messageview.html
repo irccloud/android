@@ -81,6 +81,9 @@ body {
 .nickchange .message_text:before {
 	content:"-> ";
 }
+.user_channel_mode .from:before {
+	content:"+++ ";
+}
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
@@ -124,6 +127,10 @@ function appendEvent(msg) {
 	if(msg.type == "nickchange") {
 		msg.from = msg.oldnick;
 		msg.msg = msg.newnick;
+	}
+	
+	if(msg.type == "user_channel_mode") {
+		msg.msg = "set mode " + msg.diff + " " + msg.nick;
 	}
 
 	m.className = msg.type;

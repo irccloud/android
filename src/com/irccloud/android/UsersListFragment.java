@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -141,8 +140,6 @@ public class UsersListFragment extends SherlockListFragment {
 				adapter = new UserListAdapter(UsersListFragment.this);
 			}
 
-			Log.i("IRCCloud", "Got " + users.size() + " users");
-			
 			for(int i = 0; i < users.size(); i++) {
 				UsersDataSource.User user = users.get(i);
 				if(user.mode.contains("o")) {
@@ -242,6 +239,8 @@ public class UsersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_QUIT:
 			case NetworkConnection.EVENT_NICKCHANGE:
+			case NetworkConnection.EVENT_MEMBERUPDATES:
+			case NetworkConnection.EVENT_USERCHANNELMODE:
 		    	new RefreshTask().execute((Void)null);
 				break;
 			default:
