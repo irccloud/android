@@ -81,6 +81,10 @@ public class NetworkConnection {
 	public void disconnect() {
 		if(client!=null)
 			client.disconnect();
+		if(idleTimer != null) {
+			idleTimer.cancel();
+			idleTimer = null;
+		}
 	}
 	
 	public String login(String email, String password) throws IOException {
@@ -467,7 +471,7 @@ public class NetworkConnection {
 			shutdownTimer.schedule( new TimerTask(){
 	             public void run() {
 	            	 if(handlers.isEmpty()) {
-		                 client.disconnect();
+		                 disconnect();
 	            	 }
 	                 shutdownTimer = null;
 	              }
