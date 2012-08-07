@@ -84,6 +84,16 @@ body {
 .user_channel_mode .from:before {
 	content:"+++ ";
 }
+.motd_response .timestamp {
+	display: none;
+}
+.motd_response .from {
+	display: none;
+}
+.motd_response {
+	font-family: monospace;
+    background: #edf4ff;
+}
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
@@ -97,6 +107,10 @@ function scrollToBottom() {
 function appendEvent(msg) {
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
+
+	if(typeof msg.value === "number") {
+		msg.msg = msg.value + " " + msg.msg;
+	}
 
 	if(msg.type == "channel_topic") {
 		msg.from = msg.author;
@@ -132,6 +146,16 @@ function appendEvent(msg) {
 	if(msg.type == "user_channel_mode") {
 		msg.msg = "set mode " + msg.diff + " " + msg.nick;
 	}
+
+	if(msg.type == "motd_response") {
+		msg.msg = "";
+		for(i=0; i<msg.lines.length; i++) {
+			msg.msg += msg.lines[i] + "<br/>";			
+		}
+	}
+
+	if(msg.type == "server_motd")
+		msg.type = "motd_response";
 
 	m.className = msg.type;
 

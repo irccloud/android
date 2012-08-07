@@ -37,6 +37,8 @@ public class BaseActivity extends SherlockFragmentActivity {
 				setSupportProgressBarIndeterminateVisibility(false);
 				getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
 			}
+			if(DBHelper.getInstance().isBatch())
+				setSupportProgressBarIndeterminateVisibility(true);
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
     		startActivity(i);
