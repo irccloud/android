@@ -65,6 +65,7 @@ public class NetworkConnection {
 	public static final int EVENT_USERCHANNELMODE = 14;
 	public static final int EVENT_BUFFERARCHIVED = 15;
 	public static final int EVENT_BUFFERUNARCHIVED = 16;
+	public static final int EVENT_RENAMECONVERSATION = 17;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -246,6 +247,11 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("buffer_unarchived")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.updateArchived(object.getInt("bid"), 0);
+				if(!backlog)
+					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.getInt("bid"));
+			} else if(type.equalsIgnoreCase("rename_conversation")) {
+				BuffersDataSource b = BuffersDataSource.getInstance();
+				b.updateName(object.getInt("bid"), object.getString("new_name"));
 				if(!backlog)
 					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart")

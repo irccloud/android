@@ -285,6 +285,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_HEARTBEATECHO:
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
 			case NetworkConnection.EVENT_BUFFERUNARCHIVED:
+			case NetworkConnection.EVENT_RENAMECONVERSATION:
 		    	new RefreshTask().execute((Void)null);
 				break;
 			default:

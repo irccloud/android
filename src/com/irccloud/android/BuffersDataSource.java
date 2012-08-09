@@ -73,6 +73,16 @@ public class BuffersDataSource {
 		dbHelper.releaseWriteableDatabase();
 	}
 	
+	public void updateName(int bid, String name) {
+		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("name", name);
+		db.update(DBHelper.TABLE_BUFFERS, values, "bid = ?", new String[] {String.valueOf(bid)});
+		if(!DBHelper.getInstance().isBatch())
+			db.close();
+		dbHelper.releaseWriteableDatabase();
+	}
+	
 	public void deleteBuffer(int bid) {
 		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
 		db.delete(DBHelper.TABLE_BUFFERS, "bid = ?", new String[] {String.valueOf(bid)});
