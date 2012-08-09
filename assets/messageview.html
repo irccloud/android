@@ -149,6 +149,9 @@ function appendEvent(msg) {
 	if(msg.type == "you_parted_channel")
 		msg.type = "parted_channel";
 
+	if(msg.type == "you_nickchange")
+		msg.type = "nickchange";
+
 	if(msg.type == "joined_channel") {
 		msg.from = msg.nick;
 		msg.msg = "joined (" + msg.hostmask + ")";
