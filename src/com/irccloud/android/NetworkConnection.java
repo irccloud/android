@@ -63,6 +63,8 @@ public class NetworkConnection {
 	public static final int EVENT_QUIT = 12;
 	public static final int EVENT_MEMBERUPDATES = 13;
 	public static final int EVENT_USERCHANNELMODE = 14;
+	public static final int EVENT_BUFFERARCHIVED = 15;
+	public static final int EVENT_BUFFERUNARCHIVED = 16;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -236,6 +238,16 @@ public class NetworkConnection {
 				b.deleteBuffer(object.getInt("bid"));
 				if(!backlog)
 					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
+			} else if(type.equalsIgnoreCase("buffer_archived")) {
+				BuffersDataSource b = BuffersDataSource.getInstance();
+				b.updateArchived(object.getInt("bid"), 1);
+				if(!backlog)
+					notifyHandlers(EVENT_BUFFERARCHIVED, object.getInt("bid"));
+			} else if(type.equalsIgnoreCase("buffer_unarchived")) {
+				BuffersDataSource b = BuffersDataSource.getInstance();
+				b.updateArchived(object.getInt("bid"), 0);
+				if(!backlog)
+					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart")
 					 || type.equalsIgnoreCase("notice") || type.equalsIgnoreCase("server_welcome") || type.equalsIgnoreCase("server_motd") || type.equalsIgnoreCase("server_endofmotd")
 					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns")
