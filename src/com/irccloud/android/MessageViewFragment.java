@@ -10,12 +10,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.WebChromeClient;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.irccloud.android.EventsDataSource.Event;
@@ -24,24 +26,58 @@ public class MessageViewFragment extends SherlockFragment {
 	private NetworkConnection conn;
 	private WebView webView;
 	private TextView topicView;
+	private int cid;
 	private long bid;
 	private long last_seen_eid;
+	private long min_eid;
+	private long earliest_eid;
+	
+	public class JavaScriptInterface {
+		public void requestBacklog() {
+			BaseActivity a = (BaseActivity) getActivity();
+			a.setSupportProgressBarIndeterminate(true);
+			conn.request_backlog(cid, bid, earliest_eid);
+		}
+
+		public void log(String msg) {
+			Log.i("IRCCloud", msg);
+		}
+		
+	    public void showToast(String toast) {
+	        Toast.makeText(getActivity(), toast, Toast.LENGTH_SHORT).show();
+	    }
+	}
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	View v = inflater.inflate(R.layout.messageview, container, false);
     	webView = (WebView)v.findViewById(R.id.messageview);
     	webView.getSettings().setJavaScriptEnabled(true);
+    	webView.addJavascriptInterface(new JavaScriptInterface(), "Android");
+    	webView.setWebChromeClient(new WebChromeClient() {
+    		  public void onConsoleMessage(String message, int lineNumber, String sourceID) {
+    		    Log.d("IRCCloud", message + " -- From line "
+    		                         + lineNumber + " of "
+    		                         + sourceID);
+    		  }
+    		});
+    	webView.loadUrl("file:///android_asset/messageview.html");
     	topicView = (TextView)v.findViewById(R.id.topicView);
     	return v;
     }
 	
     public void onAttach(Activity activity) {
     	super.onAttach(activity);
+    	cid = activity.getIntent().getIntExtra("cid", 0);
     	bid = activity.getIntent().getLongExtra("bid", 0);
     	last_seen_eid = activity.getIntent().getLongExtra("last_seen_eid", 0);
+    	min_eid = activity.getIntent().getLongExtra("min_eid", 0);
     }
 
     private void insertEvent(EventsDataSource.Event event) {
+    	if(event.eid == min_eid)
+	    	webView.loadUrl("javascript:hideBacklogBtn()");
+    	if(event.eid < earliest_eid)
+    		earliest_eid = event.eid;
     	webView.loadUrl("javascript:appendEvent(("+event.event.toString()+"))");
     }
     
@@ -80,25 +116,27 @@ public class MessageViewFragment extends SherlockFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
-	    	webView.setWebViewClient(new WebViewClient() {
-	    	    @Override  
-	    	    public void onPageFinished(WebView view, String url) {
-	    	    	webView.setWebViewClient(null);
-	    	    	for(int i = 0; i < events.size(); i++) {
-	    	    		insertEvent(events.get(i));
-	    	    	}
-	    	    	if(events.size() > 0)
-	    	    		new HeartbeatTask().execute(events.get(events.size()-1));
-	    	    }
-	    	});
-	    	webView.loadUrl("file:///android_asset/messageview.html");
-	    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
-	    		topicView.setVisibility(View.VISIBLE);
-	    		topicView.setText(channel.topic_text);
-	    	} else {
-	    		topicView.setVisibility(View.GONE);
-	    		topicView.setText("");
-	    	}
+			if(events.size() == 0 && min_eid > 0) {
+				conn.request_backlog(cid, bid, 0);
+			} else {
+		    	for(int i = 0; i < events.size(); i++) {
+		    		if(i == 0) {
+		    			earliest_eid = events.get(i).eid;
+		    			if(events.get(i).eid > min_eid)
+		    		    	webView.loadUrl("javascript:showBacklogBtn()");
+		    		}
+		    		insertEvent(events.get(i));
+		    	}
+		    	if(events.size() > 0)
+		    		new HeartbeatTask().execute(events.get(events.size()-1));
+		    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
+		    		topicView.setVisibility(View.VISIBLE);
+		    		topicView.setText(channel.topic_text);
+		    	} else {
+		    		topicView.setVisibility(View.GONE);
+		    		topicView.setText("");
+		    	}
+			}
 		}
 	}
     

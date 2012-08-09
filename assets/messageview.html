@@ -6,6 +6,11 @@ body {
 	width: 95%;
 	font: normal 95%/1 "Helvetica Neue", "Arial", sans-serif;
 }
+#backlogBtn {
+	width: 100%;
+	height: 40px;
+	display: none;
+}
 #messages div {
 	word-wrap: break-word;
 	padding-top: 2px;
@@ -98,13 +103,34 @@ body {
 <script type="text/javascript">
 var scrollTimer = null;
 var lastDate = null;
+var min_eid = 0;
+var max_eid = 0;
+var firstScroll = 1;
+
+function hideBacklogBtn() {
+	document.getElementById("backlogBtn").style.display = "none";
+	document.getElementById("backlogBtn").style.disabled = false;
+}
+
+function showBacklogBtn() {
+	document.getElementById("backlogBtn").style.display = "block";
+	document.getElementById("backlogBtn").style.disabled = false;
+}
 
 function scrollToBottom() {
-	window.scrollTo(0, document.body.scrollHeight);
+	if(firstScroll == 1 || document.body.scrollHeight - (window.pageYOffset + window.innerHeight) < 20)
+		window.scrollTo(0, document.body.scrollHeight);
+	firstScroll = 0;
 	scrollTimer = null;
 }
 
+function fetchBacklog() {
+	document.getElementById("backlogBtn").style.disabled = true;
+	Android.requestBacklog();
+}
+
 function appendEvent(msg) {
+	var dateline = null;
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
 
@@ -172,26 +198,78 @@ function appendEvent(msg) {
 		hours = hours - 12;
 		ampm = "PM";
 	}
+	if(hours == 0)
+		hours = 12;
 	var minutes = d.getMinutes();
 	if(minutes < 10) {
 		minutes = "0" + minutes;
 	}
 	
-	if(lastDate == null || d.getDate() != lastDate.getDate()) {
-		var dateline = document.createElement("div");
-		dateline.className = "dateline";
-		dateline.innerHTML = d.toLocaleDateString();
-		messages.appendChild(dateline);
-	}
-	
-	lastDate = d;
-	
+	m.id = msg.eid;
 	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm;
 	if(typeof msg.from === "string")
 		m.innerHTML += "</span><span class='from'>"+msg.from
 	m.innerHTML += "</span><span class='message_text'>"+msg.msg
 		+"</span>";
-	messages.appendChild(m);
+	
+	if(max_eid < msg.eid) { //Message at the bottom
+		if(messages.childNodes.length > 0)
+			lastDate = new Date(parseInt(messages.childNodes[messages.childNodes.length - 1].id)/1000);
+		else
+			lastDate = null;
+		messages.appendChild(m);
+	} else if(min_eid > msg.eid) { //Message goes on top
+		lastDate = new Date(parseInt(messages.childNodes[1].id)/1000);
+		if(d.getDate() != lastDate.getDate()) { //Insert above the dateline
+			messages.insertBefore(m, messages.firstChild);
+		} else { //Insert below the dateline
+			messages.insertBefore(m, messages.childNodes[1]);
+		}
+	} else { //Message goes somewhere in the middle
+		for(i=0;i<messages.childNodes.length;i++) {
+			var node = messages.childNodes[i];
+			if(typeof node.id == "string" && parseInt(node.id) > 0) {
+				var id = parseInt(node.id);
+				if(id > msg.eid) {
+					if(i > 0 && typeof messages.childNodes[i - 1].id == "string" && parseInt(messages.childNodes[i - 1].id) > 0) {
+						lastDate = new Date(parseInt(messages.childNodes[i - 1].id)/1000);
+						messages.insertBefore(m, node);
+					} else if(i > 1) { //There was a dateline above our insertion point!
+						lastDate = new Date(parseInt(node.id)/1000);
+						if(d.getDate() != lastDate.getDate()) { //Insert above the dateline
+							lastDate = new Date(parseInt(messages.childNodes[i - 2].id)/1000);
+							messages.insertBefore(m, messages.childNodes[i - 1]);
+						} else { //Insert below the dateline
+							lastDate = new Date(msg.eid/1000);
+							messages.insertBefore(m, node);
+						}
+					} else { //We shouldn't get here
+						lastDate = new Date(msg.eid/1000);
+						messages.insertBefore(m, node);
+					}
+					break;
+				} else if(id == msg.eid) { //Replace the message
+					messages.replaceChild(m, node);
+					lastDate = new Date(msg.eid/1000);
+					break;
+				}
+			}
+		}
+	}
+	
+	if(lastDate == null || d.getDate() != lastDate.getDate()) {
+		dateline = document.createElement("div");
+		dateline.className = "dateline";
+		dateline.innerHTML = d.toLocaleDateString();
+	}
+	
+	if(dateline != null)
+		messages.insertBefore(dateline, m);
+	
+	if(max_eid < msg.eid)
+		max_eid = msg.eid;
+	if(min_eid == 0 || min_eid > msg.eid)
+		min_eid = msg.eid;
 
 	if(typeof scrollTimer != "null")
 		window.clearTimeout(scrollTimer);
@@ -200,6 +278,7 @@ function appendEvent(msg) {
 </script>
 </head>
 <body>
+<input type="button" id="backlogBtn" value="Fetch More History" onClick="fetchBacklog()" />
 <div id="messages"></div>
 </body>
 </html>

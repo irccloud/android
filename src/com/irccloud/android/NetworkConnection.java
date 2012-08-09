@@ -67,6 +67,8 @@ public class NetworkConnection {
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
 	
+	Object parserLock = new Object();
+	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
 			instance = new NetworkConnection();
@@ -120,7 +122,9 @@ public class NetworkConnection {
 		    public void onMessage(String message) {
 		    	if(message.length() > 0) {
 					try {
-			    		parse_object(new JSONObject(message), false);
+						synchronized(parserLock) {
+							parse_object(new JSONObject(message), false);
+						}
 					} catch (JSONException e) {
 						Log.e(TAG, "Unable to parse: " + message);
 						// TODO Auto-generated catch block
@@ -163,6 +167,20 @@ public class NetworkConnection {
 		last_reqid++;
 		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"say\", \"cid\":"+cid+", \"to\":\""+to+"\", \"msg\":\""+message+"\"}\n");
 		return last_reqid;
+	}
+	
+	public void request_backlog(int cid, long bid, long beforeId) {
+		try {
+			if(Looper.myLooper() == null)
+				Looper.prepare();
+			if(beforeId > 0)
+				new OOBIncludeTask().execute(new URL("https://alpha.irccloud.com/chat/backlog?cid="+cid+"&bid="+bid+"&beforeid="+beforeId));
+			else
+				new OOBIncludeTask().execute(new URL("https://alpha.irccloud.com/chat/backlog?cid="+cid+"&bid="+bid));
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void schedule_idle_timer() {
@@ -209,7 +227,7 @@ public class NetworkConnection {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteBuffer(object.getInt("bid"));
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
-						(object.has("max_eid") && !object.getString("max_eid").equalsIgnoreCase("undefined"))?object.getLong("max_eid"):0,
+						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
 								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
@@ -343,7 +361,8 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_HEARTBEATECHO, null);
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
-					Looper.prepare();
+					if(Looper.myLooper() == null)
+						Looper.prepare();
 					new OOBIncludeTask().execute(new URL("https://alpha.irccloud.com" + object.getString("url")));
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
@@ -535,14 +554,16 @@ public class NetworkConnection {
 		protected Boolean doInBackground(URL... url) {
 			try {
 				json = doGet(url[0]);
-				Log.i("IRCCloud", "Beginning backlog...");
-				notifyHandlers(EVENT_BACKLOG_START, null);
-				DBHelper.getInstance().beginBatch();
-				JSONArray a = new JSONArray(json);
-				for(int i = 0; i < a.length(); i++)
-					parse_object(a.getJSONObject(i), true);
-				DBHelper.getInstance().endBatch();
-				Log.i("IRCCloud", "Backlog complete!");
+				synchronized(parserLock) {
+					Log.i("IRCCloud", "Beginning backlog...");
+					notifyHandlers(EVENT_BACKLOG_START, null);
+					DBHelper.getInstance().beginBatch();
+					JSONArray a = new JSONArray(json);
+					for(int i = 0; i < a.length(); i++)
+						parse_object(a.getJSONObject(i), true);
+					DBHelper.getInstance().endBatch();
+					Log.i("IRCCloud", "Backlog complete!");
+				}
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;
 			} catch (Exception e) {
@@ -552,4 +573,5 @@ public class NetworkConnection {
 			return false;
 		}
 	}
+	
 }

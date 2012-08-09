@@ -106,7 +106,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		database.execSQL("create table " + TABLE_BUFFERS + " ("
 				+ "bid integer primary key, "
 				+ "cid integer not null, "
-				+ "max_eid integer not null, "
+				+ "min_eid integer not null, "
 				+ "last_seen_eid integer not null, "
 				+ "name text not null, "
 				+ "type text not null, "

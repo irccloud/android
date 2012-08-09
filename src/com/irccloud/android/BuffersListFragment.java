@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +39,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		int highlights;
 		int key;
 		long last_seen_eid;
+		long min_eid;
 		String name;
 	}
 
@@ -62,7 +64,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid) {
+		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -72,6 +74,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.unread = unread;
 			e.highlights = highlights;
 			e.last_seen_eid = last_seen_eid;
+			e.min_eid = min_eid;
 			return e;
 		}
 		
@@ -170,7 +173,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(b.type.equalsIgnoreCase("console")) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid));
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid));
 						break;
 					}
 				}
@@ -189,7 +192,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid));
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid));
 					}
 				}
 			}
@@ -267,7 +270,8 @@ public class BuffersListFragment extends SherlockListFragment {
     		type = "conversation";
     		break;
     	}
-    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, type);
+    	Log.i("IRCCloud", "min_eid: " + e.min_eid);
+    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type);
     }
     
 	private final Handler mHandler = new Handler() {
@@ -288,6 +292,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, String type);
+		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type);
 	}
 }
