@@ -31,7 +31,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	OnBufferSelectedListener mListener;
 	
 	private static class BufferListEntry implements Serializable {
-		private static final long serialVersionUID = 1848168221883194025L;
+		private static final long serialVersionUID = 1848168221883194026L;
 		int cid;
 		long bid;
 		int type;
@@ -40,6 +40,8 @@ public class BuffersListFragment extends SherlockListFragment {
 		int key;
 		long last_seen_eid;
 		long min_eid;
+		int joined;
+		int archived;
 		String name;
 	}
 
@@ -64,7 +66,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid) {
+		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -75,6 +77,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.highlights = highlights;
 			e.last_seen_eid = last_seen_eid;
 			e.min_eid = min_eid;
+			e.joined = joined;
+			e.archived = archived;
 			return e;
 		}
 		
@@ -173,7 +177,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(b.type.equalsIgnoreCase("console")) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid));
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived));
 						break;
 					}
 				}
@@ -181,9 +185,12 @@ public class BuffersListFragment extends SherlockListFragment {
 					BuffersDataSource.Buffer b = buffers.get(j);
 					int type = -1;
 					int key = 0;
+					int joined = 1;
 					if(b.type.equalsIgnoreCase("channel")) {
 						type = TYPE_CHANNEL;
 						ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+						if(c == null)
+							joined = 0;
 						if(c != null && c.mode != null && c.mode.contains("k"))
 							key = 1;
 					}
@@ -192,7 +199,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid));
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived));
 					}
 				}
 			}
@@ -240,6 +247,7 @@ public class BuffersListFragment extends SherlockListFragment {
     	new RefreshTask().execute((Void)null);
     }
     
+    @Override
     public void onPause() {
     	super.onPause();
     	if(conn != null)
@@ -270,8 +278,7 @@ public class BuffersListFragment extends SherlockListFragment {
     		type = "conversation";
     		break;
     	}
-    	Log.i("IRCCloud", "min_eid: " + e.min_eid);
-    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type);
+    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived);
     }
     
 	private final Handler mHandler = new Handler() {
@@ -286,6 +293,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
 			case NetworkConnection.EVENT_BUFFERUNARCHIVED:
 			case NetworkConnection.EVENT_RENAMECONVERSATION:
+			case NetworkConnection.EVENT_PART:
 		    	new RefreshTask().execute((Void)null);
 				break;
 			default:
@@ -295,6 +303,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type);
+		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived);
 	}
 }

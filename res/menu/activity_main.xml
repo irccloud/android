@@ -2,8 +2,4 @@
     <item android:id="@+id/menu_add"
         android:orderInCategory="1"
         android:showAsAction="always" android:icon="@drawable/add"/>
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
 </menu>

@@ -8,17 +8,20 @@
         android:name="com.irccloud.android.MessageViewFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
         android:layout_weight="1"
         tools:layout="@layout/messageview" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/compose_bar_bg"
+        android:padding="4dp"
         android:paddingTop="2dp" >
 
         <EditText
             android:id="@+id/messageTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="1"
@@ -29,13 +32,11 @@
             <requestFocus />
         </EditText>
 
-        <Button
+        <include
             android:id="@+id/sendBtn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="Send" />
-
+            layout="@layout/sendbtn" />
     </LinearLayout>
 
 </LinearLayout>

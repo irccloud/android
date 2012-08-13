@@ -44,31 +44,11 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
     }
     
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.activity_user_list, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-    
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                // This is called when the Home (Up) button is pressed
-                // in the Action Bar.
-                Intent parentActivityIntent = new Intent(this, MessageActivity.class);
-                parentActivityIntent.putExtra("cid", cid);
-                parentActivityIntent.putExtra("bid", bid);
-                parentActivityIntent.putExtra("name", channel);
-                parentActivityIntent.putExtra("type", "channel");
-                parentActivityIntent.addFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                        Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(parentActivityIntent);
                 finish();
                 return true;
-            case R.id.menu_userlist:
-            	break;
         }
         return super.onOptionsItemSelected(item);
     }

@@ -8,4 +8,5 @@
     <drawable name="selected_blue">#527DFF</drawable>
     <drawable name="operator_bg_red">#FEF2F2</drawable>
     <drawable name="voiced_bg_green">#F4FFED</drawable>
+    <drawable name="compose_bar_bg">#8F8F8F</drawable>
 </resources>

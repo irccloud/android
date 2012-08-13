@@ -172,6 +172,36 @@ public class NetworkConnection {
 		return last_reqid;
 	}
 	
+	public int join(int cid, String channel, String key) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"join\", \"cid\":"+cid+", \"channel\":\""+channel+"\", \"key\":\""+key+"\"}\n");
+		return last_reqid;
+	}
+	
+	public int part(int cid, String channel, String message) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"part\", \"cid\":"+cid+", \"channel\":\""+channel+"\", \"msg\":\""+message+"\"}\n");
+		return last_reqid;
+	}
+	
+	public int archiveBuffer(int cid, long bid) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"archive-buffer\", \"cid\":"+cid+", \"bid\":"+bid+"}\n");
+		return last_reqid;
+	}
+	
+	public int unarchiveBuffer(int cid, long bid) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"unarchive-buffer\", \"cid\":"+cid+", \"bid\":"+bid+"}\n");
+		return last_reqid;
+	}
+	
+	public int deleteBuffer(int cid, long bid) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"delete-buffer\", \"cid\":"+cid+", \"bid\":"+bid+"}\n");
+		return last_reqid;
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
@@ -206,8 +236,10 @@ public class NetworkConnection {
 	@SuppressWarnings("unchecked")
 	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
 		//Log.d(TAG, "New event: " + object);
-		if(!object.has("type")) //TODO: This is probably a command response, parse it and send the result back up to the UI!
+		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
+			Log.d(TAG, "Response: " + object);
 			return;
+		}
 		String type = object.getString("type");
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("header")) {
@@ -228,7 +260,9 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				b.deleteBuffer(object.getInt("bid"));
+				c.deleteChannel(object.getInt("bid"));
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
 						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
 								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0);
@@ -303,6 +337,10 @@ public class NetworkConnection {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
 				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				if(!backlog && type.equalsIgnoreCase("you_parted_channel")) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					c.deleteChannel(object.getInt("bid"));
+				}
 				if(!backlog)
 					notifyHandlers(EVENT_PART, event);
 			} else if(type.equalsIgnoreCase("quit")) {

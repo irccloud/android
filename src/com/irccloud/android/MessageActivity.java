@@ -6,11 +6,13 @@ import com.actionbarsherlock.view.MenuItem;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -20,7 +22,11 @@ public class MessageActivity extends UserListActivity {
 	String name;
 	String type;
 	TextView messageTxt;
-	Button sendBtn;
+	View sendBtn;
+	int joined;
+	int archived;
+	
+	NetworkConnection conn;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,7 +41,7 @@ public class MessageActivity extends UserListActivity {
          	   return true;
            	}
         });
-        sendBtn = (Button)findViewById(R.id.sendBtn);
+        sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -50,6 +56,8 @@ public class MessageActivity extends UserListActivity {
         	bid = savedInstanceState.getLong("bid");
         	name = savedInstanceState.getString("name");
         	type = savedInstanceState.getString("type");
+        	joined = savedInstanceState.getInt("joined");
+        	archived = savedInstanceState.getInt("archived");
         }
     }
 
@@ -60,6 +68,8 @@ public class MessageActivity extends UserListActivity {
     	state.putLong("bid", bid);
     	state.putString("name", name);
     	state.putString("type", type);
+    	state.putInt("joined", joined);
+    	state.putInt("archived", archived);
     }
     
     private class SendTask extends AsyncTask<Void, Void, Void> {
@@ -70,7 +80,6 @@ public class MessageActivity extends UserListActivity {
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			NetworkConnection conn = NetworkConnection.getInstance();
 			if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 				conn.say(cid, name, messageTxt.getText().toString());
 			}
@@ -79,6 +88,7 @@ public class MessageActivity extends UserListActivity {
     	
 		@Override
 		protected void onPostExecute(Void result) {
+			conn.say(cid, name, messageTxt.getText().toString());
 			messageTxt.setText("");
     		sendBtn.setEnabled(true);
 		}
@@ -92,20 +102,102 @@ public class MessageActivity extends UserListActivity {
 	    	bid = getIntent().getLongExtra("bid", 0);
 	    	name = getIntent().getStringExtra("name");
 	    	type = getIntent().getStringExtra("type");
+	    	joined = getIntent().getIntExtra("joined", 0);
+	    	archived = getIntent().getIntExtra("archived", 0);
     	}
+    	conn = NetworkConnection.getInstance();
+    	conn.addHandler(mHandler);
     	getSupportActionBar().setTitle(name);
     }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	if(conn != null)
+    		conn.removeHandler(mHandler);
+    }
+    
+	private final Handler mHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			Integer event_bid = 0;
+			switch (msg.what) {
+			case NetworkConnection.EVENT_DELETEBUFFER:
+				event_bid = (Integer)msg.obj;
+				if(event_bid == bid)
+					finish();
+				break;
+			case NetworkConnection.EVENT_BUFFERARCHIVED:
+				event_bid = (Integer)msg.obj;
+				if(event_bid == bid) {
+					archived = 1;
+					invalidateOptionsMenu();
+				}
+				break;
+			case NetworkConnection.EVENT_BUFFERUNARCHIVED:
+				event_bid = (Integer)msg.obj;
+				if(event_bid == bid) {
+					archived = 0;
+					invalidateOptionsMenu();
+				}
+				break;
+			case NetworkConnection.EVENT_PART:
+				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
+				if(event.bid == bid) {
+					joined = 0;
+					invalidateOptionsMenu();
+				}
+				break;
+			case NetworkConnection.EVENT_CHANNELINIT:
+				ChannelsDataSource.Channel channel = (ChannelsDataSource.Channel)msg.obj;
+				if(channel.bid == bid) {
+					joined = 1;
+					archived = 0;
+					invalidateOptionsMenu();
+				}
+			default:
+				break;
+			}
+		}
+	};
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	if(type.equalsIgnoreCase("channel"))
+    	if(type.equalsIgnoreCase("channel")) {
+    		getSupportMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
     		getSupportMenuInflater().inflate(R.menu.activity_message_channel, menu);
-    	else if(type.equalsIgnoreCase("conversation"))
+    	} else if(type.equalsIgnoreCase("conversation"))
     		getSupportMenuInflater().inflate(R.menu.activity_message_conversation, menu);
     	else if(type.equalsIgnoreCase("console"))
     		getSupportMenuInflater().inflate(R.menu.activity_message_console, menu);
 
+    	getSupportMenuInflater().inflate(R.menu.activity_message_archive, menu);
+
         return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+    	if(archived == 0) {
+    		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
+    		menu.findItem(R.id.menu_delete).setVisible(false);
+    		menu.findItem(R.id.menu_delete).setEnabled(false);
+    	} else {
+    		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
+    		menu.findItem(R.id.menu_delete).setVisible(true);
+    		menu.findItem(R.id.menu_delete).setEnabled(true);
+    	}
+    	if(type.equalsIgnoreCase("channel")) {
+        	if(joined == 0) {
+        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
+        		menu.findItem(R.id.menu_archive).setVisible(true);
+        		menu.findItem(R.id.menu_archive).setEnabled(true);
+        	} else {
+        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
+        		menu.findItem(R.id.menu_archive).setVisible(false);
+        		menu.findItem(R.id.menu_archive).setEnabled(false);
+        	}
+    	}
+    	return super.onPrepareOptionsMenu(menu);
     }
     
     @Override
@@ -127,6 +219,21 @@ public class MessageActivity extends UserListActivity {
             	i.putExtra("bid", bid);
             	i.putExtra("name", name);
             	startActivity(i);
+            	break;
+            case R.id.menu_leave:
+            	if(joined == 0)
+            		conn.join(cid, name, "");
+            	else
+            		conn.part(cid, name, "");
+            	break;
+            case R.id.menu_archive:
+            	if(archived == 0)
+            		conn.archiveBuffer(cid, bid);
+            	else
+            		conn.unarchiveBuffer(cid, bid);
+            	break;
+            case R.id.menu_delete:
+            	conn.deleteBuffer(cid, bid);
             	break;
         }
         return super.onOptionsItemSelected(item);

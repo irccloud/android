@@ -46,6 +46,7 @@ public class BaseActivity extends SherlockFragmentActivity {
     	}
     }
 
+    @Override
     public void onPause() {
     	super.onPause();
 
@@ -81,7 +82,7 @@ public class BaseActivity extends SherlockFragmentActivity {
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.activity_user_list, menu);
+        getSupportMenuInflater().inflate(R.menu.activity_base, menu);
 
         return super.onCreateOptionsMenu(menu);
     }

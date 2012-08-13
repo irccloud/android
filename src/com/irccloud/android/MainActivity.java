@@ -19,6 +19,7 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
+    @Override
     public void onResume() {
     	super.onResume();
     	
@@ -26,6 +27,7 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     	conn.addHandler(mHandler);
     }
     
+    @Override
     public void onPause() {
     	super.onPause();
 
@@ -54,7 +56,7 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     }
 
 	@Override
-	public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type) {
+	public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived) {
 		Intent i = new Intent(this, MessageActivity.class);
 		i.putExtra("cid", cid);
 		i.putExtra("bid", bid);
@@ -62,6 +64,8 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 		i.putExtra("last_seen_eid", last_seen_eid);
 		i.putExtra("min_eid", min_eid);
 		i.putExtra("type", type);
+		i.putExtra("joined", joined);
+		i.putExtra("archived", archived);
 		startActivity(i);
 	}
 }

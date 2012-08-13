@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_archive"
+        android:title="@string/menu_archive"
+        android:showAsAction="never" />
+    <item android:id="@+id/menu_delete"
+        android:title="@string/menu_delete"
+        android:showAsAction="never" />
+</menu>

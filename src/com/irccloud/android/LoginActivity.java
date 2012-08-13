@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import com.actionbarsherlock.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -34,11 +33,6 @@ public class LoginActivity extends SherlockActivity {
 				new LoginTask().execute((Void)null);
 			}
         });
-    }
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	getSupportMenuInflater().inflate(R.menu.activity_login, menu);
-        return true;
     }
 
     private class LoginTask extends AsyncTask<Void, Void, String> {
