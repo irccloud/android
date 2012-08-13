@@ -32,6 +32,24 @@ public class DBHelper extends SQLiteOpenHelper {
 		super(IRCCloudApplication.getInstance().getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
+	public void clear() {
+		try {
+			readSemaphore.acquire();
+			SQLiteDatabase db = getSafeWritableDatabase();
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_SERVERS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUFFERS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_CHANNELS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
+			onCreate(db);
+			db.close();
+			writeSemaphore.release();
+			readSemaphore.release();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public SQLiteDatabase getSafeWritableDatabase() {
 		try {
 			writeSemaphore.acquire();

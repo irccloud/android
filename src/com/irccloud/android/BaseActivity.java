@@ -6,6 +6,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -41,6 +42,9 @@ public class BaseActivity extends SherlockFragmentActivity {
 				setSupportProgressBarIndeterminateVisibility(true);
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
+    		i.addFlags(
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                    Intent.FLAG_ACTIVITY_NEW_TASK);
     		startActivity(i);
     		finish();
     	}
@@ -90,7 +94,18 @@ public class BaseActivity extends SherlockFragmentActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_userlist:
+            case R.id.menu_logout:
+            	conn.disconnect();
+				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+				editor.remove("session_key");
+				editor.commit();
+            	DBHelper.getInstance().clear();
+        		Intent i = new Intent(this, LoginActivity.class);
+        		i.addFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                        Intent.FLAG_ACTIVITY_NEW_TASK);
+        		startActivity(i);
+        		finish();
             	break;
         }
         return super.onOptionsItemSelected(item);
