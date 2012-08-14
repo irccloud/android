@@ -121,6 +121,12 @@ public class MessageActivity extends UserListActivity {
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_MAKEBUFFER:
+				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
+				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
+					bid = buffer.bid;
+				}
+				break;
 			case NetworkConnection.EVENT_DELETEBUFFER:
 				event_bid = (Integer)msg.obj;
 				if(event_bid == bid)

@@ -79,7 +79,7 @@ public class EventsDataSource {
 		return events;
 	}
 
-	public synchronized int getUnreadCountForBuffer(int bid, long last_seen_eid) {
+	public synchronized int getUnreadCountForBuffer(long bid, long last_seen_eid) {
 		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
 		Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"count() as count"}, "bid = ? and eid > ? and (type='buffer_msg' or type='buffer_me_msg' or type='notice' or type='channel_invite' or type='callerid')", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)}, null, null, null);
 
@@ -91,7 +91,7 @@ public class EventsDataSource {
 		return count;
 	}
 
-	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid) {
+	public synchronized int getHighlightCountForBuffer(long bid, long last_seen_eid) {
 		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
 		Cursor cursor = db.query(DBHelper.TABLE_EVENTS, new String[] {"count() as count"}, "bid = ? and eid > ? and highlight='1' and (type='buffer_msg' or type='buffer_me_msg' or type='notice' or type='channel_invite' or type='callerid')", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)}, null, null, null);
 

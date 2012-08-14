@@ -31,6 +31,7 @@ public class MessageViewFragment extends SherlockFragment {
 	private long last_seen_eid;
 	private long min_eid;
 	private long earliest_eid;
+	private String name;
 	
 	public class JavaScriptInterface {
 		public void requestBacklog() {
@@ -65,12 +66,38 @@ public class MessageViewFragment extends SherlockFragment {
     	return v;
     }
 	
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
+        	cid = savedInstanceState.getInt("cid");
+        	bid = savedInstanceState.getLong("bid");
+        	name = savedInstanceState.getString("name");
+        	last_seen_eid = savedInstanceState.getLong("last_seen_eid");
+        	min_eid = savedInstanceState.getLong("min_eid");
+        }
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	state.putInt("cid", cid);
+    	state.putLong("bid", bid);
+    	state.putLong("last_seen_eid", last_seen_eid);
+    	state.putLong("min_eid", min_eid);
+    	state.putString("name", name);
+    }
+
+    
     public void onAttach(Activity activity) {
     	super.onAttach(activity);
-    	cid = activity.getIntent().getIntExtra("cid", 0);
-    	bid = activity.getIntent().getLongExtra("bid", 0);
-    	last_seen_eid = activity.getIntent().getLongExtra("last_seen_eid", 0);
-    	min_eid = activity.getIntent().getLongExtra("min_eid", 0);
+    	if(activity.getIntent() != null && activity.getIntent().hasExtra("cid")) {
+	    	cid = activity.getIntent().getIntExtra("cid", 0);
+	    	bid = activity.getIntent().getLongExtra("bid", 0);
+	    	last_seen_eid = activity.getIntent().getLongExtra("last_seen_eid", 0);
+	    	min_eid = activity.getIntent().getLongExtra("min_eid", 0);
+	    	name = activity.getIntent().getStringExtra("name");
+    	}
     }
 
     private void insertEvent(EventsDataSource.Event event) {
@@ -85,7 +112,8 @@ public class MessageViewFragment extends SherlockFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-		new RefreshTask().execute((Void)null);
+    	if(bid != -1)
+    		new RefreshTask().execute((Void)null);
     }
     
     private class HeartbeatTask extends AsyncTask<EventsDataSource.Event, Void, Void> {
@@ -151,6 +179,12 @@ public class MessageViewFragment extends SherlockFragment {
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_MAKEBUFFER:
+				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
+				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
+					bid = buffer.bid;
+				}
+				break;
 			case NetworkConnection.EVENT_DELETEBUFFER:
 				if((Integer)msg.obj == bid) {
 	                Intent parentActivityIntent = new Intent(getActivity(), MainActivity.class);

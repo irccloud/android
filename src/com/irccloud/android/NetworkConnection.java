@@ -186,19 +186,19 @@ public class NetworkConnection {
 	
 	public int archiveBuffer(int cid, long bid) {
 		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"archive-buffer\", \"cid\":"+cid+", \"bid\":"+bid+"}\n");
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"archive-buffer\", \"cid\":"+cid+", \"id\":"+bid+"}\n");
 		return last_reqid;
 	}
 	
 	public int unarchiveBuffer(int cid, long bid) {
 		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"unarchive-buffer\", \"cid\":"+cid+", \"bid\":"+bid+"}\n");
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"unarchive-buffer\", \"cid\":"+cid+", \"id\":"+bid+"}\n");
 		return last_reqid;
 	}
 	
 	public int deleteBuffer(int cid, long bid) {
 		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"delete-buffer\", \"cid\":"+cid+", \"bid\":"+bid+"}\n");
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"delete-buffer\", \"cid\":"+cid+", \"id\":"+bid+"}\n");
 		return last_reqid;
 	}
 	

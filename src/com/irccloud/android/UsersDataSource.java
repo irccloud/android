@@ -126,6 +126,21 @@ public class UsersDataSource {
 		return users;
 	}
 
+	public synchronized User getUser(int cid, String channel, String nick) {
+		User user = null;
+		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
+		Cursor cursor = db.query(DBHelper.TABLE_USERS, new String[] {"cid", "channel", "nick", "hostmask", "mode", "away"}, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick}, null, null, "mode,nick");
+
+		if(cursor.moveToFirst()) {
+			user = cursorToUser(cursor);
+		}
+		// Make sure to close the cursor
+		cursor.close();
+		db.close();
+		dbHelper.releaseReadableDatabase();
+		return user;
+	}
+
 	private User cursorToUser(Cursor cursor) {
 		User user = new User();
 		user.cid = cursor.getInt(cursor.getColumnIndex("cid"));

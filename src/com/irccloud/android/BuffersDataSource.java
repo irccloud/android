@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class BuffersDataSource {
 	public class Buffer {
-		int bid;
+		long bid;
 		int cid;
 		long min_eid;
 		long last_seen_eid;
@@ -97,6 +97,19 @@ public class BuffersDataSource {
 
 		cursor.moveToFirst();
 		Buffer buffer = cursorToBuffer(cursor);
+		cursor.close();
+		db.close();
+		dbHelper.releaseReadableDatabase();
+		return buffer;
+	}
+	
+	public synchronized Buffer getBufferByName(int cid, String name) {
+		Buffer buffer = null;
+		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
+		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "cid = ? and name = ?", new String[] {String.valueOf(cid), name}, null, null, null);
+
+		if(cursor.moveToFirst())
+			buffer = cursorToBuffer(cursor);
 		cursor.close();
 		db.close();
 		dbHelper.releaseReadableDatabase();
