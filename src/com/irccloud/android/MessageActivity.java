@@ -88,7 +88,6 @@ public class MessageActivity extends UserListActivity {
     	
 		@Override
 		protected void onPostExecute(Void result) {
-			conn.say(cid, name, messageTxt.getText().toString());
 			messageTxt.setText("");
     		sendBtn.setEnabled(true);
 		}
@@ -105,6 +104,8 @@ public class MessageActivity extends UserListActivity {
 	    	joined = getIntent().getIntExtra("joined", 0);
 	    	archived = getIntent().getIntExtra("archived", 0);
     	}
+    	if(!type.equalsIgnoreCase("channel"))
+    		findViewById(R.id.usersListFragment).setVisibility(View.GONE);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	getSupportActionBar().setTitle(name);
