@@ -289,12 +289,13 @@ public class NetworkConnection {
 				userInfo = new UserInfo(object);
 				notifyHandlers(EVENT_USERINFO, userInfo);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
+				Log.i("IRCCloud", object.toString());
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteServer(object.getInt("cid"));
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-								object.getJSONObject("fail_info").toString(), object.getBoolean("away")?1:0);
+								object.getJSONObject("fail_info").toString(), object.getString("away"));
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("connection_deleted")) {

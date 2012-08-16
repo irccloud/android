@@ -21,7 +21,7 @@ public class ServersDataSource {
 		String nickserv_pass;
 		String join_commands;
 		String fail_info;
-		int away;
+		String away;
 	}
 
 	private DBHelper dbHelper;
@@ -37,7 +37,7 @@ public class ServersDataSource {
 		dbHelper = DBHelper.getInstance();
 	}
 
-	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, int away) {
+	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, String away) {
 		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("cid", cid);
@@ -155,7 +155,7 @@ public class ServersDataSource {
 		server.nickserv_pass = cursor.getString(cursor.getColumnIndex("nickserv_pass"));
 		server.join_commands = cursor.getString(cursor.getColumnIndex("join_commands"));
 		server.fail_info = cursor.getString(cursor.getColumnIndex("fail_info"));
-		server.away = cursor.getInt(cursor.getColumnIndex("away"));
+		server.away = cursor.getString(cursor.getColumnIndex("away"));
 		return server;
 	}
 }

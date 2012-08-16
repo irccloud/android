@@ -123,7 +123,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ "nickserv_pass text, "
 				+ "join_commands text, "
 				+ "fail_info text, "
-				+ "away integer, "
+				+ "away string, "
 				+ "lag integer, "
 				+ "status text"
 				+ ");");
