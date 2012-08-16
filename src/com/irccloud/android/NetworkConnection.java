@@ -289,7 +289,6 @@ public class NetworkConnection {
 				userInfo = new UserInfo(object);
 				notifyHandlers(EVENT_USERINFO, userInfo);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
-				Log.i("IRCCloud", object.toString());
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteServer(object.getInt("cid"));
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
@@ -315,7 +314,7 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.deleteBuffer(object.getInt("bid"));
+				b.deleteAllDataForBuffer(object.getInt("bid"));
 				if(!backlog)
 					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("buffer_archived")) {

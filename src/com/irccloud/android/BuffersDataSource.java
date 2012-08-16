@@ -91,6 +91,25 @@ public class BuffersDataSource {
 		dbHelper.releaseWriteableDatabase();
 	}
 
+	public void deleteAllDataForBuffer(int bid) {
+		Buffer buffer = null;
+		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
+		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
+
+		if(cursor.moveToFirst())
+			buffer = cursorToBuffer(cursor);
+		cursor.close();
+		db.delete(DBHelper.TABLE_BUFFERS, "bid = ?", new String[] {String.valueOf(bid)});
+		db.delete(DBHelper.TABLE_EVENTS, "bid = ?", new String[] {String.valueOf(bid)});
+		if(buffer != null && buffer.type.equalsIgnoreCase("channel")) {
+			db.delete(DBHelper.TABLE_CHANNELS, "bid = ?", new String[] {String.valueOf(bid)});
+			db.delete(DBHelper.TABLE_USERS, "channel = ?", new String[] {buffer.name});
+		}
+		if(!DBHelper.getInstance().isBatch())
+			db.close();
+		dbHelper.releaseWriteableDatabase();
+	}
+
 	public synchronized Buffer getBuffer(int bid) {
 		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
 		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
