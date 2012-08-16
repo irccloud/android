@@ -29,6 +29,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import com.codebutler.android_websockets.WebSocketClient;
+import com.irccloud.android.ServersDataSource.Server;
 
 public class NetworkConnection {
 	private static final String TAG = "IRCCloud";
@@ -66,6 +67,8 @@ public class NetworkConnection {
 	public static final int EVENT_BUFFERARCHIVED = 15;
 	public static final int EVENT_BUFFERUNARCHIVED = 16;
 	public static final int EVENT_RENAMECONVERSATION = 17;
+	public static final int EVENT_STATUSCHANGED = 18;
+	public static final int EVENT_CONNECTIONDELETED = 19;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -202,6 +205,40 @@ public class NetworkConnection {
 		return last_reqid;
 	}
 	
+	public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"add-server\", "+
+				"\"hostname\":\""+hostname+"\", "+
+				"\"port\":"+port+", "+
+				"\"ssl\":"+ssl+", "+
+				"\"netname\":\""+netname+"\", "+
+				"\"nickname\":\""+nickname+"\", "+
+				"\"realname\":\""+realname+"\", "+
+				"\"server_pass\":\""+server_pass+"\", "+
+				"\"nspass\":\""+nickserv_pass+"\", "+
+				"\"joincommands\":\""+joincommands+"\", "+
+				"\"channels\":\""+channels+"\""+
+				"}\n");
+		return last_reqid;
+	}
+	
+	public int editServer(int cid, String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands) {
+		last_reqid++;
+		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"edit-server\", "+
+				"\"hostname\":\""+hostname+"\", "+
+				"\"port\":"+port+", "+
+				"\"ssl\":"+ssl+", "+
+				"\"netname\":\""+netname+"\", "+
+				"\"nickname\":\""+nickname+"\", "+
+				"\"realname\":\""+realname+"\", "+
+				"\"server_pass\":\""+server_pass+"\", "+
+				"\"nspass\":\""+nickserv_pass+"\", "+
+				"\"joincommands\":\""+joincommands+"\", "+
+				"\"cid\":"+cid+""+
+				"}\n");
+		return last_reqid;
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
@@ -251,13 +288,20 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("stat_user")) {
 				userInfo = new UserInfo(object);
 				notifyHandlers(EVENT_USERINFO, userInfo);
-			} else if(type.equalsIgnoreCase("makeserver")) {
+			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteServer(object.getInt("cid"));
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
-						object.getInt("port"), object.getString("nick"), (object.has("connected") && object.getBoolean("connected"))?1:0);
+						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
+								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
+								object.getJSONObject("fail_info").toString(), object.getBoolean("away")?1:0);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
+			} else if(type.equalsIgnoreCase("connection_deleted")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.deleteAllDataForServer(object.getInt("cid"));
+				if(!backlog)
+					notifyHandlers(EVENT_CONNECTIONDELETED, object.getInt("cid"));
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
@@ -288,6 +332,11 @@ public class NetworkConnection {
 				b.updateName(object.getInt("bid"), object.getString("new_name"));
 				if(!backlog)
 					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.getInt("bid"));
+			} else if(type.equalsIgnoreCase("status_changed")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getJSONObject("fail_info").toString());
+				if(!backlog)
+					notifyHandlers(EVENT_STATUSCHANGED, object.getInt("cid"));
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart")
 					 || type.equalsIgnoreCase("notice") || type.equalsIgnoreCase("server_welcome") || type.equalsIgnoreCase("server_motd") || type.equalsIgnoreCase("server_endofmotd")
 					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns")
@@ -302,7 +351,7 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("channel_init")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.deleteChannel(object.getLong("bid"));
-				ChannelsDataSource.Channel channel = c.createChannel(object.getLong("bid"), object.getString("chan"),
+				ChannelsDataSource.Channel channel = c.createChannel(object.getInt("cid"), object.getLong("bid"), object.getString("chan"),
 						object.getJSONObject("topic").isNull("text")?"":object.getJSONObject("topic").getString("text"), object.getJSONObject("topic").getLong("time"), 
 						object.getJSONObject("topic").getString("nick"), object.getString("channel_type"), object.getString("mode"));
 				UsersDataSource u = UsersDataSource.getInstance();
@@ -399,7 +448,7 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_MEMBERUPDATES, null);
 			} else if(type.equalsIgnoreCase("connection_lag")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateLag(object.getInt("cid"), object.getInt("lag"));
+				s.updateLag(object.getInt("cid"), object.getLong("lag"));
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
 				JSONObject seenEids = object.getJSONObject("seenEids");
 				Iterator<String> i = seenEids.keys();

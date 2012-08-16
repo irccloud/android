@@ -104,7 +104,7 @@ public class MessageActivity extends UserListActivity {
 	    	joined = getIntent().getIntExtra("joined", 0);
 	    	archived = getIntent().getIntExtra("archived", 0);
     	}
-    	if(!type.equalsIgnoreCase("channel"))
+    	if(!type.equalsIgnoreCase("channel") && findViewById(R.id.usersListFragment) != null)
     		findViewById(R.id.usersListFragment).setVisibility(View.GONE);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
@@ -127,11 +127,6 @@ public class MessageActivity extends UserListActivity {
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
 					bid = buffer.bid;
 				}
-				break;
-			case NetworkConnection.EVENT_DELETEBUFFER:
-				event_bid = (Integer)msg.obj;
-				if(event_bid == bid)
-					finish();
 				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
 				event_bid = (Integer)msg.obj;
@@ -186,23 +181,28 @@ public class MessageActivity extends UserListActivity {
     public boolean onPrepareOptionsMenu (Menu menu) {
     	if(archived == 0) {
     		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
-    		menu.findItem(R.id.menu_delete).setVisible(false);
-    		menu.findItem(R.id.menu_delete).setEnabled(false);
     	} else {
     		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
-    		menu.findItem(R.id.menu_delete).setVisible(true);
-    		menu.findItem(R.id.menu_delete).setEnabled(true);
     	}
     	if(type.equalsIgnoreCase("channel")) {
         	if(joined == 0) {
         		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
         		menu.findItem(R.id.menu_archive).setVisible(true);
         		menu.findItem(R.id.menu_archive).setEnabled(true);
+        		menu.findItem(R.id.menu_delete).setVisible(true);
+        		menu.findItem(R.id.menu_delete).setEnabled(true);
         	} else {
         		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
         		menu.findItem(R.id.menu_archive).setVisible(false);
         		menu.findItem(R.id.menu_archive).setEnabled(false);
+        		menu.findItem(R.id.menu_delete).setVisible(false);
+        		menu.findItem(R.id.menu_delete).setEnabled(false);
         	}
+    	} else if(type.equalsIgnoreCase("console")) {
+    		menu.findItem(R.id.menu_archive).setVisible(false);
+    		menu.findItem(R.id.menu_archive).setEnabled(false);
+    		menu.findItem(R.id.menu_delete).setVisible(false);
+    		menu.findItem(R.id.menu_delete).setEnabled(false);
     	}
     	return super.onPrepareOptionsMenu(menu);
     }
@@ -210,38 +210,33 @@ public class MessageActivity extends UserListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                // This is called when the Home (Up) button is pressed
-                // in the Action Bar.
-                Intent parentActivityIntent = new Intent(this, MainActivity.class);
-                parentActivityIntent.addFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                        Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(parentActivityIntent);
-                finish();
-                return true;
             case R.id.menu_userlist:
             	Intent i = new Intent(this, UserListActivity.class);
             	i.putExtra("cid", cid);
             	i.putExtra("bid", bid);
             	i.putExtra("name", name);
             	startActivity(i);
-            	break;
+            	return true;
             case R.id.menu_leave:
             	if(joined == 0)
             		conn.join(cid, name, "");
             	else
             		conn.part(cid, name, "");
-            	break;
+            	return true;
             case R.id.menu_archive:
             	if(archived == 0)
             		conn.archiveBuffer(cid, bid);
             	else
             		conn.unarchiveBuffer(cid, bid);
-            	break;
+            	return true;
             case R.id.menu_delete:
             	conn.deleteBuffer(cid, bid);
-            	break;
+            	return true;
+            case R.id.menu_editconnection:
+                Intent intent = new Intent(this, EditConnectionActivity.class);
+                intent.putExtra("cid", cid);
+                startActivity(intent);
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }

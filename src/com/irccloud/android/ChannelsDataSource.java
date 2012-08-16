@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class ChannelsDataSource {
 	public class Channel {
+		int cid;
 		long bid;
 		String name;
 		String topic_text;
@@ -28,9 +29,10 @@ public class ChannelsDataSource {
 		dbHelper = DBHelper.getInstance();
 	}
 
-	public Channel createChannel(long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode) {
+	public Channel createChannel(int cid, long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode) {
 		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
+		values.put("cid", cid);
 		values.put("bid", bid);
 		values.put("name", name);
 		values.put("topic_text", topic_text);
@@ -39,7 +41,7 @@ public class ChannelsDataSource {
 		values.put("type", type);
 		values.put("mode", mode);
 		db.insert(DBHelper.TABLE_CHANNELS, null, values);
-		Cursor cursor = db.query(DBHelper.TABLE_CHANNELS, new String[] {"bid", "name", "topic_text", "topic_time", "topic_author", "type", "mode"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
+		Cursor cursor = db.query(DBHelper.TABLE_CHANNELS, new String[] {"cid", "bid", "name", "topic_text", "topic_time", "topic_author", "type", "mode"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
 		cursor.moveToFirst();
 		Channel newChannel = cursorToChannel(cursor);
 		cursor.close();
@@ -72,7 +74,7 @@ public class ChannelsDataSource {
 	public synchronized Channel getChannelForBuffer(long bid) {
 		Channel channel = null;
 		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_CHANNELS, new String[] {"bid", "name", "topic_text", "topic_time", "topic_author", "type", "mode"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
+		Cursor cursor = db.query(DBHelper.TABLE_CHANNELS, new String[] {"cid", "bid", "name", "topic_text", "topic_time", "topic_author", "type", "mode"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
 		if(cursor.moveToFirst())
 			channel = cursorToChannel(cursor);
 		// Make sure to close the cursor
@@ -84,6 +86,7 @@ public class ChannelsDataSource {
 
 	private Channel cursorToChannel(Cursor cursor) {
 		Channel channel = new Channel();
+		channel.cid = cursor.getInt(cursor.getColumnIndex("cid"));
 		channel.bid = cursor.getLong(cursor.getColumnIndex("bid"));
 		channel.name = cursor.getString(cursor.getColumnIndex("name"));
 		channel.topic_text = cursor.getString(cursor.getColumnIndex("topic_text"));

@@ -35,6 +35,10 @@
             android:name=".UserListActivity"
             android:label="@string/title_activity_user_list" >
         </activity>
+        <activity
+            android:name=".EditConnectionActivity"
+            android:label="@string/title_activity_edit_connection" >
+        </activity>
     </application>
 
 </manifest>

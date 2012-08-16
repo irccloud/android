@@ -1,7 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="100"
+    <item android:id="@+id/menu_editconnection"
+        android:title="@string/menu_editconnection"
         android:showAsAction="never" />
-    
+    <item android:id="@+id/menu_identify"
+        android:title="@string/menu_identify"
+        android:showAsAction="never" />
+    <item android:id="@+id/menu_disconnect"
+        android:title="@string/menu_disconnect"
+        android:showAsAction="never" />
 </menu>

@@ -1,7 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-        android:title="@string/menu_settings"
-        android:orderInCategory="100"
+    <item android:id="@+id/menu_whois"
+        android:title="@string/menu_whois"
         android:showAsAction="never" />
     
 </menu>

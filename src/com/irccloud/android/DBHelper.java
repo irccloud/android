@@ -117,8 +117,15 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ "hostname text not null, "
 				+ "port integer not null, "
 				+ "nick text not null, "
+				+ "ssl integer, "
+				+ "realname text, "
+				+ "server_pass text, "
+				+ "nickserv_pass text, "
+				+ "join_commands text, "
+				+ "fail_info text, "
+				+ "away integer, "
 				+ "lag integer, "
-				+ "connected integer"
+				+ "status text"
 				+ ");");
 
 		database.execSQL("create table " + TABLE_BUFFERS + " ("
@@ -134,6 +141,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		
 		database.execSQL("create table " + TABLE_CHANNELS + " ("
 				+ "bid integer primary key, "
+				+ "cid integer not null, "
 				+ "name text not null, "
 				+ "topic_text text not null, "
 				+ "topic_time integer not null, "

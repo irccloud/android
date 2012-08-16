@@ -2,8 +2,6 @@ package com.irccloud.android;
 
 import java.util.ArrayList;
 
-import com.irccloud.android.BuffersDataSource.Buffer;
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;

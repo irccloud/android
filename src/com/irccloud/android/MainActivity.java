@@ -1,11 +1,13 @@
 package com.irccloud.android;
 
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 public class MainActivity extends BaseActivity implements BuffersListFragment.OnBufferSelectedListener {
@@ -55,6 +57,17 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
         return super.onCreateOptionsMenu(menu);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.menu_add:
+        	AddChannelFragment newFragment = new AddChannelFragment();
+            newFragment.show(getSupportFragmentManager(), "dialog");
+            break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    
 	@Override
 	public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived) {
 		Intent i = new Intent(this, MessageActivity.class);

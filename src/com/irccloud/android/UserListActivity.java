@@ -1,22 +1,22 @@
 package com.irccloud.android;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.View;
+import android.os.Handler;
+import android.os.Message;
 
 public class UserListActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener {
 	int cid;
 	long bid;
 	String channel;
 	String selected_name;
+	
+	NetworkConnection conn;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,7 +40,36 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 	    	channel = getIntent().getStringExtra("name");
     	}
     	getSupportActionBar().setTitle(channel + " members");
+    	conn = NetworkConnection.getInstance();
+    	conn.addHandler(mHandler);
     }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	if(conn != null)
+    		conn.removeHandler(mHandler);
+    }
+    
+	private final Handler mHandler = new Handler() {
+		public void handleMessage(Message msg) {
+			Integer id;
+			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIONDELETED:
+			case NetworkConnection.EVENT_DELETEBUFFER:
+				id = (Integer)msg.obj;
+				if(id == ((msg.what==NetworkConnection.EVENT_CONNECTIONDELETED)?cid:bid)) {
+	                Intent parentActivityIntent = new Intent(UserListActivity.this, MainActivity.class);
+	                parentActivityIntent.addFlags(
+	                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+	                        Intent.FLAG_ACTIVITY_NEW_TASK);
+	                startActivity(parentActivityIntent);
+	                finish();
+				}
+				break;
+			}
+		}
+	};
     
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -60,11 +89,10 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
         return super.onOptionsItemSelected(item);
     }
 
-	@Override
-	public void onUserSelected(int c, String channel, String name) {
-		selected_name = name;
+    @Override
+    protected Dialog onCreateDialog(int id) {
 		UsersDataSource u = UsersDataSource.getInstance();
-		UsersDataSource.User user = u.getUser(cid, channel, name);
+		UsersDataSource.User user = u.getUser(cid, channel, selected_name);
 		final CharSequence[] items = {"Open", "Invite to a channel", "Ignore", "Deop", "Kick", "Ban"};
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -89,8 +117,8 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 			    		i.putExtra("cid", cid);
 			    		i.putExtra("bid", -1L);
 			    		i.putExtra("name", selected_name);
-			    		i.putExtra("last_seen_eid", 0);
-			    		i.putExtra("min_eid", 0);
+			    		i.putExtra("last_seen_eid", 0L);
+			    		i.putExtra("min_eid", 0L);
 			    		i.putExtra("type", "conversation");
 			    		i.putExtra("joined", 1);
 			    		i.putExtra("archived", 0);
@@ -102,6 +130,12 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    }
 		});
 		AlertDialog alert = builder.create();
-		alert.show();
+		return alert;
+    }
+
+    @Override
+	public void onUserSelected(int c, String channel, String name) {
+		selected_name = name;
+		showDialog(0);
 	}
 }
