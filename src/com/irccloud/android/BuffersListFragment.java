@@ -31,7 +31,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	OnBufferSelectedListener mListener;
 	
 	private static class BufferListEntry implements Serializable {
-		private static final long serialVersionUID = 1848168221883194026L;
+		private static final long serialVersionUID = 1848168221883194027L;
 		int cid;
 		long bid;
 		int type;
@@ -43,6 +43,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		int joined;
 		int archived;
 		String name;
+		String status;
 	}
 
 	private class BufferListAdapter extends BaseAdapter {
@@ -66,7 +67,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived) {
+		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -79,6 +80,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.min_eid = min_eid;
 			e.joined = joined;
 			e.archived = archived;
+			e.status = status;
 			return e;
 		}
 		
@@ -127,7 +129,11 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 
 			holder.label.setText(e.name);
-			if(e.unread > 0) {
+			if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
+				holder.label.setTypeface(null);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
+				holder.unread.setBackgroundResource(R.drawable.background_blue);
+			} else if(e.unread > 0) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
@@ -177,7 +183,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(b.type.equalsIgnoreCase("console")) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived));
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status));
 						break;
 					}
 				}
@@ -199,7 +205,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived));
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
 					}
 				}
 			}
@@ -286,6 +292,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
 			case NetworkConnection.EVENT_MAKESERVER:
+			case NetworkConnection.EVENT_STATUSCHANGED:
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
 			case NetworkConnection.EVENT_MAKEBUFFER:
 			case NetworkConnection.EVENT_DELETEBUFFER:
