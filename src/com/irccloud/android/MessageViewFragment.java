@@ -264,9 +264,13 @@ public class MessageViewFragment extends SherlockFragment {
 	
     public void onPause() {
     	super.onPause();
+		if(statusRefreshRunnable != null) {
+			mHandler.removeCallbacks(statusRefreshRunnable);
+			statusRefreshRunnable = null;
+		}
     	if(conn != null)
     		conn.removeHandler(mHandler);
-    	}
+   	}
     
 	private final Handler mHandler = new Handler() {
 		EventsDataSource.Event e;

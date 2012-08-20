@@ -3,7 +3,7 @@
     android:background="@drawable/bg"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="40dp"
+    android:minHeight="48dp"
     android:orientation="horizontal">
 
     <LinearLayout

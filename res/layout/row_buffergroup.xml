@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/bg"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="48dp"
+    android:background="@drawable/bg"
+    android:minHeight="64dp"
     android:orientation="horizontal"
     android:paddingTop="8dp" >
 
@@ -16,10 +16,11 @@
 	   	android:background="@drawable/background_blue">
 
       	    <LinearLayout
-			    android:layout_width="match_parent"
-			    android:layout_height="match_parent"
-			    android:gravity="center_vertical"
-			   	android:background="@drawable/row_buffergroup_bg">
+      	        android:id="@+id/groupbg"
+      	        android:layout_width="match_parent"
+      	        android:layout_height="match_parent"
+      	        android:background="@drawable/row_buffergroup_bg"
+      	        android:gravity="center_vertical" >
 	
 		        <ImageView
 			        android:layout_width="wrap_content"
@@ -45,6 +46,14 @@
 			        android:padding="4dp"
 			        android:textColor="#f00"
 			        android:textStyle="bold" />
+
+   			    <ProgressBar
+   			        android:id="@+id/progressBar"
+   			        android:layout_width="wrap_content"
+   			        android:layout_height="wrap_content"
+   			        android:layout_weight="0"
+   			        android:visibility="gone" />
+
 	      </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -17,6 +17,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -55,7 +56,9 @@ public class BuffersListFragment extends SherlockListFragment {
 			TextView label;
 			TextView highlights;
 			LinearLayout unread;
+			LinearLayout groupbg;
 			ImageView key;
+			ProgressBar progress;
 		}
 	
 		public BufferListAdapter(SherlockListFragment context) {
@@ -120,7 +123,9 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.label = (TextView) row.findViewById(R.id.label);
 				holder.highlights = (TextView) row.findViewById(R.id.highlights);
 				holder.unread = (LinearLayout) row.findViewById(R.id.unread);
+				holder.groupbg = (LinearLayout) row.findViewById(R.id.groupbg);
 				holder.key = (ImageView) row.findViewById(R.id.key);
+				holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.type = e.type;
 
 				row.setTag(holder);
@@ -148,6 +153,23 @@ public class BuffersListFragment extends SherlockListFragment {
 					holder.key.setVisibility(View.VISIBLE);
 				} else {
 					holder.key.setVisibility(View.INVISIBLE);
+				}
+			}
+			
+			if(holder.progress != null) {
+				if(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")) {
+					holder.progress.setVisibility(View.GONE);
+				} else {
+					holder.progress.setVisibility(View.VISIBLE);
+				}
+			}
+			
+			if(holder.groupbg != null) {
+				if(e.status.equals("waiting_to_retry")) {
+					holder.groupbg.setBackgroundResource(R.drawable.operator_bg_red);
+					holder.label.setTextColor(getResources().getColorStateList(R.color.heading_operators));
+				} else {
+					holder.groupbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
 				}
 			}
 			
