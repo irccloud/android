@@ -183,6 +183,8 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(b.type.equalsIgnoreCase("console")) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+						if(s.name.length() == 0)
+							s.name = s.hostname;
 						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status));
 						break;
 					}

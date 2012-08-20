@@ -336,7 +336,7 @@ public class NetworkConnection {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getJSONObject("fail_info").toString());
 				if(!backlog)
-					notifyHandlers(EVENT_STATUSCHANGED, object.getInt("cid"));
+					notifyHandlers(EVENT_STATUSCHANGED, object);
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart")
 					 || type.equalsIgnoreCase("notice") || type.equalsIgnoreCase("server_welcome") || type.equalsIgnoreCase("server_motd") || type.equalsIgnoreCase("server_endofmotd")
 					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns")

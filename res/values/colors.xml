@@ -9,4 +9,7 @@
     <drawable name="operator_bg_red">#FEF2F2</drawable>
     <drawable name="voiced_bg_green">#F4FFED</drawable>
     <drawable name="compose_bar_bg">#8F8F8F</drawable>
+    <color name="dark_blue">#527DFF</color>
+    <drawable name="status_fail_bg">#F8DF26</drawable>
+    <color name="status_fail_text">#632800</color>
 </resources>

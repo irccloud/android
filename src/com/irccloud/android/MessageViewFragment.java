@@ -1,8 +1,11 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -26,6 +29,7 @@ public class MessageViewFragment extends SherlockFragment {
 	private NetworkConnection conn;
 	private WebView webView;
 	private TextView topicView;
+	private TextView statusView;
 	private int cid;
 	private long bid;
 	private long last_seen_eid;
@@ -63,6 +67,7 @@ public class MessageViewFragment extends SherlockFragment {
     		});
     	webView.loadUrl("file:///android_asset/messageview.html");
     	topicView = (TextView)v.findViewById(R.id.topicView);
+    	statusView = (TextView)v.findViewById(R.id.statusView);
     	return v;
     }
 	
@@ -134,11 +139,13 @@ public class MessageViewFragment extends SherlockFragment {
 	private class RefreshTask extends AsyncTask<Void, Void, Void> {
 		ArrayList<EventsDataSource.Event> events;
 		ChannelsDataSource.Channel channel;
+		ServersDataSource.Server server;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
 			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			channel = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+			server = ServersDataSource.getInstance().getServer(cid);
 			return null;
 		}
 
@@ -164,10 +171,97 @@ public class MessageViewFragment extends SherlockFragment {
 		    		topicView.setVisibility(View.GONE);
 		    		topicView.setText("");
 		    	}
+		    	try {
+					update_status(server.status, new JSONObject(server.fail_info));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
-    
+
+	private class StatusRefreshRunnable implements Runnable {
+		String status;
+		JSONObject fail_info;
+		
+		public StatusRefreshRunnable(String status, JSONObject fail_info) {
+			this.status = status;
+			this.fail_info = fail_info;
+		}
+
+		@Override
+		public void run() {
+			update_status(status, fail_info);
+		}
+	}
+	
+	StatusRefreshRunnable statusRefreshRunnable = null;
+	
+	private void update_status(String status, JSONObject fail_info) {
+		if(statusRefreshRunnable != null) {
+			mHandler.removeCallbacks(statusRefreshRunnable);
+			statusRefreshRunnable = null;
+		}
+		
+    	if(status.equals("connected_ready")) {
+    		statusView.setVisibility(View.GONE);
+    		statusView.setText("");
+    	} else if(status.equals("quitting")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Disconnecting");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	} else if(status.equals("disconnected")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Disconnected");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	} else if(status.equals("queued")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Connection queued");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	} else if(status.equals("connecting")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Connecting");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	} else if(status.equals("connected")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Connected");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	} else if(status.equals("connected_joining")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Connected: Joining Channels");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	} else if(status.equals("pool_unavailable")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Pool unavailable");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	} else if(status.equals("waiting_to_retry")) {
+    		try {
+	    		statusView.setVisibility(View.VISIBLE);
+	    		long seconds = (fail_info.getLong("timestamp") + fail_info.getInt("retry_timeout")) - System.currentTimeMillis()/1000;
+	    		statusView.setText("Disconnected: " + fail_info.getString("reason") + ". Reconnecting in " + seconds + " seconds.");
+	    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
+	    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
+	    		statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
+	    		mHandler.postDelayed(statusRefreshRunnable, 500);
+    		} catch (JSONException e) {
+    			e.printStackTrace();
+    		}
+    	} else if(status.equals("ip_retry")) {
+    		statusView.setVisibility(View.VISIBLE);
+    		statusView.setText("Trying another IP address");
+    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setBackgroundResource(R.drawable.background_blue);
+    	}
+	}
+	
     public void onPause() {
     	super.onPause();
     	if(conn != null)
@@ -179,6 +273,17 @@ public class MessageViewFragment extends SherlockFragment {
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_STATUSCHANGED:
+				try {
+					JSONObject object = (JSONObject)msg.obj;
+					if(object.getInt("cid") == cid) {
+						update_status(object.getString("new_status"), object.getJSONObject("fail_info"));
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
