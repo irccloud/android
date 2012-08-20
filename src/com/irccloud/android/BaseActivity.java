@@ -14,11 +14,13 @@ import android.util.Log;
 
 public class BaseActivity extends SherlockFragmentActivity {
 	NetworkConnection conn;
+	private int lastState;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        lastState = -1;
     }
 
     @Override
@@ -32,11 +34,17 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
 	    		conn.connect(session);
 			if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
-				setSupportProgressBarIndeterminateVisibility(true);
-				getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
+				if(lastState != 1) {
+					setSupportProgressBarIndeterminateVisibility(true);
+					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
+					lastState = 1;
+				}
 			} else {
-				setSupportProgressBarIndeterminateVisibility(false);
-				getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+				if(lastState != 2) {
+					setSupportProgressBarIndeterminateVisibility(false);
+					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+					lastState = 2;
+				}
 			}
 			if(DBHelper.getInstance().isBatch())
 				setSupportProgressBarIndeterminateVisibility(true);
@@ -65,11 +73,17 @@ public class BaseActivity extends SherlockFragmentActivity {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				Log.i("IRCCloud", "New connection state: " + NetworkConnection.getInstance().getState());
 				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
-					setSupportProgressBarIndeterminateVisibility(true);
-					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
+					if(lastState != 1) {
+						setSupportProgressBarIndeterminateVisibility(true);
+						getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
+						lastState = 1;
+					}
 				} else {
-					setSupportProgressBarIndeterminateVisibility(false);
-					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+					if(lastState != 2) {
+						setSupportProgressBarIndeterminateVisibility(false);
+						getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+						lastState = 2;
+					}
 				}
 				break;
 			case NetworkConnection.EVENT_BACKLOG_START:
