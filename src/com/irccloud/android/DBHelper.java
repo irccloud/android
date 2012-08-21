@@ -60,7 +60,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		if(batchDb != null)
 			return batchDb;
 		else {
-			return getWritableDatabase();
+			SQLiteDatabase d = getWritableDatabase();
+			d.execSQL("PRAGMA synchronous = OFF");
+			return d;
 		}
 	}
 
@@ -72,7 +74,9 @@ public class DBHelper extends SQLiteOpenHelper {
 			e.printStackTrace();
 			return null;
 		}
-		return getReadableDatabase();
+		SQLiteDatabase d = getReadableDatabase();
+		d.execSQL("PRAGMA synchronous = OFF");
+		return d;
 	}
 	
 	public void releaseWriteableDatabase() {
@@ -93,6 +97,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 		Log.d("IRCCloud", "+++ Starting batch transactions");
 		batchDb = getWritableDatabase();
+		batchDb.execSQL("PRAGMA synchronous = OFF");
 		batchDb.beginTransaction();
 	}
 	

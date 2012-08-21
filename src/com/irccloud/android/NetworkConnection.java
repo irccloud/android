@@ -474,7 +474,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				Log.e(TAG, "Unhandled type: " + object);
+				//Log.e(TAG, "Unhandled type: " + object);
 			}
 		}
 		if(idle_interval > 0)
@@ -660,6 +660,7 @@ public class NetworkConnection {
 			try {
 				json = doGet(url[0]);
 				synchronized(parserLock) {
+					long time = System.currentTimeMillis();
 					Log.i("IRCCloud", "Beginning backlog...");
 					notifyHandlers(EVENT_BACKLOG_START, null);
 					DBHelper.getInstance().beginBatch();
@@ -668,6 +669,7 @@ public class NetworkConnection {
 						parse_object(a.getJSONObject(i), true);
 					DBHelper.getInstance().endBatch();
 					Log.i("IRCCloud", "Backlog complete!");
+					Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
 				}
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;

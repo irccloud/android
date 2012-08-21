@@ -132,9 +132,14 @@ function fetchBacklog() {
 function appendBacklog() {
 	var backlog = eval('(' + Android.getIncomingBacklog() + ')');
 	
+	var start = new Date().getTime();
+	
 	for(i=0; i < backlog.length; i++) {
 		appendEvent(backlog[i]);
 	}
+	
+	var elapsed = new Date().getTime() - start;
+	Android.log("Backlog rendering took " + elapsed + "ms");
 }
 
 function appendEvent(msg) {
