@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.webkit.WebView;
 import android.webkit.WebChromeClient;
 import android.widget.TextView;
@@ -70,7 +72,13 @@ public class MessageViewFragment extends SherlockFragment {
 	private JavaScriptInterface jsInterface = new JavaScriptInterface();
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	View v = inflater.inflate(R.layout.messageview, container, false);
+    	final View v = inflater.inflate(R.layout.messageview, container, false);
+    	v.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+    		@Override
+    		public void onGlobalLayout() {
+    			webView.pageDown(true);
+    		}
+   		}); 
     	webView = (WebView)v.findViewById(R.id.messageview);
     	webView.getSettings().setJavaScriptEnabled(true);
     	webView.addJavascriptInterface(jsInterface, "Android");
