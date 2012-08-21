@@ -18,7 +18,11 @@ public class EventsDataSource {
 
 	public class comparator implements Comparator<Event> {
 		public int compare(Event e1, Event e2) {
-			return (int)(e1.eid - e2.eid);
+			if(e1.eid == e2.eid)
+				return 0;
+			else if(e1.eid > e2.eid)
+				return 1;
+			else return -1;
 		}
 	}
 	
