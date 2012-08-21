@@ -140,6 +140,7 @@ function appendBacklog() {
 	
 	var elapsed = new Date().getTime() - start;
 	Android.log("Backlog rendering took " + elapsed + "ms");
+	scrollToBottom();
 }
 
 function appendEvent(msg) {
