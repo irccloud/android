@@ -40,11 +40,11 @@ public class EventsDataSource {
 		events = new ArrayList<Event>();
 	}
 
-	public void clear() {
+	public synchronized void clear() {
 		events.clear();
 	}
 	
-	public Event createEvent(long eid, int bid, int cid, String type, int highlight, JSONObject event) {
+	public synchronized Event createEvent(long eid, int bid, int cid, String type, int highlight, JSONObject event) {
 		Event e = new Event();
 		e.eid = eid;
 		e.bid = bid;
@@ -56,7 +56,7 @@ public class EventsDataSource {
 		return e;
 	}
 
-	public Event getEvent(long eid, int bid) {
+	public synchronized Event getEvent(long eid, int bid) {
 		Iterator<Event> i = events.iterator();
 		while(i.hasNext()) {
 			Event e = i.next();
@@ -66,13 +66,13 @@ public class EventsDataSource {
 		return null;
 	}
 	
-	public void deleteEvent(long eid, int bid) {
+	public synchronized void deleteEvent(long eid, int bid) {
 		Event e = getEvent(eid, bid);
 		if(e != null)
 			events.remove(e);
 	}
 
-	public void deleteEventsForServer(int cid) {
+	public synchronized void deleteEventsForServer(int cid) {
 		ArrayList<Event> eventsToRemove = new ArrayList<Event>();
 		
 		Iterator<Event> i = events.iterator();
@@ -89,7 +89,7 @@ public class EventsDataSource {
 		}
 	}
 
-	public void deleteEventsForBuffer(int bid) {
+	public synchronized void deleteEventsForBuffer(int bid) {
 		ArrayList<Event> eventsToRemove = new ArrayList<Event>();
 		
 		Iterator<Event> i = events.iterator();
@@ -106,7 +106,7 @@ public class EventsDataSource {
 		}
 	}
 
-	public ArrayList<Event> getEventsForBuffer(int bid) {
+	public synchronized ArrayList<Event> getEventsForBuffer(int bid) {
 		ArrayList<Event> list = new ArrayList<Event>();
 		Iterator<Event> i = events.iterator();
 		while(i.hasNext()) {
@@ -118,7 +118,7 @@ public class EventsDataSource {
 		return list;
 	}
 
-	public int getUnreadCountForBuffer(long bid, long last_seen_eid) {
+	public synchronized int getUnreadCountForBuffer(long bid, long last_seen_eid) {
 		int count = 0;
 		Iterator<Event> i = events.iterator();
 		while(i.hasNext()) {
@@ -129,7 +129,7 @@ public class EventsDataSource {
 		return count;
 	}
 
-	public int getHighlightCountForBuffer(long bid, long last_seen_eid) {
+	public synchronized int getHighlightCountForBuffer(long bid, long last_seen_eid) {
 		int count = 0;
 		Iterator<Event> i = events.iterator();
 		while(i.hasNext()) {

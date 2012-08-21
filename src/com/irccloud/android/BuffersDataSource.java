@@ -41,7 +41,7 @@ public class BuffersDataSource {
 		buffers.clear();
 	}
 	
-	public Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred) {
+	public synchronized Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred) {
 		Buffer b = new Buffer();
 		b.bid = bid;
 		b.cid = cid;
@@ -55,31 +55,31 @@ public class BuffersDataSource {
 		return b;
 	}
 
-	public void updateLastSeenEid(int bid, long last_seen_eid) {
+	public synchronized void updateLastSeenEid(int bid, long last_seen_eid) {
 		Buffer b = getBuffer(bid);
 		if(b != null)
 			b.last_seen_eid = last_seen_eid;
 	}
 	
-	public void updateArchived(int bid, int archived) {
+	public synchronized void updateArchived(int bid, int archived) {
 		Buffer b = getBuffer(bid);
 		if(b != null)
 			b.archived = archived;
 	}
 	
-	public void updateName(int bid, String name) {
+	public synchronized void updateName(int bid, String name) {
 		Buffer b = getBuffer(bid);
 		if(b != null)
 			b.name = name;
 	}
 	
-	public void deleteBuffer(int bid) {
+	public synchronized void deleteBuffer(int bid) {
 		Buffer b = getBuffer(bid);
 		if(b != null)
 			buffers.remove(b);
 	}
 
-	public void deleteAllDataForBuffer(int bid) {
+	public synchronized void deleteAllDataForBuffer(int bid) {
 		Buffer b = getBuffer(bid);
 		if(b != null) {
 			if(b.type.equalsIgnoreCase("channel")) {
@@ -91,7 +91,7 @@ public class BuffersDataSource {
 		buffers.remove(b);
 	}
 
-	public Buffer getBuffer(int bid) {
+	public synchronized Buffer getBuffer(int bid) {
 		Iterator<Buffer> i = buffers.iterator();
 		while(i.hasNext()) {
 			Buffer b = i.next();
@@ -101,7 +101,7 @@ public class BuffersDataSource {
 		return null;
 	}
 	
-	public Buffer getBufferByName(int cid, String name) {
+	public synchronized Buffer getBufferByName(int cid, String name) {
 		Iterator<Buffer> i = buffers.iterator();
 		while(i.hasNext()) {
 			Buffer b = i.next();
@@ -111,7 +111,7 @@ public class BuffersDataSource {
 		return null;
 	}
 	
-	public ArrayList<Buffer> getBuffersForServer(int cid) {
+	public synchronized ArrayList<Buffer> getBuffersForServer(int cid) {
 		ArrayList<Buffer> list = new ArrayList<Buffer>();
 		Iterator<Buffer> i = buffers.iterator();
 		while(i.hasNext()) {

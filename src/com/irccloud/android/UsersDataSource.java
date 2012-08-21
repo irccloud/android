@@ -35,11 +35,11 @@ public class UsersDataSource {
 		users = new ArrayList<User>();
 	}
 
-	public void clear() {
+	public synchronized void clear() {
 		users.clear();
 	}
 	
-	public User createUser(int cid, String channel, String nick, String hostmask, String mode, int away) {
+	public synchronized User createUser(int cid, String channel, String nick, String hostmask, String mode, int away) {
 		User u = new User();
 		u.cid = cid;
 		u.channel = channel;
@@ -51,13 +51,13 @@ public class UsersDataSource {
 		return u;
 	}
 
-	public void deleteUser(int cid, String channel, String nick) {
+	public synchronized void deleteUser(int cid, String channel, String nick) {
 		User u = getUser(cid,channel,nick);
 		if(u != null)
 			users.remove(u);
 	}
 
-	public void deleteUsersForChannel(int cid, String channel) {
+	public synchronized void deleteUsersForChannel(int cid, String channel) {
 		ArrayList<User> usersToRemove = new ArrayList<User>();
 		
 		Iterator<User> i = users.iterator();
@@ -74,31 +74,31 @@ public class UsersDataSource {
 		}
 	}
 
-	public void updateNick(int cid, String channel, String old_nick, String new_nick) {
+	public synchronized void updateNick(int cid, String channel, String old_nick, String new_nick) {
 		User u = getUser(cid,channel,old_nick);
 		if(u != null)
 			u.nick = new_nick;
 	}
 	
-	public void updateAway(int cid, String channel, String nick, int away) {
+	public synchronized void updateAway(int cid, String channel, String nick, int away) {
 		User u = getUser(cid,channel,nick);
 		if(u != null)
 			u.away = away;
 	}
 	
-	public void updateHostmask(int cid, String channel, String nick, String hostmask) {
+	public synchronized void updateHostmask(int cid, String channel, String nick, String hostmask) {
 		User u = getUser(cid,channel,nick);
 		if(u != null)
 			u.hostmask = hostmask;
 	}
 	
-	public void updateMode(int cid, String channel, String nick, String mode) {
+	public synchronized void updateMode(int cid, String channel, String nick, String mode) {
 		User u = getUser(cid,channel,nick);
 		if(u != null)
 			u.mode = mode;
 	}
 	
-	public ArrayList<User> getUsersForChannel(int cid, String channel) {
+	public synchronized ArrayList<User> getUsersForChannel(int cid, String channel) {
 		ArrayList<User> list = new ArrayList<User>();
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
@@ -110,7 +110,7 @@ public class UsersDataSource {
 		return list;
 	}
 
-	public User getUser(int cid, String channel, String nick) {
+	public synchronized User getUser(int cid, String channel, String nick) {
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
 			User u = i.next();

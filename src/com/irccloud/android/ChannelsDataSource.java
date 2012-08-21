@@ -29,11 +29,11 @@ public class ChannelsDataSource {
 		channels = new ArrayList<Channel>();
 	}
 
-	public void clear() {
+	public synchronized void clear() {
 		channels.clear();
 	}
 	
-	public Channel createChannel(int cid, long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode) {
+	public synchronized Channel createChannel(int cid, long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode) {
 		Channel c = new Channel();
 		c.cid = cid;
 		c.bid = bid;
@@ -47,13 +47,13 @@ public class ChannelsDataSource {
 		return c;
 	}
 
-	public void deleteChannel(long bid) {
+	public synchronized void deleteChannel(long bid) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null)
 			channels.remove(c);
 	}
 
-	public void updateTopic(long bid, String topic_text, long topic_time, String topic_author) {
+	public synchronized void updateTopic(long bid, String topic_text, long topic_time, String topic_author) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
 			c.topic_text = topic_text;
@@ -62,7 +62,7 @@ public class ChannelsDataSource {
 		}
 	}
 	
-	public Channel getChannelForBuffer(long bid) {
+	public synchronized Channel getChannelForBuffer(long bid) {
 		Iterator<Channel> i = channels.iterator();
 		while(i.hasNext()) {
 			Channel c = i.next();
