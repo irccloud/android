@@ -134,8 +134,8 @@ function appendBacklog() {
 	
 	var start = new Date().getTime();
 	
-	for(i=0; i < backlog.length; i++) {
-		appendEvent(backlog[i]);
+	for(var j=0; j<backlog.length; j++) {
+		appendEvent(backlog[j]);
 	}
 	
 	var elapsed = new Date().getTime() - start;
@@ -192,7 +192,7 @@ function appendEvent(msg) {
 
 	if(msg.type == "motd_response") {
 		msg.msg = "";
-		for(i=0; i<msg.lines.length; i++) {
+		for(var i=0; i<msg.lines.length; i++) {
 			msg.msg += msg.lines[i] + "<br/>";			
 		}
 	}
@@ -243,7 +243,7 @@ function appendEvent(msg) {
 			messages.insertBefore(m, messages.childNodes[1]);
 		}
 	} else { //Message goes somewhere in the middle
-		for(i=0;i<messages.childNodes.length;i++) {
+		for(var i=0;i<messages.childNodes.length;i++) {
 			var node = messages.childNodes[i];
 			if(typeof node.id == "string" && parseInt(node.id) > 0) {
 				var id = parseInt(node.id);

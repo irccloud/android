@@ -163,80 +163,161 @@ public class NetworkConnection {
 	}
 	
 	public int heartbeat(long selected_buffer, int cid, long bid, long last_seen_eid) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"heartbeat\", \"selectedBuffer\":"+selected_buffer+
-				", \"seenEids\":\"{\\\""+cid+"\\\":{\\\""+bid+"\\\":"+last_seen_eid+"}}\"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "heartbeat");
+			o.put("selectedBuffer", selected_buffer);
+			JSONObject eids = new JSONObject();
+			eids.put(String.valueOf(bid), last_seen_eid);
+			JSONObject cids = new JSONObject();
+			cids.put(String.valueOf(cid), eids);
+			o.put("seenEids", cids.toString());
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int say(int cid, String to, String message) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"say\", \"cid\":"+cid+", \"to\":\""+to+"\", \"msg\":\""+message+"\"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "say");
+			o.put("cid", cid);
+			o.put("to", to);
+			o.put("msg", message);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int join(int cid, String channel, String key) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"join\", \"cid\":"+cid+", \"channel\":\""+channel+"\", \"key\":\""+key+"\"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "join");
+			o.put("cid", cid);
+			o.put("channel", channel);
+			o.put("key", key);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int part(int cid, String channel, String message) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"part\", \"cid\":"+cid+", \"channel\":\""+channel+"\", \"msg\":\""+message+"\"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "part");
+			o.put("cid", cid);
+			o.put("channel", channel);
+			o.put("msg", message);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int archiveBuffer(int cid, long bid) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"archive-buffer\", \"cid\":"+cid+", \"id\":"+bid+"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "archive-buffer");
+			o.put("cid", cid);
+			o.put("id", bid);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int unarchiveBuffer(int cid, long bid) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"unarchive-buffer\", \"cid\":"+cid+", \"id\":"+bid+"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "unarchive-buffer");
+			o.put("cid", cid);
+			o.put("id", bid);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int deleteBuffer(int cid, long bid) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"delete-buffer\", \"cid\":"+cid+", \"id\":"+bid+"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "delete-buffer");
+			o.put("cid", cid);
+			o.put("id", bid);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"add-server\", "+
-				"\"hostname\":\""+hostname+"\", "+
-				"\"port\":"+port+", "+
-				"\"ssl\":"+ssl+", "+
-				"\"netname\":\""+netname+"\", "+
-				"\"nickname\":\""+nickname+"\", "+
-				"\"realname\":\""+realname+"\", "+
-				"\"server_pass\":\""+server_pass+"\", "+
-				"\"nspass\":\""+nickserv_pass+"\", "+
-				"\"joincommands\":\""+joincommands+"\", "+
-				"\"channels\":\""+channels+"\""+
-				"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "add-server");
+			o.put("hostname", hostname);
+			o.put("port", port);
+			o.put("ssl", ssl);
+			o.put("netname", netname);
+			o.put("nickname", nickname);
+			o.put("realname", realname);
+			o.put("server_pass", server_pass);
+			o.put("nspass", nickserv_pass);
+			o.put("joincommands", joincommands);
+			o.put("channels", channels);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public int editServer(int cid, String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands) {
-		last_reqid++;
-		client.send("{\"_reqid\":"+last_reqid+", \"_method\": \"edit-server\", "+
-				"\"hostname\":\""+hostname+"\", "+
-				"\"port\":"+port+", "+
-				"\"ssl\":"+ssl+", "+
-				"\"netname\":\""+netname+"\", "+
-				"\"nickname\":\""+nickname+"\", "+
-				"\"realname\":\""+realname+"\", "+
-				"\"server_pass\":\""+server_pass+"\", "+
-				"\"nspass\":\""+nickserv_pass+"\", "+
-				"\"joincommands\":\""+joincommands+"\", "+
-				"\"cid\":"+cid+""+
-				"}\n");
-		return last_reqid;
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "edit-server");
+			o.put("hostname", hostname);
+			o.put("port", port);
+			o.put("ssl", ssl);
+			o.put("netname", netname);
+			o.put("nickname", nickname);
+			o.put("realname", realname);
+			o.put("server_pass", server_pass);
+			o.put("nspass", nickserv_pass);
+			o.put("joincommands", joincommands);
+			o.put("cid", cid);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
 	}
 	
 	public void request_backlog(int cid, long bid, long beforeId) {

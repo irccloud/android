@@ -76,7 +76,13 @@ public class MessageViewFragment extends SherlockFragment {
     	v.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
     		@Override
     		public void onGlobalLayout() {
-    			webView.pageDown(true);
+    			mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+		    			webView.loadUrl("javascript:window.scrollTo(0, document.body.scrollHeight)");
+		    			webView.invalidate();
+					}
+    			}, 100);
     		}
    		}); 
     	webView = (WebView)v.findViewById(R.id.messageview);
@@ -90,6 +96,7 @@ public class MessageViewFragment extends SherlockFragment {
     		  }
     		});
     	webView.loadUrl("file:///android_asset/messageview.html");
+    	webView.pageDown(true);
     	topicView = (TextView)v.findViewById(R.id.topicView);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	return v;
