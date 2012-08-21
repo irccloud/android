@@ -1,14 +1,13 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
-
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 
 public class BuffersDataSource {
 	public class Buffer {
-		long bid;
+		int bid;
 		int cid;
 		long min_eid;
 		long last_seen_eid;
@@ -18,7 +17,14 @@ public class BuffersDataSource {
 		int deferred;
 	}
 
-	private DBHelper dbHelper;
+	public class comparator implements Comparator<Buffer> {
+	    public int compare(Buffer b1, Buffer b2) {
+	    	return b1.name.compareToIgnoreCase(b2.name);
+	    }
+	}
+	
+	private ArrayList<Buffer> buffers;
+	
 	private static BuffersDataSource instance = null;
 	
 	public static BuffersDataSource getInstance() {
@@ -28,142 +34,92 @@ public class BuffersDataSource {
 	}
 
 	public BuffersDataSource() {
-		dbHelper = DBHelper.getInstance();
+		buffers = new ArrayList<Buffer>();
 	}
 
+	public void clear() {
+		buffers.clear();
+	}
+	
 	public Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("bid", bid);
-		values.put("cid", cid);
-		values.put("min_eid", min_eid);
-		values.put("last_seen_eid", last_seen_eid);
-		values.put("name", name);
-		values.put("type", type);
-		values.put("archived", archived);
-		values.put("deferred", deferred);
-		db.insert(DBHelper.TABLE_BUFFERS, null, values);
-		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
-		cursor.moveToFirst();
-		Buffer newBuffer = cursorToBuffer(cursor);
-		cursor.close();
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
-		return newBuffer;
+		Buffer b = new Buffer();
+		b.bid = bid;
+		b.cid = cid;
+		b.min_eid = min_eid;
+		b.last_seen_eid = last_seen_eid;
+		b.name = name;
+		b.type = type;
+		b.archived = archived;
+		b.deferred = deferred;
+		buffers.add(b);
+		return b;
 	}
 
 	public void updateLastSeenEid(int bid, long last_seen_eid) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("last_seen_eid", last_seen_eid);
-		db.update(DBHelper.TABLE_BUFFERS, values, "bid = ?", new String[] {String.valueOf(bid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Buffer b = getBuffer(bid);
+		if(b != null)
+			b.last_seen_eid = last_seen_eid;
 	}
 	
 	public void updateArchived(int bid, int archived) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("archived", archived);
-		db.update(DBHelper.TABLE_BUFFERS, values, "bid = ?", new String[] {String.valueOf(bid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Buffer b = getBuffer(bid);
+		if(b != null)
+			b.archived = archived;
 	}
 	
 	public void updateName(int bid, String name) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("name", name);
-		db.update(DBHelper.TABLE_BUFFERS, values, "bid = ?", new String[] {String.valueOf(bid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Buffer b = getBuffer(bid);
+		if(b != null)
+			b.name = name;
 	}
 	
 	public void deleteBuffer(int bid) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		db.delete(DBHelper.TABLE_BUFFERS, "bid = ?", new String[] {String.valueOf(bid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Buffer b = getBuffer(bid);
+		if(b != null)
+			buffers.remove(b);
 	}
 
 	public void deleteAllDataForBuffer(int bid) {
-		Buffer buffer = null;
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
-
-		if(cursor.moveToFirst())
-			buffer = cursorToBuffer(cursor);
-		cursor.close();
-		db.delete(DBHelper.TABLE_BUFFERS, "bid = ?", new String[] {String.valueOf(bid)});
-		db.delete(DBHelper.TABLE_EVENTS, "bid = ?", new String[] {String.valueOf(bid)});
-		if(buffer != null && buffer.type.equalsIgnoreCase("channel")) {
-			db.delete(DBHelper.TABLE_CHANNELS, "bid = ?", new String[] {String.valueOf(bid)});
-			db.delete(DBHelper.TABLE_USERS, "channel = ?", new String[] {buffer.name});
+		Buffer b = getBuffer(bid);
+		if(b != null) {
+			if(b.type.equalsIgnoreCase("channel")) {
+				ChannelsDataSource.getInstance().deleteChannel(bid);
+				UsersDataSource.getInstance().deleteUsersForChannel(b.cid, b.name);
+			}
+			EventsDataSource.getInstance().deleteEventsForBuffer(bid);
 		}
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		buffers.remove(b);
 	}
 
-	public synchronized Buffer getBuffer(int bid) {
-		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "bid = ?", new String[] {String.valueOf(bid)}, null, null, null);
-
-		cursor.moveToFirst();
-		Buffer buffer = cursorToBuffer(cursor);
-		cursor.close();
-		db.close();
-		dbHelper.releaseReadableDatabase();
-		return buffer;
+	public Buffer getBuffer(int bid) {
+		Iterator<Buffer> i = buffers.iterator();
+		while(i.hasNext()) {
+			Buffer b = i.next();
+			if(b.bid == bid)
+				return b;
+		}
+		return null;
 	}
 	
-	public synchronized Buffer getBufferByName(int cid, String name) {
-		Buffer buffer = null;
-		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "cid = ? and name = ?", new String[] {String.valueOf(cid), name}, null, null, null);
-
-		if(cursor.moveToFirst())
-			buffer = cursorToBuffer(cursor);
-		cursor.close();
-		db.close();
-		dbHelper.releaseReadableDatabase();
-		return buffer;
+	public Buffer getBufferByName(int cid, String name) {
+		Iterator<Buffer> i = buffers.iterator();
+		while(i.hasNext()) {
+			Buffer b = i.next();
+			if(b.name.equals(name))
+				return b;
+		}
+		return null;
 	}
 	
-	public synchronized ArrayList<Buffer> getBuffersForServer(int cid) {
-		ArrayList<Buffer> buffers = new ArrayList<Buffer>();
-
-		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_BUFFERS, new String[] {"bid", "cid", "min_eid", "last_seen_eid", "name", "type", "archived", "deferred"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, "type,name");
-
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Buffer buffer = cursorToBuffer(cursor);
-			buffers.add(buffer);
-			cursor.moveToNext();
+	public ArrayList<Buffer> getBuffersForServer(int cid) {
+		ArrayList<Buffer> list = new ArrayList<Buffer>();
+		Iterator<Buffer> i = buffers.iterator();
+		while(i.hasNext()) {
+			Buffer b = i.next();
+			if(b.cid == cid)
+				list.add(b);
 		}
-		// Make sure to close the cursor
-		cursor.close();
-		db.close();
-		dbHelper.releaseReadableDatabase();
-		return buffers;
-	}
-
-	private Buffer cursorToBuffer(Cursor cursor) {
-		Buffer buffer = new Buffer();
-		buffer.bid = cursor.getInt(cursor.getColumnIndex("bid"));
-		buffer.cid = cursor.getInt(cursor.getColumnIndex("cid"));
-		buffer.min_eid = cursor.getLong(cursor.getColumnIndex("min_eid"));
-		buffer.last_seen_eid = cursor.getLong(cursor.getColumnIndex("last_seen_eid"));
-		buffer.name = cursor.getString(cursor.getColumnIndex("name"));
-		buffer.type = cursor.getString(cursor.getColumnIndex("type"));
-		buffer.archived = cursor.getInt(cursor.getColumnIndex("archived"));
-		buffer.deferred = cursor.getInt(cursor.getColumnIndex("deferred"));
-		return buffer;
+		Collections.sort(list, new comparator());
+		return list;
 	}
 }

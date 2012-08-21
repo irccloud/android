@@ -133,7 +133,8 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		return alert;
     }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
 	public void onUserSelected(int c, String channel, String name) {
 		selected_name = name;
 		showDialog(0);

@@ -1,10 +1,7 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
-
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import java.util.Iterator;
 
 public class ServersDataSource {
 	public class Server {
@@ -24,7 +21,8 @@ public class ServersDataSource {
 		String away;
 	}
 
-	private DBHelper dbHelper;
+	private ArrayList<Server> servers;
+	
 	private static ServersDataSource instance = null;
 	
 	public static ServersDataSource getInstance() {
@@ -34,128 +32,86 @@ public class ServersDataSource {
 	}
 
 	public ServersDataSource() {
-		dbHelper = DBHelper.getInstance();
+		servers = new ArrayList<Server>();
 	}
 
+	public void clear() {
+		servers.clear();
+	}
+	
 	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, String away) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("cid", cid);
-		values.put("name", name);
-		values.put("hostname", hostname);
-		values.put("port", port);
-		values.put("nick", nick);
-		values.put("status", status);
-		values.put("lag",lag);
-		values.put("ssl",ssl);
-		values.put("realname",realname);
-		values.put("server_pass",server_pass);
-		values.put("nickserv_pass",nickserv_pass);
-		values.put("join_commands",join_commands);
-		values.put("fail_info",fail_info);
-		values.put("away",away);
-		db.insert(DBHelper.TABLE_SERVERS, null, values);
-		Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "status", "lag", "ssl", "realname", "server_pass", "nickserv_pass", "join_commands", "fail_info", "away"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, null);
-		cursor.moveToFirst();
-		Server newServer = cursorToServer(cursor);
-		cursor.close();
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
-		return newServer;
+		Server s = new Server();
+		s.cid = cid;
+		s.name = name;
+		s.hostname = hostname;
+		s.port = port;
+		s.nick = nick;
+		s.status = status;
+		s.lag = lag;
+		s.ssl = ssl;
+		s.realname = realname;
+		s.server_pass = server_pass;
+		s.nickserv_pass = nickserv_pass;
+		s.join_commands = join_commands;
+		s.fail_info = fail_info;
+		s.away = away;
+		servers.add(s);
+		return s;
 	}
 	
 	public void updateLag(int cid, long lag) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("lag", lag);
-		db.update(DBHelper.TABLE_SERVERS, values, "cid = ?", new String[] {String.valueOf(cid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Server s = getServer(cid);
+		if(s != null) {
+			s.lag = lag;
+		}
 	}
 
 	public void updateStatus(int cid, String status, String fail_info) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("status", status);
-		values.put("fail_info", fail_info);
-		db.update(DBHelper.TABLE_SERVERS, values, "cid = ?", new String[] {String.valueOf(cid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Server s = getServer(cid);
+		if(s != null) {
+			s.status = status;
+			s.fail_info = fail_info;
+		}
 	}
 
 	public void deleteServer(int cid) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		db.delete(DBHelper.TABLE_SERVERS, "cid = ?", new String[] {String.valueOf(cid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Server s = getServer(cid);
+		if(s != null) {
+			servers.remove(s);
+		}
 	}
 
 	public void deleteAllDataForServer(int cid) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		db.delete(DBHelper.TABLE_SERVERS, "cid = ?", new String[] {String.valueOf(cid)});
-		db.delete(DBHelper.TABLE_BUFFERS, "cid = ?", new String[] {String.valueOf(cid)});
-		db.delete(DBHelper.TABLE_CHANNELS, "cid = ?", new String[] {String.valueOf(cid)});
-		db.delete(DBHelper.TABLE_USERS, "cid = ?", new String[] {String.valueOf(cid)});
-		db.delete(DBHelper.TABLE_EVENTS, "cid = ?", new String[] {String.valueOf(cid)});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		Server s = getServer(cid);
+		if(s != null) {
+			ArrayList<BuffersDataSource.Buffer> buffersToRemove = new ArrayList<BuffersDataSource.Buffer>();
+			
+			Iterator<BuffersDataSource.Buffer> i = BuffersDataSource.getInstance().getBuffersForServer(cid).iterator();
+			while(i.hasNext()) {
+				BuffersDataSource.Buffer b = i.next();
+				buffersToRemove.add(b);
+			}
+			
+			i=buffersToRemove.iterator();
+			while(i.hasNext()) {
+				BuffersDataSource.Buffer b = i.next();
+				BuffersDataSource.getInstance().deleteAllDataForBuffer(b.bid);
+			}
+			servers.remove(s);
+		}
 	}
 
 	public synchronized ArrayList<Server> getServers() {
-		ArrayList<Server> servers = new ArrayList<Server>();
-
-		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "status", "lag", "ssl", "realname", "server_pass", "nickserv_pass", "join_commands", "fail_info", "away"}, null, null, null, null, "cid");
-
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Server server = cursorToServer(cursor);
-			servers.add(server);
-			cursor.moveToNext();
-		}
-		// Make sure to close the cursor
-		cursor.close();
-		db.close();
-		dbHelper.releaseReadableDatabase();
 		return servers;
 	}
 
-	public synchronized Server getServer(int cid) {
-		Server server = null;
-		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_SERVERS, new String[] {"cid", "name", "hostname", "port", "nick", "status", "lag", "ssl", "realname", "server_pass", "nickserv_pass", "join_commands", "fail_info", "away"}, "cid = ?", new String[] {String.valueOf(cid)}, null, null, "cid");
-
-		if(cursor.moveToFirst()) {
-			server = cursorToServer(cursor);
+	public Server getServer(int cid) {
+		Iterator<Server> i = servers.iterator();
+		while(i.hasNext()) {
+			Server s = i.next();
+			if(s.cid == cid)
+				return s;
 		}
-		// Make sure to close the cursor
-		cursor.close();
-		db.close();
-		dbHelper.releaseReadableDatabase();
-		return server;
-	}
-
-	private Server cursorToServer(Cursor cursor) {
-		Server server = new Server();
-		server.cid = cursor.getInt(cursor.getColumnIndex("cid"));
-		server.name = cursor.getString(cursor.getColumnIndex("name"));
-		server.hostname = cursor.getString(cursor.getColumnIndex("hostname"));
-		server.port = cursor.getInt(cursor.getColumnIndex("port"));
-		server.nick = cursor.getString(cursor.getColumnIndex("nick"));
-		server.realname = cursor.getString(cursor.getColumnIndex("realname"));
-		server.lag = cursor.getLong(cursor.getColumnIndex("lag"));
-		server.status = cursor.getString(cursor.getColumnIndex("status"));
-		server.ssl = cursor.getInt(cursor.getColumnIndex("ssl"));
-		server.server_pass = cursor.getString(cursor.getColumnIndex("server_pass"));
-		server.nickserv_pass = cursor.getString(cursor.getColumnIndex("nickserv_pass"));
-		server.join_commands = cursor.getString(cursor.getColumnIndex("join_commands"));
-		server.fail_info = cursor.getString(cursor.getColumnIndex("fail_info"));
-		server.away = cursor.getString(cursor.getColumnIndex("away"));
-		return server;
+		return null;
 	}
 }

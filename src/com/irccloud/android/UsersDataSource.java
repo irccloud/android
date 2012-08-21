@@ -1,10 +1,9 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
-
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 
 public class UsersDataSource {
 	public class User {
@@ -16,7 +15,14 @@ public class UsersDataSource {
 		int away;
 	}
 
-	private DBHelper dbHelper;
+	public class comparator implements Comparator<User> {
+		public int compare(User u1, User u2) {
+			return u1.nick.compareToIgnoreCase(u2.nick);
+		}
+	}
+	
+	private ArrayList<User> users;
+	
 	private static UsersDataSource instance = null;
 	
 	public static UsersDataSource getInstance() {
@@ -26,127 +32,91 @@ public class UsersDataSource {
 	}
 
 	public UsersDataSource() {
-		dbHelper = DBHelper.getInstance();
+		users = new ArrayList<User>();
 	}
 
+	public void clear() {
+		users.clear();
+	}
+	
 	public User createUser(int cid, String channel, String nick, String hostmask, String mode, int away) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("cid", cid);
-		values.put("channel", channel);
-		values.put("nick", nick);
-		values.put("hostmask", hostmask);
-		values.put("mode",mode);
-		values.put("away", away);
-		db.insert(DBHelper.TABLE_USERS, null, values);
-		Cursor cursor = db.query(DBHelper.TABLE_USERS, new String[] {"cid", "channel", "nick", "hostmask", "mode", "away"}, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick}, null, null, null);
-		cursor.moveToFirst();
-		User newUser = cursorToUser(cursor);
-		cursor.close();
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
-		return newUser;
+		User u = new User();
+		u.cid = cid;
+		u.channel = channel;
+		u.nick = nick;
+		u.hostmask = hostmask;
+		u.mode = mode;
+		u.away = away;
+		users.add(u);
+		return u;
 	}
 
 	public void deleteUser(int cid, String channel, String nick) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		db.delete(DBHelper.TABLE_USERS, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		User u = getUser(cid,channel,nick);
+		if(u != null)
+			users.remove(u);
 	}
 
 	public void deleteUsersForChannel(int cid, String channel) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		db.delete(DBHelper.TABLE_USERS, "cid = ? and channel = ?", new String[] {String.valueOf(cid), channel});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		ArrayList<User> usersToRemove = new ArrayList<User>();
+		
+		Iterator<User> i = users.iterator();
+		while(i.hasNext()) {
+			User u = i.next();
+			if(u.cid == cid && u.channel.equals(channel))
+				usersToRemove.add(u);
+		}
+		
+		i=usersToRemove.iterator();
+		while(i.hasNext()) {
+			User u = i.next();
+			users.remove(u);
+		}
 	}
 
 	public void updateNick(int cid, String channel, String old_nick, String new_nick) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("nick", new_nick);
-		db.update(DBHelper.TABLE_USERS, values, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, old_nick});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		User u = getUser(cid,channel,old_nick);
+		if(u != null)
+			u.nick = new_nick;
 	}
 	
 	public void updateAway(int cid, String channel, String nick, int away) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("away", away);
-		db.update(DBHelper.TABLE_USERS, values, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		User u = getUser(cid,channel,nick);
+		if(u != null)
+			u.away = away;
 	}
 	
 	public void updateHostmask(int cid, String channel, String nick, String hostmask) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("hostmask", hostmask);
-		db.update(DBHelper.TABLE_USERS, values, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		User u = getUser(cid,channel,nick);
+		if(u != null)
+			u.hostmask = hostmask;
 	}
 	
 	public void updateMode(int cid, String channel, String nick, String mode) {
-		SQLiteDatabase db = dbHelper.getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("mode", mode);
-		db.update(DBHelper.TABLE_USERS, values, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick});
-		if(!DBHelper.getInstance().isBatch())
-			db.close();
-		dbHelper.releaseWriteableDatabase();
+		User u = getUser(cid,channel,nick);
+		if(u != null)
+			u.mode = mode;
 	}
 	
-	public synchronized ArrayList<User> getUsersForChannel(int cid, String channel) {
-		ArrayList<User> users = new ArrayList<User>();
-
-		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_USERS, new String[] {"cid", "channel", "nick", "hostmask", "mode", "away"}, "cid = ? and channel = ?", new String[] {String.valueOf(cid), channel}, null, null, "mode,nick");
-
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			User user = cursorToUser(cursor);
-			users.add(user);
-			cursor.moveToNext();
+	public ArrayList<User> getUsersForChannel(int cid, String channel) {
+		ArrayList<User> list = new ArrayList<User>();
+		Iterator<User> i = users.iterator();
+		while(i.hasNext()) {
+			User u = i.next();
+			if(u.cid == cid && u.channel.equals(channel))
+				list.add(u);
 		}
-		// Make sure to close the cursor
-		cursor.close();
-		db.close();
-		dbHelper.releaseReadableDatabase();
-		return users;
+		Collections.sort(list, new comparator());
+		return list;
 	}
 
-	public synchronized User getUser(int cid, String channel, String nick) {
-		User user = null;
-		SQLiteDatabase db = dbHelper.getSafeReadableDatabase();
-		Cursor cursor = db.query(DBHelper.TABLE_USERS, new String[] {"cid", "channel", "nick", "hostmask", "mode", "away"}, "cid = ? and channel = ? and nick = ?", new String[] {String.valueOf(cid), channel, nick}, null, null, "mode,nick");
-
-		if(cursor.moveToFirst()) {
-			user = cursorToUser(cursor);
+	public User getUser(int cid, String channel, String nick) {
+		Iterator<User> i = users.iterator();
+		while(i.hasNext()) {
+			User u = i.next();
+			if(u.cid == cid && u.channel.equals(channel) && u.nick.equals(nick))
+				return u;
 		}
-		// Make sure to close the cursor
-		cursor.close();
-		db.close();
-		dbHelper.releaseReadableDatabase();
-		return user;
-	}
-
-	private User cursorToUser(Cursor cursor) {
-		User user = new User();
-		user.cid = cursor.getInt(cursor.getColumnIndex("cid"));
-		user.channel = cursor.getString(cursor.getColumnIndex("channel"));
-		user.nick = cursor.getString(cursor.getColumnIndex("nick"));
-		user.hostmask = cursor.getString(cursor.getColumnIndex("hostmask"));
-		user.mode = cursor.getString(cursor.getColumnIndex("mode"));
-		user.away = cursor.getInt(cursor.getColumnIndex("away"));
-		return user;
+		return null;
 	}
 }

@@ -46,8 +46,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 					lastState = 2;
 				}
 			}
-			if(DBHelper.getInstance().isBatch())
-				setSupportProgressBarIndeterminateVisibility(true);
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
     		i.addFlags(
@@ -113,7 +111,11 @@ public class BaseActivity extends SherlockFragmentActivity {
 				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 				editor.remove("session_key");
 				editor.commit();
-            	DBHelper.getInstance().clear();
+				ServersDataSource.getInstance().clear();
+				BuffersDataSource.getInstance().clear();
+				ChannelsDataSource.getInstance().clear();
+				UsersDataSource.getInstance().clear();
+				EventsDataSource.getInstance().clear();
         		Intent i = new Intent(this, LoginActivity.class);
         		i.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |

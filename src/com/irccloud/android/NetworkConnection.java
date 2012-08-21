@@ -29,7 +29,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import com.codebutler.android_websockets.WebSocketClient;
-import com.irccloud.android.ServersDataSource.Server;
 
 public class NetworkConnection {
 	private static final String TAG = "IRCCloud";
@@ -482,13 +481,11 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_QUIT, event);
 			} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
-				if(!DBHelper.getInstance().isBatch()) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-					if(chan != null) {
-						UsersDataSource u = UsersDataSource.getInstance();
-						u.updateNick(object.getInt("cid"), chan.name, object.getString("oldnick"), object.getString("newnick"));
-					}
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+				if(chan != null) {
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.updateNick(object.getInt("cid"), chan.name, object.getString("oldnick"), object.getString("newnick"));
 				}
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
@@ -496,13 +493,11 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_NICKCHANGE, event);
 			} else if(type.equalsIgnoreCase("user_channel_mode")) {
-				if(!DBHelper.getInstance().isBatch()) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-					if(chan != null) {
-						UsersDataSource u = UsersDataSource.getInstance();
-						u.updateMode(object.getInt("cid"), chan.name, object.getString("nick"), object.getString("newmode"));
-					}
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+				if(chan != null) {
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.updateMode(object.getInt("cid"), chan.name, object.getString("nick"), object.getString("newmode"));
 				}
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
@@ -515,14 +510,12 @@ public class NetworkConnection {
 				while(i.hasNext()) {
 					String nick = i.next();
 					JSONObject user = updates.getJSONObject(nick);
-					if(!DBHelper.getInstance().isBatch()) {
-						ChannelsDataSource c = ChannelsDataSource.getInstance();
-						ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-						if(chan != null) {
-							UsersDataSource u = UsersDataSource.getInstance();
-							u.updateAway(object.getInt("cid"), chan.name, user.getString("nick"), user.getBoolean("away")?1:0);
-							u.updateHostmask(object.getInt("cid"), chan.name, user.getString("nick"), user.getString("usermask"));
-						}
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+					if(chan != null) {
+						UsersDataSource u = UsersDataSource.getInstance();
+						u.updateAway(object.getInt("cid"), chan.name, user.getString("nick"), user.getBoolean("away")?1:0);
+						u.updateHostmask(object.getInt("cid"), chan.name, user.getString("nick"), user.getString("usermask"));
 					}
 				}
 				if(!backlog)
@@ -744,11 +737,9 @@ public class NetworkConnection {
 					long time = System.currentTimeMillis();
 					Log.i("IRCCloud", "Beginning backlog...");
 					notifyHandlers(EVENT_BACKLOG_START, null);
-					DBHelper.getInstance().beginBatch();
 					JSONArray a = new JSONArray(json);
 					for(int i = 0; i < a.length(); i++)
 						parse_object(a.getJSONObject(i), true);
-					DBHelper.getInstance().endBatch();
 					Log.i("IRCCloud", "Backlog complete!");
 					Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
 				}
