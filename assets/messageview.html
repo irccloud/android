@@ -129,6 +129,14 @@ function fetchBacklog() {
 	Android.requestBacklog();
 }
 
+function appendBacklog() {
+	var backlog = eval('(' + Android.getIncomingBacklog() + ')');
+	
+	for(i=0; i < backlog.length; i++) {
+		appendEvent(backlog[i]);
+	}
+}
+
 function appendEvent(msg) {
 	var dateline = null;
 	var messages = document.getElementById("messages");

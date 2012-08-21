@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +39,8 @@ public class MessageViewFragment extends SherlockFragment {
 	private String name;
 	
 	public class JavaScriptInterface {
+		public ArrayList<EventsDataSource.Event> incomingBacklog;
+		
 		public void requestBacklog() {
 			BaseActivity a = (BaseActivity) getActivity();
 			a.setSupportProgressBarIndeterminate(true);
@@ -51,13 +54,26 @@ public class MessageViewFragment extends SherlockFragment {
 	    public void showToast(String toast) {
 	        Toast.makeText(getActivity(), toast, Toast.LENGTH_SHORT).show();
 	    }
+	    
+	    public String getIncomingBacklog() {
+	    	JSONArray array = new JSONArray();
+	    	if(incomingBacklog != null) {
+		    	for(int i = 0; i < incomingBacklog.size(); i++) {
+		    		array.put(incomingBacklog.get(i).event);
+		    	}
+	    	}
+	    	incomingBacklog = null;
+	    	return array.toString();
+	    }
 	}
+	
+	private JavaScriptInterface jsInterface = new JavaScriptInterface();
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	View v = inflater.inflate(R.layout.messageview, container, false);
     	webView = (WebView)v.findViewById(R.id.messageview);
     	webView.getSettings().setJavaScriptEnabled(true);
-    	webView.addJavascriptInterface(new JavaScriptInterface(), "Android");
+    	webView.addJavascriptInterface(jsInterface, "Android");
     	webView.setWebChromeClient(new WebChromeClient() {
     		  public void onConsoleMessage(String message, int lineNumber, String sourceID) {
     		    Log.d("IRCCloud", message + " -- From line "
@@ -154,14 +170,11 @@ public class MessageViewFragment extends SherlockFragment {
 			if(events.size() == 0 && min_eid > 0) {
 				conn.request_backlog(cid, bid, 0);
 			} else {
-		    	for(int i = 0; i < events.size(); i++) {
-		    		if(i == 0) {
-		    			earliest_eid = events.get(i).eid;
-		    			if(events.get(i).eid > min_eid)
-		    		    	webView.loadUrl("javascript:showBacklogBtn()");
-		    		}
-		    		insertEvent(events.get(i));
-		    	}
+    			earliest_eid = events.get(0).eid;
+    			if(events.get(0).eid > min_eid)
+    		    	webView.loadUrl("javascript:showBacklogBtn()");
+    			jsInterface.incomingBacklog = events;
+		    	webView.loadUrl("javascript:appendBacklog()");
 		    	if(events.size() > 0)
 		    		new HeartbeatTask().execute(events.get(events.size()-1));
 		    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
