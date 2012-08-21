@@ -130,7 +130,7 @@ function fetchBacklog() {
 }
 
 function appendBacklog() {
-	var backlog = eval('(' + Android.getIncomingBacklog() + ')');
+	var backlog = JSON.parse(Android.getIncomingBacklog());
 	
 	var start = new Date().getTime();
 	
