@@ -182,7 +182,7 @@ public class MessageViewFragment extends SherlockFragment {
 		protected void onPostExecute(Void result) {
 			if(events.size() == 0 && min_eid > 0) {
 				conn.request_backlog(cid, bid, 0);
-			} else {
+			} else if(events.size() > 0){
     			earliest_eid = events.get(0).eid();
     			if(events.get(0).eid() > min_eid)
     		    	webView.loadUrl("javascript:showBacklogBtn()");
@@ -190,19 +190,18 @@ public class MessageViewFragment extends SherlockFragment {
 		    	webView.loadUrl("javascript:appendBacklog()");
 		    	if(events.size() > 0)
 		    		new HeartbeatTask().execute(events.get(events.size()-1));
-		    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
-		    		topicView.setVisibility(View.VISIBLE);
-		    		topicView.setText(channel.topic_text);
-		    	} else {
-		    		topicView.setVisibility(View.GONE);
-		    		topicView.setText("");
-		    	}
-		    	try {
-					update_status(server.status, new JSONObject(server.fail_info));
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			}
+	    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
+	    		topicView.setVisibility(View.VISIBLE);
+	    		topicView.setText(channel.topic_text);
+	    	} else {
+	    		topicView.setVisibility(View.GONE);
+	    		topicView.setText("");
+	    	}
+	    	try {
+				update_status(server.status, new JSONObject(server.fail_info));
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
 		}
 	}
