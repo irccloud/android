@@ -1,11 +1,13 @@
 package com.irccloud.android;
 
+import android.annotation.SuppressLint;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 
+@SuppressLint("UseSparseArrays")
 public class EventsDataSource {
 
 	public class comparator implements Comparator<IRCCloudJSONObject> {
@@ -19,7 +21,7 @@ public class EventsDataSource {
 		}
 	}
 	
-	private HashMap<Integer,HashMap<Long, IRCCloudJSONObject>> events;
+	private HashMap<Integer,TreeMap<Long, IRCCloudJSONObject>> events;
 	
 	private static EventsDataSource instance = null;
 	
@@ -30,7 +32,7 @@ public class EventsDataSource {
 	}
 
 	public EventsDataSource() {
-		events = new HashMap<Integer,HashMap<Long, IRCCloudJSONObject>>();
+		events = new HashMap<Integer,TreeMap<Long, IRCCloudJSONObject>>();
 	}
 
 	public void clear() {
@@ -42,7 +44,7 @@ public class EventsDataSource {
 	public void addEvent(IRCCloudJSONObject event) {
 		synchronized(events) {
 			if(!events.containsKey(event.bid()))
-				events.put(event.bid(), new HashMap<Long,IRCCloudJSONObject>());
+				events.put(event.bid(), new TreeMap<Long,IRCCloudJSONObject>());
 			events.get(event.bid()).put(event.eid(), event);
 		}
 	}
@@ -77,7 +79,7 @@ public class EventsDataSource {
 				while(i.hasNext()) {
 					list.add(i.next());
 				}
-				Collections.sort(list, new comparator());
+				//Collections.sort(list, new comparator());
 			}
 		}
 		return list;
