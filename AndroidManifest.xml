@@ -8,7 +8,7 @@
         android:targetSdkVersion="15" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-
+    
     <application
         android:name="IRCCloudApplication"
         android:icon="@drawable/ic_launcher"

@@ -3,30 +3,23 @@ package com.irccloud.android;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
-import org.json.JSONObject;
 
 public class EventsDataSource {
-	public class Event {
-		long eid;
-		long bid;
-		int cid;
-		String type;
-		int highlight;
-		JSONObject event;
-	}
 
-	public class comparator implements Comparator<Event> {
-		public int compare(Event e1, Event e2) {
-			if(e1.eid == e2.eid)
+	public class comparator implements Comparator<IRCCloudJSONObject> {
+		public int compare(IRCCloudJSONObject e1, IRCCloudJSONObject e2) {
+			long l1 = e1.eid(), l2 = e2.eid();
+			if(l1 == l2)
 				return 0;
-			else if(e1.eid > e2.eid)
+			else if(l1 > l2)
 				return 1;
 			else return -1;
 		}
 	}
 	
-	private ArrayList<Event> events;
+	private HashMap<Integer,HashMap<Long, IRCCloudJSONObject>> events;
 	
 	private static EventsDataSource instance = null;
 	
@@ -37,105 +30,86 @@ public class EventsDataSource {
 	}
 
 	public EventsDataSource() {
-		events = new ArrayList<Event>();
+		events = new HashMap<Integer,HashMap<Long, IRCCloudJSONObject>>();
 	}
 
-	public synchronized void clear() {
-		events.clear();
+	public void clear() {
+		synchronized(events) {
+			events.clear();
+		}
 	}
 	
-	public synchronized Event createEvent(long eid, int bid, int cid, String type, int highlight, JSONObject event) {
-		Event e = new Event();
-		e.eid = eid;
-		e.bid = bid;
-		e.cid = cid;
-		e.type = type;
-		e.highlight = highlight;
-		e.event = event;
-		events.add(e);
-		return e;
+	public void addEvent(IRCCloudJSONObject event) {
+		synchronized(events) {
+			if(!events.containsKey(event.bid()))
+				events.put(event.bid(), new HashMap<Long,IRCCloudJSONObject>());
+			events.get(event.bid()).put(event.eid(), event);
+		}
 	}
 
-	public synchronized Event getEvent(long eid, int bid) {
-		Iterator<Event> i = events.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			if(e.eid == eid && e.bid == bid)
-				return e;
+	public IRCCloudJSONObject getEvent(long eid, int bid) {
+		synchronized(events) {
+			if(events.containsKey(bid))
+				return events.get(bid).get(eid);
 		}
 		return null;
 	}
 	
-	public synchronized void deleteEvent(long eid, int bid) {
-		Event e = getEvent(eid, bid);
-		if(e != null)
-			events.remove(e);
-	}
-
-	public synchronized void deleteEventsForServer(int cid) {
-		ArrayList<Event> eventsToRemove = new ArrayList<Event>();
-		
-		Iterator<Event> i = events.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			if(e.cid == cid)
-				eventsToRemove.add(e);
-		}
-		
-		i=eventsToRemove.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			events.remove(e);
+	public void deleteEvent(long eid, int bid) {
+		synchronized(events) {
+			if(events.containsKey(bid) && events.get(bid).containsKey(eid))
+				events.get(bid).remove(eid);
 		}
 	}
 
-	public synchronized void deleteEventsForBuffer(int bid) {
-		ArrayList<Event> eventsToRemove = new ArrayList<Event>();
-		
-		Iterator<Event> i = events.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			if(e.bid == bid)
-				eventsToRemove.add(e);
-		}
-		
-		i=eventsToRemove.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			events.remove(e);
+	public void deleteEventsForBuffer(int bid) {
+		synchronized(events) {
+			if(events.containsKey(bid))
+				events.remove(bid);
 		}
 	}
 
-	public synchronized ArrayList<Event> getEventsForBuffer(int bid) {
-		ArrayList<Event> list = new ArrayList<Event>();
-		Iterator<Event> i = events.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			if(e.bid == bid)
-				list.add(e);
+	public ArrayList<IRCCloudJSONObject> getEventsForBuffer(int bid) {
+		ArrayList<IRCCloudJSONObject> list = new ArrayList<IRCCloudJSONObject>();
+		synchronized(events) {
+			if(events.containsKey(bid)) {
+				Iterator<IRCCloudJSONObject> i = events.get(bid).values().iterator();
+				while(i.hasNext()) {
+					list.add(i.next());
+				}
+				Collections.sort(list, new comparator());
+			}
 		}
-		Collections.sort(list, new comparator());
 		return list;
 	}
 
-	public synchronized int getUnreadCountForBuffer(long bid, long last_seen_eid) {
+	public int getUnreadCountForBuffer(int bid, long last_seen_eid) {
 		int count = 0;
-		Iterator<Event> i = events.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			if(e.bid == bid && e.eid > last_seen_eid && (e.type.equals("buffer_msg") || e.type.equals("buffer_me_msg") ||e.type.equals("notice")))
-				count++;
+		synchronized(events) {
+			if(events.containsKey(bid)) {
+				Iterator<IRCCloudJSONObject> i = events.get(bid).values().iterator();
+				while(i.hasNext()) {
+					IRCCloudJSONObject e = i.next();
+					String type = e.type();
+					if(e.eid() > last_seen_eid && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice")))
+						count++;
+				}
+			}
 		}
 		return count;
 	}
 
-	public synchronized int getHighlightCountForBuffer(long bid, long last_seen_eid) {
+	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid) {
 		int count = 0;
-		Iterator<Event> i = events.iterator();
-		while(i.hasNext()) {
-			Event e = i.next();
-			if(e.bid == bid && e.eid > last_seen_eid && e.highlight == 1)
-				count++;
+		synchronized(events) {
+			if(events.containsKey(bid)) {
+				Iterator<IRCCloudJSONObject> i = events.get(bid).values().iterator();
+				while(i.hasNext()) {
+					IRCCloudJSONObject e = i.next();
+					if(e.eid() > last_seen_eid && e.highlight())
+						count++;
+				}
+			}
 		}
 		return count;
 	}

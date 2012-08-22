@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.irccloud.android.EventsDataSource.Event;
 
 public class MessageViewFragment extends SherlockFragment {
 	private NetworkConnection conn;
@@ -38,7 +37,7 @@ public class MessageViewFragment extends SherlockFragment {
 	private String name;
 	
 	public class JavaScriptInterface {
-		public ArrayList<EventsDataSource.Event> incomingBacklog;
+		public ArrayList<IRCCloudJSONObject> incomingBacklog;
 		
 		public void requestBacklog() {
 			BaseActivity a = (BaseActivity) getActivity();
@@ -58,7 +57,7 @@ public class MessageViewFragment extends SherlockFragment {
 	    	JSONArray array = new JSONArray();
 	    	if(incomingBacklog != null) {
 		    	for(int i = 0; i < incomingBacklog.size(); i++) {
-		    		array.put(incomingBacklog.get(i).event);
+		    		array.put(incomingBacklog.get(i).getObject());
 		    	}
 	    	}
 	    	incomingBacklog = null;
@@ -133,12 +132,12 @@ public class MessageViewFragment extends SherlockFragment {
     	}
     }
 
-    private void insertEvent(EventsDataSource.Event event) {
-    	if(event.eid == min_eid)
+    private void insertEvent(IRCCloudJSONObject event) {
+    	if(event.eid() == min_eid)
 	    	webView.loadUrl("javascript:hideBacklogBtn()");
-    	if(event.eid < earliest_eid)
-    		earliest_eid = event.eid;
-    	webView.loadUrl("javascript:appendEvent(("+event.event.toString()+"))");
+    	if(event.eid() < earliest_eid)
+    		earliest_eid = event.eid();
+    	webView.loadUrl("javascript:appendEvent(("+event.toString()+"))");
     }
     
     public void onResume() {
@@ -149,31 +148,33 @@ public class MessageViewFragment extends SherlockFragment {
     		new RefreshTask().execute((Void)null);
     }
     
-    private class HeartbeatTask extends AsyncTask<EventsDataSource.Event, Void, Void> {
+    private class HeartbeatTask extends AsyncTask<IRCCloudJSONObject, Void, Void> {
 
 		@Override
-		protected Void doInBackground(Event... params) {
-			Event e = params[0];
+		protected Void doInBackground(IRCCloudJSONObject... params) {
+			IRCCloudJSONObject e = params[0];
 			
-	    	if(e.eid > last_seen_eid) {
-	    		getActivity().getIntent().putExtra("last_seen_eid", e.eid);
-	    		NetworkConnection.getInstance().heartbeat(bid, e.cid, e.bid, e.eid);
-	    		last_seen_eid = e.eid;
+	    	if(e.eid() > last_seen_eid) {
+	    		getActivity().getIntent().putExtra("last_seen_eid", e.eid());
+	    		NetworkConnection.getInstance().heartbeat(bid, e.cid(), e.bid(), e.eid());
+	    		last_seen_eid = e.eid();
 	    	}
 			return null;
 		}
     }
     
 	private class RefreshTask extends AsyncTask<Void, Void, Void> {
-		ArrayList<EventsDataSource.Event> events;
+		ArrayList<IRCCloudJSONObject> events;
 		ChannelsDataSource.Channel channel;
 		ServersDataSource.Server server;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			channel = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
 			server = ServersDataSource.getInstance().getServer(cid);
+			long time = System.currentTimeMillis();
+			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			return null;
 		}
 
@@ -182,8 +183,8 @@ public class MessageViewFragment extends SherlockFragment {
 			if(events.size() == 0 && min_eid > 0) {
 				conn.request_backlog(cid, bid, 0);
 			} else {
-    			earliest_eid = events.get(0).eid;
-    			if(events.get(0).eid > min_eid)
+    			earliest_eid = events.get(0).eid();
+    			if(events.get(0).eid() > min_eid)
     		    	webView.loadUrl("javascript:showBacklogBtn()");
     			jsInterface.incomingBacklog = events;
 		    	webView.loadUrl("javascript:appendBacklog()");
@@ -298,13 +299,13 @@ public class MessageViewFragment extends SherlockFragment {
    	}
     
 	private final Handler mHandler = new Handler() {
-		EventsDataSource.Event e;
+		IRCCloudJSONObject e;
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
-					JSONObject object = (JSONObject)msg.obj;
+					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
 					if(object.getInt("cid") == cid) {
 						update_status(object.getString("new_status"), object.getJSONObject("fail_info"));
 					}
@@ -334,9 +335,11 @@ public class MessageViewFragment extends SherlockFragment {
 				break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
 		    	try {
-					e = (EventsDataSource.Event)msg.obj;
-		    		topicView.setVisibility(View.VISIBLE);
-					topicView.setText(e.event.getString("topic"));
+					e = (IRCCloudJSONObject)msg.obj;
+					if(e.bid() == bid) {
+			    		topicView.setVisibility(View.VISIBLE);
+						topicView.setText(e.getString("topic"));
+					}
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
@@ -346,8 +349,8 @@ public class MessageViewFragment extends SherlockFragment {
 			case NetworkConnection.EVENT_QUIT:
 			case NetworkConnection.EVENT_BUFFERMSG:
 			case NetworkConnection.EVENT_USERCHANNELMODE:
-				e = (EventsDataSource.Event)msg.obj;
-				if(e.bid == bid) {
+				e = (IRCCloudJSONObject)msg.obj;
+				if(e.bid() == bid) {
 					insertEvent(e);
 					new HeartbeatTask().execute(e);
 				}

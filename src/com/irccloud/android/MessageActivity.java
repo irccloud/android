@@ -142,8 +142,8 @@ public class MessageActivity extends UserListActivity {
 				}
 				break;
 			case NetworkConnection.EVENT_PART:
-				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
-				if(event.bid == bid) {
+				IRCCloudJSONObject event = (IRCCloudJSONObject)msg.obj;
+				if(event.bid() == bid) {
 					joined = 0;
 					invalidateOptionsMenu();
 				}

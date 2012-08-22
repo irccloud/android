@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.AsyncTask;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -128,7 +129,7 @@ public class NetworkConnection {
 		    	if(message.length() > 0) {
 					try {
 						synchronized(parserLock) {
-							parse_object(new JSONObject(message), false);
+							parse_object(new IRCCloudJSONObject(message), false);
 						}
 					} catch (JSONException e) {
 						Log.e(TAG, "Unable to parse: " + message);
@@ -351,13 +352,13 @@ public class NetworkConnection {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void parse_object(JSONObject object, boolean backlog) throws JSONException {
+	private void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
 			Log.d(TAG, "Response: " + object);
 			return;
 		}
-		String type = object.getString("type");
+		String type = object.type();
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
@@ -411,7 +412,7 @@ public class NetworkConnection {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.updateName(object.getInt("bid"), object.getString("new_name"));
 				if(!backlog)
-					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.getInt("bid"));
+					notifyHandlers(EVENT_RENAMECONVERSATION, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("status_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getJSONObject("fail_info").toString());
@@ -424,10 +425,9 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown")
 					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created")) {
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				e.addEvent(object);
 				if(!backlog)
-					notifyHandlers(EVENT_BUFFERMSG, event);
+					notifyHandlers(EVENT_BUFFERMSG, object);
 			} else if(type.equalsIgnoreCase("channel_init")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.deleteChannel(object.getLong("bid"));
@@ -447,39 +447,35 @@ public class NetworkConnection {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.updateTopic(object.getLong("bid"), object.getString("topic"), object.getLong("eid"), object.getString("author"));
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				e.addEvent(object);
 				if(!backlog)
-					notifyHandlers(EVENT_CHANNELTOPIC, event);
+					notifyHandlers(EVENT_CHANNELTOPIC, object);
 			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
 				u.createUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"), object.getString("hostmask"), "", 0);
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				e.addEvent(object);
 				if(!backlog)
-					notifyHandlers(EVENT_JOIN, event);
+					notifyHandlers(EVENT_JOIN, object);
 			} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				e.addEvent(object);
 				if(!backlog && type.equalsIgnoreCase("you_parted_channel")) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
 					c.deleteChannel(object.getInt("bid"));
 				}
 				if(!backlog)
-					notifyHandlers(EVENT_PART, event);
+					notifyHandlers(EVENT_PART, object);
 			} else if(type.equalsIgnoreCase("quit")) {
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				e.addEvent(object);
 				if(!backlog)
-					notifyHandlers(EVENT_QUIT, event);
+					notifyHandlers(EVENT_QUIT, object);
 			} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
@@ -488,10 +484,9 @@ public class NetworkConnection {
 					u.updateNick(object.getInt("cid"), chan.name, object.getString("oldnick"), object.getString("newnick"));
 				}
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				e.addEvent(object);
 				if(!backlog)
-					notifyHandlers(EVENT_NICKCHANGE, event);
+					notifyHandlers(EVENT_NICKCHANGE, object);
 			} else if(type.equalsIgnoreCase("user_channel_mode")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
@@ -500,10 +495,9 @@ public class NetworkConnection {
 					u.updateMode(object.getInt("cid"), chan.name, object.getString("nick"), object.getString("newmode"));
 				}
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.deleteEvent(object.getLong("eid"), object.getInt("bid"));
-				EventsDataSource.Event event = e.createEvent(object.getLong("eid"), object.getInt("bid"), object.getInt("cid"), object.getString("type"), (object.has("highlight") && object.getBoolean("highlight"))?1:0, object);
+				e.addEvent(object);
 				if(!backlog)
-					notifyHandlers(EVENT_USERCHANNELMODE, event);
+					notifyHandlers(EVENT_USERCHANNELMODE, object);
 			} else if(type.equalsIgnoreCase("member_updates")) {
 				JSONObject updates = object.getJSONObject("updates");
 				Iterator<String> i = updates.keys();
@@ -706,7 +700,7 @@ public class NetworkConnection {
 		long limit_maxhistorydays;
 		int num_invites;
 		
-		public UserInfo(JSONObject object) throws JSONException {
+		public UserInfo(IRCCloudJSONObject object) throws JSONException {
 			name = object.getString("name");
 			email = object.getString("email");
 			verified = object.getBoolean("verified");
@@ -739,7 +733,7 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_BACKLOG_START, null);
 					JSONArray a = new JSONArray(json);
 					for(int i = 0; i < a.length(); i++)
-						parse_object(a.getJSONObject(i), true);
+						parse_object(new IRCCloudJSONObject(a.getJSONObject(i)), true);
 					Log.i("IRCCloud", "Backlog complete!");
 					Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
 				}
