@@ -232,7 +232,7 @@ public class NetworkConnection {
 	}
 	
 	public int kick(int cid, String channel, String nick, String message) {
-		return say(cid, channel, "/kick " + channel + " " + nick + " " + message);
+		return say(cid, channel, "/kick " + nick + " " + message);
 	}
 	
 	public int archiveBuffer(int cid, long bid) {
