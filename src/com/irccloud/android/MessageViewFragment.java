@@ -394,6 +394,7 @@ public class MessageViewFragment extends SherlockFragment {
 			case NetworkConnection.EVENT_QUIT:
 			case NetworkConnection.EVENT_BUFFERMSG:
 			case NetworkConnection.EVENT_USERCHANNELMODE:
+			case NetworkConnection.EVENT_KICK:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.bid() == bid) {
 					insertEvent(e);

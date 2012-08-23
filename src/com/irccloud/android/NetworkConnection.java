@@ -24,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.AsyncTask;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -71,6 +70,7 @@ public class NetworkConnection {
 	public static final int EVENT_CONNECTIONDELETED = 19;
 	public static final int EVENT_AWAY = 20;
 	public static final int EVENT_SELFBACK = 21;
+	public static final int EVENT_KICK = 22;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -229,6 +229,10 @@ public class NetworkConnection {
 			e.printStackTrace();
 			return -1;
 		}
+	}
+	
+	public int kick(int cid, String channel, String nick, String message) {
+		return say(cid, channel, "/kick " + channel + " " + nick + " " + message);
 	}
 	
 	public int archiveBuffer(int cid, long bid) {
@@ -478,6 +482,17 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog)
 					notifyHandlers(EVENT_QUIT, object);
+			} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
+				UsersDataSource u = UsersDataSource.getInstance();
+				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog && type.equalsIgnoreCase("you_kicked_channel")) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					c.deleteChannel(object.getInt("bid"));
+				}
+				if(!backlog)
+					notifyHandlers(EVENT_KICK, object);
 			} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));

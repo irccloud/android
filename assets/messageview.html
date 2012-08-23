@@ -70,6 +70,15 @@ body {
 .parted_channel .message_text {
 	color: #aaa;
 }
+.kicked_channel .from:before {
+	content:"<- ";
+}
+.kicked_channel .from {
+	font-weight: normal;
+}
+.kicked_channel .message_text {
+	color: #aaa;
+}
 .quit .from:before {
 	content:"<= ";
 }
@@ -165,6 +174,9 @@ function appendEvent(msg) {
 	if(msg.type == "you_parted_channel")
 		msg.type = "parted_channel";
 
+	if(msg.type == "you_kicked_channel")
+		msg.type = "kicked_channel";
+
 	if(msg.type == "you_nickchange")
 		msg.type = "nickchange";
 
@@ -176,6 +188,11 @@ function appendEvent(msg) {
 	if(msg.type == "parted_channel") {
 		msg.from = msg.nick;
 		msg.msg = "left (" + msg.hostmask + ")";
+	}
+
+	if(msg.type == "kicked_channel") {
+		msg.from = msg.nick;
+		msg.msg = "was kicked by " + msg.kicker + " (" + msg.kicker_hostmask + "): " + msg.msg;
 	}
 
 	if(msg.type == "quit") {

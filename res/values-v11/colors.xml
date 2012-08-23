@@ -2,4 +2,5 @@
 
 <resources>
     <drawable name="compose_bar_bg">#FFFFFF</drawable>
+    <color name="dialog_prompt">#000000</color>
 </resources>

@@ -241,6 +241,7 @@ public class UsersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_NICKCHANGE:
 			case NetworkConnection.EVENT_MEMBERUPDATES:
 			case NetworkConnection.EVENT_USERCHANNELMODE:
+			case NetworkConnection.EVENT_KICK:
 		    	new RefreshTask().execute((Void)null);
 				break;
 			default:
