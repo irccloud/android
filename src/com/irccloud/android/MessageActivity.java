@@ -17,7 +17,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class MessageActivity extends UserListActivity {
 	int cid;
-	long bid;
+	int bid;
 	String name;
 	String type;
 	TextView messageTxt;
@@ -52,7 +52,7 @@ public class MessageActivity extends UserListActivity {
         
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
-        	bid = savedInstanceState.getLong("bid");
+        	bid = savedInstanceState.getInt("bid");
         	name = savedInstanceState.getString("name");
         	type = savedInstanceState.getString("type");
         	joined = savedInstanceState.getInt("joined");
@@ -64,7 +64,7 @@ public class MessageActivity extends UserListActivity {
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
     	state.putInt("cid", cid);
-    	state.putLong("bid", bid);
+    	state.putInt("bid", bid);
     	state.putString("name", name);
     	state.putString("type", type);
     	state.putInt("joined", joined);
@@ -97,7 +97,7 @@ public class MessageActivity extends UserListActivity {
     	super.onResume();
     	if(getIntent() != null && getIntent().hasExtra("cid")) {
 	    	cid = getIntent().getIntExtra("cid", 0);
-	    	bid = getIntent().getLongExtra("bid", 0);
+	    	bid = getIntent().getIntExtra("bid", 0);
 	    	name = getIntent().getStringExtra("name");
 	    	type = getIntent().getStringExtra("type");
 	    	joined = getIntent().getIntExtra("joined", 0);

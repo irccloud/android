@@ -15,6 +15,7 @@ public class BuffersDataSource {
 		String type;
 		int archived;
 		int deferred;
+		String away_msg;
 	}
 
 	public class comparator implements Comparator<Buffer> {
@@ -71,6 +72,13 @@ public class BuffersDataSource {
 		Buffer b = getBuffer(bid);
 		if(b != null)
 			b.name = name;
+	}
+	
+	public synchronized void updateAway(int bid, String away_msg) {
+		Buffer b = getBuffer(bid);
+		if(b != null) {
+			b.away_msg = away_msg;
+		}
 	}
 	
 	public synchronized void deleteBuffer(int bid) {

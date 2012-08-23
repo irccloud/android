@@ -13,6 +13,7 @@ public class UsersDataSource {
 		String hostmask;
 		String mode;
 		int away;
+		String away_msg;
 	}
 
 	public class comparator implements Comparator<User> {
@@ -86,6 +87,25 @@ public class UsersDataSource {
 			u.away = away;
 	}
 	
+	public synchronized void updateAwayMsg(int cid, String channel, String nick, int away, String away_msg) {
+		User u = getUser(cid,channel,nick);
+		if(u != null) {
+			u.away = away;
+			u.away_msg = away_msg;
+		}
+	}
+	
+	public synchronized void updateSelfAwayMsg(int cid, String nick, int away, String away_msg) {
+		Iterator<User> i = users.iterator();
+		while(i.hasNext()) {
+			User u = i.next();
+			if(u.cid == cid && u.nick.equals(nick)) {
+				u.away = away;
+				u.away_msg = away_msg;
+			}
+		}
+	}
+	
 	public synchronized void updateHostmask(int cid, String channel, String nick, String hostmask) {
 		User u = getUser(cid,channel,nick);
 		if(u != null)
@@ -115,6 +135,16 @@ public class UsersDataSource {
 		while(i.hasNext()) {
 			User u = i.next();
 			if(u.cid == cid && u.channel.equals(channel) && u.nick.equals(nick))
+				return u;
+		}
+		return null;
+	}
+
+	public synchronized User getUser(int cid, String nick) {
+		Iterator<User> i = users.iterator();
+		while(i.hasNext()) {
+			User u = i.next();
+			if(u.cid == cid && u.nick.equals(nick))
 				return u;
 		}
 		return null;

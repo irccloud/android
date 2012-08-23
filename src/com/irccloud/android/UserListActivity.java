@@ -12,7 +12,7 @@ import android.os.Message;
 
 public class UserListActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener {
 	int cid;
-	long bid;
+	int bid;
 	String channel;
 	String selected_name;
 	
@@ -26,7 +26,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
-        	bid = savedInstanceState.getLong("bid");
+        	bid = savedInstanceState.getInt("bid");
         	channel = savedInstanceState.getString("channel");
         }
     }
@@ -36,7 +36,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
     	super.onResume();
     	if(getIntent() != null && getIntent().hasExtra("cid")) {
 	    	cid = getIntent().getIntExtra("cid", 0);
-	    	bid = getIntent().getLongExtra("bid", 0);
+	    	bid = getIntent().getIntExtra("bid", 0);
 	    	channel = getIntent().getStringExtra("name");
     	}
     	getSupportActionBar().setTitle(channel + " members");
@@ -75,7 +75,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
     	state.putInt("cid", cid);
-    	state.putLong("bid", bid);
+    	state.putInt("bid", bid);
     	state.putString("channel", channel);
     }
     
@@ -115,7 +115,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 			    		i.putExtra("archived", buffer.archived);
 		    		} else {
 			    		i.putExtra("cid", cid);
-			    		i.putExtra("bid", -1L);
+			    		i.putExtra("bid", -1);
 			    		i.putExtra("name", selected_name);
 			    		i.putExtra("last_seen_eid", 0L);
 			    		i.putExtra("min_eid", 0L);

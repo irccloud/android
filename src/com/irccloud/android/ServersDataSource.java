@@ -74,6 +74,13 @@ public class ServersDataSource {
 		}
 	}
 
+	public void updateAway(int cid, String away) {
+		Server s = getServer(cid);
+		if(s != null) {
+			s.away = away;
+		}
+	}
+
 	public void deleteServer(int cid) {
 		Server s = getServer(cid);
 		if(s != null) {

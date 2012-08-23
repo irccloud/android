@@ -33,7 +33,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	private static class BufferListEntry implements Serializable {
 		private static final long serialVersionUID = 1848168221883194027L;
 		int cid;
-		long bid;
+		int bid;
 		int type;
 		int unread;
 		int highlights;
@@ -69,7 +69,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public BufferListEntry buildItem(int cid, long bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status) {
+		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -334,6 +334,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived);
+		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived);
 	}
 }

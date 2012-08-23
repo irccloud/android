@@ -33,11 +33,12 @@ public class MessageViewFragment extends SherlockFragment {
 	private TextView topicView;
 	private TextView statusView;
 	private int cid;
-	private long bid;
+	private int bid;
 	private long last_seen_eid;
 	private long min_eid;
 	private long earliest_eid;
 	private String name;
+	private String type;
 	
 	public class JavaScriptInterface {
 		public TreeMap<Long,IRCCloudJSONObject> incomingBacklog;
@@ -107,10 +108,11 @@ public class MessageViewFragment extends SherlockFragment {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
-        	bid = savedInstanceState.getLong("bid");
+        	bid = savedInstanceState.getInt("bid");
         	name = savedInstanceState.getString("name");
         	last_seen_eid = savedInstanceState.getLong("last_seen_eid");
         	min_eid = savedInstanceState.getLong("min_eid");
+        	type = savedInstanceState.getString("type");
         }
     }
     
@@ -122,6 +124,7 @@ public class MessageViewFragment extends SherlockFragment {
     	state.putLong("last_seen_eid", last_seen_eid);
     	state.putLong("min_eid", min_eid);
     	state.putString("name", name);
+    	state.putString("type", type);
     }
 
     
@@ -129,10 +132,11 @@ public class MessageViewFragment extends SherlockFragment {
     	super.onAttach(activity);
     	if(activity.getIntent() != null && activity.getIntent().hasExtra("cid")) {
 	    	cid = activity.getIntent().getIntExtra("cid", 0);
-	    	bid = activity.getIntent().getLongExtra("bid", 0);
+	    	bid = activity.getIntent().getIntExtra("bid", 0);
 	    	last_seen_eid = activity.getIntent().getLongExtra("last_seen_eid", 0);
 	    	min_eid = activity.getIntent().getLongExtra("min_eid", 0);
 	    	name = activity.getIntent().getStringExtra("name");
+	    	type = activity.getIntent().getStringExtra("type");
     	}
     }
 
@@ -169,13 +173,19 @@ public class MessageViewFragment extends SherlockFragment {
     
 	private class RefreshTask extends AsyncTask<Void, Void, Void> {
 		TreeMap<Long,IRCCloudJSONObject> events;
-		ChannelsDataSource.Channel channel;
 		ServersDataSource.Server server;
+		BuffersDataSource.Buffer buffer;
+		ChannelsDataSource.Channel channel = null;
+		UsersDataSource.User user = null;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			channel = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			server = ServersDataSource.getInstance().getServer(cid);
+			if(type.equalsIgnoreCase("channel"))
+				channel = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+			else if(type.equalsIgnoreCase("conversation"))
+				user = UsersDataSource.getInstance().getUser(cid, name);
 			long time = System.currentTimeMillis();
 			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
@@ -184,8 +194,9 @@ public class MessageViewFragment extends SherlockFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			if(events.size() == 0 && min_eid > 0) {
-				conn.request_backlog(cid, bid, 0);
+			if(events == null || (events.size() == 0 && min_eid > 0)) {
+				if(bid != -1)
+					conn.request_backlog(cid, bid, 0);
 			} else if(events.size() > 0){
     			earliest_eid = events.firstKey();
     			if(events.firstKey() > min_eid)
@@ -198,6 +209,15 @@ public class MessageViewFragment extends SherlockFragment {
 	    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
 	    		topicView.setVisibility(View.VISIBLE);
 	    		topicView.setText(channel.topic_text);
+	    	} else if(type.equalsIgnoreCase("conversation") && buffer != null && buffer.away_msg != null && buffer.away_msg.length() > 0) {
+	    		topicView.setVisibility(View.VISIBLE);
+	    		topicView.setText("Away: " + buffer.away_msg);
+	    	} else if(type.equalsIgnoreCase("conversation") && user != null && user.away == 1) {
+	    		topicView.setVisibility(View.VISIBLE);
+	    		if(user.away_msg != null && user.away_msg.length() > 0)
+	    			topicView.setText("Away: " + user.away_msg);
+	    		else
+		    		topicView.setText("Away");
 	    	} else {
 	    		topicView.setVisibility(View.GONE);
 	    		topicView.setText("");
@@ -335,6 +355,28 @@ public class MessageViewFragment extends SherlockFragment {
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				new RefreshTask().execute((Void)null);
+				break;
+			case NetworkConnection.EVENT_SELFBACK:
+		    	try {
+					e = (IRCCloudJSONObject)msg.obj;
+					if(e.cid() == cid && e.getString("nick").equalsIgnoreCase(name)) {
+			    		topicView.setVisibility(View.GONE);
+						topicView.setText("");
+					}
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			case NetworkConnection.EVENT_AWAY:
+		    	try {
+					e = (IRCCloudJSONObject)msg.obj;
+					if((e.bid() == bid || (e.type().equalsIgnoreCase("self_away") && e.cid() == cid)) && e.getString("nick").equalsIgnoreCase(name)) {
+			    		topicView.setVisibility(View.VISIBLE);
+						topicView.setText("Away: " + e.getString("msg"));
+					}
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
 				break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
 		    	try {

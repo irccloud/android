@@ -68,7 +68,7 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     }
     
 	@Override
-	public void onBufferSelected(int cid, long bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived) {
+	public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived) {
 		Intent i = new Intent(this, MessageActivity.class);
 		i.putExtra("cid", cid);
 		i.putExtra("bid", bid);

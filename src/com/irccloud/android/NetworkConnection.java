@@ -69,6 +69,8 @@ public class NetworkConnection {
 	public static final int EVENT_RENAMECONVERSATION = 17;
 	public static final int EVENT_STATUSCHANGED = 18;
 	public static final int EVENT_CONNECTIONDELETED = 19;
+	public static final int EVENT_AWAY = 20;
+	public static final int EVENT_SELFBACK = 21;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -514,6 +516,32 @@ public class NetworkConnection {
 				}
 				if(!backlog)
 					notifyHandlers(EVENT_MEMBERUPDATES, null);
+			} else if(type.equalsIgnoreCase("user_away") || type.equalsIgnoreCase("away")) {
+				BuffersDataSource b = BuffersDataSource.getInstance();
+				UsersDataSource u = UsersDataSource.getInstance();
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+				if(chan != null) {
+					u.updateAwayMsg(object.getInt("cid"), chan.name, object.getString("nick"), 1, object.getString("msg"));
+				} else {
+					b.updateAway(object.getInt("bid"), object.getString("msg"));
+				}
+				if(!backlog)
+					notifyHandlers(EVENT_AWAY, object);
+			} else if(type.equalsIgnoreCase("self_away")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				UsersDataSource u = UsersDataSource.getInstance();
+				u.updateSelfAwayMsg(object.getInt("cid"), object.getString("nick"), 1, object.getString("away_msg"));
+				s.updateAway(object.getInt("cid"), object.getString("away_msg"));
+				if(!backlog)
+					notifyHandlers(EVENT_AWAY, object);
+			} else if(type.equalsIgnoreCase("self_back")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				UsersDataSource u = UsersDataSource.getInstance();
+				u.updateSelfAwayMsg(object.getInt("cid"), object.getString("nick"), 0, "");
+				s.updateAway(object.getInt("cid"), "");
+				if(!backlog)
+					notifyHandlers(EVENT_AWAY, object);
 			} else if(type.equalsIgnoreCase("connection_lag")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateLag(object.getInt("cid"), object.getLong("lag"));
