@@ -1,11 +1,13 @@
 package com.irccloud.android;
 
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
+@SuppressLint("SetJavaScriptEnabled")
 public class MessageViewFragment extends SherlockFragment {
 	private NetworkConnection conn;
 	private WebView webView;
@@ -37,7 +40,7 @@ public class MessageViewFragment extends SherlockFragment {
 	private String name;
 	
 	public class JavaScriptInterface {
-		public ArrayList<IRCCloudJSONObject> incomingBacklog;
+		public TreeMap<Long,IRCCloudJSONObject> incomingBacklog;
 		
 		public void requestBacklog() {
 			BaseActivity a = (BaseActivity) getActivity();
@@ -56,9 +59,10 @@ public class MessageViewFragment extends SherlockFragment {
 	    public String getIncomingBacklog() {
 	    	JSONArray array = new JSONArray();
 	    	if(incomingBacklog != null) {
-		    	for(int i = 0; i < incomingBacklog.size(); i++) {
-		    		array.put(incomingBacklog.get(i).getObject());
-		    	}
+	    		Iterator<IRCCloudJSONObject> i = incomingBacklog.values().iterator();
+	    		while(i.hasNext()) {
+	    			array.put(i.next().getObject());
+	    		}
 	    	}
 	    	incomingBacklog = null;
 	    	return array.toString();
@@ -164,7 +168,7 @@ public class MessageViewFragment extends SherlockFragment {
     }
     
 	private class RefreshTask extends AsyncTask<Void, Void, Void> {
-		ArrayList<IRCCloudJSONObject> events;
+		TreeMap<Long,IRCCloudJSONObject> events;
 		ChannelsDataSource.Channel channel;
 		ServersDataSource.Server server;
 		
@@ -183,13 +187,13 @@ public class MessageViewFragment extends SherlockFragment {
 			if(events.size() == 0 && min_eid > 0) {
 				conn.request_backlog(cid, bid, 0);
 			} else if(events.size() > 0){
-    			earliest_eid = events.get(0).eid();
-    			if(events.get(0).eid() > min_eid)
+    			earliest_eid = events.firstKey();
+    			if(events.firstKey() > min_eid)
     		    	webView.loadUrl("javascript:showBacklogBtn()");
     			jsInterface.incomingBacklog = events;
 		    	webView.loadUrl("javascript:appendBacklog()");
 		    	if(events.size() > 0)
-		    		new HeartbeatTask().execute(events.get(events.size()-1));
+		    		new HeartbeatTask().execute(events.get(events.lastKey()));
 			}
 	    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
 	    		topicView.setVisibility(View.VISIBLE);

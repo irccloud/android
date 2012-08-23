@@ -1,7 +1,6 @@
 package com.irccloud.android;
 
 import android.annotation.SuppressLint;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -71,18 +70,13 @@ public class EventsDataSource {
 		}
 	}
 
-	public ArrayList<IRCCloudJSONObject> getEventsForBuffer(int bid) {
-		ArrayList<IRCCloudJSONObject> list = new ArrayList<IRCCloudJSONObject>();
+	public TreeMap<Long,IRCCloudJSONObject> getEventsForBuffer(int bid) {
 		synchronized(events) {
 			if(events.containsKey(bid)) {
-				Iterator<IRCCloudJSONObject> i = events.get(bid).values().iterator();
-				while(i.hasNext()) {
-					list.add(i.next());
-				}
-				//Collections.sort(list, new comparator());
+				return events.get(bid);
 			}
 		}
-		return list;
+		return null;
 	}
 
 	public int getUnreadCountForBuffer(int bid, long last_seen_eid) {
