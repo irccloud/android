@@ -3,7 +3,6 @@ package com.irccloud.android;
 import com.actionbarsherlock.view.MenuItem;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -20,10 +19,6 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 	int bid;
 	String channel;
 	UsersDataSource.User selected_user;
-	
-	private static final int DIALOG_CONTEXTMENU = 0;
-	private static final int DIALOG_KICK = 1;
-	private static final int DIALOG_INVITE = 2;
 	
 	NetworkConnection conn;
 	

@@ -39,6 +39,7 @@ public class MessageViewFragment extends SherlockFragment {
 	private long earliest_eid;
 	private String name;
 	private String type;
+	private boolean firstScroll = true;
 	
 	public class JavaScriptInterface {
 		public TreeMap<Long,IRCCloudJSONObject> incomingBacklog;
@@ -68,6 +69,18 @@ public class MessageViewFragment extends SherlockFragment {
 	    	incomingBacklog = null;
 	    	return array.toString();
 	    }
+	    
+	    public void backlogComplete() {
+	    	if(firstScroll) {
+    			mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+		    			webView.loadUrl("javascript:window.scrollTo(0, document.body.scrollHeight)");
+					}
+    			}, 100);
+	    		firstScroll = false;
+	    	}
+	    }
 	}
 	
 	private JavaScriptInterface jsInterface = new JavaScriptInterface();
@@ -75,15 +88,23 @@ public class MessageViewFragment extends SherlockFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
     	v.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-    		@Override
+			int lastHeightDiff = 0;
+
+			@Override
     		public void onGlobalLayout() {
-    			mHandler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-		    			webView.loadUrl("javascript:window.scrollTo(0, document.body.scrollHeight)");
-		    			webView.invalidate();
-					}
-    			}, 100);
+				int heightDiff = v.getRootView().getHeight() - v.getHeight();
+				if(heightDiff != lastHeightDiff) {
+					final int delta = heightDiff - lastHeightDiff;
+					lastHeightDiff = heightDiff;
+	    			mHandler.postDelayed(new Runnable() {
+	    				
+						@Override
+						public void run() {
+			    			webView.loadUrl("javascript:scrollToBottom("+delta+")");
+			    			webView.invalidate();
+						}
+	    			}, 250);
+				}
     		}
    		}); 
     	webView = (WebView)v.findViewById(R.id.messageview);
@@ -113,6 +134,7 @@ public class MessageViewFragment extends SherlockFragment {
         	last_seen_eid = savedInstanceState.getLong("last_seen_eid");
         	min_eid = savedInstanceState.getLong("min_eid");
         	type = savedInstanceState.getString("type");
+        	firstScroll = savedInstanceState.getBoolean("firstScroll");
         }
     }
     
@@ -125,6 +147,7 @@ public class MessageViewFragment extends SherlockFragment {
     	state.putLong("min_eid", min_eid);
     	state.putString("name", name);
     	state.putString("type", type);
+    	state.putBoolean("firstScroll", firstScroll);
     }
 
     

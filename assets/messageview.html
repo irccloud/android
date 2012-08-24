@@ -120,7 +120,6 @@ var scrollTimer = null;
 var lastDate = null;
 var min_eid = 0;
 var max_eid = 0;
-var firstScroll = 1;
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
@@ -132,8 +131,10 @@ function showBacklogBtn() {
 	document.getElementById("backlogBtn").style.disabled = false;
 }
 
-function scrollToBottom() {
-	if(document.body.scrollHeight - (window.pageYOffset + window.innerHeight) < 20)
+function scrollToBottom(delta) {
+	if(typeof delta != "number")
+		delta = 0;
+	if(document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20)
 		window.scrollTo(0, document.body.scrollHeight);
 	scrollTimer = null;
 }
@@ -154,10 +155,7 @@ function appendBacklog() {
 	
 	var elapsed = new Date().getTime() - start;
 	Android.log("Backlog rendering took " + elapsed + "ms");
-	if(firstScroll == 1) {
-		scrollToBottom();
-		firstScroll = 0;
-	}
+	Android.backlogComplete();
 }
 
 function appendEvent(msg) {
@@ -165,7 +163,7 @@ function appendEvent(msg) {
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
 
-	if(typeof msg.value === "number") {
+	if(typeof msg.value == "number") {
 		msg.msg = msg.value + " " + msg.msg;
 	}
 
@@ -254,7 +252,7 @@ function appendEvent(msg) {
 	
 	m.id = msg.eid;
 	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm;
-	if(typeof msg.from === "string")
+	if(typeof msg.from == "string")
 		m.innerHTML += "</span><span class='from'>"+msg.from
 	m.innerHTML += "</span><span class='message_text'>"+msg.msg
 		+"</span>";
