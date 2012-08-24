@@ -19,7 +19,11 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 	int cid;
 	int bid;
 	String channel;
-	String selected_name;
+	UsersDataSource.User selected_user;
+	
+	private static final int DIALOG_CONTEXTMENU = 0;
+	private static final int DIALOG_KICK = 1;
+	private static final int DIALOG_INVITE = 2;
 	
 	NetworkConnection conn;
 	
@@ -94,86 +98,142 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		ServersDataSource s = ServersDataSource.getInstance();
-		ServersDataSource.Server server = s.getServer(cid);
-		UsersDataSource u = UsersDataSource.getInstance();
-		UsersDataSource.User user = u.getUser(cid, channel, selected_name);
-
-		switch(id) {
-    	case 0:
-    		final CharSequence[] items = {"Open", "Invite to a channel", "Ignore", "Deop", "Kick...", "Ban"};
-
-    		builder.setTitle(user.nick + "\n(" + user.hostmask + ")");
-    		builder.setItems(items, new DialogInterface.OnClickListener() {
-    		    public void onClick(DialogInterface dialog, int item) {
-    		    	switch(item) {
-    		    	case 0:
-    		    		BuffersDataSource b = BuffersDataSource.getInstance();
-    		    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, selected_name);
-    		    		Intent i = new Intent(UserListActivity.this, MessageActivity.class);
-    		    		if(buffer != null) {
-    			    		i.putExtra("cid", buffer.cid);
-    			    		i.putExtra("bid", buffer.bid);
-    			    		i.putExtra("name", buffer.name);
-    			    		i.putExtra("last_seen_eid", buffer.last_seen_eid);
-    			    		i.putExtra("min_eid", buffer.min_eid);
-    			    		i.putExtra("type", buffer.type);
-    			    		i.putExtra("joined", 1);
-    			    		i.putExtra("archived", buffer.archived);
-    		    		} else {
-    			    		i.putExtra("cid", cid);
-    			    		i.putExtra("bid", -1);
-    			    		i.putExtra("name", selected_name);
-    			    		i.putExtra("last_seen_eid", 0L);
-    			    		i.putExtra("min_eid", 0L);
-    			    		i.putExtra("type", "conversation");
-    			    		i.putExtra("joined", 1);
-    			    		i.putExtra("archived", 0);
-    		    		}
-    		    		startActivity(i);
-    		    		break;
-    		    	case 4:
-    		    		showDialog(1);
-    		    		break;
-    		    	}
-    		    	dialog.dismiss();
-    		    }
-    		});
-    		break;
-    	case 1:
-    		LayoutInflater inflater = getLayoutInflater();
-        	View v = inflater.inflate(R.layout.dialog_textprompt,null);
-        	final TextView prompt = (TextView)v.findViewById(R.id.prompt);
-        	final EditText input = (EditText)v.findViewById(R.id.textInput);
-        	prompt.setText("Give a reason for kicking");
-        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
-    		builder.setView(v);
-    		builder.setPositiveButton("Kick", new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					conn.kick(cid, channel, selected_name, input.getText().toString());
-					dialog.dismiss();
-				}
-    		});
-    		builder.setNegativeButton("Cancel", new OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-				}
-    		});
-    		break;
-    	}
-		AlertDialog alert = builder.create();
-		return alert;
-    }
-
-    @SuppressWarnings("deprecation")
 	@Override
-	public void onUserSelected(int c, String channel, String name) {
-		selected_name = name;
-		showDialog(0);
-	}
+	public void onUserSelected(int c, String chan, String name) {
+		UsersDataSource u = UsersDataSource.getInstance();
+		selected_user = u.getUser(cid, channel, name);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+   		final CharSequence[] items = {"Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
+
+		if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
+			items[3] = "Deop";
+		
+		builder.setTitle(selected_user.nick + "\n(" + selected_user.hostmask + ")");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialogInterface, int item) {
+	    		AlertDialog.Builder builder = new AlertDialog.Builder(UserListActivity.this);
+	    		LayoutInflater inflater = getLayoutInflater();
+	    		ServersDataSource s = ServersDataSource.getInstance();
+	    		ServersDataSource.Server server = s.getServer(cid);
+	    		View view;
+	    		final TextView prompt;
+	    		final EditText input;
+	    		AlertDialog dialog;
+	    		
+	    		switch(item) {
+		    	case 0:
+		    		BuffersDataSource b = BuffersDataSource.getInstance();
+		    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, selected_user.nick);
+		    		Intent i = new Intent(UserListActivity.this, MessageActivity.class);
+		    		if(buffer != null) {
+			    		i.putExtra("cid", buffer.cid);
+			    		i.putExtra("bid", buffer.bid);
+			    		i.putExtra("name", buffer.name);
+			    		i.putExtra("last_seen_eid", buffer.last_seen_eid);
+			    		i.putExtra("min_eid", buffer.min_eid);
+			    		i.putExtra("type", buffer.type);
+			    		i.putExtra("joined", 1);
+			    		i.putExtra("archived", buffer.archived);
+		    		} else {
+			    		i.putExtra("cid", cid);
+			    		i.putExtra("bid", -1);
+			    		i.putExtra("name", selected_user.nick);
+			    		i.putExtra("last_seen_eid", 0L);
+			    		i.putExtra("min_eid", 0L);
+			    		i.putExtra("type", "conversation");
+			    		i.putExtra("joined", 1);
+			    		i.putExtra("archived", 0);
+		    		}
+		    		startActivity(i);
+		    		break;
+		    	case 1:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	prompt.setText("Invite " + selected_user.nick + " to a channel");
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Invite", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.invite(cid, input.getText().toString(), selected_user.nick);
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.show();
+		    		break;
+		    	case 3:
+		    		if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
+		    			conn.mode(cid, channel, "-o " + selected_user.nick);
+		    		else
+		    			conn.mode(cid, channel, "+o " + selected_user.nick);
+		    		break;
+		    	case 4:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	prompt.setText("Give a reason for kicking");
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Kick", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.kick(cid, channel, selected_user.nick, input.getText().toString());
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.show();
+		    		break;
+		    	case 5:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	input.setText("*!"+selected_user.hostmask);
+		        	prompt.setText("Add a banmask for " + selected_user.nick);
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Ban", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.mode(cid, channel, "+b " + input.getText().toString());
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.show();
+		    		break;
+		    	}
+		    	dialogInterface.dismiss();
+		    }
+		});
+		
+		AlertDialog dialog = builder.create();
+		dialog.setOwnerActivity(this);
+		dialog.show();
+    }
 }

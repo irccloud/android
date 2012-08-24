@@ -108,6 +108,12 @@ body {
 	font-family: monospace;
     background: #edf4ff;
 }
+.inviting_to_channel {
+	background: #D9E7FF;
+}
+.inviting_to_channel .from {
+	display: none;
+}
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
@@ -218,6 +224,11 @@ function appendEvent(msg) {
 
 	if(msg.type == "server_motd")
 		msg.type = "motd_response";
+
+	if(msg.type == "inviting_to_channel") {
+		msg.from = "";
+		msg.msg = "You invited " + msg.recipient + " to join " + msg.channel;
+	}
 
 	m.className = msg.type;
 

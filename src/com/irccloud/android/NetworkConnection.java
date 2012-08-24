@@ -235,6 +235,14 @@ public class NetworkConnection {
 		return say(cid, channel, "/kick " + nick + " " + message);
 	}
 	
+	public int mode(int cid, String channel, String mode) {
+		return say(cid, channel, "/mode " + channel + " " + mode);
+	}
+	
+	public int invite(int cid, String channel, String nick) {
+		return say(cid, channel, "/invite " + nick + " " + channel);
+	}
+	
 	public int archiveBuffer(int cid, long bid) {
 		try {
 			JSONObject o = new JSONObject();
@@ -429,7 +437,7 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns")
 					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local") || type.equalsIgnoreCase("server_luserchannels")
 					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown")
-					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created")) {
+					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
 				if(!backlog)
