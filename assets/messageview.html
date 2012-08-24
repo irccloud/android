@@ -114,12 +114,27 @@ body {
 .inviting_to_channel .from {
 	display: none;
 }
+#newmsgbar {
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	width: 100%;
+	padding: 6px;
+	background-color: blue;
+	position: fixed;
+	font-weight: bold;
+	color: white;
+	visibility: hidden;
+}
 </style>
 <script type="text/javascript">
 var scrollTimer = null;
 var lastDate = null;
 var min_eid = 0;
 var max_eid = 0;
+var newMsgs = 0;
+var newMsgsTime = 0;
+var newMsgsTimer = null;
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
@@ -131,11 +146,47 @@ function showBacklogBtn() {
 	document.getElementById("backlogBtn").style.disabled = false;
 }
 
+function updateNewMsgBar(delta) {
+	if(typeof delta != "number")
+		delta = 0;
+	var newmsgbar = document.getElementById("newmsgbar");
+	if(newMsgs == 0 || (document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20)) {
+		document.getElementById("newmsgbar").style.visibility = "hidden";
+		newmsgbar.innerHTML = "";
+		newMsgs = 0;
+		if(typeof newMsgsTimer != "null")
+			window.clearTimeout(newMsgsTimer);
+	} else {
+		var then = new Date(newMsgsTime).getTime();
+		var now = new Date().getTime();
+		var minutes = Math.floor((now - then) / 60000);
+		if(minutes < 1)
+			newmsgbar.innerHTML = "less than a";
+		else
+			newmsgbar.innerHTML = minutes;
+		newmsgbar.innerHTML += " minute";
+		if(minutes > 1)
+			newmsgbar.innerHTML += "s";
+		newmsgbar.innerHTML += " of chatter (" + newMsgs + " message";
+		if(newMsgs != 1)
+			newmsgbar.innerHTML += "s";
+		newmsgbar.innerHTML += ")";
+		document.getElementById("newmsgbar").style.visibility = "visible";
+		if(typeof newMsgsTimer != "null")
+			window.clearTimeout(newMsgsTimer);
+		newMsgsTimer = window.setTimeout(updateNewMsgBar,1000);
+	}
+}
+
+window.onscroll = updateNewMsgBar;
+
 function scrollToBottom(delta) {
 	if(typeof delta != "number")
 		delta = 0;
-	if(document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20)
+	if(document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20) {
 		window.scrollTo(0, document.body.scrollHeight);
+	}
+	updateNewMsgBar(delta);
 	scrollTimer = null;
 }
 
@@ -150,15 +201,16 @@ function appendBacklog() {
 	var start = new Date().getTime();
 	
 	for(var j=0; j<backlog.length; j++) {
-		appendEvent(backlog[j]);
+		appendEvent(backlog[j], false);
 	}
 	
 	var elapsed = new Date().getTime() - start;
 	Android.log("Backlog rendering took " + elapsed + "ms");
 	Android.backlogComplete();
+	newMsgs = 0;
 }
 
-function appendEvent(msg) {
+function appendEvent(msg,isBacklog) {
 	var dateline = null;
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
@@ -316,14 +368,22 @@ function appendEvent(msg) {
 	if(min_eid == 0 || min_eid > msg.eid)
 		min_eid = msg.eid;
 
+	if(!isBacklog)
+		newMsgs++;
+
+	if(newMsgs == 1)
+		newMsgsTime = msg.eid / 1000;
+
 	if(typeof scrollTimer != "null")
 		window.clearTimeout(scrollTimer);
 	scrollTimer = window.setTimeout(scrollToBottom,100);
+	
 }
 </script>
 </head>
 <body>
 <input type="button" id="backlogBtn" value="Fetch More History" onClick="fetchBacklog()" />
 <div id="messages"></div>
+<div id="newmsgbar" onClick="window.scrollTo(0, document.body.scrollHeight)"></div>
 </body>
 </html>
