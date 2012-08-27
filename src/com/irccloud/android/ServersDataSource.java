@@ -3,6 +3,8 @@ package com.irccloud.android;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.json.JSONObject;
+
 public class ServersDataSource {
 	public class Server {
 		int cid;
@@ -21,6 +23,7 @@ public class ServersDataSource {
 		String away;
 		String usermask;
 		String mode;
+		JSONObject isupport;
 	}
 
 	private ArrayList<Server> servers;
@@ -96,6 +99,13 @@ public class ServersDataSource {
 		Server s = getServer(cid);
 		if(s != null) {
 			s.mode = mode;
+		}
+	}
+
+	public void updateIsupport(int cid, JSONObject params) {
+		Server s = getServer(cid);
+		if(s != null) {
+			s.isupport = params;
 		}
 	}
 

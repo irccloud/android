@@ -511,6 +511,11 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog)
 					notifyHandlers(EVENT_QUIT, object);
+			} else if(type.equalsIgnoreCase("quit_server")) {
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog)
+					notifyHandlers(EVENT_QUIT, object);
 			} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
@@ -603,6 +608,9 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("connection_lag")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateLag(object.getInt("cid"), object.getLong("lag"));
+			} else if(type.equalsIgnoreCase("isupport_params")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.updateIsupport(object.getInt("cid"), object.getJSONObject("params"));
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
 				JSONObject seenEids = object.getJSONObject("seenEids");
 				Iterator<String> i = seenEids.keys();

@@ -291,9 +291,15 @@ function appendEvent(msg,isBacklog) {
 		msg.msg = "was kicked by " + msg.kicker + " (" + msg.kicker_hostmask + "): " + msg.msg;
 	}
 
+	if(msg.type == "quit_server")
+		msg.type = "quit";
+
 	if(msg.type == "quit") {
 		msg.from = msg.nick;
-		msg.msg = "quit (" + msg.hostmask + ") " + msg.msg;
+		if(typeof msg.hostmask == "string")
+			msg.msg = "quit (" + msg.hostmask + ") " + msg.msg;
+		else
+			msg.msg = "quit: " + msg.msg;
 	}
 	
 	if(msg.type == "nickchange") {
