@@ -114,6 +114,18 @@ body {
 .inviting_to_channel .from {
 	display: none;
 }
+.channel_mode {
+	background: #eee;
+}
+.channel_mode .from {
+	display: none;
+}
+.channel_mode_is {
+	background: #eee;
+}
+.channel_mode_is .from {
+	display: none;
+}
 #newmsgbar {
 	bottom: 0px;
 	left: 0px;
@@ -222,6 +234,14 @@ function appendEvent(msg,isBacklog) {
 	if(msg.type == "channel_topic") {
 		msg.from = msg.author;
 		msg.msg = "set the topic: " + msg.topic;
+	}
+	
+	if(msg.type == "channel_mode") {
+		msg.msg = "Channel mode set to: <b>" + msg.diff + "</b>";
+	}
+
+	if(msg.type == "channel_mode_is") {
+		msg.msg = "Channel mode is: <b>" + msg.diff + "</b>";
 	}
 
 	if(msg.type == "you_joined_channel")

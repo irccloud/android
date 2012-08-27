@@ -71,6 +71,7 @@ public class NetworkConnection {
 	public static final int EVENT_AWAY = 20;
 	public static final int EVENT_SELFBACK = 21;
 	public static final int EVENT_KICK = 22;
+	public static final int EVENT_CHANNELMODE = 23;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -464,6 +465,13 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELTOPIC, object);
+			} else if(type.equalsIgnoreCase("channel_mode") || type.equalsIgnoreCase("channel_mode_is")) {
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				c.updateMode(object.getLong("bid"), object.getString("newmode"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog)
+					notifyHandlers(EVENT_CHANNELMODE, object);
 			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
@@ -593,7 +601,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				//Log.e(TAG, "Unhandled type: " + object);
+				Log.e(TAG, "Unhandled type: " + object);
 			}
 		}
 		if(idle_interval > 0)

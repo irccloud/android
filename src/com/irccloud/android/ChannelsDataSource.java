@@ -62,6 +62,13 @@ public class ChannelsDataSource {
 		}
 	}
 	
+	public synchronized void updateMode(long bid, String mode) {
+		Channel c = getChannelForBuffer(bid);
+		if(c != null) {
+			c.mode = mode;
+		}
+	}
+	
 	public synchronized Channel getChannelForBuffer(long bid) {
 		Iterator<Channel> i = channels.iterator();
 		while(i.hasNext()) {
