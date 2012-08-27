@@ -138,6 +138,33 @@ body {
 .user_mode .from {
 	display: none;
 }
+.myinfo {
+	background: #eee;
+}
+.myinfo .from {
+	display: none;
+}
+.connecting_failed {
+	color: #aaa;
+}
+.connecting_failed .from {
+	display: none;
+}
+.socket_closed .from {
+	display: none;
+}
+.socket_closed .timestamp {
+	display: none;
+}
+.error {
+	background: #FFEE97;
+}
+.error .from {
+	display: none;
+}
+.nickname_in_use {
+	background: #FFEE97;
+}
 #newmsgbar {
 	bottom: 0px;
 	left: 0px;
@@ -243,8 +270,28 @@ function appendEvent(msg,isBacklog) {
 		msg.msg = msg.value + " " + msg.msg;
 	}
 
+	if(msg.type == "nickname_in_use") {
+		msg.from = msg.nick;
+		msg.msg = " is already in use";
+	}
+
+	if(msg.type == "connecting_failed") {
+		msg.msg = "Failed to connect: " + msg.reason;
+	}
+
+	if(msg.type == "socket_closed") {
+		msg.msg = "<hr/>";
+	}
+
 	if(msg.type == "self_details") {
 		msg.msg = "Your hostmask: <b>" + msg.usermask + "</b>";
+	}
+
+	if(msg.type == "myinfo") {
+		msg.msg = "Host: " + msg.server + "<br/>";
+		msg.msg += "IRCd: " + msg.version + "<br/>";
+		msg.msg += "User modes: " + msg.user_modes + "<br/>";
+		msg.msg += "Channel modes: " + msg.channel_modes + "<br/>";
 	}
 
 	if(msg.type == "user_mode") {
@@ -308,7 +355,11 @@ function appendEvent(msg,isBacklog) {
 	}
 	
 	if(msg.type == "user_channel_mode") {
-		msg.msg = "set mode " + msg.diff + " " + msg.nick;
+		msg.msg = "set mode: <b>" + msg.diff + " " + msg.nick + "</b>";
+	}
+
+	if(msg.type == "channel_mode_list_change") {
+		msg.msg = "set mode: <b>" + msg.diff + "</b>";
 	}
 
 	if(msg.type == "motd_response") {

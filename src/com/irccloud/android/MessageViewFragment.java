@@ -419,7 +419,6 @@ public class MessageViewFragment extends SherlockFragment {
 			case NetworkConnection.EVENT_USERCHANNELMODE:
 			case NetworkConnection.EVENT_KICK:
 			case NetworkConnection.EVENT_CHANNELMODE:
-			case NetworkConnection.EVENT_CHANNELTIMESTAMP:
 			case NetworkConnection.EVENT_SELFDETAILS:
 			case NetworkConnection.EVENT_USERMODE:
 				e = (IRCCloudJSONObject)msg.obj;
