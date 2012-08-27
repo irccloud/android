@@ -13,6 +13,8 @@ public class ChannelsDataSource {
 		String topic_author;
 		String type;
 		String mode;
+		long timestamp;
+		String url;
 	}
 	
 	private ArrayList<Channel> channels;
@@ -33,7 +35,7 @@ public class ChannelsDataSource {
 		channels.clear();
 	}
 	
-	public synchronized Channel createChannel(int cid, long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode) {
+	public synchronized Channel createChannel(int cid, long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode, long timestamp) {
 		Channel c = new Channel();
 		c.cid = cid;
 		c.bid = bid;
@@ -43,6 +45,7 @@ public class ChannelsDataSource {
 		c.topic_time = topic_time;
 		c.type = type;
 		c.mode = mode;
+		c.timestamp = timestamp;
 		channels.add(c);
 		return c;
 	}
@@ -66,6 +69,20 @@ public class ChannelsDataSource {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
 			c.mode = mode;
+		}
+	}
+	
+	public synchronized void updateURL(long bid, String url) {
+		Channel c = getChannelForBuffer(bid);
+		if(c != null) {
+			c.url = url;
+		}
+	}
+	
+	public synchronized void updateTimestamp(long bid, long timestamp) {
+		Channel c = getChannelForBuffer(bid);
+		if(c != null) {
+			c.timestamp = timestamp;
 		}
 	}
 	

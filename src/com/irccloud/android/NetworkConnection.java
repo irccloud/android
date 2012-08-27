@@ -72,6 +72,7 @@ public class NetworkConnection {
 	public static final int EVENT_SELFBACK = 21;
 	public static final int EVENT_KICK = 22;
 	public static final int EVENT_CHANNELMODE = 23;
+	public static final int EVENT_CHANNELTIMESTAMP = 24;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -377,7 +378,7 @@ public class NetworkConnection {
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
-			} else if(type.equalsIgnoreCase("idle")) {
+			} else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog") || type.equalsIgnoreCase("backlog_complete")) {
 			} else if(type.equalsIgnoreCase("num_invites")) {
 				if(userInfo != null)
 					userInfo.num_invites = object.getInt("num_invites");
@@ -448,7 +449,7 @@ public class NetworkConnection {
 				c.deleteChannel(object.getLong("bid"));
 				ChannelsDataSource.Channel channel = c.createChannel(object.getInt("cid"), object.getLong("bid"), object.getString("chan"),
 						object.getJSONObject("topic").isNull("text")?"":object.getJSONObject("topic").getString("text"), object.getJSONObject("topic").getLong("time"), 
-						object.getJSONObject("topic").getString("nick"), object.getString("channel_type"), object.getString("mode"));
+						object.getJSONObject("topic").getString("nick"), object.getString("channel_type"), object.getString("mode"), object.getLong("timestamp"));
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUsersForChannel(object.getInt("cid"), object.getString("chan"));
 				JSONArray users = object.getJSONArray("members");
@@ -465,6 +466,9 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELTOPIC, object);
+			} else if(type.equalsIgnoreCase("channel_url")) {
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				c.updateURL(object.getLong("bid"), object.getString("url"));
 			} else if(type.equalsIgnoreCase("channel_mode") || type.equalsIgnoreCase("channel_mode_is")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.updateMode(object.getLong("bid"), object.getString("newmode"));
@@ -472,6 +476,13 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELMODE, object);
+			} else if(type.equalsIgnoreCase("channel_timestamp")) {
+				ChannelsDataSource c = ChannelsDataSource.getInstance();
+				c.updateTimestamp(object.getLong("bid"), object.getLong("timestamp"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog)
+					notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
 			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
