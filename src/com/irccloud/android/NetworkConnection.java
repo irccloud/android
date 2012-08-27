@@ -73,6 +73,8 @@ public class NetworkConnection {
 	public static final int EVENT_KICK = 22;
 	public static final int EVENT_CHANNELMODE = 23;
 	public static final int EVENT_CHANNELTIMESTAMP = 24;
+	public static final int EVENT_SELFDETAILS = 25;
+	public static final int EVENT_USERMODE = 26;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -584,6 +586,20 @@ public class NetworkConnection {
 				s.updateAway(object.getInt("cid"), "");
 				if(!backlog)
 					notifyHandlers(EVENT_AWAY, object);
+			} else if(type.equalsIgnoreCase("self_details")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.updateUsermask(object.getInt("cid"), object.getString("usermask"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog)
+					notifyHandlers(EVENT_SELFDETAILS, object);
+			} else if(type.equalsIgnoreCase("user_mode")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.updateMode(object.getInt("cid"), object.getString("newmode"));
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog)
+					notifyHandlers(EVENT_USERMODE, object);
 			} else if(type.equalsIgnoreCase("connection_lag")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateLag(object.getInt("cid"), object.getLong("lag"));

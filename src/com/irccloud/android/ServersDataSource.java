@@ -19,6 +19,8 @@ public class ServersDataSource {
 		String join_commands;
 		String fail_info;
 		String away;
+		String usermask;
+		String mode;
 	}
 
 	private ArrayList<Server> servers;
@@ -55,6 +57,8 @@ public class ServersDataSource {
 		s.join_commands = join_commands;
 		s.fail_info = fail_info;
 		s.away = away;
+		s.usermask = "";
+		s.mode = "";
 		servers.add(s);
 		return s;
 	}
@@ -78,6 +82,20 @@ public class ServersDataSource {
 		Server s = getServer(cid);
 		if(s != null) {
 			s.away = away;
+		}
+	}
+
+	public void updateUsermask(int cid, String usermask) {
+		Server s = getServer(cid);
+		if(s != null) {
+			s.usermask = usermask;
+		}
+	}
+
+	public void updateMode(int cid, String mode) {
+		Server s = getServer(cid);
+		if(s != null) {
+			s.mode = mode;
 		}
 	}
 

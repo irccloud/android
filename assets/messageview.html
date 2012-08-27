@@ -126,6 +126,18 @@ body {
 .channel_mode_is .from {
 	display: none;
 }
+.self_details {
+	background: #eee;
+}
+.self_details .from {
+	display: none;
+}
+.user_mode {
+	background: #eee;
+}
+.user_mode .from {
+	display: none;
+}
 #newmsgbar {
 	bottom: 0px;
 	left: 0px;
@@ -229,6 +241,14 @@ function appendEvent(msg,isBacklog) {
 
 	if(typeof msg.value == "number") {
 		msg.msg = msg.value + " " + msg.msg;
+	}
+
+	if(msg.type == "self_details") {
+		msg.msg = "Your hostmask: <b>" + msg.usermask + "</b>";
+	}
+
+	if(msg.type == "user_mode") {
+		msg.msg = "Your user mode is <b>" + msg.diff + "</b>";
 	}
 
 	if(msg.type == "channel_topic") {
