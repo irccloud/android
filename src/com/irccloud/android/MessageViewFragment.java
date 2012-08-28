@@ -1,9 +1,11 @@
 package com.irccloud.android;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,24 +16,24 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.webkit.WebView;
-import android.webkit.WebChromeClient;
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.app.SherlockListFragment;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class MessageViewFragment extends SherlockFragment {
+public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
-	private WebView webView;
 	private TextView topicView;
 	private TextView statusView;
+	private Button historyBtn;
 	private int cid;
 	private int bid;
 	private long last_seen_eid;
@@ -40,85 +42,181 @@ public class MessageViewFragment extends SherlockFragment {
 	private String name;
 	private String type;
 	private boolean firstScroll = true;
+	private float avgInsertTime = 0;
 	
-	public class JavaScriptInterface {
-		public TreeMap<Long,IRCCloudJSONObject> incomingBacklog;
+	private static final int TYPE_TIMESTAMP = 0;
+	private static final int TYPE_MESSAGE = 1;
+	
+	private MessageAdapter adapter;
+	
+	private class MessageAdapter extends BaseAdapter {
+		ArrayList<MessageEntry> data;
+		private SherlockListFragment ctx;
+		private long max_eid = 0;
+		private long min_eid = 0;
+		private int lastDay;
 		
-		public void requestBacklog() {
-			BaseActivity a = (BaseActivity) getActivity();
-			a.setSupportProgressBarIndeterminate(true);
-			conn.request_backlog(cid, bid, earliest_eid);
+		private class ViewHolder {
+			int type;
+			TextView timestamp;
+			TextView message;
+		}
+	
+		private class MessageEntry {
+			int type;
+			long eid;
+			String timestamp;
+			String text;
+			int color;
+			int bg_color;
 		}
 
-		public void log(String msg) {
-			Log.i("IRCCloud", msg);
+		public MessageAdapter(SherlockListFragment context) {
+			ctx = context;
+			data = new ArrayList<MessageEntry>();
 		}
 		
-	    public void showToast(String toast) {
-	        Toast.makeText(getActivity(), toast, Toast.LENGTH_SHORT).show();
-	    }
-	    
-	    public String getIncomingBacklog() {
-	    	JSONArray array = new JSONArray();
-	    	if(incomingBacklog != null) {
-	    		Iterator<IRCCloudJSONObject> i = incomingBacklog.values().iterator();
-	    		while(i.hasNext()) {
-	    			array.put(i.next().getObject());
-	    		}
-	    	}
-	    	incomingBacklog = null;
-	    	return array.toString();
-	    }
-	    
-	    public void backlogComplete() {
-	    	if(firstScroll) {
-    			mHandler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-		    			webView.loadUrl("javascript:window.scrollTo(0, document.body.scrollHeight)");
+		public void addItem(int type, long eid, String text, int color, int bg_color) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTimeInMillis(eid / 1000);
+			int insert_pos = 0;
+			MessageEntry e = new MessageEntry();
+			SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
+			e.type = type;
+			e.eid = eid;
+			e.timestamp = formatter.format(calendar.getTime());
+			e.text = text;
+			e.color = color;
+			e.bg_color = bg_color;
+			
+			if(eid > max_eid) { //Message at the bottom
+				if(data.size() > 0) {
+					calendar.setTimeInMillis(data.get(data.size()-1).eid / 1000);
+					lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+					calendar.setTimeInMillis(eid/1000);
+				} else {
+					lastDay = 0;
+				}
+				max_eid = eid;
+				data.add(e);
+				insert_pos = data.size() - 1;
+			} else if(min_eid > eid) { //Message goes on top
+				calendar.setTimeInMillis(data.get(1).eid / 1000);
+				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+				calendar.setTimeInMillis(eid/1000);
+				if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+					data.add(0, e);
+					insert_pos = 0;
+				} else { //Insert below the dateline
+					data.add(1, e);
+					insert_pos = 1;
+				}
+			} else {
+				for(int i = 0; i < data.size(); i++) {
+					if(data.get(i).type == TYPE_MESSAGE && data.get(i).eid > eid) { //Insert the message
+						if(i > 0 && data.get(i-1).type == TYPE_MESSAGE) {
+							calendar.setTimeInMillis(data.get(i-1).eid / 1000);
+							lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+							data.add(i, e);
+							insert_pos = i;
+							break;
+						} else { //There was a date line above our insertion point
+							calendar.setTimeInMillis(data.get(i).eid / 1000);
+							lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+							calendar.setTimeInMillis(eid/1000);
+							if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+								if(i > 1) {
+									calendar.setTimeInMillis(data.get(i-2).eid / 1000);
+									lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+								} else {
+									//We're above the first dateline, so we'll need to put a new one on top!
+									lastDay = 0;
+								}
+								calendar.setTimeInMillis(eid/1000);
+								data.add(i-1, e);
+								insert_pos = i-1;
+							} else { //Insert below the dateline
+								data.add(i, e);
+								insert_pos = i;
+							}
+							break;
+						}
+					} else if(data.get(i).type == TYPE_MESSAGE && data.get(i).eid == eid) { //Replace the message
+						lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+						data.remove(i);
+						data.add(i, e);
+						insert_pos = i;
+						break;
 					}
-    			}, 100);
-	    		firstScroll = false;
-	    	}
-	    }
+				}
+			}
+			
+			if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
+				formatter.applyPattern("EEEE, MMMM dd, yyyy");
+				MessageEntry d = new MessageEntry();
+				d.type = TYPE_TIMESTAMP;
+				d.eid = eid;
+				d.timestamp = formatter.format(calendar.getTime());
+				d.bg_color = R.color.dateline_bg;
+				data.add(insert_pos, d);
+				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+			}
+		}
+		
+		@Override
+		public int getCount() {
+			return data.size();
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return data.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			MessageEntry e = data.get(position);
+			View row = convertView;
+			ViewHolder holder;
+
+			if(row != null && ((ViewHolder)row.getTag()).type != e.type)
+				row = null;
+			
+			if (row == null) {
+				LayoutInflater inflater = ctx.getLayoutInflater(null);
+				if(e.type == TYPE_TIMESTAMP)
+					row = inflater.inflate(R.layout.row_timestamp, null);
+				else
+					row = inflater.inflate(R.layout.row_message, null);
+
+				holder = new ViewHolder();
+				holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
+				holder.message = (TextView) row.findViewById(R.id.message);
+				holder.type = e.type;
+
+				row.setTag(holder);
+			} else {
+				holder = (ViewHolder) row.getTag();
+			}
+
+			holder.timestamp.setText(e.timestamp);
+			if(holder.message != null) {
+				holder.message.setText(Html.fromHtml(e.text));
+				holder.message.setTextColor(getResources().getColorStateList(e.color));
+			}
+			row.setBackgroundResource(e.bg_color);
+			
+			return row;
+		}
 	}
-	
-	private JavaScriptInterface jsInterface = new JavaScriptInterface();
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
-    	v.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-			int lastHeightDiff = 0;
-
-			@Override
-    		public void onGlobalLayout() {
-				int heightDiff = v.getRootView().getHeight() - v.getHeight();
-				if(heightDiff != lastHeightDiff) {
-					final int delta = heightDiff - lastHeightDiff;
-					lastHeightDiff = heightDiff;
-	    			mHandler.postDelayed(new Runnable() {
-	    				
-						@Override
-						public void run() {
-			    			webView.loadUrl("javascript:scrollToBottom("+delta+")");
-			    			webView.invalidate();
-						}
-	    			}, 250);
-				}
-    		}
-   		}); 
-    	webView = (WebView)v.findViewById(R.id.messageview);
-    	webView.getSettings().setJavaScriptEnabled(true);
-    	webView.addJavascriptInterface(jsInterface, "Android");
-    	webView.setWebChromeClient(new WebChromeClient() {
-    		  public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-    		    Log.d("IRCCloud", message + " -- From line "
-    		                         + lineNumber + " of "
-    		                         + sourceID);
-    		  }
-    		});
-    	webView.loadUrl("file:///android_asset/messageview.html");
-    	webView.pageDown(true);
     	topicView = (TextView)v.findViewById(R.id.topicView);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	return v;
@@ -135,6 +233,7 @@ public class MessageViewFragment extends SherlockFragment {
         	min_eid = savedInstanceState.getLong("min_eid");
         	type = savedInstanceState.getString("type");
         	firstScroll = savedInstanceState.getBoolean("firstScroll");
+        	//TODO: serialize the adapter data
         }
     }
     
@@ -148,6 +247,7 @@ public class MessageViewFragment extends SherlockFragment {
     	state.putString("name", name);
     	state.putString("type", type);
     	state.putBoolean("firstScroll", firstScroll);
+    	//TODO: serialize the adapter data
     }
 
     
@@ -163,16 +263,133 @@ public class MessageViewFragment extends SherlockFragment {
     	}
     }
 
-    private void insertEvent(IRCCloudJSONObject event) {
-    	if(event.eid() == min_eid)
-	    	webView.loadUrl("javascript:hideBacklogBtn()");
-    	if(event.eid() < earliest_eid)
-    		earliest_eid = event.eid();
-    	webView.loadUrl("javascript:appendEvent(("+event.toString()+"))");
+    private void insertEvent(IRCCloudJSONObject event, boolean backlog) {
+		try {
+    		long start = System.currentTimeMillis();
+	    	if(event.eid() == min_eid)
+	    		historyBtn.setVisibility(View.GONE);
+	    	if(event.eid() < earliest_eid)
+	    		earliest_eid = event.eid();
+	    	
+	    	int color = R.color.row_message_label;
+	    	int bg_color = R.color.message_bg;
+	    	
+	    	String from = "";
+	    	String msg = "";
+	    	String type;
+			type = event.getString("type");
+	    	
+	    	if(type.equalsIgnoreCase("buffer_me_msg")) {
+				from = "* <i>" + event.getString("from") + "</i>";
+				msg = "<i>" + event.getString("msg") + "</i>";
+	    	} else if(type.equalsIgnoreCase("nickname_in_use")) {
+	    		from = event.getString("nick");
+	    		msg = "is already in use";
+	    		bg_color = R.color.error;
+	    	} else if(type.equalsIgnoreCase("connecting_failed")) {
+	    		msg = "Failed to connect: " + event.getString("reason");
+	    		bg_color = R.color.error;
+	    	} else if(type.equalsIgnoreCase("socket_closed")) {
+	    		msg = "===================="; //TODO: Add another row type for socket_closed events
+	    	} else if(type.equalsIgnoreCase("self_details")) {
+	    		msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
+	    		bg_color = R.color.dateline_bg;
+	    	} else if(type.equalsIgnoreCase("myinfo")) {
+	    		msg = "Host: " + event.getString("server") + "\n";
+	    		msg += "IRCd: " + event.getString("version") + "\n";
+	    		msg += "User modes: " + event.getString("user_modes") + "\n";
+	    		msg += "Channel modes: " + event.getString("channel_modes") + "\n";
+	    		bg_color = R.color.dateline_bg;
+	    	} else if(type.equalsIgnoreCase("user_mode")) {
+	    		msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
+	    		bg_color = R.color.dateline_bg;
+	    	} else if(type.equalsIgnoreCase("channel_topic")) {
+	    		from = event.getString("author");
+	    		msg = "set the topic: " + event.getString("topic");
+	    		bg_color = R.color.dateline_bg;
+	    	} else if(type.equalsIgnoreCase("channel_mode")) {
+	    		msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
+	    		bg_color = R.color.dateline_bg;
+	    	} else if(type.equalsIgnoreCase("channel_mode_is")) {
+	    		msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
+	    		bg_color = R.color.dateline_bg;
+	    	} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
+	    		from = "-&gt; " + event.getString("nick");
+	    		msg = "joined (" + event.getString("hostmask") + ")";
+	    	} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
+	    		from = "&lt;- " + event.getString("nick");
+	    		msg = "left (" + event.getString("hostmask") + ")";
+	    	} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
+	    		from = "&lt;- " + event.getString("nick");
+	    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
+	    	} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
+	    		from = event.getString("oldnick");
+	    		msg = "-&gt; " + event.getString("newnick");
+	    	} else if(type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("quit_server")) {
+	    		from = "&lt;= " + event.getString("nick");
+	    		if(event.has("hostmask"))
+	    			msg = "quit (" + event.getString("hostmask") + ") " + event.getString("msg");
+	    		else
+	    			msg = "quit: " + event.getString("msg");
+	    	} else if(type.equalsIgnoreCase("user_channel_mode")) {
+	    		from = "+++ " + event.getString("from");
+	    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
+	    	} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
+	    		from = "+++ " + event.getString("from");
+	    		msg = "set mode: <b>" + event.getString("diff") + "</b>";
+	    	} else if(type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_motd")) {
+	    	} else if(type.equalsIgnoreCase("inviting_to_channel")) {
+	    		msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
+	    		bg_color = R.color.notice;
+	    	} else {
+	    		if(event.has("from"))
+	    			from = event.getString("from");
+	    		if(event.has("msg"))
+	    			msg = event.getString("msg");
+	    	}
+	    	
+	    	if(event.has("value")) {
+	    		msg = event.getString("value") + " " + msg;
+	    	}
+	    	
+	    	if(from.length() > 0)
+	    		msg = "<b>" + from + "</b> " + msg;
+	    	
+	    	if(event.has("highlight") && event.getBoolean("highlight"))
+	    		bg_color = R.color.highlight;
+	    	
+	    	if(event.has("self") && event.getBoolean("self"))
+	    		bg_color = R.color.self;
+	    	
+	    	adapter.addItem(TYPE_MESSAGE, event.getLong("eid"), msg, color, bg_color);
+	    	if(!backlog)
+	    		adapter.notifyDataSetChanged();
+	    	long time = (System.currentTimeMillis() - start);
+	    	if(avgInsertTime == 0)
+	    		avgInsertTime = time;
+	    	avgInsertTime += time;
+	    	avgInsertTime /= 2.0;
+	    	Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public void onResume() {
     	super.onResume();
+    	View headerView = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
+    	historyBtn = (Button)headerView.findViewById(R.id.historyBtn);
+    	historyBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				historyBtn.setEnabled(false);
+				conn.request_backlog(cid, bid, earliest_eid);
+			}
+    	});
+        getListView().addHeaderView(headerView);
+    	adapter = new MessageAdapter(this);
+    	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	if(bid != -1)
@@ -222,12 +439,25 @@ public class MessageViewFragment extends SherlockFragment {
 					conn.request_backlog(cid, bid, 0);
 			} else if(events.size() > 0){
     			earliest_eid = events.firstKey();
-    			if(events.firstKey() > min_eid)
-    		    	webView.loadUrl("javascript:showBacklogBtn()");
-    			jsInterface.incomingBacklog = events;
-		    	webView.loadUrl("javascript:appendBacklog()");
-		    	if(events.size() > 0)
+    			if(events.firstKey() > min_eid) {
+    	    		historyBtn.setVisibility(View.VISIBLE);
+    	    		historyBtn.setEnabled(true);
+    			} else {
+    	    		historyBtn.setVisibility(View.GONE);
+    			}
+		    	if(events.size() > 0) {
+		    		avgInsertTime = 0;
+		    		long start = System.currentTimeMillis();
+		    		Iterator<IRCCloudJSONObject> i = events.values().iterator();
+		    		while(i.hasNext()) {
+		    			insertEvent(i.next(), true);
+		    		}
+		    		adapter.notifyDataSetChanged();
+		    		Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
 		    		new HeartbeatTask().execute(events.get(events.lastKey()));
+		    		avgInsertTime = 0;
+		    	}
+	    		historyBtn.setEnabled(true);
 			}
 	    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
 	    		topicView.setVisibility(View.VISIBLE);
@@ -423,7 +653,7 @@ public class MessageViewFragment extends SherlockFragment {
 			case NetworkConnection.EVENT_USERMODE:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.bid() == bid) {
-					insertEvent(e);
+					insertEvent(e, false);
 					new HeartbeatTask().execute(e);
 				}
 				break;

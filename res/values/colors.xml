@@ -12,5 +12,12 @@
     <color name="dark_blue">#527DFF</color>
     <drawable name="status_fail_bg">#F8DF26</drawable>
     <color name="status_fail_text">#632800</color>
-    <color name="dialog_prompt">#FFFFFF</color>
+    <color name="dialog_prompt">#FFF</color>
+    <color name="timestamp">#AAA</color>
+    <color name="message_bg">#FFF</color>
+    <color name="dateline_bg">#EEE</color>
+    <color name="highlight">#D9E7FF</color>
+    <color name="self">#EDF4FF</color>
+    <color name="error">#FFEE97</color>
+    <color name="notice">#D9E7FF</color>
 </resources>
