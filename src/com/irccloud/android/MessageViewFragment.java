@@ -2,6 +2,9 @@ package com.irccloud.android;
 
 import java.util.Iterator;
 import java.util.TreeMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +45,8 @@ public class MessageViewFragment extends SherlockFragment {
 	private String type;
 	private boolean firstScroll = true;
 	
+	private final Semaphore webviewLock = new Semaphore(1);
+	
 	public class JavaScriptInterface {
 		public TreeMap<Long,IRCCloudJSONObject> incomingBacklog;
 		
@@ -56,6 +62,10 @@ public class MessageViewFragment extends SherlockFragment {
 		
 	    public void showToast(String toast) {
 	        Toast.makeText(getActivity(), toast, Toast.LENGTH_SHORT).show();
+	    }
+	    
+	    public String getIgnores() {
+	    	return ServersDataSource.getInstance().getServer(cid).ignores.toString();
 	    }
 	    
 	    public String getIncomingBacklog() {
@@ -100,8 +110,11 @@ public class MessageViewFragment extends SherlockFragment {
 	    				
 						@Override
 						public void run() {
-			    			webView.loadUrl("javascript:scrollToBottom("+delta+")");
-			    			webView.invalidate();
+							if(webviewLock.tryAcquire()) {
+				    			webView.loadUrl("javascript:scrollToBottom("+delta+")");
+				    			webView.invalidate();
+				    	    	webviewLock.release();
+							}
 						}
 	    			}, 250);
 				}
@@ -117,8 +130,20 @@ public class MessageViewFragment extends SherlockFragment {
     		                         + sourceID);
     		  }
     		});
+    	try {
+    		Log.i("IRCCloud", "Acquire: onCreate");
+			webviewLock.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	webView.loadUrl("file:///android_asset/messageview.html");
-    	webView.pageDown(true);
+    	webView.setWebViewClient(new WebViewClient() {
+    		public void onPageFinished(WebView view, String url) {
+    			Log.i("IRCCloud", "Page loaded, releasing lock!");
+    			webviewLock.release();
+    		}
+    	});
     	topicView = (TextView)v.findViewById(R.id.topicView);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	return v;
@@ -164,11 +189,14 @@ public class MessageViewFragment extends SherlockFragment {
     }
 
     private void insertEvent(IRCCloudJSONObject event) {
-    	if(event.eid() == min_eid)
-	    	webView.loadUrl("javascript:hideBacklogBtn()");
-    	if(event.eid() < earliest_eid)
-    		earliest_eid = event.eid();
-    	webView.loadUrl("javascript:appendEvent(("+event.toString()+"))");
+    	if(webviewLock.tryAcquire()) {
+	    	if(event.eid() == min_eid)
+		    	webView.loadUrl("javascript:hideBacklogBtn()");
+	    	if(event.eid() < earliest_eid)
+	    		earliest_eid = event.eid();
+	    	webView.loadUrl("javascript:appendEvent(("+event.toString()+"))");
+	    	webviewLock.release();
+    	}
     }
     
     public void onResume() {
@@ -203,6 +231,14 @@ public class MessageViewFragment extends SherlockFragment {
 		
 		@Override
 		protected Void doInBackground(Void... params) {
+	    	try {
+	    		Log.i("IRCCloud", "Waiting for the initial page to load");
+				webviewLock.acquire();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			webviewLock.release();
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			server = ServersDataSource.getInstance().getServer(cid);
 			if(type.equalsIgnoreCase("channel"))
@@ -374,6 +410,21 @@ public class MessageViewFragment extends SherlockFragment {
 	                        Intent.FLAG_ACTIVITY_NEW_TASK);
 	                getActivity().startActivity(parentActivityIntent);
 	                getActivity().finish();
+				}
+				break;
+			case NetworkConnection.EVENT_SETIGNORES:
+				e = (IRCCloudJSONObject)msg.obj;
+				if(e.cid() == cid) {
+			    	try {
+	    	    		Log.i("IRCCloud", "Acquire: setIgnores");
+						webviewLock.acquire();
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					firstScroll = true;
+			    	webView.loadUrl("file:///android_asset/messageview.html");
+					new RefreshTask().execute((Void)null);
 				}
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:

@@ -3,6 +3,7 @@ package com.irccloud.android;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ServersDataSource {
@@ -24,6 +25,7 @@ public class ServersDataSource {
 		String usermask;
 		String mode;
 		JSONObject isupport;
+		JSONArray ignores;
 	}
 
 	private ArrayList<Server> servers;
@@ -44,7 +46,7 @@ public class ServersDataSource {
 		servers.clear();
 	}
 	
-	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, String away) {
+	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, String away, JSONArray ignores) {
 		Server s = new Server();
 		s.cid = cid;
 		s.name = name;
@@ -62,6 +64,7 @@ public class ServersDataSource {
 		s.away = away;
 		s.usermask = "";
 		s.mode = "";
+		s.ignores = ignores;
 		servers.add(s);
 		return s;
 	}
@@ -106,6 +109,13 @@ public class ServersDataSource {
 		Server s = getServer(cid);
 		if(s != null) {
 			s.isupport = params;
+		}
+	}
+
+	public void updateIgnores(int cid, JSONArray ignores) {
+		Server s = getServer(cid);
+		if(s != null) {
+			s.ignores = ignores;
 		}
 	}
 

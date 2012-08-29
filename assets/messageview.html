@@ -178,6 +178,8 @@ body {
 	visibility: hidden;
 }
 </style>
+<script type="text/javascript" src="Underscore.js"/>
+<script type="text/javascript" src="ignore.js"/>
 <script type="text/javascript">
 var scrollTimer = null;
 var lastDate = null;
@@ -186,6 +188,8 @@ var max_eid = 0;
 var newMsgs = 0;
 var newMsgsTime = 0;
 var newMsgsTimer = null;
+
+var ignores = Ignore.parse(JSON.parse(Android.getIgnores()));
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
@@ -247,15 +251,18 @@ function fetchBacklog() {
 }
 
 function appendBacklog() {
-	var backlog = JSON.parse(Android.getIncomingBacklog());
-	
 	var start = new Date().getTime();
+	var backlog = JSON.parse(Android.getIncomingBacklog());
+	var elapsed = new Date().getTime() - start;
+	Android.log("Backlog JSON parsing took " + elapsed + "ms");
+	
+	start = new Date().getTime();
 	
 	for(var j=0; j<backlog.length; j++) {
 		appendEvent(backlog[j], false);
 	}
 	
-	var elapsed = new Date().getTime() - start;
+	elapsed = new Date().getTime() - start;
 	Android.log("Backlog rendering took " + elapsed + "ms");
 	Android.backlogComplete();
 	newMsgs = 0;
@@ -376,6 +383,10 @@ function appendEvent(msg,isBacklog) {
 		msg.from = "";
 		msg.msg = "You invited " + msg.recipient + " to join " + msg.channel;
 	}
+
+	var mask = msg.from + "!" + msg.hostmask;
+	if(Ignore.check(mask, ignores))
+		return;
 
 	m.className = msg.type;
 

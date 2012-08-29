@@ -75,6 +75,7 @@ public class NetworkConnection {
 	public static final int EVENT_CHANNELTIMESTAMP = 24;
 	public static final int EVENT_SELFDETAILS = 25;
 	public static final int EVENT_USERMODE = 26;
+	public static final int EVENT_SETIGNORES = 27;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -393,7 +394,7 @@ public class NetworkConnection {
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-								object.getJSONObject("fail_info").toString(), object.getString("away"));
+								object.getJSONObject("fail_info").toString(), object.getString("away"), object.getJSONArray("ignores"));
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("connection_deleted")) {
@@ -609,6 +610,11 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("isupport_params")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateIsupport(object.getInt("cid"), object.getJSONObject("params"));
+			} else if(type.equalsIgnoreCase("set_ignores")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.updateIgnores(object.getInt("cid"), object.getJSONArray("masks"));
+				if(!backlog)
+					notifyHandlers(EVENT_SETIGNORES, object);
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
 				JSONObject seenEids = object.getJSONObject("seenEids");
 				Iterator<String> i = seenEids.keys();
