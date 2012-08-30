@@ -188,6 +188,35 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int disconnect(int cid, String message) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "disconnect");
+			o.put("cid", cid);
+			o.put("msg", message);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int reconnect(int cid) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "reconnect");
+			o.put("cid", cid);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public int say(int cid, String to, String message) {
 		try {
 			JSONObject o = new JSONObject();
@@ -285,6 +314,20 @@ public class NetworkConnection {
 			o.put("_method", "delete-buffer");
 			o.put("cid", cid);
 			o.put("id", bid);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int deleteServer(int cid) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "delete-connection");
+			o.put("cid", cid);
 			client.send(o.toString());
 			return last_reqid;
 		} catch (JSONException e) {

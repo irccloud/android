@@ -1,5 +1,7 @@
 package com.irccloud.android;
 
+import org.json.JSONException;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
@@ -8,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -24,6 +27,7 @@ public class MessageActivity extends UserListActivity {
 	View sendBtn;
 	int joined;
 	int archived;
+	String status;
 	
 	NetworkConnection conn;
 	
@@ -57,6 +61,7 @@ public class MessageActivity extends UserListActivity {
         	type = savedInstanceState.getString("type");
         	joined = savedInstanceState.getInt("joined");
         	archived = savedInstanceState.getInt("archived");
+        	status = savedInstanceState.getString("status");
         }
     }
 
@@ -69,6 +74,7 @@ public class MessageActivity extends UserListActivity {
     	state.putString("type", type);
     	state.putInt("joined", joined);
     	state.putInt("archived", archived);
+    	state.putString("status", status);
     }
     
     private class SendTask extends AsyncTask<Void, Void, Void> {
@@ -102,6 +108,7 @@ public class MessageActivity extends UserListActivity {
 	    	type = getIntent().getStringExtra("type");
 	    	joined = getIntent().getIntExtra("joined", 0);
 	    	archived = getIntent().getIntExtra("archived", 0);
+	    	status = getIntent().getStringExtra("status");
     	}
     	if(!type.equalsIgnoreCase("channel") && findViewById(R.id.usersListFragment) != null)
     		findViewById(R.id.usersListFragment).setVisibility(View.GONE);
@@ -121,6 +128,25 @@ public class MessageActivity extends UserListActivity {
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_STATUSCHANGED:
+				try {
+					IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+					if(o.cid() == cid) {
+						status = o.getString("new_status");
+						invalidateOptionsMenu();
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			case NetworkConnection.EVENT_MAKESERVER:
+				ServersDataSource.Server server = (ServersDataSource.Server)msg.obj;
+				if(server.cid == cid) {
+					status = server.status;
+					invalidateOptionsMenu();
+				}
+				break;
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
@@ -200,8 +226,16 @@ public class MessageActivity extends UserListActivity {
     	} else if(type.equalsIgnoreCase("console")) {
     		menu.findItem(R.id.menu_archive).setVisible(false);
     		menu.findItem(R.id.menu_archive).setEnabled(false);
-    		menu.findItem(R.id.menu_delete).setVisible(false);
-    		menu.findItem(R.id.menu_delete).setEnabled(false);
+    		Log.i("IRCCloud", "Status: " + status);
+    		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
+    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
+        		menu.findItem(R.id.menu_delete).setVisible(false);
+        		menu.findItem(R.id.menu_delete).setEnabled(false);
+    		} else {
+    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_reconnect);
+        		menu.findItem(R.id.menu_delete).setVisible(true);
+        		menu.findItem(R.id.menu_delete).setEnabled(true);
+    		}
     	}
     	return super.onPrepareOptionsMenu(menu);
     }
@@ -229,13 +263,23 @@ public class MessageActivity extends UserListActivity {
             		conn.unarchiveBuffer(cid, bid);
             	return true;
             case R.id.menu_delete:
-            	conn.deleteBuffer(cid, bid);
+            	if(type.equalsIgnoreCase("console")) {
+            		conn.deleteServer(cid);
+            	} else {
+                	conn.deleteBuffer(cid, bid);
+            	}
             	return true;
             case R.id.menu_editconnection:
                 Intent intent = new Intent(this, EditConnectionActivity.class);
                 intent.putExtra("cid", cid);
                 startActivity(intent);
             	return true;
+            case R.id.menu_disconnect:
+        		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
+        			conn.disconnect(cid, "");
+        		} else {
+        			conn.reconnect(cid);
+        		}
         }
         return super.onOptionsItemSelected(item);
     }
