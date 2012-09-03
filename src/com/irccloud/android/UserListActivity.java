@@ -190,6 +190,31 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		dialog.setOwnerActivity(UserListActivity.this);
 		    		dialog.show();
 		    		break;
+		    	case 2:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	input.setText("*!"+selected_user.hostmask);
+		        	prompt.setText("Ignore messages for " + selected_user.nick + " at this hostmask");
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Ignore", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.ignore(cid, input.getText().toString());
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.show();
+		    		break;
 		    	case 3:
 		    		if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
 		    			conn.mode(cid, channel, "-o " + selected_user.nick);

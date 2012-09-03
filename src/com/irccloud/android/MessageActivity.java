@@ -242,14 +242,21 @@ public class MessageActivity extends UserListActivity {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	Intent intent;
+    	
         switch (item.getItemId()) {
             case R.id.menu_userlist:
-            	Intent i = new Intent(this, UserListActivity.class);
-            	i.putExtra("cid", cid);
-            	i.putExtra("bid", bid);
-            	i.putExtra("name", name);
-            	startActivity(i);
+            	intent = new Intent(this, UserListActivity.class);
+            	intent.putExtra("cid", cid);
+            	intent.putExtra("bid", bid);
+            	intent.putExtra("name", name);
+            	startActivity(intent);
             	return true;
+            case R.id.menu_ignore_list:
+                intent = new Intent(this, IgnoreListActivity.class);
+                intent.putExtra("cid", cid);
+                startActivity(intent);
+                return true;
             case R.id.menu_leave:
             	if(joined == 0)
             		conn.join(cid, name, "");
@@ -270,7 +277,7 @@ public class MessageActivity extends UserListActivity {
             	}
             	return true;
             case R.id.menu_editconnection:
-                Intent intent = new Intent(this, EditConnectionActivity.class);
+                intent = new Intent(this, EditConnectionActivity.class);
                 intent.putExtra("cid", cid);
                 startActivity(intent);
             	return true;

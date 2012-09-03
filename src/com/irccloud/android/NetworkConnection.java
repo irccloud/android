@@ -382,6 +382,36 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int ignore(int cid, String mask) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "ignore");
+			o.put("cid", cid);
+			o.put("mask", mask);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int unignore(int cid, String mask) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "unignore");
+			o.put("cid", cid);
+			o.put("mask", mask);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
@@ -653,7 +683,7 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("isupport_params")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateIsupport(object.getInt("cid"), object.getJSONObject("params"));
-			} else if(type.equalsIgnoreCase("set_ignores")) {
+			} else if(type.equalsIgnoreCase("set_ignores") || type.equalsIgnoreCase("ignore_list")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateIgnores(object.getInt("cid"), object.getJSONArray("masks"));
 				if(!backlog)

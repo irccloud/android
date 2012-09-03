@@ -415,15 +415,6 @@ public class MessageViewFragment extends SherlockFragment {
 			case NetworkConnection.EVENT_SETIGNORES:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.cid() == cid) {
-			    	try {
-	    	    		Log.i("IRCCloud", "Acquire: setIgnores");
-						webviewLock.acquire();
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					firstScroll = true;
-			    	webView.loadUrl("file:///android_asset/messageview.html");
 					new RefreshTask().execute((Void)null);
 				}
 				break;

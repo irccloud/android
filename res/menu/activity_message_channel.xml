@@ -3,4 +3,8 @@
         android:title="@string/menu_leave"
         android:showAsAction="never" />
     
+    <item android:id="@+id/menu_ignore_list"
+        android:title="@string/menu_ignore_list"
+        android:showAsAction="never" />
+    
 </menu>

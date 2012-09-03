@@ -189,7 +189,7 @@ var newMsgs = 0;
 var newMsgsTime = 0;
 var newMsgsTimer = null;
 
-var ignores = Ignore.parse(JSON.parse(Android.getIgnores()));
+var ignores;
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
@@ -251,7 +251,9 @@ function fetchBacklog() {
 }
 
 function appendBacklog() {
-	var start = new Date().getTime();
+ 	ignores = Ignore.parse(JSON.parse(Android.getIgnores()));
+ 	Android.log("Ignore list: " + Android.getIgnores());
+ 	var start = new Date().getTime();
 	var backlog = JSON.parse(Android.getIncomingBacklog());
 	var elapsed = new Date().getTime() - start;
 	Android.log("Backlog JSON parsing took " + elapsed + "ms");
@@ -385,8 +387,9 @@ function appendEvent(msg,isBacklog) {
 	}
 
 	var mask = msg.from + "!" + msg.hostmask;
-	if(Ignore.check(mask, ignores))
-		return;
+	if(Ignore.check(mask, ignores)) {
+		m.style.display = "none";
+	}
 
 	m.className = msg.type;
 
