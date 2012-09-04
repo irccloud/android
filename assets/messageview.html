@@ -418,6 +418,9 @@ function appendEvent(msg,isBacklog) {
 		minutes = "0" + minutes;
 	}
 	
+	if(prefs["time-seconds"])
+		minutes = minutes + ":" + d.getSeconds();
+	
 	m.id = msg.eid;
 	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm;
 	if(typeof msg.from == "string")
