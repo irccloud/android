@@ -73,6 +73,10 @@ public class MessageViewFragment extends SherlockFragment {
 	    		return NetworkConnection.getInstance().getUserInfo().prefs.toString();
 	    }
 	    
+	    public long getBid() {
+	    	return bid;
+	    }
+	    
 	    public String getIncomingBacklog() {
 	    	JSONArray array = new JSONArray();
 	    	if(incomingBacklog != null) {

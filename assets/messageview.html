@@ -183,6 +183,7 @@ body {
 <script type="text/javascript">
 var scrollTimer = null;
 var lastDate = null;
+var bid = 0;
 var min_eid = 0;
 var max_eid = 0;
 var newMsgs = 0;
@@ -272,6 +273,7 @@ function appendBacklog() {
 }
 
 function appendEvent(msg,isBacklog) {
+	bid = Android.getBid();
 	var dateline = null;
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
@@ -391,6 +393,9 @@ function appendEvent(msg,isBacklog) {
 	if(Ignore.check(mask, ignores)) {
 		m.style.display = "none";
 	}
+
+	if(prefs["channel-hideJoinPart"][bid] && (msg.type == "joined_channel" || msg.type == "parted_channel" || msg.type == "nickchange"))
+		m.style.display = "none";
 
 	m.className = msg.type;
 
