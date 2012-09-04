@@ -178,8 +178,8 @@ body {
 	visibility: hidden;
 }
 </style>
-<script type="text/javascript" src="Underscore.js"/>
-<script type="text/javascript" src="ignore.js"/>
+<script type="text/javascript" src="Underscore.js"></script>
+<script type="text/javascript" src="ignore.js"></script>
 <script type="text/javascript">
 var scrollTimer = null;
 var lastDate = null;
@@ -252,7 +252,6 @@ function fetchBacklog() {
 
 function appendBacklog() {
  	ignores = Ignore.parse(JSON.parse(Android.getIgnores()));
- 	Android.log("Ignore list: " + Android.getIgnores());
  	var start = new Date().getTime();
 	var backlog = JSON.parse(Android.getIncomingBacklog());
 	var elapsed = new Date().getTime() - start;
