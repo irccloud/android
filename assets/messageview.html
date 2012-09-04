@@ -188,8 +188,8 @@ var max_eid = 0;
 var newMsgs = 0;
 var newMsgsTime = 0;
 var newMsgsTimer = null;
-
-var ignores;
+var prefs = null;
+var ignores = null;
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
@@ -251,6 +251,8 @@ function fetchBacklog() {
 }
 
 function appendBacklog() {
+	Android.log("Prefs: " + Android.getPrefs());
+	prefs = JSON.parse(Android.getPrefs());
  	ignores = Ignore.parse(JSON.parse(Android.getIgnores()));
  	var start = new Date().getTime();
 	var backlog = JSON.parse(Android.getIncomingBacklog());
@@ -400,13 +402,17 @@ function appendEvent(msg,isBacklog) {
 
 	var d = new Date(msg.eid/1000);
 	var hours = d.getHours();
-	var ampm = "AM";
-	if(hours > 12) {
-		hours = hours - 12;
-		ampm = "PM";
+	var ampm = "";
+	
+	if(!prefs["time-24hr"]) {
+		ampm = "AM";
+		if(hours > 12) {
+			hours = hours - 12;
+			ampm = "PM";
+		}
+		if(hours == 0)
+			hours = 12;
 	}
-	if(hours == 0)
-		hours = 12;
 	var minutes = d.getMinutes();
 	if(minutes < 10) {
 		minutes = "0" + minutes;

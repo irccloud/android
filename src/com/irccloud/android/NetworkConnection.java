@@ -870,6 +870,7 @@ public class NetworkConnection {
 		boolean limit_download_logs;
 		long limit_maxhistorydays;
 		int num_invites;
+		JSONObject prefs;
 		
 		public UserInfo(IRCCloudJSONObject object) throws JSONException {
 			name = object.getString("name");
@@ -880,6 +881,10 @@ public class NetworkConnection {
 			active_connections = object.getLong("num_active_connections");
 			join_date = object.getLong("join_date");
 			auto_away = object.getBoolean("autoaway");
+			if(object.has("prefs") && !object.getString("prefs").equals("null"))
+				prefs = new JSONObject(object.getString("prefs"));
+			else
+				prefs = null;
 			
 			limits_name = object.getString("limits_name");
 			JSONObject limits = object.getJSONObject("limits");

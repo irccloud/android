@@ -3,8 +3,6 @@ package com.irccloud.android;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,6 +64,13 @@ public class MessageViewFragment extends SherlockFragment {
 	    
 	    public String getIgnores() {
 	    	return ServersDataSource.getInstance().getServer(cid).ignores.toString();
+	    }
+	    
+	    public String getPrefs() {
+	    	if(NetworkConnection.getInstance().getUserInfo().prefs == null)
+	    		return "{}";
+	    	else
+	    		return NetworkConnection.getInstance().getUserInfo().prefs.toString();
 	    }
 	    
 	    public String getIncomingBacklog() {
@@ -385,6 +390,9 @@ public class MessageViewFragment extends SherlockFragment {
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_USERINFO:
+				new RefreshTask().execute((Void)null);
+				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
 					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
