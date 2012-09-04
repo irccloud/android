@@ -3,6 +3,9 @@ package com.irccloud.android;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -228,6 +231,16 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+						if(conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+							try {
+								JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+								if(disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+									unread = 0;
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
 					}
 				}
@@ -314,6 +327,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
+			case NetworkConnection.EVENT_USERINFO:
 			case NetworkConnection.EVENT_MAKESERVER:
 			case NetworkConnection.EVENT_STATUSCHANGED:
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
