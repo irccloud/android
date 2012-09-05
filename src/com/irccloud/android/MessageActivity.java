@@ -1,6 +1,7 @@
 package com.irccloud.android;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -110,11 +111,11 @@ public class MessageActivity extends UserListActivity {
 	    	archived = getIntent().getIntExtra("archived", 0);
 	    	status = getIntent().getStringExtra("status");
     	}
-    	if(!type.equalsIgnoreCase("channel") && findViewById(R.id.usersListFragment) != null)
-    		findViewById(R.id.usersListFragment).setVisibility(View.GONE);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+    	updateUsersListFragmentVisibility();
     	getSupportActionBar().setTitle(name);
+    	invalidateOptionsMenu();
     }
 
     @Override
@@ -123,11 +124,30 @@ public class MessageActivity extends UserListActivity {
     	if(conn != null)
     		conn.removeHandler(mHandler);
     }
+
+    private void updateUsersListFragmentVisibility() {
+    	boolean hide = false;
+		View v = findViewById(R.id.usersListFragment);
+		if(v != null) {
+			try {
+				JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
+				if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
+					hide = true;
+			} catch (JSONException e) {
+			}
+	    	if(hide || !type.equalsIgnoreCase("channel"))
+	    		v.setVisibility(View.GONE);
+		}
+    }
     
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_USERINFO:
+		    	updateUsersListFragmentVisibility();
+				invalidateOptionsMenu();
+				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
 					IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
@@ -216,12 +236,31 @@ public class MessageActivity extends UserListActivity {
         		menu.findItem(R.id.menu_archive).setEnabled(true);
         		menu.findItem(R.id.menu_delete).setVisible(true);
         		menu.findItem(R.id.menu_delete).setEnabled(true);
+        		menu.findItem(R.id.menu_userlist).setEnabled(false);
         	} else {
         		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
         		menu.findItem(R.id.menu_archive).setVisible(false);
         		menu.findItem(R.id.menu_archive).setEnabled(false);
         		menu.findItem(R.id.menu_delete).setVisible(false);
         		menu.findItem(R.id.menu_delete).setEnabled(false);
+        		if(menu.findItem(R.id.menu_userlist) != null) {
+	        		boolean hide = false;
+	        		try {
+	        			if(conn != null && conn.getUserInfo().prefs != null) {
+							JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
+							if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
+								hide = true;
+	        			}
+					} catch (JSONException e) {
+					}
+					if(hide) {
+		        		menu.findItem(R.id.menu_userlist).setEnabled(false);
+		        		menu.findItem(R.id.menu_userlist).setVisible(false);
+					} else {
+		        		menu.findItem(R.id.menu_userlist).setEnabled(true);
+		        		menu.findItem(R.id.menu_userlist).setVisible(true);
+					}
+        		}
         	}
     	} else if(type.equalsIgnoreCase("console")) {
     		menu.findItem(R.id.menu_archive).setVisible(false);

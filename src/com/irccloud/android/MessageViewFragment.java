@@ -292,7 +292,7 @@ public class MessageViewFragment extends SherlockFragment {
 	    	}
 	    	try {
 				update_status(server.status, new JSONObject(server.fail_info));
-			} catch (JSONException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
