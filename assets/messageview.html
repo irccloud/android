@@ -394,7 +394,7 @@ function appendEvent(msg,isBacklog) {
 		m.style.display = "none";
 	}
 
-	if(prefs["channel-hideJoinPart"] && prefs["channel-hideJoinPart"][bid] && (msg.type == "joined_channel" || msg.type == "parted_channel" || msg.type == "nickchange"))
+	if(prefs["channel-hideJoinPart"] && prefs["channel-hideJoinPart"][bid] && (msg.type == "joined_channel" || msg.type == "parted_channel" || msg.type == "nickchange" || msg.type == "quit"))
 		m.style.display = "none";
 
 	m.className = msg.type;
