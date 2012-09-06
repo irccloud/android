@@ -210,6 +210,12 @@ public class MessageViewFragment extends SherlockFragment {
     
     public void onResume() {
     	super.onResume();
+    	if(bid == -1) {
+    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
+    		if(b != null) {
+    			bid = b.bid;
+    		}
+    	}
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	if(bid != -1)
@@ -412,6 +418,7 @@ public class MessageViewFragment extends SherlockFragment {
 				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
 					bid = buffer.bid;
+		    		new RefreshTask().execute((Void)null);
 				}
 				break;
 			case NetworkConnection.EVENT_DELETEBUFFER:

@@ -111,6 +111,12 @@ public class MessageActivity extends UserListActivity {
 	    	archived = getIntent().getIntExtra("archived", 0);
 	    	status = getIntent().getStringExtra("status");
     	}
+    	if(bid == -1) {
+    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
+    		if(b != null) {
+    			bid = b.bid;
+    		}
+    	}
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	updateUsersListFragmentVisibility();
@@ -170,6 +176,7 @@ public class MessageActivity extends UserListActivity {
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
+					Log.i("IRCCloud", "Got my new buffer id: " + buffer.bid);
 					bid = buffer.bid;
 				}
 				break;

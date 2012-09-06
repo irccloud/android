@@ -113,7 +113,7 @@ public class BuffersDataSource {
 		Iterator<Buffer> i = buffers.iterator();
 		while(i.hasNext()) {
 			Buffer b = i.next();
-			if(b.name.equals(name))
+			if(b.name.equalsIgnoreCase(name))
 				return b;
 		}
 		return null;

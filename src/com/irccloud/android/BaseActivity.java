@@ -75,7 +75,12 @@ public class BaseActivity extends SherlockFragmentActivity {
     }
     
     private final Handler mHandler = new Handler() {
+    	String bufferToOpen = null;
+    	int cidToOpen = -1;
+    	
 		public void handleMessage(Message msg) {
+			final IRCCloudJSONObject o;
+			final BuffersDataSource.Buffer b;
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				Log.i("IRCCloud", "New connection state: " + NetworkConnection.getInstance().getState());
@@ -99,8 +104,52 @@ public class BaseActivity extends SherlockFragmentActivity {
 			case NetworkConnection.EVENT_BACKLOG_END:
                 setSupportProgressBarIndeterminateVisibility(false);
 				break;
+			case NetworkConnection.EVENT_MAKEBUFFER:
+				b = (BuffersDataSource.Buffer)msg.obj;
+				if(cidToOpen == b.cid && b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(getSupportActionBar().getTitle().toString())) {
+		    		Intent i = new Intent(BaseActivity.this, MessageActivity.class);
+		    		i.putExtra("cid", b.cid);
+		    		i.putExtra("bid", b.bid);
+		    		i.putExtra("last_seen_eid", b.last_seen_eid);
+		    		i.putExtra("min_eid", b.min_eid);
+		    		i.putExtra("type", b.type);
+		    		i.putExtra("name", b.name);
+		    		i.putExtra("joined", 1);
+		    		i.putExtra("archived", 0);
+		    		i.putExtra("status", "connected_ready");
+		    		startActivity(i);
+		    		bufferToOpen = null;
+		    		cidToOpen = -1;
+				}
+				break;
+			case NetworkConnection.EVENT_OPENBUFFER:
+				o = (IRCCloudJSONObject)msg.obj;
+				try {
+					bufferToOpen = o.getString("name");
+					cidToOpen = o.cid();
+					b = BuffersDataSource.getInstance().getBufferByName(cidToOpen, bufferToOpen);
+					if(b != null && !bufferToOpen.equalsIgnoreCase(getSupportActionBar().getTitle().toString())) {
+			    		Intent i = new Intent(BaseActivity.this, MessageActivity.class);
+			    		i.putExtra("cid", b.cid);
+			    		i.putExtra("bid", b.bid);
+			    		i.putExtra("last_seen_eid", b.last_seen_eid);
+			    		i.putExtra("min_eid", b.min_eid);
+			    		i.putExtra("type", b.type);
+			    		i.putExtra("name", b.name);
+			    		i.putExtra("joined", 1);
+			    		i.putExtra("archived", 0);
+			    		i.putExtra("status", "connected_ready");
+			    		startActivity(i);
+			    		bufferToOpen = null;
+			    		cidToOpen = -1;
+					}
+				} catch (JSONException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				break;
 			case NetworkConnection.EVENT_BADCHANNELKEY:
-				final IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+				o = (IRCCloudJSONObject)msg.obj;
 	    		ServersDataSource s = ServersDataSource.getInstance();
 	    		ServersDataSource.Server server = s.getServer(o.cid());
 	    		AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);

@@ -390,7 +390,7 @@ function appendEvent(msg,isBacklog) {
 	}
 
 	var mask = msg.from + "!" + msg.hostmask;
-	if(Ignore.check(mask, ignores)) {
+	if(ignores != null && Ignore.check(mask, ignores)) {
 		m.style.display = "none";
 	}
 
@@ -409,7 +409,7 @@ function appendEvent(msg,isBacklog) {
 	var hours = d.getHours();
 	var ampm = "";
 	
-	if(!prefs["time-24hr"]) {
+	if(prefs != null && !prefs["time-24hr"]) {
 		ampm = "AM";
 		if(hours > 12) {
 			hours = hours - 12;
@@ -423,7 +423,7 @@ function appendEvent(msg,isBacklog) {
 		minutes = "0" + minutes;
 	}
 	
-	if(prefs["time-seconds"])
+	if(prefs != null && prefs["time-seconds"])
 		minutes = minutes + ":" + d.getSeconds();
 	
 	m.id = msg.eid;
