@@ -1,16 +1,25 @@
 package com.irccloud.android;
 
+import org.json.JSONException;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 public class BaseActivity extends SherlockFragmentActivity {
 	NetworkConnection conn;
@@ -90,6 +99,44 @@ public class BaseActivity extends SherlockFragmentActivity {
 			case NetworkConnection.EVENT_BACKLOG_END:
                 setSupportProgressBarIndeterminateVisibility(false);
 				break;
+			case NetworkConnection.EVENT_BADCHANNELKEY:
+				final IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+	    		ServersDataSource s = ServersDataSource.getInstance();
+	    		ServersDataSource.Server server = s.getServer(o.cid());
+	    		AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+	    		LayoutInflater inflater = getLayoutInflater();
+	        	View view = inflater.inflate(R.layout.dialog_textprompt,null);
+	        	TextView prompt = (TextView)view.findViewById(R.id.prompt);
+	        	final EditText input = (EditText)view.findViewById(R.id.textInput);
+	        	try {
+					prompt.setText("Password for " + o.getString("chan"));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+	    		builder.setView(view);
+	    		builder.setPositiveButton("Join", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						try {
+							conn.join(o.cid(), o.getString("chan"), input.getText().toString());
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						dialog.dismiss();
+					}
+	    		});
+	    		builder.setNegativeButton("Cancel", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+	    		});
+	    		AlertDialog dialog = builder.create();
+	    		dialog.setOwnerActivity(BaseActivity.this);
+	    		dialog.show();
 			default:
 				break;
 			}
