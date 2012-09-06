@@ -262,7 +262,7 @@ public class MessageActivity extends UserListActivity {
         		if(menu.findItem(R.id.menu_userlist) != null) {
 	        		boolean hide = false;
 	        		try {
-	        			if(conn != null && conn.getUserInfo().prefs != null) {
+	        			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 							JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
 							if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
 								hide = true;
