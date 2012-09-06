@@ -149,6 +149,7 @@ public class MessageActivity extends UserListActivity {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
+			IRCCloudJSONObject event = null;
 			switch (msg.what) {
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
@@ -194,9 +195,16 @@ public class MessageActivity extends UserListActivity {
 					invalidateOptionsMenu();
 				}
 				break;
+			case NetworkConnection.EVENT_JOIN:
+				event = (IRCCloudJSONObject)msg.obj;
+				if(event.bid() == bid && event.type().equalsIgnoreCase("you_joined_channel")) {
+					joined = 1;
+					invalidateOptionsMenu();
+				}
+				break;
 			case NetworkConnection.EVENT_PART:
-				IRCCloudJSONObject event = (IRCCloudJSONObject)msg.obj;
-				if(event.bid() == bid) {
+				event = (IRCCloudJSONObject)msg.obj;
+				if(event.bid() == bid && event.type().equalsIgnoreCase("you_parted_channel")) {
 					joined = 0;
 					invalidateOptionsMenu();
 				}
@@ -243,7 +251,8 @@ public class MessageActivity extends UserListActivity {
         		menu.findItem(R.id.menu_archive).setEnabled(true);
         		menu.findItem(R.id.menu_delete).setVisible(true);
         		menu.findItem(R.id.menu_delete).setEnabled(true);
-        		menu.findItem(R.id.menu_userlist).setEnabled(false);
+        		if(menu.findItem(R.id.menu_userlist) != null)
+        			menu.findItem(R.id.menu_userlist).setEnabled(false);
         	} else {
         		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
         		menu.findItem(R.id.menu_archive).setVisible(false);
