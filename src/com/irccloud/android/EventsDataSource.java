@@ -91,7 +91,7 @@ public class EventsDataSource {
 					String type = e.type();
 					try {
 						if(e.eid() > last_seen_eid && (type.equals("buffer_msg") || type.equals("buffer_me_msg") 
-								|| (type.equals("notice") && (!buffer_type.equals("console") || !e.has("server") || e.getString("server").equals("undefined")))))
+								|| (type.equals("notice") && (!buffer_type.equals("console") || !(e.has("server") && !e.getString("server").equals("undefined"))))))
 							count++;
 					} catch (JSONException e1) {
 						// TODO Auto-generated catch block

@@ -205,7 +205,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);
 					if(b.type.equalsIgnoreCase("console")) {
-						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
+						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
 						if(s.name.length() == 0)
 							s.name = s.hostname;
@@ -229,7 +229,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					else if(b.type.equalsIgnoreCase("conversation"))
 						type = TYPE_CONVERSATION;
 					if(type > 0 && b.archived == 0) {
-						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
+						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
 						if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
 							try {
