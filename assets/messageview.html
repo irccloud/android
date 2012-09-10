@@ -235,12 +235,14 @@ function updateNewMsgBar(delta) {
 }
 
 window.onscroll = updateNewMsgBar;
+var shouldScroll = true;
 
 function scrollToBottom(delta) {
 	if(typeof delta != "number")
 		delta = 0;
-	if(document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20) {
+	if(shouldScroll || document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20) {
 		window.scrollTo(0, document.body.scrollHeight);
+		shouldScroll = false;
 	}
 	updateNewMsgBar(delta);
 	scrollTimer = null;
@@ -433,6 +435,11 @@ function appendEvent(msg,isBacklog) {
 	m.innerHTML += "</span><span class='message_text'>"+msg.msg
 		+"</span>";
 	
+	if(m.style.display != "none" && (document.body.scrollHeight - (window.pageYOffset + window.innerHeight) < 20))
+		shouldScroll = true;
+	else
+		shouldScroll = false;
+		
 	if(max_eid < msg.eid) { //Message at the bottom
 		if(messages.childNodes.length > 0)
 			lastDate = new Date(parseInt(messages.childNodes[messages.childNodes.length - 1].id)/1000);
