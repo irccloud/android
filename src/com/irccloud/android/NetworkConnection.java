@@ -78,6 +78,8 @@ public class NetworkConnection {
 	public static final int EVENT_SETIGNORES = 27;
 	public static final int EVENT_BADCHANNELKEY = 28;
 	public static final int EVENT_OPENBUFFER = 29;
+	public static final int EVENT_NOSUCHCHANNEL = 30;
+	public static final int EVENT_NOSUCHNICK = 31;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -467,6 +469,10 @@ public class NetworkConnection {
 				notifyHandlers(EVENT_BADCHANNELKEY, object);
 			} else if(type.equalsIgnoreCase("open_buffer")) {
 				notifyHandlers(EVENT_OPENBUFFER, object);
+			} else if(type.equalsIgnoreCase("no_such_channel")) {
+				notifyHandlers(EVENT_NOSUCHCHANNEL, object);
+			} else if(type.equalsIgnoreCase("no_such_nick")) {
+				notifyHandlers(EVENT_NOSUCHNICK, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteServer(object.getInt("cid"));

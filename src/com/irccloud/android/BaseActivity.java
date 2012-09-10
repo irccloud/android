@@ -82,6 +82,11 @@ public class BaseActivity extends SherlockFragmentActivity {
 		public void handleMessage(Message msg) {
 			final IRCCloudJSONObject o;
 			final BuffersDataSource.Buffer b;
+			ServersDataSource s;
+			ServersDataSource.Server server;
+			AlertDialog.Builder builder;
+			AlertDialog dialog;
+			
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				Log.i("IRCCloud", "New connection state: " + NetworkConnection.getInstance().getState());
@@ -149,11 +154,55 @@ public class BaseActivity extends SherlockFragmentActivity {
 					e2.printStackTrace();
 				}
 				break;
+			case NetworkConnection.EVENT_NOSUCHNICK:
+	        	try {
+					o = (IRCCloudJSONObject)msg.obj;
+		    		s = ServersDataSource.getInstance();
+		    		server = s.getServer(o.cid());
+		    		builder = new AlertDialog.Builder(BaseActivity.this);
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+						builder.setMessage("No such nickname: " + o.getString("nick") + " on " + server.name + " (" + server.hostname + ":" + (server.port) + "). Please try again.");
+		    		builder.setNegativeButton("Ok", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(BaseActivity.this);
+		    		dialog.show();
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	    		break;
+			case NetworkConnection.EVENT_NOSUCHCHANNEL:
+	        	try {
+					o = (IRCCloudJSONObject)msg.obj;
+		    		s = ServersDataSource.getInstance();
+		    		server = s.getServer(o.cid());
+		    		builder = new AlertDialog.Builder(BaseActivity.this);
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+						builder.setMessage("No such channel: " + o.getString("chan") + " on " + server.name + " (" + server.hostname + ":" + (server.port) + "). Please try again.");
+		    		builder.setNegativeButton("Ok", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(BaseActivity.this);
+		    		dialog.show();
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	    		break;
 			case NetworkConnection.EVENT_BADCHANNELKEY:
 				o = (IRCCloudJSONObject)msg.obj;
-	    		ServersDataSource s = ServersDataSource.getInstance();
-	    		ServersDataSource.Server server = s.getServer(o.cid());
-	    		AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+	    		s = ServersDataSource.getInstance();
+	    		server = s.getServer(o.cid());
+	    		builder = new AlertDialog.Builder(BaseActivity.this);
 	    		LayoutInflater inflater = getLayoutInflater();
 	        	View view = inflater.inflate(R.layout.dialog_textprompt,null);
 	        	TextView prompt = (TextView)view.findViewById(R.id.prompt);
@@ -184,10 +233,11 @@ public class BaseActivity extends SherlockFragmentActivity {
 						dialog.dismiss();
 					}
 	    		});
-	    		AlertDialog dialog = builder.create();
+	    		dialog = builder.create();
 	    		dialog.setOwnerActivity(BaseActivity.this);
 	    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 	    		dialog.show();
+	    		break;
 			default:
 				break;
 			}
