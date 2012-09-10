@@ -18,6 +18,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -185,6 +186,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    		});
 	    		AlertDialog dialog = builder.create();
 	    		dialog.setOwnerActivity(BaseActivity.this);
+	    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 	    		dialog.show();
 			default:
 				break;

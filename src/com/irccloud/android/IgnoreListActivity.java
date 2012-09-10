@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -112,6 +113,7 @@ public class IgnoreListActivity extends BaseActivity {
 	    		});
 	    		AlertDialog dialog = builder.create();
 	    		dialog.setOwnerActivity(this);
+	    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 	    		dialog.show();
 	    		break;
         }

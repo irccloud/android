@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -188,6 +189,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		});
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 		    		break;
 		    	case 2:
@@ -213,6 +215,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		});
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 		    		break;
 		    	case 3:
@@ -243,6 +246,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		});
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 		    		break;
 		    	case 5:
@@ -268,6 +272,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		});
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 		    		break;
 		    	}
