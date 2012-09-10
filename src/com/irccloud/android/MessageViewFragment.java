@@ -460,15 +460,6 @@ public class MessageViewFragment extends SherlockFragment {
 				}
 				break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
-		    	try {
-					e = (IRCCloudJSONObject)msg.obj;
-					if(e.bid() == bid) {
-			    		awayView.setVisibility(View.VISIBLE);
-						awayView.setText(e.getString("topic"));
-					}
-				} catch (JSONException e1) {
-					e1.printStackTrace();
-				}
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_NICKCHANGE:

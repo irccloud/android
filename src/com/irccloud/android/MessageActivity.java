@@ -15,9 +15,12 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -370,6 +373,7 @@ public class MessageActivity extends UserListActivity {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
+							editTopic();
 						}
 	            	});
 		    		AlertDialog dialog = builder.create();
@@ -379,5 +383,35 @@ public class MessageActivity extends UserListActivity {
             	return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    void editTopic() {
+    	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		LayoutInflater inflater = getLayoutInflater();
+    	View view = inflater.inflate(R.layout.dialog_textprompt,null);
+    	TextView prompt = (TextView)view.findViewById(R.id.prompt);
+    	final EditText input = (EditText)view.findViewById(R.id.textInput);
+    	input.setText(c.topic_text);
+    	prompt.setVisibility(View.GONE);
+    	builder.setTitle("Channel Topic");
+		builder.setView(view);
+		builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				conn.say(cid, name, "/topic " + input.getText().toString());
+				dialog.dismiss();
+			}
+		});
+		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.setOwnerActivity(this);
+		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		dialog.show();
     }
 }
