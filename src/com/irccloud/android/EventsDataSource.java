@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import org.json.JSONException;
+
 @SuppressLint("UseSparseArrays")
 public class EventsDataSource {
 
@@ -79,7 +81,7 @@ public class EventsDataSource {
 		return null;
 	}
 
-	public int getUnreadCountForBuffer(int bid, long last_seen_eid) {
+	public int getUnreadCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
 		int count = 0;
 		synchronized(events) {
 			if(events.containsKey(bid)) {
@@ -87,8 +89,14 @@ public class EventsDataSource {
 				while(i.hasNext()) {
 					IRCCloudJSONObject e = i.next();
 					String type = e.type();
-					if(e.eid() > last_seen_eid && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice")))
-						count++;
+					try {
+						if(e.eid() > last_seen_eid && (type.equals("buffer_msg") || type.equals("buffer_me_msg") 
+								|| (type.equals("notice") && (!buffer_type.equals("console") || !e.has("server") || e.getString("server").equals("undefined")))))
+							count++;
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		}
