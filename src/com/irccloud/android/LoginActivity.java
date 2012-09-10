@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -35,6 +37,13 @@ public class LoginActivity extends SherlockActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	email.requestFocus();
+    	getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    }
+    
     private class LoginTask extends AsyncTask<Void, Void, String> {
 		@Override
 		public void onPreExecute() {

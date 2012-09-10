@@ -14,8 +14,6 @@
         android:hint="@string/email"
         android:inputType="textEmailAddress"
         android:ems="10" >
-
-        <requestFocus />
     </EditText>
 
     <EditText
