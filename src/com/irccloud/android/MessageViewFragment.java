@@ -32,7 +32,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 public class MessageViewFragment extends SherlockFragment {
 	private NetworkConnection conn;
 	private WebView webView;
-	private TextView topicView;
+	private TextView awayView;
 	private TextView statusView;
 	private int cid;
 	private int bid;
@@ -153,7 +153,7 @@ public class MessageViewFragment extends SherlockFragment {
     			webviewLock.release();
     		}
     	});
-    	topicView = (TextView)v.findViewById(R.id.topicView);
+    	awayView = (TextView)v.findViewById(R.id.topicView);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	return v;
     }
@@ -280,21 +280,18 @@ public class MessageViewFragment extends SherlockFragment {
 		    	if(events.size() > 0)
 		    		new HeartbeatTask().execute(events.get(events.lastKey()));
 			}
-	    	if(channel != null && channel.topic_text != null && channel.topic_text.length() > 0) {
-	    		topicView.setVisibility(View.VISIBLE);
-	    		topicView.setText(channel.topic_text);
-	    	} else if(type.equalsIgnoreCase("conversation") && buffer != null && buffer.away_msg != null && buffer.away_msg.length() > 0) {
-	    		topicView.setVisibility(View.VISIBLE);
-	    		topicView.setText("Away: " + buffer.away_msg);
+	    	if(type.equalsIgnoreCase("conversation") && buffer != null && buffer.away_msg != null && buffer.away_msg.length() > 0) {
+	    		awayView.setVisibility(View.VISIBLE);
+	    		awayView.setText("Away: " + buffer.away_msg);
 	    	} else if(type.equalsIgnoreCase("conversation") && user != null && user.away == 1) {
-	    		topicView.setVisibility(View.VISIBLE);
+	    		awayView.setVisibility(View.VISIBLE);
 	    		if(user.away_msg != null && user.away_msg.length() > 0)
-	    			topicView.setText("Away: " + user.away_msg);
+	    			awayView.setText("Away: " + user.away_msg);
 	    		else
-		    		topicView.setText("Away");
+		    		awayView.setText("Away");
 	    	} else {
-	    		topicView.setVisibility(View.GONE);
-	    		topicView.setText("");
+	    		awayView.setVisibility(View.GONE);
+	    		awayView.setText("");
 	    	}
 	    	try {
 				update_status(server.status, new JSONObject(server.fail_info));
@@ -444,8 +441,8 @@ public class MessageViewFragment extends SherlockFragment {
 		    	try {
 					e = (IRCCloudJSONObject)msg.obj;
 					if(e.cid() == cid && e.getString("nick").equalsIgnoreCase(name)) {
-			    		topicView.setVisibility(View.GONE);
-						topicView.setText("");
+			    		awayView.setVisibility(View.GONE);
+						awayView.setText("");
 					}
 				} catch (JSONException e1) {
 					e1.printStackTrace();
@@ -455,8 +452,8 @@ public class MessageViewFragment extends SherlockFragment {
 		    	try {
 					e = (IRCCloudJSONObject)msg.obj;
 					if((e.bid() == bid || (e.type().equalsIgnoreCase("self_away") && e.cid() == cid)) && e.getString("nick").equalsIgnoreCase(name)) {
-			    		topicView.setVisibility(View.VISIBLE);
-						topicView.setText("Away: " + e.getString("msg"));
+			    		awayView.setVisibility(View.VISIBLE);
+						awayView.setText("Away: " + e.getString("msg"));
 					}
 				} catch (JSONException e1) {
 					e1.printStackTrace();
@@ -466,8 +463,8 @@ public class MessageViewFragment extends SherlockFragment {
 		    	try {
 					e = (IRCCloudJSONObject)msg.obj;
 					if(e.bid() == bid) {
-			    		topicView.setVisibility(View.VISIBLE);
-						topicView.setText(e.getString("topic"));
+			    		awayView.setVisibility(View.VISIBLE);
+						awayView.setText(e.getString("topic"));
 					}
 				} catch (JSONException e1) {
 					e1.printStackTrace();

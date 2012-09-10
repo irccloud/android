@@ -6,6 +6,8 @@ import org.json.JSONObject;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -251,6 +253,8 @@ public class MessageActivity extends UserListActivity {
         		menu.findItem(R.id.menu_archive).setEnabled(true);
         		menu.findItem(R.id.menu_delete).setVisible(true);
         		menu.findItem(R.id.menu_delete).setEnabled(true);
+        		menu.findItem(R.id.menu_topic).setVisible(false);
+        		menu.findItem(R.id.menu_topic).setEnabled(false);
         		if(menu.findItem(R.id.menu_userlist) != null)
         			menu.findItem(R.id.menu_userlist).setEnabled(false);
         	} else {
@@ -259,6 +263,8 @@ public class MessageActivity extends UserListActivity {
         		menu.findItem(R.id.menu_archive).setEnabled(false);
         		menu.findItem(R.id.menu_delete).setVisible(false);
         		menu.findItem(R.id.menu_delete).setEnabled(false);
+        		menu.findItem(R.id.menu_topic).setVisible(true);
+        		menu.findItem(R.id.menu_topic).setEnabled(true);
         		if(menu.findItem(R.id.menu_userlist) != null) {
 	        		boolean hide = false;
 	        		try {
@@ -342,6 +348,35 @@ public class MessageActivity extends UserListActivity {
         		} else {
         			conn.reconnect(cid);
         		}
+        		return true;
+            case R.id.menu_topic:
+            	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+            	if(c != null) {
+	            	AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	            	builder.setTitle("Channel Topic");
+	            	if(c.topic_text.length() > 0)
+	            		builder.setMessage(c.topic_text);
+	            	else
+	            		builder.setMessage("No topic set.");
+	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+	            	});
+	            	builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+	            	});
+		    		AlertDialog dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.show();
+            	}
+            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
