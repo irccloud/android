@@ -258,8 +258,10 @@ public class MessageActivity extends UserListActivity {
         		menu.findItem(R.id.menu_delete).setEnabled(true);
         		menu.findItem(R.id.menu_topic).setVisible(false);
         		menu.findItem(R.id.menu_topic).setEnabled(false);
-        		if(menu.findItem(R.id.menu_userlist) != null)
+        		if(menu.findItem(R.id.menu_userlist) != null) {
         			menu.findItem(R.id.menu_userlist).setEnabled(false);
+        			menu.findItem(R.id.menu_userlist).setVisible(false);
+        		}
         	} else {
         		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
         		menu.findItem(R.id.menu_archive).setVisible(false);

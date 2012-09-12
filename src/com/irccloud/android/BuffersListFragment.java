@@ -271,7 +271,6 @@ public class BuffersListFragment extends SherlockListFragment {
 					for(int j = 0; j < buffers.size(); j++) {
 						BuffersDataSource.Buffer b = buffers.get(j);
 						int type = -1;
-						int joined = 1;
 						if(b.archived == 1) {
 							if(b.type.equalsIgnoreCase("channel"))
 								type = TYPE_CHANNEL;
@@ -279,7 +278,7 @@ public class BuffersListFragment extends SherlockListFragment {
 								type = TYPE_CONVERSATION;
 							
 							if(type > 0)
-								entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
+								entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status));
 						}
 					}
 				}
