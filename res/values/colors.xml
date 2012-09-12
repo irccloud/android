@@ -13,4 +13,6 @@
     <drawable name="status_fail_bg">#F8DF26</drawable>
     <color name="status_fail_text">#632800</color>
     <color name="dialog_prompt">#FFFFFF</color>
+    <drawable name="archived_bg">#F4F4F4</drawable>
+    <drawable name="archived_bg_selected">#666</drawable>
 </resources>

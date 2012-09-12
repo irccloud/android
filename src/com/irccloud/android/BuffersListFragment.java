@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,10 +29,13 @@ public class BuffersListFragment extends SherlockListFragment {
 	private static final int TYPE_SERVER = 0;
 	private static final int TYPE_CHANNEL = 1;
 	private static final int TYPE_CONVERSATION = 2;
+	private static final int TYPE_ARCHIVES_HEADER = 3;
 	
 	NetworkConnection conn;
 	BufferListAdapter adapter;
 	OnBufferSelectedListener mListener;
+	
+	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
 	private static class BufferListEntry implements Serializable {
 		private static final long serialVersionUID = 1848168221883194027L;
@@ -59,6 +63,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			TextView highlights;
 			LinearLayout unread;
 			LinearLayout groupbg;
+			LinearLayout bufferbg;
 			ImageView key;
 			ProgressBar progress;
 		}
@@ -126,6 +131,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.highlights = (TextView) row.findViewById(R.id.highlights);
 				holder.unread = (LinearLayout) row.findViewById(R.id.unread);
 				holder.groupbg = (LinearLayout) row.findViewById(R.id.groupbg);
+				holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
 				holder.key = (ImageView) row.findViewById(R.id.key);
 				holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.type = e.type;
@@ -136,7 +142,23 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 
 			holder.label.setText(e.name);
-			if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
+			if(e.type == TYPE_ARCHIVES_HEADER) {
+				holder.label.setTypeface(null);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archives_heading));
+				holder.unread.setBackgroundResource(R.drawable.background_blue);
+				if(mExpandArchives.get(e.cid, false)) {
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
+					holder.bufferbg.setSelected(true);
+				} else {
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
+					holder.bufferbg.setSelected(false);
+				}
+			} else if(e.archived == 1 && holder.bufferbg != null) {
+				holder.label.setTypeface(null);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archived));
+				holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
+				holder.unread.setBackgroundResource(R.drawable.background_blue);
+			} else if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
 				holder.unread.setBackgroundResource(R.drawable.background_blue);
@@ -244,6 +266,23 @@ public class BuffersListFragment extends SherlockListFragment {
 						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
 					}
 				}
+				entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status));
+				if(mExpandArchives.get(s.cid, false)) {
+					for(int j = 0; j < buffers.size(); j++) {
+						BuffersDataSource.Buffer b = buffers.get(j);
+						int type = -1;
+						int joined = 1;
+						if(b.archived == 1) {
+							if(b.type.equalsIgnoreCase("channel"))
+								type = TYPE_CHANNEL;
+							else if(b.type.equalsIgnoreCase("conversation"))
+								type = TYPE_CONVERSATION;
+							
+							if(type > 0)
+								entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
+						}
+					}
+				}
 			}
 			return null;
 		}
@@ -310,6 +349,10 @@ public class BuffersListFragment extends SherlockListFragment {
     	BufferListEntry e = (BufferListEntry)adapter.getItem(position);
     	String type = null;
     	switch(e.type) {
+    	case TYPE_ARCHIVES_HEADER:
+    		mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
+	    	new RefreshTask().execute((Void)null);
+    		return;
     	case TYPE_SERVER:
     		type = "console";
     		break;
