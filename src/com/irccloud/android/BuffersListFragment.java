@@ -34,6 +34,9 @@ public class BuffersListFragment extends SherlockListFragment {
 	NetworkConnection conn;
 	BufferListAdapter adapter;
 	OnBufferSelectedListener mListener;
+	View view;
+	TextView errorMsg;
+	LinearLayout connecting;
 	
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
@@ -290,9 +293,11 @@ public class BuffersListFragment extends SherlockListFragment {
 		protected void onPostExecute(Void result) {
 			adapter.setItems(entries);
 			
-			if(getListAdapter() == null && entries.size() > 0)
+			if(getListAdapter() == null && entries.size() > 0) {
 				setListAdapter(adapter);
-			else
+				getListView().setVisibility(View.VISIBLE);
+				connecting.setVisibility(View.GONE);
+			} else
 				adapter.notifyDataSetChanged();
 		}
 	}
@@ -310,7 +315,9 @@ public class BuffersListFragment extends SherlockListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.bufferslist, null);
+		view = inflater.inflate(R.layout.bufferslist, null);
+		errorMsg = (TextView)view.findViewById(R.id.errorMsg);
+		connecting = (LinearLayout)view.findViewById(R.id.connecting);
 		return view;
 	}
 	
@@ -368,6 +375,29 @@ public class BuffersListFragment extends SherlockListFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIVITY:
+				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED)
+					view.setBackgroundResource(R.drawable.disconnected_yellow);
+				else {
+					view.setBackgroundResource(R.drawable.background_blue);
+					errorMsg.setText("Loading");
+				}
+				if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTING)
+					errorMsg.setText("Connecting");
+				else if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED)
+					errorMsg.setText("Waiting To Connect");
+				break;
+			case NetworkConnection.EVENT_FAILURE_MSG:
+				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+					try {
+						errorMsg.setText(o.getString("message"));
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 			case NetworkConnection.EVENT_USERINFO:
 			case NetworkConnection.EVENT_MAKESERVER:

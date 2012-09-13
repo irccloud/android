@@ -84,6 +84,7 @@ public class NetworkConnection {
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
+	public static final int EVENT_FAILURE_MSG = 102;
 	
 	Object parserLock = new Object();
 	
@@ -447,6 +448,8 @@ public class NetworkConnection {
 		idleTimer.schedule( new TimerTask(){
              public void run() {
             	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
+            	 state = STATE_CONNECTING;
+            	 notifyHandlers(EVENT_CONNECTIVITY, null);
             	 client.disconnect();
             	 client.connect();
                  idleTimer = null;
@@ -458,7 +461,11 @@ public class NetworkConnection {
 	private void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
-			Log.d(TAG, "Response: " + object);
+			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
+				notifyHandlers(EVENT_FAILURE_MSG, object);
+			} else {
+				Log.d(TAG, "Response: " + object);
+			}
 			return;
 		}
 		String type = object.type();
