@@ -37,6 +37,7 @@ public class NetworkConnection {
 	public static final int STATE_DISCONNECTED = 0;
 	public static final int STATE_CONNECTING = 1;
 	public static final int STATE_CONNECTED = 2;
+	public static final int STATE_DISCONNECTING = 3;
 	private int state = STATE_DISCONNECTED;
 
 	private WebSocketClient client = null;
@@ -98,8 +99,12 @@ public class NetworkConnection {
 	}
 	
 	public void disconnect() {
-		if(client!=null)
+		if(client!=null) {
+			state = STATE_DISCONNECTING;
 			client.disconnect();
+		} else {
+			state = STATE_DISCONNECTED;
+		}
 		if(idleTimer != null) {
 			idleTimer.cancel();
 			idleTimer = null;
@@ -158,6 +163,8 @@ public class NetworkConnection {
 		    @Override
 		    public void onDisconnect(int code, String reason) {
 		        Log.d(TAG, String.format("Disconnected! Code: %d Reason: %s", code, reason));
+		        if(state != STATE_DISCONNECTING)
+		        	schedule_idle_timer();
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
