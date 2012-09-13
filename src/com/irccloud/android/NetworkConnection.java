@@ -47,7 +47,7 @@ public class NetworkConnection {
 	private int last_reqid = 0;
 	private Timer shutdownTimer = null;
 	private Timer idleTimer = null;
-	private long idle_interval = 0;
+	private long idle_interval = 30000;
 	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
