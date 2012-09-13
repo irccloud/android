@@ -2,6 +2,8 @@ package com.irccloud.android;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,6 +40,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	TextView errorMsg;
 	LinearLayout connecting;
 	String error = null;
+	private Timer countdownTimer = null;
 	
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
@@ -373,35 +376,65 @@ public class BuffersListFragment extends SherlockListFragment {
     	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived, e.status);
     }
     
+    private void updateReconnecting() {
+    	if(conn.getReconnectTimestamp() > 0) {
+    		String plural = "";
+    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
+    		if(seconds != 1)
+    			plural = "s";
+    		if(seconds < 1)
+    			errorMsg.setText("Connecting");
+    		else if(seconds > 10 && error != null)
+				errorMsg.setText(error +"\n\nReconnecting in " + seconds + " second" + plural);
+			else
+				errorMsg.setText("Reconnecting in " + seconds + " second" + plural);
+			if(countdownTimer != null)
+				countdownTimer.cancel();
+			countdownTimer = new Timer();
+			countdownTimer.schedule( new TimerTask(){
+	             public void run() {
+	    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+	    				 mHandler.post(new Runnable() {
+							@Override
+							public void run() {
+			 					updateReconnecting();
+							}
+	    				 });
+	    			 }
+	    			 countdownTimer = null;
+	             }
+			}, 1000);
+    	} else {
+			errorMsg.setText("Offline");
+    	}
+    }
+    
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
 					view.setBackgroundResource(R.drawable.disconnected_yellow);
 				} else {
 					view.setBackgroundResource(R.drawable.background_blue);
 					errorMsg.setText("Loading");
 					error = null;
 				}
-				if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTING) {
+				if(conn.getState() == NetworkConnection.STATE_CONNECTING) {
 					errorMsg.setText("Connecting");
 					error = null;
 				}
-				else if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED)
-					if(error == null)
-						errorMsg.setText("Waiting To Reconnect");
-					else
-						errorMsg.setText(error +"\n\nWaiting to Reconnect");
+				else if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
+					updateReconnecting();
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
 				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
 					try {
 						error = o.getString("message");
 						if(error.equals("temp_unavailable"))
 							error = "Your account is temporarily unavailable";
-						errorMsg.setText(error);
+						updateReconnecting();
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

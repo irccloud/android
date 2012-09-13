@@ -48,6 +48,7 @@ public class NetworkConnection {
 	private Timer shutdownTimer = null;
 	private Timer idleTimer = null;
 	private long idle_interval = 30000;
+	private long reconnect_timestamp = 0;
 	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
@@ -455,8 +456,14 @@ public class NetworkConnection {
 	            	 client.connect();
             	 }
                  idleTimer = null;
+                 reconnect_timestamp = 0;
               }
            }, idle_interval + 10000);
+		reconnect_timestamp = System.currentTimeMillis() + idle_interval + 10000;
+	}
+	
+	public long getReconnectTimestamp() {
+		return reconnect_timestamp;
 	}
 	
 	@SuppressWarnings("unchecked")
