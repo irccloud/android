@@ -113,14 +113,14 @@ public class NetworkConnection {
 		}
 	}
 	
-	public String login(String email, String password) throws IOException {
+	public JSONObject login(String email, String password) throws IOException {
 		String postdata = "email="+email+"&password="+password;
 		String response = doPost(new URL("https://alpha.irccloud.com/chat/login"), postdata);
 		try {
 			Log.d(TAG, "Result: " + response);
 			JSONObject o = new JSONObject(response);
-			return o.getString("session");
-		} catch (JSONException e) {
+			return o;
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
