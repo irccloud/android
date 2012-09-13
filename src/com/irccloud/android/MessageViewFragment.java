@@ -359,9 +359,9 @@ public class MessageViewFragment extends SherlockFragment {
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("pool_unavailable")) {
     		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Pool unavailable");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
+    		statusView.setText("Disconnected: Connection temporarily unavailable");
+    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
+    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
     	} else if(status.equals("waiting_to_retry")) {
     		try {
 	    		statusView.setVisibility(View.VISIBLE);
