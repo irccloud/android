@@ -25,6 +25,7 @@ public class UsersListFragment extends SherlockListFragment {
 	OnUserSelectedListener mListener;
 	int cid;
 	String channel;
+	View view;
 	
 	private class UserListAdapter extends BaseAdapter {
 		ArrayList<UserListEntry> data;
@@ -171,7 +172,11 @@ public class UsersListFragment extends SherlockListFragment {
 				entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_buffergroup_bg));
 				for(int i = 0; i < members.size(); i++) {
 					UsersDataSource.User user = members.get(i);
-					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
+					if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+						entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_disconnected_bg));
+					} else {
+						entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
+					}
 				}
 			}
 			
@@ -197,7 +202,7 @@ public class UsersListFragment extends SherlockListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.userslist, null);
+		view = inflater.inflate(R.layout.userslist, null);
 		return view;
 	}
 
@@ -235,6 +240,13 @@ public class UsersListFragment extends SherlockListFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIVITY:
+				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+					view.setBackgroundResource(R.drawable.disconnected_yellow);
+				} else {
+					view.setBackgroundResource(R.drawable.background_blue);
+				}
+				break;
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_QUIT:

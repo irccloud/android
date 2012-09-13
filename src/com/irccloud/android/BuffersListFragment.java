@@ -37,6 +37,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	View view;
 	TextView errorMsg;
 	LinearLayout connecting;
+	String error = null;
 	
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
@@ -148,7 +149,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			if(e.type == TYPE_ARCHIVES_HEADER) {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archives_heading));
-				holder.unread.setBackgroundResource(R.drawable.background_blue);
+				holder.unread.setBackgroundDrawable(null);
 				if(mExpandArchives.get(e.cid, false)) {
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
 					holder.bufferbg.setSelected(true);
@@ -160,11 +161,11 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archived));
 				holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
-				holder.unread.setBackgroundResource(R.drawable.background_blue);
+				holder.unread.setBackgroundDrawable(null);
 			} else if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
-				holder.unread.setBackgroundResource(R.drawable.background_blue);
+				holder.unread.setBackgroundDrawable(null);
 			} else if(e.unread > 0) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
@@ -172,7 +173,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			} else {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
-				holder.unread.setBackgroundResource(R.drawable.background_blue);
+				holder.unread.setBackgroundDrawable(null);
 			}
 
 			if(holder.key != null) {
@@ -376,22 +377,31 @@ public class BuffersListFragment extends SherlockListFragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED)
+				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
 					view.setBackgroundResource(R.drawable.disconnected_yellow);
-				else {
+				} else {
 					view.setBackgroundResource(R.drawable.background_blue);
 					errorMsg.setText("Loading");
+					error = null;
 				}
-				if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTING)
+				if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTING) {
 					errorMsg.setText("Connecting");
+					error = null;
+				}
 				else if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED)
-					errorMsg.setText("Waiting To Connect");
+					if(error == null)
+						errorMsg.setText("Waiting To Reconnect");
+					else
+						errorMsg.setText(error +"\n\nWaiting to Reconnect");
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
 				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
 				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
 					try {
-						errorMsg.setText(o.getString("message"));
+						error = o.getString("message");
+						if(error.equals("temp_unavailable"))
+							error = "Your account is temporarily unavailable";
+						errorMsg.setText(error);
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

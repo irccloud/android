@@ -28,6 +28,7 @@
 		    android:layout_height="wrap_content"
 		    android:padding="4dp"
 		    android:text="Connecting"
+		    android:gravity="center"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 	</LinearLayout>
