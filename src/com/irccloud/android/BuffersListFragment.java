@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -38,7 +39,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	OnBufferSelectedListener mListener;
 	View view;
 	TextView errorMsg;
-	LinearLayout connecting;
+	RelativeLayout connecting;
 	String error = null;
 	private Timer countdownTimer = null;
 	
@@ -117,6 +118,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			return e.bid;
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			BufferListEntry e = data.get(position);
@@ -306,6 +308,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -321,7 +324,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	        Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.bufferslist, null);
 		errorMsg = (TextView)view.findViewById(R.id.errorMsg);
-		connecting = (LinearLayout)view.findViewById(R.id.connecting);
+		connecting = (RelativeLayout)view.findViewById(R.id.connecting);
 		return view;
 	}
 	
@@ -335,6 +338,8 @@ public class BuffersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+		if(conn.getState() != NetworkConnection.STATE_CONNECTED)
+			view.setBackgroundResource(R.drawable.disconnected_yellow);
     	new RefreshTask().execute((Void)null);
     }
     
@@ -385,9 +390,9 @@ public class BuffersListFragment extends SherlockListFragment {
     		if(seconds < 1)
     			errorMsg.setText("Connecting");
     		else if(seconds > 10 && error != null)
-				errorMsg.setText(error +"\n\nReconnecting in " + seconds + " second" + plural);
+				errorMsg.setText(error +"\n\nReconnecting in\n" + seconds + " second" + plural);
 			else
-				errorMsg.setText("Reconnecting in " + seconds + " second" + plural);
+				errorMsg.setText("Reconnecting in\n" + seconds + " second" + plural);
 			if(countdownTimer != null)
 				countdownTimer.cancel();
 			countdownTimer = new Timer();
