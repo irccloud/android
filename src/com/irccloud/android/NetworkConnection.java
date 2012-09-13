@@ -447,11 +447,13 @@ public class NetworkConnection {
 
 		idleTimer.schedule( new TimerTask(){
              public void run() {
-            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
-            	 state = STATE_CONNECTING;
-            	 notifyHandlers(EVENT_CONNECTIVITY, null);
-            	 client.disconnect();
-            	 client.connect();
+            	 if(handlers.size() > 0) {
+	            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
+	            	 state = STATE_CONNECTING;
+	            	 notifyHandlers(EVENT_CONNECTIVITY, null);
+	            	 client.disconnect();
+	            	 client.connect();
+            	 }
                  idleTimer = null;
               }
            }, idle_interval + 10000);
@@ -461,10 +463,9 @@ public class NetworkConnection {
 	private void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
+			Log.d(TAG, "Response: " + object);
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
 				notifyHandlers(EVENT_FAILURE_MSG, object);
-			} else {
-				Log.d(TAG, "Response: " + object);
 			}
 			return;
 		}
@@ -854,17 +855,24 @@ public class NetworkConnection {
 
 	public void removeHandler(Handler handler) {
 		handlers.remove(handler);
-		if(handlers.isEmpty() && shutdownTimer == null) {
-			shutdownTimer = new Timer();
+		if(handlers.isEmpty()){
+			if(shutdownTimer == null) {
+				shutdownTimer = new Timer();
 
-			shutdownTimer.schedule( new TimerTask(){
-	             public void run() {
-	            	 if(handlers.isEmpty()) {
-		                 disconnect();
-	            	 }
-	                 shutdownTimer = null;
-	              }
-	           }, 5*60000); //TODO: Make this value configurable
+				shutdownTimer.schedule( new TimerTask(){
+		             public void run() {
+		            	 if(handlers.isEmpty()) {
+			                 disconnect();
+		            	 }
+		                 shutdownTimer = null;
+		              }
+		           }, 5*60000); //TODO: Make this value configurable
+			}
+			if(idleTimer != null && state != STATE_CONNECTED) {
+				idleTimer.cancel();
+				idleTimer = null;
+				state = STATE_DISCONNECTED;
+			}
 		}
 	}
 
@@ -933,11 +941,16 @@ public class NetworkConnection {
 					long time = System.currentTimeMillis();
 					Log.i("IRCCloud", "Beginning backlog...");
 					notifyHandlers(EVENT_BACKLOG_START, null);
-					JSONArray a = new JSONArray(json);
-					for(int i = 0; i < a.length(); i++)
-						parse_object(new IRCCloudJSONObject(a.getJSONObject(i)), true);
-					Log.i("IRCCloud", "Backlog complete!");
-					Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
+					if(!json.startsWith("[") && ServersDataSource.getInstance().count() < 1) {
+						Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
+						client.disconnect();
+					} else {
+						JSONArray a = new JSONArray(json);
+						for(int i = 0; i < a.length(); i++)
+							parse_object(new IRCCloudJSONObject(a.getJSONObject(i)), true);
+						Log.i("IRCCloud", "Backlog complete!");
+						Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
+					}
 				}
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;

@@ -69,6 +69,10 @@ public class ServersDataSource {
 		return s;
 	}
 	
+	int count() {
+		return servers.size();
+	}
+	
 	public void updateLag(int cid, long lag) {
 		Server s = getServer(cid);
 		if(s != null) {
