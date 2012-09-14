@@ -89,11 +89,21 @@ public class LoginActivity extends SherlockActivity {
 			} else {
 				AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
 				builder.setTitle("Login Failed");
-				if(result == null) {
-					builder.setMessage("Unable to connect to IRCCloud.  Please try again shortly.");
-				} else {
-					//TODO: Pull the failure message out of the JSON object
+				String message = "Unable to connect to IRCCloud.  Please try again shortly.";
+				if(result != null) {
+					try {
+						message = result.getString("message");
+						if(message.equalsIgnoreCase("auth"))
+							message = "Incorrect username or password.  Please try again.";
+						else if(message.equalsIgnoreCase("legacy_account"))
+							message = "Your account hasn't been migrated yet.  Please try again shortly.";
+						else
+							message = "Error: " + message;
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 				}
+				builder.setMessage(message);
 				builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
