@@ -444,6 +444,8 @@ public class BuffersListFragment extends SherlockListFragment {
 				}
 				else if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
 					updateReconnecting();
+				if(adapter != null)
+					adapter.notifyDataSetChanged();
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
 				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;

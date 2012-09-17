@@ -250,6 +250,8 @@ public class UsersListFragment extends SherlockListFragment {
 				} else {
 					view.setBackgroundResource(R.drawable.background_blue);
 				}
+				if(adapter != null)
+					adapter.notifyDataSetChanged();
 				break;
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:

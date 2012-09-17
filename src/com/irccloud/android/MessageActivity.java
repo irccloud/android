@@ -309,6 +309,8 @@ public class MessageActivity extends UserListActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	Intent intent;
+    	AlertDialog.Builder builder;
+    	AlertDialog dialog;
     	
         switch (item.getItemId()) {
             case R.id.menu_userlist:
@@ -336,11 +338,42 @@ public class MessageActivity extends UserListActivity {
             		conn.unarchiveBuffer(cid, bid);
             	return true;
             case R.id.menu_delete:
-            	if(type.equalsIgnoreCase("console")) {
-            		conn.deleteServer(cid);
-            	} else {
-                	conn.deleteBuffer(cid, bid);
-            	}
+            	builder = new AlertDialog.Builder(MessageActivity.this);
+            	
+            	if(type.equalsIgnoreCase("console"))
+            		builder.setTitle("Delete Connection");
+            	else
+            		builder.setTitle("Delete History");
+            	
+            	if(type.equalsIgnoreCase("console"))
+            		builder.setMessage("Are you sure you want to remove this connection?");
+            	else if(type.equalsIgnoreCase("channel"))
+            		builder.setMessage("Are you sure you want to clear your history in " + name + "?");
+            	else
+            		builder.setMessage("Are you sure you want to clear your history with " + name + "?");
+            	
+            	builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+            	});
+            	builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+		            	if(type.equalsIgnoreCase("console")) {
+		            		conn.deleteServer(cid);
+		            	} else {
+		                	conn.deleteBuffer(cid, bid);
+		            	}
+						dialog.dismiss();
+					}
+            	});
+	    		dialog = builder.create();
+	    		dialog.setOwnerActivity(MessageActivity.this);
+	    		dialog.show();
             	return true;
             case R.id.menu_editconnection:
                 intent = new Intent(this, EditConnectionActivity.class);
@@ -357,7 +390,7 @@ public class MessageActivity extends UserListActivity {
             case R.id.menu_topic:
             	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
             	if(c != null) {
-	            	AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	            	builder = new AlertDialog.Builder(MessageActivity.this);
 	            	builder.setTitle("Channel Topic");
 	            	if(c.topic_text.length() > 0)
 	            		builder.setMessage(c.topic_text);
@@ -378,7 +411,7 @@ public class MessageActivity extends UserListActivity {
 							editTopic();
 						}
 	            	});
-		    		AlertDialog dialog = builder.create();
+		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.show();
             	}
