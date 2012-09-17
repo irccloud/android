@@ -111,8 +111,11 @@ public class UsersListFragment extends SherlockListFragment {
 			} else {
 				holder.label.setTextColor(getResources().getColorStateList(e.color));
 			}
-			row.setBackgroundResource(e.bg_color);
-			
+			if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED)
+				row.setBackgroundResource(R.drawable.row_disconnected_bg);
+			else
+				row.setBackgroundResource(e.bg_color);
+				
 			if(holder.count != null) {
 				if(e.count > 0) {
 					holder.count.setVisibility(View.VISIBLE);
@@ -172,11 +175,7 @@ public class UsersListFragment extends SherlockListFragment {
 				entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_buffergroup_bg));
 				for(int i = 0; i < members.size(); i++) {
 					UsersDataSource.User user = members.get(i);
-					if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
-						entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_disconnected_bg));
-					} else {
-						entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
-					}
+					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
 				}
 			}
 			
@@ -210,6 +209,11 @@ public class UsersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+		if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+			view.setBackgroundResource(R.drawable.disconnected_yellow);
+		} else {
+			view.setBackgroundResource(R.drawable.background_blue);
+		}
     	new RefreshTask().execute((Void)null);
     }
     

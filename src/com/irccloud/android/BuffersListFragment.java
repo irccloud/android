@@ -182,9 +182,9 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 
 			if(conn.getState() != NetworkConnection.STATE_CONNECTED)
-				row.setBackgroundResource(R.drawable.row_disconnected_bg);
+				row.setBackgroundResource(R.drawable.disconnected_yellow);
 			else
-				row.setBackgroundResource(R.drawable.row_bg_blue);
+				row.setBackgroundResource(R.drawable.bg);
 			
 			if(holder.key != null) {
 				if(e.key > 0) {
