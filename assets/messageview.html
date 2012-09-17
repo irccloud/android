@@ -294,7 +294,10 @@ function appendEvent(msg,isBacklog) {
 	}
 
 	if(msg.type == "socket_closed") {
-		msg.msg = "<hr/>";
+		if(msg.server_ping_timeout)
+			msg.msg = "Connection PING timed out<br/><hr/>";
+		else
+			msg.msg = "<hr/>";
 	}
 
 	if(msg.type == "self_details") {
