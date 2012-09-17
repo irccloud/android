@@ -304,12 +304,15 @@ public class BuffersListFragment extends SherlockListFragment {
 		protected void onPostExecute(Void result) {
 			adapter.setItems(entries);
 			
-			if(getListAdapter() == null && entries.size() > 0) {
+			if(getListAdapter() == null && entries.size() > 0)
 				setListAdapter(adapter);
+			else
+				adapter.notifyDataSetChanged();
+			
+			if(entries.size() > 0) {
 				getListView().setVisibility(View.VISIBLE);
 				connecting.setVisibility(View.GONE);
-			} else
-				adapter.notifyDataSetChanged();
+			}
 		}
 	}
 	
@@ -343,10 +346,13 @@ public class BuffersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-		if(conn.getState() != NetworkConnection.STATE_CONNECTED)
+		if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
 			view.setBackgroundResource(R.drawable.disconnected_yellow);
-		else
+		} else {
 			view.setBackgroundResource(R.drawable.background_blue);
+			connecting.setVisibility(View.GONE);
+			getListView().setVisibility(View.VISIBLE);
+		}
     	new RefreshTask().execute((Void)null);
     }
     
