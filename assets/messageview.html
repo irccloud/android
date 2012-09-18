@@ -178,14 +178,19 @@ body {
 	visibility: hidden;
 }
 </style>
+<script type="text/javascript" src="Underscore.js"></script>
+<script type="text/javascript" src="ignore.js"></script>
 <script type="text/javascript">
 var scrollTimer = null;
 var lastDate = null;
+var bid = 0;
 var min_eid = 0;
 var max_eid = 0;
 var newMsgs = 0;
 var newMsgsTime = 0;
 var newMsgsTimer = null;
+var prefs = null;
+var ignores = null;
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
@@ -230,12 +235,14 @@ function updateNewMsgBar(delta) {
 }
 
 window.onscroll = updateNewMsgBar;
+var shouldScroll = true;
 
 function scrollToBottom(delta) {
 	if(typeof delta != "number")
 		delta = 0;
-	if(document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20) {
+	if(shouldScroll || document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20) {
 		window.scrollTo(0, document.body.scrollHeight);
+		shouldScroll = false;
 	}
 	updateNewMsgBar(delta);
 	scrollTimer = null;
@@ -247,21 +254,28 @@ function fetchBacklog() {
 }
 
 function appendBacklog() {
+	Android.log("Prefs: " + Android.getPrefs());
+	prefs = JSON.parse(Android.getPrefs());
+ 	ignores = Ignore.parse(JSON.parse(Android.getIgnores()));
+ 	var start = new Date().getTime();
 	var backlog = JSON.parse(Android.getIncomingBacklog());
+	var elapsed = new Date().getTime() - start;
+	Android.log("Backlog JSON parsing took " + elapsed + "ms");
 	
-	var start = new Date().getTime();
+	start = new Date().getTime();
 	
 	for(var j=0; j<backlog.length; j++) {
 		appendEvent(backlog[j], false);
 	}
 	
-	var elapsed = new Date().getTime() - start;
+	elapsed = new Date().getTime() - start;
 	Android.log("Backlog rendering took " + elapsed + "ms");
 	Android.backlogComplete();
 	newMsgs = 0;
 }
 
 function appendEvent(msg,isBacklog) {
+	bid = Android.getBid();
 	var dateline = null;
 	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
@@ -280,7 +294,10 @@ function appendEvent(msg,isBacklog) {
 	}
 
 	if(msg.type == "socket_closed") {
-		msg.msg = "<hr/>";
+		if(msg.server_ping_timeout)
+			msg.msg = "Connection PING timed out<br/><hr/>";
+		else
+			msg.msg = "<hr/>";
 	}
 
 	if(msg.type == "self_details") {
@@ -377,6 +394,14 @@ function appendEvent(msg,isBacklog) {
 		msg.msg = "You invited " + msg.recipient + " to join " + msg.channel;
 	}
 
+	var mask = msg.from + "!" + msg.hostmask;
+	if(ignores != null && Ignore.check(mask, ignores)) {
+		m.style.display = "none";
+	}
+
+	if(prefs["channel-hideJoinPart"] && prefs["channel-hideJoinPart"][bid] && (msg.type == "joined_channel" || msg.type == "parted_channel" || msg.type == "nickchange" || msg.type == "quit"))
+		m.style.display = "none";
+
 	m.className = msg.type;
 
 	if(msg.highlight)
@@ -387,17 +412,24 @@ function appendEvent(msg,isBacklog) {
 
 	var d = new Date(msg.eid/1000);
 	var hours = d.getHours();
-	var ampm = "AM";
-	if(hours > 12) {
-		hours = hours - 12;
-		ampm = "PM";
+	var ampm = "";
+	
+	if(prefs != null && !prefs["time-24hr"]) {
+		ampm = "AM";
+		if(hours > 12) {
+			hours = hours - 12;
+			ampm = "PM";
+		}
+		if(hours == 0)
+			hours = 12;
 	}
-	if(hours == 0)
-		hours = 12;
 	var minutes = d.getMinutes();
 	if(minutes < 10) {
 		minutes = "0" + minutes;
 	}
+	
+	if(prefs != null && prefs["time-seconds"])
+		minutes = minutes + ":" + d.getSeconds();
 	
 	m.id = msg.eid;
 	m.innerHTML = "<span class='timestamp'>"+hours+":"+minutes+" "+ampm;
@@ -406,6 +438,11 @@ function appendEvent(msg,isBacklog) {
 	m.innerHTML += "</span><span class='message_text'>"+msg.msg
 		+"</span>";
 	
+	if(m.style.display != "none" && (document.body.scrollHeight - (window.pageYOffset + window.innerHeight) < 20))
+		shouldScroll = true;
+	else
+		shouldScroll = false;
+		
 	if(max_eid < msg.eid) { //Message at the bottom
 		if(messages.childNodes.length > 0)
 			lastDate = new Date(parseInt(messages.childNodes[messages.childNodes.length - 1].id)/1000);

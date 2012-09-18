@@ -37,6 +37,7 @@ public class NetworkConnection {
 	public static final int STATE_DISCONNECTED = 0;
 	public static final int STATE_CONNECTING = 1;
 	public static final int STATE_CONNECTED = 2;
+	public static final int STATE_DISCONNECTING = 3;
 	private int state = STATE_DISCONNECTED;
 
 	private WebSocketClient client = null;
@@ -46,7 +47,8 @@ public class NetworkConnection {
 	private int last_reqid = 0;
 	private Timer shutdownTimer = null;
 	private Timer idleTimer = null;
-	private long idle_interval = 0;
+	private long idle_interval = 30000;
+	private long reconnect_timestamp = 0;
 	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
@@ -75,9 +77,15 @@ public class NetworkConnection {
 	public static final int EVENT_CHANNELTIMESTAMP = 24;
 	public static final int EVENT_SELFDETAILS = 25;
 	public static final int EVENT_USERMODE = 26;
+	public static final int EVENT_SETIGNORES = 27;
+	public static final int EVENT_BADCHANNELKEY = 28;
+	public static final int EVENT_OPENBUFFER = 29;
+	public static final int EVENT_NOSUCHCHANNEL = 30;
+	public static final int EVENT_NOSUCHNICK = 31;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
+	public static final int EVENT_FAILURE_MSG = 102;
 	
 	Object parserLock = new Object();
 	
@@ -93,22 +101,26 @@ public class NetworkConnection {
 	}
 	
 	public void disconnect() {
-		if(client!=null)
+		if(client!=null) {
+			state = STATE_DISCONNECTING;
 			client.disconnect();
+		} else {
+			state = STATE_DISCONNECTED;
+		}
 		if(idleTimer != null) {
 			idleTimer.cancel();
 			idleTimer = null;
 		}
 	}
 	
-	public String login(String email, String password) throws IOException {
+	public JSONObject login(String email, String password) throws IOException {
 		String postdata = "email="+email+"&password="+password;
 		String response = doPost(new URL("https://alpha.irccloud.com/chat/login"), postdata);
 		try {
 			Log.d(TAG, "Result: " + response);
 			JSONObject o = new JSONObject(response);
-			return o.getString("session");
-		} catch (JSONException e) {
+			return o;
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -153,6 +165,8 @@ public class NetworkConnection {
 		    @Override
 		    public void onDisconnect(int code, String reason) {
 		        Log.d(TAG, String.format("Disconnected! Code: %d Reason: %s", code, reason));
+		        if(state != STATE_DISCONNECTING)
+		        	schedule_idle_timer();
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
@@ -179,6 +193,35 @@ public class NetworkConnection {
 			JSONObject cids = new JSONObject();
 			cids.put(String.valueOf(cid), eids);
 			o.put("seenEids", cids.toString());
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int disconnect(int cid, String message) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "disconnect");
+			o.put("cid", cid);
+			o.put("msg", message);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int reconnect(int cid) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "reconnect");
+			o.put("cid", cid);
 			client.send(o.toString());
 			return last_reqid;
 		} catch (JSONException e) {
@@ -292,6 +335,20 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int deleteServer(int cid) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "delete-connection");
+			o.put("cid", cid);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels) {
 		try {
 			JSONObject o = new JSONObject();
@@ -338,6 +395,36 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int ignore(int cid, String mask) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "ignore");
+			o.put("cid", cid);
+			o.put("mask", mask);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int unignore(int cid, String mask) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", last_reqid++);
+			o.put("_method", "unignore");
+			o.put("cid", cid);
+			o.put("mask", mask);
+			client.send(o.toString());
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
@@ -361,12 +448,22 @@ public class NetworkConnection {
 
 		idleTimer.schedule( new TimerTask(){
              public void run() {
-            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
-            	 client.disconnect();
-            	 client.connect();
+            	 if(handlers.size() > 0) {
+	            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
+	            	 state = STATE_CONNECTING;
+	            	 notifyHandlers(EVENT_CONNECTIVITY, null);
+	            	 client.disconnect();
+	            	 client.connect();
+            	 }
                  idleTimer = null;
+                 reconnect_timestamp = 0;
               }
            }, idle_interval + 10000);
+		reconnect_timestamp = System.currentTimeMillis() + idle_interval + 10000;
+	}
+	
+	public long getReconnectTimestamp() {
+		return reconnect_timestamp;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -374,6 +471,9 @@ public class NetworkConnection {
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
 			Log.d(TAG, "Response: " + object);
+			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
+				notifyHandlers(EVENT_FAILURE_MSG, object);
+			}
 			return;
 		}
 		String type = object.type();
@@ -387,13 +487,21 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("stat_user")) {
 				userInfo = new UserInfo(object);
 				notifyHandlers(EVENT_USERINFO, userInfo);
+			} else if(type.equalsIgnoreCase("bad_channel_key")) {
+				notifyHandlers(EVENT_BADCHANNELKEY, object);
+			} else if(type.equalsIgnoreCase("open_buffer")) {
+				notifyHandlers(EVENT_OPENBUFFER, object);
+			} else if(type.equalsIgnoreCase("no_such_channel")) {
+				notifyHandlers(EVENT_NOSUCHCHANNEL, object);
+			} else if(type.equalsIgnoreCase("no_such_nick")) {
+				notifyHandlers(EVENT_NOSUCHNICK, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteServer(object.getInt("cid"));
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-								object.getJSONObject("fail_info").toString(), object.getString("away"));
+								object.getJSONObject("fail_info").toString(), object.getString("away"), object.getJSONArray("ignores"));
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("connection_deleted")) {
@@ -609,6 +717,11 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("isupport_params")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateIsupport(object.getInt("cid"), object.getJSONObject("params"));
+			} else if(type.equalsIgnoreCase("set_ignores") || type.equalsIgnoreCase("ignore_list")) {
+				ServersDataSource s = ServersDataSource.getInstance();
+				s.updateIgnores(object.getInt("cid"), object.getJSONArray("masks"));
+				if(!backlog)
+					notifyHandlers(EVENT_SETIGNORES, object);
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
 				JSONObject seenEids = object.getJSONObject("seenEids");
 				Iterator<String> i = seenEids.keys();
@@ -749,17 +862,24 @@ public class NetworkConnection {
 
 	public void removeHandler(Handler handler) {
 		handlers.remove(handler);
-		if(handlers.isEmpty() && shutdownTimer == null) {
-			shutdownTimer = new Timer();
+		if(handlers.isEmpty()){
+			if(shutdownTimer == null) {
+				shutdownTimer = new Timer();
 
-			shutdownTimer.schedule( new TimerTask(){
-	             public void run() {
-	            	 if(handlers.isEmpty()) {
-		                 disconnect();
-	            	 }
-	                 shutdownTimer = null;
-	              }
-	           }, 5*60000); //TODO: Make this value configurable
+				shutdownTimer.schedule( new TimerTask(){
+		             public void run() {
+		            	 if(handlers.isEmpty()) {
+			                 disconnect();
+		            	 }
+		                 shutdownTimer = null;
+		              }
+		           }, 5*60000); //TODO: Make this value configurable
+			}
+			if(idleTimer != null && state != STATE_CONNECTED) {
+				idleTimer.cancel();
+				idleTimer = null;
+				state = STATE_DISCONNECTED;
+			}
 		}
 	}
 
@@ -791,6 +911,7 @@ public class NetworkConnection {
 		boolean limit_download_logs;
 		long limit_maxhistorydays;
 		int num_invites;
+		JSONObject prefs;
 		
 		public UserInfo(IRCCloudJSONObject object) throws JSONException {
 			name = object.getString("name");
@@ -801,6 +922,10 @@ public class NetworkConnection {
 			active_connections = object.getLong("num_active_connections");
 			join_date = object.getLong("join_date");
 			auto_away = object.getBoolean("autoaway");
+			if(object.has("prefs") && !object.getString("prefs").equals("null"))
+				prefs = new JSONObject(object.getString("prefs"));
+			else
+				prefs = null;
 			
 			limits_name = object.getString("limits_name");
 			JSONObject limits = object.getJSONObject("limits");
@@ -823,11 +948,16 @@ public class NetworkConnection {
 					long time = System.currentTimeMillis();
 					Log.i("IRCCloud", "Beginning backlog...");
 					notifyHandlers(EVENT_BACKLOG_START, null);
-					JSONArray a = new JSONArray(json);
-					for(int i = 0; i < a.length(); i++)
-						parse_object(new IRCCloudJSONObject(a.getJSONObject(i)), true);
-					Log.i("IRCCloud", "Backlog complete!");
-					Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
+					if(!json.startsWith("[") && ServersDataSource.getInstance().count() < 1) {
+						Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
+						client.disconnect();
+					} else {
+						JSONArray a = new JSONArray(json);
+						for(int i = 0; i < a.length(); i++)
+							parse_object(new IRCCloudJSONObject(a.getJSONObject(i)), true);
+						Log.i("IRCCloud", "Backlog complete!");
+						Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
+					}
 				}
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;

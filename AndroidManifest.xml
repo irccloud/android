@@ -40,6 +40,10 @@
             android:name=".EditConnectionActivity"
             android:label="@string/title_activity_edit_connection" >
         </activity>
-    </application>
+        <activity
+            android:name=".IgnoreListActivity"
+            android:label="@string/title_activity_ignore_list" >
+        </activity>
+        </application>
 
 </manifest>

@@ -2,6 +2,11 @@ package com.irccloud.android;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.graphics.Typeface;
@@ -9,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -25,10 +32,18 @@ public class BuffersListFragment extends SherlockListFragment {
 	private static final int TYPE_SERVER = 0;
 	private static final int TYPE_CHANNEL = 1;
 	private static final int TYPE_CONVERSATION = 2;
+	private static final int TYPE_ARCHIVES_HEADER = 3;
 	
 	NetworkConnection conn;
 	BufferListAdapter adapter;
 	OnBufferSelectedListener mListener;
+	View view;
+	TextView errorMsg;
+	RelativeLayout connecting;
+	String error = null;
+	private Timer countdownTimer = null;
+	
+	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
 	private static class BufferListEntry implements Serializable {
 		private static final long serialVersionUID = 1848168221883194027L;
@@ -56,6 +71,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			TextView highlights;
 			LinearLayout unread;
 			LinearLayout groupbg;
+			LinearLayout bufferbg;
 			ImageView key;
 			ProgressBar progress;
 		}
@@ -102,6 +118,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			return e.bid;
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			BufferListEntry e = data.get(position);
@@ -123,6 +140,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.highlights = (TextView) row.findViewById(R.id.highlights);
 				holder.unread = (LinearLayout) row.findViewById(R.id.unread);
 				holder.groupbg = (LinearLayout) row.findViewById(R.id.groupbg);
+				holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
 				holder.key = (ImageView) row.findViewById(R.id.key);
 				holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.type = e.type;
@@ -133,10 +151,26 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 
 			holder.label.setText(e.name);
-			if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
+			if(e.type == TYPE_ARCHIVES_HEADER) {
+				holder.label.setTypeface(null);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archives_heading));
+				holder.unread.setBackgroundDrawable(null);
+				if(mExpandArchives.get(e.cid, false)) {
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
+					holder.bufferbg.setSelected(true);
+				} else {
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
+					holder.bufferbg.setSelected(false);
+				}
+			} else if(e.archived == 1 && holder.bufferbg != null) {
+				holder.label.setTypeface(null);
+				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archived));
+				holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
+				holder.unread.setBackgroundDrawable(null);
+			} else if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
-				holder.unread.setBackgroundResource(R.drawable.background_blue);
+				holder.unread.setBackgroundDrawable(null);
 			} else if(e.unread > 0) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
@@ -144,9 +178,14 @@ public class BuffersListFragment extends SherlockListFragment {
 			} else {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
-				holder.unread.setBackgroundResource(R.drawable.background_blue);
+				holder.unread.setBackgroundDrawable(null);
 			}
 
+			if(conn.getState() != NetworkConnection.STATE_CONNECTED)
+				row.setBackgroundResource(R.drawable.disconnected_yellow);
+			else
+				row.setBackgroundResource(R.drawable.bg);
+			
 			if(holder.key != null) {
 				if(e.key > 0) {
 					holder.key.setVisibility(View.VISIBLE);
@@ -164,7 +203,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 			
 			if(holder.groupbg != null) {
-				if(e.status.equals("waiting_to_retry")) {
+				if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable")) {
 					holder.groupbg.setBackgroundResource(R.drawable.operator_bg_red);
 					holder.label.setTextColor(getResources().getColorStateList(R.color.heading_operators));
 				} else {
@@ -202,7 +241,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);
 					if(b.type.equalsIgnoreCase("console")) {
-						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
+						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
 						if(s.name.length() == 0)
 							s.name = s.hostname;
@@ -226,9 +265,35 @@ public class BuffersListFragment extends SherlockListFragment {
 					else if(b.type.equalsIgnoreCase("conversation"))
 						type = TYPE_CONVERSATION;
 					if(type > 0 && b.archived == 0) {
-						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid);
+						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+						if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+							try {
+								JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+								if(disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+									unread = 0;
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
+					}
+				}
+				entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status));
+				if(mExpandArchives.get(s.cid, false)) {
+					for(int j = 0; j < buffers.size(); j++) {
+						BuffersDataSource.Buffer b = buffers.get(j);
+						int type = -1;
+						if(b.archived == 1) {
+							if(b.type.equalsIgnoreCase("channel"))
+								type = TYPE_CHANNEL;
+							else if(b.type.equalsIgnoreCase("conversation"))
+								type = TYPE_CONVERSATION;
+							
+							if(type > 0)
+								entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status));
+						}
 					}
 				}
 			}
@@ -243,9 +308,15 @@ public class BuffersListFragment extends SherlockListFragment {
 				setListAdapter(adapter);
 			else
 				adapter.notifyDataSetChanged();
+			
+			if(entries.size() > 0) {
+				getListView().setVisibility(View.VISIBLE);
+				connecting.setVisibility(View.GONE);
+			}
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -259,7 +330,9 @@ public class BuffersListFragment extends SherlockListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.bufferslist, null);
+		view = inflater.inflate(R.layout.bufferslist, null);
+		errorMsg = (TextView)view.findViewById(R.id.errorMsg);
+		connecting = (RelativeLayout)view.findViewById(R.id.connecting);
 		return view;
 	}
 	
@@ -273,6 +346,13 @@ public class BuffersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+		if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+			view.setBackgroundResource(R.drawable.disconnected_yellow);
+		} else {
+			view.setBackgroundResource(R.drawable.background_blue);
+			connecting.setVisibility(View.GONE);
+			getListView().setVisibility(View.VISIBLE);
+		}
     	new RefreshTask().execute((Void)null);
     }
     
@@ -297,6 +377,10 @@ public class BuffersListFragment extends SherlockListFragment {
     	BufferListEntry e = (BufferListEntry)adapter.getItem(position);
     	String type = null;
     	switch(e.type) {
+    	case TYPE_ARCHIVES_HEADER:
+    		mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
+	    	new RefreshTask().execute((Void)null);
+    		return;
     	case TYPE_SERVER:
     		type = "console";
     		break;
@@ -307,13 +391,78 @@ public class BuffersListFragment extends SherlockListFragment {
     		type = "conversation";
     		break;
     	}
-    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived);
+    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived, e.status);
+    }
+    
+    private void updateReconnecting() {
+    	if(conn.getReconnectTimestamp() > 0) {
+    		String plural = "";
+    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
+    		if(seconds != 1)
+    			plural = "s";
+    		if(seconds < 1)
+    			errorMsg.setText("Connecting");
+    		else if(seconds > 10 && error != null)
+				errorMsg.setText(error +"\n\nReconnecting in\n" + seconds + " second" + plural);
+			else
+				errorMsg.setText("Reconnecting in\n" + seconds + " second" + plural);
+			if(countdownTimer != null)
+				countdownTimer.cancel();
+			countdownTimer = new Timer();
+			countdownTimer.schedule( new TimerTask(){
+	             public void run() {
+	    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+	    				 mHandler.post(new Runnable() {
+							@Override
+							public void run() {
+			 					updateReconnecting();
+							}
+	    				 });
+	    			 }
+	    			 countdownTimer = null;
+	             }
+			}, 1000);
+    	} else {
+			errorMsg.setText("Offline");
+    	}
     }
     
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIVITY:
+				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+					view.setBackgroundResource(R.drawable.disconnected_yellow);
+				} else {
+					view.setBackgroundResource(R.drawable.background_blue);
+					errorMsg.setText("Loading");
+					error = null;
+				}
+				if(conn.getState() == NetworkConnection.STATE_CONNECTING) {
+					errorMsg.setText("Connecting");
+					error = null;
+				}
+				else if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
+					updateReconnecting();
+				if(adapter != null)
+					adapter.notifyDataSetChanged();
+				break;
+			case NetworkConnection.EVENT_FAILURE_MSG:
+				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+					try {
+						error = o.getString("message");
+						if(error.equals("temp_unavailable"))
+							error = "Your account is temporarily unavailable";
+						updateReconnecting();
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
+			case NetworkConnection.EVENT_USERINFO:
 			case NetworkConnection.EVENT_MAKESERVER:
 			case NetworkConnection.EVENT_STATUSCHANGED:
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
@@ -334,6 +483,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived);
+		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status);
 	}
 }

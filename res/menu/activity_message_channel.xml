@@ -1,6 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_topic"
+        android:title="@string/menu_topic"
+        android:showAsAction="never" />
+    
     <item android:id="@+id/menu_leave"
         android:title="@string/menu_leave"
+        android:showAsAction="never" />
+    
+    <item android:id="@+id/menu_ignore_list"
+        android:title="@string/menu_ignore_list"
         android:showAsAction="never" />
     
 </menu>

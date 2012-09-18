@@ -3,5 +3,5 @@
     <item android:drawable="@drawable/selected_blue" android:state_pressed="true"/>
     <item android:drawable="@drawable/selected_blue" android:state_selected="true"/>
     <item android:drawable="@drawable/selected_blue" android:state_focused="true"/>
-    <item android:drawable="@drawable/background_blue"/>
+    <item android:drawable="@drawable/disconnected_yellow"/>
 </selector>

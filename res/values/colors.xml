@@ -20,4 +20,6 @@
     <color name="self">#EDF4FF</color>
     <color name="error">#FFEE97</color>
     <color name="notice">#D9E7FF</color>
+    <drawable name="archived_bg">#F4F4F4</drawable>
+    <drawable name="archived_bg_selected">#666</drawable>
 </resources>

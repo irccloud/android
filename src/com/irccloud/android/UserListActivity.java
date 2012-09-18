@@ -1,5 +1,7 @@
 package com.irccloud.android;
 
+import org.json.JSONException;
+
 import com.actionbarsherlock.view.MenuItem;
 
 import android.app.AlertDialog;
@@ -11,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -18,6 +21,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 	int cid;
 	int bid;
 	String channel;
+	String status;
 	UsersDataSource.User selected_user;
 	
 	NetworkConnection conn;
@@ -32,6 +36,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
         	cid = savedInstanceState.getInt("cid");
         	bid = savedInstanceState.getInt("bid");
         	channel = savedInstanceState.getString("channel");
+        	status = savedInstanceState.getString("status");
         }
     }
 
@@ -42,6 +47,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 	    	cid = getIntent().getIntExtra("cid", 0);
 	    	bid = getIntent().getIntExtra("bid", 0);
 	    	channel = getIntent().getStringExtra("name");
+	    	status = getIntent().getStringExtra("status");
     	}
     	getSupportActionBar().setTitle(channel + " members");
     	conn = NetworkConnection.getInstance();
@@ -59,6 +65,21 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		public void handleMessage(Message msg) {
 			Integer id;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_STATUSCHANGED:
+				try {
+					IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+					if(o.cid() == cid)
+							status = o.getString("new_status");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			case NetworkConnection.EVENT_MAKESERVER:
+				ServersDataSource.Server server = (ServersDataSource.Server)msg.obj;
+				if(server.cid == cid)
+					status = server.status;
+				break;
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
 			case NetworkConnection.EVENT_DELETEBUFFER:
 				id = (Integer)msg.obj;
@@ -81,6 +102,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
     	state.putInt("cid", cid);
     	state.putInt("bid", bid);
     	state.putString("channel", channel);
+    	state.putString("status", status);
     }
     
     @Override
@@ -131,6 +153,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 			    		i.putExtra("type", buffer.type);
 			    		i.putExtra("joined", 1);
 			    		i.putExtra("archived", buffer.archived);
+			    		i.putExtra("status", status);
 		    		} else {
 			    		i.putExtra("cid", cid);
 			    		i.putExtra("bid", -1);
@@ -140,6 +163,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 			    		i.putExtra("type", "conversation");
 			    		i.putExtra("joined", 1);
 			    		i.putExtra("archived", 0);
+			    		i.putExtra("status", status);
 		    		}
 		    		startActivity(i);
 		    		break;
@@ -165,6 +189,33 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		});
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		    		dialog.show();
+		    		break;
+		    	case 2:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	input.setText("*!"+selected_user.hostmask);
+		        	prompt.setText("Ignore messages for " + selected_user.nick + " at this hostmask");
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Ignore", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.ignore(cid, input.getText().toString());
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 		    		break;
 		    	case 3:
@@ -195,6 +246,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		});
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 		    		break;
 		    	case 5:
@@ -220,6 +272,7 @@ public class UserListActivity extends BaseActivity implements UsersListFragment.
 		    		});
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(UserListActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 		    		break;
 		    	}

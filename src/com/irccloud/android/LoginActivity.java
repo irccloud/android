@@ -2,14 +2,21 @@ package com.irccloud.android;
 
 import java.io.IOException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.actionbarsherlock.app.SherlockActivity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -35,7 +42,14 @@ public class LoginActivity extends SherlockActivity {
         });
     }
 
-    private class LoginTask extends AsyncTask<Void, Void, String> {
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	email.requestFocus();
+    	getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+    }
+    
+    private class LoginTask extends AsyncTask<Void, Void, JSONObject> {
 		@Override
 		public void onPreExecute() {
 			email.setEnabled(false);
@@ -44,7 +58,7 @@ public class LoginActivity extends SherlockActivity {
 		}
 		
 		@Override
-		protected String doInBackground(Void... arg0) {
+		protected JSONObject doInBackground(Void... arg0) {
 			try {
 				return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
 			} catch (IOException e) {
@@ -55,18 +69,50 @@ public class LoginActivity extends SherlockActivity {
 		}
 
 		@Override
-		public void onPostExecute(String result) {
+		public void onPostExecute(JSONObject result) {
 			email.setEnabled(true);
 			password.setEnabled(true);
 			loginBtn.setEnabled(true);
 
-			if(result != null && result.length() > 0) {
+			if(result != null && result.has("session")) {
 				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-				editor.putString("session_key", result);
+				try {
+					editor.putString("session_key", result.getString("session"));
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				editor.commit();
 	    		Intent i = new Intent(LoginActivity.this, MainActivity.class);
 	    		startActivity(i);
 	    		finish();
+			} else {
+				AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+				builder.setTitle("Login Failed");
+				String message = "Unable to connect to IRCCloud.  Please try again shortly.";
+				if(result != null) {
+					try {
+						message = result.getString("message");
+						if(message.equalsIgnoreCase("auth"))
+							message = "Incorrect username or password.  Please try again.";
+						else if(message.equalsIgnoreCase("legacy_account"))
+							message = "Your account hasn't been migrated yet.  Please try again shortly.";
+						else
+							message = "Error: " + message;
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+				builder.setMessage(message);
+				builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+				AlertDialog dialog = builder.create();
+				dialog.setOwnerActivity(LoginActivity.this);
+				dialog.show();
 			}
 		}
     }

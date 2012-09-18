@@ -25,6 +25,7 @@ public class UsersListFragment extends SherlockListFragment {
 	OnUserSelectedListener mListener;
 	int cid;
 	String channel;
+	View view;
 	
 	private class UserListAdapter extends BaseAdapter {
 		ArrayList<UserListEntry> data;
@@ -110,8 +111,11 @@ public class UsersListFragment extends SherlockListFragment {
 			} else {
 				holder.label.setTextColor(getResources().getColorStateList(e.color));
 			}
-			row.setBackgroundResource(e.bg_color);
-			
+			if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED)
+				row.setBackgroundResource(R.drawable.row_disconnected_bg);
+			else
+				row.setBackgroundResource(e.bg_color);
+				
 			if(holder.count != null) {
 				if(e.count > 0) {
 					holder.count.setVisibility(View.VISIBLE);
@@ -197,7 +201,7 @@ public class UsersListFragment extends SherlockListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.userslist, null);
+		view = inflater.inflate(R.layout.userslist, null);
 		return view;
 	}
 
@@ -205,6 +209,11 @@ public class UsersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+		if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+			view.setBackgroundResource(R.drawable.disconnected_yellow);
+		} else {
+			view.setBackgroundResource(R.drawable.background_blue);
+		}
     	new RefreshTask().execute((Void)null);
     }
     
@@ -235,6 +244,15 @@ public class UsersListFragment extends SherlockListFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIVITY:
+				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
+					view.setBackgroundResource(R.drawable.disconnected_yellow);
+				} else {
+					view.setBackgroundResource(R.drawable.background_blue);
+				}
+				if(adapter != null)
+					adapter.notifyDataSetChanged();
+				break;
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_QUIT:

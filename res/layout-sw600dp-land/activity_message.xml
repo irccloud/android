@@ -33,10 +33,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Message"
-                android:imeOptions="actionSend" >
-
-                <requestFocus />
-            </EditText>
+                android:imeOptions="actionSend" />
 
             <include
                 android:id="@+id/sendBtn"
