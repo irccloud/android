@@ -52,6 +52,8 @@
    			        android:layout_width="wrap_content"
    			        android:layout_height="wrap_content"
    			        android:layout_weight="0"
+   			        android:padding="4dp"
+   			        style="@android:style/Widget.ProgressBar.Small"
    			        android:visibility="gone" />
 
 	      </LinearLayout>

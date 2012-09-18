@@ -64,6 +64,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	private class BufferListAdapter extends BaseAdapter {
 		ArrayList<BufferListEntry> data;
 		private SherlockListFragment ctx;
+		int progressRow = -1;
 		
 		private class ViewHolder {
 			int type;
@@ -75,7 +76,12 @@ public class BuffersListFragment extends SherlockListFragment {
 			ImageView key;
 			ProgressBar progress;
 		}
-	
+
+		public void showProgress(int row) {
+			progressRow = row;
+			notifyDataSetChanged();
+		}
+		
 		public BufferListAdapter(SherlockListFragment context) {
 			ctx = context;
 			data = new ArrayList<BufferListEntry>();
@@ -195,10 +201,10 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 			
 			if(holder.progress != null) {
-				if(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")) {
-					holder.progress.setVisibility(View.GONE);
-				} else {
+				if(progressRow == position || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
 					holder.progress.setVisibility(View.VISIBLE);
+				} else {
+					holder.progress.setVisibility(View.GONE);
 				}
 			}
 			
@@ -353,6 +359,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			connecting.setVisibility(View.GONE);
 			getListView().setVisibility(View.VISIBLE);
 		}
+		if(adapter != null)
+			adapter.showProgress(-1);
     	new RefreshTask().execute((Void)null);
     }
     
@@ -391,6 +399,7 @@ public class BuffersListFragment extends SherlockListFragment {
     		type = "conversation";
     		break;
     	}
+    	adapter.showProgress(position);
     	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived, e.status);
     }
     
