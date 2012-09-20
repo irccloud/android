@@ -367,7 +367,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		avgInsertTime = time;
 	    	avgInsertTime += time;
 	    	avgInsertTime /= 2.0;
-	    	Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
+	    	//Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

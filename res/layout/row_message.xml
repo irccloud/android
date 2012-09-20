@@ -9,18 +9,16 @@
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:gravity="right"
-        android:padding="4dp"
-        android:paddingBottom="0dp"
+        android:paddingLeft="4dp"
         android:textColor="@color/timestamp" />
 
     <TextView
         android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingLeft="4dp"
         android:autoLink="web"
-        android:linksClickable="true"
-        android:padding="4dp"
-        android:paddingBottom="0dp"
-        android:paddingLeft="0dp" />
+        android:ellipsize="none"
+        android:linksClickable="true" />
 
 </LinearLayout>
