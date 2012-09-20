@@ -74,6 +74,15 @@ public class MessageViewFragment extends SherlockListFragment {
 			data = new ArrayList<MessageEntry>();
 		}
 		
+		public void removeItem(long eid) {
+			for(int i = 0; i < data.size(); i++) {
+				if(data.get(i).eid == eid) {
+					data.remove(i);
+					return;
+				}
+			}
+		}
+		
 		public void addItem(int type, long eid, String text, int color, int bg_color) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(eid / 1000);
@@ -293,6 +302,18 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	String type;
 			type = event.getString("type");
 	    	
+			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") ||type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit")) {
+				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
+					if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
+			    		adapter.removeItem(event.eid());
+				    	if(!backlog)
+				    		adapter.notifyDataSetChanged();
+				    	return;
+					}
+				}
+			}
+			
 	    	if(type.equalsIgnoreCase("buffer_me_msg")) {
 				from = "* <i>" + event.getString("from") + "</i>";
 				msg = "<i>" + event.getString("msg") + "</i>";
