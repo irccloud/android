@@ -79,7 +79,23 @@ public class MessageViewFragment extends SherlockListFragment {
 			calendar.setTimeInMillis(eid / 1000);
 			int insert_pos = 0;
 			MessageEntry e = new MessageEntry();
-			SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
+			SimpleDateFormat formatter;
+			formatter = new SimpleDateFormat("h:mm a");
+			if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+				try {
+					JSONObject prefs = conn.getUserInfo().prefs;
+					if(prefs.has("time-24hr") && prefs.getBoolean("time-24hr")) {
+						if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+							formatter = new SimpleDateFormat("H:mm:ss");
+						else
+							formatter = new SimpleDateFormat("H:mm");
+					} else if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds")) {
+						formatter = new SimpleDateFormat("h:mm:ss a");
+					}
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+			}
 			e.type = type;
 			e.eid = eid;
 			e.timestamp = formatter.format(calendar.getTime());
