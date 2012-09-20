@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -418,6 +419,7 @@ public class MessageActivity extends UserListActivity {
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.show();
+		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
             	}
             	return true;
         }
