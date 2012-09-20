@@ -13,6 +13,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.SpannableString;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -392,9 +394,11 @@ public class MessageActivity extends UserListActivity {
             	if(c != null) {
 	            	builder = new AlertDialog.Builder(MessageActivity.this);
 	            	builder.setTitle("Channel Topic");
-	            	if(c.topic_text.length() > 0)
-	            		builder.setMessage(c.topic_text);
-	            	else
+	            	if(c.topic_text.length() > 0) {
+	            		final SpannableString s = new SpannableString(c.topic_text);
+	            		Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+	            		builder.setMessage(s);
+	            	} else
 	            		builder.setMessage("No topic set.");
 	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
 
