@@ -39,7 +39,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	OnBufferSelectedListener mListener;
 	View view;
 	TextView errorMsg;
-	RelativeLayout connecting;
+	RelativeLayout connecting = null;
 	String error = null;
 	private Timer countdownTimer = null;
 	
@@ -309,7 +309,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			else
 				adapter.notifyDataSetChanged();
 			
-			if(entries.size() > 0) {
+			if(entries.size() > 0 && connecting != null) {
 				getListView().setVisibility(View.VISIBLE);
 				connecting.setVisibility(View.GONE);
 			}
