@@ -241,7 +241,6 @@ public class MessageViewFragment extends SherlockFragment {
 		TreeMap<Long,IRCCloudJSONObject> events;
 		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;
-		ChannelsDataSource.Channel channel = null;
 		UsersDataSource.User user = null;
 		
 		@Override
@@ -256,9 +255,7 @@ public class MessageViewFragment extends SherlockFragment {
 			webviewLock.release();
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			server = ServersDataSource.getInstance().getServer(cid);
-			if(type.equalsIgnoreCase("channel"))
-				channel = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
-			else if(type.equalsIgnoreCase("conversation"))
+			if(type.equalsIgnoreCase("conversation"))
 				user = UsersDataSource.getInstance().getUser(cid, name);
 			long time = System.currentTimeMillis();
 			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
