@@ -18,6 +18,8 @@ import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,8 +42,13 @@ public class BuffersListFragment extends SherlockListFragment {
 	View view;
 	TextView errorMsg;
 	RelativeLayout connecting = null;
+	LinearLayout topUnreadIndicator = null;
+	LinearLayout bottomUnreadIndicator = null;
 	String error = null;
 	private Timer countdownTimer = null;
+	
+	int firstUnreadPosition;
+	int lastUnreadPosition;
 	
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
@@ -235,6 +242,10 @@ public class BuffersListFragment extends SherlockListFragment {
 				adapter = new BufferListAdapter(BuffersListFragment.this);
 			}
 
+			firstUnreadPosition = -1;
+			lastUnreadPosition = -1;
+			int position = 0;
+			
 			for(int i = 0; i < servers.size(); i++) {
 				ServersDataSource.Server s = servers.get(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
@@ -246,6 +257,11 @@ public class BuffersListFragment extends SherlockListFragment {
 						if(s.name.length() == 0)
 							s.name = s.hostname;
 						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status));
+						if(unread > 0 && firstUnreadPosition == -1)
+							firstUnreadPosition = position;
+						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+							lastUnreadPosition = position;
+						position++;
 						break;
 					}
 				}
@@ -278,9 +294,15 @@ public class BuffersListFragment extends SherlockListFragment {
 							}
 						}
 						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
+						if(unread > 0 && firstUnreadPosition == -1)
+							firstUnreadPosition = position;
+						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+							lastUnreadPosition = position;
+						position++;
 					}
 				}
 				entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status));
+				position++;
 				if(mExpandArchives.get(s.cid, false)) {
 					for(int j = 0; j < buffers.size(); j++) {
 						BuffersDataSource.Buffer b = buffers.get(j);
@@ -291,8 +313,10 @@ public class BuffersListFragment extends SherlockListFragment {
 							else if(b.type.equalsIgnoreCase("conversation"))
 								type = TYPE_CONVERSATION;
 							
-							if(type > 0)
+							if(type > 0) {
 								entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status));
+								position++;
+							}
 						}
 					}
 				}
@@ -313,6 +337,23 @@ public class BuffersListFragment extends SherlockListFragment {
 				getListView().setVisibility(View.VISIBLE);
 				connecting.setVisibility(View.GONE);
 			}
+			
+			updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+		}
+	}
+
+	private void updateUnreadIndicators(int first, int last) {
+		if(topUnreadIndicator != null) {
+			if(firstUnreadPosition != -1 && first >= firstUnreadPosition)
+				topUnreadIndicator.setVisibility(View.VISIBLE);
+			else
+				topUnreadIndicator.setVisibility(View.GONE);
+		}
+		if(bottomUnreadIndicator != null) {
+			if(lastUnreadPosition != -1 && last <= lastUnreadPosition)
+				bottomUnreadIndicator.setVisibility(View.VISIBLE);
+			else
+				bottomUnreadIndicator.setVisibility(View.GONE);
 		}
 	}
 	
@@ -333,6 +374,18 @@ public class BuffersListFragment extends SherlockListFragment {
 		view = inflater.inflate(R.layout.bufferslist, null);
 		errorMsg = (TextView)view.findViewById(R.id.errorMsg);
 		connecting = (RelativeLayout)view.findViewById(R.id.connecting);
+		topUnreadIndicator = (LinearLayout)view.findViewById(R.id.topUnreadIndicator);
+		bottomUnreadIndicator = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicator);
+		((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				updateUnreadIndicators(firstVisibleItem, firstVisibleItem+visibleItemCount);
+			}
+
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+			}
+		});
 		return view;
 	}
 	

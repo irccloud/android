@@ -1,23 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/background_blue"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    tools:context=".BuffersListFragment" >
 
+    <LinearLayout
+        android:id="@+id/topUnreadIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="12dip"
+        android:layout_weight="0"
+        android:background="@color/dark_blue"
+        android:visibility="gone" />
+    
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
         android:divider="#00000000"
         android:dividerHeight="1dip"
         android:visibility="gone" />
 
+    <LinearLayout
+        android:id="@+id/bottomUnreadIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="12dip"
+        android:layout_weight="0"
+        android:background="@color/dark_blue"
+        android:visibility="gone" />
+    
     <RelativeLayout
         android:id="@+id/connecting"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:layout_height="fill_parent" >
 
         <ProgressBar
             android:id="@+id/progressBar1"
@@ -38,7 +56,6 @@
             android:padding="4dp"
             android:text="Connecting"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
     </RelativeLayout>
 
 </LinearLayout>

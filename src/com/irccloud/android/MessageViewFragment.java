@@ -389,6 +389,7 @@ public class MessageViewFragment extends SherlockFragment {
     		conn.removeHandler(mHandler);
    	}
     
+	@SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		IRCCloudJSONObject e;
 		
