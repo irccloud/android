@@ -1,4 +1,4 @@
-package com.irccloud.android;
+package com.irccloud.androidnative;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.irccloud.android"
+    package="com.irccloud.androidnative"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     
     <application
-        android:name="IRCCloudApplication"
+        android:name=".IRCCloudApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
@@ -41,7 +41,7 @@
             android:label="@string/title_activity_edit_connection" >
         </activity>
         <activity
-            android:name=".IgnoreListActivity"
+            android:name="com.irccloud.androidnativenative.IgnoreListActivity"
             android:label="@string/title_activity_ignore_list" >
         </activity>
         </application>

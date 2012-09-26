@@ -11,7 +11,7 @@
         android:orientation="vertical" >
 
         <fragment
-            android:name="com.irccloud.android.MessageViewFragment"
+            android:name="com.irccloud.androidnative.MessageViewFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/usersListFragment"
-        android:name="com.irccloud.android.UsersListFragment"
+        android:name="com.irccloud.androidnative.UsersListFragment"
         android:layout_width="360dp"
         android:layout_height="match_parent"
         android:layout_weight="1"

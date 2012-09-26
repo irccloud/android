@@ -1,4 +1,4 @@
-package com.irccloud.android;
+package com.irccloud.androidnative;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;

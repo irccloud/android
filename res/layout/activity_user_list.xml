@@ -6,7 +6,7 @@
     android:orientation="vertical" >
 
     <fragment
-        android:name="com.irccloud.android.UsersListFragment"
+        android:name="com.irccloud.androidnative.UsersListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

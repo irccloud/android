@@ -1,4 +1,4 @@
-package com.irccloud.android;
+package com.irccloud.androidnative;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

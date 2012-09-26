@@ -17,7 +17,7 @@
     <string name="menu_ignore_list">Ignore List</string>
     <string name="menu_topic">Show Topic</string>
     
-    <string name="title_activity_main">IRCCloud</string>
+    <string name="title_activity_main">IRCCloud (native)</string>
     <string name="title_activity_login">Login</string>
     <string name="title_activity_message">Messages</string>
     <string name="title_activity_user_list">Users</string>
