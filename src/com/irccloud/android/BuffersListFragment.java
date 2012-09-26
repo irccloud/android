@@ -364,7 +364,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			} else {
 				topUnreadIndicator.setVisibility(View.GONE);
 			}
-			if(lastHighlightPosition != -1 && first >= lastHighlightPosition) {
+			if((lastHighlightPosition != -1 && first >= lastHighlightPosition) ||
+					(firstHighlightPosition != -1 && first >= firstHighlightPosition)) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
 				topUnreadIndicator.setBackgroundResource(R.drawable.highlight_red);
 			}
@@ -376,7 +377,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			} else {
 				bottomUnreadIndicator.setVisibility(View.GONE);
 			}
-			if(firstHighlightPosition != -1 && last <= firstHighlightPosition) {
+			if((firstHighlightPosition != -1 && last <= firstHighlightPosition) ||
+					(lastHighlightPosition != -1 && last <= lastHighlightPosition)) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
 				bottomUnreadIndicator.setBackgroundResource(R.drawable.highlight_red);
 			}
