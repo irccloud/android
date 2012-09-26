@@ -14,11 +14,15 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends SherlockActivity {
 	EditText email;
@@ -33,6 +37,14 @@ public class LoginActivity extends SherlockActivity {
         
         email = (EditText)findViewById(R.id.email);
         password = (EditText)findViewById(R.id.password);
+        password.setOnEditorActionListener(new OnEditorActionListener() {
+			public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE) {
+					new LoginTask().execute((Void)null);
+				}
+				return true;
+			}
+        });
         loginBtn = (Button)findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
 			@Override
