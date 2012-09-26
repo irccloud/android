@@ -15,4 +15,5 @@
     <color name="dialog_prompt">#FFFFFF</color>
     <drawable name="archived_bg">#F4F4F4</drawable>
     <drawable name="archived_bg_selected">#666</drawable>
+    <drawable name="highlight_red">#BA1719</drawable>
 </resources>

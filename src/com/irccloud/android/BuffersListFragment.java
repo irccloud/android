@@ -8,12 +8,14 @@ import java.util.TimerTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,8 +49,10 @@ public class BuffersListFragment extends SherlockListFragment {
 	String error = null;
 	private Timer countdownTimer = null;
 	
-	int firstUnreadPosition;
-	int lastUnreadPosition;
+	int firstUnreadPosition = -1;
+	int lastUnreadPosition= -1;
+	int firstHighlightPosition = -1;
+	int lastHighlightPosition= -1;
 	
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
@@ -244,6 +248,8 @@ public class BuffersListFragment extends SherlockListFragment {
 
 			firstUnreadPosition = -1;
 			lastUnreadPosition = -1;
+			firstHighlightPosition = -1;
+			lastHighlightPosition = -1;
 			int position = 0;
 			
 			for(int i = 0; i < servers.size(); i++) {
@@ -261,6 +267,10 @@ public class BuffersListFragment extends SherlockListFragment {
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
 							lastUnreadPosition = position;
+						if(highlights > 0 && firstHighlightPosition == -1)
+							firstHighlightPosition = position;
+						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+							lastHighlightPosition = position;
 						position++;
 						break;
 					}
@@ -298,6 +308,10 @@ public class BuffersListFragment extends SherlockListFragment {
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
 							lastUnreadPosition = position;
+						if(highlights > 0 && firstHighlightPosition == -1)
+							firstHighlightPosition = position;
+						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+							lastHighlightPosition = position;
 						position++;
 					}
 				}
@@ -344,16 +358,28 @@ public class BuffersListFragment extends SherlockListFragment {
 
 	private void updateUnreadIndicators(int first, int last) {
 		if(topUnreadIndicator != null) {
-			if(firstUnreadPosition != -1 && first >= firstUnreadPosition)
+			if(firstUnreadPosition != -1 && first >= firstUnreadPosition) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
-			else
+				topUnreadIndicator.setBackgroundResource(R.drawable.selected_blue);
+			} else {
 				topUnreadIndicator.setVisibility(View.GONE);
+			}
+			if(lastHighlightPosition != -1 && first >= lastHighlightPosition) {
+				topUnreadIndicator.setVisibility(View.VISIBLE);
+				topUnreadIndicator.setBackgroundResource(R.drawable.highlight_red);
+			}
 		}
 		if(bottomUnreadIndicator != null) {
-			if(lastUnreadPosition != -1 && last <= lastUnreadPosition)
+			if(lastUnreadPosition != -1 && last <= lastUnreadPosition) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
-			else
+				bottomUnreadIndicator.setBackgroundResource(R.drawable.selected_blue);
+			} else {
 				bottomUnreadIndicator.setVisibility(View.GONE);
+			}
+			if(firstHighlightPosition != -1 && last <= firstHighlightPosition) {
+				bottomUnreadIndicator.setVisibility(View.VISIBLE);
+				bottomUnreadIndicator.setBackgroundResource(R.drawable.highlight_red);
+			}
 		}
 	}
 	
@@ -379,7 +405,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				updateUnreadIndicators(firstVisibleItem, firstVisibleItem+visibleItemCount);
+				updateUnreadIndicators(firstVisibleItem, firstVisibleItem+visibleItemCount-1);
 			}
 
 			@Override
@@ -447,7 +473,7 @@ public class BuffersListFragment extends SherlockListFragment {
     	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived, e.status);
     }
     
-    private void updateReconnecting() {
+	private void updateReconnecting() {
     	if(conn.getReconnectTimestamp() > 0) {
     		String plural = "";
     		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
@@ -480,6 +506,7 @@ public class BuffersListFragment extends SherlockListFragment {
     	}
     }
     
+    @SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
