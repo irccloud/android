@@ -210,14 +210,20 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
 				holder.unread.setBackgroundDrawable(null);
+				if(holder.bufferbg != null)
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			} else if(e.unread > 0) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
+				if(holder.bufferbg != null)
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			} else {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
 				holder.unread.setBackgroundDrawable(null);
+				if(holder.bufferbg != null)
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			}
 
 			if(conn.getState() != NetworkConnection.STATE_CONNECTED)
