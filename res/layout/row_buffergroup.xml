@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg"
+    android:descendantFocusability="blocksDescendants"
     android:minHeight="64dp"
     android:orientation="horizontal"
     android:paddingTop="8dp" >
@@ -53,6 +54,13 @@
    			        android:layout_height="wrap_content"
    			        android:layout_weight="0"
    			        android:visibility="gone" />
+
+   			    <ImageButton
+   			        android:id="@+id/addBtn"
+   			        android:layout_width="48dp"
+   			        android:layout_height="48dp"
+   			        android:layout_weight="0"
+   			        android:background="@drawable/add" />
 
 	      </LinearLayout>
     </LinearLayout>
