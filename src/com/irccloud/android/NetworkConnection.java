@@ -82,6 +82,7 @@ public class NetworkConnection {
 	public static final int EVENT_OPENBUFFER = 29;
 	public static final int EVENT_NOSUCHCHANNEL = 30;
 	public static final int EVENT_NOSUCHNICK = 31;
+	public static final int EVENT_TOOMANYCHANNELS = 32;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -489,6 +490,8 @@ public class NetworkConnection {
 				notifyHandlers(EVENT_USERINFO, userInfo);
 			} else if(type.equalsIgnoreCase("bad_channel_key")) {
 				notifyHandlers(EVENT_BADCHANNELKEY, object);
+			} else if(type.equalsIgnoreCase("too_many_channels")) {
+				notifyHandlers(EVENT_TOOMANYCHANNELS, object);
 			} else if(type.equalsIgnoreCase("open_buffer")) {
 				notifyHandlers(EVENT_OPENBUFFER, object);
 			} else if(type.equalsIgnoreCase("no_such_channel")) {
