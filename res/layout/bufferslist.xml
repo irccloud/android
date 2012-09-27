@@ -22,20 +22,32 @@
     <LinearLayout
         android:id="@+id/topUnreadIndicator"
         android:layout_width="match_parent"
-        android:layout_height="12dip"
+        android:layout_height="48dip"
         android:layout_alignParentTop="true"
         android:layout_weight="0"
-        android:background="@color/dark_blue"
-        android:visibility="gone" />
+        android:visibility="gone">
+	    <LinearLayout
+	        android:id="@+id/topUnreadIndicatorColor"
+	        android:layout_width="match_parent"
+	        android:layout_height="12dip"
+	        android:background="@color/dark_blue"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/bottomUnreadIndicator"
         android:layout_width="match_parent"
-        android:layout_height="12dip"
+        android:layout_height="48dip"
         android:layout_alignParentBottom="true"
         android:layout_weight="0"
-        android:background="@color/dark_blue"
-        android:visibility="gone" />
+        android:gravity="bottom"
+        android:visibility="gone" >
+
+	    <LinearLayout
+	        android:id="@+id/bottomUnreadIndicatorColor"
+	        android:layout_width="match_parent"
+	        android:layout_height="12dip"
+	        android:background="@color/dark_blue"/>
+    </LinearLayout>
     
     <RelativeLayout
         android:id="@+id/connecting"

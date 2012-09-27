@@ -51,7 +51,9 @@ public class BuffersListFragment extends SherlockListFragment {
 	TextView errorMsg;
 	RelativeLayout connecting = null;
 	LinearLayout topUnreadIndicator = null;
+	LinearLayout topUnreadIndicatorColor = null;
 	LinearLayout bottomUnreadIndicator = null;
+	LinearLayout bottomUnreadIndicatorColor = null;
 	String error = null;
 	private Timer countdownTimer = null;
 	
@@ -101,6 +103,24 @@ public class BuffersListFragment extends SherlockListFragment {
 		
 		public void setItems(ArrayList<BufferListEntry> items) {
 			data = items;
+		}
+		
+		int unreadPositionAbove(int pos) {
+			for(int i = pos-1; i >= 0; i--) {
+				BufferListEntry e = data.get(i);
+				if(e.unread > 0)
+					return i;
+			}
+			return 0;
+		}
+		
+		int unreadPositionBelow(int pos) {
+			for(int i = pos; i < data.size(); i++) {
+				BufferListEntry e = data.get(i);
+				if(e.unread > 0)
+					return i;
+			}
+			return data.size() - 1;
 		}
 		
 		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status) {
@@ -410,27 +430,27 @@ public class BuffersListFragment extends SherlockListFragment {
 		if(topUnreadIndicator != null) {
 			if(firstUnreadPosition != -1 && first >= firstUnreadPosition) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
-				topUnreadIndicator.setBackgroundResource(R.drawable.selected_blue);
+				topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
 			} else {
 				topUnreadIndicator.setVisibility(View.GONE);
 			}
 			if((lastHighlightPosition != -1 && first >= lastHighlightPosition) ||
 					(firstHighlightPosition != -1 && first >= firstHighlightPosition)) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
-				topUnreadIndicator.setBackgroundResource(R.drawable.highlight_red);
+				topUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
 			}
 		}
 		if(bottomUnreadIndicator != null) {
 			if(lastUnreadPosition != -1 && last <= lastUnreadPosition) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
-				bottomUnreadIndicator.setBackgroundResource(R.drawable.selected_blue);
+				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
 			} else {
 				bottomUnreadIndicator.setVisibility(View.GONE);
 			}
 			if((firstHighlightPosition != -1 && last <= firstHighlightPosition) ||
 					(lastHighlightPosition != -1 && last <= lastHighlightPosition)) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
-				bottomUnreadIndicator.setBackgroundResource(R.drawable.highlight_red);
+				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
 			}
 		}
 	}
@@ -453,7 +473,38 @@ public class BuffersListFragment extends SherlockListFragment {
 		errorMsg = (TextView)view.findViewById(R.id.errorMsg);
 		connecting = (RelativeLayout)view.findViewById(R.id.connecting);
 		topUnreadIndicator = (LinearLayout)view.findViewById(R.id.topUnreadIndicator);
+		topUnreadIndicator.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				int scrollTo = adapter.unreadPositionAbove(getListView().getFirstVisiblePosition());
+				if(scrollTo > 0)
+					getListView().setSelection(scrollTo-1);
+				else
+					getListView().setSelection(0);
+
+				updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+			}
+			
+		});
+		topUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.topUnreadIndicatorColor);
 		bottomUnreadIndicator = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicator);
+		bottomUnreadIndicator.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				int offset = getListView().getLastVisiblePosition() - getListView().getFirstVisiblePosition();
+				int scrollTo = adapter.unreadPositionBelow(getListView().getLastVisiblePosition()) - offset + 2;
+				if(scrollTo < adapter.getCount())
+					getListView().setSelection(scrollTo);
+				else
+					getListView().setSelection(adapter.getCount() - 1);
+				
+				updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+			}
+			
+		});
+		bottomUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicatorColor);
 		((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
