@@ -3,9 +3,14 @@ package com.irccloud.android;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
+import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
+import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,7 +32,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MessageActivity extends UserListActivity {
+public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener {
 	int cid;
 	int bid;
 	String name;
@@ -37,7 +42,9 @@ public class MessageActivity extends UserListActivity {
 	int joined;
 	int archived;
 	String status;
-	
+	UsersDataSource.User selected_user;
+	View userListView;
+
 	NetworkConnection conn;
 	
     @Override
@@ -60,6 +67,8 @@ public class MessageActivity extends UserListActivity {
 				new SendTask().execute((Void)null);
 			}
         });
+        userListView = findViewById(R.id.usersListFragment);
+		userListView.setVisibility(View.INVISIBLE);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         
@@ -154,6 +163,7 @@ public class MessageActivity extends UserListActivity {
 		}
     }
     
+	@SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
@@ -317,11 +327,55 @@ public class MessageActivity extends UserListActivity {
     	
         switch (item.getItemId()) {
             case R.id.menu_userlist:
-            	intent = new Intent(this, UserListActivity.class);
-            	intent.putExtra("cid", cid);
-            	intent.putExtra("bid", bid);
-            	intent.putExtra("name", name);
-            	startActivity(intent);
+            	if(userListView.getVisibility() == View.INVISIBLE) {
+            		userListView.setVisibility(View.VISIBLE);
+            		ObjectAnimator animX = ObjectAnimator.ofFloat(userListView, "x", findViewById(R.id.frame).getWidth(), findViewById(R.id.frame).getWidth() - userListView.getWidth());
+            		ObjectAnimator animAlpha = ObjectAnimator.ofFloat(userListView, "alpha", 0f, 1f);
+            		AnimatorSet animSet = new AnimatorSet();
+            		animSet.playTogether(animX, animAlpha);
+            		animSet.addListener(new AnimatorListener() {
+						@Override
+						public void onAnimationStart(Animator animation) {
+						}
+
+						@Override
+						public void onAnimationEnd(Animator animation) {
+						}
+
+						@Override
+						public void onAnimationCancel(Animator animation) {
+						}
+
+						@Override
+						public void onAnimationRepeat(Animator animation) {
+						}
+            		});
+            		animSet.start();
+            	} else {
+            		ObjectAnimator animX = ObjectAnimator.ofFloat(userListView, "x", findViewById(R.id.frame).getWidth() - userListView.getWidth(), findViewById(R.id.frame).getWidth());
+            		ObjectAnimator animAlpha = ObjectAnimator.ofFloat(userListView, "alpha", 1f, 0f);
+            		AnimatorSet animSet = new AnimatorSet();
+            		animSet.playTogether(animX, animAlpha);
+            		animSet.addListener(new AnimatorListener() {
+						@Override
+						public void onAnimationStart(Animator animation) {
+						}
+
+						@Override
+						public void onAnimationEnd(Animator animation) {
+		            		userListView.setVisibility(View.INVISIBLE);
+						}
+
+						@Override
+						public void onAnimationCancel(Animator animation) {
+						}
+
+						@Override
+						public void onAnimationRepeat(Animator animation) {
+						}
+            		});
+            		animSet.start();
+            	}
             	return true;
             case R.id.menu_ignore_list:
                 intent = new Intent(this, IgnoreListActivity.class);
@@ -453,6 +507,176 @@ public class MessageActivity extends UserListActivity {
 		AlertDialog dialog = builder.create();
 		dialog.setOwnerActivity(this);
 		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		dialog.show();
+    }
+    
+	@Override
+	public void onUserSelected(int c, String chan, String n) {
+		UsersDataSource u = UsersDataSource.getInstance();
+		selected_user = u.getUser(cid, chan, n);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+   		final CharSequence[] items = {"Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
+
+		if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
+			items[3] = "Deop";
+		
+		builder.setTitle(selected_user.nick + "\n(" + selected_user.hostmask + ")");
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialogInterface, int item) {
+	    		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	    		LayoutInflater inflater = getLayoutInflater();
+	    		ServersDataSource s = ServersDataSource.getInstance();
+	    		ServersDataSource.Server server = s.getServer(cid);
+	    		View view;
+	    		final TextView prompt;
+	    		final EditText input;
+	    		AlertDialog dialog;
+	    		
+	    		switch(item) {
+		    	case 0:
+		    		BuffersDataSource b = BuffersDataSource.getInstance();
+		    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, selected_user.nick);
+		    		Intent i = new Intent(MessageActivity.this, MessageActivity.class);
+		    		if(buffer != null) {
+			    		i.putExtra("cid", buffer.cid);
+			    		i.putExtra("bid", buffer.bid);
+			    		i.putExtra("name", buffer.name);
+			    		i.putExtra("last_seen_eid", buffer.last_seen_eid);
+			    		i.putExtra("min_eid", buffer.min_eid);
+			    		i.putExtra("type", buffer.type);
+			    		i.putExtra("joined", 1);
+			    		i.putExtra("archived", buffer.archived);
+			    		i.putExtra("status", status);
+		    		} else {
+			    		i.putExtra("cid", cid);
+			    		i.putExtra("bid", -1);
+			    		i.putExtra("name", selected_user.nick);
+			    		i.putExtra("last_seen_eid", 0L);
+			    		i.putExtra("min_eid", 0L);
+			    		i.putExtra("type", "conversation");
+			    		i.putExtra("joined", 1);
+			    		i.putExtra("archived", 0);
+			    		i.putExtra("status", status);
+		    		}
+		    		startActivity(i);
+		    		break;
+		    	case 1:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	prompt.setText("Invite " + selected_user.nick + " to a channel");
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.invite(cid, input.getText().toString(), selected_user.nick);
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		    		dialog.show();
+		    		break;
+		    	case 2:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	input.setText("*!"+selected_user.hostmask);
+		        	prompt.setText("Ignore messages for " + selected_user.nick + " at this hostmask");
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.ignore(cid, input.getText().toString());
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		    		dialog.show();
+		    		break;
+		    	case 3:
+		    		if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
+		    			conn.mode(cid, name, "-o " + selected_user.nick);
+		    		else
+		    			conn.mode(cid, name, "+o " + selected_user.nick);
+		    		break;
+		    	case 4:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	prompt.setText("Give a reason for kicking");
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Kick", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.kick(cid, name, selected_user.nick, input.getText().toString());
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		    		dialog.show();
+		    		break;
+		    	case 5:
+		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	prompt = (TextView)view.findViewById(R.id.prompt);
+		        	input = (EditText)view.findViewById(R.id.textInput);
+		        	input.setText("*!"+selected_user.hostmask);
+		        	prompt.setText("Add a banmask for " + selected_user.nick);
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+		    		builder.setView(view);
+		    		builder.setPositiveButton("Ban", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							conn.mode(cid, name, "+b " + input.getText().toString());
+							dialog.dismiss();
+						}
+		    		});
+		    		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		    		dialog.show();
+		    		break;
+		    	}
+		    	dialogInterface.dismiss();
+		    }
+		});
+		
+		AlertDialog dialog = builder.create();
+		dialog.setOwnerActivity(this);
 		dialog.show();
     }
 }
