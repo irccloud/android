@@ -48,7 +48,6 @@
         android:layout_width="280dp"
         android:layout_height="match_parent"
         android:layout_gravity="right"
-        android:visibility="gone"
         tools:layout="@layout/userslist" />
 
 </FrameLayout>
