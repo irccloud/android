@@ -59,6 +59,7 @@
    			        android:id="@+id/addBtn"
    			        android:layout_width="48dp"
    			        android:layout_height="48dp"
+   			        android:layout_marginRight="16dp"
    			        android:layout_weight="0"
    			        android:background="@drawable/add" />
 
