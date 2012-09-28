@@ -46,9 +46,11 @@ public class MessageViewFragment extends SherlockFragment {
 	private final Semaphore webviewLock = new Semaphore(1);
 	
 	public class JavaScriptInterface {
+		public boolean loadingMoreBacklog = false;
 		public TreeMap<Long,IRCCloudJSONObject> incomingBacklog;
 		
 		public void requestBacklog() {
+			loadingMoreBacklog = true;
 			BaseActivity a = (BaseActivity) getActivity();
 			a.setSupportProgressBarIndeterminate(true);
 			conn.request_backlog(cid, bid, earliest_eid);
@@ -90,7 +92,15 @@ public class MessageViewFragment extends SherlockFragment {
 	    }
 	    
 	    public void backlogComplete() {
-	    	if(firstScroll) {
+	    	if(loadingMoreBacklog) {
+    			mHandler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+		    			webView.loadUrl("javascript:scrollToBacklogBottom()");
+					}
+    			}, 100);
+	    		loadingMoreBacklog = false;
+	    	} else if(firstScroll) {
     			mHandler.postDelayed(new Runnable() {
 					@Override
 					public void run() {

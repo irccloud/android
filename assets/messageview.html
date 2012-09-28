@@ -241,6 +241,9 @@ function updateNewMsgBar(delta) {
 window.onscroll = updateNewMsgBar;
 var shouldScroll = true;
 
+var topBacklogElement;
+var topBacklogOffset = 0;
+
 function scrollToBottom(delta) {
 	if(typeof delta != "number")
 		delta = 0;
@@ -252,8 +255,31 @@ function scrollToBottom(delta) {
 	scrollTimer = null;
 }
 
+function scrollToBacklogBottom() {
+    var _y = 0;
+    var el = document.getElementById(topBacklogElement);
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+        _y += el.offsetTop - el.scrollTop;
+        el = el.offsetParent;
+    }
+    window.scrollTo(0, _y - topBacklogOffset);
+    topBacklogOffset = 0;
+}
+
 function fetchBacklog() {
 	document.getElementById("backlogBtn").style.disabled = true;
+	var messages = document.getElementById("messages");
+	for(var i = 1; i < messages.childNodes.length; i++) {
+		if(messages.childNodes[i].style.display != "none") {
+			topBacklogElement = messages.childNodes[i].id;
+			break;
+		}
+	}
+    var el = document.getElementById(topBacklogElement);
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+        topBacklogOffset += el.offsetTop - el.scrollTop;
+        el = el.offsetParent;
+    }
 	Android.requestBacklog();
 }
 
@@ -272,6 +298,18 @@ function appendBacklog() {
 		appendEvent(backlog[j], false);
 	}
 	
+	if(topBacklogOffset > 0) {
+		var messages = document.getElementById("messages");
+		if(document.getElementById("backlogGapIndicator") != null)
+			messages.removeChild(document.getElementById("backlogGapIndicator"));
+	    var el = document.getElementById(topBacklogElement).previousSibling;
+	    while(typeof el.id != "string" || el.style.display == "none")
+	    	el = el.previousSibling;
+		var m = document.createElement("hr");
+		m.id = "backlogGapIndicator";
+		messages.insertBefore(m, el.nextSibling);
+	}
+
 	elapsed = new Date().getTime() - start;
 	Android.log("Backlog rendering took " + elapsed + "ms");
 	Android.backlogComplete();
@@ -514,7 +552,9 @@ function appendEvent(msg,isBacklog) {
 
 	if(typeof scrollTimer != "null")
 		window.clearTimeout(scrollTimer);
-	scrollTimer = window.setTimeout(scrollToBottom,100);
+
+	if(topBacklogOffset == 0)
+		scrollTimer = window.setTimeout(scrollToBottom,100);
 	
 }
 </script>
