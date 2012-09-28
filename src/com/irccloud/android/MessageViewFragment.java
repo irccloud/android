@@ -282,6 +282,8 @@ public class MessageViewFragment extends SherlockFragment {
     			earliest_eid = events.firstKey();
     			if(events.firstKey() > min_eid)
     		    	webView.loadUrl("javascript:showBacklogBtn()");
+    			else
+    		    	webView.loadUrl("javascript:hideBacklogBtn()");
     			jsInterface.incomingBacklog = events;
 		    	webView.loadUrl("javascript:appendBacklog()");
 		    	if(events.size() > 0)

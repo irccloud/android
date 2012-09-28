@@ -195,21 +195,26 @@ var newMsgsTime = 0;
 var newMsgsTimer = null;
 var prefs = null;
 var ignores = null;
+var backlogLoading = true;
+var shouldScroll = true;
+var topBacklogElement;
+var topBacklogOffset = 0;
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
-	document.getElementById("backlogBtn").style.disabled = false;
 }
 
 function showBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "block";
-	document.getElementById("backlogBtn").style.disabled = false;
 }
 
 function updateNewMsgBar(delta) {
 	if(typeof delta != "number")
 		delta = 0;
 	var newmsgbar = document.getElementById("newmsgbar");
+	if(window.pageYOffset < 10 && !backlogLoading && scrollTimer == null && document.getElementById("backlogBtn").style.display == "block") {
+		fetchBacklog();
+	}
 	if(newMsgs == 0 || (document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20)) {
 		document.getElementById("newmsgbar").style.visibility = "hidden";
 		newmsgbar.innerHTML = "";
@@ -239,12 +244,9 @@ function updateNewMsgBar(delta) {
 }
 
 window.onscroll = updateNewMsgBar;
-var shouldScroll = true;
-
-var topBacklogElement;
-var topBacklogOffset = 0;
 
 function scrollToBottom(delta) {
+	scrollTimer = "ignoreme"; //Don't fetch more backlog if we're scrolling
 	if(typeof delta != "number")
 		delta = 0;
 	if(shouldScroll || document.body.scrollHeight - delta - (window.pageYOffset + window.innerHeight) < 20) {
@@ -256,6 +258,9 @@ function scrollToBottom(delta) {
 }
 
 function scrollToBacklogBottom() {
+	if(typeof scrollTimer != "null")
+		window.clearTimeout(scrollTimer);
+	scrollTimer = "ignoreme"; //Don't fetch more backlog if we're scrolling
     var _y = 0;
     var el = document.getElementById(topBacklogElement);
     while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
@@ -264,9 +269,11 @@ function scrollToBacklogBottom() {
     }
     window.scrollTo(0, _y - topBacklogOffset);
     topBacklogOffset = 0;
+    scrollTimer = null;
 }
 
 function fetchBacklog() {
+	backlogLoading = true;
 	document.getElementById("backlogBtn").style.disabled = true;
 	var messages = document.getElementById("messages");
 	for(var i = 1; i < messages.childNodes.length; i++) {
@@ -305,15 +312,18 @@ function appendBacklog() {
 	    var el = document.getElementById(topBacklogElement).previousSibling;
 	    while(typeof el.id != "string" || el.style.display == "none")
 	    	el = el.previousSibling;
-		var m = document.createElement("hr");
-		m.id = "backlogGapIndicator";
-		messages.insertBefore(m, el.nextSibling);
+	    if(el.previousSibling != null) {
+			var m = document.createElement("hr");
+			m.id = "backlogGapIndicator";
+			messages.insertBefore(m, el.nextSibling);
+		}
 	}
 
 	elapsed = new Date().getTime() - start;
 	Android.log("Backlog rendering took " + elapsed + "ms");
 	Android.backlogComplete();
 	newMsgs = 0;
+	backlogLoading = false;
 }
 
 function appendEvent(msg,isBacklog) {
@@ -560,7 +570,7 @@ function appendEvent(msg,isBacklog) {
 </script>
 </head>
 <body>
-<input type="button" id="backlogBtn" value="Fetch More History" onClick="fetchBacklog()" />
+<div id="backlogBtn" style="display: block;">== (animated loading gif me!) ==</div>
 <div id="messages"></div>
 <div id="newmsgbar" onClick="window.scrollTo(0, document.body.scrollHeight)"></div>
 </body>
