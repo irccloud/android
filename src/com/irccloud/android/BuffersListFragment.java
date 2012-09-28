@@ -10,24 +10,19 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -271,39 +266,10 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.addBtn.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						final BufferListEntry e = (BufferListEntry)v.getTag();
-			    		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			    		LayoutInflater inflater = getActivity().getLayoutInflater();
-			        	View view = inflater.inflate(R.layout.dialog_textprompt,null);
-			        	TextView prompt = (TextView)view.findViewById(R.id.prompt);
-			        	final EditText input = (EditText)view.findViewById(R.id.textInput);
-			        	prompt.setText("Which channel would you like to join?");
-			        	builder.setTitle(e.name);
-			    		builder.setView(view);
-			    		builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								String[] splitchannels = input.getText().toString().split(",");
-								for(int i = 0; i < splitchannels.length; i++) {
-									String[] channelandkey = splitchannels[i].split(" ");
-									if(channelandkey.length > 1)
-										NetworkConnection.getInstance().join(e.cid, channelandkey[0].trim(), channelandkey[1]);
-									else
-										NetworkConnection.getInstance().join(e.cid, channelandkey[0].trim(), "");
-								}
-								dialog.dismiss();
-							}
-			    		});
-			    		builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-							}
-			    		});
-			    		AlertDialog dialog = builder.create();
-			    		dialog.setOwnerActivity(getActivity());
-			    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			    		dialog.show();
+						BufferListEntry e = (BufferListEntry)v.getTag();
+			        	AddChannelFragment newFragment = new AddChannelFragment();
+			        	newFragment.setDefaultCid(e.cid);
+			            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
 					}
 				});
 			}
