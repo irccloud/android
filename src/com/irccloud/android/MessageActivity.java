@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.NavUtils;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -235,6 +236,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					archived = 0;
 					invalidateOptionsMenu();
 				}
+				break;
+			case NetworkConnection.EVENT_CONNECTIONDELETED:
+			case NetworkConnection.EVENT_DELETEBUFFER:
+				Integer id = (Integer)msg.obj;
+				if(id == ((msg.what==NetworkConnection.EVENT_CONNECTIONDELETED)?cid:bid)) {
+	                Intent parentActivityIntent = new Intent(MessageActivity.this, MainActivity.class);
+	                parentActivityIntent.addFlags(
+	                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+	                        Intent.FLAG_ACTIVITY_NEW_TASK);
+	                startActivity(parentActivityIntent);
+	                finish();
+				}
+				break;
 			default:
 				break;
 			}
@@ -327,6 +341,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	AlertDialog dialog;
     	
         switch (item.getItemId()) {
+	        case android.R.id.home:
+	        	Intent upIntent = new Intent(this, MainActivity.class);
+	        	NavUtils.navigateUpTo(this, upIntent);
+	            return true;
             case R.id.menu_userlist:
             	if(userListView.getVisibility() == View.INVISIBLE) {
             		userListView.setVisibility(View.VISIBLE);
