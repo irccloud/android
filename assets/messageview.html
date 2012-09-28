@@ -544,7 +544,7 @@ function appendEvent(msg,isBacklog) {
 	if(min_eid == 0 || min_eid > msg.eid)
 		min_eid = msg.eid;
 
-	if(!isBacklog)
+	if(!isBacklog && m.style.display != "none")
 		newMsgs++;
 
 	if(newMsgs == 1)
