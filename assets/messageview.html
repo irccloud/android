@@ -199,6 +199,7 @@ var backlogLoading = true;
 var shouldScroll = true;
 var topBacklogElement;
 var topBacklogOffset = 0;
+var messages = document.getElementById("messages");
 
 function hideBacklogBtn() {
 	document.getElementById("backlogBtn").style.display = "none";
@@ -275,7 +276,6 @@ function scrollToBacklogBottom() {
 function fetchBacklog() {
 	backlogLoading = true;
 	document.getElementById("backlogBtn").style.disabled = true;
-	var messages = document.getElementById("messages");
 	for(var i = 1; i < messages.childNodes.length; i++) {
 		if(messages.childNodes[i].style.display != "none") {
 			topBacklogElement = messages.childNodes[i].id;
@@ -300,13 +300,19 @@ function appendBacklog() {
 	Android.log("Backlog JSON parsing took " + elapsed + "ms");
 	
 	start = new Date().getTime();
+
+	var fragment = document.createDocumentFragment();
+	messages = fragment;
+	max_eid = 0;
 	
 	for(var j=0; j<backlog.length; j++) {
 		appendEvent(backlog[j], false);
 	}
 	
+	messages = document.getElementById("messages");
+	messages.innerHTML = '';
+	messages.appendChild(fragment);
 	if(topBacklogOffset > 0) {
-		var messages = document.getElementById("messages");
 		if(document.getElementById("backlogGapIndicator") != null)
 			messages.removeChild(document.getElementById("backlogGapIndicator"));
 	    var el = document.getElementById(topBacklogElement).previousSibling;
@@ -330,7 +336,6 @@ function appendBacklog() {
 function appendEvent(msg,isBacklog) {
 	bid = Android.getBid();
 	var dateline = null;
-	var messages = document.getElementById("messages");
 	var m = document.createElement("div");
 
 	if(typeof msg.value == "number") {
