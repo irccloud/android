@@ -93,12 +93,6 @@ public class MessageViewFragment extends SherlockFragment {
 	    
 	    public void backlogComplete() {
 	    	if(loadingMoreBacklog) {
-    			mHandler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-		    			webView.loadUrl("javascript:scrollToBacklogBottom()");
-					}
-    			}, 100);
 	    		loadingMoreBacklog = false;
 	    	} else if(firstScroll) {
     			mHandler.postDelayed(new Runnable() {

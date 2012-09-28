@@ -317,6 +317,7 @@ function appendBacklog() {
 			m.id = "backlogGapIndicator";
 			messages.insertBefore(m, el.nextSibling);
 		}
+		scrollToBacklogBottom();
 	}
 
 	elapsed = new Date().getTime() - start;
