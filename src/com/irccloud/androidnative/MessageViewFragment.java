@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -35,6 +34,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private TextView awayView;
 	private TextView statusView;
 	private View headerView;
+	private TextView unreadView;
 	private int cid;
 	private int bid;
 	private long last_seen_eid;
@@ -45,6 +45,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	private boolean firstScroll = true;
 	private boolean requestingBacklog = false;
 	private float avgInsertTime = 0;
+	private int newMsgs = 0;
+	private long newMsgTime = 0;
 	
 	private static final int TYPE_TIMESTAMP = 0;
 	private static final int TYPE_MESSAGE = 1;
@@ -264,6 +266,15 @@ public class MessageViewFragment extends SherlockListFragment {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
     	awayView = (TextView)v.findViewById(R.id.topicView);
     	statusView = (TextView)v.findViewById(R.id.statusView);
+    	unreadView = (TextView)v.findViewById(R.id.unread);
+    	unreadView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				getListView().setSelection(adapter.getCount() - 1);
+			}
+    		
+    	});
     	((ListView)v.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -271,6 +282,17 @@ public class MessageViewFragment extends SherlockListFragment {
 					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE) {
 						requestingBacklog = true;
 						conn.request_backlog(cid, bid, earliest_eid);
+					}
+				}
+				if(unreadView != null) {
+					if(firstVisibleItem + visibleItemCount == totalItemCount) {
+						unreadView.setVisibility(View.GONE);
+						if(newMsgs > 0) {
+							Long e = adapter.data.get(adapter.data.size() - 1).eid;
+							new HeartbeatTask().execute(e);
+						}
+						newMsgs = 0;
+						newMsgTime = 0;
 					}
 				}
 			}
@@ -448,7 +470,13 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	avgInsertTime += time;
 	    	avgInsertTime /= 2.0;
 	    	//Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-		} catch (JSONException e) {
+	    	if(getListView().getLastVisiblePosition() < (adapter.getCount() - 1)) {
+	    		if(newMsgTime == 0)
+	    			newMsgTime = System.currentTimeMillis();
+	    		newMsgs++;
+	    		update_unread();
+	    	}
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -483,16 +511,16 @@ public class MessageViewFragment extends SherlockListFragment {
     	}
     }
     
-    private class HeartbeatTask extends AsyncTask<IRCCloudJSONObject, Void, Void> {
+    private class HeartbeatTask extends AsyncTask<Long, Void, Void> {
 
 		@Override
-		protected Void doInBackground(IRCCloudJSONObject... params) {
-			IRCCloudJSONObject e = params[0];
+		protected Void doInBackground(Long... params) {
+			Long eid = params[0];
 			
-	    	if(e.eid() > last_seen_eid) {
-	    		getActivity().getIntent().putExtra("last_seen_eid", e.eid());
-	    		NetworkConnection.getInstance().heartbeat(bid, e.cid(), e.bid(), e.eid());
-	    		last_seen_eid = e.eid();
+	    	if(eid > last_seen_eid) {
+	    		getActivity().getIntent().putExtra("last_seen_eid", eid);
+	    		NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
+	    		last_seen_eid = eid;
 	    	}
 			return null;
 		}
@@ -554,7 +582,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		}
 	    		adapter.notifyDataSetChanged();
 	    		Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
-	    		new HeartbeatTask().execute(events.get(events.lastKey()));
+	    		new HeartbeatTask().execute(events.get(events.lastKey()).eid());
 	    		avgInsertTime = 0;
 	    	}
 		}
@@ -575,6 +603,40 @@ public class MessageViewFragment extends SherlockListFragment {
 			update_status(server.status, new JSONObject(server.fail_info));
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private class UnreadRefreshRunnable implements Runnable {
+		@Override
+		public void run() {
+			update_unread();
+		}
+	}
+	
+	UnreadRefreshRunnable unreadRefreshRunnable = null;
+
+	private void update_unread() {
+		if(unreadRefreshRunnable != null) {
+			mHandler.removeCallbacks(unreadRefreshRunnable);
+			unreadRefreshRunnable = null;
+		}
+		
+		if(newMsgs > 0) {
+			int minutes = (int)((System.currentTimeMillis() - newMsgTime)/60000);
+			
+			if(minutes < 1)
+				unreadView.setText("Less than a minute of chatter (");
+			else if(minutes == 1)
+				unreadView.setText("1 minute of chatter (");
+			else
+				unreadView.setText(minutes + " minutes of chatter (");
+			if(newMsgs == 1)
+				unreadView.setText(unreadView.getText() + "1 message)");
+			else
+				unreadView.setText(unreadView.getText() + (newMsgs + " messages)"));
+			unreadView.setVisibility(View.VISIBLE);
+			unreadRefreshRunnable = new UnreadRefreshRunnable();
+			mHandler.postDelayed(unreadRefreshRunnable, 10000);
 		}
 	}
 	
@@ -750,7 +812,8 @@ public class MessageViewFragment extends SherlockListFragment {
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.bid() == bid) {
 					insertEvent(e, false);
-					new HeartbeatTask().execute(e);
+					if(getListView().getLastVisiblePosition() == (adapter.getCount() - 1))
+						new HeartbeatTask().execute(e.eid());
 				}
 				break;
 			default:
