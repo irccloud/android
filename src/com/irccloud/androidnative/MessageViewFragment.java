@@ -92,6 +92,13 @@ public class MessageViewFragment extends SherlockListFragment {
 			MessageEntry e = new MessageEntry();
 			e.type = TYPE_BACKLOGMARKER;
 			e.bg_color = R.color.message_bg;
+			for(int i = 0; i < data.size(); i++) {
+				if(data.get(i).type == TYPE_BACKLOGMARKER) {
+					data.remove(i);
+				}
+			}
+			if(position > 0 && data.get(position - 1).type == TYPE_TIMESTAMP)
+				position--;
 			data.add(position, e);
 		}
 		
@@ -511,20 +518,26 @@ public class MessageViewFragment extends SherlockListFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
-			int oldSize = adapter.data.size();
-			int oldPosition = getListView().getFirstVisiblePosition();
-			refresh(events, server, buffer, user);
-			adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
-			adapter.notifyDataSetChanged();
-			getListView().setSelection(oldPosition + (adapter.data.size() - oldSize) - 1);
+			if(events != null && events.size() > 0) {
+				int oldSize = adapter.data.size();
+				int oldPosition = getListView().getFirstVisiblePosition();
+				refresh(events, server, buffer, user);
+				if(oldSize > 1) {
+					adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
+					adapter.notifyDataSetChanged();
+					getListView().setSelection(oldPosition + (adapter.data.size() - oldSize) - 1);
+				}
+			}
 			requestingBacklog = false;
 		}
 	}
 
 	private void refresh(TreeMap<Long,IRCCloudJSONObject> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer, UsersDataSource.User user) {
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
-			if(bid != -1)
+			if(bid != -1) {
+				requestingBacklog = true;
 				conn.request_backlog(cid, bid, 0);
+			}
 		} else if(events.size() > 0){
 			earliest_eid = events.firstKey();
 			if(events.firstKey() > min_eid) {
