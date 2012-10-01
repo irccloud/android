@@ -470,7 +470,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	avgInsertTime += time;
 	    	avgInsertTime /= 2.0;
 	    	//Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-	    	if(getListView().getLastVisiblePosition() < (adapter.getCount() - 1)) {
+	    	if(!backlog && getListView().getLastVisiblePosition() < (adapter.getCount() - 1)) {
 	    		if(newMsgTime == 0)
 	    			newMsgTime = System.currentTimeMillis();
 	    		newMsgs++;
