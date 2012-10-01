@@ -233,7 +233,8 @@ public class MessageViewFragment extends SherlockFragment {
 			IRCCloudJSONObject e = params[0];
 			
 	    	if(e.eid() > last_seen_eid) {
-	    		getActivity().getIntent().putExtra("last_seen_eid", e.eid());
+	    		if(getActivity() != null && getActivity().getIntent() != null)
+	    			getActivity().getIntent().putExtra("last_seen_eid", e.eid());
 	    		NetworkConnection.getInstance().heartbeat(bid, e.cid(), e.bid(), e.eid());
 	    		last_seen_eid = e.eid();
 	    	}
