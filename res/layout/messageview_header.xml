@@ -2,15 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/historyBtn"
-        android:layout_width="match_parent"
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fetch More History"
-        android:visibility="gone" >
-
-    </Button>
+        android:padding="4dp" />
 
 </LinearLayout>

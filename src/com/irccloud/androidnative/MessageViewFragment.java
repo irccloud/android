@@ -21,8 +21,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -31,7 +34,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
 	private TextView awayView;
 	private TextView statusView;
-	private Button historyBtn;
+	private View headerView;
 	private int cid;
 	private int bid;
 	private long last_seen_eid;
@@ -40,10 +43,12 @@ public class MessageViewFragment extends SherlockListFragment {
 	private String name;
 	private String type;
 	private boolean firstScroll = true;
+	private boolean requestingBacklog = false;
 	private float avgInsertTime = 0;
 	
 	private static final int TYPE_TIMESTAMP = 0;
 	private static final int TYPE_MESSAGE = 1;
+	private static final int TYPE_BACKLOGMARKER = 2;
 	
 	private MessageAdapter adapter;
 	
@@ -81,6 +86,13 @@ public class MessageViewFragment extends SherlockListFragment {
 					return;
 				}
 			}
+		}
+
+		public void insertBacklogMarker(int position) {
+			MessageEntry e = new MessageEntry();
+			e.type = TYPE_BACKLOGMARKER;
+			e.bg_color = R.color.message_bg;
+			data.add(position, e);
 		}
 		
 		public void addItem(int type, long eid, String text, int color, int bg_color) {
@@ -212,7 +224,9 @@ public class MessageViewFragment extends SherlockListFragment {
 			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				if(e.type == TYPE_TIMESTAMP)
+				if(e.type == TYPE_BACKLOGMARKER)
+					row = inflater.inflate(R.layout.row_backlogmarker, null);
+				else if(e.type == TYPE_TIMESTAMP)
 					row = inflater.inflate(R.layout.row_timestamp, null);
 				else
 					row = inflater.inflate(R.layout.row_message, null);
@@ -227,7 +241,8 @@ public class MessageViewFragment extends SherlockListFragment {
 				holder = (ViewHolder) row.getTag();
 			}
 
-			holder.timestamp.setText(e.timestamp);
+			if(holder.timestamp != null)
+				holder.timestamp.setText(e.timestamp);
 			if(holder.message != null) {
 				holder.message.setText(Html.fromHtml(e.text));
 				holder.message.setTextColor(getResources().getColorStateList(e.color));
@@ -242,6 +257,22 @@ public class MessageViewFragment extends SherlockListFragment {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
     	awayView = (TextView)v.findViewById(R.id.topicView);
     	statusView = (TextView)v.findViewById(R.id.statusView);
+    	((ListView)v.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				if(headerView != null) {
+					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE) {
+						requestingBacklog = true;
+						conn.request_backlog(cid, bid, earliest_eid);
+					}
+				}
+			}
+
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+			}
+    		
+    	});
     	return v;
     }
 	
@@ -290,7 +321,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		try {
     		long start = System.currentTimeMillis();
 	    	if(event.eid() == min_eid)
-	    		historyBtn.setVisibility(View.GONE);
+	    		headerView.setVisibility(View.GONE);
 	    	if(event.eid() < earliest_eid)
 	    		earliest_eid = event.eid();
 	    	
@@ -351,21 +382,26 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
 	    		from = "-&gt; " + event.getString("nick");
 	    		msg = "joined (" + event.getString("hostmask") + ")";
+	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
 	    		from = "&lt;- " + event.getString("nick");
 	    		msg = "left (" + event.getString("hostmask") + ")";
+	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
 	    		from = "&lt;- " + event.getString("nick");
 	    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
+	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
 	    		from = event.getString("oldnick");
 	    		msg = "-&gt; " + event.getString("newnick");
+	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("quit_server")) {
 	    		from = "&lt;= " + event.getString("nick");
 	    		if(event.has("hostmask"))
 	    			msg = "quit (" + event.getString("hostmask") + ") " + event.getString("msg");
 	    		else
 	    			msg = "quit: " + event.getString("msg");
+	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("user_channel_mode")) {
 	    		from = "+++ " + event.getString("from");
 	    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
@@ -420,17 +456,10 @@ public class MessageViewFragment extends SherlockListFragment {
     			bid = b.bid;
     		}
     	}
-    	View headerView = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
-    	historyBtn = (Button)headerView.findViewById(R.id.historyBtn);
-    	historyBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				historyBtn.setEnabled(false);
-				conn.request_backlog(cid, bid, earliest_eid);
-			}
-    	});
+    	headerView = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
     	if(getListView().getHeaderViewsCount() == 0)
     		getListView().addHeaderView(headerView);
+    	headerView = headerView.findViewById(R.id.progress);
     	adapter = new MessageAdapter(this);
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
@@ -482,7 +511,13 @@ public class MessageViewFragment extends SherlockListFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
+			int oldSize = adapter.data.size();
+			int oldPosition = getListView().getFirstVisiblePosition();
 			refresh(events, server, buffer, user);
+			adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
+			adapter.notifyDataSetChanged();
+			getListView().setSelection(oldPosition + (adapter.data.size() - oldSize) - 1);
+			requestingBacklog = false;
 		}
 	}
 
@@ -493,10 +528,9 @@ public class MessageViewFragment extends SherlockListFragment {
 		} else if(events.size() > 0){
 			earliest_eid = events.firstKey();
 			if(events.firstKey() > min_eid) {
-	    		historyBtn.setVisibility(View.VISIBLE);
-	    		historyBtn.setEnabled(true);
+	    		headerView.setVisibility(View.VISIBLE);
 			} else {
-	    		historyBtn.setVisibility(View.GONE);
+	    		headerView.setVisibility(View.GONE);
 			}
 	    	if(events.size() > 0) {
 	    		avgInsertTime = 0;
@@ -510,7 +544,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		new HeartbeatTask().execute(events.get(events.lastKey()));
 	    		avgInsertTime = 0;
 	    	}
-    		historyBtn.setEnabled(true);
 		}
     	if(type.equalsIgnoreCase("conversation") && buffer != null && buffer.away_msg != null && buffer.away_msg.length() > 0) {
     		awayView.setVisibility(View.VISIBLE);
