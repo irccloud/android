@@ -59,9 +59,9 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.menu_add:
-        	AddChannelFragment newFragment = new AddChannelFragment();
-            newFragment.show(getSupportFragmentManager(), "dialog");
+        case R.id.menu_add_network:
+            Intent intent = new Intent(this, EditConnectionActivity.class);
+            startActivity(intent);
             break;
         }
         return super.onOptionsItemSelected(item);

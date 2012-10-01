@@ -1,23 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/background_blue"
-    android:orientation="vertical" >
+    tools:context=".BuffersListFragment" >
 
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:descendantFocusability="blocksDescendants"
         android:divider="#00000000"
         android:dividerHeight="1dip"
-        android:visibility="gone" />
+        android:fastScrollEnabled="true"/>
 
+    <LinearLayout
+        android:id="@+id/topUnreadIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="48dip"
+        android:layout_alignParentTop="true"
+        android:visibility="gone">
+	    <LinearLayout
+	        android:id="@+id/topUnreadIndicatorColor"
+	        android:layout_width="match_parent"
+	        android:layout_height="12dip"
+	        android:background="@color/dark_blue"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bottomUnreadIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="48dip"
+        android:layout_alignParentBottom="true"
+        android:gravity="bottom"
+        android:visibility="gone" >
+
+	    <LinearLayout
+	        android:id="@+id/bottomUnreadIndicatorColor"
+	        android:layout_width="match_parent"
+	        android:layout_height="12dip"
+	        android:background="@color/dark_blue"/>
+    </LinearLayout>
+    
     <RelativeLayout
         android:id="@+id/connecting"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:layout_height="fill_parent" 
+        android:visibility="visible">
 
         <ProgressBar
             android:id="@+id/progressBar1"
@@ -38,7 +68,6 @@
             android:padding="4dp"
             android:text="Connecting"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

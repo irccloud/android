@@ -19,6 +19,7 @@ public class AddChannelFragment extends DialogFragment {
     ArrayList<ServersDataSource.Server> servers;
     Spinner spinner;
     TextView channels;
+    int defaultCid = -1;
 	
     class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
@@ -35,18 +36,27 @@ public class AddChannelFragment extends DialogFragment {
 			dismiss();
 		}
     }
+
+    public void setDefaultCid(int cid) {
+    	defaultCid = cid;
+    }
     
     @Override
     public void onResume() {
+    	int pos = 0;
     	super.onResume();
     	servers = ServersDataSource.getInstance().getServers();
     	
     	ArrayList<String> servernames = new ArrayList<String>();
-    	for(int i = 0; i < servers.size(); i++)
+    	for(int i = 0; i < servers.size(); i++) {
     		servernames.add(servers.get(i).name);
+    		if(servers.get(i).cid == defaultCid)
+    			pos = i;
+    	}
     	ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, android.R.id.text1, servernames.toArray(new String[servernames.size()]));
     	adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	spinner.setAdapter(adapter);
+    	spinner.setSelection(pos);
     }
     
     @Override

@@ -8,6 +8,7 @@ import java.util.TimerTask;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -17,8 +18,12 @@ import android.os.Message;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -39,9 +44,19 @@ public class BuffersListFragment extends SherlockListFragment {
 	OnBufferSelectedListener mListener;
 	View view;
 	TextView errorMsg;
-	RelativeLayout connecting;
+	ListView listView = null;
+	RelativeLayout connecting = null;
+	LinearLayout topUnreadIndicator = null;
+	LinearLayout topUnreadIndicatorColor = null;
+	LinearLayout bottomUnreadIndicator = null;
+	LinearLayout bottomUnreadIndicatorColor = null;
 	String error = null;
 	private Timer countdownTimer = null;
+	
+	int firstUnreadPosition = -1;
+	int lastUnreadPosition= -1;
+	int firstHighlightPosition = -1;
+	int lastHighlightPosition= -1;
 	
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
@@ -75,6 +90,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			LinearLayout bufferbg;
 			ImageView key;
 			ProgressBar progress;
+			ImageButton addBtn;
 		}
 
 		public void showProgress(int row) {
@@ -89,6 +105,24 @@ public class BuffersListFragment extends SherlockListFragment {
 		
 		public void setItems(ArrayList<BufferListEntry> items) {
 			data = items;
+		}
+		
+		int unreadPositionAbove(int pos) {
+			for(int i = pos-1; i >= 0; i--) {
+				BufferListEntry e = data.get(i);
+				if(e.unread > 0)
+					return i;
+			}
+			return 0;
+		}
+		
+		int unreadPositionBelow(int pos) {
+			for(int i = pos; i < data.size(); i++) {
+				BufferListEntry e = data.get(i);
+				if(e.unread > 0)
+					return i;
+			}
+			return data.size() - 1;
 		}
 		
 		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status) {
@@ -149,6 +183,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
 				holder.key = (ImageView) row.findViewById(R.id.key);
 				holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
+				holder.addBtn = (ImageButton) row.findViewById(R.id.addBtn);
 				holder.type = e.type;
 
 				row.setTag(holder);
@@ -177,14 +212,20 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
 				holder.unread.setBackgroundDrawable(null);
+				if(holder.bufferbg != null)
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			} else if(e.unread > 0) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
+				if(holder.bufferbg != null)
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			} else {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
 				holder.unread.setBackgroundDrawable(null);
+				if(holder.bufferbg != null)
+					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			}
 
 			if(conn.getState() != NetworkConnection.STATE_CONNECTED)
@@ -227,6 +268,19 @@ public class BuffersListFragment extends SherlockListFragment {
 				}
 			}
 			
+			if(holder.addBtn != null) {
+				holder.addBtn.setTag(e);
+				holder.addBtn.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						BufferListEntry e = (BufferListEntry)v.getTag();
+			        	AddChannelFragment newFragment = new AddChannelFragment();
+			        	newFragment.setDefaultCid(e.cid);
+			            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+					}
+				});
+			}
+			
 			return row;
 		}
 	}
@@ -241,6 +295,12 @@ public class BuffersListFragment extends SherlockListFragment {
 				adapter = new BufferListAdapter(BuffersListFragment.this);
 			}
 
+			firstUnreadPosition = -1;
+			lastUnreadPosition = -1;
+			firstHighlightPosition = -1;
+			lastHighlightPosition = -1;
+			int position = 0;
+			
 			for(int i = 0; i < servers.size(); i++) {
 				ServersDataSource.Server s = servers.get(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
@@ -252,6 +312,15 @@ public class BuffersListFragment extends SherlockListFragment {
 						if(s.name.length() == 0)
 							s.name = s.hostname;
 						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status));
+						if(unread > 0 && firstUnreadPosition == -1)
+							firstUnreadPosition = position;
+						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+							lastUnreadPosition = position;
+						if(highlights > 0 && firstHighlightPosition == -1)
+							firstHighlightPosition = position;
+						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+							lastHighlightPosition = position;
+						position++;
 						break;
 					}
 				}
@@ -284,9 +353,19 @@ public class BuffersListFragment extends SherlockListFragment {
 							}
 						}
 						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
+						if(unread > 0 && firstUnreadPosition == -1)
+							firstUnreadPosition = position;
+						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+							lastUnreadPosition = position;
+						if(highlights > 0 && firstHighlightPosition == -1)
+							firstHighlightPosition = position;
+						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+							lastHighlightPosition = position;
+						position++;
 					}
 				}
 				entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status));
+				position++;
 				if(mExpandArchives.get(s.cid, false)) {
 					for(int j = 0; j < buffers.size(); j++) {
 						BuffersDataSource.Buffer b = buffers.get(j);
@@ -297,8 +376,10 @@ public class BuffersListFragment extends SherlockListFragment {
 							else if(b.type.equalsIgnoreCase("conversation"))
 								type = TYPE_CONVERSATION;
 							
-							if(type > 0)
+							if(type > 0) {
 								entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status));
+								position++;
+							}
 						}
 					}
 				}
@@ -315,9 +396,42 @@ public class BuffersListFragment extends SherlockListFragment {
 			else
 				adapter.notifyDataSetChanged();
 			
-			if(entries.size() > 0) {
-				getListView().setVisibility(View.VISIBLE);
+			if(entries.size() > 0 && connecting != null) {
 				connecting.setVisibility(View.GONE);
+			}
+			
+			if(listView != null)
+				updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
+			else //The activity view isn't ready yet, try again
+				new RefreshTask().execute((Void)null);
+		}
+	}
+
+	private void updateUnreadIndicators(int first, int last) {
+		if(topUnreadIndicator != null) {
+			if(firstUnreadPosition != -1 && first >= firstUnreadPosition) {
+				topUnreadIndicator.setVisibility(View.VISIBLE);
+				topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+			} else {
+				topUnreadIndicator.setVisibility(View.GONE);
+			}
+			if((lastHighlightPosition != -1 && first >= lastHighlightPosition) ||
+					(firstHighlightPosition != -1 && first >= firstHighlightPosition)) {
+				topUnreadIndicator.setVisibility(View.VISIBLE);
+				topUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
+			}
+		}
+		if(bottomUnreadIndicator != null) {
+			if(lastUnreadPosition != -1 && last <= lastUnreadPosition) {
+				bottomUnreadIndicator.setVisibility(View.VISIBLE);
+				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+			} else {
+				bottomUnreadIndicator.setVisibility(View.GONE);
+			}
+			if((firstHighlightPosition != -1 && last <= firstHighlightPosition) ||
+					(lastHighlightPosition != -1 && last <= lastHighlightPosition)) {
+				bottomUnreadIndicator.setVisibility(View.VISIBLE);
+				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
 			}
 		}
 	}
@@ -339,12 +453,56 @@ public class BuffersListFragment extends SherlockListFragment {
 		view = inflater.inflate(R.layout.bufferslist, null);
 		errorMsg = (TextView)view.findViewById(R.id.errorMsg);
 		connecting = (RelativeLayout)view.findViewById(R.id.connecting);
+		topUnreadIndicator = (LinearLayout)view.findViewById(R.id.topUnreadIndicator);
+		topUnreadIndicator.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				int scrollTo = adapter.unreadPositionAbove(getListView().getFirstVisiblePosition());
+				if(scrollTo > 0)
+					getListView().setSelection(scrollTo-1);
+				else
+					getListView().setSelection(0);
+
+				updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+			}
+			
+		});
+		topUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.topUnreadIndicatorColor);
+		bottomUnreadIndicator = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicator);
+		bottomUnreadIndicator.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				int offset = getListView().getLastVisiblePosition() - getListView().getFirstVisiblePosition();
+				int scrollTo = adapter.unreadPositionBelow(getListView().getLastVisiblePosition()) - offset + 2;
+				if(scrollTo < adapter.getCount())
+					getListView().setSelection(scrollTo);
+				else
+					getListView().setSelection(adapter.getCount() - 1);
+				
+				updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+			}
+			
+		});
+		bottomUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicatorColor);
+		listView = (ListView)view.findViewById(android.R.id.list);
+		listView.setOnScrollListener(new OnScrollListener() {
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+				updateUnreadIndicators(firstVisibleItem, firstVisibleItem+visibleItemCount-1);
+			}
+
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState) {
+			}
+		});
 		return view;
 	}
 	
     @Override
     public void onSaveInstanceState(Bundle state) {
-    	if(adapter.data.size() > 0)
+    	if(adapter != null && adapter.data != null && adapter.data.size() > 0)
     		state.putSerializable("data", adapter.data);
     }
 	
@@ -403,7 +561,7 @@ public class BuffersListFragment extends SherlockListFragment {
     	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived, e.status);
     }
     
-    private void updateReconnecting() {
+	private void updateReconnecting() {
     	if(conn.getReconnectTimestamp() > 0) {
     		String plural = "";
     		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
@@ -436,6 +594,7 @@ public class BuffersListFragment extends SherlockListFragment {
     	}
     }
     
+    @SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
