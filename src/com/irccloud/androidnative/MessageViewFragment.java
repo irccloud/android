@@ -518,7 +518,8 @@ public class MessageViewFragment extends SherlockListFragment {
 			Long eid = params[0];
 			
 	    	if(eid > last_seen_eid) {
-	    		getActivity().getIntent().putExtra("last_seen_eid", eid);
+	    		if(getActivity() != null && getActivity().getIntent() != null)
+	    			getActivity().getIntent().putExtra("last_seen_eid", eid);
 	    		NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
 	    		last_seen_eid = eid;
 	    	}
