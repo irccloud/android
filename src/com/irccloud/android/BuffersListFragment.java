@@ -44,6 +44,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	OnBufferSelectedListener mListener;
 	View view;
 	TextView errorMsg;
+	ListView listView = null;
 	RelativeLayout connecting = null;
 	LinearLayout topUnreadIndicator = null;
 	LinearLayout topUnreadIndicatorColor = null;
@@ -390,11 +391,13 @@ public class BuffersListFragment extends SherlockListFragment {
 				adapter.notifyDataSetChanged();
 			
 			if(entries.size() > 0 && connecting != null) {
-				getListView().setVisibility(View.VISIBLE);
 				connecting.setVisibility(View.GONE);
 			}
 			
-			updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+			if(listView != null)
+				updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
+			else //The activity view isn't ready yet, try again
+				new RefreshTask().execute((Void)null);
 		}
 	}
 
@@ -477,7 +480,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			
 		});
 		bottomUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicatorColor);
-		((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
+		listView = (ListView)view.findViewById(android.R.id.list);
+		listView.setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 				updateUnreadIndicators(firstVisibleItem, firstVisibleItem+visibleItemCount-1);
