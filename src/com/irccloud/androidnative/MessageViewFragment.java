@@ -554,7 +554,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(oldSize > 1) {
 					adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
 					adapter.notifyDataSetChanged();
-					getListView().setSelection(oldPosition + (adapter.data.size() - oldSize) - 1);
+					getListView().setSelectionFromTop(oldPosition + (adapter.data.size() - oldSize) + 1, headerView.getHeight());
 				}
 			}
 			requestingBacklog = false;
