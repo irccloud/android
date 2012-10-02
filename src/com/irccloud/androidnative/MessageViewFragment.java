@@ -33,6 +33,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
 	private TextView awayView;
 	private TextView statusView;
+	private View headerViewContainer;
 	private View headerView;
 	private TextView unreadView;
 	private int cid;
@@ -90,7 +91,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 		}
 
-		public void insertBacklogMarker(int position) {
+		public int insertBacklogMarker(int position) {
 			MessageEntry e = new MessageEntry();
 			e.type = TYPE_BACKLOGMARKER;
 			e.bg_color = R.color.message_bg;
@@ -102,6 +103,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(position > 0 && data.get(position - 1).type == TYPE_TIMESTAMP)
 				position--;
 			data.add(position, e);
+			return position;
 		}
 		
 		public void addItem(int type, long eid, String text, int color, int bg_color) {
@@ -491,10 +493,10 @@ public class MessageViewFragment extends SherlockListFragment {
     			bid = b.bid;
     		}
     	}
-    	headerView = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
+    	headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
     	if(getListView().getHeaderViewsCount() == 0)
-    		getListView().addHeaderView(headerView);
-    	headerView = headerView.findViewById(R.id.progress);
+    		getListView().addHeaderView(headerViewContainer);
+    	headerView = headerViewContainer.findViewById(R.id.progress);
     	adapter = new MessageAdapter(this);
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
@@ -552,9 +554,9 @@ public class MessageViewFragment extends SherlockListFragment {
 				int oldPosition = getListView().getFirstVisiblePosition();
 				refresh(events, server, buffer, user);
 				if(oldSize > 1) {
-					adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
+					int markerPos = adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
 					adapter.notifyDataSetChanged();
-					getListView().setSelectionFromTop(oldPosition + (adapter.data.size() - oldSize) + 1, headerView.getHeight());
+					getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
 				}
 			}
 			requestingBacklog = false;

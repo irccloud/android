@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/dateline_bg"
-    android:gravity="center_horizontal"
+    android:gravity="center"
+    android:minHeight="28dp"
     android:orientation="horizontal" >
 
     <TextView
