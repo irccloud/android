@@ -519,7 +519,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		protected Void doInBackground(Long... params) {
 			Long eid = params[0];
 			
-	    	if(eid > last_seen_eid) {
+	    	if(eid > last_seen_eid && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 	    		if(getActivity() != null && getActivity().getIntent() != null)
 	    			getActivity().getIntent().putExtra("last_seen_eid", eid);
 	    		NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
