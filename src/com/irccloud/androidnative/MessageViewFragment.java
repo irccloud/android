@@ -86,7 +86,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			for(int i = 0; i < data.size(); i++) {
 				if(data.get(i).eid == eid) {
 					data.remove(i);
-					return;
+					i--;
 				}
 			}
 		}
@@ -553,7 +553,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				int oldSize = adapter.data.size();
 				int oldPosition = getListView().getFirstVisiblePosition();
 				refresh(events, server, buffer, user);
-				if(oldSize > 1) {
+				if(oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
 					int markerPos = adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
 					adapter.notifyDataSetChanged();
 					getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());

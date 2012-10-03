@@ -345,6 +345,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        	Intent upIntent = new Intent(this, MainActivity.class);
 	        	NavUtils.navigateUpTo(this, upIntent);
 	            return true;
+	        case R.id.menu_channel_options:
+	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
+	            newFragment.show(getSupportFragmentManager(), "dialog");
+	        	break;
             case R.id.menu_userlist:
             	if(userListView.getVisibility() == View.INVISIBLE) {
             		userListView.setVisibility(View.VISIBLE);
