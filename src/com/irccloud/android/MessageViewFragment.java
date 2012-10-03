@@ -232,7 +232,7 @@ public class MessageViewFragment extends SherlockFragment {
 		protected Void doInBackground(IRCCloudJSONObject... params) {
 			IRCCloudJSONObject e = params[0];
 			
-	    	if(e.eid() > last_seen_eid) {
+	    	if(e.eid() > last_seen_eid && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 	    		if(getActivity() != null && getActivity().getIntent() != null)
 	    			getActivity().getIntent().putExtra("last_seen_eid", e.eid());
 	    		NetworkConnection.getInstance().heartbeat(bid, e.cid(), e.bid(), e.eid());
