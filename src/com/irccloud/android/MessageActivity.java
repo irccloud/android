@@ -139,7 +139,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	updateUsersListFragmentVisibility();
-    	getSupportActionBar().setTitle(name);
+    	if(archived > 0)
+    		getSupportActionBar().setTitle(name + " (archived)");
+    	else
+    		getSupportActionBar().setTitle(name);
     	invalidateOptionsMenu();
     }
 
@@ -206,6 +209,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(event_bid == bid) {
 					archived = 1;
 					invalidateOptionsMenu();
+		    		getSupportActionBar().setTitle(name + " (archived)");
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERUNARCHIVED:
@@ -213,6 +217,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(event_bid == bid) {
 					archived = 0;
 					invalidateOptionsMenu();
+		    		getSupportActionBar().setTitle(name);
 				}
 				break;
 			case NetworkConnection.EVENT_JOIN:
