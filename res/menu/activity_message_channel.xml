@@ -11,4 +11,8 @@
         android:title="@string/menu_ignore_list"
         android:showAsAction="never" />
     
+    <item android:id="@+id/menu_channel_options"
+        android:title="@string/menu_channel_options"
+        android:showAsAction="never" />
+
 </menu>
