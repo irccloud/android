@@ -713,7 +713,7 @@ public class NetworkConnection {
 				u.updateSelfAwayMsg(object.getInt("cid"), object.getString("nick"), 0, "");
 				s.updateAway(object.getInt("cid"), "");
 				if(!backlog)
-					notifyHandlers(EVENT_AWAY, object);
+					notifyHandlers(EVENT_SELFBACK, object);
 			} else if(type.equalsIgnoreCase("self_details")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateUsermask(object.getInt("cid"), object.getString("usermask"));

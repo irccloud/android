@@ -5,18 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/topicView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:ellipsize="end"
-        android:lines="1"
-        android:padding="6dp"
-        android:scrollHorizontally="true"
-        android:textSize="16sp"
-        android:visibility="gone" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

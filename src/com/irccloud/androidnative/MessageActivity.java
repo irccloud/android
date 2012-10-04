@@ -111,6 +111,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.show();
 		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+            	} else if(archived == 0 && subtitle.getText().length() > 0){
+            		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	            	builder.setTitle(title.getText().toString());
+	            	builder.setMessage(subtitle.getText().toString());
+	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+	            	});
+		    		AlertDialog dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.show();
+		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
             	}
 			}
         });
@@ -188,13 +202,30 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		subtitle.setVisibility(View.VISIBLE);
     		subtitle.setText("(archived)");
     	} else {
-        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
-        	if(c != null && c.topic_text.length() > 0) {
-        		subtitle.setVisibility(View.VISIBLE);
-        		subtitle.setText(c.topic_text);
-        	} else {
-        		subtitle.setVisibility(View.GONE);
-        	}
+    		if(type.equalsIgnoreCase("conversation")) {
+        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
+    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+    			if(user != null && user.away > 0) {
+	        		subtitle.setVisibility(View.VISIBLE);
+    				if(user.away_msg != null) {
+    					subtitle.setText("Away: " + user.away_msg);
+    				} else if(b != null && b.away_msg != null) {
+    	        		subtitle.setText("Away: " + b.away_msg);
+    				} else {
+    					subtitle.setText("Away");
+    				}
+    			} else {
+	        		subtitle.setVisibility(View.GONE);
+    			}
+    		} else {
+	        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+	        	if(c != null && c.topic_text.length() > 0) {
+	        		subtitle.setVisibility(View.VISIBLE);
+	        		subtitle.setText(c.topic_text);
+	        	} else {
+	        		subtitle.setVisibility(View.GONE);
+	        	}
+    		}
     	}
     	invalidateOptionsMenu();
     }
@@ -330,6 +361,32 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					}
 				}
 				break;
+			case NetworkConnection.EVENT_SELFBACK:
+		    	try {
+					event = (IRCCloudJSONObject)msg.obj;
+					if(event.cid() == cid && event.getString("nick").equalsIgnoreCase(name)) {
+			    		subtitle.setVisibility(View.GONE);
+						subtitle.setText("");
+					}
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+				break;
+			case NetworkConnection.EVENT_AWAY:
+		    	try {
+					event = (IRCCloudJSONObject)msg.obj;
+					if((event.bid() == bid || (event.type().equalsIgnoreCase("self_away") && event.cid() == cid)) && event.getString("nick").equalsIgnoreCase(name)) {
+			    		subtitle.setVisibility(View.VISIBLE);
+			    		if(event.has("away_msg"))
+			    			subtitle.setText("Away: " + event.getString("away_msg"));
+			    		else
+			    			subtitle.setText("Away: " + event.getString("msg"));
+					}
+				} catch (JSONException e1) {
+					e1.printStackTrace();
+				}
+				break;
+
 			default:
 				break;
 			}
@@ -365,8 +422,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         		menu.findItem(R.id.menu_archive).setEnabled(true);
         		menu.findItem(R.id.menu_delete).setVisible(true);
         		menu.findItem(R.id.menu_delete).setEnabled(true);
-        		menu.findItem(R.id.menu_topic).setVisible(false);
-        		menu.findItem(R.id.menu_topic).setEnabled(false);
         		if(menu.findItem(R.id.menu_userlist) != null) {
         			menu.findItem(R.id.menu_userlist).setEnabled(false);
         			menu.findItem(R.id.menu_userlist).setVisible(false);
@@ -377,8 +432,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         		menu.findItem(R.id.menu_archive).setEnabled(false);
         		menu.findItem(R.id.menu_delete).setVisible(false);
         		menu.findItem(R.id.menu_delete).setEnabled(false);
-        		menu.findItem(R.id.menu_topic).setVisible(true);
-        		menu.findItem(R.id.menu_topic).setEnabled(true);
         		if(menu.findItem(R.id.menu_userlist) != null) {
 	        		boolean hide = false;
 	        		try {

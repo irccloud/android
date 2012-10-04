@@ -38,7 +38,6 @@ import com.actionbarsherlock.app.SherlockListFragment;
 
 public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
-	private TextView awayView;
 	private TextView statusView;
 	private View headerViewContainer;
 	private View headerView;
@@ -309,7 +308,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
-    	awayView = (TextView)v.findViewById(R.id.topicView);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	unreadView = (TextView)v.findViewById(R.id.unread);
     	unreadView.setOnClickListener(new OnClickListener() {
@@ -565,10 +563,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		TreeMap<Long,IRCCloudJSONObject> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
     		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
-    		UsersDataSource.User user = null;
-			if(type.equalsIgnoreCase("conversation"))
-				user = UsersDataSource.getInstance().getUser(cid, name);
-			refresh(events, server, buffer, user);
+			refresh(events, server, buffer);
 			getListView().setSelection(adapter.getCount() - 1);
     	}
     }
@@ -593,14 +588,11 @@ public class MessageViewFragment extends SherlockListFragment {
 		TreeMap<Long,IRCCloudJSONObject> events;
 		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;
-		UsersDataSource.User user = null;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			server = ServersDataSource.getInstance().getServer(cid);
-			if(type.equalsIgnoreCase("conversation"))
-				user = UsersDataSource.getInstance().getUser(cid, name);
 			long time = System.currentTimeMillis();
 			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
@@ -612,7 +604,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(events != null && events.size() > 0) {
 				int oldSize = adapter.data.size();
 				int oldPosition = getListView().getFirstVisiblePosition();
-				refresh(events, server, buffer, user);
+				refresh(events, server, buffer);
 				if(oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
 					int markerPos = adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
 					adapter.notifyDataSetChanged();
@@ -623,7 +615,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
 	}
 
-	private void refresh(TreeMap<Long,IRCCloudJSONObject> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer, UsersDataSource.User user) {
+	private void refresh(TreeMap<Long,IRCCloudJSONObject> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
 			if(bid != -1) {
 				requestingBacklog = true;
@@ -649,19 +641,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		avgInsertTime = 0;
 	    	}
 		}
-    	if(type.equalsIgnoreCase("conversation") && buffer != null && buffer.away_msg != null && buffer.away_msg.length() > 0) {
-    		awayView.setVisibility(View.VISIBLE);
-    		awayView.setText("Away: " + buffer.away_msg);
-    	} else if(type.equalsIgnoreCase("conversation") && user != null && user.away == 1) {
-    		awayView.setVisibility(View.VISIBLE);
-    		if(user.away_msg != null && user.away_msg.length() > 0)
-    			awayView.setText("Away: " + user.away_msg);
-    		else
-	    		awayView.setText("Away");
-    	} else {
-    		awayView.setVisibility(View.GONE);
-    		awayView.setText("");
-    	}
     	try {
 			update_status(server.status, new JSONObject(server.fail_info));
 		} catch (Exception e) {
@@ -838,28 +817,6 @@ public class MessageViewFragment extends SherlockListFragment {
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				new RefreshTask().execute((Void)null);
-				break;
-			case NetworkConnection.EVENT_SELFBACK:
-		    	try {
-					e = (IRCCloudJSONObject)msg.obj;
-					if(e.cid() == cid && e.getString("nick").equalsIgnoreCase(name)) {
-			    		awayView.setVisibility(View.GONE);
-						awayView.setText("");
-					}
-				} catch (JSONException e1) {
-					e1.printStackTrace();
-				}
-				break;
-			case NetworkConnection.EVENT_AWAY:
-		    	try {
-					e = (IRCCloudJSONObject)msg.obj;
-					if((e.bid() == bid || (e.type().equalsIgnoreCase("self_away") && e.cid() == cid)) && e.getString("nick").equalsIgnoreCase(name)) {
-			    		awayView.setVisibility(View.VISIBLE);
-						awayView.setText("Away: " + e.getString("msg"));
-					}
-				} catch (JSONException e1) {
-					e1.printStackTrace();
-				}
 				break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
 			case NetworkConnection.EVENT_JOIN:
