@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="26dp"
+    android:minHeight="20dp"
     android:orientation="horizontal" >
 
     <TextView
         android:id="@+id/timestamp"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:gravity="right"
+        android:gravity="center_horizontal|top"
         android:paddingLeft="4dp"
         android:textColor="@color/timestamp" />
 
@@ -17,6 +17,7 @@
         android:id="@+id/message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="top"
         android:autoLink="web"
         android:ellipsize="none"
         android:linksClickable="true"
