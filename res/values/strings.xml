@@ -15,7 +15,6 @@
     <string name="menu_editconnection">Edit Connection</string>
     <string name="menu_identify">Identify Nickname</string>
     <string name="menu_ignore_list">Ignore List</string>
-    <string name="menu_topic">Show Topic</string>
     <string name="menu_add_network">Add Network</string>
     <string name="menu_channel_options">Channel Options</string>
     

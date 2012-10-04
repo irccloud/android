@@ -45,6 +45,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	String status;
 	UsersDataSource.User selected_user;
 	View userListView;
+	TextView title;
+	TextView subtitle;
 
 	NetworkConnection conn;
 	
@@ -73,6 +75,48 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	userListView.setVisibility(View.INVISIBLE);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        
+        View v = this.getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
+        v.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+            	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+            	if(c != null) {
+            		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	            	builder.setTitle("Channel Topic");
+	            	if(c.topic_text.length() > 0) {
+	            		final SpannableString s = new SpannableString(c.topic_text);
+	            		Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+	            		builder.setMessage(s);
+	            	} else
+	            		builder.setMessage("No topic set.");
+	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+	            	});
+	            	builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+							editTopic();
+						}
+	            	});
+		    		AlertDialog dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.show();
+		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+            	}
+			}
+        });
+        title = (TextView)v.findViewById(R.id.title);
+        subtitle = (TextView)v.findViewById(R.id.subtitle);
+        getSupportActionBar().setCustomView(v);
         
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
@@ -139,10 +183,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	updateUsersListFragmentVisibility();
-    	if(archived > 0)
-    		getSupportActionBar().setTitle(name + " (archived)");
-    	else
-    		getSupportActionBar().setTitle(name);
+    	title.setText(name);
+    	if(archived > 0) {
+    		subtitle.setVisibility(View.VISIBLE);
+    		subtitle.setText("(archived)");
+    	} else {
+        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+        	if(c != null && c.topic_text.length() > 0) {
+        		subtitle.setVisibility(View.VISIBLE);
+        		subtitle.setText(c.topic_text);
+        	} else {
+        		subtitle.setVisibility(View.GONE);
+        	}
+    	}
     	invalidateOptionsMenu();
     }
 
@@ -209,7 +262,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(event_bid == bid) {
 					archived = 1;
 					invalidateOptionsMenu();
-		    		getSupportActionBar().setTitle(name + " (archived)");
+					subtitle.setVisibility(View.VISIBLE);
+					subtitle.setText("(archived)");
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERUNARCHIVED:
@@ -217,7 +271,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(event_bid == bid) {
 					archived = 0;
 					invalidateOptionsMenu();
-		    		getSupportActionBar().setTitle(name);
+					subtitle.setVisibility(View.GONE);
 				}
 				break;
 			case NetworkConnection.EVENT_JOIN:
@@ -239,6 +293,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(channel.bid == bid) {
 					joined = 1;
 					archived = 0;
+		        	if(channel.topic_text.length() > 0) {
+		        		subtitle.setVisibility(View.VISIBLE);
+		        		subtitle.setText(channel.topic_text);
+		        	} else {
+		        		subtitle.setVisibility(View.GONE);
+		        	}
 					invalidateOptionsMenu();
 				}
 				break;
@@ -252,6 +312,22 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	                        Intent.FLAG_ACTIVITY_NEW_TASK);
 	                startActivity(parentActivityIntent);
 	                finish();
+				}
+				break;
+			case NetworkConnection.EVENT_CHANNELTOPIC:
+				event = (IRCCloudJSONObject)msg.obj;
+				if(event.bid() == bid) {
+		        	try {
+						if(event.getString("topic").length() > 0) {
+							subtitle.setVisibility(View.VISIBLE);
+							subtitle.setText(event.getString("topic"));
+						} else {
+							subtitle.setVisibility(View.GONE);
+						}
+					} catch (JSONException e) {
+						subtitle.setVisibility(View.GONE);
+						e.printStackTrace();
+					}
 				}
 				break;
 			default:
@@ -472,38 +548,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         			conn.reconnect(cid);
         		}
         		return true;
-            case R.id.menu_topic:
-            	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
-            	if(c != null) {
-	            	builder = new AlertDialog.Builder(MessageActivity.this);
-	            	builder.setTitle("Channel Topic");
-	            	if(c.topic_text.length() > 0) {
-	            		final SpannableString s = new SpannableString(c.topic_text);
-	            		Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
-	            		builder.setMessage(s);
-	            	} else
-	            		builder.setMessage("No topic set.");
-	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-	            	});
-	            	builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							editTopic();
-						}
-	            	});
-		    		dialog = builder.create();
-		    		dialog.setOwnerActivity(MessageActivity.this);
-		    		dialog.show();
-		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-            	}
-            	return true;
         }
         return super.onOptionsItemSelected(item);
     }
