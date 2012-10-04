@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="@dimen/abs__action_bar_default_height"
+    android:layout_height="fill_parent"
     android:gravity="center_vertical|left"
     android:orientation="vertical" >
 
@@ -19,7 +19,6 @@
                   android:layout_height="wrap_content"
                   android:textSize="@dimen/abs__action_bar_subtitle_text_size"
                   android:layout_marginTop="@dimen/abs__action_bar_subtitle_top_margin"
-                  android:layout_marginBottom="@dimen/abs__action_bar_subtitle_bottom_margin"
                   android:singleLine="true"
                   android:ellipsize="end"
                   android:visibility="gone" />
