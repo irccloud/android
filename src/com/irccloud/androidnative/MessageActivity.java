@@ -78,7 +78,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         
-        View v = this.getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
+        View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
         v.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

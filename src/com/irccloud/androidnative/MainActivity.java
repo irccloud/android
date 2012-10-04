@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 public class MainActivity extends BaseActivity implements BuffersListFragment.OnBufferSelectedListener {
 	NetworkConnection conn;
@@ -16,9 +18,20 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportActionBar().setLogo(getResources().getDrawable(R.drawable.logo));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-    }
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        
+        View v = getLayoutInflater().inflate(R.layout.actionbar_bufferslist, null);
+        v.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				BuffersListFragment f = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+				f.scrollToTop();
+			}
+        });
+        getSupportActionBar().setCustomView(v);
+	}
 
     @Override
     public void onResume() {

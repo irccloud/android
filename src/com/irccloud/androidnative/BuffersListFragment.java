@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -649,6 +650,12 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 		}
 	};
+	
+	public void scrollToTop() {
+		if(listView != null) {
+			listView.setSelection(0);
+		}
+	}
 	
 	public interface OnBufferSelectedListener {
 		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status);
