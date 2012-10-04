@@ -46,6 +46,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private String type;
 	private boolean firstScroll = true;
 	private boolean requestingBacklog = false;
+	private boolean shouldShowUnread = false;
 	private float avgInsertTime = 0;
 	private int newMsgs = 0;
 	private long newMsgTime = 0;
@@ -298,6 +299,8 @@ public class MessageViewFragment extends SherlockListFragment {
 						newMsgTime = 0;
 					}
 				}
+				if(firstVisibleItem + visibleItemCount < totalItemCount)
+					shouldShowUnread = true;
 			}
 
 			@Override
@@ -483,7 +486,10 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	avgInsertTime += time;
 	    	avgInsertTime /= 2.0;
 	    	//Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-	    	if(!backlog && getListView().getLastVisiblePosition() < (adapter.getCount() - 1)) {
+	    	if(getListView().getLastVisiblePosition() >= (adapter.getCount() - 1)) {
+	    		shouldShowUnread = false;
+	    	}
+	    	if(!backlog && shouldShowUnread) {
 	    		if(newMsgTime == 0)
 	    			newMsgTime = System.currentTimeMillis();
 	    		newMsgs++;
