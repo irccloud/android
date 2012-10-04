@@ -691,26 +691,21 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("user_away") || type.equalsIgnoreCase("away")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				UsersDataSource u = UsersDataSource.getInstance();
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-				if(chan != null) {
-					u.updateAwayMsg(object.getInt("cid"), chan.name, object.getString("nick"), 1, object.getString("msg"));
-				} else {
-					b.updateAway(object.getInt("bid"), object.getString("msg"));
-				}
+				u.updateAwayMsg(object.getInt("cid"), object.getString("nick"), 1, object.getString("msg"));
+				b.updateAway(object.getInt("bid"), object.getString("msg"));
 				if(!backlog)
 					notifyHandlers(EVENT_AWAY, object);
 			} else if(type.equalsIgnoreCase("self_away")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateSelfAwayMsg(object.getInt("cid"), object.getString("nick"), 1, object.getString("away_msg"));
+				u.updateAwayMsg(object.getInt("cid"), object.getString("nick"), 1, object.getString("away_msg"));
 				s.updateAway(object.getInt("cid"), object.getString("away_msg"));
 				if(!backlog)
 					notifyHandlers(EVENT_AWAY, object);
 			} else if(type.equalsIgnoreCase("self_back")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateSelfAwayMsg(object.getInt("cid"), object.getString("nick"), 0, "");
+				u.updateAwayMsg(object.getInt("cid"), object.getString("nick"), 0, "");
 				s.updateAway(object.getInt("cid"), "");
 				if(!backlog)
 					notifyHandlers(EVENT_SELFBACK, object);

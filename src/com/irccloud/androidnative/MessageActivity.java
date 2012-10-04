@@ -210,9 +210,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
     			if(user != null && user.away > 0) {
 	        		subtitle.setVisibility(View.VISIBLE);
-    				if(user.away_msg != null) {
+    				if(user.away_msg != null && user.away_msg.length() > 0) {
     					subtitle.setText("Away: " + user.away_msg);
-    				} else if(b != null && b.away_msg != null) {
+    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
     	        		subtitle.setText("Away: " + b.away_msg);
     				} else {
     					subtitle.setText("Away");

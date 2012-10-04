@@ -87,15 +87,7 @@ public class UsersDataSource {
 			u.away = away;
 	}
 	
-	public synchronized void updateAwayMsg(int cid, String channel, String nick, int away, String away_msg) {
-		User u = getUser(cid,channel,nick);
-		if(u != null) {
-			u.away = away;
-			u.away_msg = away_msg;
-		}
-	}
-	
-	public synchronized void updateSelfAwayMsg(int cid, String nick, int away, String away_msg) {
+	public synchronized void updateAwayMsg(int cid, String nick, int away, String away_msg) {
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
 			User u = i.next();
