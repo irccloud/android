@@ -764,7 +764,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				Log.e(TAG, "Unhandled type: " + object);
+				Log.w(TAG, "Unhandled type: " + object);
 			}
 		}
 		if(idle_interval > 0)
