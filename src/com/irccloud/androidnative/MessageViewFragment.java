@@ -8,15 +8,21 @@ import java.util.TreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.XMLReader;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -259,7 +265,42 @@ public class MessageViewFragment extends SherlockListFragment {
 				holder.timestamp.setText(e.timestamp);
 			if(holder.message != null) {
 				holder.message.setTextColor(getResources().getColorStateList(e.color));
-				holder.message.setText(Html.fromHtml(e.text));
+				holder.message.setText(Html.fromHtml(e.text, null, new Html.TagHandler() {
+					@Override
+					public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+						int len = output.length();
+						if(tag.startsWith("_bg")) {
+							String rgb = "#" + tag.substring(3);
+					        if(opening) {
+					            output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), len, len, Spannable.SPAN_MARK_MARK);
+					        } else {
+					            Object obj = getLast(output, BackgroundColorSpan.class);
+					            int where = output.getSpanStart(obj);
+	
+					            output.removeSpan(obj);
+	
+					            if (where != len) {
+					                output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					            }
+					        }
+						}
+					}
+					
+					private Object getLast(Editable text, Class kind) {
+				        Object[] objs = text.getSpans(0, text.length(), kind);
+
+				        if (objs.length == 0) {
+				            return null;
+				        } else {
+				            for(int i = objs.length;i>0;i--) {
+				                if(text.getSpanFlags(objs[i-1]) == Spannable.SPAN_MARK_MARK) {
+				                    return objs[i-1];
+				                }
+				            }
+				            return null;
+				        }
+				    }
+				}));
 			}
 			
 			return row;
