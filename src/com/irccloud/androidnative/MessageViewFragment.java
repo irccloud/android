@@ -376,32 +376,40 @@ public class MessageViewFragment extends SherlockListFragment {
 					}
 				}
 			}
-			
-	    	from = TextUtils.htmlEncode(from);
-	    	msg = TextUtils.htmlEncode(msg);
-			
+
+			if(event.has("from"))
+				from = TextUtils.htmlEncode(event.getString("from"));
+	    	
+			if(event.has("msg"))
+				msg = TextUtils.htmlEncode(event.getString("msg"));
+
 	    	if(type.equalsIgnoreCase("buffer_me_msg")) {
-				from = "* <i>" + event.getString("from") + "</i>";
-				msg = "<i>" + event.getString("msg") + "</i>";
+				from = "* <i>" + from + "</i>";
+				msg = "<i>" + msg + "</i>";
 	    	} else if(type.equalsIgnoreCase("nickname_in_use")) {
 	    		from = event.getString("nick");
 	    		msg = "is already in use";
 	    		bg_color = R.color.error;
 	    	} else if(type.equalsIgnoreCase("connecting_failed")) {
+	    		from = "";
 	    		msg = "Failed to connect: " + event.getString("reason");
 	    		bg_color = R.color.error;
 	    	} else if(type.equalsIgnoreCase("socket_closed")) {
+	    		from = "";
 	    		msg = "===================="; //TODO: Add another row type for socket_closed events
 	    	} else if(type.equalsIgnoreCase("self_details")) {
+	    		from = "";
 	    		msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
 	    		bg_color = R.color.dateline_bg;
 	    	} else if(type.equalsIgnoreCase("myinfo")) {
+	    		from = "";
 	    		msg = "Host: " + event.getString("server") + "\n";
 	    		msg += "IRCd: " + event.getString("version") + "\n";
 	    		msg += "User modes: " + event.getString("user_modes") + "\n";
 	    		msg += "Channel modes: " + event.getString("channel_modes") + "\n";
 	    		bg_color = R.color.dateline_bg;
 	    	} else if(type.equalsIgnoreCase("user_mode")) {
+	    		from = "";
 	    		msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
 	    		bg_color = R.color.dateline_bg;
 	    	} else if(type.equalsIgnoreCase("channel_topic")) {
@@ -409,9 +417,11 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		msg = "set the topic: " + event.getString("topic");
 	    		bg_color = R.color.dateline_bg;
 	    	} else if(type.equalsIgnoreCase("channel_mode")) {
+	    		from = "";
 	    		msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
 	    		bg_color = R.color.dateline_bg;
 	    	} else if(type.equalsIgnoreCase("channel_mode_is")) {
+	    		from = "";
 	    		msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
 	    		bg_color = R.color.dateline_bg;
 	    	} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
@@ -438,20 +448,17 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			msg = "quit: " + event.getString("msg");
 	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("user_channel_mode")) {
-	    		from = "+++ " + event.getString("from");
+	    		from = "+++ " + from;
 	    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
 	    	} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
-	    		from = "+++ " + event.getString("from");
+	    		from = "+++ " + from;
 	    		msg = "set mode: <b>" + event.getString("diff") + "</b>";
 	    	} else if(type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_motd")) {
+	    		//TODO: parse the MOTD lines
 	    	} else if(type.equalsIgnoreCase("inviting_to_channel")) {
+	    		from = "";
 	    		msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
 	    		bg_color = R.color.notice;
-	    	} else {
-	    		if(event.has("from"))
-	    			from = event.getString("from");
-	    		if(event.has("msg"))
-	    			msg = event.getString("msg");
 	    	}
 	    	
 	    	if(event.has("value")) {
