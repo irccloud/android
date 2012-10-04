@@ -526,11 +526,39 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	}
 
 	    	if(msg.length() > 0) {
-	    		int pos = 0;
+	    		int pos=0;
+	    		boolean bold=false, underline=false, italics=false;
 	    		String fg="", bg="";
 	    		
 	    		while(pos < msg.length()) {
-	    			if(msg.charAt(pos) == 3) {
+	    			if(msg.charAt(pos) == 2) {
+	    				String html = "";
+	    				if(bold)
+	    					html += "</b>";
+	    				else
+	    					html += "<b>";
+	    				bold = !bold;
+	    				msg = removeCharAtIndex(msg, pos);
+						msg = insertAtIndex(msg, pos, html);
+	    			} else if(msg.charAt(pos) == 16 || msg.charAt(pos) == 29) {
+	    				String html = "";
+	    				if(italics)
+	    					html += "</i>";
+	    				else
+	    					html += "<i>";
+	    				italics = !italics;
+	    				msg = removeCharAtIndex(msg, pos);
+						msg = insertAtIndex(msg, pos, html);
+	    			} else if(msg.charAt(pos) == 31) {
+	    				String html = "";
+	    				if(underline)
+	    					html += "</u>";
+	    				else
+	    					html += "<u>";
+	    				underline = !underline;
+	    				msg = removeCharAtIndex(msg, pos);
+						msg = insertAtIndex(msg, pos, html);
+	    			} else if(msg.charAt(pos) == 3) {
 	    				String new_fg="", new_bg="";
 	    				String v = "";
 	    				msg = removeCharAtIndex(msg, pos);
@@ -597,11 +625,17 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			pos++;
 	    		}
 	    		if(fg.length() > 0) {
-	    			msg = msg + "</font>";
+	    			msg += "</font>";
 	    		}
 	    		if(bg.length() > 0) {
-	    			msg = msg + "</_bg" + bg + ">";
+	    			msg += "</_bg" + bg + ">";
 	    		}
+				if(bold)
+					msg += "</b>";
+				if(underline)
+					msg += "</u>";
+				if(italics)
+					msg += "</i>";
 	    	}
 	    	
 	    	if(from.length() > 0)
