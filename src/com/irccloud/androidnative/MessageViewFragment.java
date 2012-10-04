@@ -20,7 +20,6 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
@@ -59,6 +58,25 @@ public class MessageViewFragment extends SherlockListFragment {
 	private static final int TYPE_TIMESTAMP = 0;
 	private static final int TYPE_MESSAGE = 1;
 	private static final int TYPE_BACKLOGMARKER = 2;
+	
+	private static final String[] COLOR_MAP = {
+		"FFFFFF", //white
+		"000000", //black
+		"000080", //navy
+		"008000", //green
+		"FF0000", //red
+		"800000", //maroon
+		"800080", //purple
+		"FFA500", //orange
+		"FFFF00", //yellow
+		"00FF00", //lime
+		"008080", //teal
+		"00FFFF", //cyan
+		"0000FF", //blue
+		"FF00FF", //magenta
+		"808080", //grey
+		"C0C0C0", //silver
+	};
 	
 	private MessageAdapter adapter;
 	
@@ -506,6 +524,85 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(event.has("value")) {
 	    		msg = event.getString("value") + " " + msg;
 	    	}
+
+	    	if(msg.length() > 0) {
+	    		int pos = 0;
+	    		String fg="", bg="";
+	    		
+	    		while(pos < msg.length()) {
+	    			if(msg.charAt(pos) == 3) {
+	    				String new_fg="", new_bg="";
+	    				String v = "";
+	    				msg = removeCharAtIndex(msg, pos);
+	    				while(msg.charAt(pos) >= '0' && msg.charAt(pos) <= '9') {
+	    					v += msg.charAt(pos);
+		    				msg = removeCharAtIndex(msg, pos);
+	    				}
+	    				if(v.length() > 0) {
+	    					if(v.length() < 3)
+	    						new_fg = COLOR_MAP[Integer.parseInt(v)];
+	    					else
+		    					new_fg = v;
+	    				}
+	    				v="";
+	    				if(msg.charAt(pos) == ',') {
+		    				msg = removeCharAtIndex(msg, pos);
+	    					if(new_fg.length() == 0)
+	    						new_fg = "clear";
+	    					new_bg = "clear";
+		    				while(msg.charAt(pos) >= '0' && msg.charAt(pos) <= '9') {
+		    					v += msg.charAt(pos);
+			    				msg = removeCharAtIndex(msg, pos);
+		    				}
+		    				if(v.length() > 0) {
+		    					if(v.length() < 3)
+		    						new_bg = COLOR_MAP[Integer.parseInt(v)];
+		    					else
+			    					new_bg = v;
+		    				}
+	    				}
+						String html = "";
+						if(new_fg.length() == 0 && new_bg.length() == 0) {
+							new_fg = "clear";
+							new_bg = "clear";
+						}
+						if(new_fg.length() > 0 && !new_fg.equals(fg) && fg.length() > 0) {
+							html += "</font>";
+						}
+						if(new_bg.length() > 0 && !new_bg.equals(bg) && bg.length() > 0) {
+							html += "</_bg" + bg + ">";
+						}
+	    				if(new_bg.length() > 0) {
+	    					if(!new_bg.equals(bg)) {
+	    						if(new_bg.equals("clear")) {
+	    							bg = "";
+	    						} else {
+		    						html += "<_bg" + new_bg + ">";
+		    						bg = new_bg;
+	    						}
+	    					}
+	    				}
+	    				if(new_fg.length() > 0) {
+	    					if(!new_fg.equals(fg)) {
+	    						if(new_fg.equals("clear")) {
+	    							fg = "";
+	    						} else {
+		    						html += "<font color=\"#" + new_fg + "\">";
+		    						fg = new_fg;
+	    						}
+	    					}
+	    				}
+						msg = insertAtIndex(msg, pos, html);
+	    			}
+	    			pos++;
+	    		}
+	    		if(fg.length() > 0) {
+	    			msg = msg + "</font>";
+	    		}
+	    		if(bg.length() > 0) {
+	    			msg = msg + "</_bg" + bg + ">";
+	    		}
+	    	}
 	    	
 	    	if(from.length() > 0)
 	    		msg = "<b>" + from + "</b> " + msg;
@@ -540,6 +637,16 @@ public class MessageViewFragment extends SherlockListFragment {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    }
+    
+    public String insertAtIndex(String input, int index, String text) {
+    	String head = input.substring(0, index);
+    	String tail = input.substring(index, input.length());
+    	return head + text + tail;
+    }
+    
+    public String removeCharAtIndex(String input, int index) {
+    	return input.substring(0, index) + input.substring(index+1, input.length());
     }
     
     public void onResume() {
