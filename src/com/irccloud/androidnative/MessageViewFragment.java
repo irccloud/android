@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -252,13 +253,13 @@ public class MessageViewFragment extends SherlockListFragment {
 				holder = (ViewHolder) row.getTag();
 			}
 
+			row.setBackgroundResource(e.bg_color);
 			if(holder.timestamp != null)
 				holder.timestamp.setText(e.timestamp);
 			if(holder.message != null) {
-				holder.message.setText(Html.fromHtml(e.text));
 				holder.message.setTextColor(getResources().getColorStateList(e.color));
+				holder.message.setText(Html.fromHtml(e.text));
 			}
-			row.setBackgroundResource(e.bg_color);
 			
 			return row;
 		}
@@ -453,6 +454,9 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(event.has("value")) {
 	    		msg = event.getString("value") + " " + msg;
 	    	}
+	    	
+	    	from = TextUtils.htmlEncode(from);
+	    	msg = TextUtils.htmlEncode(msg);
 	    	
 	    	if(from.length() > 0)
 	    		msg = "<b>" + from + "</b> " + msg;
