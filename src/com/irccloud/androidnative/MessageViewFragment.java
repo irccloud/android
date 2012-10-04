@@ -377,6 +377,9 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 			}
 			
+	    	from = TextUtils.htmlEncode(from);
+	    	msg = TextUtils.htmlEncode(msg);
+			
 	    	if(type.equalsIgnoreCase("buffer_me_msg")) {
 				from = "* <i>" + event.getString("from") + "</i>";
 				msg = "<i>" + event.getString("msg") + "</i>";
@@ -412,23 +415,23 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
 	    		bg_color = R.color.dateline_bg;
 	    	} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
-	    		from = "-&gt; " + event.getString("nick");
+	    		from = "→ " + event.getString("nick");
 	    		msg = "joined (" + event.getString("hostmask") + ")";
 	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
-	    		from = "&lt;- " + event.getString("nick");
+	    		from = "← " + event.getString("nick");
 	    		msg = "left (" + event.getString("hostmask") + ")";
 	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
-	    		from = "&lt;- " + event.getString("nick");
+	    		from = "← " + event.getString("nick");
 	    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
 	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
 	    		from = event.getString("oldnick");
-	    		msg = "-&gt; " + event.getString("newnick");
+	    		msg = " → " + event.getString("newnick");
 	    		color = R.color.timestamp;
 	    	} else if(type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("quit_server")) {
-	    		from = "&lt;= " + event.getString("nick");
+	    		from = "⇐ " + event.getString("nick");
 	    		if(event.has("hostmask"))
 	    			msg = "quit (" + event.getString("hostmask") + ") " + event.getString("msg");
 	    		else
@@ -454,9 +457,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(event.has("value")) {
 	    		msg = event.getString("value") + " " + msg;
 	    	}
-	    	
-	    	from = TextUtils.htmlEncode(from);
-	    	msg = TextUtils.htmlEncode(msg);
 	    	
 	    	if(from.length() > 0)
 	    		msg = "<b>" + from + "</b> " + msg;
