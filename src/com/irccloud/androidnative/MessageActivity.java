@@ -114,7 +114,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	} else if(archived == 0 && subtitle.getText().length() > 0){
             		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
 	            	builder.setTitle(title.getText().toString());
-	            	builder.setMessage(subtitle.getText().toString());
+            		final SpannableString s = new SpannableString(subtitle.getText().toString());
+            		Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+            		builder.setMessage(s);
 	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int which) {
@@ -198,6 +200,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	conn.addHandler(mHandler);
     	updateUsersListFragmentVisibility();
     	title.setText(name);
+    	getSupportActionBar().setTitle(name);
     	if(archived > 0) {
     		subtitle.setVisibility(View.VISIBLE);
     		subtitle.setText("(archived)");
