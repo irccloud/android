@@ -481,6 +481,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        case android.R.id.home:
 	        	Intent upIntent = new Intent(this, MainActivity.class);
 	        	NavUtils.navigateUpTo(this, upIntent);
+	        	startActivity(upIntent);
 	            return true;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
