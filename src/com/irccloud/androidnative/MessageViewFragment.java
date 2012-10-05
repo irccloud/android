@@ -745,13 +745,18 @@ public class MessageViewFragment extends SherlockListFragment {
 		@Override
 		protected void onPostExecute(Void result) {
 			if(events != null && events.size() > 0) {
-				int oldSize = adapter.data.size();
-				int oldPosition = getListView().getFirstVisiblePosition();
-				refresh(events, server, buffer);
-				if(oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
-					int markerPos = adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
-					adapter.notifyDataSetChanged();
-					getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
+				try {
+					int oldSize = adapter.data.size();
+					int oldPosition = getListView().getFirstVisiblePosition();
+					refresh(events, server, buffer);
+					if(oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
+						int markerPos = adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
+						adapter.notifyDataSetChanged();
+						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
+					}
+				} catch (IllegalStateException e) {
+					//The list view doesn't exist yet
+					Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
 				}
 			}
 			requestingBacklog = false;

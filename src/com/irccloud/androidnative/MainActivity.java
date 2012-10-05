@@ -34,6 +34,15 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 	}
 
     @Override
+    protected void setLoadingIndicator(boolean state) {
+		BuffersListFragment f = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+		if(f != null && f.getConnectingVisibility() == View.GONE)
+	    	super.setLoadingIndicator(state);
+		else
+			super.setLoadingIndicator(false);
+    }
+    
+    @Override
     public void onResume() {
     	super.onResume();
     	

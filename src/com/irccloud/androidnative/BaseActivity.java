@@ -33,10 +33,14 @@ public class BaseActivity extends SherlockFragmentActivity {
         lastState = -1;
     }
 
+    protected void setLoadingIndicator(boolean state) {
+		setSupportProgressBarIndeterminateVisibility(state);
+    }
+    
     @Override
     public void onResume() {
     	super.onResume();
-		setSupportProgressBarIndeterminateVisibility(false);
+		setLoadingIndicator(false);
     	String session = getSharedPreferences("prefs", 0).getString("session_key", "");
     	if(session != null && session.length() > 0) {
 	    	conn = NetworkConnection.getInstance();
@@ -45,13 +49,13 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    		conn.connect(session);
 			if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
 				if(lastState != 1) {
-					setSupportProgressBarIndeterminateVisibility(true);
+					setLoadingIndicator(true);
 					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
 					lastState = 1;
 				}
 			} else {
 				if(lastState != 2) {
-					setSupportProgressBarIndeterminateVisibility(false);
+					setLoadingIndicator(false);
 					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
 					lastState = 2;
 				}
@@ -92,23 +96,23 @@ public class BaseActivity extends SherlockFragmentActivity {
 				Log.i("IRCCloud", "New connection state: " + NetworkConnection.getInstance().getState());
 				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
 					if(lastState != 1) {
-						setSupportProgressBarIndeterminateVisibility(true);
+						setLoadingIndicator(true);
 						getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
 						lastState = 1;
 					}
 				} else {
 					if(lastState != 2) {
-						setSupportProgressBarIndeterminateVisibility(false);
+						setLoadingIndicator(false);
 						getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
 						lastState = 2;
 					}
 				}
 				break;
 			case NetworkConnection.EVENT_BACKLOG_START:
-                setSupportProgressBarIndeterminateVisibility(true);
+                setLoadingIndicator(true);
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-                setSupportProgressBarIndeterminateVisibility(false);
+                setLoadingIndicator(false);
 				break;
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				b = (BuffersDataSource.Buffer)msg.obj;

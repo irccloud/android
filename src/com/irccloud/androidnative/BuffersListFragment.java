@@ -17,7 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -680,6 +679,13 @@ public class BuffersListFragment extends SherlockListFragment {
 			else
 				listView.setSelection(0);
 		}
+	}
+	
+	public int getConnectingVisibility() {
+		if(connecting != null)
+			return connecting.getVisibility();
+		else
+			return View.VISIBLE;
 	}
 	
 	public interface OnBufferSelectedListener {
