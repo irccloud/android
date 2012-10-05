@@ -412,6 +412,8 @@ public class MessageViewFragment extends SherlockListFragment {
     private void insertEvent(IRCCloudJSONObject event, boolean backlog) {
 		try {
     		long start = System.currentTimeMillis();
+    		if(min_eid == 0)
+    			min_eid = event.eid();
 	    	if(event.eid() == min_eid)
 	    		headerView.setVisibility(View.GONE);
 	    	if(event.eid() < earliest_eid)
@@ -764,7 +766,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 		} else if(events.size() > 0){
 			earliest_eid = events.firstKey();
-			if(events.firstKey() > min_eid) {
+			if(events.firstKey() > min_eid && min_eid > 0) {
 	    		headerView.setVisibility(View.VISIBLE);
 			} else {
 	    		headerView.setVisibility(View.GONE);
