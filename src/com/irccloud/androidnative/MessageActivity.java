@@ -201,7 +201,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	updateUsersListFragmentVisibility();
     	title.setText(name);
     	getSupportActionBar().setTitle(name);
-    	if(archived > 0) {
+    	if(archived > 0 && !type.equalsIgnoreCase("console")) {
     		subtitle.setVisibility(View.VISIBLE);
     		subtitle.setText("(archived)");
     	} else {
@@ -220,7 +220,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			} else {
 	        		subtitle.setVisibility(View.GONE);
     			}
-    		} else {
+    		} else if(type.equalsIgnoreCase("channel")) {
 	        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
 	        	if(c != null && c.topic_text.length() > 0) {
 	        		subtitle.setVisibility(View.VISIBLE);
