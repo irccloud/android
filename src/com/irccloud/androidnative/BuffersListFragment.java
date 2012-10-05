@@ -2,6 +2,7 @@ package com.irccloud.androidnative;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -12,6 +13,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -437,17 +439,6 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.containsKey("data")) {
-        	adapter = new BufferListAdapter(this);
-        	adapter.setItems((ArrayList<BufferListEntry>) savedInstanceState.getSerializable("data"));
-        	setListAdapter(adapter);
-        }
-    }
-    
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
@@ -498,13 +489,36 @@ public class BuffersListFragment extends SherlockListFragment {
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
 			}
 		});
+        if(savedInstanceState != null && savedInstanceState.containsKey("data")) {
+    		ArrayList<Integer> expandedArchives = savedInstanceState.getIntegerArrayList("expandedArchives");
+    		Iterator<Integer> i = expandedArchives.iterator();
+    		while(i.hasNext()) {
+    			Integer cid = i.next();
+    			mExpandArchives.put(cid, true);
+    		}
+        	adapter = new BufferListAdapter(this);
+        	adapter.setItems((ArrayList<BufferListEntry>) savedInstanceState.getSerializable("data"));
+        	setListAdapter(adapter);
+        	listView.setSelection(savedInstanceState.getInt("scrollPosition"));
+        }
 		return view;
 	}
 	
     @Override
     public void onSaveInstanceState(Bundle state) {
     	if(adapter != null && adapter.data != null && adapter.data.size() > 0) {
+    		ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
+    		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+    		Iterator<ServersDataSource.Server> i = servers.iterator();
+    		while(i.hasNext()) {
+    			ServersDataSource.Server s = i.next();
+    			if(mExpandArchives.get(s.cid, false))
+    				expandedArchives.add(s.cid);
+    		}
     		state.putSerializable("data", adapter.data);
+    		state.putIntegerArrayList("expandedArchives", expandedArchives);
+    		if(listView != null)
+    			state.putInt("scrollPosition", listView.getFirstVisiblePosition());
     	}
     }
 	
@@ -652,9 +666,13 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	};
 	
+	@SuppressLint("NewApi")
 	public void scrollToTop() {
 		if(listView != null) {
-			listView.smoothScrollToPosition(0);
+			if(Build.VERSION.SDK_INT >= 11)
+				listView.smoothScrollToPositionFromTop(0, 0, 200);
+			else
+				listView.setSelection(0);
 		}
 	}
 	
