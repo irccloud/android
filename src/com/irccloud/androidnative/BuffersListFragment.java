@@ -503,8 +503,9 @@ public class BuffersListFragment extends SherlockListFragment {
 	
     @Override
     public void onSaveInstanceState(Bundle state) {
-    	if(adapter != null && adapter.data != null && adapter.data.size() > 0)
+    	if(adapter != null && adapter.data != null && adapter.data.size() > 0) {
     		state.putSerializable("data", adapter.data);
+    	}
     }
 	
     public void onResume() {
@@ -653,7 +654,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	
 	public void scrollToTop() {
 		if(listView != null) {
-			listView.setSelection(0);
+			listView.smoothScrollToPosition(0);
 		}
 	}
 	
