@@ -305,6 +305,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			int position = 0;
 			
 			for(int i = 0; i < servers.size(); i++) {
+				int archiveCount = 0;
 				ServersDataSource.Server s = servers.get(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 				for(int j = 0; j < buffers.size(); j++) {
@@ -366,22 +367,27 @@ public class BuffersListFragment extends SherlockListFragment {
 							lastHighlightPosition = position;
 						position++;
 					}
+					if(type > 0 && b.archived > 0) {
+						archiveCount++;
+					}
 				}
-				entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status));
-				position++;
-				if(mExpandArchives.get(s.cid, false)) {
-					for(int j = 0; j < buffers.size(); j++) {
-						BuffersDataSource.Buffer b = buffers.get(j);
-						int type = -1;
-						if(b.archived == 1) {
-							if(b.type.equalsIgnoreCase("channel"))
-								type = TYPE_CHANNEL;
-							else if(b.type.equalsIgnoreCase("conversation"))
-								type = TYPE_CONVERSATION;
-							
-							if(type > 0) {
-								entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status));
-								position++;
+				if(archiveCount > 0) {
+					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status));
+					position++;
+					if(mExpandArchives.get(s.cid, false)) {
+						for(int j = 0; j < buffers.size(); j++) {
+							BuffersDataSource.Buffer b = buffers.get(j);
+							int type = -1;
+							if(b.archived == 1) {
+								if(b.type.equalsIgnoreCase("channel"))
+									type = TYPE_CHANNEL;
+								else if(b.type.equalsIgnoreCase("conversation"))
+									type = TYPE_CONVERSATION;
+								
+								if(type > 0) {
+									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status));
+									position++;
+								}
 							}
 						}
 					}
