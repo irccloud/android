@@ -130,66 +130,71 @@ public class UsersListFragment extends SherlockListFragment {
 			return row;
 		}
 	}
+
+	private void refresh(ArrayList<UsersDataSource.User> users) {
+		ArrayList<UserListAdapter.UserListEntry> entries = new ArrayList<UserListAdapter.UserListEntry>();
+		ArrayList<UsersDataSource.User> ops = new ArrayList<UsersDataSource.User>();
+		ArrayList<UsersDataSource.User> voiced = new ArrayList<UsersDataSource.User>();
+		ArrayList<UsersDataSource.User> members = new ArrayList<UsersDataSource.User>();
+		if(adapter == null) {
+			adapter = new UserListAdapter(UsersListFragment.this);
+		}
+
+		for(int i = 0; i < users.size(); i++) {
+			UsersDataSource.User user = users.get(i);
+			if(user.mode.contains("o")) {
+				ops.add(user);
+			} else if(user.mode.contains("v")) {
+				voiced.add(user);
+			} else {
+				members.add(user);
+			}
+		}
+		
+		if(ops.size() > 0) {
+			entries.add(adapter.buildItem(TYPE_HEADING, "OPERATORS", ops.size(), R.color.heading_operators, R.drawable.row_operator_bg));
+			for(int i = 0; i < ops.size(); i++) {
+				UsersDataSource.User user = ops.get(i);
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_operator_bg));
+			}
+		}
+		
+		if(voiced.size() > 0) {
+			entries.add(adapter.buildItem(TYPE_HEADING, "VOICED", voiced.size(), R.color.heading_voiced, R.drawable.row_voiced_bg));
+			for(int i = 0; i < voiced.size(); i++) {
+				UsersDataSource.User user = voiced.get(i);
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_voiced_bg));
+			}
+		}
+		
+		if(members.size() > 0) {
+			entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_buffergroup_bg));
+			for(int i = 0; i < members.size(); i++) {
+				UsersDataSource.User user = members.get(i);
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
+			}
+		}
+
+		adapter.setItems(entries);
+		
+		if(getListAdapter() == null && entries.size() > 0)
+			setListAdapter(adapter);
+		else
+			adapter.notifyDataSetChanged();
+	}
 	
 	private class RefreshTask extends AsyncTask<Void, Void, Void> {
-		ArrayList<UserListAdapter.UserListEntry> entries = new ArrayList<UserListAdapter.UserListEntry>();
+		ArrayList<UsersDataSource.User> users;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
-			ArrayList<UsersDataSource.User> ops = new ArrayList<UsersDataSource.User>();
-			ArrayList<UsersDataSource.User> voiced = new ArrayList<UsersDataSource.User>();
-			ArrayList<UsersDataSource.User> members = new ArrayList<UsersDataSource.User>();
-			if(adapter == null) {
-				adapter = new UserListAdapter(UsersListFragment.this);
-			}
-
-			for(int i = 0; i < users.size(); i++) {
-				UsersDataSource.User user = users.get(i);
-				if(user.mode.contains("o")) {
-					ops.add(user);
-				} else if(user.mode.contains("v")) {
-					voiced.add(user);
-				} else {
-					members.add(user);
-				}
-			}
-			
-			if(ops.size() > 0) {
-				entries.add(adapter.buildItem(TYPE_HEADING, "OPERATORS", ops.size(), R.color.heading_operators, R.drawable.row_operator_bg));
-				for(int i = 0; i < ops.size(); i++) {
-					UsersDataSource.User user = ops.get(i);
-					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_operator_bg));
-				}
-			}
-			
-			if(voiced.size() > 0) {
-				entries.add(adapter.buildItem(TYPE_HEADING, "VOICED", voiced.size(), R.color.heading_voiced, R.drawable.row_voiced_bg));
-				for(int i = 0; i < voiced.size(); i++) {
-					UsersDataSource.User user = voiced.get(i);
-					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_voiced_bg));
-				}
-			}
-			
-			if(members.size() > 0) {
-				entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_buffergroup_bg));
-				for(int i = 0; i < members.size(); i++) {
-					UsersDataSource.User user = members.get(i);
-					entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
-				}
-			}
-			
+			users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
 			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			adapter.setItems(entries);
-			
-			if(getListAdapter() == null && entries.size() > 0)
-				setListAdapter(adapter);
-			else
-				adapter.notifyDataSetChanged();
+			refresh(users);
 		}
 	}
 	
@@ -214,9 +219,18 @@ public class UsersListFragment extends SherlockListFragment {
 		} else {
 			view.setBackgroundResource(R.drawable.background_blue);
 		}
-    	new RefreshTask().execute((Void)null);
+    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+    	refresh(users);
     }
     
+    @Override
+    public void setArguments(Bundle args) {
+    	cid = args.getInt("cid", 0);
+    	channel = args.getString("name");
+    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+    	refresh(users);
+    }
+	
     public void onPause() {
     	super.onPause();
     	if(conn != null)

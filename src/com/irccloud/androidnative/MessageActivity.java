@@ -33,7 +33,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener {
+public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener {
 	int cid;
 	int bid;
 	String name;
@@ -47,8 +47,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	View userListView;
 	TextView title;
 	TextView subtitle;
+	int initialUsersListVisibility;
 
 	NetworkConnection conn;
+	private int initialUserListVisibility;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         userListView = findViewById(R.id.usersListFragment);
         if(getResources().getBoolean(R.bool.hideUserListFragment))
         	userListView.setVisibility(View.INVISIBLE);
+        initialUserListVisibility = userListView.getVisibility();
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -181,6 +184,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public void onResume() {
     	super.onResume();
+    	long min_eid = 0;
+    	long last_seen_eid = 0;
     	if(getIntent() != null && getIntent().hasExtra("cid")) {
 	    	cid = getIntent().getIntExtra("cid", 0);
 	    	bid = getIntent().getIntExtra("bid", 0);
@@ -189,11 +194,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	joined = getIntent().getIntExtra("joined", 0);
 	    	archived = getIntent().getIntExtra("archived", 0);
 	    	status = getIntent().getStringExtra("status");
+	    	min_eid = getIntent().getLongExtra("min_eid", 0);
+	    	last_seen_eid = getIntent().getLongExtra("last_seen_eid", 0);
     	}
     	if(bid == -1) {
     		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
     		if(b != null) {
     			bid = b.bid;
+    			last_seen_eid = b.last_seen_eid;
+    			min_eid = b.min_eid;
+    			archived = b.archived;
     		}
     	}
     	conn = NetworkConnection.getInstance();
@@ -230,6 +240,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        	}
     		}
     	}
+    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
+    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
+    	MessageViewFragment f = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+    	Bundle b = new Bundle();
+    	b.putInt("cid", cid);
+    	b.putInt("bid", bid);
+    	b.putLong("last_seen_eid", last_seen_eid);
+    	b.putLong("min_eid", min_eid);
+    	b.putString("name", name);
+    	b.putString("type", type);
+    	f.setArguments(b);
     	invalidateOptionsMenu();
     }
 
@@ -242,8 +263,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     private void updateUsersListFragmentVisibility() {
     	boolean hide = false;
-		View v = findViewById(R.id.usersListFragment);
-		if(v != null) {
+		if(userListView != null) {
 			try {
 				JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
 				if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
@@ -251,7 +271,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			} catch (JSONException e) {
 			}
 	    	if(hide || !type.equalsIgnoreCase("channel"))
-	    		v.setVisibility(View.GONE);
+	    		userListView.setVisibility(View.GONE);
+	    	else
+	    		userListView.setVisibility(initialUserListVisibility);
 		}
     }
     
@@ -808,4 +830,66 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		dialog.setOwnerActivity(this);
 		dialog.show();
     }
+
+	@Override
+	public void onBufferSelected(int cid, int bid, String name,
+			long last_seen_eid, long min_eid, String type, int joined,
+			int archived, String status) {
+		this.cid = cid;
+		this.bid = bid;
+		this.name = name;
+		this.type = type;
+		this.joined = joined;
+		this.archived = archived;
+		this.status = status;
+    	title.setText(name);
+    	getSupportActionBar().setTitle(name);
+    	if(archived > 0 && !type.equalsIgnoreCase("console")) {
+    		subtitle.setVisibility(View.VISIBLE);
+    		subtitle.setText("(archived)");
+    	} else {
+    		if(type.equalsIgnoreCase("conversation")) {
+        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
+    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+    			if(user != null && user.away > 0) {
+	        		subtitle.setVisibility(View.VISIBLE);
+    				if(user.away_msg != null && user.away_msg.length() > 0) {
+    					subtitle.setText("Away: " + user.away_msg);
+    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
+    	        		subtitle.setText("Away: " + b.away_msg);
+    				} else {
+    					subtitle.setText("Away");
+    				}
+    			} else {
+	        		subtitle.setVisibility(View.GONE);
+    			}
+    		} else if(type.equalsIgnoreCase("channel")) {
+	        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+	        	if(c != null && c.topic_text.length() > 0) {
+	        		subtitle.setVisibility(View.VISIBLE);
+	        		subtitle.setText(c.topic_text);
+	        	} else {
+	        		subtitle.setVisibility(View.GONE);
+	        	}
+    		}
+    	}
+    	Bundle b = new Bundle();
+    	b.putInt("cid", cid);
+    	b.putInt("bid", bid);
+    	b.putLong("last_seen_eid", last_seen_eid);
+    	b.putLong("min_eid", min_eid);
+    	b.putString("name", name);
+    	b.putString("type", type);
+    	BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+    	if(blf != null)
+    		blf.setSelectedBid(bid);
+    	if(mvf != null)
+    		mvf.setArguments(b);
+    	if(ulf != null)
+    		ulf.setArguments(b);
+    	updateUsersListFragmentVisibility();
+    	invalidateOptionsMenu();
+	}
 }

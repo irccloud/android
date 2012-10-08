@@ -11,6 +11,7 @@
         android:orientation="vertical" >
 
         <fragment
+	        android:id="@+id/messageViewFragment"
             android:name="com.irccloud.androidnative.MessageViewFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

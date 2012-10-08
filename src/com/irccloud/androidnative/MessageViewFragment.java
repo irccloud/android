@@ -107,6 +107,13 @@ public class MessageViewFragment extends SherlockListFragment {
 			data = new ArrayList<MessageEntry>();
 		}
 		
+		public void clear() {
+			max_eid = 0;
+			min_eid = 0;
+			data.clear();
+			notifyDataSetInvalidated();
+		}
+		
 		public void removeItem(long eid) {
 			for(int i = 0; i < data.size(); i++) {
 				if(data.get(i).eid == eid) {
@@ -395,20 +402,31 @@ public class MessageViewFragment extends SherlockListFragment {
     	state.putBoolean("firstScroll", firstScroll);
     	//TODO: serialize the adapter data
     }
-
     
-    public void onAttach(Activity activity) {
-    	super.onAttach(activity);
-    	if(activity.getIntent() != null && activity.getIntent().hasExtra("cid")) {
-	    	cid = activity.getIntent().getIntExtra("cid", 0);
-	    	bid = activity.getIntent().getIntExtra("bid", 0);
-	    	last_seen_eid = activity.getIntent().getLongExtra("last_seen_eid", 0);
-	    	min_eid = activity.getIntent().getLongExtra("min_eid", 0);
-	    	name = activity.getIntent().getStringExtra("name");
-	    	type = activity.getIntent().getStringExtra("type");
+    @Override
+    public void setArguments(Bundle args) {
+    	cid = args.getInt("cid", 0);
+    	bid = args.getInt("bid", 0);
+    	last_seen_eid = args.getLong("last_seen_eid", 0);
+    	min_eid = args.getLong("min_eid", 0);
+    	name = args.getString("name");
+    	type = args.getString("type");
+		firstScroll = true;
+		requestingBacklog = false;
+		shouldShowUnread = false;
+		avgInsertTime = 0;
+		newMsgs = 0;
+		newMsgTime = 0;
+    	if(bid != -1 && headerView != null) {
+    		adapter.clear();
+    		TreeMap<Long,IRCCloudJSONObject> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+    		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
+    		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
+			refresh(events, server, buffer);
+			getListView().setSelection(adapter.getCount() - 1);
     	}
     }
-
+    
     private void insertEvent(IRCCloudJSONObject event, boolean backlog) {
 		try {
     		long start = System.currentTimeMillis();

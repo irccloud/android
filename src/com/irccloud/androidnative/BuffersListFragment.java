@@ -54,6 +54,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	LinearLayout bottomUnreadIndicatorColor = null;
 	String error = null;
 	private Timer countdownTimer = null;
+	int selected_bid = -1;
 	
 	int firstUnreadPosition = -1;
 	int lastUnreadPosition= -1;
@@ -98,6 +99,15 @@ public class BuffersListFragment extends SherlockListFragment {
 		public void showProgress(int row) {
 			progressRow = row;
 			notifyDataSetChanged();
+		}
+		
+		public int positionForBid(int bid) {
+			for(int i = 0; i < data.size(); i++) {
+				BufferListEntry e = data.get(i);
+				if(e.bid == bid)
+					return i;
+			}
+			return -1;
 		}
 		
 		public BufferListAdapter(SherlockListFragment context) {
@@ -245,9 +255,20 @@ public class BuffersListFragment extends SherlockListFragment {
 			
 			if(holder.progress != null) {
 				if(progressRow == position || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
-					holder.progress.setVisibility(View.VISIBLE);
+					if(selected_bid == -1 || progressRow != position) {
+						holder.progress.setVisibility(View.VISIBLE);
+					} else {
+						if(holder.bufferbg != null)
+							holder.bufferbg.setSelected(true);
+						if(holder.groupbg != null)
+							holder.groupbg.setSelected(true);
+					}
 				} else {
 					holder.progress.setVisibility(View.GONE);
+					if(holder.bufferbg != null)
+						holder.bufferbg.setSelected(false);
+					if(holder.groupbg != null)
+						holder.groupbg.setSelected(false);
 				}
 			}
 			
@@ -412,9 +433,18 @@ public class BuffersListFragment extends SherlockListFragment {
 				updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
 			else //The activity view isn't ready yet, try again
 				new RefreshTask().execute((Void)null);
+
+			if(selected_bid > 0)
+				adapter.showProgress(adapter.positionForBid(selected_bid));
 		}
 	}
 
+	public void setSelectedBid(int bid) {
+		selected_bid = bid;
+		if(adapter != null)
+			adapter.showProgress(adapter.positionForBid(bid));
+	}
+	
 	private void updateUnreadIndicators(int first, int last) {
 		if(topUnreadIndicator != null) {
 			if(firstUnreadPosition != -1 && first >= firstUnreadPosition) {
@@ -505,6 +535,8 @@ public class BuffersListFragment extends SherlockListFragment {
         	adapter.setItems((ArrayList<BufferListEntry>) savedInstanceState.getSerializable("data"));
         	setListAdapter(adapter);
         	listView.setSelection(savedInstanceState.getInt("scrollPosition"));
+        	if(selected_bid > 0)
+        		adapter.showProgress(adapter.positionForBid(selected_bid));
         }
 		return view;
 	}
