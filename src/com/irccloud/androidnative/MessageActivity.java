@@ -311,6 +311,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
 					Log.i("IRCCloud", "Got my new buffer id: " + buffer.bid);
 					bid = buffer.bid;
+			    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
+			    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
@@ -689,29 +691,38 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    	case 0:
 		    		BuffersDataSource b = BuffersDataSource.getInstance();
 		    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, selected_user.nick);
-		    		Intent i = new Intent(MessageActivity.this, MessageActivity.class);
-		    		if(buffer != null) {
-			    		i.putExtra("cid", buffer.cid);
-			    		i.putExtra("bid", buffer.bid);
-			    		i.putExtra("name", buffer.name);
-			    		i.putExtra("last_seen_eid", buffer.last_seen_eid);
-			    		i.putExtra("min_eid", buffer.min_eid);
-			    		i.putExtra("type", buffer.type);
-			    		i.putExtra("joined", 1);
-			    		i.putExtra("archived", buffer.archived);
-			    		i.putExtra("status", status);
+		    		if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null) {
+			    		if(buffer != null) {
+			    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+			    					buffer.type, 1, buffer.archived, status);
+			    		} else {
+			    			onBufferSelected(cid, -1, selected_user.nick, 0, 0, "conversation", 1, 0, status);
+			    		}
 		    		} else {
-			    		i.putExtra("cid", cid);
-			    		i.putExtra("bid", -1);
-			    		i.putExtra("name", selected_user.nick);
-			    		i.putExtra("last_seen_eid", 0L);
-			    		i.putExtra("min_eid", 0L);
-			    		i.putExtra("type", "conversation");
-			    		i.putExtra("joined", 1);
-			    		i.putExtra("archived", 0);
-			    		i.putExtra("status", status);
+			    		Intent i = new Intent(MessageActivity.this, MessageActivity.class);
+			    		if(buffer != null) {
+				    		i.putExtra("cid", buffer.cid);
+				    		i.putExtra("bid", buffer.bid);
+				    		i.putExtra("name", buffer.name);
+				    		i.putExtra("last_seen_eid", buffer.last_seen_eid);
+				    		i.putExtra("min_eid", buffer.min_eid);
+				    		i.putExtra("type", buffer.type);
+				    		i.putExtra("joined", 1);
+				    		i.putExtra("archived", buffer.archived);
+				    		i.putExtra("status", status);
+			    		} else {
+				    		i.putExtra("cid", cid);
+				    		i.putExtra("bid", -1);
+				    		i.putExtra("name", selected_user.nick);
+				    		i.putExtra("last_seen_eid", 0L);
+				    		i.putExtra("min_eid", 0L);
+				    		i.putExtra("type", "conversation");
+				    		i.putExtra("joined", 1);
+				    		i.putExtra("archived", 0);
+				    		i.putExtra("status", status);
+			    		}
+			    		startActivity(i);
 		    		}
-		    		startActivity(i);
 		    		break;
 		    	case 1:
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);

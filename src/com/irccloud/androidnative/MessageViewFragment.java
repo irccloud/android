@@ -417,13 +417,14 @@ public class MessageViewFragment extends SherlockListFragment {
 		avgInsertTime = 0;
 		newMsgs = 0;
 		newMsgTime = 0;
-    	if(bid != -1 && headerView != null) {
-    		adapter.clear();
+    	if(headerView != null) {
+			adapter.clear();
     		TreeMap<Long,IRCCloudJSONObject> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
     		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			refresh(events, server, buffer);
-			getListView().setSelection(adapter.getCount() - 1);
+			if(events != null)
+				getListView().setSelection(adapter.getCount() - 1);
     	}
     }
     
@@ -786,6 +787,8 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(bid != -1) {
 				requestingBacklog = true;
 				conn.request_backlog(cid, bid, 0);
+			} else {
+	    		headerView.setVisibility(View.GONE);
 			}
 		} else if(events.size() > 0){
 			earliest_eid = events.firstKey();
