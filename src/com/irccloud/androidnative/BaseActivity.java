@@ -7,6 +7,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +35,9 @@ public class BaseActivity extends SherlockFragmentActivity {
     }
 
     protected void setLoadingIndicator(boolean state) {
-		setSupportProgressBarIndeterminateVisibility(state);
+    	//We toggle this to work around a bug where the bar wont redraw properly after setting the background drawable
+   		setSupportProgressBarIndeterminateVisibility(!state);
+   		setSupportProgressBarIndeterminateVisibility(state);
     }
     
     @Override
@@ -79,7 +82,8 @@ public class BaseActivity extends SherlockFragmentActivity {
     	}
     }
     
-    private final Handler mHandler = new Handler() {
+    @SuppressLint("HandlerLeak")
+	private final Handler mHandler = new Handler() {
     	String bufferToOpen = null;
     	int cidToOpen = -1;
     	
@@ -103,7 +107,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 				} else {
 					if(lastState != 2) {
 						setLoadingIndicator(false);
-						getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+			    		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
 						lastState = 2;
 					}
 				}
