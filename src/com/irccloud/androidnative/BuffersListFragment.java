@@ -263,7 +263,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						if(holder.groupbg != null)
 							holder.groupbg.setSelected(true);
 					}
-				} else {
+				} else if(e.type != TYPE_ARCHIVES_HEADER) {
 					holder.progress.setVisibility(View.GONE);
 					if(holder.bufferbg != null)
 						holder.bufferbg.setSelected(false);
