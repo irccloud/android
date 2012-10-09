@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 
 public class MainActivity extends BaseActivity implements BuffersListFragment.OnBufferSelectedListener {
 	NetworkConnection conn;
+	boolean shouldJumpToLastBuffer = true;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -31,8 +32,16 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 			}
         });
         getSupportActionBar().setCustomView(v);
+        if(savedInstanceState != null && savedInstanceState.containsKey("shouldJumpToLastBuffer"))
+        	shouldJumpToLastBuffer = savedInstanceState.getBoolean("shouldJumpToLastBuffer");
 	}
 
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	state.putBoolean("shouldJumpToLastBuffer", shouldJumpToLastBuffer);
+    }
+    
     @Override
     protected void setLoadingIndicator(boolean state) {
 		BuffersListFragment f = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
@@ -59,12 +68,28 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     	}
     }
     
-	static private final Handler mHandler = new Handler() {
+	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_USERINFO:
 				Log.i("IRCCloud", "User info updated!  Hello, " + ((NetworkConnection.UserInfo)msg.obj).name);
 				break;
+			case NetworkConnection.EVENT_BACKLOG_END:
+				if(shouldJumpToLastBuffer && conn != null && conn.getUserInfo() != null) {
+					int bid = conn.getUserInfo().last_selected_bid;
+					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+					if(b != null) {
+						ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+						int joined = 1;
+						if(b.type.equalsIgnoreCase("channel")) {
+							ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+							if(c == null)
+								joined = 0;
+						}
+						shouldJumpToLastBuffer = false;
+						onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
+					}
+				}
 			default:
 				break;
 			}

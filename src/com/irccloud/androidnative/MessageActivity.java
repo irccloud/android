@@ -265,10 +265,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	boolean hide = false;
 		if(userListView != null) {
 			try {
-				JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
-				if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
-					hide = true;
-			} catch (JSONException e) {
+				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
+					if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
+						hide = true;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 	    	if(hide || !type.equalsIgnoreCase("channel"))
 	    		userListView.setVisibility(View.GONE);

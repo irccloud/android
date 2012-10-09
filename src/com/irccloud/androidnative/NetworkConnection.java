@@ -877,7 +877,7 @@ public class NetworkConnection {
 		String name;
 		String email;
 		boolean verified;
-		long last_selected_bid;
+		int last_selected_bid;
 		long connections;
 		long active_connections;
 		long join_date;
@@ -895,7 +895,7 @@ public class NetworkConnection {
 			name = object.getString("name");
 			email = object.getString("email");
 			verified = object.getBoolean("verified");
-			last_selected_bid = object.getLong("last_selected_bid");
+			last_selected_bid = object.getInt("last_selected_bid");
 			connections = object.getLong("num_connections");
 			active_connections = object.getLong("num_active_connections");
 			join_date = object.getLong("join_date");
