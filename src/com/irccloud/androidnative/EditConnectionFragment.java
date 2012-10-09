@@ -1,11 +1,16 @@
 package com.irccloud.androidnative;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
-
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.support.v4.app.DialogFragment;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -13,7 +18,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-public class EditConnectionActivity extends SherlockActivity {
+public class EditConnectionFragment extends DialogFragment {
 	ServersDataSource.Server server;
 
 	Spinner presets;
@@ -69,27 +74,27 @@ public class EditConnectionActivity extends SherlockActivity {
 		"irc.twit.tv"
 	};
 	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_connection);
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+	@Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+		Context ctx = getActivity();
+		if(Build.VERSION.SDK_INT < 11)
+			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
-		getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);
-		presets = (Spinner)findViewById(R.id.presets);
-		hostname = (EditText)findViewById(R.id.hostname);
-		port = (EditText)findViewById(R.id.port);
-		ssl = (CheckBox)findViewById(R.id.ssl);
-		nickname = (EditText)findViewById(R.id.nickname);
-		realname = (EditText)findViewById(R.id.realname);
-		channels = (EditText)findViewById(R.id.channels);
-		nickserv_pass = (EditText)findViewById(R.id.nickservpassword);
-		join_commands = (EditText)findViewById(R.id.commands);
-		server_pass = (EditText)findViewById(R.id.serverpassword);
+		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    	View v = inflater.inflate(R.layout.dialog_edit_connection, null);
+		presets = (Spinner)v.findViewById(R.id.presets);
+		hostname = (EditText)v.findViewById(R.id.hostname);
+		port = (EditText)v.findViewById(R.id.port);
+		ssl = (CheckBox)v.findViewById(R.id.ssl);
+		nickname = (EditText)v.findViewById(R.id.nickname);
+		realname = (EditText)v.findViewById(R.id.realname);
+		channels = (EditText)v.findViewById(R.id.channels);
+		nickserv_pass = (EditText)v.findViewById(R.id.nickservpassword);
+		join_commands = (EditText)v.findViewById(R.id.commands);
+		server_pass = (EditText)v.findViewById(R.id.serverpassword);
 
 		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_item, PRESET_NETWORKS);
     	adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		presets.setAdapter(adapter);
@@ -107,9 +112,6 @@ public class EditConnectionActivity extends SherlockActivity {
 			    		port.setText("");
 			   			ssl.setChecked(false);
 					}
-					hostname.setEnabled(true);
-					port.setEnabled(true);
-					ssl.setEnabled(true);
 				} else {
 					hostname.setText(PRESET_SERVERS[position]);
 					if(PRESET_NETWORKS[position].contains(" (SSL")) {
@@ -119,9 +121,6 @@ public class EditConnectionActivity extends SherlockActivity {
 			    		port.setText("6667");
 			   			ssl.setChecked(false);
 					}
-					hostname.setEnabled(false);
-					port.setEnabled(false);
-					ssl.setEnabled(false);
 				}
 			}
 
@@ -140,23 +139,27 @@ public class EditConnectionActivity extends SherlockActivity {
 			
 		});
 		
-    	getSupportActionBar().getCustomView().findViewById(R.id.action_cancel).setOnClickListener(new CancelClickListener());
-    	getSupportActionBar().getCustomView().findViewById(R.id.action_done).setOnClickListener(new DoneClickListener());
-
 		if(savedInstanceState != null && savedInstanceState.containsKey("cid"))
 			server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
+		
+    	Dialog d = new AlertDialog.Builder(ctx)
+        .setTitle("Add A Network")
+        .setView(v)
+        .setPositiveButton("Add", new DoneClickListener())
+        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+        })
+        .create();
+	    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+    	return d;
     }
 
-    class CancelClickListener implements OnClickListener {
+    class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
-		public void onClick(View v) {
-			finish();
-		}
-    }
-    
-    class DoneClickListener implements OnClickListener {
-		@Override
-		public void onClick(View v) {
+		public void onClick(DialogInterface dialog, int which) {
 			if(server == null) {
 				String netname = hostname.getText().toString();
 				if(presets.getSelectedItemPosition() > 0) {
@@ -177,29 +180,7 @@ public class EditConnectionActivity extends SherlockActivity {
 								nickserv_pass.getText().toString(), join_commands.getText().toString());
 				
 			}
-			finish();
+			dialog.dismiss();
 		}
-    }
-    
-    @Override
-    public void onResume() {
-    	super.onResume();
-    	
-    	if(server == null && getIntent() != null && getIntent().hasExtra("cid"))
-			server = ServersDataSource.getInstance().getServer(getIntent().getIntExtra("cid",-1));
-    	
-    	if(server != null) {
-    		findViewById(R.id.channels_wrapper).setVisibility(View.GONE);
-    		
-    		hostname.setText(server.hostname);
-    		port.setText(String.valueOf(server.port));
-   			ssl.setChecked(server.ssl == 1);
-   			nickname.setText(server.nick);
-   			realname.setText(server.realname);
-   			nickserv_pass.setText(server.nickserv_pass);
-   			if(server.join_commands != null && !server.join_commands.equals("null"))
-   				join_commands.setText(server.join_commands);
-   			server_pass.setText(server.server_pass);
-    	}
     }
 }

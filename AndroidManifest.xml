@@ -15,8 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
-            android:label="@string/title_activity_main" android:launchMode="singleTop">
+            android:name=".MainActivity" android:label="@string/title_activity_main" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,11 +32,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".EditConnectionActivity"
-            android:label="@string/title_activity_edit_connection" >
-        </activity>
-        <activity
-            android:name="com.irccloud.androidnativenative.IgnoreListActivity"
+            android:name=".IgnoreListActivity"
             android:label="@string/title_activity_ignore_list" >
         </activity>
         </application>
