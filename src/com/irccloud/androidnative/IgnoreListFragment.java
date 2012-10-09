@@ -1,8 +1,5 @@
 package com.irccloud.androidnative;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,9 +12,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.gson.JsonArray;
 
 public class IgnoreListFragment extends SherlockListFragment {
-	JSONArray ignores;
+	JsonArray ignores;
 	int cid;
 	IgnoresAdapter adapter;
 	NetworkConnection conn;
@@ -37,14 +35,14 @@ public class IgnoreListFragment extends SherlockListFragment {
 		
 		@Override
 		public int getCount() {
-			return ignores.length();
+			return ignores.size();
 		}
 
 		@Override
 		public Object getItem(int pos) {
 			try {
 				return ignores.get(pos);
-			} catch (JSONException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			return null;
@@ -60,8 +58,8 @@ public class IgnoreListFragment extends SherlockListFragment {
 			public void onClick(View v) {
 				Integer position = (Integer)v.getTag();
 				try {
-					conn.unignore(cid, ignores.getString(position));
-				} catch (JSONException e) {
+					conn.unignore(cid, ignores.get(position).getAsString());
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -91,10 +89,10 @@ public class IgnoreListFragment extends SherlockListFragment {
 			}
 			
 			try {
-				holder.label.setText(ignores.getString(position));
+				holder.label.setText(ignores.get(position).toString());
 				holder.removeBtn.setOnClickListener(removeClickListener);
 				holder.removeBtn.setTag(position);
-			} catch (JSONException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

@@ -10,7 +10,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.XMLReader;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -34,6 +33,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
@@ -811,7 +812,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	}
 		}
     	try {
-			update_status(server.status, new JSONObject(server.fail_info));
+    		
+			update_status(server.status, new JsonParser().parse(server.fail_info).getAsJsonObject());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -853,9 +855,9 @@ public class MessageViewFragment extends SherlockListFragment {
 	
 	private class StatusRefreshRunnable implements Runnable {
 		String status;
-		JSONObject fail_info;
+		JsonObject fail_info;
 		
-		public StatusRefreshRunnable(String status, JSONObject fail_info) {
+		public StatusRefreshRunnable(String status, JsonObject fail_info) {
 			this.status = status;
 			this.fail_info = fail_info;
 		}
@@ -868,7 +870,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	
 	StatusRefreshRunnable statusRefreshRunnable = null;
 	
-	private void update_status(String status, JSONObject fail_info) {
+	private void update_status(String status, JsonObject fail_info) {
 		if(statusRefreshRunnable != null) {
 			mHandler.removeCallbacks(statusRefreshRunnable);
 			statusRefreshRunnable = null;
@@ -915,13 +917,13 @@ public class MessageViewFragment extends SherlockListFragment {
     	} else if(status.equals("waiting_to_retry")) {
     		try {
 	    		statusView.setVisibility(View.VISIBLE);
-	    		long seconds = (fail_info.getLong("timestamp") + fail_info.getInt("retry_timeout")) - System.currentTimeMillis()/1000;
-	    		statusView.setText("Disconnected: " + fail_info.getString("reason") + ". Reconnecting in " + seconds + " seconds.");
+	    		long seconds = (fail_info.get("timestamp").getAsLong() + fail_info.get("retry_timeout").getAsInt()) - System.currentTimeMillis()/1000;
+	    		statusView.setText("Disconnected: " + fail_info.get("reason").getAsString() + ". Reconnecting in " + seconds + " seconds.");
 	    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
 	    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
 	    		statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
 	    		mHandler.postDelayed(statusRefreshRunnable, 500);
-    		} catch (JSONException e) {
+    		} catch (Exception e) {
     			e.printStackTrace();
     		}
     	} else if(status.equals("ip_retry")) {
@@ -954,9 +956,9 @@ public class MessageViewFragment extends SherlockListFragment {
 				try {
 					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
 					if(object.getInt("cid") == cid) {
-						update_status(object.getString("new_status"), object.getJSONObject("fail_info"));
+						update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
 					}
-				} catch (JSONException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

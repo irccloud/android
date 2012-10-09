@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
@@ -19,7 +20,6 @@ import java.util.zip.GZIPInputStream;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +29,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import com.codebutler.android_websockets.WebSocketClient;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
 public class NetworkConnection {
 	private static final String TAG = "IRCCloud";
@@ -518,7 +523,7 @@ public class NetworkConnection {
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-								object.getJSONObject("fail_info").toString(), object.getString("away"), object.getJSONArray("ignores"));
+								object.getJsonObject("fail_info").toString(), object.getString("away"), object.getJsonArray("ignores"));
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("connection_deleted")) {
@@ -558,7 +563,7 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_RENAMECONVERSATION, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("status_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getJSONObject("fail_info").toString());
+				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getString("fail_info"));
 				if(!backlog)
 					notifyHandlers(EVENT_STATUSCHANGED, object);
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart")
@@ -575,14 +580,16 @@ public class NetworkConnection {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.deleteChannel(object.getLong("bid"));
 				ChannelsDataSource.Channel channel = c.createChannel(object.getInt("cid"), object.getLong("bid"), object.getString("chan"),
-						object.getJSONObject("topic").isNull("text")?"":object.getJSONObject("topic").getString("text"), object.getJSONObject("topic").getLong("time"), 
-						object.getJSONObject("topic").getString("nick"), object.getString("channel_type"), object.getString("mode"), object.getLong("timestamp"));
+						object.getJsonObject("topic").get("text").isJsonNull()?"":object.getJsonObject("topic").get("text").getAsString(),
+								object.getJsonObject("topic").get("time").getAsLong(), 
+						object.getJsonObject("topic").get("nick").getAsString(), object.getString("channel_type"),
+						object.getString("mode"), object.getLong("timestamp"));
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUsersForChannel(object.getInt("cid"), object.getString("chan"));
-				JSONArray users = object.getJSONArray("members");
-				for(int i = 0; i < users.length(); i++) {
-					JSONObject user = users.getJSONObject(i);
-					u.createUser(object.getInt("cid"), object.getString("chan"), user.getString("nick"), user.getString("usermask"), user.getString("mode"), user.getBoolean("away")?1:0);
+				JsonArray users = object.getJsonArray("members");
+				for(int i = 0; i < users.size(); i++) {
+					JsonObject user = users.get(i).getAsJsonObject();
+					u.createUser(object.getInt("cid"), object.getString("chan"), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0);
 				}
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELINIT, channel);
@@ -673,17 +680,17 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_USERCHANNELMODE, object);
 			} else if(type.equalsIgnoreCase("member_updates")) {
-				JSONObject updates = object.getJSONObject("updates");
-				Iterator<String> i = updates.keys();
+				JsonObject updates = object.getJsonObject("updates");
+				Iterator<Entry<String, JsonElement>> i = updates.entrySet().iterator();
 				while(i.hasNext()) {
-					String nick = i.next();
-					JSONObject user = updates.getJSONObject(nick);
+					Entry<String, JsonElement> entry = i.next();
+					JsonObject user = entry.getValue().getAsJsonObject();
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
 					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
 					if(chan != null) {
 						UsersDataSource u = UsersDataSource.getInstance();
-						u.updateAway(object.getInt("cid"), chan.name, user.getString("nick"), user.getBoolean("away")?1:0);
-						u.updateHostmask(object.getInt("cid"), chan.name, user.getString("nick"), user.getString("usermask"));
+						u.updateAway(object.getInt("cid"), chan.name, user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
+						u.updateHostmask(object.getInt("cid"), chan.name, user.get("nick").getAsString(), user.get("usermask").getAsString());
 					}
 				}
 				if(!backlog)
@@ -728,22 +735,23 @@ public class NetworkConnection {
 				s.updateLag(object.getInt("cid"), object.getLong("lag"));
 			} else if(type.equalsIgnoreCase("isupport_params")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateIsupport(object.getInt("cid"), object.getJSONObject("params"));
+				s.updateIsupport(object.getInt("cid"), object.getJsonObject("params"));
 			} else if(type.equalsIgnoreCase("set_ignores") || type.equalsIgnoreCase("ignore_list")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateIgnores(object.getInt("cid"), object.getJSONArray("masks"));
+				s.updateIgnores(object.getInt("cid"), object.getJsonArray("masks"));
 				if(!backlog)
 					notifyHandlers(EVENT_SETIGNORES, object);
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
-				JSONObject seenEids = object.getJSONObject("seenEids");
-				Iterator<String> i = seenEids.keys();
+				JsonObject seenEids = object.getJsonObject("seenEids");
+				Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
 				while(i.hasNext()) {
-					String cid = i.next();
-					JSONObject eids = seenEids.getJSONObject(cid);
-					Iterator<String> j = eids.keys();
+					Entry<String, JsonElement> entry = i.next();
+					JsonObject eids = entry.getValue().getAsJsonObject();
+					Iterator<Entry<String, JsonElement>> j = eids.entrySet().iterator();
 					while(j.hasNext()) {
-						String bid = j.next();
-						long eid = eids.getLong(bid);
+						Entry<String, JsonElement> eidentry = j.next();
+						String bid = eidentry.getKey();
+						long eid = eidentry.getValue().getAsLong();
 						BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
 					}
 				}
@@ -766,49 +774,6 @@ public class NetworkConnection {
 			schedule_idle_timer();
 	}
 	
-	private String doGet(URL url) throws IOException {
-		Log.d(TAG, "Requesting: " + url);
-		
-		HttpURLConnection conn = null;
-
-        if (url.getProtocol().toLowerCase().equals("https")) {
-            HttpsURLConnection https = (HttpsURLConnection) url.openConnection();
-            conn = https;
-        } else {
-        	conn = (HttpURLConnection) url.openConnection();
-        }
-		conn.setRequestMethod("GET");
-		conn.setRequestProperty("Connection", "close");
-		conn.setRequestProperty("Cookie", "session="+session);
-		conn.setRequestProperty("Accept", "application/json");
-		conn.setRequestProperty("Content-type", "application/json");
-		conn.setRequestProperty("Accept-Encoding", "gzip");
-		BufferedReader reader = null;
-		String response = "";
-		conn.connect();
-		try {
-			if(conn.getInputStream() != null) {
-				if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
-					reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())), 512);
-				else
-					reader = new BufferedReader(new InputStreamReader(conn.getInputStream()), 512);
-			}
-		} catch (IOException e) {
-			if(conn.getErrorStream() != null) {
-				if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
-					reader = new BufferedReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())), 512);
-				else
-					reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()), 512);
-			}
-		}
-
-		if(reader != null) {
-			response = toString(reader);
-			reader.close();
-		}
-		return response;
-	}
-
 	private String doPost(URL url, String postdata) throws IOException {
 		Log.d(TAG, "POSTing to: " + url);
 		
@@ -940,36 +905,71 @@ public class NetworkConnection {
 				prefs = null;
 			
 			limits_name = object.getString("limits_name");
-			JSONObject limits = object.getJSONObject("limits");
-			limit_networks = limits.getLong("networks");
-			limit_passworded_servers = limits.getBoolean("passworded_servers");
-			limit_zombiehours = limits.getLong("zombiehours");
-			limit_download_logs = limits.getBoolean("download_logs");
-			limit_maxhistorydays = limits.getLong("maxhistorydays");
+			JsonObject limits = object.getJsonObject("limits");
+			limit_networks = limits.get("networks").getAsLong();
+			limit_passworded_servers = limits.get("passworded_servers").getAsBoolean();
+			limit_zombiehours = limits.get("zombiehours").getAsLong();
+			limit_download_logs = limits.get("download_logs").getAsBoolean();
+			limit_maxhistorydays = limits.get("maxhistorydays").getAsLong();
 		}
 	}
 	
 	private class OOBIncludeTask extends AsyncTask<URL, Void, Boolean> {
-		String json = null;
-		
 		@Override
 		protected Boolean doInBackground(URL... url) {
 			try {
-				json = doGet(url[0]);
-				synchronized(parserLock) {
-					long time = System.currentTimeMillis();
-					Log.i("IRCCloud", "Beginning backlog...");
-					notifyHandlers(EVENT_BACKLOG_START, null);
-					if(!json.startsWith("[") && ServersDataSource.getInstance().count() < 1) {
-						Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
-						client.disconnect();
-					} else {
-						JSONArray a = new JSONArray(json);
-						for(int i = 0; i < a.length(); i++)
-							parse_object(new IRCCloudJSONObject(a.getJSONObject(i)), true);
+				Log.d(TAG, "Requesting: " + url[0]);
+				
+				HttpURLConnection conn = null;
+
+		        if (url[0].getProtocol().toLowerCase().equals("https")) {
+		            HttpsURLConnection https = (HttpsURLConnection) url[0].openConnection();
+		            conn = https;
+		        } else {
+		        	conn = (HttpURLConnection) url[0].openConnection();
+		        }
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("Connection", "close");
+				conn.setRequestProperty("Cookie", "session="+session);
+				conn.setRequestProperty("Accept", "application/json");
+				conn.setRequestProperty("Content-type", "application/json");
+				conn.setRequestProperty("Accept-Encoding", "gzip");
+				conn.connect();
+				JsonReader reader = null;
+				try {
+					if(conn.getInputStream() != null) {
+						if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
+							reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())));
+						else
+							reader = new JsonReader(new InputStreamReader(conn.getInputStream()));
+					}
+				} catch (IOException e) {
+					if(conn.getErrorStream() != null) {
+						if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
+							reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())));
+						else
+							reader = new JsonReader(new InputStreamReader(conn.getErrorStream()));
+					}
+				}
+
+				if(reader != null) {
+					synchronized(parserLock) {
+						long time = System.currentTimeMillis();
+						Log.i("IRCCloud", "Beginning backlog...");
+						notifyHandlers(EVENT_BACKLOG_START, null);
+						JsonParser parser = new JsonParser();
+						reader.beginArray();
+						while(reader.hasNext()) {
+							JsonElement e = parser.parse(reader);
+							parse_object(new IRCCloudJSONObject(e.getAsJsonObject()), true);
+						}
 						Log.i("IRCCloud", "Backlog complete!");
 						Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
 					}
+					reader.close();
+				} else if(ServersDataSource.getInstance().count() < 1) {
+					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
+					client.disconnect();
 				}
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;

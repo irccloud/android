@@ -1,7 +1,5 @@
 package com.irccloud.androidnative;
 
-import org.json.JSONException;
-
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -157,7 +155,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 			    		bufferToOpen = null;
 			    		cidToOpen = -1;
 					}
-				} catch (JSONException e2) {
+				} catch (Exception e2) {
 					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
@@ -179,7 +177,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(BaseActivity.this);
 		    		dialog.show();
-				} catch (JSONException e1) {
+				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -201,7 +199,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(BaseActivity.this);
 		    		dialog.show();
-				} catch (JSONException e1) {
+				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -223,7 +221,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		    		dialog = builder.create();
 		    		dialog.setOwnerActivity(BaseActivity.this);
 		    		dialog.show();
-				} catch (JSONException e1) {
+				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
@@ -239,7 +237,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 	        	final EditText input = (EditText)view.findViewById(R.id.textInput);
 	        	try {
 					prompt.setText("Password for " + o.getString("chan"));
-				} catch (JSONException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -250,7 +248,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 					public void onClick(DialogInterface dialog, int which) {
 						try {
 							conn.join(o.cid(), o.getString("chan"), input.getText().toString());
-						} catch (JSONException e) {
+						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}

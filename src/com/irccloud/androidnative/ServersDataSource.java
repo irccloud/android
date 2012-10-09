@@ -3,8 +3,8 @@ package com.irccloud.androidnative;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class ServersDataSource {
 	public class Server {
@@ -24,8 +24,8 @@ public class ServersDataSource {
 		String away;
 		String usermask;
 		String mode;
-		JSONObject isupport;
-		JSONArray ignores;
+		JsonObject isupport;
+		JsonArray ignores;
 	}
 
 	private ArrayList<Server> servers;
@@ -46,7 +46,7 @@ public class ServersDataSource {
 		servers.clear();
 	}
 	
-	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, String away, JSONArray ignores) {
+	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, String away, JsonArray ignores) {
 		Server s = new Server();
 		s.cid = cid;
 		s.name = name;
@@ -109,14 +109,14 @@ public class ServersDataSource {
 		}
 	}
 
-	public void updateIsupport(int cid, JSONObject params) {
+	public void updateIsupport(int cid, JsonObject params) {
 		Server s = getServer(cid);
 		if(s != null) {
 			s.isupport = params;
 		}
 	}
 
-	public void updateIgnores(int cid, JSONArray ignores) {
+	public void updateIgnores(int cid, JsonArray ignores) {
 		Server s = getServer(cid);
 		if(s != null) {
 			s.ignores = ignores;

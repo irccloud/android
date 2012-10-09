@@ -294,7 +294,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						status = o.getString("new_status");
 						invalidateOptionsMenu();
 					}
-				} catch (JSONException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -382,7 +382,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						} else {
 							subtitle.setVisibility(View.GONE);
 						}
-					} catch (JSONException e) {
+					} catch (Exception e) {
 						subtitle.setVisibility(View.GONE);
 						e.printStackTrace();
 					}
@@ -395,7 +395,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		subtitle.setVisibility(View.GONE);
 						subtitle.setText("");
 					}
-				} catch (JSONException e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 				break;
@@ -409,7 +409,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		else
 			    			subtitle.setText("Away: " + event.getString("msg"));
 					}
-				} catch (JSONException e1) {
+				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 				break;

@@ -676,7 +676,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						if(error.equals("temp_unavailable"))
 							error = "Your account is temporarily unavailable";
 						updateReconnecting();
-					} catch (JSONException e) {
+					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}

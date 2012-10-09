@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.json.JSONException;
-
 @SuppressLint("UseSparseArrays")
 public class EventsDataSource {
 
@@ -93,7 +91,7 @@ public class EventsDataSource {
 						if(e.eid() > last_seen_eid && (type.equals("buffer_msg") || type.equals("buffer_me_msg") 
 								|| (type.equals("notice") && (!buffer_type.equals("console") || !(e.has("server") && !e.getString("server").equals("undefined"))))))
 							count++;
-					} catch (JSONException e1) {
+					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
