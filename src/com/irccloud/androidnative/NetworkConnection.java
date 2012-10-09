@@ -34,6 +34,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 
 public class NetworkConnection {
 	private static final String TAG = "IRCCloud";
@@ -952,7 +953,7 @@ public class NetworkConnection {
 					}
 				}
 
-				if(reader != null) {
+				if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
 					synchronized(parserLock) {
 						long time = System.currentTimeMillis();
 						Log.i("IRCCloud", "Beginning backlog...");
@@ -963,14 +964,17 @@ public class NetworkConnection {
 							JsonElement e = parser.parse(reader);
 							parse_object(new IRCCloudJSONObject(e.getAsJsonObject()), true);
 						}
+						reader.endArray();
 						Log.i("IRCCloud", "Backlog complete!");
 						Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
 					}
-					reader.close();
 				} else if(ServersDataSource.getInstance().count() < 1) {
 					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
 				}
+				if(reader != null)
+					reader.close();
+
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;
 			} catch (Exception e) {
