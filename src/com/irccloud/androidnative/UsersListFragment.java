@@ -168,10 +168,10 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 		
 		if(members.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_buffergroup_bg));
+			entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_members_bg));
 			for(int i = 0; i < members.size(); i++) {
 				UsersDataSource.User user = members.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_buffergroup_bg));
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_members_bg));
 			}
 		}
 
