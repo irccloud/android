@@ -112,7 +112,6 @@ public class MessageViewFragment extends SherlockListFragment {
 			max_eid = 0;
 			min_eid = 0;
 			data.clear();
-			//notifyDataSetInvalidated();
 		}
 		
 		public void removeItem(long eid) {
@@ -744,6 +743,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			getActivity().getIntent().putExtra("last_seen_eid", eid);
 	    		NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
 	    		last_seen_eid = eid;
+	    		BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
 	    	}
 			return null;
 		}
@@ -780,6 +780,8 @@ public class MessageViewFragment extends SherlockListFragment {
 						adapter.notifyDataSetChanged();
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
 					}
+					Long e = adapter.data.get(adapter.data.size() - 1).eid;
+					new HeartbeatTask().execute(e);
 				} catch (IllegalStateException e) {
 					//The list view doesn't exist yet
 					Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
