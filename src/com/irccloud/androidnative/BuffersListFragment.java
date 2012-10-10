@@ -682,22 +682,8 @@ public class BuffersListFragment extends SherlockListFragment {
 					}
 				}
 				break;
-			case NetworkConnection.EVENT_BACKLOG_END:
-			case NetworkConnection.EVENT_USERINFO:
-			case NetworkConnection.EVENT_MAKESERVER:
-			case NetworkConnection.EVENT_STATUSCHANGED:
-			case NetworkConnection.EVENT_CONNECTIONDELETED:
-			case NetworkConnection.EVENT_MAKEBUFFER:
-			case NetworkConnection.EVENT_DELETEBUFFER:
-			case NetworkConnection.EVENT_BUFFERMSG:
-			case NetworkConnection.EVENT_HEARTBEATECHO:
-			case NetworkConnection.EVENT_BUFFERARCHIVED:
-			case NetworkConnection.EVENT_BUFFERUNARCHIVED:
-			case NetworkConnection.EVENT_RENAMECONVERSATION:
-			case NetworkConnection.EVENT_PART:
-		    	new RefreshTask().execute((Void)null);
-				break;
 			default:
+		    	new RefreshTask().execute((Void)null);
 				break;
 			}
 		}
