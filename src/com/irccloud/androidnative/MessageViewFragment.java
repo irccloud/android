@@ -418,10 +418,15 @@ public class MessageViewFragment extends SherlockListFragment {
 		avgInsertTime = 0;
 		newMsgs = 0;
 		newMsgTime = 0;
-		if(adapter != null)
-			adapter.clear();
-		if(headerView != null)
+		earliest_eid = 0;
+		if(headerView != null) {
 			headerView.setVisibility(View.VISIBLE);
+			adapter.clear();
+			if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
+				requestingBacklog = true;
+				new RefreshTask().execute((Void)null);
+			}
+		}
     }
     
     private void insertEvent(IRCCloudJSONObject event, boolean backlog) {
