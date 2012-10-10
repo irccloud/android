@@ -112,7 +112,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			max_eid = 0;
 			min_eid = 0;
 			data.clear();
-			notifyDataSetInvalidated();
+			//notifyDataSetInvalidated();
 		}
 		
 		public void removeItem(long eid) {
@@ -420,11 +420,13 @@ public class MessageViewFragment extends SherlockListFragment {
 		newMsgTime = 0;
 		earliest_eid = 0;
 		if(headerView != null) {
-			headerView.setVisibility(View.VISIBLE);
-			adapter.clear();
 			if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
 				requestingBacklog = true;
 				new RefreshTask().execute((Void)null);
+			} else {
+				headerView.setVisibility(View.VISIBLE);
+				adapter.clear();
+				adapter.notifyDataSetInvalidated();
 			}
 		}
     }
@@ -768,8 +770,12 @@ public class MessageViewFragment extends SherlockListFragment {
 				try {
 					int oldSize = adapter.data.size();
 					int oldPosition = getListView().getFirstVisiblePosition();
+					adapter.clear();
 					refresh(events, server, buffer);
-					if(oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
+					if(firstScroll) {
+						getListView().setSelection(adapter.data.size() - 1);
+						firstScroll = false;
+					} else if(oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
 						int markerPos = adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
 						adapter.notifyDataSetChanged();
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
