@@ -79,7 +79,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	userListView.setVisibility(View.INVISIBLE);
         initialUserListVisibility = userListView.getVisibility();
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         
@@ -511,13 +511,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
         switch (item.getItemId()) {
 	        case android.R.id.home:
-	        	if(buffersListMenu != null) {
+	        	if(buffersListMenu != null)
 	        		buffersListMenu.show();
-	        	} else {
-		        	Intent upIntent = new Intent(this, MainActivity.class);
-		        	NavUtils.navigateUpTo(this, upIntent);
-		        	startActivity(upIntent);
-	        	}
 	            return true;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);

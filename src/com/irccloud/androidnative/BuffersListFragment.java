@@ -45,15 +45,11 @@ public class BuffersListFragment extends SherlockListFragment {
 	BufferListAdapter adapter;
 	OnBufferSelectedListener mListener;
 	View view;
-	TextView errorMsg;
 	ListView listView = null;
-	RelativeLayout connecting = null;
 	LinearLayout topUnreadIndicator = null;
 	LinearLayout topUnreadIndicatorColor = null;
 	LinearLayout bottomUnreadIndicator = null;
 	LinearLayout bottomUnreadIndicatorColor = null;
-	String error = null;
-	private Timer countdownTimer = null;
 	int selected_bid = -1;
 	
 	int firstUnreadPosition = -1;
@@ -425,10 +421,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			else
 				adapter.notifyDataSetChanged();
 			
-			if(entries.size() > 0 && connecting != null) {
-				connecting.setVisibility(View.GONE);
-			}
-			
 			if(listView != null)
 				updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
 			else //The activity view isn't ready yet, try again
@@ -478,8 +470,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.bufferslist, null);
-		errorMsg = (TextView)view.findViewById(R.id.errorMsg);
-		connecting = (RelativeLayout)view.findViewById(R.id.connecting);
 		topUnreadIndicator = (LinearLayout)view.findViewById(R.id.topUnreadIndicator);
 		topUnreadIndicator.setOnClickListener(new OnClickListener() {
 
@@ -567,7 +557,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			view.setBackgroundResource(R.drawable.disconnected_yellow);
 		} else {
 			view.setBackgroundResource(R.drawable.background_blue);
-			connecting.setVisibility(View.GONE);
 			getListView().setVisibility(View.VISIBLE);
 		}
 		if(adapter != null)
@@ -614,83 +603,16 @@ public class BuffersListFragment extends SherlockListFragment {
     	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived, e.status);
     }
     
-	private void updateReconnecting() {
-    	if(conn.getReconnectTimestamp() > 0) {
-    		String plural = "";
-    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
-    		if(seconds != 1)
-    			plural = "s";
-    		if(seconds < 1)
-    			errorMsg.setText("Connecting");
-    		else if(seconds > 10 && error != null)
-				errorMsg.setText(error +"\n\nReconnecting in\n" + seconds + " second" + plural);
-			else
-				errorMsg.setText("Reconnecting in\n" + seconds + " second" + plural);
-			if(countdownTimer != null)
-				countdownTimer.cancel();
-			countdownTimer = new Timer();
-			countdownTimer.schedule( new TimerTask(){
-	             public void run() {
-	    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-	    				 mHandler.post(new Runnable() {
-							@Override
-							public void run() {
-			 					updateReconnecting();
-							}
-	    				 });
-	    			 }
-	    			 countdownTimer = null;
-	             }
-			}, 1000);
-    	} else {
-			errorMsg.setText("Offline");
-    	}
-    }
     
     @SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-					view.setBackgroundResource(R.drawable.disconnected_yellow);
-				} else {
-					view.setBackgroundResource(R.drawable.background_blue);
-					errorMsg.setText("Loading");
-					error = null;
-				}
-				if(conn.getState() == NetworkConnection.STATE_CONNECTING) {
-					errorMsg.setText("Connecting");
-					error = null;
-				}
-				else if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
-					updateReconnecting();
-				if(adapter != null)
-					adapter.notifyDataSetChanged();
-				break;
-			case NetworkConnection.EVENT_FAILURE_MSG:
-				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-					try {
-						error = o.getString("message");
-						if(error.equals("temp_unavailable"))
-							error = "Your account is temporarily unavailable";
-						updateReconnecting();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				break;
-			default:
-				try {
-					IRCCloudJSONObject o1 = (IRCCloudJSONObject)msg.obj;
-					if(o1.bid() != selected_bid)
-						new RefreshTask().execute((Void)null);
-				} catch (Exception e) { //Not all events return a JSON object
-			    	new RefreshTask().execute((Void)null);
-				}
-				break;
+			try {
+				IRCCloudJSONObject o1 = (IRCCloudJSONObject)msg.obj;
+				if(o1.bid() != selected_bid)
+					new RefreshTask().execute((Void)null);
+			} catch (Exception e) { //Not all events return a JSON object
+		    	new RefreshTask().execute((Void)null);
 			}
 		}
 	};
@@ -703,13 +625,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			else
 				listView.setSelection(0);
 		}
-	}
-	
-	public int getConnectingVisibility() {
-		if(connecting != null)
-			return connecting.getVisibility();
-		else
-			return View.VISIBLE;
 	}
 	
 	public interface OnBufferSelectedListener {

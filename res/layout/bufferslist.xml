@@ -42,32 +42,4 @@
 	        android:layout_height="12dip"
 	        android:background="@color/dark_blue"/>
     </LinearLayout>
-    
-    <RelativeLayout
-        android:id="@+id/connecting"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" 
-        android:visibility="visible">
-
-        <ProgressBar
-            android:id="@+id/progressBar1"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="161dp" />
-
-        <TextView
-            android:id="@+id/errorMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/progressBar1"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:padding="4dp"
-            android:text="Connecting"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-    </RelativeLayout>
-
 </RelativeLayout>

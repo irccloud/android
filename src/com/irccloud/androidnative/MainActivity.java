@@ -1,5 +1,8 @@
 package com.irccloud.androidnative;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
@@ -10,45 +13,29 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.TextView;
 
 public class MainActivity extends BaseActivity implements BuffersListFragment.OnBufferSelectedListener {
-	NetworkConnection conn;
-	boolean shouldJumpToLastBuffer = true;
+	private NetworkConnection conn;
+	private TextView errorMsg;
+	private Timer countdownTimer = null;
+	private String error = null;
+	private View connecting = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        
-        View v = getLayoutInflater().inflate(R.layout.actionbar_bufferslist, null);
-        v.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				BuffersListFragment f = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-				f.scrollToTop();
-			}
-        });
-        getSupportActionBar().setCustomView(v);
-        if(savedInstanceState != null && savedInstanceState.containsKey("shouldJumpToLastBuffer"))
-        	shouldJumpToLastBuffer = savedInstanceState.getBoolean("shouldJumpToLastBuffer");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setLogo(R.drawable.logo);
+        connecting = findViewById(R.id.connecting);
+		errorMsg = (TextView)findViewById(R.id.errorMsg);
 	}
 
     @Override
-    public void onSaveInstanceState(Bundle state) {
-    	super.onSaveInstanceState(state);
-    	state.putBoolean("shouldJumpToLastBuffer", shouldJumpToLastBuffer);
-    }
-    
-    @Override
     protected void setLoadingIndicator(boolean state) {
-		BuffersListFragment f = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-		if(f != null && f.getConnectingVisibility() == View.GONE)
-	    	super.setLoadingIndicator(state);
-		else
-			super.setLoadingIndicator(false);
+		super.setLoadingIndicator(false);
     }
     
     @Override
@@ -71,11 +58,40 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIVITY:
+				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+					connecting.setBackgroundResource(R.drawable.disconnected_yellow);
+				} else {
+					connecting.setBackgroundResource(R.drawable.background_blue);
+					errorMsg.setText("Loading");
+					error = null;
+				}
+				if(conn.getState() == NetworkConnection.STATE_CONNECTING) {
+					errorMsg.setText("Connecting");
+					error = null;
+				}
+				else if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
+					updateReconnecting();
+				break;
+			case NetworkConnection.EVENT_FAILURE_MSG:
+				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+					try {
+						error = o.getString("message");
+						if(error.equals("temp_unavailable"))
+							error = "Your account is temporarily unavailable";
+						updateReconnecting();
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				break;
 			case NetworkConnection.EVENT_USERINFO:
 				Log.i("IRCCloud", "User info updated!  Hello, " + ((NetworkConnection.UserInfo)msg.obj).name);
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-				if(shouldJumpToLastBuffer && conn != null && conn.getUserInfo() != null) {
+				if(conn != null && conn.getUserInfo() != null) {
 					int bid = conn.getUserInfo().last_selected_bid;
 					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 					if(b != null) {
@@ -86,8 +102,18 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 							if(c == null)
 								joined = 0;
 						}
-						shouldJumpToLastBuffer = false;
-						onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
+						Intent i = new Intent(MainActivity.this, MessageActivity.class);
+						i.putExtra("cid", b.cid);
+						i.putExtra("bid", b.bid);
+						i.putExtra("name", b.name);
+						i.putExtra("last_seen_eid", b.last_seen_eid);
+						i.putExtra("min_eid", b.min_eid);
+						i.putExtra("type", b.type);
+						i.putExtra("joined", joined);
+						i.putExtra("archived", b.archived);
+						i.putExtra("status", s.status);
+						startActivity(i);
+						finish();
 					}
 				}
 			default:
@@ -96,6 +122,39 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 		}
 	};
     
+	private void updateReconnecting() {
+    	if(conn.getReconnectTimestamp() > 0) {
+    		String plural = "";
+    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
+    		if(seconds != 1)
+    			plural = "s";
+    		if(seconds < 1)
+    			errorMsg.setText("Connecting");
+    		else if(seconds > 10 && error != null)
+				errorMsg.setText(error +"\n\nReconnecting in\n" + seconds + " second" + plural);
+			else
+				errorMsg.setText("Reconnecting in\n" + seconds + " second" + plural);
+			if(countdownTimer != null)
+				countdownTimer.cancel();
+			countdownTimer = new Timer();
+			countdownTimer.schedule( new TimerTask(){
+	             public void run() {
+	    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+	    				 mHandler.post(new Runnable() {
+							@Override
+							public void run() {
+			 					updateReconnecting();
+							}
+	    				 });
+	    			 }
+	    			 countdownTimer = null;
+	             }
+			}, 1000);
+    	} else {
+			errorMsg.setText("Offline");
+    	}
+    }
+	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.activity_main, menu);
@@ -116,16 +175,5 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     
 	@Override
 	public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status) {
-		Intent i = new Intent(this, MessageActivity.class);
-		i.putExtra("cid", cid);
-		i.putExtra("bid", bid);
-		i.putExtra("name", name);
-		i.putExtra("last_seen_eid", last_seen_eid);
-		i.putExtra("min_eid", min_eid);
-		i.putExtra("type", type);
-		i.putExtra("joined", joined);
-		i.putExtra("archived", archived);
-		i.putExtra("status", status);
-		startActivity(i);
 	}
 }
