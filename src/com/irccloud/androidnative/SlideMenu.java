@@ -28,7 +28,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,25 +56,6 @@ public class SlideMenu extends LinearLayout {
 	private TranslateAnimation slideMenuLeftAnim;
 	private TranslateAnimation slideContentLeftAnim;
 	
-	/**
-	 * Constructor used by the inflation apparatus.
-	 * To be able to use the SlideMenu, call the {@link #init init()} method.
-	 * @param context
-	 */
-	public SlideMenu(Context context) {
-		super(context);
-	}
-	
-	/**
-	 * Constructor used by the inflation apparatus.
-	 * To be able to use the SlideMenu, call the {@link #init init()} method.
-	 * @param attrs
-	 */
-	public SlideMenu(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
-	
-	
 	/** 
 	 * Constructs a SlideMenu with the given layout XML. 
 	 * @param act The calling activity.
@@ -85,18 +65,6 @@ public class SlideMenu extends LinearLayout {
 	 */
 	public SlideMenu(Activity act, int layoutResource, int slideDuration) {
 		super(act);
-		init(act, layoutResource, slideDuration);
-	}
-	
-	/** 
-	 * If inflated from XML, initializes the SlideMenu.
-	 * @param act The calling activity.
-	 * @param menuResource Menu resource identifier, can be 0 for an empty SlideMenu.
-	 * @param cb Callback to be invoked on menu item click.
-	 * @param slideDuration Slide in/out duration in milliseconds.
-	 */
-	public void init(Activity act, int layoutResource, int slideDuration) {
-		
 		this.act = act;
 	
 		// set size

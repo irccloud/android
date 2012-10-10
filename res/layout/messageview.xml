@@ -17,7 +17,7 @@
             android:divider="#FFF"
             android:dividerHeight="1dip"
             android:fastScrollEnabled="true"
-            android:transcriptMode="normal" />
+            android:transcriptMode="normal"/>
 
         <TextView
             android:id="@+id/unread"

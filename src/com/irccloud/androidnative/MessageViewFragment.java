@@ -709,6 +709,7 @@ public class MessageViewFragment extends SherlockListFragment {
     public void onResume() {
     	super.onResume();
         getListView().setStackFromBottom(true);
+        getListView().requestFocus();
     	if(bid == -1) {
     		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
     		if(b != null) {
