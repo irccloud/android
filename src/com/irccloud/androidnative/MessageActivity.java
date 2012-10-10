@@ -52,6 +52,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	NetworkConnection conn;
 	private int initialUserListVisibility;
 	
+	SlideMenu buffersListMenu = null;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -136,6 +138,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         title = (TextView)v.findViewById(R.id.title);
         subtitle = (TextView)v.findViewById(R.id.subtitle);
         getSupportActionBar().setCustomView(v);
+        
+        if(findViewById(R.id.BuffersList) == null)
+        	buffersListMenu = new SlideMenu(this, R.layout.drawer_bufferslist, 250);
         
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
@@ -506,9 +511,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
         switch (item.getItemId()) {
 	        case android.R.id.home:
-	        	Intent upIntent = new Intent(this, MainActivity.class);
-	        	NavUtils.navigateUpTo(this, upIntent);
-	        	startActivity(upIntent);
+	        	if(buffersListMenu != null) {
+	        		buffersListMenu.show();
+	        	} else {
+		        	Intent upIntent = new Intent(this, MainActivity.class);
+		        	NavUtils.navigateUpTo(this, upIntent);
+		        	startActivity(upIntent);
+	        	}
 	            return true;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
@@ -856,6 +865,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		this.joined = joined;
 		this.archived = archived;
 		this.status = status;
+    	if(buffersListMenu != null && buffersListMenu.isMenuShown())
+    		buffersListMenu.hide();
     	title.setText(name);
     	getSupportActionBar().setTitle(name);
     	if(archived > 0 && !type.equalsIgnoreCase("console")) {
