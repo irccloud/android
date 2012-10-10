@@ -683,7 +683,13 @@ public class BuffersListFragment extends SherlockListFragment {
 				}
 				break;
 			default:
-		    	new RefreshTask().execute((Void)null);
+				try {
+					IRCCloudJSONObject o1 = (IRCCloudJSONObject)msg.obj;
+					if(o1.bid() != selected_bid)
+						new RefreshTask().execute((Void)null);
+				} catch (Exception e) { //Not all events return a JSON object
+			    	new RefreshTask().execute((Void)null);
+				}
 				break;
 			}
 		}
