@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/highlighted_blue" android:state_pressed="true"/>
-    <item android:drawable="@drawable/selected_blue" android:state_selected="true"/>
-    <item android:drawable="@drawable/highlighted_blue" android:state_focused="true"/>
-    <item android:drawable="@drawable/background_blue"/>
+    <item android:drawable="@drawable/buffergroup_bg_highlighted" android:state_pressed="true"/>
+    <item android:drawable="@drawable/buffergroup_bg_selected" android:state_selected="true"/>
+    <item android:drawable="@drawable/buffergroup_bg_highlighted" android:state_focused="true"/>
+    <item android:drawable="@drawable/buffergroup_bg_rest"/>
 </selector>
