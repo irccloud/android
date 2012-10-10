@@ -34,7 +34,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener {
-	int cid;
+	int cid = -1;
 	int bid;
 	String name;
 	String type;
@@ -186,7 +186,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	super.onResume();
     	long min_eid = 0;
     	long last_seen_eid = 0;
-    	if(getIntent() != null && getIntent().hasExtra("cid")) {
+    	if(getIntent() != null && getIntent().hasExtra("cid") && cid == -1) {
 	    	cid = getIntent().getIntExtra("cid", 0);
 	    	bid = getIntent().getIntExtra("bid", 0);
 	    	name = getIntent().getStringExtra("name");
