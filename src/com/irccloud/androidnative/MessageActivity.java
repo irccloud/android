@@ -519,12 +519,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
         switch (item.getItemId()) {
 	        case android.R.id.home:
-	        	if(scrollView.getScrollX() >= buffersListView.getWidth()) {
-	                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        			scrollView.smoothScrollTo(0, 0);
-	        	} else {
+	        	if(scrollView.getScrollX() < buffersListView.getWidth() / 4) {
 	                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+	        	} else {
+	                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        			scrollView.smoothScrollTo(0, 0);
 	        	}
 	        	return true;
 	        case R.id.menu_channel_options:
