@@ -22,13 +22,20 @@ import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -394,7 +401,7 @@ public class MessageViewFragment extends SherlockListFragment {
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
     	state.putInt("cid", cid);
-    	state.putLong("bid", bid);
+    	state.putInt("bid", bid);
     	state.putLong("last_seen_eid", last_seen_eid);
     	state.putLong("min_eid", min_eid);
     	state.putString("name", name);

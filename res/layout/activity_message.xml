@@ -1,55 +1,67 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:id="@+id/frame">
-    
+    android:fadingEdge="none"
+    android:fillViewport="true"
+    android:scrollbars="none" >
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="horizontal" >
 
         <fragment
-	        android:id="@+id/messageViewFragment"
-            android:name="com.irccloud.androidnative.MessageViewFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
-            android:layout_weight="1"
-            tools:layout="@layout/messageview" />
+            android:id="@+id/BuffersList"
+            android:name="com.irccloud.androidnative.BuffersListFragment"
+            android:layout_width="250dp"
+            android:layout_height="match_parent" />
 
         <LinearLayout
+            android:id="@+id/messageContainer"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/compose_bar_bg"
-            android:padding="4dp"
-            android:paddingTop="2dp" >
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
 
-            <EditText
-                android:id="@+id/messageTxt"
+            <fragment
+                android:id="@+id/messageViewFragment"
+                android:name="com.irccloud.androidnative.MessageViewFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_weight="1"
-                android:ems="10"
-                android:hint="Message"
-                android:imeOptions="actionSend" />
+                android:layout_marginBottom="2dp"
+                android:layout_weight="1" />
 
-            <include
-                android:id="@+id/sendBtn"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                layout="@layout/sendbtn" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/compose_bar_bg"
+                android:padding="4dp"
+                android:paddingTop="2dp" >
+
+                <EditText
+                    android:id="@+id/messageTxt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Message"
+                    android:imeOptions="actionSend" />
+
+                <include
+                    android:id="@+id/sendBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    layout="@layout/sendbtn" />
+            </LinearLayout>
         </LinearLayout>
+
+        <fragment
+            android:id="@+id/usersListFragment"
+            android:name="com.irccloud.androidnative.UsersListFragment"
+            android:layout_width="250dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="right" />
     </LinearLayout>
-
-    <fragment
-        android:id="@+id/usersListFragment"
-        android:name="com.irccloud.androidnative.UsersListFragment"
-        android:layout_width="280dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        tools:layout="@layout/userslist" />
-
-</FrameLayout>
+</HorizontalScrollView>

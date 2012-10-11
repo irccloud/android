@@ -3,10 +3,6 @@ package com.irccloud.androidnative;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
-import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
@@ -18,18 +14,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.NavUtils;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -45,19 +44,48 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	String status;
 	UsersDataSource.User selected_user;
 	View userListView;
+	View buffersListView;
 	TextView title;
 	TextView subtitle;
-	int initialUsersListVisibility;
+	LinearLayout messageContainer;
+	HorizontalScrollView scrollView;
 
 	NetworkConnection conn;
-	private int initialUserListVisibility;
-	
-	SlideMenu buffersListMenu = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
+        buffersListView = findViewById(R.id.BuffersList);
+        messageContainer = (LinearLayout)findViewById(R.id.messageContainer);
+        scrollView = (HorizontalScrollView)findViewById(R.id.scroll);
+        if(scrollView != null) {
+	        scrollView.setOnTouchListener(new OnTouchListener() {
+	
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					if(event.getAction() == MotionEvent.ACTION_UP) {
+						if(scrollView.getScrollX() <= buffersListView.getWidth() / 2) {
+					        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+							scrollView.smoothScrollTo(0, 0);
+							return true;
+						} else if(scrollView.getScrollX() > buffersListView.getWidth() + userListView.getWidth() / 2) {
+							scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
+							return true;
+						} else if(scrollView.getScrollX() > buffersListView.getWidth() / 2) {
+					        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+							scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+							return true;
+						}
+					}
+					return false;
+				}
+	        	
+	        });
+	        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)messageContainer.getLayoutParams();
+	        params.width = getWindowManager().getDefaultDisplay().getWidth();
+	        messageContainer.setLayoutParams(params);
+        }
         messageTxt = (TextView)findViewById(R.id.messageTxt);
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
@@ -75,11 +103,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			}
         });
         userListView = findViewById(R.id.usersListFragment);
-        if(getResources().getBoolean(R.bool.hideUserListFragment))
-        	userListView.setVisibility(View.INVISIBLE);
-        initialUserListVisibility = userListView.getVisibility();
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         
@@ -139,9 +164,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         subtitle = (TextView)v.findViewById(R.id.subtitle);
         getSupportActionBar().setCustomView(v);
         
-        if(findViewById(R.id.BuffersList) == null)
-        	buffersListMenu = new SlideMenu(this, R.layout.drawer_bufferslist, 250);
-        
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
         	bid = savedInstanceState.getInt("bid");
@@ -191,6 +213,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	super.onResume();
     	long min_eid = 0;
     	long last_seen_eid = 0;
+    	if(scrollView != null)
+	        scrollView.scrollTo(buffersListView.getWidth(), 0);
+
     	if(getIntent() != null && getIntent().hasExtra("cid") && cid == -1) {
 	    	cid = getIntent().getIntExtra("cid", 0);
 	    	bid = getIntent().getIntExtra("bid", 0);
@@ -281,7 +306,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	if(hide || !type.equalsIgnoreCase("channel"))
 	    		userListView.setVisibility(View.GONE);
 	    	else
-	    		userListView.setVisibility(initialUserListVisibility);
+	    		userListView.setVisibility(View.VISIBLE);
 		}
     }
     
@@ -511,63 +536,24 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
         switch (item.getItemId()) {
 	        case android.R.id.home:
-	        	if(buffersListMenu != null)
-	        		buffersListMenu.show();
-	            return true;
+	        	if(scrollView.getScrollX() >= buffersListView.getWidth()) {
+	                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        			scrollView.smoothScrollTo(0, 0);
+	        	} else {
+	                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+	        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+	        	}
+	        	return true;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
 	            newFragment.show(getSupportFragmentManager(), "dialog");
 	        	break;
             case R.id.menu_userlist:
-            	if(userListView.getVisibility() == View.INVISIBLE) {
-            		userListView.setVisibility(View.VISIBLE);
-            		ObjectAnimator animX = ObjectAnimator.ofFloat(userListView, "x", findViewById(R.id.frame).getWidth(), findViewById(R.id.frame).getWidth() - userListView.getWidth());
-            		ObjectAnimator animAlpha = ObjectAnimator.ofFloat(userListView, "alpha", 0f, 1f);
-            		AnimatorSet animSet = new AnimatorSet();
-            		animSet.playTogether(animX, animAlpha);
-            		animSet.addListener(new AnimatorListener() {
-						@Override
-						public void onAnimationStart(Animator animation) {
-						}
-
-						@Override
-						public void onAnimationEnd(Animator animation) {
-						}
-
-						@Override
-						public void onAnimationCancel(Animator animation) {
-						}
-
-						@Override
-						public void onAnimationRepeat(Animator animation) {
-						}
-            		});
-            		animSet.start();
-            	} else {
-            		ObjectAnimator animX = ObjectAnimator.ofFloat(userListView, "x", findViewById(R.id.frame).getWidth() - userListView.getWidth(), findViewById(R.id.frame).getWidth());
-            		ObjectAnimator animAlpha = ObjectAnimator.ofFloat(userListView, "alpha", 1f, 0f);
-            		AnimatorSet animSet = new AnimatorSet();
-            		animSet.playTogether(animX, animAlpha);
-            		animSet.addListener(new AnimatorListener() {
-						@Override
-						public void onAnimationStart(Animator animation) {
-						}
-
-						@Override
-						public void onAnimationEnd(Animator animation) {
-		            		userListView.setVisibility(View.INVISIBLE);
-						}
-
-						@Override
-						public void onAnimationCancel(Animator animation) {
-						}
-
-						@Override
-						public void onAnimationRepeat(Animator animation) {
-						}
-            		});
-            		animSet.start();
-            	}
+	        	if(scrollView.getScrollX() > buffersListView.getWidth()) {
+        			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+	        	} else {
+	        		scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
+	        	}
             	return true;
             case R.id.menu_ignore_list:
                 intent = new Intent(this, IgnoreListActivity.class);
@@ -860,8 +846,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		this.joined = joined;
 		this.archived = archived;
 		this.status = status;
-    	if(buffersListMenu != null && buffersListMenu.isMenuShown())
-    		buffersListMenu.hide();
+		if(scrollView != null) {
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			scrollView.scrollTo(buffersListView.getWidth(), 0);
+		}
     	title.setText(name);
     	getSupportActionBar().setTitle(name);
     	if(archived > 0 && !type.equalsIgnoreCase("console")) {
