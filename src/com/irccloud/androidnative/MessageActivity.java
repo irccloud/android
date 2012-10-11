@@ -18,6 +18,7 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -85,6 +86,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)messageContainer.getLayoutParams();
 	        params.width = getWindowManager().getDefaultDisplay().getWidth();
 	        messageContainer.setLayoutParams(params);
+    		mHandler.post(new Runnable() {
+				@Override
+				public void run() {
+		    		int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 250, getResources().getDisplayMetrics());
+			        scrollView.scrollTo(width, 0);
+				}
+    		});
         }
         messageTxt = (TextView)findViewById(R.id.messageTxt);
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
@@ -213,9 +221,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	super.onResume();
     	long min_eid = 0;
     	long last_seen_eid = 0;
-    	if(scrollView != null)
-	        scrollView.scrollTo(buffersListView.getWidth(), 0);
-
+    	
     	if(getIntent() != null && getIntent().hasExtra("cid") && cid == -1) {
 	    	cid = getIntent().getIntExtra("cid", 0);
 	    	bid = getIntent().getIntExtra("bid", 0);
