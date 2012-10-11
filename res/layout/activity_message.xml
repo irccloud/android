@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:fadingEdge="none"
     android:fillViewport="true"
+    android:overScrollMode="never"
     android:scrollbars="none" >
 
     <LinearLayout
