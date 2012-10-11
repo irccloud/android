@@ -557,7 +557,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			view.setBackgroundResource(R.drawable.disconnected_yellow);
 		} else {
 			view.setBackgroundResource(R.drawable.background_blue);
-			getListView().setVisibility(View.VISIBLE);
 		}
 		if(adapter != null)
 			adapter.showProgress(-1);
@@ -607,12 +606,16 @@ public class BuffersListFragment extends SherlockListFragment {
     @SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
-			try {
-				IRCCloudJSONObject o1 = (IRCCloudJSONObject)msg.obj;
-				if(o1.bid() != selected_bid)
-					new RefreshTask().execute((Void)null);
-			} catch (Exception e) { //Not all events return a JSON object
-		    	new RefreshTask().execute((Void)null);
+			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIVITY:
+				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+					view.setBackgroundResource(R.drawable.disconnected_yellow);
+				} else {
+					view.setBackgroundResource(R.drawable.background_blue);
+				}
+				break;
+			default:
+				new RefreshTask().execute((Void)null);
 			}
 		}
 	};
