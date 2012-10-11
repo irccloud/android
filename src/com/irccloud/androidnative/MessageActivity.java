@@ -19,8 +19,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -63,52 +61,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         scrollView = (HorizontalScrollView)findViewById(R.id.scroll);
         
         if(scrollView != null) {
-	        scrollView.setOnTouchListener(new OnTouchListener() {
-	        	int startX = 0;
-	        	
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					if(event.getAction() == MotionEvent.ACTION_MOVE && startX == 0) {
-						startX = scrollView.getScrollX();
-					} else if(event.getAction() == MotionEvent.ACTION_MOVE && Math.abs(startX - scrollView.getScrollX()) > buffersListView.getWidth()) {
-						scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
-						return true;
-					} else if(event.getAction() == MotionEvent.ACTION_UP) {
-						mHandler.post(new Runnable() {
-
-							@Override
-							public void run() {
-								scrollView.scrollTo(scrollView.getScrollX(), 0);
-								if(Math.abs(startX - scrollView.getScrollX()) > buffersListView.getWidth()) {
-									scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
-								} else if(Math.abs(startX - scrollView.getScrollX()) > buffersListView.getWidth() / 4) {
-									if(startX < buffersListView.getWidth()  + buffersListView.getWidth() / 4 && scrollView.getScrollX() < startX) {
-								        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-										scrollView.smoothScrollTo(0, 0);
-									} else if(startX >= buffersListView.getWidth() && scrollView.getScrollX() > startX) {
-										scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
-									} else {
-										Log.i("IRCCloud", "e");
-								        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-										scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
-									}
-								} else {
-									if(startX < buffersListView.getWidth())
-										scrollView.smoothScrollTo(0, 0);
-									else if(startX > buffersListView.getWidth() + buffersListView.getWidth() / 4)
-										scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
-									else
-										scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
-								}
-								startX = 0;
-							}
-						});
-						return true;
-					}
-					return false;
-				}
-	        	
-	        });
 	        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)messageContainer.getLayoutParams();
 	        params.width = getWindowManager().getDefaultDisplay().getWidth();
 	        messageContainer.setLayoutParams(params);
