@@ -22,20 +22,13 @@ import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -757,7 +750,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     }
     
-	private class RefreshTask extends AsyncTask<Void, Void, Void> {
+	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
 		TreeMap<Long,IRCCloudJSONObject> events;
 		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;

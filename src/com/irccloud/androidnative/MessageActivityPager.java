@@ -3,8 +3,11 @@ package com.irccloud.androidnative;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
+import android.widget.ListView;
 
 public class MessageActivityPager extends HorizontalScrollView {
 	private int startX = 0;
@@ -30,10 +33,13 @@ public class MessageActivityPager extends HorizontalScrollView {
 			if(Math.abs(startX - getScrollX()) > buffersDisplayWidth / 4) { //If they've dragged a drawer more than 25% on screen, snap the drawer onto the screen
 				if(startX < buffersDisplayWidth + buffersDisplayWidth / 4 && getScrollX() < startX) {
 					smoothScrollTo(0, 0);
+					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
 				} else if(startX >= buffersDisplayWidth && getScrollX() > startX) {
 					smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
+					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
 				} else {
 					smoothScrollTo(buffersDisplayWidth, 0);
+					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), true);
 				}
 			} else { //Snap back
 				if(startX < buffersDisplayWidth)
@@ -47,5 +53,28 @@ public class MessageActivityPager extends HorizontalScrollView {
 			return true;
 		}
 		return super.onTouchEvent(event);
+	}
+	
+	//originally: http://stackoverflow.com/questions/5418510/disable-the-touch-events-for-all-the-views
+	//modified for the needs here
+	public void enableDisableViewGroup(ViewGroup viewGroup, boolean enabled) {
+		int childCount = viewGroup.getChildCount();
+		for (int i = 0; i < childCount; i++) {
+			View view = viewGroup.getChildAt(i);
+			if(view.isFocusable())
+				view.setEnabled(enabled);
+			if (view instanceof ViewGroup) {
+				enableDisableViewGroup((ViewGroup) view, enabled);
+			} else if (view instanceof ListView) {
+				if(view.isFocusable())
+					view.setEnabled(enabled);
+				ListView listView = (ListView) view;
+				int listChildCount = listView.getChildCount();
+				for (int j = 0; j < listChildCount; j++) {
+					if(view.isFocusable())
+						listView.getChildAt(j).setEnabled(false);
+				}
+			}
+		}
 	}
 }

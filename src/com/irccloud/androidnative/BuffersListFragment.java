@@ -3,8 +3,6 @@ package com.irccloud.androidnative;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,11 +10,10 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -304,7 +300,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	}
 	
-	private class RefreshTask extends AsyncTask<Void, Void, Void> {
+	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
 		ArrayList<BufferListEntry> entries = new ArrayList<BufferListEntry>();
 		
 		@Override
@@ -416,9 +412,9 @@ public class BuffersListFragment extends SherlockListFragment {
 		protected void onPostExecute(Void result) {
 			adapter.setItems(entries);
 			
-			if(getListAdapter() == null && entries.size() > 0)
+			if(getListAdapter() == null && entries.size() > 0) {
 				setListAdapter(adapter);
-			else
+			} else
 				adapter.notifyDataSetChanged();
 			
 			if(listView != null)
@@ -528,6 +524,7 @@ public class BuffersListFragment extends SherlockListFragment {
         	if(selected_bid > 0)
         		adapter.showProgress(adapter.positionForBid(selected_bid));
         }
+        Log.i("IRCCloud", "Fragment view created");
 		return view;
 	}
 	
@@ -560,7 +557,6 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 		if(adapter != null)
 			adapter.showProgress(-1);
-    	new RefreshTask().execute((Void)null);
     }
     
     @Override
@@ -575,6 +571,7 @@ public class BuffersListFragment extends SherlockListFragment {
         super.onAttach(activity);
         try {
             mListener = (OnBufferSelectedListener) activity;
+        	new RefreshTask().execute((Void)null);
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnBufferSelectedListener");
         }
@@ -619,16 +616,6 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 		}
 	};
-	
-	@SuppressLint("NewApi")
-	public void scrollToTop() {
-		if(listView != null) {
-			if(Build.VERSION.SDK_INT >= 11)
-				listView.smoothScrollToPositionFromTop(0, 0, 200);
-			else
-				listView.setSelection(0);
-		}
-	}
 	
 	public interface OnBufferSelectedListener {
 		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status);
