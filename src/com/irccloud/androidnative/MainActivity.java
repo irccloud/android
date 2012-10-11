@@ -44,6 +44,8 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     	
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+    	
+    	launchLastChannel();
     }
     
     @Override
@@ -91,37 +93,42 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 				Log.i("IRCCloud", "User info updated!  Hello, " + ((NetworkConnection.UserInfo)msg.obj).name);
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-				if(conn != null && conn.getUserInfo() != null) {
-					int bid = conn.getUserInfo().last_selected_bid;
-					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-					if(b != null) {
-						ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
-						int joined = 1;
-						if(b.type.equalsIgnoreCase("channel")) {
-							ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
-							if(c == null)
-								joined = 0;
-						}
-						Intent i = new Intent(MainActivity.this, MessageActivity.class);
-						i.putExtra("cid", b.cid);
-						i.putExtra("bid", b.bid);
-						i.putExtra("name", b.name);
-						i.putExtra("last_seen_eid", b.last_seen_eid);
-						i.putExtra("min_eid", b.min_eid);
-						i.putExtra("type", b.type);
-						i.putExtra("joined", joined);
-						i.putExtra("archived", b.archived);
-						i.putExtra("status", s.status);
-						startActivity(i);
-						finish();
-					}
-				}
+				launchLastChannel();
+				break;
 			default:
 				break;
 			}
 		}
 	};
-    
+
+	private void launchLastChannel() {
+		if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null) {
+			int bid = conn.getUserInfo().last_selected_bid;
+			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+			if(b != null) {
+				ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+				int joined = 1;
+				if(b.type.equalsIgnoreCase("channel")) {
+					ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+					if(c == null)
+						joined = 0;
+				}
+				Intent i = new Intent(MainActivity.this, MessageActivity.class);
+				i.putExtra("cid", b.cid);
+				i.putExtra("bid", b.bid);
+				i.putExtra("name", b.name);
+				i.putExtra("last_seen_eid", b.last_seen_eid);
+				i.putExtra("min_eid", b.min_eid);
+				i.putExtra("type", b.type);
+				i.putExtra("joined", joined);
+				i.putExtra("archived", b.archived);
+				i.putExtra("status", s.status);
+				startActivity(i);
+				finish();
+			}
+		}
+	}
+	
 	private void updateReconnecting() {
     	if(conn.getReconnectTimestamp() > 0) {
     		String plural = "";
