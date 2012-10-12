@@ -63,6 +63,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private static final int TYPE_TIMESTAMP = 0;
 	private static final int TYPE_MESSAGE = 1;
 	private static final int TYPE_BACKLOGMARKER = 2;
+	private static final int TYPE_SOCKETCLOSED = 3;
 	
 	private static final String[] COLOR_MAP = {
 		"FFFFFF", //white
@@ -275,6 +276,8 @@ public class MessageViewFragment extends SherlockListFragment {
 					row = inflater.inflate(R.layout.row_backlogmarker, null);
 				else if(e.type == TYPE_TIMESTAMP)
 					row = inflater.inflate(R.layout.row_timestamp, null);
+				else if(e.type == TYPE_SOCKETCLOSED)
+					row = inflater.inflate(R.layout.row_socketclosed, null);
 				else
 					row = inflater.inflate(R.layout.row_message, null);
 
@@ -482,6 +485,10 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 			}
 
+			if(type.equalsIgnoreCase("socket_closed")) {
+		    	adapter.addItem(TYPE_SOCKETCLOSED, event.getLong("eid"), "", color, R.drawable.socketclosed_bg);
+			}
+			
 			if(event.has("from"))
 				from = TextUtils.htmlEncode(event.getString("from"));
 	    	
@@ -499,9 +506,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		from = "";
 	    		msg = "Failed to connect: " + event.getString("reason");
 	    		bg_color = R.color.error;
-	    	} else if(type.equalsIgnoreCase("socket_closed")) {
-	    		from = "";
-	    		msg = "===================="; //TODO: Add another row type for socket_closed events
 	    	} else if(type.equalsIgnoreCase("self_details")) {
 	    		from = "";
 	    		msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
