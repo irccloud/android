@@ -88,9 +88,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			}
         });
         userListView = findViewById(R.id.usersListFragment);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        if(scrollView != null)
+        if(scrollView != null) {
+        	getSupportActionBar().setHomeButtonEnabled(true);
         	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         
