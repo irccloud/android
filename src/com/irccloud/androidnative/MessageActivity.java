@@ -89,7 +89,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         });
         userListView = findViewById(R.id.usersListFragment);
         getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if(scrollView != null)
+        	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         
@@ -519,12 +520,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
         switch (item.getItemId()) {
 	        case android.R.id.home:
-	        	if(scrollView.getScrollX() < buffersListView.getWidth() / 4) {
-	                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-	        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
-	        	} else {
-	                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        			scrollView.smoothScrollTo(0, 0);
+	        	if(scrollView != null) {
+		        	if(scrollView.getScrollX() < buffersListView.getWidth() / 4) {
+		                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+		        	} else {
+		                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+	        			scrollView.smoothScrollTo(0, 0);
+		        	}
 	        	}
 	        	return true;
 	        case R.id.menu_channel_options:
@@ -532,11 +535,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            newFragment.show(getSupportFragmentManager(), "dialog");
 	        	break;
             case R.id.menu_userlist:
-	        	if(scrollView.getScrollX() > buffersListView.getWidth()) {
-        			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
-	        	} else {
-	        		scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
-	        	}
+            	if(scrollView != null) {
+		        	if(scrollView.getScrollX() > buffersListView.getWidth()) {
+	        			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+		        	} else {
+		        		scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
+		        	}
+            	}
             	return true;
             case R.id.menu_ignore_list:
                 intent = new Intent(this, IgnoreListActivity.class);
