@@ -10,6 +10,7 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -232,8 +233,16 @@ public class UsersListFragment extends SherlockListFragment {
     public void setArguments(Bundle args) {
     	cid = args.getInt("cid", 0);
     	channel = args.getString("name");
-    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
-    	refresh(users);
+    	
+    	mHandler.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+		    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+		    	refresh(users);
+			}
+    		
+    	}, 100);
     }
 	
     public void onPause() {

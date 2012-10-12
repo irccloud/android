@@ -24,15 +24,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener {
+public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener {
 	int cid = -1;
 	int bid;
 	String name;
@@ -50,6 +50,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	LinearLayout messageContainer;
 	HorizontalScrollView scrollView;
 	NetworkConnection conn;
+	private boolean shouldFadeIn = false;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -837,7 +838,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		this.status = status;
 		if(scrollView != null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			scrollView.scrollTo(buffersListView.getWidth(), 0);
+			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
 		}
     	title.setText(name);
     	getSupportActionBar().setTitle(name);
@@ -886,7 +887,29 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		mvf.setArguments(b);
     	if(ulf != null)
     		ulf.setArguments(b);
+
+    	AlphaAnimation anim = new AlphaAnimation(1, 0);
+		anim.setDuration(50);
+		anim.setFillAfter(true);
+		mvf.getListView().startAnimation(anim);
+		ulf.getListView().startAnimation(anim);
+		shouldFadeIn = true;
+
     	updateUsersListFragmentVisibility();
     	invalidateOptionsMenu();
+	}
+
+	@Override
+	public void onMessageViewReady() {
+		if(shouldFadeIn) {
+	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
+			anim.setDuration(50);
+			anim.setFillAfter(true);
+			mvf.getListView().startAnimation(anim);
+			ulf.getListView().startAnimation(anim);
+			shouldFadeIn = false;
+		}
 	}
 }

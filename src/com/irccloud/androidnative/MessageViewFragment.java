@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.xml.sax.XMLReader;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -26,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
@@ -35,6 +37,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.irccloud.androidnative.UsersListFragment.OnUserSelectedListener;
 
 public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
@@ -55,6 +58,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private float avgInsertTime = 0;
 	private int newMsgs = 0;
 	private long newMsgTime = 0;
+	private MessageViewListener mListener;
 	
 	private static final int TYPE_TIMESTAMP = 0;
 	private static final int TYPE_MESSAGE = 1;
@@ -391,6 +395,16 @@ public class MessageViewFragment extends SherlockListFragment {
     }
     
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (MessageViewListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement MessageViewListener");
+        }
+    }
+    
+    @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
     	state.putInt("cid", cid);
@@ -419,14 +433,22 @@ public class MessageViewFragment extends SherlockListFragment {
 		newMsgTime = 0;
 		earliest_eid = 0;
 		if(headerView != null) {
-			if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
-				requestingBacklog = true;
-				new RefreshTask().execute((Void)null);
-			} else {
-				headerView.setVisibility(View.VISIBLE);
-				adapter.clear();
-				adapter.notifyDataSetInvalidated();
-			}
+			mHandler.postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
+						requestingBacklog = true;
+						new RefreshTask().execute((Void)null);
+					} else {
+						headerView.setVisibility(View.VISIBLE);
+						adapter.clear();
+						adapter.notifyDataSetInvalidated();
+						mListener.onMessageViewReady();
+					}
+				}
+				
+			}, 100);
 		}
     }
     
@@ -821,11 +843,11 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	}
 		}
     	try {
-    		
 			update_status(server.status, new JsonParser().parse(server.fail_info).getAsJsonObject());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		mListener.onMessageViewReady();
 	}
 
 	private class UnreadRefreshRunnable implements Runnable {
@@ -1021,4 +1043,8 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 		}
 	};
+	
+	public interface MessageViewListener {
+		public void onMessageViewReady();
+	}
 }
