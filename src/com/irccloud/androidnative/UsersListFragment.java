@@ -23,7 +23,7 @@ public class UsersListFragment extends SherlockListFragment {
 	NetworkConnection conn;
 	UserListAdapter adapter;
 	OnUserSelectedListener mListener;
-	int cid;
+	int cid = -1;
 	String channel;
 	View view;
 	
@@ -201,6 +201,11 @@ public class UsersListFragment extends SherlockListFragment {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
+        	cid = savedInstanceState.getInt("cid");
+        	channel = savedInstanceState.getString("channel");
+        }
     }
     
 	@Override
@@ -245,8 +250,17 @@ public class UsersListFragment extends SherlockListFragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnUserSelectedListener");
         }
-        cid = activity.getIntent().getIntExtra("cid", 0);
-        channel = activity.getIntent().getStringExtra("name");
+        if(cid == -1) {
+	        cid = activity.getIntent().getIntExtra("cid", 0);
+	        channel = activity.getIntent().getStringExtra("name");
+        }
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	state.putInt("cid", cid);
+    	state.putString("channel", channel);
     }
     
     public void onListItemClick(ListView l, View v, int position, long id) {
