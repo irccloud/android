@@ -829,74 +829,76 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	public void onBufferSelected(int cid, int bid, String name,
 			long last_seen_eid, long min_eid, String type, int joined,
 			int archived, String status) {
-		this.cid = cid;
-		this.bid = bid;
-		this.name = name;
-		this.type = type;
-		this.joined = joined;
-		this.archived = archived;
-		this.status = status;
 		if(scrollView != null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
 		}
-    	title.setText(name);
-    	getSupportActionBar().setTitle(name);
-    	if(archived > 0 && !type.equalsIgnoreCase("console")) {
-    		subtitle.setVisibility(View.VISIBLE);
-    		subtitle.setText("(archived)");
-    	} else {
-    		if(type.equalsIgnoreCase("conversation")) {
-        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
-    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-    			if(user != null && user.away > 0) {
-	        		subtitle.setVisibility(View.VISIBLE);
-    				if(user.away_msg != null && user.away_msg.length() > 0) {
-    					subtitle.setText("Away: " + user.away_msg);
-    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
-    	        		subtitle.setText("Away: " + b.away_msg);
-    				} else {
-    					subtitle.setText("Away");
-    				}
-    			} else {
-	        		subtitle.setVisibility(View.GONE);
-    			}
-    		} else if(type.equalsIgnoreCase("channel")) {
-	        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
-	        	if(c != null && c.topic_text.length() > 0) {
-	        		subtitle.setVisibility(View.VISIBLE);
-	        		subtitle.setText(c.topic_text);
-	        	} else {
-	        		subtitle.setVisibility(View.GONE);
-	        	}
-    		}
-    	}
-    	Bundle b = new Bundle();
-    	b.putInt("cid", cid);
-    	b.putInt("bid", bid);
-    	b.putLong("last_seen_eid", last_seen_eid);
-    	b.putLong("min_eid", min_eid);
-    	b.putString("name", name);
-    	b.putString("type", type);
-    	BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
-    	if(blf != null)
-    		blf.setSelectedBid(bid);
-    	if(mvf != null)
-    		mvf.setArguments(b);
-    	if(ulf != null)
-    		ulf.setArguments(b);
-
-    	AlphaAnimation anim = new AlphaAnimation(1, 0);
-		anim.setDuration(50);
-		anim.setFillAfter(true);
-		mvf.getListView().startAnimation(anim);
-		ulf.getListView().startAnimation(anim);
-		shouldFadeIn = true;
-
-    	updateUsersListFragmentVisibility();
-    	invalidateOptionsMenu();
+		if(bid != this.bid) {
+			this.cid = cid;
+			this.bid = bid;
+			this.name = name;
+			this.type = type;
+			this.joined = joined;
+			this.archived = archived;
+			this.status = status;
+	    	title.setText(name);
+	    	getSupportActionBar().setTitle(name);
+	    	if(archived > 0 && !type.equalsIgnoreCase("console")) {
+	    		subtitle.setVisibility(View.VISIBLE);
+	    		subtitle.setText("(archived)");
+	    	} else {
+	    		if(type.equalsIgnoreCase("conversation")) {
+	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
+	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+	    			if(user != null && user.away > 0) {
+		        		subtitle.setVisibility(View.VISIBLE);
+	    				if(user.away_msg != null && user.away_msg.length() > 0) {
+	    					subtitle.setText("Away: " + user.away_msg);
+	    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
+	    	        		subtitle.setText("Away: " + b.away_msg);
+	    				} else {
+	    					subtitle.setText("Away");
+	    				}
+	    			} else {
+		        		subtitle.setVisibility(View.GONE);
+	    			}
+	    		} else if(type.equalsIgnoreCase("channel")) {
+		        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+		        	if(c != null && c.topic_text.length() > 0) {
+		        		subtitle.setVisibility(View.VISIBLE);
+		        		subtitle.setText(c.topic_text);
+		        	} else {
+		        		subtitle.setVisibility(View.GONE);
+		        	}
+	    		}
+	    	}
+	    	Bundle b = new Bundle();
+	    	b.putInt("cid", cid);
+	    	b.putInt("bid", bid);
+	    	b.putLong("last_seen_eid", last_seen_eid);
+	    	b.putLong("min_eid", min_eid);
+	    	b.putString("name", name);
+	    	b.putString("type", type);
+	    	BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+	    	if(blf != null)
+	    		blf.setSelectedBid(bid);
+	    	if(mvf != null)
+	    		mvf.setArguments(b);
+	    	if(ulf != null)
+	    		ulf.setArguments(b);
+	
+	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
+			anim.setDuration(100);
+			anim.setFillAfter(true);
+			mvf.getListView().startAnimation(anim);
+			ulf.getListView().startAnimation(anim);
+			shouldFadeIn = true;
+	
+	    	updateUsersListFragmentVisibility();
+	    	invalidateOptionsMenu();
+		}
 	}
 
 	@Override
@@ -905,7 +907,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
-			anim.setDuration(50);
+			anim.setDuration(100);
 			anim.setFillAfter(true);
 			mvf.getListView().startAnimation(anim);
 			ulf.getListView().startAnimation(anim);
