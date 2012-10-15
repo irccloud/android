@@ -471,14 +471,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			default:
 				try {
 					event = (IRCCloudJSONObject)msg.obj;
-					if(event.bid() != bid) {
-						if(event.highlight() && upView != null) {
-							upView.setImageResource(R.drawable.up_highlight);
-						} else {
-							BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid());
-							if(EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type) > 0)
-								upView.setImageResource(R.drawable.up_unread);
-						}
+					if(event.bid() != bid && upView != null) {
+						updateUpUnreadIndicator();
 					}
 				} catch (Exception e) {
 					
