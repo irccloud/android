@@ -86,10 +86,8 @@ public class EventsDataSource {
 				Iterator<IRCCloudJSONObject> i = events.get(bid).values().iterator();
 				while(i.hasNext()) {
 					IRCCloudJSONObject e = i.next();
-					String type = e.type();
 					try {
-						if(e.eid() > last_seen_eid && (type.equals("buffer_msg") || type.equals("buffer_me_msg") 
-								|| (type.equals("notice") && (!buffer_type.equals("console") || !(e.has("server") && !e.getString("server").equals("undefined"))))))
+						if(e.eid() > last_seen_eid && isImportant(e, buffer_type))
 							count++;
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
@@ -101,14 +99,20 @@ public class EventsDataSource {
 		return count;
 	}
 
-	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid) {
+	private boolean isImportant(IRCCloudJSONObject e, String buffer_type) {
+		String type = e.type();
+		return (type.equals("buffer_msg") || type.equals("buffer_me_msg") 
+				|| (type.equals("notice") && (!buffer_type.equals("console") || !(e.has("server") && !e.getString("server").equals("undefined")))));
+	}
+	
+	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
 		int count = 0;
 		synchronized(events) {
 			if(events.containsKey(bid)) {
 				Iterator<IRCCloudJSONObject> i = events.get(bid).values().iterator();
 				while(i.hasNext()) {
 					IRCCloudJSONObject e = i.next();
-					if(e.eid() > last_seen_eid && e.highlight())
+					if(e.eid() > last_seen_eid && isImportant(e, buffer_type) && (e.highlight() || buffer_type.equalsIgnoreCase("conversation")))
 						count++;
 				}
 			}

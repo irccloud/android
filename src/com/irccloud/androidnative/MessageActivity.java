@@ -180,8 +180,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			for(int j = 0; j < buffers.size(); j++) {
 				BuffersDataSource.Buffer b = buffers.get(j);
 				if(b.bid != bid) {
-					unread += EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-					highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+					if(unread == 0)
+						unread += EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+					if(highlights == 0)
+						highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
 				}
 			}
 		}

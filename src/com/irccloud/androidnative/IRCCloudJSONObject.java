@@ -1,6 +1,5 @@
 package com.irccloud.androidnative;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.gson.JsonArray;
@@ -10,7 +9,7 @@ import com.google.gson.JsonParser;
 public class IRCCloudJSONObject {
 	JsonObject o;
 	
-	public IRCCloudJSONObject(String message) throws JSONException {
+	public IRCCloudJSONObject(String message) {
 		JsonParser parser = new JsonParser();
 		o = parser.parse(message).getAsJsonObject();
 	}
