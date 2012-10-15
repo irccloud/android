@@ -118,6 +118,8 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 					if(c == null)
 						joined = 0;
 				}
+				if(b.type.equalsIgnoreCase("console"))
+					b.name = s.name;
 				Intent i = new Intent(MainActivity.this, MessageActivity.class);
 				i.putExtra("cid", b.cid);
 				i.putExtra("bid", b.bid);
