@@ -16,7 +16,7 @@
         <fragment
             android:id="@+id/BuffersList"
             android:name="com.irccloud.androidnative.BuffersListFragment"
-            android:layout_width="250dp"
+            android:layout_width="@dimen/drawer_width"
             android:layout_height="match_parent" />
         
         <LinearLayout
@@ -61,7 +61,7 @@
          <fragment
             android:id="@+id/usersListFragment"
             android:name="com.irccloud.androidnative.UsersListFragment"
-            android:layout_width="250dp"
+            android:layout_width="@dimen/userlist_width"
             android:layout_height="match_parent"
             android:layout_gravity="right" />
         

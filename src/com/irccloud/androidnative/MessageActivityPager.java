@@ -2,7 +2,7 @@ package com.irccloud.androidnative;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.TypedValue;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.MotionEvent;
@@ -17,11 +17,18 @@ public class MessageActivityPager extends HorizontalScrollView {
 	
 	public MessageActivityPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		buffersDisplayWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 250, getResources().getDisplayMetrics());
-		usersDisplayWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 250, getResources().getDisplayMetrics());
+		buffersDisplayWidth = (int)getResources().getDimension(R.dimen.drawer_width);
+		usersDisplayWidth = (int)getResources().getDimension(R.dimen.userlist_width);
 		activity = (MessageActivity)context;
 	}
 
+	@Override
+	protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
+		super.onLayout(changed, left, top, right, bottom);
+		if(changed)
+			scrollTo(buffersDisplayWidth, 0);
+	}
+	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if(event.getAction() == MotionEvent.ACTION_MOVE && startX == 0) {

@@ -12,7 +12,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,7 +19,6 @@ import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,13 +66,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)messageContainer.getLayoutParams();
 	        params.width = getWindowManager().getDefaultDisplay().getWidth();
 	        messageContainer.setLayoutParams(params);
-    		mHandler.post(new Runnable() {
-				@Override
-				public void run() {
-		    		int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 250, getResources().getDisplayMetrics());
-			        scrollView.scrollTo(width, 0);
-				}
-    		});
         }
         messageTxt = (TextView)findViewById(R.id.messageTxt);
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
@@ -215,7 +206,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	state.putString("status", status);
     }
     
-    private class SendTask extends AsyncTask<Void, Void, Void> {
+    private class SendTask extends AsyncTaskEx<Void, Void, Void> {
     	@Override
     	protected void onPreExecute() {
     		sendBtn.setEnabled(false);
