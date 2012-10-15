@@ -276,7 +276,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			if(holder.highlights != null) {
 				if(e.highlights > 0) {
 					holder.highlights.setVisibility(View.VISIBLE);
-					holder.highlights.setText("(" + e.highlights + ")");
+					holder.highlights.setText(String.valueOf(e.highlights));
 				} else {
 					holder.highlights.setVisibility(View.GONE);
 					holder.highlights.setText("");

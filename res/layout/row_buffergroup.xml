@@ -39,13 +39,16 @@
 			        android:textColor="@color/row_label"
 			    	android:gravity="center_vertical" />
 
-   			    <TextView
+			    <TextView
 			        android:id="@+id/highlights"
 			        android:layout_width="wrap_content"
-			        android:layout_height="fill_parent"
-			        android:gravity="center_vertical"
+			        android:layout_height="wrap_content"
+			        android:background="@drawable/highlights_bg"
+			        android:gravity="center"
+			        android:minHeight="24dp"
+			        android:minWidth="24dp"
 			        android:padding="4dp"
-			        android:textColor="#f00"
+			        android:textColor="#fff"
 			        android:textStyle="bold" />
 
    			    <ProgressBar
