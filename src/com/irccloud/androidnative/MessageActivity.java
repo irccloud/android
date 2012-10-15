@@ -174,14 +174,35 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
 		int unread = 0;
 		int highlights = 0;
+
+		JSONObject disabledMap = null;
+		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+			try {
+				disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		
 		for(int i = 0; i < servers.size(); i++) {
 			ServersDataSource.Server s = servers.get(i);
 			ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 			for(int j = 0; j < buffers.size(); j++) {
 				BuffersDataSource.Buffer b = buffers.get(j);
 				if(b.bid != bid) {
-					if(unread == 0)
-						unread += EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+					if(unread == 0) {
+						int u = 0;
+						try {
+							u = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+							if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+								u = 0;
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+						unread += u;
+					}
 					if(highlights == 0)
 						highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
 				}

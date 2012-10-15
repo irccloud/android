@@ -316,6 +316,16 @@ public class BuffersListFragment extends SherlockListFragment {
 			lastHighlightPosition = -1;
 			int position = 0;
 			
+			JSONObject disabledMap = null;
+			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+				try {
+					disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
 			for(int i = 0; i < servers.size(); i++) {
 				int archiveCount = 0;
 				ServersDataSource.Server s = servers.get(i);
@@ -327,6 +337,12 @@ public class BuffersListFragment extends SherlockListFragment {
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						if(s.name.length() == 0)
 							s.name = s.hostname;
+						try {
+							if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+								unread = 0;
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
 						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
@@ -358,15 +374,11 @@ public class BuffersListFragment extends SherlockListFragment {
 					if(type > 0 && b.archived == 0) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
-						if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
-							try {
-								JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-								if(disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
-									unread = 0;
-							} catch (JSONException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+						try {
+							if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+								unread = 0;
+						} catch (JSONException e) {
+							e.printStackTrace();
 						}
 						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
 						if(unread > 0 && firstUnreadPosition == -1)
