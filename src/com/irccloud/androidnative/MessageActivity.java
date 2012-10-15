@@ -1,5 +1,7 @@
 package com.irccloud.androidnative;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,6 +30,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -51,6 +54,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	HorizontalScrollView scrollView;
 	NetworkConnection conn;
 	private boolean shouldFadeIn = false;
+	ImageView upView;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,15 +93,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			}
         });
         userListView = findViewById(R.id.usersListFragment);
-        if(scrollView != null) {
-        	getSupportActionBar().setHomeButtonEnabled(true);
-        	getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        
+       	getSupportActionBar().setHomeButtonEnabled(false);
+       	getSupportActionBar().setDisplayShowHomeEnabled(false);
+       	getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
-        v.setOnClickListener(new OnClickListener() {
+        v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
             	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
@@ -148,6 +152,18 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	}
 			}
         });
+
+        upView = (ImageView)v.findViewById(R.id.upIndicator);
+        if(scrollView != null) {
+        	upView.setVisibility(View.VISIBLE);
+        	upView.setOnClickListener(upClickListener);
+	        ImageView icon = (ImageView)v.findViewById(R.id.upIcon);
+	        icon.setOnClickListener(upClickListener);
+	        updateUpUnreadIndicator();
+        } else {
+        	upView.setVisibility(View.INVISIBLE);
+        }
+
         title = (TextView)v.findViewById(R.id.title);
         subtitle = (TextView)v.findViewById(R.id.subtitle);
         getSupportActionBar().setCustomView(v);
@@ -163,6 +179,30 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         }
     }
 
+    private void updateUpUnreadIndicator() {
+		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+		int unread = 0;
+		int highlights = 0;
+		for(int i = 0; i < servers.size(); i++) {
+			ServersDataSource.Server s = servers.get(i);
+			ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
+			for(int j = 0; j < buffers.size(); j++) {
+				BuffersDataSource.Buffer b = buffers.get(j);
+				if(b.bid != bid) {
+					unread += EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+					highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid);
+				}
+			}
+		}
+		if(highlights > 0) {
+			upView.setImageResource(R.drawable.up_highlight);
+		} else if(unread > 0) {
+			upView.setImageResource(R.drawable.up_unread);
+		} else {
+			upView.setImageResource(R.drawable.up);
+		}
+    }
+    
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
@@ -432,8 +472,24 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					e1.printStackTrace();
 				}
 				break;
-
+			case NetworkConnection.EVENT_HEARTBEATECHO:
+				updateUpUnreadIndicator();
+				break;
 			default:
+				try {
+					event = (IRCCloudJSONObject)msg.obj;
+					if(event.bid() != bid) {
+						if(event.highlight() && upView != null) {
+							upView.setImageResource(R.drawable.up_highlight);
+						} else {
+							BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid());
+							if(EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type) > 0)
+								upView.setImageResource(R.drawable.up_unread);
+						}
+					}
+				} catch (Exception e) {
+					
+				}
 				break;
 			}
 		}
@@ -514,6 +570,23 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	return super.onPrepareOptionsMenu(menu);
     }
     
+    private OnClickListener upClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View arg0) {
+        	if(scrollView != null) {
+	        	if(scrollView.getScrollX() < buffersListView.getWidth() / 4) {
+	        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+	        		upView.setVisibility(View.VISIBLE);
+	        	} else {
+        			scrollView.smoothScrollTo(0, 0);
+	        		upView.setVisibility(View.INVISIBLE);
+	        	}
+        	}
+		}
+    	
+    };
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	Intent intent;
@@ -521,17 +594,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	AlertDialog dialog;
     	
         switch (item.getItemId()) {
-	        case android.R.id.home:
-	        	if(scrollView != null) {
-		        	if(scrollView.getScrollX() < buffersListView.getWidth() / 4) {
-		                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
-		        	} else {
-		                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-	        			scrollView.smoothScrollTo(0, 0);
-		        	}
-	        	}
-	        	return true;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
 	            newFragment.show(getSupportFragmentManager(), "dialog");
@@ -832,6 +894,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(scrollView != null) {
 			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+			upView.setVisibility(View.VISIBLE);
 		}
 		if(bid != this.bid) {
 			this.cid = cid;
@@ -901,6 +964,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		}
 	}
 
+	public void showUpButton(boolean show) {
+		if(upView != null) {
+			if(show) {
+				upView.setVisibility(View.VISIBLE);
+			} else {
+				upView.setVisibility(View.INVISIBLE);
+			}
+		}
+	}
+	
 	@Override
 	public void onMessageViewReady() {
 		if(shouldFadeIn) {

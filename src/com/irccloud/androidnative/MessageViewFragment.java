@@ -27,7 +27,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
@@ -37,7 +36,6 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.irccloud.androidnative.UsersListFragment.OnUserSelectedListener;
 
 public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;

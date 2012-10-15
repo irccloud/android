@@ -13,11 +13,13 @@ public class MessageActivityPager extends HorizontalScrollView {
 	private int startX = 0;
 	private int buffersDisplayWidth = 0;
 	private int usersDisplayWidth = 0;
+	MessageActivity activity;
 	
 	public MessageActivityPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		buffersDisplayWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 250, getResources().getDisplayMetrics());
 		usersDisplayWidth = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 250, getResources().getDisplayMetrics());
+		activity = (MessageActivity)context;
 	}
 
 	@Override
@@ -33,12 +35,15 @@ public class MessageActivityPager extends HorizontalScrollView {
 			if(Math.abs(startX - getScrollX()) > buffersDisplayWidth / 4) { //If they've dragged a drawer more than 25% on screen, snap the drawer onto the screen
 				if(startX < buffersDisplayWidth + buffersDisplayWidth / 4 && getScrollX() < startX) {
 					smoothScrollTo(0, 0);
+					activity.showUpButton(false);
 					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
 				} else if(startX >= buffersDisplayWidth && getScrollX() > startX) {
 					smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
+					activity.showUpButton(true);
 					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
 				} else {
 					smoothScrollTo(buffersDisplayWidth, 0);
+					activity.showUpButton(true);
 					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), true);
 				}
 			} else { //Snap back

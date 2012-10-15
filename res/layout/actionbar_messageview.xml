@@ -2,25 +2,53 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:gravity="center_vertical|left"
-    android:orientation="vertical"
-    android:paddingLeft="4dp" >
+    android:layout_height="fill_parent" >
 
-       <TextView
-           android:id="@+id/title"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:ellipsize="end"
-           android:singleLine="true"
-           android:textSize="@dimen/abs__action_bar_title_text_size" />
+    <ImageView
+        android:id="@+id/upIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|left"
+        android:src="@drawable/up"
+        android:visibility="visible" />
 
-        <TextView android:id="@+id/subtitle"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textSize="@dimen/abs__action_bar_subtitle_text_size"
-                  android:layout_marginTop="@dimen/abs__action_bar_subtitle_top_margin"
-                  android:singleLine="true"
-                  android:ellipsize="end"
-                  android:visibility="gone" />
+    <ImageView
+        android:id="@+id/upIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/abs__action_bar_icon_vertical_padding"
+        android:layout_marginRight="8dip"
+        android:layout_marginTop="@dimen/abs__action_bar_icon_vertical_padding"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_launcher" />
+    
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center_vertical|left"
+        android:orientation="vertical"
+        android:id="@+id/actionTitleArea"
+        android:paddingLeft="4dp" >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="@dimen/abs__action_bar_title_text_size" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/abs__action_bar_subtitle_top_margin"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="@dimen/abs__action_bar_subtitle_text_size"
+            android:visibility="gone" />
+    </LinearLayout>
+
 </LinearLayout>
