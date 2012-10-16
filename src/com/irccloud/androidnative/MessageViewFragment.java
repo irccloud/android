@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -43,6 +44,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	private View headerViewContainer;
 	private View headerView;
 	private TextView unreadView;
+	private TextView unreadTopLabel;
+	private View unreadTopView;
 	private int cid;
 	private int bid;
 	private long last_seen_eid;
@@ -62,6 +65,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private static final int TYPE_MESSAGE = 1;
 	private static final int TYPE_BACKLOGMARKER = 2;
 	private static final int TYPE_SOCKETCLOSED = 3;
+	private static final int TYPE_LASTSEENEID = 4;
 	
 	private static final String[] COLOR_MAP = {
 		"FFFFFF", //white
@@ -90,6 +94,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		private long max_eid = 0;
 		private long min_eid = 0;
 		private int lastDay;
+		private int lastSeenEidMarkerPosition = -1;
 		
 		private class ViewHolder {
 			int type;
@@ -114,6 +119,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		public void clear() {
 			max_eid = 0;
 			min_eid = 0;
+			lastSeenEidMarkerPosition = -1;
 			data.clear();
 		}
 		
@@ -139,6 +145,36 @@ public class MessageViewFragment extends SherlockListFragment {
 				position--;
 			data.add(position, e);
 			return position;
+		}
+		
+		public int insertLastSeenEIDMarker() {
+			MessageEntry e = new MessageEntry();
+			e.type = TYPE_LASTSEENEID;
+			e.bg_color = R.drawable.socketclosed_bg;
+			for(int i = 0; i < data.size(); i++) {
+				if(data.get(i).type == TYPE_LASTSEENEID) {
+					data.remove(i);
+				}
+			}
+			for(int i = data.size() - 1; i >= 0; i--) {
+				if(data.get(i).eid <= last_seen_eid) {
+					lastSeenEidMarkerPosition = i;
+					break;
+				}
+			}
+			if(lastSeenEidMarkerPosition != data.size() - 1) {
+				if(lastSeenEidMarkerPosition > 0 && data.get(lastSeenEidMarkerPosition - 1).type == TYPE_TIMESTAMP)
+					lastSeenEidMarkerPosition--;
+				if(lastSeenEidMarkerPosition > 0)
+					data.add(lastSeenEidMarkerPosition + 1, e);
+			} else {
+				lastSeenEidMarkerPosition = -1;
+			}
+			return lastSeenEidMarkerPosition;
+		}
+		
+		public int getLastSeenEIDPosition() {
+			return lastSeenEidMarkerPosition;
 		}
 		
 		public void addItem(int type, long eid, String text, int color, int bg_color) {
@@ -276,6 +312,8 @@ public class MessageViewFragment extends SherlockListFragment {
 					row = inflater.inflate(R.layout.row_timestamp, null);
 				else if(e.type == TYPE_SOCKETCLOSED)
 					row = inflater.inflate(R.layout.row_socketclosed, null);
+				else if(e.type == TYPE_LASTSEENEID)
+					row = inflater.inflate(R.layout.row_lastseeneid, null);
 				else
 					row = inflater.inflate(R.layout.row_message, null);
 
@@ -348,6 +386,28 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
     		
     	});
+    	unreadTopView = v.findViewById(R.id.unreadTop);
+    	unreadTopView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				unreadTopView.setVisibility(View.GONE);
+				getListView().setSelection(adapter.getLastSeenEIDPosition());
+				Long e = adapter.data.get(adapter.data.size() - 1).eid;
+				new HeartbeatTask().execute(e);
+			}
+    		
+    	});
+    	unreadTopLabel = (TextView)v.findViewById(R.id.unreadTopText);
+    	Button b = (Button)v.findViewById(R.id.markAsRead);
+    	b.setOnClickListener(new OnClickListener() {
+    		@Override
+    		public void onClick(View v) {
+				unreadTopView.setVisibility(View.GONE);
+				Long e = adapter.data.get(adapter.data.size() - 1).eid;
+				new HeartbeatTask().execute(e);
+    		}
+    	});
     	((ListView)v.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -357,10 +417,14 @@ public class MessageViewFragment extends SherlockListFragment {
 						conn.request_backlog(cid, bid, earliest_eid);
 					}
 				}
+				int markerPos = -1;
+				if(adapter != null)
+					markerPos = adapter.getLastSeenEIDPosition();
+				
 				if(unreadView != null) {
 					if(firstVisibleItem + visibleItemCount == totalItemCount) {
 						unreadView.setVisibility(View.GONE);
-						if(newMsgs > 0) {
+						if(newMsgs > 0 && (markerPos == -1 || getListView().getFirstVisiblePosition() <= markerPos)) {
 							Long e = adapter.data.get(adapter.data.size() - 1).eid;
 							new HeartbeatTask().execute(e);
 						}
@@ -370,6 +434,14 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 				if(firstVisibleItem + visibleItemCount < totalItemCount)
 					shouldShowUnread = true;
+
+				if(adapter != null && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
+		    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
+		    			unreadTopView.setVisibility(View.GONE);
+						Long e = adapter.data.get(adapter.data.size() - 1).eid;
+						new HeartbeatTask().execute(e);
+		    		}
+				}
 			}
 
 			@Override
@@ -714,6 +786,13 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	}
 	    	if(!backlog && !shouldShowUnread)
 	    		getListView().setSelection(adapter.getCount() - 1);
+	    	
+	    	if(!backlog) {
+				int markerPos = adapter.getLastSeenEIDPosition();
+	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+	    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
+	    		}
+	    	}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -805,8 +884,6 @@ public class MessageViewFragment extends SherlockListFragment {
 						adapter.notifyDataSetChanged();
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
 					}
-					Long e = adapter.data.get(adapter.data.size() - 1).eid;
-					new HeartbeatTask().execute(e);
 				} catch (IllegalStateException e) {
 					//The list view doesn't exist yet
 					Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
@@ -838,10 +915,27 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		while(i.hasNext()) {
 	    			insertEvent(i.next(), true);
 	    		}
+	    		if(adapter.getLastSeenEIDPosition() == -1)
+	    			adapter.insertLastSeenEIDMarker();
 	    		adapter.notifyDataSetChanged();
 	    		Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
-	    		new HeartbeatTask().execute(events.get(events.lastKey()).eid());
 	    		avgInsertTime = 0;
+	    		final long lastEid = events.get(events.lastKey()).eid();
+	    		mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						if(adapter != null) {
+							int markerPos = adapter.getLastSeenEIDPosition();
+				    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+				    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
+				    			unreadTopView.setVisibility(View.VISIBLE);
+				    		} else {
+				    			unreadTopView.setVisibility(View.GONE);
+				    			new HeartbeatTask().execute(lastEid);
+				    		}
+						}
+					}
+	    		});
 	    	}
 		}
     	try {
@@ -1022,6 +1116,22 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_BACKLOG_END:
 				new RefreshTask().execute((Void)null);
 				break;
+			case NetworkConnection.EVENT_HEARTBEATECHO:
+				if(adapter != null) {
+					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+					if(last_seen_eid != b.last_seen_eid) {
+						last_seen_eid = b.last_seen_eid;
+						int markerPos = adapter.insertLastSeenEIDMarker();
+			    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+			    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
+			    			unreadTopView.setVisibility(View.VISIBLE);
+			    		} else {
+			    			unreadTopView.setVisibility(View.GONE);
+			    		}
+			    		adapter.notifyDataSetChanged();
+					}
+				}
+				break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:
@@ -1036,8 +1146,6 @@ public class MessageViewFragment extends SherlockListFragment {
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.bid() == bid) {
 					insertEvent(e, false);
-					if(getListView().getLastVisiblePosition() == (adapter.getCount() - 1))
-						new HeartbeatTask().execute(e.eid());
 				}
 				break;
 			default:

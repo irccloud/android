@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1" >
-
+        
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
@@ -19,6 +19,33 @@
             android:fastScrollEnabled="true"
             android:transcriptMode="normal"/>
 
+        <LinearLayout
+            android:id="@+id/unreadTop"
+            android:background="@color/dark_blue"
+            android:padding="2dp"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/unreadTopText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/message_bg"
+                android:layout_weight="1"
+	            android:paddingLeft="6dp"
+	            android:paddingRight="6dp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/markAsRead"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark As Read" />
+
+        </LinearLayout>
+        
         <TextView
             android:id="@+id/unread"
             android:layout_width="match_parent"
@@ -26,9 +53,9 @@
             android:layout_alignParentBottom="true"
             android:background="@color/dark_blue"
             android:padding="4dp"
-            android:text="TextView"
             android:textColor="@color/message_bg"
             android:textStyle="bold" />
+
 
     </RelativeLayout>
 

@@ -764,7 +764,7 @@ public class NetworkConnection {
 					}
 				}
 				if(!backlog)
-					notifyHandlers(EVENT_HEARTBEATECHO, null);
+					notifyHandlers(EVENT_HEARTBEATECHO, object);
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
 					if(Looper.myLooper() == null)
