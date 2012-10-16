@@ -21,8 +21,8 @@ public class EventsDataSource {
 	}
 	
 	private HashMap<Integer,TreeMap<Long, IRCCloudJSONObject>> events;
-	
 	private static EventsDataSource instance = null;
+	public long highest_eid = -1;
 	
 	public static EventsDataSource getInstance() {
 		if(instance == null)
@@ -45,6 +45,8 @@ public class EventsDataSource {
 			if(!events.containsKey(event.bid()))
 				events.put(event.bid(), new TreeMap<Long,IRCCloudJSONObject>());
 			events.get(event.bid()).put(event.eid(), event);
+			if(highest_eid < event.eid())
+				highest_eid = event.eid();
 		}
 	}
 

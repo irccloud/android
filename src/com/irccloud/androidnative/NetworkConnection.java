@@ -94,6 +94,8 @@ public class NetworkConnection {
 	public static final int EVENT_BACKLOG_END = 101;
 	public static final int EVENT_FAILURE_MSG = 102;
 	
+	private static final String IRCCLOUD_HOST = "alpha.irccloud.com";
+	
 	Object parserLock = new Object();
 	
 	public static NetworkConnection getInstance() {
@@ -122,7 +124,7 @@ public class NetworkConnection {
 	
 	public JSONObject login(String email, String password) throws IOException {
 		String postdata = "email="+email+"&password="+password;
-		String response = doPost(new URL("https://alpha.irccloud.com/chat/login"), postdata);
+		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata);
 		try {
 			Log.d(TAG, "Result: " + response);
 			JSONObject o = new JSONObject(response);
@@ -141,7 +143,13 @@ public class NetworkConnection {
 		    new BasicNameValuePair("Cookie", "session="+session)
 		);
 
-		client = new WebSocketClient(URI.create("wss://alpha.irccloud.com"), new WebSocketClient.Listener() {
+		String url = "wss://" + IRCCLOUD_HOST;
+		if(EventsDataSource.getInstance().highest_eid > 0)
+			url += "?since_eid=" + EventsDataSource.getInstance().highest_eid;
+
+		Log.d("IRCCloud", "Opening websocket: " + url);
+		
+		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 		    @Override
 		    public void onConnect() {
 		        Log.d(TAG, "Connected!");
@@ -451,9 +459,9 @@ public class NetworkConnection {
 			if(Looper.myLooper() == null)
 				Looper.prepare();
 			if(beforeId > 0)
-				new OOBIncludeTask().execute(new URL("https://alpha.irccloud.com/chat/backlog?cid="+cid+"&bid="+bid+"&beforeid="+beforeId));
+				new OOBIncludeTask().execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid="+cid+"&bid="+bid+"&beforeid="+beforeId));
 			else
-				new OOBIncludeTask().execute(new URL("https://alpha.irccloud.com/chat/backlog?cid="+cid+"&bid="+bid));
+				new OOBIncludeTask().execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid="+cid+"&bid="+bid));
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -474,7 +482,7 @@ public class NetworkConnection {
 	            	 state = STATE_CONNECTING;
 	            	 notifyHandlers(EVENT_CONNECTIVITY, null);
 	            	 client.disconnect();
-	            	 client.connect();
+	            	 connect(session);
             	 }
                  idleTimer = null;
                  reconnect_timestamp = 0;
@@ -487,7 +495,6 @@ public class NetworkConnection {
 		return reconnect_timestamp;
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
@@ -762,7 +769,8 @@ public class NetworkConnection {
 				try {
 					if(Looper.myLooper() == null)
 						Looper.prepare();
-					new OOBIncludeTask().execute(new URL("https://alpha.irccloud.com" + object.getString("url")));
+					String url = "https://" + IRCCLOUD_HOST + object.getString("url");
+					new OOBIncludeTask().execute(new URL(url));
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -960,12 +968,14 @@ public class NetworkConnection {
 						notifyHandlers(EVENT_BACKLOG_START, null);
 						JsonParser parser = new JsonParser();
 						reader.beginArray();
+						int count = 0;
 						while(reader.hasNext()) {
 							JsonElement e = parser.parse(reader);
 							parse_object(new IRCCloudJSONObject(e.getAsJsonObject()), true);
+							count++;
 						}
 						reader.endArray();
-						Log.i("IRCCloud", "Backlog complete!");
+						Log.i("IRCCloud", "Backlog complete: " + count + " events");
 						Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
 					}
 				} else if(ServersDataSource.getInstance().count() < 1) {
