@@ -396,6 +396,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		
     	});
     	unreadTopView = v.findViewById(R.id.unreadTop);
+		unreadTopView.setVisibility(View.INVISIBLE);
     	unreadTopView.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -430,10 +431,10 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(adapter != null)
 					markerPos = adapter.getLastSeenEIDPosition();
 				
-				if(unreadView != null) {
+				if(unreadView != null && adapter != null) {
 					if(firstVisibleItem + visibleItemCount == totalItemCount) {
 						unreadView.setVisibility(View.GONE);
-						if(newMsgs > 0 && (markerPos == -1 || getListView().getFirstVisiblePosition() <= markerPos)) {
+						if(newMsgs > 0 || unreadTopView.getVisibility() == View.GONE) {
 							Long e = adapter.data.get(adapter.data.size() - 1).eid;
 							new HeartbeatTask().execute(e);
 						}
@@ -451,7 +452,6 @@ public class MessageViewFragment extends SherlockListFragment {
 						new HeartbeatTask().execute(e);
 		    		}
 				}
-				firstScroll = false;
 			}
 
 			@Override
@@ -515,6 +515,8 @@ public class MessageViewFragment extends SherlockListFragment {
 		newMsgs = 0;
 		newMsgTime = 0;
 		earliest_eid = 0;
+		if(unreadTopView != null)
+			unreadTopView.setVisibility(View.INVISIBLE);
 		if(headerView != null) {
 			mHandler.postDelayed(new Runnable() {
 
@@ -878,7 +880,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	}
     }
     
-    private class HeartbeatTask extends AsyncTask<Long, Void, Void> {
+    private class HeartbeatTask extends AsyncTaskEx<Long, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Long... params) {
@@ -928,10 +930,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					adapter.clear();
 					refresh(events, server, buffer);
 					int markerPos = adapter.getBacklogMarkerPosition();
-					if(firstScroll) {
-						getListView().setSelection(adapter.data.size() - 1);
-						firstScroll = false;
-					} else if(markerPos != -1 && oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
+					if(!firstScroll && markerPos != -1 && oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
 						adapter.notifyDataSetChanged();
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
 					}
@@ -984,6 +983,12 @@ public class MessageViewFragment extends SherlockListFragment {
 				    			unreadTopView.setVisibility(View.GONE);
 				    			new HeartbeatTask().execute(lastEid);
 				    		}
+							if(firstScroll) {
+								getListView().setSelection(adapter.data.size() - 1);
+								firstScroll = false;
+							}
+						} else {
+							Log.e("IRCCloud", "Adapter was null!");
 						}
 					}
 	    		});
@@ -1172,14 +1177,9 @@ public class MessageViewFragment extends SherlockListFragment {
 					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 					if(last_seen_eid != b.last_seen_eid) {
 						last_seen_eid = b.last_seen_eid;
-						int markerPos = adapter.insertLastSeenEIDMarker();
-			    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
-			    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
-			    			unreadTopView.setVisibility(View.VISIBLE);
-			    		} else {
+						if(last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid) {
 			    			unreadTopView.setVisibility(View.GONE);
 			    		}
-			    		adapter.notifyDataSetChanged();
 					}
 				}
 				break;

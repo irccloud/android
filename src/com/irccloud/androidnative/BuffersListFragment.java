@@ -536,7 +536,6 @@ public class BuffersListFragment extends SherlockListFragment {
         	if(selected_bid > 0)
         		adapter.showProgress(adapter.positionForBid(selected_bid));
         }
-        Log.i("IRCCloud", "Fragment view created");
 		return view;
 	}
 	
