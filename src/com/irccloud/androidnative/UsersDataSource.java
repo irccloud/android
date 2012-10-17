@@ -66,7 +66,7 @@ public class UsersDataSource {
 	public synchronized void deleteUser(int cid, String channel, String nick) {
 		User u = getUser(cid,channel,nick);
 		if(u != null)
-			u.joined = 0;
+			users.remove(u);
 	}
 
 	public synchronized void deleteUsersForChannel(int cid, String channel) {
@@ -139,7 +139,7 @@ public class UsersDataSource {
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
 			User u = i.next();
-			if(u.cid == cid && u.channel.equals(channel) && u.nick.equals(nick))
+			if(u.cid == cid && u.channel.equals(channel) && u.nick.equals(nick) && u.joined == 1)
 				return u;
 		}
 		return null;
@@ -159,7 +159,7 @@ public class UsersDataSource {
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
 			User u = i.next();
-			if(u.cid == cid && u.nick.equals(nick))
+			if(u.cid == cid && u.nick.equals(nick) && u.joined == 1)
 				return u;
 		}
 		return null;
