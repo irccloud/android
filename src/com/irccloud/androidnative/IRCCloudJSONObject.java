@@ -9,6 +9,10 @@ import com.google.gson.JsonParser;
 public class IRCCloudJSONObject {
 	JsonObject o;
 	
+	public IRCCloudJSONObject() {
+		o = new JsonObject();
+	}
+	
 	public IRCCloudJSONObject(String message) {
 		JsonParser parser = new JsonParser();
 		o = parser.parse(message).getAsJsonObject();
@@ -87,13 +91,6 @@ public class IRCCloudJSONObject {
 	public JsonArray getJsonArray(String name) {
 		return o.getAsJsonArray(name);
 	}
-/*	public JSONObject getJSONObject(String name) throws JSONException {
-		return o.get(name);
-	}
-	
-	public JSONArray getJSONArray(String name) throws JSONException {
-		return o.getJSONArray(name);
-	}*/
 	
 	public JsonObject getObject() {
 		return o;

@@ -3,8 +3,12 @@ package com.irccloud.androidnative;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -87,7 +91,12 @@ public class MessageViewFragment extends SherlockListFragment {
 	};
 	
 	private MessageAdapter adapter;
-	
+
+	private long currentCollapsedEid = -1;
+	private CollapsedEventsList collapsedEvents = null;
+	private int lastCollapsedDay = -1;
+	private HashSet<Long> expandedSectionEids = new HashSet<Long>();
+
 	private class MessageAdapter extends BaseAdapter {
 		ArrayList<MessageEntry> data;
 		private SherlockListFragment ctx;
@@ -109,6 +118,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			String text;
 			int color;
 			int bg_color;
+			long group_eid;
 		}
 
 		public MessageAdapter(SherlockListFragment context) {
@@ -132,21 +142,15 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 		}
 
-		public int insertBacklogMarker(int position) {
-			MessageEntry e = new MessageEntry();
-			e.type = TYPE_BACKLOGMARKER;
-			e.bg_color = R.color.message_bg;
+		public int getBacklogMarkerPosition() {
 			for(int i = 0; i < data.size(); i++) {
 				if(data.get(i).type == TYPE_BACKLOGMARKER) {
-					data.remove(i);
+					return i;
 				}
 			}
-			if(position > 0 && data.get(position - 1).type == TYPE_TIMESTAMP)
-				position--;
-			data.add(position, e);
-			return position;
+			return -1;
 		}
-		
+
 		public int insertLastSeenEIDMarker() {
 			MessageEntry e = new MessageEntry();
 			e.type = TYPE_LASTSEENEID;
@@ -205,6 +209,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			e.text = text;
 			e.color = color;
 			e.bg_color = bg_color;
+			e.group_eid = currentCollapsedEid;
 			
 			if(eid > max_eid) { //Message at the bottom
 				if(data.size() > 0) {
@@ -292,7 +297,11 @@ public class MessageViewFragment extends SherlockListFragment {
 
 		@Override
 		public long getItemId(int position) {
-			return position;
+			return data.get(position).eid;
+		}
+		
+		public long getGroupForPosition(int position) {
+			return data.get(position).group_eid;
 		}
 
 		@Override
@@ -442,6 +451,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						new HeartbeatTask().execute(e);
 		    		}
 				}
+				firstScroll = false;
 			}
 
 			@Override
@@ -540,10 +550,19 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	
 	    	String from = "";
 	    	String msg = "";
-	    	String type;
-			type = event.getString("type");
+	    	String type = event.getString("type");
+	    	long eid = event.getLong("eid");
+
+	    	if(event.has("from"))
+				from = TextUtils.htmlEncode(event.getString("from"));
 	    	
-			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") ||type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit")) {
+			if(event.has("msg"))
+				msg = TextUtils.htmlEncode(event.getString("msg"));
+
+	    	if(type.startsWith("you_"))
+	    		type = type.substring(4);
+	    	
+			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("quit_channel")) {
 				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
 					if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
@@ -553,220 +572,234 @@ public class MessageViewFragment extends SherlockListFragment {
 				    	return;
 					}
 				}
+
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTimeInMillis(eid / 1000);
+
+				if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay) {
+					currentCollapsedEid = eid;
+					lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
+					collapsedEvents = null;
+				}
+
+				if(collapsedEvents == null || expandedSectionEids.contains(currentCollapsedEid))
+					collapsedEvents = new CollapsedEventsList();
+				
+				if(type.equalsIgnoreCase("joined_channel")) {
+					UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name, event.getString("nick"));
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.getString("nick"), (user==null)?null:user.old_nick, event.getString("hostmask"), null);
+				} else if(type.equalsIgnoreCase("parted_channel")) {
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.getString("nick"), null, event.getString("hostmask"), null);
+				} else if(type.equalsIgnoreCase("quit_channel") || type.equalsIgnoreCase("quit")) {
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.getString("nick"), null, event.getString("hostmask"), event.getString("msg"));
+				} else if(type.equalsIgnoreCase("nickchange")) {
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.getString("newnick"), event.getString("oldnick"), null, null);
+				}
+				
+				from = "";
+				msg = collapsedEvents.getCollapsedMessage();
+				if(msg == null && type.equalsIgnoreCase("nickchange"))
+					msg = event.getString("newnick") + " → <b>" + event.getString("newnick") + "</b>";
+				if(!expandedSectionEids.contains(currentCollapsedEid)) {
+					if(eid != currentCollapsedEid)
+						msg = "[+] " + msg;
+					eid = currentCollapsedEid;
+				}
+				color = R.color.timestamp;
+			} else {
+				currentCollapsedEid = -1;
+				collapsedEvents = null;
 			}
 
 			if(type.equalsIgnoreCase("socket_closed")) {
-		    	adapter.addItem(TYPE_SOCKETCLOSED, event.getLong("eid"), "", color, R.drawable.socketclosed_bg);
-			}
-			
-			if(event.has("from"))
-				from = TextUtils.htmlEncode(event.getString("from"));
-	    	
-			if(event.has("msg"))
-				msg = TextUtils.htmlEncode(event.getString("msg"));
-
-	    	if(type.equalsIgnoreCase("buffer_me_msg")) {
-				from = "* <i>" + from + "</i>";
-				msg = "<i>" + msg + "</i>";
-	    	} else if(type.equalsIgnoreCase("nickname_in_use")) {
-	    		from = event.getString("nick");
-	    		msg = "is already in use";
-	    		bg_color = R.color.error;
-	    	} else if(type.equalsIgnoreCase("connecting_failed")) {
-	    		from = "";
-	    		msg = "Failed to connect: " + event.getString("reason");
-	    		bg_color = R.color.error;
-	    	} else if(type.equalsIgnoreCase("self_details")) {
-	    		from = "";
-	    		msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
-	    		bg_color = R.color.dateline_bg;
-	    	} else if(type.equalsIgnoreCase("myinfo")) {
-	    		from = "";
-	    		msg = "Host: " + event.getString("server") + "\n";
-	    		msg += "IRCd: " + event.getString("version") + "\n";
-	    		msg += "User modes: " + event.getString("user_modes") + "\n";
-	    		msg += "Channel modes: " + event.getString("channel_modes") + "\n";
-	    		bg_color = R.color.dateline_bg;
-	    	} else if(type.equalsIgnoreCase("user_mode")) {
-	    		from = "";
-	    		msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
-	    		bg_color = R.color.dateline_bg;
-	    	} else if(type.equalsIgnoreCase("channel_topic")) {
-	    		from = event.getString("author");
-	    		msg = "set the topic: " + event.getString("topic");
-	    		bg_color = R.color.dateline_bg;
-	    	} else if(type.equalsIgnoreCase("channel_mode")) {
-	    		from = "";
-	    		msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
-	    		bg_color = R.color.dateline_bg;
-	    	} else if(type.equalsIgnoreCase("channel_mode_is")) {
-	    		from = "";
-	    		msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
-	    		bg_color = R.color.dateline_bg;
-	    	} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
-	    		from = "→ " + event.getString("nick");
-	    		msg = "joined (" + event.getString("hostmask") + ")";
-	    		color = R.color.timestamp;
-	    	} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
-	    		from = "← " + event.getString("nick");
-	    		msg = "left (" + event.getString("hostmask") + ")";
-	    		color = R.color.timestamp;
-	    	} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
-	    		from = "← " + event.getString("nick");
-	    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
-	    		color = R.color.timestamp;
-	    	} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
-	    		from = event.getString("oldnick");
-	    		msg = " → " + event.getString("newnick");
-	    		color = R.color.timestamp;
-	    	} else if(type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("quit_server")) {
-	    		from = "⇐ " + event.getString("nick");
-	    		if(event.has("hostmask"))
-	    			msg = "quit (" + event.getString("hostmask") + ") " + event.getString("msg");
-	    		else
-	    			msg = "quit: " + event.getString("msg");
-	    		color = R.color.timestamp;
-	    	} else if(type.equalsIgnoreCase("user_channel_mode")) {
-	    		from = "+++ " + from;
-	    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
-	    	} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
-	    		from = "+++ " + from;
-	    		msg = "set mode: <b>" + event.getString("diff") + "</b>";
-	    	} else if(type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_motd")) {
-	    		//TODO: parse the MOTD lines
-	    	} else if(type.equalsIgnoreCase("inviting_to_channel")) {
-	    		from = "";
-	    		msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
-	    		bg_color = R.color.notice;
-	    	}
-	    	
-	    	if(event.has("value")) {
-	    		msg = event.getString("value") + " " + msg;
-	    	}
-
-	    	if(msg.length() > 0) {
-	    		int pos=0;
-	    		boolean bold=false, underline=false, italics=false;
-	    		String fg="", bg="";
-	    		
-	    		while(pos < msg.length()) {
-	    			if(msg.charAt(pos) == 2) {
-	    				String html = "";
-	    				if(bold)
-	    					html += "</b>";
-	    				else
-	    					html += "<b>";
-	    				bold = !bold;
-	    				msg = removeCharAtIndex(msg, pos);
-						msg = insertAtIndex(msg, pos, html);
-	    			} else if(msg.charAt(pos) == 16 || msg.charAt(pos) == 29) {
-	    				String html = "";
-	    				if(italics)
-	    					html += "</i>";
-	    				else
-	    					html += "<i>";
-	    				italics = !italics;
-	    				msg = removeCharAtIndex(msg, pos);
-						msg = insertAtIndex(msg, pos, html);
-	    			} else if(msg.charAt(pos) == 31) {
-	    				String html = "";
-	    				if(underline)
-	    					html += "</u>";
-	    				else
-	    					html += "<u>";
-	    				underline = !underline;
-	    				msg = removeCharAtIndex(msg, pos);
-						msg = insertAtIndex(msg, pos, html);
-	    			} else if(msg.charAt(pos) == 3) {
-	    				String new_fg="", new_bg="";
-	    				String v = "";
-	    				msg = removeCharAtIndex(msg, pos);
-	    				while(msg.charAt(pos) >= '0' && msg.charAt(pos) <= '9') {
-	    					v += msg.charAt(pos);
+		    	adapter.addItem(TYPE_SOCKETCLOSED, eid, "", color, R.drawable.socketclosed_bg);
+			} else if(type.equalsIgnoreCase("__backlog_marker__")) {
+		    	adapter.addItem(TYPE_BACKLOGMARKER, eid, "", color, R.color.message_bg);
+			} else {
+		    	if(type.equalsIgnoreCase("buffer_me_msg")) {
+					from = "* <i>" + from + "</i>";
+					msg = "<i>" + msg + "</i>";
+		    	} else if(type.equalsIgnoreCase("nickname_in_use")) {
+		    		from = event.getString("nick");
+		    		msg = "is already in use";
+		    		bg_color = R.color.error;
+		    	} else if(type.equalsIgnoreCase("connecting_failed")) {
+		    		from = "";
+		    		msg = "Failed to connect: " + event.getString("reason");
+		    		bg_color = R.color.error;
+		    	} else if(type.equalsIgnoreCase("self_details")) {
+		    		from = "";
+		    		msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("myinfo")) {
+		    		from = "";
+		    		msg = "Host: " + event.getString("server") + "\n";
+		    		msg += "IRCd: " + event.getString("version") + "\n";
+		    		msg += "User modes: " + event.getString("user_modes") + "\n";
+		    		msg += "Channel modes: " + event.getString("channel_modes") + "\n";
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("user_mode")) {
+		    		from = "";
+		    		msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("channel_topic")) {
+		    		from = event.getString("author");
+		    		msg = "set the topic: " + event.getString("topic");
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("channel_mode")) {
+		    		from = "";
+		    		msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("channel_mode_is")) {
+		    		from = "";
+		    		msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
+		    		from = "← " + event.getString("nick");
+		    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
+		    		color = R.color.timestamp;
+		    	} else if(type.equalsIgnoreCase("user_channel_mode")) {
+		    		from = "+++ " + from;
+		    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
+		    	} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
+		    		from = "+++ " + from;
+		    		msg = "set mode: <b>" + event.getString("diff") + "</b>";
+		    	} else if(type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_motd")) {
+		    		//TODO: parse the MOTD lines
+		    	} else if(type.equalsIgnoreCase("inviting_to_channel")) {
+		    		from = "";
+		    		msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
+		    		bg_color = R.color.notice;
+		    	}
+		    	
+		    	if(event.has("value")) {
+		    		msg = event.getString("value") + " " + msg;
+		    	}
+	
+		    	if(msg.length() > 0) {
+		    		int pos=0;
+		    		boolean bold=false, underline=false, italics=false;
+		    		String fg="", bg="";
+		    		
+		    		while(pos < msg.length()) {
+		    			if(msg.charAt(pos) == 2) {
+		    				String html = "";
+		    				if(bold)
+		    					html += "</b>";
+		    				else
+		    					html += "<b>";
+		    				bold = !bold;
 		    				msg = removeCharAtIndex(msg, pos);
-	    				}
-	    				if(v.length() > 0) {
-	    					if(v.length() < 3)
-	    						new_fg = COLOR_MAP[Integer.parseInt(v)];
-	    					else
-		    					new_fg = v;
-	    				}
-	    				v="";
-	    				if(msg.charAt(pos) == ',') {
+							msg = insertAtIndex(msg, pos, html);
+		    			} else if(msg.charAt(pos) == 16 || msg.charAt(pos) == 29) {
+		    				String html = "";
+		    				if(italics)
+		    					html += "</i>";
+		    				else
+		    					html += "<i>";
+		    				italics = !italics;
 		    				msg = removeCharAtIndex(msg, pos);
-	    					if(new_fg.length() == 0)
-	    						new_fg = "clear";
-	    					new_bg = "clear";
+							msg = insertAtIndex(msg, pos, html);
+		    			} else if(msg.charAt(pos) == 31) {
+		    				String html = "";
+		    				if(underline)
+		    					html += "</u>";
+		    				else
+		    					html += "<u>";
+		    				underline = !underline;
+		    				msg = removeCharAtIndex(msg, pos);
+							msg = insertAtIndex(msg, pos, html);
+		    			} else if(msg.charAt(pos) == 3) {
+		    				String new_fg="", new_bg="";
+		    				String v = "";
+		    				msg = removeCharAtIndex(msg, pos);
 		    				while(msg.charAt(pos) >= '0' && msg.charAt(pos) <= '9') {
 		    					v += msg.charAt(pos);
 			    				msg = removeCharAtIndex(msg, pos);
 		    				}
 		    				if(v.length() > 0) {
 		    					if(v.length() < 3)
-		    						new_bg = COLOR_MAP[Integer.parseInt(v)];
+		    						new_fg = COLOR_MAP[Integer.parseInt(v)];
 		    					else
-			    					new_bg = v;
+			    					new_fg = v;
 		    				}
-	    				}
-						String html = "";
-						if(new_fg.length() == 0 && new_bg.length() == 0) {
-							new_fg = "clear";
-							new_bg = "clear";
-						}
-						if(new_fg.length() > 0 && !new_fg.equals(fg) && fg.length() > 0) {
-							html += "</font>";
-						}
-						if(new_bg.length() > 0 && !new_bg.equals(bg) && bg.length() > 0) {
-							html += "</_bg" + bg + ">";
-						}
-	    				if(new_bg.length() > 0) {
-	    					if(!new_bg.equals(bg)) {
-	    						if(new_bg.equals("clear")) {
-	    							bg = "";
-	    						} else {
-		    						html += "<_bg" + new_bg + ">";
-		    						bg = new_bg;
-	    						}
-	    					}
-	    				}
-	    				if(new_fg.length() > 0) {
-	    					if(!new_fg.equals(fg)) {
-	    						if(new_fg.equals("clear")) {
-	    							fg = "";
-	    						} else {
-		    						html += "<font color=\"#" + new_fg + "\">";
-		    						fg = new_fg;
-	    						}
-	    					}
-	    				}
-						msg = insertAtIndex(msg, pos, html);
-	    			}
-	    			pos++;
-	    		}
-	    		if(fg.length() > 0) {
-	    			msg += "</font>";
-	    		}
-	    		if(bg.length() > 0) {
-	    			msg += "</_bg" + bg + ">";
-	    		}
-				if(bold)
-					msg += "</b>";
-				if(underline)
-					msg += "</u>";
-				if(italics)
-					msg += "</i>";
-	    	}
-	    	
-	    	if(from.length() > 0)
-	    		msg = "<b>" + from + "</b> " + msg;
-	    	
-	    	if(event.has("highlight") && event.getBoolean("highlight"))
-	    		bg_color = R.color.highlight;
-	    	
-	    	if(event.has("self") && event.getBoolean("self"))
-	    		bg_color = R.color.self;
-	    	
-	    	adapter.addItem(TYPE_MESSAGE, event.getLong("eid"), msg, color, bg_color);
+		    				v="";
+		    				if(msg.charAt(pos) == ',') {
+			    				msg = removeCharAtIndex(msg, pos);
+		    					if(new_fg.length() == 0)
+		    						new_fg = "clear";
+		    					new_bg = "clear";
+			    				while(msg.charAt(pos) >= '0' && msg.charAt(pos) <= '9') {
+			    					v += msg.charAt(pos);
+				    				msg = removeCharAtIndex(msg, pos);
+			    				}
+			    				if(v.length() > 0) {
+			    					if(v.length() < 3)
+			    						new_bg = COLOR_MAP[Integer.parseInt(v)];
+			    					else
+				    					new_bg = v;
+			    				}
+		    				}
+							String html = "";
+							if(new_fg.length() == 0 && new_bg.length() == 0) {
+								new_fg = "clear";
+								new_bg = "clear";
+							}
+							if(new_fg.length() > 0 && !new_fg.equals(fg) && fg.length() > 0) {
+								html += "</font>";
+							}
+							if(new_bg.length() > 0 && !new_bg.equals(bg) && bg.length() > 0) {
+								html += "</_bg" + bg + ">";
+							}
+		    				if(new_bg.length() > 0) {
+		    					if(!new_bg.equals(bg)) {
+		    						if(new_bg.equals("clear")) {
+		    							bg = "";
+		    						} else {
+			    						html += "<_bg" + new_bg + ">";
+			    						bg = new_bg;
+		    						}
+		    					}
+		    				}
+		    				if(new_fg.length() > 0) {
+		    					if(!new_fg.equals(fg)) {
+		    						if(new_fg.equals("clear")) {
+		    							fg = "";
+		    						} else {
+			    						html += "<font color=\"#" + new_fg + "\">";
+			    						fg = new_fg;
+		    						}
+		    					}
+		    				}
+							msg = insertAtIndex(msg, pos, html);
+		    			}
+		    			pos++;
+		    		}
+		    		if(fg.length() > 0) {
+		    			msg += "</font>";
+		    		}
+		    		if(bg.length() > 0) {
+		    			msg += "</_bg" + bg + ">";
+		    		}
+					if(bold)
+						msg += "</b>";
+					if(underline)
+						msg += "</u>";
+					if(italics)
+						msg += "</i>";
+		    	}
+		    	
+		    	if(from.length() > 0)
+		    		msg = "<b>" + from + "</b> " + msg;
+		    	
+		    	if(event.has("highlight") && event.getBoolean("highlight"))
+		    		bg_color = R.color.highlight;
+		    	
+		    	if(event.has("self") && event.getBoolean("self"))
+		    		bg_color = R.color.self;
+		    	
+		    	adapter.addItem(TYPE_MESSAGE, eid, msg, color, bg_color);
+			}
 	    	if(!backlog)
 	    		adapter.notifyDataSetChanged();
 	    	long time = (System.currentTimeMillis() - start);
@@ -807,6 +840,15 @@ public class MessageViewFragment extends SherlockListFragment {
     
     public String removeCharAtIndex(String input, int index) {
     	return input.substring(0, index) + input.substring(index+1, input.length());
+    }
+    
+    public void onListItemClick(ListView l, View v, int position, long id) {
+    	long group = adapter.getGroupForPosition(position-1);
+    	if(expandedSectionEids.contains(group))
+    		expandedSectionEids.remove(group);
+    	else
+    		expandedSectionEids.add(group);
+    	new RefreshTask().execute((Void)null);
     }
     
     public void onResume() {
@@ -863,7 +905,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			server = ServersDataSource.getInstance().getServer(cid);
 			long time = System.currentTimeMillis();
-			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+			events = (TreeMap<Long, IRCCloudJSONObject>) EventsDataSource.getInstance().getEventsForBuffer((int)bid).clone();
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			return null;
 		}
@@ -874,13 +916,22 @@ public class MessageViewFragment extends SherlockListFragment {
 				try {
 					int oldSize = adapter.data.size();
 					int oldPosition = getListView().getFirstVisiblePosition();
+					if(oldSize > 1 && requestingBacklog && !firstScroll) {
+						long oldEid = adapter.getItemId(oldPosition);
+						IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
+						backlogMarker.getObject().addProperty("cid", cid);
+						backlogMarker.getObject().addProperty("bid", bid);
+						backlogMarker.getObject().addProperty("eid", oldEid - 1);
+						backlogMarker.getObject().addProperty("type", "__backlog_marker__");
+						events.put(oldEid - 1, backlogMarker);
+					}
 					adapter.clear();
 					refresh(events, server, buffer);
+					int markerPos = adapter.getBacklogMarkerPosition();
 					if(firstScroll) {
 						getListView().setSelection(adapter.data.size() - 1);
 						firstScroll = false;
-					} else if(oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
-						int markerPos = adapter.insertBacklogMarker(adapter.data.size() - oldSize + 1);
+					} else if(markerPos != -1 && oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
 						adapter.notifyDataSetChanged();
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
 					}
