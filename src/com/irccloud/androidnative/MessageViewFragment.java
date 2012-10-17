@@ -3,12 +3,9 @@ package com.irccloud.androidnative;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,7 +14,6 @@ import org.xml.sax.XMLReader;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -55,6 +51,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private long last_seen_eid;
 	private long min_eid;
 	private long earliest_eid;
+	private long backlog_eid = 0;
 	private String name;
 	private String type;
 	private boolean firstScroll = true;
@@ -362,6 +359,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						}
 					}
 					
+					@SuppressWarnings({ "unchecked", "rawtypes" })
 					private Object getLast(Editable text, Class kind) {
 				        Object[] objs = text.getSpans(0, text.length(), kind);
 
@@ -473,6 +471,7 @@ public class MessageViewFragment extends SherlockListFragment {
         	min_eid = savedInstanceState.getLong("min_eid");
         	type = savedInstanceState.getString("type");
         	firstScroll = savedInstanceState.getBoolean("firstScroll");
+        	backlog_eid = savedInstanceState.getLong("backlog_eid");
         	//TODO: serialize the adapter data
         }
     }
@@ -497,6 +496,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	state.putString("name", name);
     	state.putString("type", type);
     	state.putBoolean("firstScroll", firstScroll);
+    	state.putLong("backlog_eid", backlog_eid);
     	//TODO: serialize the adapter data
     }
     
@@ -515,6 +515,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		newMsgs = 0;
 		newMsgTime = 0;
 		earliest_eid = 0;
+		backlog_eid = 0;
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.INVISIBLE);
 		if(headerView != null) {
@@ -542,8 +543,9 @@ public class MessageViewFragment extends SherlockListFragment {
     		long start = System.currentTimeMillis();
     		if(min_eid == 0)
     			min_eid = event.eid();
-	    	if(event.eid() == min_eid)
+	    	if(event.eid() == min_eid) {
 	    		headerView.setVisibility(View.GONE);
+	    	}
 	    	if(event.eid() < earliest_eid)
 	    		earliest_eid = event.eid();
 	    	
@@ -853,7 +855,8 @@ public class MessageViewFragment extends SherlockListFragment {
     	new RefreshTask().execute((Void)null);
     }
     
-    public void onResume() {
+    @SuppressWarnings("unchecked")
+	public void onResume() {
     	super.onResume();
         getListView().setStackFromBottom(true);
         getListView().requestFocus();
@@ -872,9 +875,17 @@ public class MessageViewFragment extends SherlockListFragment {
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	if(bid != -1) {
-    		TreeMap<Long,IRCCloudJSONObject> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+    		TreeMap<Long,IRCCloudJSONObject> events = (TreeMap<Long, IRCCloudJSONObject>) EventsDataSource.getInstance().getEventsForBuffer((int)bid).clone();
     		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
     		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
+    		if(backlog_eid > 0) {
+				IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
+				backlogMarker.getObject().addProperty("cid", cid);
+				backlogMarker.getObject().addProperty("bid", bid);
+				backlogMarker.getObject().addProperty("eid", backlog_eid);
+				backlogMarker.getObject().addProperty("type", "__backlog_marker__");
+				events.put(backlog_eid, backlogMarker);
+    		}
 			refresh(events, server, buffer);
 			getListView().setSelection(adapter.getCount() - 1);
     	}
@@ -902,6 +913,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;
 		
+		@SuppressWarnings("unchecked")
 		@Override
 		protected Void doInBackground(Void... params) {
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
@@ -918,14 +930,14 @@ public class MessageViewFragment extends SherlockListFragment {
 				try {
 					int oldSize = adapter.data.size();
 					int oldPosition = getListView().getFirstVisiblePosition();
-					if(oldSize > 1 && requestingBacklog && !firstScroll) {
-						long oldEid = adapter.getItemId(oldPosition);
+					if(oldSize > 1 && earliest_eid > events.firstKey()) {
+						backlog_eid = adapter.getItemId(oldPosition) - 1;
 						IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
 						backlogMarker.getObject().addProperty("cid", cid);
 						backlogMarker.getObject().addProperty("bid", bid);
-						backlogMarker.getObject().addProperty("eid", oldEid - 1);
+						backlogMarker.getObject().addProperty("eid", backlog_eid);
 						backlogMarker.getObject().addProperty("type", "__backlog_marker__");
-						events.put(oldEid - 1, backlogMarker);
+						events.put(backlog_eid, backlogMarker);
 					}
 					adapter.clear();
 					refresh(events, server, buffer);

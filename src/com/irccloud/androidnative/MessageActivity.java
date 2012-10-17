@@ -266,15 +266,26 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	status = getIntent().getStringExtra("status");
 	    	min_eid = getIntent().getLongExtra("min_eid", 0);
 	    	last_seen_eid = getIntent().getLongExtra("last_seen_eid", 0);
-    	}
-    	if(bid == -1) {
-    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
-    		if(b != null) {
-    			bid = b.bid;
-    			last_seen_eid = b.last_seen_eid;
-    			min_eid = b.min_eid;
-    			archived = b.archived;
-    		}
+	    	
+	    	if(bid == -1) {
+	    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
+	    		if(b != null) {
+	    			bid = b.bid;
+	    			last_seen_eid = b.last_seen_eid;
+	    			min_eid = b.min_eid;
+	    			archived = b.archived;
+	    		}
+	    	}
+
+	    	MessageViewFragment f = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+	    	Bundle b = new Bundle();
+	    	b.putInt("cid", cid);
+	    	b.putInt("bid", bid);
+	    	b.putLong("last_seen_eid", last_seen_eid);
+	    	b.putLong("min_eid", min_eid);
+	    	b.putString("name", name);
+	    	b.putString("type", type);
+	    	f.setArguments(b);
     	}
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
@@ -312,15 +323,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	}
     	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
     		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
-    	MessageViewFragment f = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-    	Bundle b = new Bundle();
-    	b.putInt("cid", cid);
-    	b.putInt("bid", bid);
-    	b.putLong("last_seen_eid", last_seen_eid);
-    	b.putLong("min_eid", min_eid);
-    	b.putString("name", name);
-    	b.putString("type", type);
-    	f.setArguments(b);
     	invalidateOptionsMenu();
     }
 
