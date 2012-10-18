@@ -13,7 +13,7 @@
 	limitations under the License.
 */		
 
-package com.irccloud.androidnative;
+package com.irccloud.android;
 
 import android.os.Handler;
 import android.os.Message;

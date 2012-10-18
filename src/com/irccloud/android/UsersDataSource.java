@@ -1,11 +1,9 @@
-package com.irccloud.androidnative;
+package com.irccloud.android;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-
-import android.util.Log;
 
 public class UsersDataSource {
 	public class User {

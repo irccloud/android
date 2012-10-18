@@ -1,8 +1,7 @@
-package com.irccloud.androidnative;
+package com.irccloud.android;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.MotionEvent;

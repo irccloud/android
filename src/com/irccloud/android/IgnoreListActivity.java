@@ -1,4 +1,4 @@
-package com.irccloud.androidnative;
+package com.irccloud.android;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;

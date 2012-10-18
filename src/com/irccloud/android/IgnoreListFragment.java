@@ -1,4 +1,4 @@
-package com.irccloud.androidnative;
+package com.irccloud.android;
 
 import android.os.Bundle;
 import android.os.Handler;

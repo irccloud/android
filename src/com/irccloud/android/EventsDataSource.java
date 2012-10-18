@@ -1,4 +1,4 @@
-package com.irccloud.androidnative;
+package com.irccloud.android;
 
 import android.annotation.SuppressLint;
 import android.util.Log;

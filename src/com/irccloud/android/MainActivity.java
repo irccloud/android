@@ -1,4 +1,4 @@
-package com.irccloud.androidnative;
+package com.irccloud.android;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 public class MainActivity extends BaseActivity implements BuffersListFragment.OnBufferSelectedListener {

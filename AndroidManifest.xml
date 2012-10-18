@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.irccloud.androidnative"
+    package="com.irccloud.android"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -29,10 +29,11 @@
         <activity
             android:name=".MessageActivity"
             android:label="@string/title_activity_message"
+            android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".IgnoreListActivity"
+            android:name="com.irccloud.android.IgnoreListActivity"
             android:label="@string/title_activity_ignore_list" >
         </activity>
         </application>

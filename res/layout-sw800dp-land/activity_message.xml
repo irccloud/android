@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/BuffersList"
-        android:name="com.irccloud.androidnative.BuffersListFragment"
+        android:name="com.irccloud.android.BuffersListFragment"
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent" />
 
@@ -18,7 +18,7 @@
 
         <fragment
             android:id="@+id/messageViewFragment"
-            android:name="com.irccloud.androidnative.MessageViewFragment"
+            android:name="com.irccloud.android.MessageViewFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="2dp"
@@ -51,7 +51,7 @@
 
     <fragment
         android:id="@+id/usersListFragment"
-        android:name="com.irccloud.androidnative.UsersListFragment"
+        android:name="com.irccloud.android.UsersListFragment"
         android:layout_width="@dimen/userlist_width"
         android:layout_height="match_parent" />
 
