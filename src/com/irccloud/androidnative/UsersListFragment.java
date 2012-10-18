@@ -195,8 +195,10 @@ public class UsersListFragment extends SherlockListFragment {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			if(!isCancelled())
+			if(!isCancelled()) {
 				refresh(users);
+				refreshTask = null;
+			}
 		}
 	}
 	

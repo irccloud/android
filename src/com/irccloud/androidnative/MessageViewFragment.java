@@ -822,7 +822,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(!backlog && shouldShowUnread) {
 	    		if(newMsgTime == 0)
 	    			newMsgTime = System.currentTimeMillis();
-	    		newMsgs++;
+				newMsgs++;
 	    		update_unread();
 	    	}
 	    	if(!backlog && !shouldShowUnread)
@@ -999,8 +999,12 @@ public class MessageViewFragment extends SherlockListFragment {
 						if(adapter != null) {
 							int markerPos = adapter.getLastSeenEIDPosition();
 				    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
-				    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
-				    			unreadTopView.setVisibility(View.VISIBLE);
+				    			if(shouldTrackUnread()) {
+					    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
+					    			unreadTopView.setVisibility(View.VISIBLE);
+				    			} else {
+					    			unreadTopView.setVisibility(View.GONE);
+				    			}
 				    		} else {
 				    			unreadTopView.setVisibility(View.GONE);
 				    			new HeartbeatTask().execute(lastEid);
@@ -1024,6 +1028,21 @@ public class MessageViewFragment extends SherlockListFragment {
 		mListener.onMessageViewReady();
 	}
 
+	private boolean shouldTrackUnread() {
+		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+			try {
+				JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+				if(disabledMap.has(String.valueOf(bid)) && disabledMap.getBoolean(String.valueOf(bid))) {
+					return false;
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return true;
+	}
+	
 	private class UnreadRefreshRunnable implements Runnable {
 		@Override
 		public void run() {
@@ -1038,7 +1057,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			mHandler.removeCallbacks(unreadRefreshRunnable);
 			unreadRefreshRunnable = null;
 		}
-		
+
 		if(newMsgs > 0) {
 			int minutes = (int)((System.currentTimeMillis() - newMsgTime)/60000);
 			
@@ -1206,7 +1225,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 					if(last_seen_eid != b.last_seen_eid) {
 						last_seen_eid = b.last_seen_eid;
-						if(last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid) {
+						if(last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
 			    			unreadTopView.setVisibility(View.GONE);
 			    		}
 					}

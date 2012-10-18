@@ -225,7 +225,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 			}
 
-			
 			for(int i = 0; i < servers.size(); i++) {
 				ServersDataSource.Server s = servers.get(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
@@ -274,6 +273,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	long min_eid = 0;
     	long last_seen_eid = 0;
     	
+    	conn = NetworkConnection.getInstance();
+    	conn.addHandler(mHandler);
+    	
     	if(getIntent() != null && getIntent().hasExtra("cid") && cid == -1) {
 	    	cid = getIntent().getIntExtra("cid", 0);
 	    	bid = getIntent().getIntExtra("bid", 0);
@@ -305,8 +307,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	b.putString("type", type);
 	    	f.setArguments(b);
     	}
-    	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
     	updateUsersListFragmentVisibility();
     	title.setText(name);
     	getSupportActionBar().setTitle(name);
@@ -341,6 +341,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	}
     	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
     		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
+    	
+        if(refreshUpIndicatorTask != null)
+        	refreshUpIndicatorTask.cancel(true);
+        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+        refreshUpIndicatorTask.execute((Void)null);
+
     	invalidateOptionsMenu();
     }
 
@@ -350,7 +356,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	if(conn != null)
     		conn.removeHandler(mHandler);
     }
-
+	
     private void updateUsersListFragmentVisibility() {
     	boolean hide = false;
 		if(userListView != null) {
@@ -379,6 +385,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
 				invalidateOptionsMenu();
+		        if(refreshUpIndicatorTask != null)
+		        	refreshUpIndicatorTask.cancel(true);
+		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+		        refreshUpIndicatorTask.execute((Void)null);
 				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {

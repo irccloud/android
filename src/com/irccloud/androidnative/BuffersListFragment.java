@@ -575,8 +575,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	
     public void onResume() {
     	super.onResume();
-    	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
 		if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
 			view.setBackgroundResource(R.drawable.disconnected_yellow);
 		} else {
@@ -596,6 +594,8 @@ public class BuffersListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+    	conn = NetworkConnection.getInstance();
+    	conn.addHandler(mHandler);
         try {
             mListener = (OnBufferSelectedListener) activity;
             if(refreshTask != null)
@@ -649,6 +649,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();
 				refreshTask.execute((Void)null);
+				break;
 			}
 		}
 	};
