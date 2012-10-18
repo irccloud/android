@@ -47,6 +47,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	LinearLayout bottomUnreadIndicator = null;
 	LinearLayout bottomUnreadIndicatorColor = null;
 	int selected_bid = -1;
+	RefreshTask refreshTask = null;
 	
 	int firstUnreadPosition = -1;
 	int lastUnreadPosition= -1;
@@ -327,10 +328,16 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 			
 			for(int i = 0; i < servers.size(); i++) {
+				if(isCancelled())
+					return null;
+
 				int archiveCount = 0;
 				ServersDataSource.Server s = servers.get(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 				for(int j = 0; j < buffers.size(); j++) {
+					if(isCancelled())
+						return null;
+
 					BuffersDataSource.Buffer b = buffers.get(j);
 					if(b.type.equalsIgnoreCase("console")) {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
@@ -357,6 +364,9 @@ public class BuffersListFragment extends SherlockListFragment {
 					}
 				}
 				for(int j = 0; j < buffers.size(); j++) {
+					if(isCancelled())
+						return null;
+
 					BuffersDataSource.Buffer b = buffers.get(j);
 					int type = -1;
 					int key = 0;
@@ -421,7 +431,16 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 		
 		@Override
+		protected void onCancelled() {
+			Log.i("IRCCloud", "BuffersListFragment$RefreshTask was cancelled successfully");
+		}
+		
+		@Override
 		protected void onPostExecute(Void result) {
+			if(isCancelled())
+				return;
+			
+			refreshTask = null;
 			adapter.setItems(entries);
 			
 			if(getListAdapter() == null && entries.size() > 0) {
@@ -431,9 +450,11 @@ public class BuffersListFragment extends SherlockListFragment {
 			
 			if(listView != null)
 				updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
-			else //The activity view isn't ready yet, try again
-				new RefreshTask().execute((Void)null);
-
+			else {//The activity view isn't ready yet, try again
+				refreshTask = new RefreshTask();
+				refreshTask.execute((Void)null);
+			}
+			
 			if(selected_bid > 0)
 				adapter.showProgress(adapter.positionForBid(selected_bid));
 		}
@@ -582,7 +603,10 @@ public class BuffersListFragment extends SherlockListFragment {
         super.onAttach(activity);
         try {
             mListener = (OnBufferSelectedListener) activity;
-        	new RefreshTask().execute((Void)null);
+            if(refreshTask != null)
+            	refreshTask.cancel(true);
+			refreshTask = new RefreshTask();
+			refreshTask.execute((Void)null);
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnBufferSelectedListener");
         }
@@ -594,7 +618,10 @@ public class BuffersListFragment extends SherlockListFragment {
     	switch(e.type) {
     	case TYPE_ARCHIVES_HEADER:
     		mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
-	    	new RefreshTask().execute((Void)null);
+            if(refreshTask != null)
+            	refreshTask.cancel(true);
+			refreshTask = new RefreshTask();
+			refreshTask.execute((Void)null);
     		return;
     	case TYPE_SERVER:
     		type = "console";
@@ -623,7 +650,10 @@ public class BuffersListFragment extends SherlockListFragment {
 				}
 				break;
 			default:
-				new RefreshTask().execute((Void)null);
+	            if(refreshTask != null)
+	            	refreshTask.cancel(true);
+				refreshTask = new RefreshTask();
+				refreshTask.execute((Void)null);
 			}
 		}
 	};
