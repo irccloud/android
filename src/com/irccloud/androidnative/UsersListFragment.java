@@ -241,6 +241,11 @@ public class UsersListFragment extends SherlockListFragment {
 			public void run() {
 		    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
 		    	refresh(users);
+		    	try {
+			    	if(getListView() != null)
+			    		getListView().setSelection(0);
+		    	} catch (Exception e) { //Sometimes the list view isn't available yet
+		    	}
 			}
     		
     	}, 100);
