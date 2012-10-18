@@ -93,6 +93,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private CollapsedEventsList collapsedEvents = null;
 	private int lastCollapsedDay = -1;
 	private HashSet<Long> expandedSectionEids = new HashSet<Long>();
+	private RefreshTask refreshTask = null;
 
 	private class MessageAdapter extends BaseAdapter {
 		ArrayList<MessageEntry> data;
@@ -525,7 +526,10 @@ public class MessageViewFragment extends SherlockListFragment {
 				public void run() {
 					if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
 						requestingBacklog = true;
-						new RefreshTask().execute((Void)null);
+			            if(refreshTask != null)
+			            	refreshTask.cancel(true);
+						refreshTask = new RefreshTask();
+						refreshTask.execute((Void)null);
 					} else {
 						headerView.setVisibility(View.VISIBLE);
 						adapter.clear();
@@ -852,7 +856,10 @@ public class MessageViewFragment extends SherlockListFragment {
     		expandedSectionEids.remove(group);
     	else
     		expandedSectionEids.add(group);
-    	new RefreshTask().execute((Void)null);
+        if(refreshTask != null)
+        	refreshTask.cancel(true);
+		refreshTask = new RefreshTask();
+		refreshTask.execute((Void)null);
     }
     
     @SuppressWarnings("unchecked")
@@ -926,6 +933,9 @@ public class MessageViewFragment extends SherlockListFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
+			if(isCancelled())
+				return;
+			
 			if(events != null && events.size() > 0) {
 				try {
 					int oldSize = adapter.data.size();
@@ -1144,8 +1154,12 @@ public class MessageViewFragment extends SherlockListFragment {
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_BACKLOG_END:
 			case NetworkConnection.EVENT_USERINFO:
-				new RefreshTask().execute((Void)null);
+	            if(refreshTask != null)
+	            	refreshTask.cancel(true);
+				refreshTask = new RefreshTask();
+				refreshTask.execute((Void)null);
 				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
@@ -1162,7 +1176,10 @@ public class MessageViewFragment extends SherlockListFragment {
 				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
 					bid = buffer.bid;
-		    		new RefreshTask().execute((Void)null);
+		            if(refreshTask != null)
+		            	refreshTask.cancel(true);
+					refreshTask = new RefreshTask();
+					refreshTask.execute((Void)null);
 				}
 				break;
 			case NetworkConnection.EVENT_DELETEBUFFER:
@@ -1178,11 +1195,11 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_SETIGNORES:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.cid() == cid) {
-					new RefreshTask().execute((Void)null);
+		            if(refreshTask != null)
+		            	refreshTask.cancel(true);
+					refreshTask = new RefreshTask();
+					refreshTask.execute((Void)null);
 				}
-				break;
-			case NetworkConnection.EVENT_BACKLOG_END:
-				new RefreshTask().execute((Void)null);
 				break;
 			case NetworkConnection.EVENT_HEARTBEATECHO:
 				if(adapter != null) {
