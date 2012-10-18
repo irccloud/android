@@ -431,11 +431,6 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 		
 		@Override
-		protected void onCancelled() {
-			Log.i("IRCCloud", "BuffersListFragment$RefreshTask was cancelled successfully");
-		}
-		
-		@Override
 		protected void onPostExecute(Void result) {
 			if(isCancelled())
 				return;

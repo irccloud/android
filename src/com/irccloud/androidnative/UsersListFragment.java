@@ -26,6 +26,7 @@ public class UsersListFragment extends SherlockListFragment {
 	int cid = -1;
 	String channel;
 	View view;
+	RefreshTask refreshTask = null;
 	
 	private class UserListAdapter extends BaseAdapter {
 		ArrayList<UserListEntry> data;
@@ -194,7 +195,8 @@ public class UsersListFragment extends SherlockListFragment {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			refresh(users);
+			if(!isCancelled())
+				refresh(users);
 		}
 	}
 	
@@ -296,7 +298,10 @@ public class UsersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_MEMBERUPDATES:
 			case NetworkConnection.EVENT_USERCHANNELMODE:
 			case NetworkConnection.EVENT_KICK:
-		    	new RefreshTask().execute((Void)null);
+	            if(refreshTask != null)
+	            	refreshTask.cancel(true);
+				refreshTask = new RefreshTask();
+				refreshTask.execute((Void)null);
 				break;
 			default:
 				break;
