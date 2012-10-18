@@ -53,6 +53,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	NetworkConnection conn;
 	private boolean shouldFadeIn = false;
 	ImageView upView;
+	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -150,7 +151,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	upView.setOnClickListener(upClickListener);
 	        ImageView icon = (ImageView)v.findViewById(R.id.upIcon);
 	        icon.setOnClickListener(upClickListener);
-	        updateUpUnreadIndicator();
+	        if(refreshUpIndicatorTask != null)
+	        	refreshUpIndicatorTask.cancel(true);
+	        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+	        refreshUpIndicatorTask.execute((Void)null);
         } else {
         	upView.setVisibility(View.INVISIBLE);
         }
@@ -170,55 +174,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         }
     }
 
-    private void updateUpUnreadIndicator() {
-		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
-		int unread = 0;
-		int highlights = 0;
-
-		JSONObject disabledMap = null;
-		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
-			try {
-				disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		
-		for(int i = 0; i < servers.size(); i++) {
-			ServersDataSource.Server s = servers.get(i);
-			ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
-			for(int j = 0; j < buffers.size(); j++) {
-				BuffersDataSource.Buffer b = buffers.get(j);
-				if(b.type == null)
-					Log.w("IRCCloud", "Buffer with null type: " + b.bid + " name: " + b.name);
-				if(b.bid != bid) {
-					if(unread == 0) {
-						int u = 0;
-						try {
-							u = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-							if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
-								u = 0;
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-						unread += u;
-					}
-					if(highlights == 0)
-						highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
-				}
-			}
-		}
-		if(highlights > 0) {
-			upView.setImageResource(R.drawable.up_highlight);
-		} else if(unread > 0) {
-			upView.setImageResource(R.drawable.up_unread);
-		} else {
-			upView.setImageResource(R.drawable.up);
-		}
-    }
-    
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
@@ -249,6 +204,67 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		protected void onPostExecute(Void result) {
 			messageTxt.setText("");
     		sendBtn.setEnabled(true);
+		}
+    }
+    
+    private class RefreshUpIndicatorTask extends AsyncTaskEx<Void, Void, Void> {
+		int unread = 0;
+		int highlights = 0;
+    	
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+
+			JSONObject disabledMap = null;
+			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+				try {
+					disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			
+			for(int i = 0; i < servers.size(); i++) {
+				ServersDataSource.Server s = servers.get(i);
+				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
+				for(int j = 0; j < buffers.size(); j++) {
+					BuffersDataSource.Buffer b = buffers.get(j);
+					if(b.type == null)
+						Log.w("IRCCloud", "Buffer with null type: " + b.bid + " name: " + b.name);
+					if(b.bid != bid) {
+						if(unread == 0) {
+							int u = 0;
+							try {
+								u = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+								if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+									u = 0;
+							} catch (JSONException e) {
+								e.printStackTrace();
+							}
+							unread += u;
+						}
+						if(highlights == 0)
+							highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+					}
+				}
+			}
+			return null;
+		}
+    	
+		@Override
+		protected void onPostExecute(Void result) {
+			if(!isCancelled()) {
+				if(highlights > 0) {
+					upView.setImageResource(R.drawable.up_highlight);
+				} else if(unread > 0) {
+					upView.setImageResource(R.drawable.up_unread);
+				} else {
+					upView.setImageResource(R.drawable.up);
+				}
+				refreshUpIndicatorTask = null;
+			}
 		}
     }
     
@@ -491,13 +507,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 				break;
 			case NetworkConnection.EVENT_HEARTBEATECHO:
-				updateUpUnreadIndicator();
+		        if(refreshUpIndicatorTask != null)
+		        	refreshUpIndicatorTask.cancel(true);
+		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+		        refreshUpIndicatorTask.execute((Void)null);
 				break;
 			default:
 				try {
 					event = (IRCCloudJSONObject)msg.obj;
 					if(event.bid() != bid && upView != null) {
-						updateUpUnreadIndicator();
+				        if(refreshUpIndicatorTask != null)
+				        	refreshUpIndicatorTask.cancel(true);
+				        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+				        refreshUpIndicatorTask.execute((Void)null);
 					}
 				} catch (Exception e) {
 					
