@@ -549,6 +549,8 @@ public class NetworkConnection {
 								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
+				if(object.getString("buffer_type") == null)
+					Log.w("IRCCloud", "NULL buffer type! JSON: " + object.toString());
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteAllDataForBuffer(object.getInt("bid"));

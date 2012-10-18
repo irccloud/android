@@ -191,6 +191,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 			for(int j = 0; j < buffers.size(); j++) {
 				BuffersDataSource.Buffer b = buffers.get(j);
+				if(b.type == null)
+					Log.w("IRCCloud", "Buffer with null type: " + b.bid + " name: " + b.name);
 				if(b.bid != bid) {
 					if(unread == 0) {
 						int u = 0;

@@ -1,6 +1,8 @@
 package com.irccloud.androidnative;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -102,9 +104,17 @@ public class EventsDataSource {
 	}
 
 	private boolean isImportant(IRCCloudJSONObject e, String buffer_type) {
+		if(e == null) {
+			Log.w("IRCCloud", "isImportant: NULL event");
+			return false;
+		}
 		String type = e.type();
+		if(type == null) {
+			Log.w("IRCCloud", "isImportant: NULL type");
+			return false;
+		}
 		return (type.equals("buffer_msg") || type.equals("buffer_me_msg") 
-				|| (type.equals("notice") && (!buffer_type.equals("console") || !(e.has("server") && !e.getString("server").equals("undefined")))));
+				|| (type.equals("notice") && buffer_type != null && (!buffer_type.equals("console") || !(e.has("server") && e.getString("server") != null && !e.getString("server").equals("undefined")))));
 	}
 	
 	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
@@ -114,8 +124,13 @@ public class EventsDataSource {
 				Iterator<IRCCloudJSONObject> i = events.get(bid).values().iterator();
 				while(i.hasNext()) {
 					IRCCloudJSONObject e = i.next();
-					if(e.eid() > last_seen_eid && isImportant(e, buffer_type) && (e.highlight() || buffer_type.equalsIgnoreCase("conversation")))
-						count++;
+					try {
+						if(e.eid() > last_seen_eid && isImportant(e, buffer_type) && (e.highlight() || buffer_type.equalsIgnoreCase("conversation")))
+							count++;
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 			}
 		}
