@@ -15,11 +15,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
 public class BaseActivity extends SherlockFragmentActivity {
 	NetworkConnection conn;
@@ -84,6 +87,10 @@ public class BaseActivity extends SherlockFragmentActivity {
 	private final Handler mHandler = new Handler() {
     	String bufferToOpen = null;
     	int cidToOpen = -1;
+    	LayoutInflater inflater;
+    	View view;
+    	TextView prompt;
+		AlertDialog dialog;
     	
 		public void handleMessage(Message msg) {
 			final IRCCloudJSONObject o;
@@ -91,7 +98,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 			ServersDataSource s;
 			ServersDataSource.Server server;
 			AlertDialog.Builder builder;
-			AlertDialog dialog;
 			
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
@@ -231,10 +237,24 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    		s = ServersDataSource.getInstance();
 	    		server = s.getServer(o.cid());
 	    		builder = new AlertDialog.Builder(BaseActivity.this);
-	    		LayoutInflater inflater = getLayoutInflater();
-	        	View view = inflater.inflate(R.layout.dialog_textprompt,null);
-	        	TextView prompt = (TextView)view.findViewById(R.id.prompt);
-	        	final EditText input = (EditText)view.findViewById(R.id.textInput);
+	    		inflater = getLayoutInflater();
+	        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+	        	prompt = (TextView)view.findViewById(R.id.prompt);
+	        	final EditText keyinput = (EditText)view.findViewById(R.id.textInput);
+	        	keyinput.setOnEditorActionListener(new OnEditorActionListener() {
+	                public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+		              	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+								try {
+									conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString());
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+								dialog.dismiss();
+		              	   }
+		              	   return true;
+	                	}
+		             });
 	        	try {
 					prompt.setText("Password for " + o.getString("chan"));
 				} catch (Exception e) {
@@ -247,7 +267,66 @@ public class BaseActivity extends SherlockFragmentActivity {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						try {
-							conn.join(o.cid(), o.getString("chan"), input.getText().toString());
+							conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString());
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						dialog.dismiss();
+					}
+	    		});
+	    		builder.setNegativeButton("Cancel", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+	    		});
+	    		dialog = builder.create();
+	    		dialog.setOwnerActivity(BaseActivity.this);
+	    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+	    		dialog.show();
+	    		break;
+			case NetworkConnection.EVENT_INVALIDNICK:
+				o = (IRCCloudJSONObject)msg.obj;
+	    		s = ServersDataSource.getInstance();
+	    		server = s.getServer(o.cid());
+	    		builder = new AlertDialog.Builder(BaseActivity.this);
+	    		inflater = getLayoutInflater();
+	        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+	        	prompt = (TextView)view.findViewById(R.id.prompt);
+	        	final EditText nickinput = (EditText)view.findViewById(R.id.textInput);
+	        	nickinput.setOnEditorActionListener(new OnEditorActionListener() {
+	                public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+	              	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+							try {
+								conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							dialog.dismiss();
+	              	   }
+	              	   return true;
+                	}
+	             });
+	        	try {
+	        		Log.i("IRCCloud", server.isupport.toString());
+	        		String message = o.getString("invalid_nick") + " is not a valid nickname, try again";
+	        		if(server.isupport != null && server.isupport.has("NICKLEN"))
+	        			message += " (" + server.isupport.get("NICKLEN").getAsString() + " chars)";
+	        		message += ".";
+					prompt.setText(message);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+	    		builder.setView(view);
+	    		builder.setPositiveButton("Change Nickname", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						try {
+							conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

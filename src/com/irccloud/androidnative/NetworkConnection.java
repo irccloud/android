@@ -89,6 +89,7 @@ public class NetworkConnection {
 	public static final int EVENT_NOSUCHCHANNEL = 30;
 	public static final int EVENT_NOSUCHNICK = 31;
 	public static final int EVENT_TOOMANYCHANNELS = 32;
+	public static final int EVENT_INVALIDNICK = 33;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -251,7 +252,8 @@ public class NetworkConnection {
 			o.put("_reqid", last_reqid++);
 			o.put("_method", "say");
 			o.put("cid", cid);
-			o.put("to", to);
+			if(to != null)
+				o.put("to", to);
 			o.put("msg", message);
 			client.send(o.toString());
 			return last_reqid;
@@ -525,6 +527,8 @@ public class NetworkConnection {
 				notifyHandlers(EVENT_NOSUCHCHANNEL, object);
 			} else if(type.equalsIgnoreCase("no_such_nick")) {
 				notifyHandlers(EVENT_NOSUCHNICK, object);
+			} else if(type.equalsIgnoreCase("invalid_nick")) {
+				notifyHandlers(EVENT_INVALIDNICK, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteServer(object.getInt("cid"));
