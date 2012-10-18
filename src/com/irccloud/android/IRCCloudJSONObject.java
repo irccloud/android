@@ -63,7 +63,7 @@ public class IRCCloudJSONObject {
 	}
 	
 	public boolean has(String name) {
-		return o.has(name);
+		return o.has(name) && !o.get(name).isJsonNull();
 	}
 	
 	public boolean getBoolean(String name) {

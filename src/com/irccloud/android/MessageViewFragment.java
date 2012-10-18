@@ -627,9 +627,29 @@ public class MessageViewFragment extends SherlockListFragment {
 		    	if(type.equalsIgnoreCase("buffer_me_msg")) {
 					from = "* <i>" + from + "</i>";
 					msg = "<i>" + msg + "</i>";
+		    	} else if(type.equalsIgnoreCase("too_fast")) {
+		    		from = "";
+		    		bg_color = R.color.error;
+		    	} else if(type.equalsIgnoreCase("no_bots")) {
+		    		from = "";
+		    		bg_color = R.color.error;
 		    	} else if(type.equalsIgnoreCase("nickname_in_use")) {
 		    		from = event.getString("nick");
 		    		msg = "is already in use";
+		    		bg_color = R.color.error;
+		    	} else if(type.equalsIgnoreCase("unhandled_line") || type.equalsIgnoreCase("unparsed_line")) {
+		    		from = "";
+		    		msg = "";
+		    		if(event.has("command"))
+		    			msg = event.getString("command") + " ";
+		    		if(event.has("raw"))
+		    			msg += event.getString("raw");
+		    		else
+		    			msg += event.getString("msg");
+		    		bg_color = R.color.error;
+		    	} else if(type.equalsIgnoreCase("connecting_cancelled")) {
+		    		from = "";
+		    		msg = "Cancelled";
 		    		bg_color = R.color.error;
 		    	} else if(type.equalsIgnoreCase("connecting_failed")) {
 		    		from = "";
@@ -646,9 +666,34 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		msg += "User modes: " + event.getString("user_modes") + "\n";
 		    		msg += "Channel modes: " + event.getString("channel_modes") + "\n";
 		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("wait")) {
+		    		from = "";
+		    		bg_color = R.color.dateline_bg;
 		    	} else if(type.equalsIgnoreCase("user_mode")) {
 		    		from = "";
 		    		msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("your_unique_id")) {
+		    		from = "";
+		    		msg = "Your unique ID is: <b>" + event.getString("unique_id") + "</b>";
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("kill")) {
+		    		from = "";
+		    		msg = "You were killed";
+		    		if(event.has("from"))
+		    			msg += " by " + event.getString("from");
+		    		if(event.has("killer_hostmask"))
+		    			msg += " (" + event.getString("killer_hostmask") + ")";
+		    		if(event.has("reason"))
+		    			msg += ": " + event.getString("reason");
+		    		bg_color = R.color.dateline_bg;
+		    	} else if(type.equalsIgnoreCase("banned")) {
+		    		from = "";
+		    		msg = "You were banned";
+		    		if(event.has("server"))
+		    			msg += " from " + event.getString("server");
+		    		if(event.has("reason"))
+		    			msg += ": " + event.getString("reason");
 		    		bg_color = R.color.dateline_bg;
 		    	} else if(type.equalsIgnoreCase("channel_topic")) {
 		    		from = event.getString("author");
