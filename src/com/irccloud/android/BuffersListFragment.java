@@ -345,7 +345,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						if(s.name.length() == 0)
 							s.name = s.hostname;
 						try {
-							if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+							if(b.bid == selected_bid || (disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid))))
 								unread = 0;
 						} catch (JSONException e) {
 							e.printStackTrace();
@@ -385,7 +385,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						try {
-							if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+							if(b.bid == selected_bid || (disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid))))
 								unread = 0;
 						} catch (JSONException e) {
 							e.printStackTrace();
