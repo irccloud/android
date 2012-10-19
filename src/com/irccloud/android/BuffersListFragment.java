@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -574,14 +575,21 @@ public class BuffersListFragment extends SherlockListFragment {
 	
     public void onResume() {
     	super.onResume();
-		if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+    	conn = NetworkConnection.getInstance();
+    	conn.addHandler(mHandler);
+ 		if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
 			view.setBackgroundResource(R.drawable.disconnected_yellow);
 		} else {
 			view.setBackgroundResource(R.drawable.background_blue);
 		}
 		if(adapter != null)
 			adapter.showProgress(-1);
-    }
+
+		if(refreshTask != null)
+        	refreshTask.cancel(true);
+		refreshTask = new RefreshTask();
+		refreshTask.execute((Void)null);
+   }
     
     @Override
     public void onPause() {
@@ -593,14 +601,8 @@ public class BuffersListFragment extends SherlockListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-    	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
         try {
             mListener = (OnBufferSelectedListener) activity;
-            if(refreshTask != null)
-            	refreshTask.cancel(true);
-			refreshTask = new RefreshTask();
-			refreshTask.execute((Void)null);
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnBufferSelectedListener");
         }
@@ -642,7 +644,13 @@ public class BuffersListFragment extends SherlockListFragment {
 				} else {
 					view.setBackgroundResource(R.drawable.background_blue);
 				}
+				if(adapter != null)
+					adapter.notifyDataSetChanged();
 				break;
+			case NetworkConnection.EVENT_BACKLOG_START:
+	            if(refreshTask != null)
+	            	refreshTask.cancel(true);
+	            break;
 			default:
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
