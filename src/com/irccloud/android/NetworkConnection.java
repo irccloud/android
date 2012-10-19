@@ -23,7 +23,10 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
+import android.net.TrafficStats;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -40,6 +43,9 @@ public class NetworkConnection {
 	private static final String TAG = "IRCCloud";
 	private static NetworkConnection instance = null;
 
+	public static final int WEBSOCKET_TAG = 1;
+	public static final int BACKLOG_TAG = 2;
+	
 	public static final int STATE_DISCONNECTED = 0;
 	public static final int STATE_CONNECTING = 1;
 	public static final int STATE_CONNECTED = 2;
@@ -195,6 +201,7 @@ public class NetworkConnection {
 		
 		state = STATE_CONNECTING;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
+		client.setSocketTag(WEBSOCKET_TAG);
 		client.connect();
 	}
 	
@@ -930,9 +937,12 @@ public class NetworkConnection {
 	}
 	
 	private class OOBIncludeTask extends AsyncTask<URL, Void, Boolean> {
+		@SuppressLint("NewApi")
 		@Override
 		protected Boolean doInBackground(URL... url) {
 			try {
+				if(Build.VERSION.SDK_INT >= 14)
+					TrafficStats.setThreadStatsTag(BACKLOG_TAG);
 				Log.d(TAG, "Requesting: " + url[0]);
 				
 				HttpURLConnection conn = null;
@@ -979,6 +989,8 @@ public class NetworkConnection {
 							JsonElement e = parser.parse(reader);
 							parse_object(new IRCCloudJSONObject(e.getAsJsonObject()), true);
 							count++;
+							if(Build.VERSION.SDK_INT >= 14)
+								TrafficStats.incrementOperationCount(1);
 						}
 						reader.endArray();
 						Log.i("IRCCloud", "Backlog complete: " + count + " events");
@@ -997,6 +1009,8 @@ public class NetworkConnection {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			if(Build.VERSION.SDK_INT >= 14)
+				TrafficStats.clearThreadStatsTag();
 			return false;
 		}
 	}
