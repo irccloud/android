@@ -927,19 +927,22 @@ public class MessageViewFragment extends SherlockListFragment {
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	if(bid != -1) {
-    		TreeMap<Long,IRCCloudJSONObject> events = (TreeMap<Long, IRCCloudJSONObject>) EventsDataSource.getInstance().getEventsForBuffer((int)bid).clone();
-    		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
-    		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
-    		if(backlog_eid > 0) {
-				IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
-				backlogMarker.getObject().addProperty("cid", cid);
-				backlogMarker.getObject().addProperty("bid", bid);
-				backlogMarker.getObject().addProperty("eid", backlog_eid);
-				backlogMarker.getObject().addProperty("type", "__backlog_marker__");
-				events.put(backlog_eid, backlogMarker);
+    		TreeMap<Long,IRCCloudJSONObject> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+    		if(events != null) {
+	    		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
+	    		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
+	    		if(backlog_eid > 0) {
+	    			events = (TreeMap<Long, IRCCloudJSONObject>)events.clone();
+					IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
+					backlogMarker.getObject().addProperty("cid", cid);
+					backlogMarker.getObject().addProperty("bid", bid);
+					backlogMarker.getObject().addProperty("eid", backlog_eid);
+					backlogMarker.getObject().addProperty("type", "__backlog_marker__");
+					events.put(backlog_eid, backlogMarker);
+	    		}
+				refresh(events, server, buffer);
+				getListView().setSelection(adapter.getCount() - 1);
     		}
-			refresh(events, server, buffer);
-			getListView().setSelection(adapter.getCount() - 1);
     	}
     }
     
@@ -965,17 +968,17 @@ public class MessageViewFragment extends SherlockListFragment {
 		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;
 		
-		@SuppressWarnings("unchecked")
 		@Override
 		protected Void doInBackground(Void... params) {
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			server = ServersDataSource.getInstance().getServer(cid);
 			long time = System.currentTimeMillis();
-			events = (TreeMap<Long, IRCCloudJSONObject>) EventsDataSource.getInstance().getEventsForBuffer((int)bid).clone();
+			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			return null;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		protected void onPostExecute(Void result) {
 			if(isCancelled())
@@ -986,6 +989,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					int oldSize = adapter.data.size();
 					int oldPosition = getListView().getFirstVisiblePosition();
 					if(oldSize > 1 && earliest_eid > events.firstKey()) {
+		    			events = (TreeMap<Long, IRCCloudJSONObject>)events.clone();
 						backlog_eid = adapter.getItemId(oldPosition) - 1;
 						IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
 						backlogMarker.getObject().addProperty("cid", cid);
