@@ -1,10 +1,13 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.irccloud.android.UsersDataSource.comparator;
 
 public class ServersDataSource {
 	public class Server {
@@ -28,6 +31,13 @@ public class ServersDataSource {
 		JsonArray ignores;
 	}
 
+	public class comparator implements Comparator<Server> {
+		public int compare(Server s1, Server s2) {
+			return new Integer(s1.cid).compareTo(s2.cid);
+		}
+	}
+
+	
 	private ArrayList<Server> servers;
 	
 	private static ServersDataSource instance = null;
@@ -66,6 +76,7 @@ public class ServersDataSource {
 		s.mode = "";
 		s.ignores = ignores;
 		servers.add(s);
+		Collections.sort(servers, new comparator());
 		return s;
 	}
 	
