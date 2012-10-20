@@ -7,7 +7,6 @@ import java.util.Iterator;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.irccloud.android.UsersDataSource.comparator;
 
 public class ServersDataSource {
 	public class Server {
@@ -33,7 +32,7 @@ public class ServersDataSource {
 
 	public class comparator implements Comparator<Server> {
 		public int compare(Server s1, Server s2) {
-			return new Integer(s1.cid).compareTo(s2.cid);
+			return Integer.valueOf(s1.cid).compareTo(s2.cid);
 		}
 	}
 
