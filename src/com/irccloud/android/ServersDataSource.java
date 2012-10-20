@@ -20,7 +20,7 @@ public class ServersDataSource {
 		String server_pass;
 		String nickserv_pass;
 		String join_commands;
-		String fail_info;
+		JsonObject fail_info;
 		String away;
 		String usermask;
 		String mode;
@@ -46,7 +46,7 @@ public class ServersDataSource {
 		servers.clear();
 	}
 	
-	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, String fail_info, String away, JsonArray ignores) {
+	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, JsonObject fail_info, String away, JsonArray ignores) {
 		Server s = new Server();
 		s.cid = cid;
 		s.name = name;
@@ -80,7 +80,7 @@ public class ServersDataSource {
 		}
 	}
 
-	public void updateStatus(int cid, String status, String fail_info) {
+	public void updateStatus(int cid, String status, JsonObject fail_info) {
 		Server s = getServer(cid);
 		if(s != null) {
 			s.status = status;

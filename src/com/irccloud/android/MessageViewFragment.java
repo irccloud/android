@@ -36,7 +36,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
@@ -570,7 +569,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(type.startsWith("you_"))
 	    		type = type.substring(4);
 	    	
-			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("quit_channel")) {
+			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit")) {
 				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
 					if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
@@ -598,7 +597,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.getString("nick"), (user==null)?null:user.old_nick, event.getString("hostmask"), null);
 				} else if(type.equalsIgnoreCase("parted_channel")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.getString("nick"), null, event.getString("hostmask"), null);
-				} else if(type.equalsIgnoreCase("quit_channel") || type.equalsIgnoreCase("quit")) {
+				} else if(type.equalsIgnoreCase("quit")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.getString("nick"), null, event.getString("hostmask"), event.getString("msg"));
 				} else if(type.equalsIgnoreCase("nickchange")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.getString("newnick"), event.getString("oldnick"), null, null);
@@ -655,6 +654,10 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		from = "";
 		    		msg = "Failed to connect: " + event.getString("reason");
 		    		bg_color = R.color.error;
+		    	} else if(type.equalsIgnoreCase("quit_server")) {
+		    		from = "";
+		    		msg = "⇐ You disconnected";
+					color = R.color.timestamp;
 		    	} else if(type.equalsIgnoreCase("self_details")) {
 		    		from = "";
 		    		msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
@@ -1070,7 +1073,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	}
 		}
     	try {
-			update_status(server.status, new JsonParser().parse(server.fail_info).getAsJsonObject());
+			update_status(server.status, server.fail_info);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -43,8 +43,8 @@ public class NetworkConnection {
 	private static final String TAG = "IRCCloud";
 	private static NetworkConnection instance = null;
 
-	public static final int WEBSOCKET_TAG = 1;
-	public static final int BACKLOG_TAG = 2;
+	public static final int WEBSOCKET_TAG = 0x50C37;
+	public static final int BACKLOG_TAG = 0xB4C106;
 	
 	public static final int STATE_DISCONNECTED = 0;
 	public static final int STATE_CONNECTING = 1;
@@ -542,7 +542,7 @@ public class NetworkConnection {
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-								object.getJsonObject("fail_info").toString(), object.getString("away"), object.getJsonArray("ignores"));
+								object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"));
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("connection_deleted")) {
@@ -584,7 +584,7 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_RENAMECONVERSATION, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("status_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getString("fail_info"));
+				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getJsonObject("fail_info"));
 				if(!backlog)
 					notifyHandlers(EVENT_STATUSCHANGED, object);
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart") || type.equalsIgnoreCase("wait") || type.equalsIgnoreCase("banned") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("connecting_cancelled")

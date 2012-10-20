@@ -977,6 +977,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 		        	}
+	    		} else {
+	        		subtitle.setText("");
+	        		subtitle.setVisibility(View.GONE);
 	    		}
 	    	}
 	    	Bundle b = new Bundle();
