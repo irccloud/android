@@ -1275,7 +1275,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_HEARTBEATECHO:
 				if(adapter != null) {
 					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-					if(last_seen_eid != b.last_seen_eid) {
+					if(b != null && last_seen_eid != b.last_seen_eid) {
 						last_seen_eid = b.last_seen_eid;
 						if(last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
 			    			unreadTopView.setVisibility(View.GONE);
