@@ -77,6 +77,11 @@ public class CollapsedEventsList {
 						//Log.d("IRCCloud", "--- After: " + data.toString());
 						return;
 					}
+					if((e1.type == TYPE_JOIN || e1.type == TYPE_POPOUT) && e1.nick.equalsIgnoreCase(old_nick)) {
+						e1.old_nick = old_nick;
+						e1.nick = nick;
+						return;
+					}
 				}
 				e = new CollapsedEvent();
 				e.type = type;
@@ -178,7 +183,7 @@ public class CollapsedEventsList {
 						break;
 					case TYPE_NICKCHANGE:
 						if(message.length() > 0)
-						message += "• ";
+							message += "• ";
 						break;
 					case TYPE_POPIN:
 					case TYPE_POPOUT:
@@ -190,34 +195,34 @@ public class CollapsedEventsList {
 				if(e.type == TYPE_NICKCHANGE)
 					message += e.old_nick + " → <b>" + e.nick + "</b>";
 				else if(e.old_nick != null)
-					message += "<b>" + e.nick + "</b> (was <b>" + e.old_nick +"</b>)";
+					message += "<b>" + e.nick + "</b> (was " + e.old_nick +")";
 				else
 					message += "<b>" + e.nick + "</b>";
 				
-				if(next != null && next.type == e.type)
-					message += ", ";
-				else
-					message += " ";
-
 				if(next == null || next.type != e.type) {
 					switch(e.type) {
 					case TYPE_JOIN:
-						message += "joined ";
+						message += " joined";
 						break;
 					case TYPE_PART:
-						message += "left ";
+						message += " left";
 						break;
 					case TYPE_QUIT:
-						message += "quit ";
+						message += " quit";
 						break;
 					case TYPE_POPIN:
-						message += "popped in ";
+						message += " popped in";
 						break;
 					case TYPE_POPOUT:
-						message += "nipped out ";
+						message += " nipped out";
 						break;
 					}
 				}
+
+				if(next != null && next.type == e.type)
+					message += ", ";
+				else if(next != null)
+					message += " ";
 				
 				last = e;
 			}
