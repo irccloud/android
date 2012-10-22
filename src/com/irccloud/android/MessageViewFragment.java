@@ -35,6 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class MessageViewFragment extends SherlockListFragment {
@@ -569,7 +570,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(type.startsWith("you_"))
 	    		type = type.substring(4);
 	    	
-			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit")) {
+			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")) {
 				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
 					if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
@@ -601,12 +602,47 @@ public class MessageViewFragment extends SherlockListFragment {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.getString("nick"), null, event.getString("hostmask"), event.getString("msg"));
 				} else if(type.equalsIgnoreCase("nickchange")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.getString("newnick"), event.getString("oldnick"), null, null);
+				} else if(type.equalsIgnoreCase("user_channel_mode")) {
+					boolean unknown = false;
+					JsonObject ops = event.getJsonObject("ops");
+					if(ops != null) {
+						JsonArray add = ops.getAsJsonArray("add");
+						for(int i = 0; i < add.size(); i++) {
+							JsonObject op = add.get(i).getAsJsonObject();
+							if(op.get("mode").getAsString().equalsIgnoreCase("o"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_OP);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_VOICE);
+							else
+								unknown = true;
+						}
+						JsonArray remove = ops.getAsJsonArray("remove");
+						for(int i = 0; i < remove.size(); i++) {
+							JsonObject op = remove.get(i).getAsJsonObject();
+							if(op.get("mode").getAsString().equalsIgnoreCase("o"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEOP);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEVOICE);
+							else
+								unknown = true;
+						}
+					}
+					if(unknown) {
+						Log.w("IRCCloud", "Unknown mode change event: " + event.toString());
+						collapsedEvents.clear();
+					}
 				}
 				
 				from = "";
 				msg = collapsedEvents.getCollapsedMessage();
-				if(msg == null && type.equalsIgnoreCase("nickchange"))
+				if(msg == null && type.equalsIgnoreCase("nickchange")) {
 					msg = event.getString("newnick") + " → <b>" + event.getString("newnick") + "</b>";
+				}
+				if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
+		    		from = "+++ " + event.getString("from");
+		    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
+		    		currentCollapsedEid = eid;
+				}
 				if(!expandedSectionEids.contains(currentCollapsedEid)) {
 					if(eid != currentCollapsedEid)
 						msg = "[+] " + msg;
@@ -714,9 +750,6 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		from = "← " + event.getString("nick");
 		    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
 		    		color = R.color.timestamp;
-		    	} else if(type.equalsIgnoreCase("user_channel_mode")) {
-		    		from = "+++ " + from;
-		    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
 		    	} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
 		    		from = "+++ " + from;
 		    		msg = "set mode: <b>" + event.getString("diff") + "</b>";

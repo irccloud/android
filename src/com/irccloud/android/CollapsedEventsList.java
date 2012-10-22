@@ -9,12 +9,19 @@ public class CollapsedEventsList {
 	public static final int TYPE_JOIN = 0;
 	public static final int TYPE_PART = 1;
 	public static final int TYPE_QUIT = 2;
-	public static final int TYPE_POPIN = 3;
-	public static final int TYPE_POPOUT = 4;
-	public static final int TYPE_NICKCHANGE = 5;
+	public static final int TYPE_MODE = 3;
+	public static final int TYPE_POPIN = 4;
+	public static final int TYPE_POPOUT = 5;
+	public static final int TYPE_NICKCHANGE = 6;
+
+	public static final int MODE_OP = 1;
+	public static final int MODE_DEOP = 2;
+	public static final int MODE_VOICE = 3;
+	public static final int MODE_DEVOICE = 4;
 	
 	public class CollapsedEvent {
 		int type;
+		int mode = 0;
 		String nick;
 		String old_nick;
 		String hostmask;
@@ -28,7 +35,7 @@ public class CollapsedEventsList {
 	public class comparator implements Comparator<CollapsedEvent> {
 		public int compare(CollapsedEvent e1, CollapsedEvent e2) {
 			if(e1.type == e2.type)
-				return e2.nick.compareToIgnoreCase(e1.nick);
+				return e1.nick.compareToIgnoreCase(e2.nick);
 			else if(e1.type > e2.type)
 				return 1;
 			else
@@ -39,18 +46,22 @@ public class CollapsedEventsList {
 	private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
 	
 	public void addEvent(int type, String nick, String old_nick, String hostmask, String msg) {
+		addEvent(type, nick, old_nick, hostmask, msg, 0);
+	}
+	
+	public void addEvent(int type, String nick, String old_nick, String hostmask, String msg, int mode) {
 		//Log.d("IRCCloud", "+++ Before: " + data.toString());
 		CollapsedEvent e = null;
 		
 		if(type < TYPE_NICKCHANGE) {
 			if(old_nick != null) {
-				e = findJoinPartQuit(old_nick);
+				e = findEvent(old_nick);
 				if(e != null)
 					e.nick = nick;
 			}
 			
 			if(e == null)
-				e = findJoinPartQuit(nick);
+				e = findEvent(nick);
 			
 			if(e == null) {
 				e = new CollapsedEvent();
@@ -59,12 +70,23 @@ public class CollapsedEventsList {
 				e.old_nick = old_nick;
 				e.hostmask = hostmask;
 				e.msg = msg;
+				e.mode = mode;
 				data.add(e);
 			} else {
-				if(type == TYPE_JOIN)
+				if(e.type == TYPE_MODE) {
+					e.type = type;
+					e.msg = msg;
+					e.old_nick = old_nick;
+				} else if(type == TYPE_MODE) {
+				} else if(type == TYPE_JOIN) {
 					e.type = TYPE_POPOUT;
-				else
+				} else if(e.type == TYPE_POPOUT) {
+					e.type = type;
+				} else {
 					e.type = TYPE_POPIN;
+				}
+				if(mode > 0)
+					e.mode = mode;
 			}
 		} else {
 			if(type == TYPE_NICKCHANGE) {
@@ -103,12 +125,42 @@ public class CollapsedEventsList {
 		//Log.d("IRCCloud", "--- After: " + data.toString());
 	}
 	
-	public CollapsedEvent findJoinPartQuit(String nick) {
+	public CollapsedEvent findEvent(String nick) {
 		for(CollapsedEvent e : data) {
-			if(e.type < TYPE_NICKCHANGE && e.nick.equalsIgnoreCase(nick))
+			if(e.nick.equalsIgnoreCase(nick))
 				return e;
 		}
 		return null;
+	}
+	
+	private String was(CollapsedEvent e) {
+		String was = "";
+		
+		if(e.old_nick != null && e.type != TYPE_MODE)
+			was += "was " + e.old_nick;
+		if(e.mode > 0) {
+			if(was.length() > 0)
+				was += "; ";
+			switch(e.mode) {
+			case MODE_OP:
+				was += "opped";
+				break;
+			case MODE_DEOP:
+				was += "de-opped";
+				break;
+			case MODE_VOICE:
+				was += "voiced";
+				break;
+			case MODE_DEVOICE:
+				was += "de-voiced";
+				break;
+			}
+		}
+		
+		if(was.length() > 0)
+			was = " (" + was + ")";
+		
+		return was;
 	}
 	
 	public String getCollapsedMessage() {
@@ -120,18 +172,35 @@ public class CollapsedEventsList {
 		if(data.size() == 1) {
 			CollapsedEvent e = data.get(0);
 			switch(e.type) {
+			case TYPE_MODE:
+				message = "<b>" + e.nick + "</b> was ";
+				switch(e.mode) {
+					case MODE_OP:
+						message += "opped (+o)";
+						break;
+					case MODE_DEOP:
+						message += "de-opped (-o)";
+						break;
+					case MODE_VOICE:
+						message += "voiced (+v)";
+						break;
+					case MODE_DEVOICE:
+						message += "de-voiced (-v)";
+						break;
+				}
+				if(e.old_nick != null)
+					message += " by " + e.old_nick;
+				break;
 			case TYPE_JOIN:
-	    		message = "→ <b>" + e.nick + "</b>";
-	    		if(e.old_nick != null)
-	    			message += " (was " + e.old_nick + ")";
+	    		message = "→ <b>" + e.nick + "</b>" + was(e);
 	    		message += " joined (" + e.hostmask + ")";
 				break;
 			case TYPE_PART:
-	    		message = "← <b>" + e.nick + "</b>";
+	    		message = "← <b>" + e.nick + "</b>" + was(e);
 	    		message += " left (" + e.hostmask + ")";
 				break;
 			case TYPE_QUIT:
-	    		message = "⇐ <b>" + e.nick + "</b>";
+	    		message = "⇐ <b>" + e.nick + "</b>" + was(e);
 	    		if(e.hostmask != null)
 	    			message += " quit (" + e.hostmask + ") " + e.msg;
 	    		else
@@ -141,15 +210,11 @@ public class CollapsedEventsList {
 	    		message = e.old_nick + " → <b>" + e.nick + "</b>";
 				break;
 			case TYPE_POPIN:
-	    		message = "↔ <b>" + e.nick + "</b>";
-	    		if(e.old_nick != null)
-	    			message += " (was " + e.old_nick + ")";
+	    		message = "↔ <b>" + e.nick + "</b>" + was(e);
 	    		message += " popped in";
 	    		break;
 			case TYPE_POPOUT:
-	    		message = "↔ <b>" + e.nick + "</b>";
-	    		if(e.old_nick != null)
-	    			message += " (was " + e.old_nick + ")";
+	    		message = "↔ <b>" + e.nick + "</b>" + was(e);
 	    		message += " nipped out";
 	    		break;
 			}
@@ -159,6 +224,8 @@ public class CollapsedEventsList {
 			CollapsedEvent last = null;
 			CollapsedEvent next = i.next();
 			CollapsedEvent e;
+			int groupcount = 0;
+			
 			while(next != null) {
 				e = next;
 				
@@ -167,11 +234,19 @@ public class CollapsedEventsList {
 				else
 					next = null;
 				
-				if(message.length() > 0 && e.type < TYPE_NICKCHANGE && ((next == null || next.type != e.type) && last != null && last.type == e.type))
+				if(message.length() > 0 && e.type < TYPE_NICKCHANGE && ((next == null || next.type != e.type) && last != null && last.type == e.type)) {
+					if(groupcount == 1)
+						message = message.substring(0, message.length() - 2) + " ";
 					message += "and ";
+				}
 				
 				if(last == null || last.type != e.type) {
 					switch(e.type) {
+					case TYPE_MODE:
+						if(message.length() > 0)
+							message += "• ";
+						message += "mode: ";
+						break;
 					case TYPE_JOIN:
 						message += "→ ";
 						break;
@@ -192,12 +267,15 @@ public class CollapsedEventsList {
 					}
 				}
 
-				if(e.type == TYPE_NICKCHANGE)
+				if(e.type == TYPE_NICKCHANGE) {
 					message += e.old_nick + " → <b>" + e.nick + "</b>";
-				else if(e.old_nick != null)
-					message += "<b>" + e.nick + "</b> (was " + e.old_nick +")";
-				else
-					message += "<b>" + e.nick + "</b>";
+					String old_nick = e.old_nick;
+					e.old_nick = null;
+					message += was(e);
+					e.old_nick = old_nick;
+				} else {
+					message += "<b>" + e.nick + "</b>" + was(e);
+				}
 				
 				if(next == null || next.type != e.type) {
 					switch(e.type) {
@@ -219,10 +297,13 @@ public class CollapsedEventsList {
 					}
 				}
 
-				if(next != null && next.type == e.type)
+				if(next != null && next.type == e.type) {
 					message += ", ";
-				else if(next != null)
+					groupcount++;
+				} else if(next != null) {
 					message += " ";
+					groupcount = 0;
+				}
 				
 				last = e;
 			}
