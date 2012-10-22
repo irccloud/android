@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import android.util.Log;
+
 public class CollapsedEventsList {
 	public static final int TYPE_JOIN = 0;
 	public static final int TYPE_PART = 1;
@@ -54,7 +56,7 @@ public class CollapsedEventsList {
 		CollapsedEvent e = null;
 		
 		if(type < TYPE_NICKCHANGE) {
-			if(old_nick != null) {
+			if(old_nick != null && type != TYPE_MODE) {
 				e = findEvent(old_nick);
 				if(e != null)
 					e.nick = nick;

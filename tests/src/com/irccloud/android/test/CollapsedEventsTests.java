@@ -147,7 +147,7 @@ public class CollapsedEventsTests extends TestCase {
 	public void testModeMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_MODE, "james", "ChanServ", "james@example.net", null, CollapsedEventsList.MODE_OP);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, CollapsedEventsList.MODE_VOICE);
+		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "james", "sam@example.net", null, CollapsedEventsList.MODE_VOICE);
 		assertEquals("mode: <b>james</b> (opped) and <b>sam</b> (voiced)", list.getCollapsedMessage());
 	}
 
