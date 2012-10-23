@@ -7,8 +7,6 @@ import java.util.Iterator;
 
 import org.json.JSONException;
 
-import android.util.Log;
-
 public class CollapsedEventsList {
 	public static final int TYPE_JOIN = 0;
 	public static final int TYPE_PART = 1;

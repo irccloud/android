@@ -55,7 +55,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	ImageView upView;
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
 	
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);

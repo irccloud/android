@@ -489,6 +489,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
