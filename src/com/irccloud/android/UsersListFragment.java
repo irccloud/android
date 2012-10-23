@@ -135,9 +135,22 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 	}
 
+	private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<UsersDataSource.User> users, String heading, String symbol, int heading_color, int bg_color) {
+		if(users.size() > 0) {
+			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, bg_color, false));
+			for(int i = 0; i < users.size(); i++) {
+				UsersDataSource.User user = users.get(i);
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, user.away > 0));
+			}
+		}
+	}
+	
 	private void refresh(ArrayList<UsersDataSource.User> users) {
 		ArrayList<UserListAdapter.UserListEntry> entries = new ArrayList<UserListAdapter.UserListEntry>();
+		ArrayList<UsersDataSource.User> owners = new ArrayList<UsersDataSource.User>();
+		ArrayList<UsersDataSource.User> admins = new ArrayList<UsersDataSource.User>();
 		ArrayList<UsersDataSource.User> ops = new ArrayList<UsersDataSource.User>();
+		ArrayList<UsersDataSource.User> halfops = new ArrayList<UsersDataSource.User>();
 		ArrayList<UsersDataSource.User> voiced = new ArrayList<UsersDataSource.User>();
 		ArrayList<UsersDataSource.User> members = new ArrayList<UsersDataSource.User>();
 		boolean showSymbol = false;
@@ -153,8 +166,14 @@ public class UsersListFragment extends SherlockListFragment {
 
 		for(int i = 0; i < users.size(); i++) {
 			UsersDataSource.User user = users.get(i);
-			if(user.mode.contains("o")) {
+			if(user.mode.contains("q")) {
+				owners.add(user);
+			} else if(user.mode.contains("a")) {
+				admins.add(user);
+			} else if(user.mode.contains("o")) {
 				ops.add(user);
+			} else if(user.mode.contains("h")) {
+				halfops.add(user);
 			} else if(user.mode.contains("v")) {
 				voiced.add(user);
 			} else {
@@ -162,28 +181,28 @@ public class UsersListFragment extends SherlockListFragment {
 			}
 		}
 		
+		if(owners.size() > 0) {
+			addUsersFromList(entries, owners, "OWNERS", (showSymbol?"~ ":"¥ "), R.color.heading_owner, R.drawable.row_owners_bg);
+		}
+		
+		if(admins.size() > 0) {
+			addUsersFromList(entries, admins, "ADMINS", (showSymbol?"& ":"¥ "), R.color.heading_admin, R.drawable.row_admins_bg);
+		}
+		
 		if(ops.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, "OPERATORS", ops.size() > 0?(showSymbol?"@ ":"¥ ") + String.valueOf(ops.size()):null, R.color.heading_operators, R.drawable.row_operator_bg, false));
-			for(int i = 0; i < ops.size(); i++) {
-				UsersDataSource.User user = ops.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, R.drawable.row_operator_bg, user.away > 0));
-			}
+			addUsersFromList(entries, ops, "OPERATORS", (showSymbol?"@ ":"¥ "), R.color.heading_operators, R.drawable.row_operator_bg);
+		}
+		
+		if(halfops.size() > 0) {
+			addUsersFromList(entries, halfops, "HALFOPS", (showSymbol?"% ":"¥ "), R.color.heading_halfop, R.drawable.row_halfops_bg);
 		}
 		
 		if(voiced.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, "VOICED", voiced.size() > 0?(showSymbol?"+ ":"¥ ") + String.valueOf(voiced.size()):null, R.color.heading_voiced, R.drawable.row_voiced_bg, false));
-			for(int i = 0; i < voiced.size(); i++) {
-				UsersDataSource.User user = voiced.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, R.drawable.row_voiced_bg, user.away > 0));
-			}
+			addUsersFromList(entries, voiced, "VOICED", (showSymbol?"+ ":"¥ "), R.color.heading_voiced, R.drawable.row_voiced_bg);
 		}
 		
 		if(members.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size() > 0?String.valueOf(members.size()):null, R.color.heading_members, R.drawable.row_members_bg, false));
-			for(int i = 0; i < members.size(); i++) {
-				UsersDataSource.User user = members.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, R.drawable.row_members_bg, user.away > 0));
-			}
+			addUsersFromList(entries, members, "MEMBERS", "", R.color.heading_members, R.drawable.row_members_bg);
 		}
 
 		adapter.setItems(entries);

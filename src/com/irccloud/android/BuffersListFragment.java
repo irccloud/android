@@ -266,7 +266,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			
 			if(holder.groupbg != null) {
 				if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable")) {
-					holder.groupbg.setBackgroundResource(R.drawable.operator_bg_red);
+					holder.groupbg.setBackgroundResource(R.drawable.operator_bg);
 					holder.label.setTextColor(getResources().getColorStateList(R.color.heading_operators));
 				} else {
 					holder.groupbg.setBackgroundResource(R.drawable.row_buffergroup_bg);

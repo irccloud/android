@@ -7,8 +7,11 @@
     <drawable name="row_bg_blue">#F2F7FC</drawable>
     <drawable name="selected_blue">#527DFF</drawable>
     <drawable name="highlighted_blue">#C6DAFF</drawable>
-    <drawable name="operator_bg_red">#FEF2F2</drawable>
-    <drawable name="voiced_bg_green">#F4FFED</drawable>
+    <drawable name="owner_bg">#FFFFD1</drawable>
+    <drawable name="admin_bg">#EDCCFF</drawable>
+    <drawable name="operator_bg">#FEF2F2</drawable>
+    <drawable name="halfop_bg">#FEEDDA</drawable>
+    <drawable name="voiced_bg">#F4FFED</drawable>
     <drawable name="compose_bar_bg">#8F8F8F</drawable>
     <color name="dark_blue">#527DFF</color>
     <drawable name="status_fail_bg">#F8DF26</drawable>

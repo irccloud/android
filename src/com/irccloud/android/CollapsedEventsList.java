@@ -16,10 +16,16 @@ public class CollapsedEventsList {
 	public static final int TYPE_POPOUT = 5;
 	public static final int TYPE_NICKCHANGE = 6;
 
-	public static final int MODE_OP = 1;
-	public static final int MODE_DEOP = 2;
-	public static final int MODE_VOICE = 3;
-	public static final int MODE_DEVOICE = 4;
+	public static final int MODE_OWNER = 1;
+	public static final int MODE_DEOWNER = 2;
+	public static final int MODE_ADMIN = 3;
+	public static final int MODE_DEADMIN = 4;
+	public static final int MODE_OP = 5;
+	public static final int MODE_DEOP = 6;
+	public static final int MODE_HALFOP = 7;
+	public static final int MODE_DEHALFOP = 8;
+	public static final int MODE_VOICE = 9;
+	public static final int MODE_DEVOICE = 10;
 	
 	private int cid = 0;
 	private String channel = null;
@@ -155,15 +161,27 @@ public class CollapsedEventsList {
 			UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, channel, nick);
 			if(u != null) {
 				if(showSymbol) {
-					if(u.mode.contains("o"))
-						output += "\u00034\u0002@\u000f ";
+					if(u.mode.contains("q"))
+						output += "\u0004E7AA00\u0002~\u000f ";
+					else if(u.mode.contains("a"))
+						output += "\u00046500A5\u0002&amp;\u000f ";
+					else if(u.mode.contains("o"))
+						output += "\u0004BA1719\u0002@\u000f ";
+					else if(u.mode.contains("h"))
+						output += "\u0004B55900\u0002%\u000f ";
 					else if(u.mode.contains("v"))
-						output += "\u00033\u0002+\u000f ";
+						output += "\u000425B100\u0002+\u000f ";
 				} else {
-					if(u.mode.contains("o"))
-						output += "\u00034\u0002•\u000f ";
+					if(u.mode.contains("q"))
+						output += "\u0004E7AA00\u0002•\u000f ";
+					else if(u.mode.contains("a"))
+						output += "\u00046500A5\u0002•\u000f ";
+					else if(u.mode.contains("o"))
+						output += "\u0004BA1719\u0002•\u000f ";
+					else if(u.mode.contains("h"))
+						output += "\u0004B55900\u0002•\u000f ";
 					else if(u.mode.contains("v"))
-						output += "\u00033\u0002•\u000f ";
+						output += "\u000425B100\u0002•\u000f ";
 				}
 			}
 		}
@@ -182,11 +200,29 @@ public class CollapsedEventsList {
 			if(was.length() > 0)
 				was += "; ";
 			switch(e.mode) {
+			case MODE_OWNER:
+				was += "promoted to owner";
+				break;
+			case MODE_DEOWNER:
+				was += "demoted from owner";
+				break;
+			case MODE_ADMIN:
+				was += "promoted to admin";
+				break;
+			case MODE_DEADMIN:
+				was += "demoted from admin";
+				break;
 			case MODE_OP:
 				was += "opped";
 				break;
 			case MODE_DEOP:
 				was += "de-opped";
+				break;
+			case MODE_HALFOP:
+				was += "halfopped";
+				break;
+			case MODE_DEHALFOP:
+				was += "de-halfopped";
 				break;
 			case MODE_VOICE:
 				was += "voiced";
@@ -215,17 +251,35 @@ public class CollapsedEventsList {
 			case TYPE_MODE:
 				message = "<b>" + formatNick(e.nick) + "</b> was ";
 				switch(e.mode) {
+					case MODE_OWNER:
+						message += "promoted to owner (\u0004E7AA00+q\u000f)";
+						break;
+					case MODE_DEOWNER:
+						message += "demoted from owner (\u0004E7AA00-q\u000f)";
+						break;
+					case MODE_ADMIN:
+						message += "promoted to admin (\u00046500A5+a\u000f)";
+						break;
+					case MODE_DEADMIN:
+						message += "demoted from admin (\u00046500A5-a\u000f)";
+						break;
 					case MODE_OP:
-						message += "opped (\u00034+o\u000f)";
+						message += "opped (\u0004BA1719+o\u000f)";
 						break;
 					case MODE_DEOP:
-						message += "de-opped (\u00034-o\u000f)";
+						message += "de-opped (\u0004BA1719-o\u000f)";
+						break;
+					case MODE_HALFOP:
+						message += "halfopped (\u0004B55900+h\u000f)";
+						break;
+					case MODE_DEHALFOP:
+						message += "de-halfopped (\u0004B55900-h\u000f)";
 						break;
 					case MODE_VOICE:
-						message += "voiced (\u00033+v\u000f)";
+						message += "voiced (\u000425B100+v\u000f)";
 						break;
 					case MODE_DEVOICE:
-						message += "de-voiced (\u00033-v\u000f)";
+						message += "de-voiced (\u000425B100-v\u000f)";
 						break;
 				}
 				if(e.old_nick != null)

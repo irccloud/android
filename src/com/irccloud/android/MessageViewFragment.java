@@ -552,8 +552,14 @@ public class MessageViewFragment extends SherlockListFragment {
 						JsonArray add = ops.getAsJsonArray("add");
 						for(int i = 0; i < add.size(); i++) {
 							JsonObject op = add.get(i).getAsJsonObject();
-							if(op.get("mode").getAsString().equalsIgnoreCase("o"))
+							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_OWNER);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_ADMIN);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
 								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_OP);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_HALFOP);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
 								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_VOICE);
 							else
@@ -562,8 +568,14 @@ public class MessageViewFragment extends SherlockListFragment {
 						JsonArray remove = ops.getAsJsonArray("remove");
 						for(int i = 0; i < remove.size(); i++) {
 							JsonObject op = remove.get(i).getAsJsonObject();
-							if(op.get("mode").getAsString().equalsIgnoreCase("o"))
+							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEOWNER);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEADMIN);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
 								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEOP);
+							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEHALFOP);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
 								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEVOICE);
 							else
