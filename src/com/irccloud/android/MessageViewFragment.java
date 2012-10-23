@@ -9,19 +9,13 @@ import java.util.TreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.xml.sax.XMLReader;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spannable;
 import android.text.TextUtils;
-import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,6 +69,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private int lastCollapsedDay = -1;
 	private HashSet<Long> expandedSectionEids = new HashSet<Long>();
 	private RefreshTask refreshTask = null;
+	private Ignore ignore = new Ignore();
 
 	private class MessageAdapter extends BaseAdapter {
 		ArrayList<MessageEntry> data;
@@ -476,6 +471,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						refreshTask = new RefreshTask();
 						refreshTask.execute((Void)null);
 					} else {
+						ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
 						headerView.setVisibility(View.VISIBLE);
 						adapter.clear();
 						adapter.notifyDataSetInvalidated();
@@ -604,6 +600,12 @@ public class MessageViewFragment extends SherlockListFragment {
 			} else if(type.equalsIgnoreCase("__backlog_marker__")) {
 		    	adapter.addItem(TYPE_BACKLOGMARKER, eid, "", color, R.color.message_bg);
 			} else {
+				if(!type.equalsIgnoreCase("user_channel_mode") && event.has("from") && event.has("hostmask")) {
+					String usermask = event.getString("from") + "!" + event.getString("hostmask");
+					if(ignore.match(usermask))
+						return;
+				}
+				
 		    	if(type.equalsIgnoreCase("buffer_me_msg")) {
 					from = "* <i>" + from + "</i>";
 					msg = "<i>" + msg + "</i>";
@@ -788,6 +790,8 @@ public class MessageViewFragment extends SherlockListFragment {
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+    	if(ServersDataSource.getInstance().getServer(cid) != null)
+    		ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
     	if(bid != -1) {
     		TreeMap<Long,IRCCloudJSONObject> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		if(events != null) {
@@ -884,7 +888,11 @@ public class MessageViewFragment extends SherlockListFragment {
 			} else {
 	    		headerView.setVisibility(View.GONE);
 			}
-		} else if(events.size() > 0){
+		} else if(events.size() > 0) {
+	    	if(ServersDataSource.getInstance().getServer(cid) != null)
+	    		ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
+	    	else
+	    		ignore.setIgnores(null);
 			earliest_eid = events.firstKey();
 			if(events.firstKey() > min_eid && min_eid > 0) {
 	    		headerView.setVisibility(View.VISIBLE);
