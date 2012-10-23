@@ -2,8 +2,9 @@ package com.irccloud.android;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+
 import android.app.Activity;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -41,9 +42,10 @@ public class UsersListFragment extends SherlockListFragment {
 		private class UserListEntry {
 			int type;
 			String text;
-			int count;
+			String count;
 			int color;
 			int bg_color;
+			boolean away;
 		}
 
 		public UserListAdapter(SherlockListFragment context) {
@@ -55,13 +57,14 @@ public class UsersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public UserListEntry buildItem(int type, String text, int count, int color, int bg_color) {
+		public UserListEntry buildItem(int type, String text, String count, int color, int bg_color, boolean away) {
 			UserListEntry e = new UserListEntry();
 			e.type = type;
 			e.text = text;
 			e.count = count;
 			e.color = color;
 			e.bg_color = bg_color;
+			e.away = away;
 			return e;
 		}
 		
@@ -107,7 +110,7 @@ public class UsersListFragment extends SherlockListFragment {
 			}
 
 			holder.label.setText(e.text);
-			if(e.type == TYPE_USER && e.count > 0) {
+			if(e.type == TYPE_USER && e.away) {
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_user_away));
 			} else {
 				holder.label.setTextColor(getResources().getColorStateList(e.color));
@@ -118,9 +121,9 @@ public class UsersListFragment extends SherlockListFragment {
 				row.setBackgroundResource(e.bg_color);
 				
 			if(holder.count != null) {
-				if(e.count > 0) {
+				if(e.count != null) {
 					holder.count.setVisibility(View.VISIBLE);
-					holder.count.setText(String.valueOf(e.count));
+					holder.count.setText(e.count);
 					holder.count.setTextColor(getResources().getColorStateList(e.color));
 				} else {
 					holder.count.setVisibility(View.GONE);
@@ -137,6 +140,13 @@ public class UsersListFragment extends SherlockListFragment {
 		ArrayList<UsersDataSource.User> ops = new ArrayList<UsersDataSource.User>();
 		ArrayList<UsersDataSource.User> voiced = new ArrayList<UsersDataSource.User>();
 		ArrayList<UsersDataSource.User> members = new ArrayList<UsersDataSource.User>();
+		boolean showSymbol = false;
+		try {
+			if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
+			showSymbol = conn.getUserInfo().prefs.getBoolean("mode-showsymbol");
+		} catch (JSONException e) {
+		}
+		
 		if(adapter == null) {
 			adapter = new UserListAdapter(UsersListFragment.this);
 		}
@@ -153,26 +163,26 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 		
 		if(ops.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, "OPERATORS", ops.size(), R.color.heading_operators, R.drawable.row_operator_bg));
+			entries.add(adapter.buildItem(TYPE_HEADING, "OPERATORS", ops.size() > 0?(showSymbol?"@ ":"¥ ") + String.valueOf(ops.size()):null, R.color.heading_operators, R.drawable.row_operator_bg, false));
 			for(int i = 0; i < ops.size(); i++) {
 				UsersDataSource.User user = ops.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_operator_bg));
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, R.drawable.row_operator_bg, user.away > 0));
 			}
 		}
 		
 		if(voiced.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, "VOICED", voiced.size(), R.color.heading_voiced, R.drawable.row_voiced_bg));
+			entries.add(adapter.buildItem(TYPE_HEADING, "VOICED", voiced.size() > 0?(showSymbol?"+ ":"¥ ") + String.valueOf(voiced.size()):null, R.color.heading_voiced, R.drawable.row_voiced_bg, false));
 			for(int i = 0; i < voiced.size(); i++) {
 				UsersDataSource.User user = voiced.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_voiced_bg));
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, R.drawable.row_voiced_bg, user.away > 0));
 			}
 		}
 		
 		if(members.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size(), R.color.heading_members, R.drawable.row_members_bg));
+			entries.add(adapter.buildItem(TYPE_HEADING, "MEMBERS", members.size() > 0?String.valueOf(members.size()):null, R.color.heading_members, R.drawable.row_members_bg, false));
 			for(int i = 0; i < members.size(); i++) {
 				UsersDataSource.User user = members.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, user.away, R.color.row_user, R.drawable.row_members_bg));
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, R.drawable.row_members_bg, user.away > 0));
 			}
 		}
 
@@ -184,7 +194,7 @@ public class UsersListFragment extends SherlockListFragment {
 			adapter.notifyDataSetChanged();
 	}
 	
-	private class RefreshTask extends AsyncTask<Void, Void, Void> {
+	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
 		ArrayList<UsersDataSource.User> users;
 		
 		@Override
@@ -298,6 +308,7 @@ public class UsersListFragment extends SherlockListFragment {
 				if(adapter != null)
 					adapter.notifyDataSetChanged();
 				break;
+			case NetworkConnection.EVENT_USERINFO:
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_QUIT:

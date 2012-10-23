@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import org.json.JSONException;
+
 import android.util.Log;
 
 public class CollapsedEventsList {
@@ -20,6 +22,9 @@ public class CollapsedEventsList {
 	public static final int MODE_DEOP = 2;
 	public static final int MODE_VOICE = 3;
 	public static final int MODE_DEVOICE = 4;
+	
+	private int cid = 0;
+	private String channel = null;
 	
 	public class CollapsedEvent {
 		int type;
@@ -135,6 +140,41 @@ public class CollapsedEventsList {
 		return null;
 	}
 	
+	public void setChannel(int cid, String channel) {
+		this.cid = cid;
+		this.channel = channel;
+	}
+	
+	public String formatNick(String nick) {
+		String output = "";
+		if(channel != null) {
+			boolean showSymbol = false;
+			try {
+				if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null)
+				showSymbol = NetworkConnection.getInstance().getUserInfo().prefs.getBoolean("mode-showsymbol");
+			} catch (JSONException e) {
+			}
+			UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, channel, nick);
+			if(u != null) {
+				if(showSymbol) {
+					if(u.mode.contains("o"))
+						output += "\u00034\u0002@\u000f ";
+					else if(u.mode.contains("v"))
+						output += "\u00033\u0002+\u000f ";
+				} else {
+					if(u.mode.contains("o"))
+						output += "\u00034\u0002•\u000f ";
+					else if(u.mode.contains("v"))
+						output += "\u00033\u0002•\u000f ";
+				}
+			}
+		}
+		
+		output += nick;
+			
+		return output;
+	}
+	
 	private String was(CollapsedEvent e) {
 		String was = "";
 		
@@ -175,48 +215,48 @@ public class CollapsedEventsList {
 			CollapsedEvent e = data.get(0);
 			switch(e.type) {
 			case TYPE_MODE:
-				message = "<b>" + e.nick + "</b> was ";
+				message = "<b>" + formatNick(e.nick) + "</b> was ";
 				switch(e.mode) {
 					case MODE_OP:
-						message += "opped (+o)";
+						message += "opped (\u00034+o\u000f)";
 						break;
 					case MODE_DEOP:
-						message += "de-opped (-o)";
+						message += "de-opped (\u00034-o\u000f)";
 						break;
 					case MODE_VOICE:
-						message += "voiced (+v)";
+						message += "voiced (\u00033+v\u000f)";
 						break;
 					case MODE_DEVOICE:
-						message += "de-voiced (-v)";
+						message += "de-voiced (\u00033-v\u000f)";
 						break;
 				}
 				if(e.old_nick != null)
-					message += " by " + e.old_nick;
+					message += " by " + formatNick(e.old_nick);
 				break;
 			case TYPE_JOIN:
-	    		message = "→ <b>" + e.nick + "</b>" + was(e);
+	    		message = "→ <b>" + formatNick(e.nick) + "</b>" + was(e);
 	    		message += " joined (" + e.hostmask + ")";
 				break;
 			case TYPE_PART:
-	    		message = "← <b>" + e.nick + "</b>" + was(e);
+	    		message = "← <b>" + formatNick(e.nick) + "</b>" + was(e);
 	    		message += " left (" + e.hostmask + ")";
 				break;
 			case TYPE_QUIT:
-	    		message = "⇐ <b>" + e.nick + "</b>" + was(e);
+	    		message = "⇐ <b>" + formatNick(e.nick) + "</b>" + was(e);
 	    		if(e.hostmask != null)
 	    			message += " quit (" + e.hostmask + ") " + e.msg;
 	    		else
 	    			message += " quit: " + e.msg;
 				break;
 			case TYPE_NICKCHANGE:
-	    		message = e.old_nick + " → <b>" + e.nick + "</b>";
+	    		message = e.old_nick + " → <b>" + formatNick(e.nick) + "</b>";
 				break;
 			case TYPE_POPIN:
-	    		message = "↔ <b>" + e.nick + "</b>" + was(e);
+	    		message = "↔ <b>" + formatNick(e.nick) + "</b>" + was(e);
 	    		message += " popped in";
 	    		break;
 			case TYPE_POPOUT:
-	    		message = "↔ <b>" + e.nick + "</b>" + was(e);
+	    		message = "↔ <b>" + formatNick(e.nick) + "</b>" + was(e);
 	    		message += " nipped out";
 	    		break;
 			}
@@ -270,13 +310,13 @@ public class CollapsedEventsList {
 				}
 
 				if(e.type == TYPE_NICKCHANGE) {
-					message += e.old_nick + " → <b>" + e.nick + "</b>";
+					message += e.old_nick + " → <b>" + formatNick(e.nick) + "</b>";
 					String old_nick = e.old_nick;
 					e.old_nick = null;
 					message += was(e);
 					e.old_nick = old_nick;
 				} else {
-					message += "<b>" + e.nick + "</b>" + was(e);
+					message += "<b>" + formatNick(e.nick) + "</b>" + was(e);
 				}
 				
 				if(next == null || next.type != e.type) {

@@ -531,8 +531,10 @@ public class MessageViewFragment extends SherlockListFragment {
 					collapsedEvents = null;
 				}
 
-				if(collapsedEvents == null || expandedSectionEids.contains(currentCollapsedEid))
+				if(collapsedEvents == null || expandedSectionEids.contains(currentCollapsedEid)) {
 					collapsedEvents = new CollapsedEventsList();
+					collapsedEvents.setChannel(cid, name);
+				}
 				
 				if(type.equalsIgnoreCase("joined_channel")) {
 					UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name, event.getString("nick"));
@@ -580,7 +582,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					msg = event.getString("newnick") + " → <b>" + event.getString("newnick") + "</b>";
 				}
 				if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
-		    		from = "+++ " + event.getString("from");
+		    		from = event.getString("from");
 		    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
 		    		currentCollapsedEid = eid;
 				}
@@ -698,8 +700,8 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
 		    		color = R.color.timestamp;
 		    	} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
-		    		from = "+++ " + from;
 		    		msg = "set mode: <b>" + event.getString("diff") + "</b>";
+		    		color = R.color.timestamp;
 		    	} else if(type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_motd")) {
 		    		//TODO: parse the MOTD lines
 		    	} else if(type.equalsIgnoreCase("inviting_to_channel")) {
@@ -712,13 +714,21 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		msg = event.getString("value") + " " + msg;
 		    	}
 	
-		    	if(msg.length() > 0) {
-		    		msg = ColorFormatter.irc_to_html(msg);
+		    	if(collapsedEvents != null) {
+		    		from = collapsedEvents.formatNick(from);
+		    	} else {
+		    		CollapsedEventsList c = new CollapsedEventsList();
+		    		c.setChannel(cid, name);
+		    		from = c.formatNick(from);
 		    	}
 		    	
 		    	if(from.length() > 0)
 		    		msg = "<b>" + from + "</b> " + msg;
 		    	
+		    	if(msg.length() > 0) {
+		    		msg = ColorFormatter.irc_to_html(msg);
+		    	}
+
 		    	if(event.has("highlight") && event.getBoolean("highlight"))
 		    		bg_color = R.color.highlight;
 		    	
@@ -1130,6 +1140,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	                getActivity().finish();
 				}
 				break;
+			case NetworkConnection.EVENT_USERCHANNELMODE:
 			case NetworkConnection.EVENT_SETIGNORES:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.cid() == cid) {
@@ -1156,7 +1167,6 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_NICKCHANGE:
 			case NetworkConnection.EVENT_QUIT:
 			case NetworkConnection.EVENT_BUFFERMSG:
-			case NetworkConnection.EVENT_USERCHANNELMODE:
 			case NetworkConnection.EVENT_KICK:
 			case NetworkConnection.EVENT_CHANNELMODE:
 			case NetworkConnection.EVENT_SELFDETAILS:

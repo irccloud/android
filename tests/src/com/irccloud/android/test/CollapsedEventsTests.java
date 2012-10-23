@@ -9,25 +9,25 @@ public class CollapsedEventsTests extends TestCase {
 	public void testOp() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, CollapsedEventsList.MODE_OP);
-		assertEquals("<b>sam</b> was opped (+o) by ChanServ", list.getCollapsedMessage());
+		assertEquals("<b>sam</b> was opped (\u00034+o\u000f) by ChanServ", list.getCollapsedMessage());
 	}
 	
 	public void testDeop() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, CollapsedEventsList.MODE_DEOP);
-		assertEquals("<b>sam</b> was de-opped (-o) by ChanServ", list.getCollapsedMessage());
+		assertEquals("<b>sam</b> was de-opped (\u00034-o\u000f) by ChanServ", list.getCollapsedMessage());
 	}
 	
 	public void testVoice() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, CollapsedEventsList.MODE_VOICE);
-		assertEquals("<b>sam</b> was voiced (+v) by ChanServ", list.getCollapsedMessage());
+		assertEquals("<b>sam</b> was voiced (\u00033+v\u000f) by ChanServ", list.getCollapsedMessage());
 	}
 	
 	public void testDevoice() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, CollapsedEventsList.MODE_DEVOICE);
-		assertEquals("<b>sam</b> was de-voiced (-v) by ChanServ", list.getCollapsedMessage());
+		assertEquals("<b>sam</b> was de-voiced (\u00033-v\u000f) by ChanServ", list.getCollapsedMessage());
 	}
 	
 	public void testJoin() {
