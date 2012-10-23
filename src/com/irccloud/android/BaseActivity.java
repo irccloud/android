@@ -4,6 +4,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
+import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -377,6 +378,9 @@ public class BaseActivity extends SherlockFragmentActivity {
                         Intent.FLAG_ACTIVITY_NEW_TASK);
         		startActivity(i);
         		finish();
+                GCMRegistrar.checkDevice(this);
+                GCMRegistrar.checkManifest(this);
+                GCMRegistrar.unregister(this);
             	break;
         }
         return super.onOptionsItemSelected(item);

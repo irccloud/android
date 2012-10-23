@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -172,6 +173,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	joined = savedInstanceState.getInt("joined");
         	archived = savedInstanceState.getInt("archived");
         	status = savedInstanceState.getString("status");
+        }
+        
+        GCMRegistrar.checkDevice(this);
+        GCMRegistrar.checkManifest(this);
+        final String regId = GCMRegistrar.getRegistrationId(this);
+        if (regId.equals("")) {
+        	GCMRegistrar.register(this, "841915816917");
+        } else {
+        	Log.v("IRCCloud", "Already registered");
         }
     }
 

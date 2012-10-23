@@ -7,7 +7,12 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="15" />
 
+    <permission android:name="com.irccloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+	<uses-permission android:name="com.irccloud.android.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     
     <application
         android:name=".IRCCloudApplication"
@@ -32,6 +37,14 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        </application>
+        <receiver android:name="com.google.android.gcm.GCMBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
+		  <intent-filter>
+		    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+		    <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+		    <category android:name="com.irccloud.android" />
+		  </intent-filter>
+		</receiver>
+		<service android:name=".GCMIntentService" />
+	</application>
 
 </manifest>

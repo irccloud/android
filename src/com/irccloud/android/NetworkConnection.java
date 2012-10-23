@@ -143,6 +143,20 @@ public class NetworkConnection {
 		return null;
 	}
 	
+	public JSONObject registerGCM(String regId) throws IOException {
+		String postdata = "device_id="+regId+"&session="+session;
+		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata);
+		try {
+			Log.d(TAG, "Result: " + response);
+			JSONObject o = new JSONObject(response);
+			return o;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public void connect(String sk) {
 		session = sk;
 		
