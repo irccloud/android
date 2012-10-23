@@ -652,9 +652,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	}
             	return true;
             case R.id.menu_ignore_list:
-                intent = new Intent(this, IgnoreListActivity.class);
-                intent.putExtra("cid", cid);
-                startActivity(intent);
+            	Bundle args = new Bundle();
+            	args.putInt("cid", cid);
+	        	IgnoreListFragment ignoreList = new IgnoreListFragment();
+	        	ignoreList.setArguments(args);
+	            ignoreList.show(getSupportFragmentManager(), "ignorelist");
                 return true;
             case R.id.menu_leave:
             	if(joined == 0)

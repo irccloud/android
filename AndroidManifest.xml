@@ -32,10 +32,6 @@
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        <activity
-            android:name="com.irccloud.android.IgnoreListActivity"
-            android:label="@string/title_activity_ignore_list" >
-        </activity>
         </application>
 
 </manifest>
