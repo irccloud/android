@@ -13,9 +13,9 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,23 +56,27 @@ public class MessageViewFragment extends SherlockListFragment {
 	private long newMsgTime = 0;
 	private MessageViewListener mListener;
 	
-	private static final int TYPE_TIMESTAMP = 0;
-	private static final int TYPE_MESSAGE = 1;
-	private static final int TYPE_BACKLOGMARKER = 2;
-	private static final int TYPE_SOCKETCLOSED = 3;
-	private static final int TYPE_LASTSEENEID = 4;
+	public static final int ROW_MESSAGE = 0;
+	public static final int ROW_TIMESTAMP = 1;
+	public static final int ROW_BACKLOGMARKER = 2;
+	public static final int ROW_SOCKETCLOSED = 3;
+	public static final int ROW_LASTSEENEID = 4;
+	private static final String TYPE_TIMESTAMP = "__timestamp__";
+	private static final String TYPE_BACKLOGMARKER = "__backlog__";
+	private static final String TYPE_LASTSEENEID = "__lastseeneid__";
 	
 	private MessageAdapter adapter;
 
 	private long currentCollapsedEid = -1;
-	private CollapsedEventsList collapsedEvents = null;
+	private CollapsedEventsList collapsedEvents = new CollapsedEventsList();
 	private int lastCollapsedDay = -1;
 	private HashSet<Long> expandedSectionEids = new HashSet<Long>();
 	private RefreshTask refreshTask = null;
+	private HeartbeatTask heartbeatTask = null;
 	private Ignore ignore = new Ignore();
 
 	private class MessageAdapter extends BaseAdapter {
-		ArrayList<MessageEntry> data;
+		ArrayList<EventsDataSource.Event> data;
 		private SherlockListFragment ctx;
 		private long max_eid = 0;
 		private long min_eid = 0;
@@ -85,19 +89,9 @@ public class MessageViewFragment extends SherlockListFragment {
 			TextView message;
 		}
 	
-		private class MessageEntry {
-			int type;
-			long eid;
-			String timestamp;
-			String text;
-			int color;
-			int bg_color;
-			long group_eid;
-		}
-
 		public MessageAdapter(SherlockListFragment context) {
 			ctx = context;
-			data = new ArrayList<MessageEntry>();
+			data = new ArrayList<EventsDataSource.Event>();
 		}
 		
 		public void clear() {
@@ -118,7 +112,7 @@ public class MessageViewFragment extends SherlockListFragment {
 
 		public int getBacklogMarkerPosition() {
 			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).type == TYPE_BACKLOGMARKER) {
+				if(data.get(i).row_type == ROW_BACKLOGMARKER) {
 					return i;
 				}
 			}
@@ -126,11 +120,12 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
 
 		public int insertLastSeenEIDMarker() {
-			MessageEntry e = new MessageEntry();
+			EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
 			e.type = TYPE_LASTSEENEID;
+			e.row_type = ROW_LASTSEENEID;
 			e.bg_color = R.drawable.socketclosed_bg;
 			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).type == TYPE_LASTSEENEID) {
+				if(data.get(i).row_type == ROW_LASTSEENEID) {
 					data.remove(i);
 				}
 			}
@@ -141,13 +136,14 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 			}
 			if(lastSeenEidMarkerPosition != data.size() - 1) {
-				if(lastSeenEidMarkerPosition > 0 && data.get(lastSeenEidMarkerPosition - 1).type == TYPE_TIMESTAMP)
+				if(lastSeenEidMarkerPosition > 0 && data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
 					lastSeenEidMarkerPosition--;
 				if(lastSeenEidMarkerPosition > 0)
 					data.add(lastSeenEidMarkerPosition + 1, e);
 			} else {
 				lastSeenEidMarkerPosition = -1;
 			}
+			
 			return lastSeenEidMarkerPosition;
 		}
 		
@@ -155,11 +151,10 @@ public class MessageViewFragment extends SherlockListFragment {
 			return lastSeenEidMarkerPosition;
 		}
 		
-		public void addItem(int type, long eid, String text, int color, int bg_color) {
+		public void addItem(long eid, EventsDataSource.Event e) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(eid / 1000);
-			int insert_pos = 0;
-			MessageEntry e = new MessageEntry();
+			int insert_pos = -1;
 			SimpleDateFormat formatter;
 			formatter = new SimpleDateFormat("h:mm a");
 			if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
@@ -177,12 +172,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					e1.printStackTrace();
 				}
 			}
-			e.type = type;
-			e.eid = eid;
 			e.timestamp = formatter.format(calendar.getTime());
-			e.text = text;
-			e.color = color;
-			e.bg_color = bg_color;
 			e.group_eid = currentCollapsedEid;
 			
 			if(eid > max_eid) { //Message at the bottom
@@ -208,16 +198,17 @@ public class MessageViewFragment extends SherlockListFragment {
 					insert_pos = 1;
 				}
 			} else {
-				for(int i = 0; i < data.size(); i++) {
-					if(data.get(i).type == TYPE_MESSAGE && data.get(i).eid > eid) { //Insert the message
-						if(i > 0 && data.get(i-1).type == TYPE_MESSAGE) {
+				int i = 0;
+				for(EventsDataSource.Event e1 : data) {
+					if(e1.row_type == 0 && e1.eid > eid && e.eid == eid) { //Insert the message
+						if(i > 0 && data.get(i-1).row_type == 0) {
 							calendar.setTimeInMillis(data.get(i-1).eid / 1000);
 							lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 							data.add(i, e);
 							insert_pos = i;
 							break;
 						} else { //There was a date line above our insertion point
-							calendar.setTimeInMillis(data.get(i).eid / 1000);
+							calendar.setTimeInMillis(e1.eid / 1000);
 							lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 							calendar.setTimeInMillis(eid/1000);
 							if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
@@ -237,20 +228,27 @@ public class MessageViewFragment extends SherlockListFragment {
 							}
 							break;
 						}
-					} else if(data.get(i).type == TYPE_MESSAGE && data.get(i).eid == eid) { //Replace the message
+					} else if(e1.row_type == 0 && (e1.eid == eid || e1.group_eid == eid)) { //Replace the message
 						lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 						data.remove(i);
 						data.add(i, e);
 						insert_pos = i;
 						break;
 					}
+					i++;
 				}
+			}
+
+			if(insert_pos == -1) {
+				Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
+				return;
 			}
 			
 			if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
 				formatter.applyPattern("EEEE, MMMM dd, yyyy");
-				MessageEntry d = new MessageEntry();
+				EventsDataSource.Event d = EventsDataSource.getInstance().new Event();
 				d.type = TYPE_TIMESTAMP;
+				d.row_type = ROW_TIMESTAMP;
 				d.eid = eid;
 				d.timestamp = formatter.format(calendar.getTime());
 				d.bg_color = R.color.dateline_bg;
@@ -280,22 +278,22 @@ public class MessageViewFragment extends SherlockListFragment {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			MessageEntry e = data.get(position);
+			EventsDataSource.Event e = data.get(position);
 			View row = convertView;
 			ViewHolder holder;
 
-			if(row != null && ((ViewHolder)row.getTag()).type != e.type)
+			if(row != null && ((ViewHolder)row.getTag()).type != e.row_type)
 				row = null;
 			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				if(e.type == TYPE_BACKLOGMARKER)
+				if(e.row_type == ROW_BACKLOGMARKER)
 					row = inflater.inflate(R.layout.row_backlogmarker, null);
-				else if(e.type == TYPE_TIMESTAMP)
+				else if(e.row_type == ROW_TIMESTAMP)
 					row = inflater.inflate(R.layout.row_timestamp, null);
-				else if(e.type == TYPE_SOCKETCLOSED)
+				else if(e.row_type == ROW_SOCKETCLOSED)
 					row = inflater.inflate(R.layout.row_socketclosed, null);
-				else if(e.type == TYPE_LASTSEENEID)
+				else if(e.row_type == ROW_LASTSEENEID)
 					row = inflater.inflate(R.layout.row_lastseeneid, null);
 				else
 					row = inflater.inflate(R.layout.row_message, null);
@@ -303,7 +301,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				holder = new ViewHolder();
 				holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
 				holder.message = (TextView) row.findViewById(R.id.message);
-				holder.type = e.type;
+				holder.type = e.row_type;
 
 				row.setTag(holder);
 			} else {
@@ -313,9 +311,11 @@ public class MessageViewFragment extends SherlockListFragment {
 			row.setBackgroundResource(e.bg_color);
 			if(holder.timestamp != null)
 				holder.timestamp.setText(e.timestamp);
-			if(holder.message != null) {
+			if(e.group_msg != null && e.html == null)
+				e.html = ColorFormatter.irc_to_html(e.group_msg);
+			if(holder.message != null && e.html != null) {
 				holder.message.setTextColor(getResources().getColorStateList(e.color));
-				holder.message.setText(ColorFormatter.html_to_spanned(e.text));
+				holder.message.setText(ColorFormatter.html_to_spanned(e.html));
 			}
 			
 			return row;
@@ -361,7 +361,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 				if(headerView != null) {
-					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE) {
+					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1) {
 						requestingBacklog = true;
 						conn.request_backlog(cid, bid, earliest_eid);
 					}
@@ -375,7 +375,10 @@ public class MessageViewFragment extends SherlockListFragment {
 						unreadView.setVisibility(View.GONE);
 						if(newMsgs > 0 || unreadTopView.getVisibility() == View.GONE) {
 							Long e = adapter.data.get(adapter.data.size() - 1).eid;
-							new HeartbeatTask().execute(e);
+		    				if(heartbeatTask != null)
+		    					heartbeatTask.cancel(true);
+		    				heartbeatTask = new HeartbeatTask();
+		    				heartbeatTask.execute(e);
 						}
 						newMsgs = 0;
 						newMsgTime = 0;
@@ -388,7 +391,10 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
 		    			unreadTopView.setVisibility(View.GONE);
 						Long e = adapter.data.get(adapter.data.size() - 1).eid;
-						new HeartbeatTask().execute(e);
+	    				if(heartbeatTask != null)
+	    					heartbeatTask.cancel(true);
+	    				heartbeatTask = new HeartbeatTask();
+	    				heartbeatTask.execute(e);
 		    		}
 				}
 			}
@@ -457,6 +463,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		newMsgTime = 0;
 		earliest_eid = 0;
 		backlog_eid = 0;
+		collapsedEvents.setChannel(cid, name);
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.INVISIBLE);
 		if(headerView != null) {
@@ -471,8 +478,12 @@ public class MessageViewFragment extends SherlockListFragment {
 						refreshTask = new RefreshTask();
 						refreshTask.execute((Void)null);
 					} else {
-						ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
-						headerView.setVisibility(View.VISIBLE);
+						if(bid == -1) {
+							headerView.setVisibility(View.GONE);
+						} else {
+							ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
+							headerView.setVisibility(View.VISIBLE);
+						}
 						adapter.clear();
 						adapter.notifyDataSetInvalidated();
 						mListener.onMessageViewReady();
@@ -483,31 +494,20 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     }
     
-    private void insertEvent(IRCCloudJSONObject event, boolean backlog) {
+    private void insertEvent(EventsDataSource.Event event, boolean backlog) {
 		try {
     		long start = System.currentTimeMillis();
     		if(min_eid == 0)
-    			min_eid = event.eid();
-	    	if(event.eid() == min_eid) {
+    			min_eid = event.eid;
+	    	if(event.eid == min_eid) {
 	    		headerView.setVisibility(View.GONE);
 	    	}
-	    	if(event.eid() < earliest_eid)
-	    		earliest_eid = event.eid();
+	    	if(event.eid < earliest_eid)
+	    		earliest_eid = event.eid;
 	    	
-	    	int color = R.color.row_message_label;
-	    	int bg_color = R.color.message_bg;
+	    	String type = event.type;
+	    	long eid = event.eid;
 	    	
-	    	String from = "";
-	    	String msg = "";
-	    	String type = event.getString("type");
-	    	long eid = event.getLong("eid");
-
-	    	if(event.has("from"))
-				from = TextUtils.htmlEncode(event.getString("from"));
-	    	
-			if(event.has("msg"))
-				msg = TextUtils.htmlEncode(event.getString("msg"));
-
 	    	if(type.startsWith("you_"))
 	    		type = type.substring(4);
 	    	
@@ -515,7 +515,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
 					if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
-			    		adapter.removeItem(event.eid());
+			    		adapter.removeItem(event.eid);
 				    	if(!backlog)
 				    		adapter.notifyDataSetChanged();
 				    	return;
@@ -526,42 +526,40 @@ public class MessageViewFragment extends SherlockListFragment {
 				calendar.setTimeInMillis(eid / 1000);
 
 				if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay) {
+					collapsedEvents.clear();
 					currentCollapsedEid = eid;
 					lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
-					collapsedEvents = null;
 				}
 
-				if(collapsedEvents == null || expandedSectionEids.contains(currentCollapsedEid)) {
-					collapsedEvents = new CollapsedEventsList();
-					collapsedEvents.setChannel(cid, name);
-				}
+				if(expandedSectionEids.contains(currentCollapsedEid))
+					collapsedEvents.clear();
 				
 				if(type.equalsIgnoreCase("joined_channel")) {
-					UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name, event.getString("nick"));
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.getString("nick"), (user==null)?null:user.old_nick, event.getString("hostmask"), null);
+					UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name, event.nick);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, (user==null)?null:user.old_nick, event.hostmask, null);
 				} else if(type.equalsIgnoreCase("parted_channel")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.getString("nick"), null, event.getString("hostmask"), null);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, null);
 				} else if(type.equalsIgnoreCase("quit")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.getString("nick"), null, event.getString("hostmask"), event.getString("msg"));
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.msg);
 				} else if(type.equalsIgnoreCase("nickchange")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.getString("newnick"), event.getString("oldnick"), null, null);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, null);
 				} else if(type.equalsIgnoreCase("user_channel_mode")) {
 					boolean unknown = false;
-					JsonObject ops = event.getJsonObject("ops");
+					JsonObject ops = event.ops;
 					if(ops != null) {
 						JsonArray add = ops.getAsJsonArray("add");
 						for(int i = 0; i < add.size(); i++) {
 							JsonObject op = add.get(i).getAsJsonObject();
 							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_OWNER);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_OWNER);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_ADMIN);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_ADMIN);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_OP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_OP);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_HALFOP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_HALFOP);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_VOICE);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_VOICE);
 							else
 								unknown = true;
 						}
@@ -569,33 +567,30 @@ public class MessageViewFragment extends SherlockListFragment {
 						for(int i = 0; i < remove.size(); i++) {
 							JsonObject op = remove.get(i).getAsJsonObject();
 							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEOWNER);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEOWNER);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEADMIN);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEADMIN);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEOP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEOP);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEHALFOP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEHALFOP);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.getString("from"), event.getString("hostmask"), null, CollapsedEventsList.MODE_DEVOICE);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEVOICE);
 							else
 								unknown = true;
 						}
 					}
 					if(unknown) {
-						Log.w("IRCCloud", "Unknown mode change event: " + event.toString());
 						collapsedEvents.clear();
 					}
 				}
 				
-				from = "";
-				msg = collapsedEvents.getCollapsedMessage();
+				String msg = collapsedEvents.getCollapsedMessage();
 				if(msg == null && type.equalsIgnoreCase("nickchange")) {
-					msg = event.getString("newnick") + " → <b>" + event.getString("newnick") + "</b>";
+					msg = event.old_nick + " → <b>" + event.nick + "</b>";
 				}
 				if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
-		    		from = event.getString("from");
-		    		msg = "set mode: <b>" + event.getString("diff") + " " + event.getString("nick") + "</b>";
+		    		msg = "<b>" + collapsedEvents.formatNick(event.from) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
 		    		currentCollapsedEid = eid;
 				}
 				if(!expandedSectionEids.contains(currentCollapsedEid)) {
@@ -603,152 +598,26 @@ public class MessageViewFragment extends SherlockListFragment {
 						msg = "[+] " + msg;
 					eid = currentCollapsedEid;
 				}
-				color = R.color.timestamp;
+				event.color = R.color.timestamp;
+				event.group_msg = msg;
+				event.html = null;
 			} else {
 				currentCollapsedEid = -1;
-				collapsedEvents = null;
+				collapsedEvents.clear();
+	    		if(event.from != null)
+	    			event.html = "<b>" + collapsedEvents.formatNick(event.from) + "</b> " + event.msg;
+	    		else
+	    			event.html = event.msg;
 			}
 
-			if(type.equalsIgnoreCase("socket_closed")) {
-		    	adapter.addItem(TYPE_SOCKETCLOSED, eid, "", color, R.drawable.socketclosed_bg);
-			} else if(type.equalsIgnoreCase("__backlog_marker__")) {
-		    	adapter.addItem(TYPE_BACKLOGMARKER, eid, "", color, R.color.message_bg);
-			} else {
-				if(!type.equalsIgnoreCase("user_channel_mode") && event.has("from") && event.has("hostmask")) {
-					String usermask = event.getString("from") + "!" + event.getString("hostmask");
-					if(ignore.match(usermask))
-						return;
-				}
-				
-		    	if(type.equalsIgnoreCase("buffer_me_msg")) {
-					from = "* <i>" + from + "</i>";
-					msg = "<i>" + msg + "</i>";
-		    	} else if(type.equalsIgnoreCase("too_fast")) {
-		    		from = "";
-		    		bg_color = R.color.error;
-		    	} else if(type.equalsIgnoreCase("no_bots")) {
-		    		from = "";
-		    		bg_color = R.color.error;
-		    	} else if(type.equalsIgnoreCase("nickname_in_use")) {
-		    		from = event.getString("nick");
-		    		msg = "is already in use";
-		    		bg_color = R.color.error;
-		    	} else if(type.equalsIgnoreCase("unhandled_line") || type.equalsIgnoreCase("unparsed_line")) {
-		    		from = "";
-		    		msg = "";
-		    		if(event.has("command"))
-		    			msg = event.getString("command") + " ";
-		    		if(event.has("raw"))
-		    			msg += event.getString("raw");
-		    		else
-		    			msg += event.getString("msg");
-		    		bg_color = R.color.error;
-		    	} else if(type.equalsIgnoreCase("connecting_cancelled")) {
-		    		from = "";
-		    		msg = "Cancelled";
-		    		bg_color = R.color.error;
-		    	} else if(type.equalsIgnoreCase("connecting_failed")) {
-		    		from = "";
-		    		msg = "Failed to connect: " + event.getString("reason");
-		    		bg_color = R.color.error;
-		    	} else if(type.equalsIgnoreCase("quit_server")) {
-		    		from = "";
-		    		msg = "⇐ You disconnected";
-					color = R.color.timestamp;
-		    	} else if(type.equalsIgnoreCase("self_details")) {
-		    		from = "";
-		    		msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("myinfo")) {
-		    		from = "";
-		    		msg = "Host: " + event.getString("server") + "\n";
-		    		msg += "IRCd: " + event.getString("version") + "\n";
-		    		msg += "User modes: " + event.getString("user_modes") + "\n";
-		    		msg += "Channel modes: " + event.getString("channel_modes") + "\n";
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("wait")) {
-		    		from = "";
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("user_mode")) {
-		    		from = "";
-		    		msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("your_unique_id")) {
-		    		from = "";
-		    		msg = "Your unique ID is: <b>" + event.getString("unique_id") + "</b>";
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("kill")) {
-		    		from = "";
-		    		msg = "You were killed";
-		    		if(event.has("from"))
-		    			msg += " by " + event.getString("from");
-		    		if(event.has("killer_hostmask"))
-		    			msg += " (" + event.getString("killer_hostmask") + ")";
-		    		if(event.has("reason"))
-		    			msg += ": " + event.getString("reason");
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("banned")) {
-		    		from = "";
-		    		msg = "You were banned";
-		    		if(event.has("server"))
-		    			msg += " from " + event.getString("server");
-		    		if(event.has("reason"))
-		    			msg += ": " + event.getString("reason");
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("channel_topic")) {
-		    		from = event.getString("author");
-		    		msg = "set the topic: " + event.getString("topic");
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("channel_mode")) {
-		    		from = "";
-		    		msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("channel_mode_is")) {
-		    		from = "";
-		    		msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
-		    		bg_color = R.color.dateline_bg;
-		    	} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
-		    		from = "← " + event.getString("nick");
-		    		msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
-		    		color = R.color.timestamp;
-		    	} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
-		    		msg = "set mode: <b>" + event.getString("diff") + "</b>";
-		    		color = R.color.timestamp;
-		    	} else if(type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_motd")) {
-		    		//TODO: parse the MOTD lines
-		    	} else if(type.equalsIgnoreCase("inviting_to_channel")) {
-		    		from = "";
-		    		msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
-		    		bg_color = R.color.notice;
-		    	}
-		    	
-		    	if(event.has("value")) {
-		    		msg = event.getString("value") + " " + msg;
-		    	}
-	
-		    	if(collapsedEvents != null) {
-		    		from = collapsedEvents.formatNick(from);
-		    	} else {
-		    		CollapsedEventsList c = new CollapsedEventsList();
-		    		c.setChannel(cid, name);
-		    		from = c.formatNick(from);
-		    	}
-		    	
-		    	if(from.length() > 0)
-		    		msg = "<b>" + from + "</b> " + msg;
-		    	
-		    	if(msg.length() > 0) {
-		    		msg = ColorFormatter.irc_to_html(msg);
-		    	}
-
-		    	if(event.has("highlight") && event.getBoolean("highlight"))
-		    		bg_color = R.color.highlight;
-		    	
-		    	if(event.has("self") && event.getBoolean("self"))
-		    		bg_color = R.color.self;
-		    	
-		    	adapter.addItem(TYPE_MESSAGE, eid, msg, color, bg_color);
+			if(!type.equalsIgnoreCase("user_channel_mode") && event.from != null && event.hostmask != null) {
+				String usermask = event.from + "!" + event.hostmask;
+				if(ignore.match(usermask))
+					return;
 			}
+
+	    	adapter.addItem(eid, event);
+
 	    	if(!backlog)
 	    		adapter.notifyDataSetChanged();
 	    	long time = (System.currentTimeMillis() - start);
@@ -815,20 +684,22 @@ public class MessageViewFragment extends SherlockListFragment {
     	if(ServersDataSource.getInstance().getServer(cid) != null)
     		ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
     	if(bid != -1) {
-    		TreeMap<Long,IRCCloudJSONObject> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+    		collapsedEvents.setChannel(cid, name);
+    		TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		if(events != null) {
+    			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
 	    		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
 	    		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 	    		if(backlog_eid > 0) {
-	    			events = (TreeMap<Long, IRCCloudJSONObject>)events.clone();
-					IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
-					backlogMarker.getObject().addProperty("cid", cid);
-					backlogMarker.getObject().addProperty("bid", bid);
-					backlogMarker.getObject().addProperty("eid", backlog_eid);
-					backlogMarker.getObject().addProperty("type", "__backlog_marker__");
+					EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
+					backlogMarker.eid = backlog_eid;
+					backlogMarker.type = TYPE_BACKLOGMARKER;
+					backlogMarker.row_type = ROW_BACKLOGMARKER;
+					backlogMarker.bg_color = R.color.message_bg;
 					events.put(backlog_eid, backlogMarker);
 	    		}
 				refresh(events, server, buffer);
+	    		adapter.notifyDataSetChanged();
 				getListView().setSelection(adapter.getCount() - 1);
     		}
     	}
@@ -839,6 +710,14 @@ public class MessageViewFragment extends SherlockListFragment {
 		@Override
 		protected Void doInBackground(Long... params) {
 			Long eid = params[0];
+
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+
+			if(isCancelled())
+				return null;
 			
 	    	if(eid > last_seen_eid && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 	    		if(getActivity() != null && getActivity().getIntent() != null)
@@ -849,13 +728,28 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	}
 			return null;
 		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			if(!isCancelled())
+				heartbeatTask = null;
+		}
     }
     
 	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-		TreeMap<Long,IRCCloudJSONObject> events;
+		TreeMap<Long,EventsDataSource.Event> events;
 		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;
+		int oldSize = 0;
+		int oldPosition = 0;
 		
+		@Override
+		protected void onPreExecute() {
+			oldSize = adapter.data.size();
+			oldPosition = getListView().getFirstVisiblePosition();
+		}
+		
+		@SuppressWarnings("unchecked")
 		@Override
 		protected Void doInBackground(Void... params) {
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
@@ -863,10 +757,24 @@ public class MessageViewFragment extends SherlockListFragment {
 			long time = System.currentTimeMillis();
 			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
+			if(!isCancelled() && events != null && events.size() > 0) {
+				collapsedEvents.setChannel(cid, name);
+    			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
+				if(oldSize > 1 && earliest_eid > events.firstKey()) {
+					backlog_eid = adapter.getItemId(oldPosition) - 1;
+					EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
+					backlogMarker.eid = backlog_eid;
+					backlogMarker.type = TYPE_BACKLOGMARKER;
+					backlogMarker.row_type = ROW_BACKLOGMARKER;
+					backlogMarker.bg_color = R.color.message_bg;
+					events.put(backlog_eid, backlogMarker);
+				}
+				adapter.clear();
+				refresh(events, server, buffer);
+			}
 			return null;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		protected void onPostExecute(Void result) {
 			if(isCancelled())
@@ -874,20 +782,6 @@ public class MessageViewFragment extends SherlockListFragment {
 			
 			if(events != null && events.size() > 0) {
 				try {
-					int oldSize = adapter.data.size();
-					int oldPosition = getListView().getFirstVisiblePosition();
-					if(oldSize > 1 && earliest_eid > events.firstKey()) {
-		    			events = (TreeMap<Long, IRCCloudJSONObject>)events.clone();
-						backlog_eid = adapter.getItemId(oldPosition) - 1;
-						IRCCloudJSONObject backlogMarker = new IRCCloudJSONObject();
-						backlogMarker.getObject().addProperty("cid", cid);
-						backlogMarker.getObject().addProperty("bid", bid);
-						backlogMarker.getObject().addProperty("eid", backlog_eid);
-						backlogMarker.getObject().addProperty("type", "__backlog_marker__");
-						events.put(backlog_eid, backlogMarker);
-					}
-					adapter.clear();
-					refresh(events, server, buffer);
 					int markerPos = adapter.getBacklogMarkerPosition();
 					if(!firstScroll && markerPos != -1 && oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
 						adapter.notifyDataSetChanged();
@@ -899,10 +793,13 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 			}
 			requestingBacklog = false;
+			refreshTask = null;
 		}
 	}
 
-	private void refresh(TreeMap<Long,IRCCloudJSONObject> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
+	private void refresh(TreeMap<Long,EventsDataSource.Event> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
+		collapsedEvents.clear();
+		
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
 			if(bid != -1) {
 				requestingBacklog = true;
@@ -923,52 +820,67 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 	    	if(events.size() > 0) {
 	    		avgInsertTime = 0;
+	    		//Debug.startMethodTracing("refresh");
 	    		long start = System.currentTimeMillis();
-	    		Iterator<IRCCloudJSONObject> i = events.values().iterator();
+	    		Iterator<EventsDataSource.Event> i = events.values().iterator();
 	    		while(i.hasNext()) {
 	    			insertEvent(i.next(), true);
 	    		}
 	    		if(adapter.getLastSeenEIDPosition() == -1)
 	    			adapter.insertLastSeenEIDMarker();
-	    		adapter.notifyDataSetChanged();
 	    		Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
+	    		//Debug.stopMethodTracing();
 	    		avgInsertTime = 0;
-	    		final long lastEid = events.get(events.lastKey()).eid();
-	    		mHandler.post(new Runnable() {
-					@Override
-					public void run() {
-						if(adapter != null) {
-							int markerPos = adapter.getLastSeenEIDPosition();
-				    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
-				    			if(shouldTrackUnread()) {
-					    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
-					    			unreadTopView.setVisibility(View.VISIBLE);
-				    			} else {
-					    			unreadTopView.setVisibility(View.GONE);
-				    			}
-				    		} else {
-				    			unreadTopView.setVisibility(View.GONE);
-				    			new HeartbeatTask().execute(lastEid);
-				    		}
-							if(firstScroll) {
-								getListView().setSelection(adapter.data.size() - 1);
-								firstScroll = false;
-							}
-						} else {
-							Log.e("IRCCloud", "Adapter was null!");
-						}
-					}
-	    		});
 	    	}
 		}
-    	try {
-			update_status(server.status, server.fail_info);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		mListener.onMessageViewReady();
+		mHandler.removeCallbacks(mFirstScrollRunnable);
+		mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
+		mHandler.post(mFirstScrollRunnable);
+		mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
 	}
 
+	private Runnable mFirstScrollRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if(adapter != null) {
+				adapter.notifyDataSetChanged();
+				if(firstScroll) {
+					getListView().setSelection(adapter.data.size() - 1);
+					firstScroll = false;
+				}
+			}
+		}
+	};
+	
+	private Runnable mUpdateTopUnreadRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if(adapter != null) {
+				int markerPos = adapter.getLastSeenEIDPosition();
+	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+	    			if(shouldTrackUnread()) {
+		    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos - 1) + " unread messages");
+		    			unreadTopView.setVisibility(View.VISIBLE);
+	    			} else {
+		    			unreadTopView.setVisibility(View.GONE);
+	    			}
+	    		} else {
+	    			unreadTopView.setVisibility(View.GONE);
+	    			Long e = adapter.data.get(adapter.data.size() - 1).eid;
+    				if(heartbeatTask != null)
+    					heartbeatTask.cancel(true);
+    				heartbeatTask = new HeartbeatTask();
+    				heartbeatTask.execute(e);
+	    		}
+	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+				update_status(s.status, s.fail_info);
+				mListener.onMessageViewReady();
+			} else {
+				Log.e("IRCCloud", "Adapter was null!");
+			}
+		}
+	};
+	
 	private boolean shouldTrackUnread() {
 		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
 			try {
@@ -1178,14 +1090,20 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_NICKCHANGE:
 			case NetworkConnection.EVENT_QUIT:
-			case NetworkConnection.EVENT_BUFFERMSG:
 			case NetworkConnection.EVENT_KICK:
 			case NetworkConnection.EVENT_CHANNELMODE:
 			case NetworkConnection.EVENT_SELFDETAILS:
 			case NetworkConnection.EVENT_USERMODE:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.bid() == bid) {
-					insertEvent(e, false);
+					EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
+					insertEvent(event, false);
+				}
+				break;
+			case NetworkConnection.EVENT_BUFFERMSG:
+				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
+				if(event.bid == bid) {
+					insertEvent(event, false);
 				}
 				break;
 			default:

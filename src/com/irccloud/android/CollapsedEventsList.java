@@ -3,6 +3,7 @@ package com.irccloud.android;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.json.JSONException;
@@ -55,6 +56,7 @@ public class CollapsedEventsList {
 	}
 	
 	private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
+	private HashMap<String, String> formattedNickCache = new HashMap<String, String>();
 	
 	public void addEvent(int type, String nick, String old_nick, String hostmask, String msg) {
 		addEvent(type, nick, old_nick, hostmask, msg, 0);
@@ -147,9 +149,12 @@ public class CollapsedEventsList {
 	public void setChannel(int cid, String channel) {
 		this.cid = cid;
 		this.channel = channel;
+		formattedNickCache.clear();
 	}
 	
 	public String formatNick(String nick) {
+		if(formattedNickCache.containsKey(nick))
+			return formattedNickCache.get(nick);
 		String output = "";
 		if(channel != null) {
 			boolean showSymbol = false;
@@ -187,7 +192,8 @@ public class CollapsedEventsList {
 		}
 		
 		output += nick;
-			
+		output = ColorFormatter.irc_to_html(output);
+		formattedNickCache.put(nick, output);
 		return output;
 	}
 	

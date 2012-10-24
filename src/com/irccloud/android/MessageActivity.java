@@ -11,11 +11,15 @@ import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
@@ -56,7 +60,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	ImageView upView;
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
 	
-    @SuppressWarnings("deprecation")
+    @SuppressLint("NewApi")
+	@SuppressWarnings("deprecation")
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -67,6 +67,8 @@ public class IRCCloudJSONObject {
 	}
 	
 	public boolean getBoolean(String name) {
+		if(!o.has(name) || o.get(name).isJsonNull())
+			return false;
 		return o.get(name).getAsBoolean();
 	}
 	
@@ -85,6 +87,8 @@ public class IRCCloudJSONObject {
 	}
 	
 	public JsonObject getJsonObject(String name) {
+		if(!o.has(name) || o.get(name).isJsonNull())
+			return null;
 		return o.getAsJsonObject(name);
 	}
 	

@@ -31,6 +31,7 @@ import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -658,9 +659,9 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown") || type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("channel_mode_list_change")
 					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")) {
 				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
+				EventsDataSource.Event event = e.addEvent(object);
 				if(!backlog)
-					notifyHandlers(EVENT_BUFFERMSG, object);
+					notifyHandlers(EVENT_BUFFERMSG, event);
 			} else if(type.equalsIgnoreCase("channel_init")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.deleteChannel(object.getLong("bid"));
