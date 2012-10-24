@@ -25,6 +25,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -32,6 +35,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.WindowManager;
+
 import com.codebutler.android_websockets.WebSocketClient;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -114,16 +119,31 @@ public class NetworkConnection {
 		return instance;
 	}
 
+	@SuppressWarnings("deprecation")
 	public NetworkConnection() {
 		String version;
+		String network_type = null;
 		try {
 			version = "/" + IRCCloudApplication.getInstance().getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName;
 		} catch (Exception e) {
 			version = "";
 		}
+
+		ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+		if(ni != null)
+			network_type = ni.getTypeName();
 		
 		useragent = "IRCCloud" + version + " (" + android.os.Build.MODEL + "; " + Locale.getDefault().getCountry().toLowerCase() + "; "
-				+ "Android " + android.os.Build.VERSION.RELEASE + ")";
+				+ "Android " + android.os.Build.VERSION.RELEASE;
+		
+		WindowManager wm = (WindowManager)IRCCloudApplication.getInstance().getSystemService(Context.WINDOW_SERVICE);
+		useragent += "; " + wm.getDefaultDisplay().getWidth() + "x" + wm.getDefaultDisplay().getHeight();
+		
+		if(network_type != null)
+			useragent += "; " + network_type;
+		
+		useragent += ")";
 	}
 	
 	public int getState() {
