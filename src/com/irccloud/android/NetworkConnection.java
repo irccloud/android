@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,6 +62,7 @@ public class NetworkConnection {
 	private Timer idleTimer = null;
 	private long idle_interval = 30000;
 	private long reconnect_timestamp = 0;
+	private String useragent = null;
 	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
@@ -110,6 +112,18 @@ public class NetworkConnection {
 			instance = new NetworkConnection();
 		}
 		return instance;
+	}
+
+	public NetworkConnection() {
+		String version;
+		try {
+			version = "/" + IRCCloudApplication.getInstance().getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName;
+		} catch (Exception e) {
+			version = "";
+		}
+		
+		useragent = "IRCCloud" + version + " (" + android.os.Build.MODEL + "; " + Locale.getDefault().getCountry().toLowerCase() + "; "
+				+ "Android " + android.os.Build.VERSION.RELEASE + ")";
 	}
 	
 	public int getState() {
@@ -161,7 +175,8 @@ public class NetworkConnection {
 		session = sk;
 		
 		List<BasicNameValuePair> extraHeaders = Arrays.asList(
-		    new BasicNameValuePair("Cookie", "session="+session)
+		    new BasicNameValuePair("Cookie", "session="+session),
+		    new BasicNameValuePair("User-Agent", useragent)
 		);
 
 		String url = "wss://" + IRCCLOUD_HOST;
@@ -825,6 +840,7 @@ public class NetworkConnection {
 		conn.setDoOutput(true);
 		conn.setRequestProperty("Connection", "close");
 		conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+		conn.setRequestProperty("User-Agent", useragent);
 		OutputStream ostr = null;
 		try {
 			ostr = conn.getOutputStream();
@@ -973,6 +989,7 @@ public class NetworkConnection {
 				conn.setRequestProperty("Accept", "application/json");
 				conn.setRequestProperty("Content-type", "application/json");
 				conn.setRequestProperty("Accept-Encoding", "gzip");
+				conn.setRequestProperty("User-Agent", useragent);
 				conn.connect();
 				JsonReader reader = null;
 				try {
