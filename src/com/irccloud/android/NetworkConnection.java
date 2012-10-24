@@ -201,7 +201,7 @@ public class NetworkConnection {
 
 		String url = "wss://" + IRCCLOUD_HOST;
 		if(EventsDataSource.getInstance().highest_eid > 0)
-			url += "?since_eid=" + EventsDataSource.getInstance().highest_eid;
+			url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
 
 		Log.d("IRCCloud", "Opening websocket: " + url);
 		
@@ -266,6 +266,7 @@ public class NetworkConnection {
 			cids.put(String.valueOf(cid), eids);
 			o.put("seenEids", cids.toString());
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: heartbeat");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -281,6 +282,7 @@ public class NetworkConnection {
 			o.put("cid", cid);
 			o.put("msg", message);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: disconnect");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -295,6 +297,7 @@ public class NetworkConnection {
 			o.put("_method", "reconnect");
 			o.put("cid", cid);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: reconnect");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -312,6 +315,7 @@ public class NetworkConnection {
 				o.put("to", to);
 			o.put("msg", message);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: say");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -327,6 +331,7 @@ public class NetworkConnection {
 			o.put("cid", cid);
 			o.put("channel", channel);
 			o.put("key", key);
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: join");
 			client.send(o.toString());
 			return last_reqid;
 		} catch (JSONException e) {
@@ -344,6 +349,7 @@ public class NetworkConnection {
 			o.put("channel", channel);
 			o.put("msg", message);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: part");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -371,6 +377,7 @@ public class NetworkConnection {
 			o.put("cid", cid);
 			o.put("id", bid);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: archive-buffer");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -386,6 +393,7 @@ public class NetworkConnection {
 			o.put("cid", cid);
 			o.put("id", bid);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: unarchive-buffer");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -401,6 +409,7 @@ public class NetworkConnection {
 			o.put("cid", cid);
 			o.put("id", bid);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: delete-buffer");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -415,6 +424,7 @@ public class NetworkConnection {
 			o.put("_method", "delete-connection");
 			o.put("cid", cid);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: delete-connection");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -438,6 +448,7 @@ public class NetworkConnection {
 			o.put("joincommands", joincommands);
 			o.put("channels", channels);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: add-server");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -461,6 +472,7 @@ public class NetworkConnection {
 			o.put("joincommands", joincommands);
 			o.put("cid", cid);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: edit-server");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -476,6 +488,7 @@ public class NetworkConnection {
 			o.put("cid", cid);
 			o.put("mask", mask);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: ignore");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -491,6 +504,7 @@ public class NetworkConnection {
 			o.put("cid", cid);
 			o.put("mask", mask);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: unignore");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -505,6 +519,7 @@ public class NetworkConnection {
 			o.put("_method", "set-prefs");
 			o.put("prefs", prefs);
 			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: set-prefs");
 			return last_reqid;
 		} catch (JSONException e) {
 			e.printStackTrace();
