@@ -257,7 +257,7 @@ public class NetworkConnection {
 	public int heartbeat(long selected_buffer, int cid, long bid, long last_seen_eid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "heartbeat");
 			o.put("selectedBuffer", selected_buffer);
 			JSONObject eids = new JSONObject();
@@ -277,7 +277,7 @@ public class NetworkConnection {
 	public int disconnect(int cid, String message) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "disconnect");
 			o.put("cid", cid);
 			o.put("msg", message);
@@ -293,7 +293,7 @@ public class NetworkConnection {
 	public int reconnect(int cid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "reconnect");
 			o.put("cid", cid);
 			client.send(o.toString());
@@ -308,7 +308,7 @@ public class NetworkConnection {
 	public int say(int cid, String to, String message) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "say");
 			o.put("cid", cid);
 			if(to != null)
@@ -326,7 +326,7 @@ public class NetworkConnection {
 	public int join(int cid, String channel, String key) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "join");
 			o.put("cid", cid);
 			o.put("channel", channel);
@@ -343,7 +343,7 @@ public class NetworkConnection {
 	public int part(int cid, String channel, String message) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "part");
 			o.put("cid", cid);
 			o.put("channel", channel);
@@ -372,7 +372,7 @@ public class NetworkConnection {
 	public int archiveBuffer(int cid, long bid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "archive-buffer");
 			o.put("cid", cid);
 			o.put("id", bid);
@@ -388,7 +388,7 @@ public class NetworkConnection {
 	public int unarchiveBuffer(int cid, long bid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "unarchive-buffer");
 			o.put("cid", cid);
 			o.put("id", bid);
@@ -404,7 +404,7 @@ public class NetworkConnection {
 	public int deleteBuffer(int cid, long bid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "delete-buffer");
 			o.put("cid", cid);
 			o.put("id", bid);
@@ -420,7 +420,7 @@ public class NetworkConnection {
 	public int deleteServer(int cid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "delete-connection");
 			o.put("cid", cid);
 			client.send(o.toString());
@@ -435,7 +435,7 @@ public class NetworkConnection {
 	public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "add-server");
 			o.put("hostname", hostname);
 			o.put("port", port);
@@ -459,7 +459,7 @@ public class NetworkConnection {
 	public int editServer(int cid, String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "edit-server");
 			o.put("hostname", hostname);
 			o.put("port", port);
@@ -483,7 +483,7 @@ public class NetworkConnection {
 	public int ignore(int cid, String mask) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "ignore");
 			o.put("cid", cid);
 			o.put("mask", mask);
@@ -499,7 +499,7 @@ public class NetworkConnection {
 	public int unignore(int cid, String mask) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "unignore");
 			o.put("cid", cid);
 			o.put("mask", mask);
@@ -515,7 +515,7 @@ public class NetworkConnection {
 	public int set_prefs(String prefs) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", last_reqid++);
+			o.put("_reqid", ++last_reqid);
 			o.put("_method", "set-prefs");
 			o.put("prefs", prefs);
 			client.send(o.toString());
