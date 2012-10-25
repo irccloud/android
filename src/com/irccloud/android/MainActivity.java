@@ -105,33 +105,45 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 		}
 	};
 
+	private boolean launchBid(int bid) {
+		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+		if(b != null) {
+			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+			int joined = 1;
+			if(b.type.equalsIgnoreCase("channel")) {
+				ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+				if(c == null)
+					joined = 0;
+			}
+			if(b.type.equalsIgnoreCase("console"))
+				b.name = s.name;
+			Intent i = new Intent(MainActivity.this, MessageActivity.class);
+			i.putExtra("cid", b.cid);
+			i.putExtra("bid", b.bid);
+			i.putExtra("name", b.name);
+			i.putExtra("last_seen_eid", b.last_seen_eid);
+			i.putExtra("min_eid", b.min_eid);
+			i.putExtra("type", b.type);
+			i.putExtra("joined", joined);
+			i.putExtra("archived", b.archived);
+			i.putExtra("status", s.status);
+			startActivity(i);
+			finish();
+			Log.i("IRCCLoud", "Launched bid: " + bid);
+			return true;
+		}
+		return false;
+	}
+	
 	private void launchLastChannel() {
 		if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null) {
 			int bid = conn.getUserInfo().last_selected_bid;
-			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-			if(b != null) {
-				ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
-				int joined = 1;
-				if(b.type.equalsIgnoreCase("channel")) {
-					ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
-					if(c == null)
-						joined = 0;
-				}
-				if(b.type.equalsIgnoreCase("console"))
-					b.name = s.name;
-				Intent i = new Intent(MainActivity.this, MessageActivity.class);
-				i.putExtra("cid", b.cid);
-				i.putExtra("bid", b.bid);
-				i.putExtra("name", b.name);
-				i.putExtra("last_seen_eid", b.last_seen_eid);
-				i.putExtra("min_eid", b.min_eid);
-				i.putExtra("type", b.type);
-				i.putExtra("joined", joined);
-				i.putExtra("archived", b.archived);
-				i.putExtra("status", s.status);
-				startActivity(i);
-				finish();
+			if(!launchBid(bid)) {
+				if(!launchBid(BuffersDataSource.getInstance().firstBid()))
+					Log.e("IRCCLoud", "FIXME: unable to locate the last bid!");
 			}
+		} else {
+			Log.e("IRCCLoud", "FIXME: unable to locate the last bid");
 		}
 	}
 	

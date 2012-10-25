@@ -151,7 +151,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			return lastSeenEidMarkerPosition;
 		}
 		
-		public void addItem(long eid, EventsDataSource.Event e) {
+		public synchronized void addItem(long eid, EventsDataSource.Event e) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(eid / 1000);
 			int insert_pos = -1;
@@ -481,8 +481,8 @@ public class MessageViewFragment extends SherlockListFragment {
 						if(bid == -1) {
 							headerView.setVisibility(View.GONE);
 						} else {
-							ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
 							headerView.setVisibility(View.VISIBLE);
+							ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
 						}
 						adapter.clear();
 						adapter.notifyDataSetInvalidated();
@@ -494,7 +494,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     }
     
-    private void insertEvent(EventsDataSource.Event event, boolean backlog) {
+    private synchronized void insertEvent(EventsDataSource.Event event, boolean backlog) {
 		try {
     		long start = System.currentTimeMillis();
     		if(min_eid == 0)
@@ -673,10 +673,11 @@ public class MessageViewFragment extends SherlockListFragment {
     			bid = b.bid;
     		}
     	}
-    	headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
-    	if(getListView().getHeaderViewsCount() == 0)
+    	if(getListView().getHeaderViewsCount() == 0) {
+    		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
+    		headerView = headerViewContainer.findViewById(R.id.progress);
     		getListView().addHeaderView(headerViewContainer);
-    	headerView = headerViewContainer.findViewById(R.id.progress);
+    	}
     	adapter = new MessageAdapter(this);
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
@@ -769,8 +770,6 @@ public class MessageViewFragment extends SherlockListFragment {
 					backlogMarker.bg_color = R.color.message_bg;
 					events.put(backlog_eid, backlogMarker);
 				}
-				adapter.clear();
-				refresh(events, server, buffer);
 			}
 			return null;
 		}
@@ -781,6 +780,8 @@ public class MessageViewFragment extends SherlockListFragment {
 				return;
 			
 			if(events != null && events.size() > 0) {
+				adapter.clear();
+				refresh(events, server, buffer);
 				try {
 					int markerPos = adapter.getBacklogMarkerPosition();
 					if(!firstScroll && markerPos != -1 && oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
@@ -798,6 +799,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	}
 
 	private void refresh(TreeMap<Long,EventsDataSource.Event> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
+		Log.e("IRCCloud", "refresh");
 		collapsedEvents.clear();
 		
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
@@ -866,11 +868,13 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			}
 	    		} else {
 	    			unreadTopView.setVisibility(View.GONE);
-	    			Long e = adapter.data.get(adapter.data.size() - 1).eid;
-    				if(heartbeatTask != null)
-    					heartbeatTask.cancel(true);
-    				heartbeatTask = new HeartbeatTask();
-    				heartbeatTask.execute(e);
+	    			if(adapter.data.size() > 0) {
+		    			Long e = adapter.data.get(adapter.data.size() - 1).eid;
+	    				if(heartbeatTask != null)
+	    					heartbeatTask.cancel(true);
+	    				heartbeatTask = new HeartbeatTask();
+	    				heartbeatTask.execute(e);
+	    			}
 	    		}
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
 				update_status(s.status, s.fail_info);

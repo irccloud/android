@@ -56,6 +56,13 @@ public class BuffersDataSource {
 		buffers.clear();
 	}
 	
+	public int firstBid() {
+		if(buffers.size() > 0)
+			return buffers.get(0).bid;
+		else
+			return -1;
+	}
+	
 	public synchronized Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred) {
 		Buffer b = new Buffer();
 		b.bid = bid;
@@ -127,7 +134,7 @@ public class BuffersDataSource {
 		Iterator<Buffer> i = buffers.iterator();
 		while(i.hasNext()) {
 			Buffer b = i.next();
-			if(b.name.equalsIgnoreCase(name))
+			if(b.cid == cid && b.name.equalsIgnoreCase(name))
 				return b;
 		}
 		return null;

@@ -283,45 +283,57 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		}
     }
     
+    private void setFromIntent(Intent intent) {
+    	long min_eid = 0;
+    	long last_seen_eid = 0;
+
+    	cid = intent.getIntExtra("cid", 0);
+    	bid = intent.getIntExtra("bid", 0);
+    	name = intent.getStringExtra("name");
+    	type = intent.getStringExtra("type");
+    	joined = intent.getIntExtra("joined", 0);
+    	archived = intent.getIntExtra("archived", 0);
+    	status = intent.getStringExtra("status");
+    	min_eid = intent.getLongExtra("min_eid", 0);
+    	last_seen_eid = intent.getLongExtra("last_seen_eid", 0);
+    	
+    	if(bid == -1) {
+    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
+    		if(b != null) {
+    			bid = b.bid;
+    			last_seen_eid = b.last_seen_eid;
+    			min_eid = b.min_eid;
+    			archived = b.archived;
+    		}
+    	}
+
+    	MessageViewFragment f = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+    	Bundle b = new Bundle();
+    	b.putInt("cid", cid);
+    	b.putInt("bid", bid);
+    	b.putLong("last_seen_eid", last_seen_eid);
+    	b.putLong("min_eid", min_eid);
+    	b.putString("name", name);
+    	b.putString("type", type);
+    	f.setArguments(b);
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+    	if(intent != null && intent.hasExtra("cid")) {
+    		setFromIntent(intent);
+    	}
+    }
+    
     @Override
     public void onResume() {
     	super.onResume();
-    	long min_eid = 0;
-    	long last_seen_eid = 0;
     	
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	
     	if(getIntent() != null && getIntent().hasExtra("cid") && cid == -1) {
-	    	cid = getIntent().getIntExtra("cid", 0);
-	    	bid = getIntent().getIntExtra("bid", 0);
-	    	name = getIntent().getStringExtra("name");
-	    	type = getIntent().getStringExtra("type");
-	    	joined = getIntent().getIntExtra("joined", 0);
-	    	archived = getIntent().getIntExtra("archived", 0);
-	    	status = getIntent().getStringExtra("status");
-	    	min_eid = getIntent().getLongExtra("min_eid", 0);
-	    	last_seen_eid = getIntent().getLongExtra("last_seen_eid", 0);
-	    	
-	    	if(bid == -1) {
-	    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
-	    		if(b != null) {
-	    			bid = b.bid;
-	    			last_seen_eid = b.last_seen_eid;
-	    			min_eid = b.min_eid;
-	    			archived = b.archived;
-	    		}
-	    	}
-
-	    	MessageViewFragment f = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-	    	Bundle b = new Bundle();
-	    	b.putInt("cid", cid);
-	    	b.putInt("bid", bid);
-	    	b.putLong("last_seen_eid", last_seen_eid);
-	    	b.putLong("min_eid", min_eid);
-	    	b.putString("name", name);
-	    	b.putString("type", type);
-	    	f.setArguments(b);
+    		setFromIntent(getIntent());
     	}
     	updateUsersListFragmentVisibility();
     	title.setText(name);
