@@ -83,6 +83,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		private long min_eid = 0;
 		private int lastDay = -1;
 		private int lastSeenEidMarkerPosition = -1;
+		private int currentGroupPosition = -1;
 		
 		private class ViewHolder {
 			int type;
@@ -100,6 +101,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			min_eid = 0;
 			lastDay = -1;
 			lastSeenEidMarkerPosition = -1;
+			currentGroupPosition = -1;
 			data.clear();
 		}
 		
@@ -177,7 +179,13 @@ public class MessageViewFragment extends SherlockListFragment {
 			e.timestamp = formatter.format(calendar.getTime());
 			e.group_eid = currentCollapsedEid;
 			
-			if(eid > max_eid || data.size() == 0) { //Message at the bottom
+			if(currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
+				calendar.setTimeInMillis(e.eid / 1000);
+				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+				data.remove(currentGroupPosition);
+				data.add(currentGroupPosition, e);
+				insert_pos = currentGroupPosition;
+			} else if(eid > max_eid || data.size() == 0) { //Message at the bottom
 				if(data.size() > 0) {
 					calendar.setTimeInMillis(data.get(data.size()-1).eid / 1000);
 					lastDay = calendar.get(Calendar.DAY_OF_YEAR);
@@ -246,6 +254,12 @@ public class MessageViewFragment extends SherlockListFragment {
 				return;
 			}
 			
+			if(eid == currentCollapsedEid && e.eid == eid) {
+				currentGroupPosition = insert_pos;
+			} else if(currentCollapsedEid == -1) {
+				currentGroupPosition = -1;
+			}
+			
 			if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
 				formatter.applyPattern("EEEE, MMMM dd, yyyy");
 				EventsDataSource.Event d = EventsDataSource.getInstance().new Event();
@@ -256,6 +270,8 @@ public class MessageViewFragment extends SherlockListFragment {
 				d.bg_color = R.color.dateline_bg;
 				data.add(insert_pos, d);
 				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+				if(currentGroupPosition > -1)
+					currentGroupPosition++;
 			}
 		}
 		
@@ -496,7 +512,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     }
     
-    private synchronized void insertEvent(EventsDataSource.Event event, boolean backlog) {
+    private synchronized void insertEvent(EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
 		try {
     		long start = System.currentTimeMillis();
     		if(min_eid == 0)
@@ -537,8 +553,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					collapsedEvents.clear();
 				
 				if(type.equalsIgnoreCase("joined_channel")) {
-					UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name, event.nick);
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, (user==null)?null:user.old_nick, event.hostmask, null);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, null);
 				} else if(type.equalsIgnoreCase("parted_channel")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, null);
 				} else if(type.equalsIgnoreCase("quit")) {
@@ -587,7 +602,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					}
 				}
 				
-				String msg = collapsedEvents.getCollapsedMessage();
+				String msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage();
 				if(msg == null && type.equalsIgnoreCase("nickchange")) {
 					msg = event.old_nick + " → <b>" + event.nick + "</b>";
 				}
@@ -765,8 +780,6 @@ public class MessageViewFragment extends SherlockListFragment {
 			
 			if(events != null && events.size() > 0) {
 				int oldPosition = getListView().getFirstVisiblePosition();
-				collapsedEvents.clear();
-				collapsedEvents.setChannel(cid, name);
 				if(earliest_eid > events.firstKey()) {
 					backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
 					if(backlog_eid < 0) {
@@ -824,8 +837,15 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		//Debug.startMethodTracing("refresh");
 	    		long start = System.currentTimeMillis();
 	    		Iterator<EventsDataSource.Event> i = events.values().iterator();
-	    		while(i.hasNext()) {
-	    			insertEvent(i.next(), true);
+	    		EventsDataSource.Event next = i.next();
+	    		while(next != null) {
+	    			EventsDataSource.Event e = next;
+	    			next = i.hasNext()?i.next():null;
+	    			String type = (next == null)?"":next.type;
+	    			if(next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")))
+	    				insertEvent(e, true, true);
+	    			else
+	    				insertEvent(e, true, false);
 	    		}
 	    		if(adapter.getLastSeenEIDPosition() == -1)
 	    			adapter.insertLastSeenEIDMarker();
@@ -1100,13 +1120,13 @@ public class MessageViewFragment extends SherlockListFragment {
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.bid() == bid) {
 					EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
-					insertEvent(event, false);
+					insertEvent(event, false, false);
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
 				if(event.bid == bid) {
-					insertEvent(event, false);
+					insertEvent(event, false, false);
 				}
 				break;
 			default:
