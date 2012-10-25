@@ -51,6 +51,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private boolean firstScroll = true;
 	private boolean requestingBacklog = false;
 	private boolean shouldShowUnread = false;
+	private boolean backlogFetched = false;
 	private float avgInsertTime = 0;
 	private int newMsgs = 0;
 	private long newMsgTime = 0;
@@ -80,7 +81,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		private SherlockListFragment ctx;
 		private long max_eid = 0;
 		private long min_eid = 0;
-		private int lastDay;
+		private int lastDay = -1;
 		private int lastSeenEidMarkerPosition = -1;
 		
 		private class ViewHolder {
@@ -97,6 +98,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		public void clear() {
 			max_eid = 0;
 			min_eid = 0;
+			lastDay = -1;
 			lastSeenEidMarkerPosition = -1;
 			data.clear();
 		}
@@ -175,7 +177,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			e.timestamp = formatter.format(calendar.getTime());
 			e.group_eid = currentCollapsedEid;
 			
-			if(eid > max_eid) { //Message at the bottom
+			if(eid > max_eid || data.size() == 0) { //Message at the bottom
 				if(data.size() > 0) {
 					calendar.setTimeInMillis(data.get(data.size()-1).eid / 1000);
 					lastDay = calendar.get(Calendar.DAY_OF_YEAR);
@@ -200,8 +202,8 @@ public class MessageViewFragment extends SherlockListFragment {
 			} else {
 				int i = 0;
 				for(EventsDataSource.Event e1 : data) {
-					if(e1.row_type == 0 && e1.eid > eid && e.eid == eid) { //Insert the message
-						if(i > 0 && data.get(i-1).row_type == 0) {
+					if(e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid) { //Insert the message
+						if(i > 0 && data.get(i-1).row_type != ROW_TIMESTAMP) {
 							calendar.setTimeInMillis(data.get(i-1).eid / 1000);
 							lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 							data.add(i, e);
@@ -228,7 +230,7 @@ public class MessageViewFragment extends SherlockListFragment {
 							}
 							break;
 						}
-					} else if(e1.row_type == 0 && (e1.eid == eid || e1.group_eid == eid)) { //Replace the message
+					} else if(e1.row_type != ROW_TIMESTAMP && (e1.eid == eid || e1.group_eid == eid)) { //Replace the message
 						lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 						data.remove(i);
 						data.add(i, e);
@@ -741,14 +743,6 @@ public class MessageViewFragment extends SherlockListFragment {
 		TreeMap<Long,EventsDataSource.Event> events;
 		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;
-		int oldSize = 0;
-		int oldPosition = 0;
-		
-		@Override
-		protected void onPreExecute() {
-			oldSize = adapter.data.size();
-			oldPosition = getListView().getFirstVisiblePosition();
-		}
 		
 		@SuppressWarnings("unchecked")
 		@Override
@@ -759,17 +753,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			if(!isCancelled() && events != null && events.size() > 0) {
-				collapsedEvents.setChannel(cid, name);
     			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
-				if(oldSize > 1 && earliest_eid > events.firstKey()) {
-					backlog_eid = adapter.getItemId(oldPosition) - 1;
-					EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
-					backlogMarker.eid = backlog_eid;
-					backlogMarker.type = TYPE_BACKLOGMARKER;
-					backlogMarker.row_type = ROW_BACKLOGMARKER;
-					backlogMarker.bg_color = R.color.message_bg;
-					events.put(backlog_eid, backlogMarker);
-				}
 			}
 			return null;
 		}
@@ -780,12 +764,27 @@ public class MessageViewFragment extends SherlockListFragment {
 				return;
 			
 			if(events != null && events.size() > 0) {
+				int oldPosition = getListView().getFirstVisiblePosition();
+				collapsedEvents.clear();
+				collapsedEvents.setChannel(cid, name);
+				if(earliest_eid > events.firstKey()) {
+					backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
+					if(backlog_eid < 0) {
+						backlog_eid = adapter.getItemId(oldPosition) - 1;
+					}
+					EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
+					backlogMarker.eid = backlog_eid;
+					backlogMarker.type = TYPE_BACKLOGMARKER;
+					backlogMarker.row_type = ROW_BACKLOGMARKER;
+					backlogMarker.html = "__backlog__";
+					backlogMarker.bg_color = R.color.message_bg;
+					events.put(backlog_eid, backlogMarker);
+				}
 				adapter.clear();
 				refresh(events, server, buffer);
 				try {
 					int markerPos = adapter.getBacklogMarkerPosition();
-					if(!firstScroll && markerPos != -1 && oldSize > 1 && adapter.data.size() > oldSize && requestingBacklog) {
-						adapter.notifyDataSetChanged();
+					if(markerPos != -1 && requestingBacklog) {
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
 					}
 				} catch (IllegalStateException e) {
@@ -799,8 +798,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	}
 
 	private void refresh(TreeMap<Long,EventsDataSource.Event> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
-		Log.e("IRCCloud", "refresh");
 		collapsedEvents.clear();
+		currentCollapsedEid = -1;
 		
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
 			if(bid != -1) {
@@ -833,6 +832,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
 	    		//Debug.stopMethodTracing();
 	    		avgInsertTime = 0;
+				adapter.notifyDataSetChanged();
 	    	}
 		}
 		mHandler.removeCallbacks(mFirstScrollRunnable);
@@ -845,7 +845,6 @@ public class MessageViewFragment extends SherlockListFragment {
 		@Override
 		public void run() {
 			if(adapter != null) {
-				adapter.notifyDataSetChanged();
 				if(firstScroll) {
 					getListView().setSelection(adapter.data.size() - 1);
 					firstScroll = false;
