@@ -51,7 +51,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	private boolean firstScroll = true;
 	private boolean requestingBacklog = false;
 	private boolean shouldShowUnread = false;
-	private boolean backlogFetched = false;
 	private float avgInsertTime = 0;
 	private int newMsgs = 0;
 	private long newMsgTime = 0;
@@ -896,8 +895,10 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			}
 	    		}
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-				update_status(s.status, s.fail_info);
-				mListener.onMessageViewReady();
+	    		if(s != null)
+	    			update_status(s.status, s.fail_info);
+				if(mListener != null)
+					mListener.onMessageViewReady();
 			} else {
 				Log.e("IRCCloud", "Adapter was null!");
 			}
