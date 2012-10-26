@@ -2,6 +2,7 @@ package com.irccloud.android;
 
 import java.io.IOException;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -18,9 +19,13 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.e("IRCCloud", "GCM Error: " + errorId);
 	}
 
+	@SuppressLint("NewApi")
 	@Override
 	protected void onMessage(Context context, Intent intent) {
 		Log.i("IRCCloud", "Recieved GCM message!");
+		if(intent != null && intent.getExtras() != null) {
+	    	Log.i("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
+		}
         Notification noti = new Notification.InboxStyle(
       	      new Notification.Builder(this)
       	         .setContentTitle("7 unread highlights")
