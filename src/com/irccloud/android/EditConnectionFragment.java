@@ -16,11 +16,13 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 public class EditConnectionFragment extends DialogFragment {
 	ServersDataSource.Server server;
 
+	LinearLayout channelsWrapper;
 	Spinner presets;
 	EditText hostname;
 	EditText port;
@@ -82,6 +84,7 @@ public class EditConnectionFragment extends DialogFragment {
 
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.dialog_edit_connection, null);
+    	channelsWrapper = (LinearLayout)v.findViewById(R.id.channels_wrapper);
 		presets = (Spinner)v.findViewById(R.id.presets);
 		hostname = (EditText)v.findViewById(R.id.hostname);
 		port = (EditText)v.findViewById(R.id.port);
@@ -145,7 +148,7 @@ public class EditConnectionFragment extends DialogFragment {
     	Dialog d = new AlertDialog.Builder(ctx)
         .setTitle("Add A Network")
         .setView(v)
-        .setPositiveButton("Add", new DoneClickListener())
+        .setPositiveButton((server == null)?"Add":"Save", new DoneClickListener())
         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -157,6 +160,35 @@ public class EditConnectionFragment extends DialogFragment {
     	return d;
     }
 
+	public void setCid(int cid) {
+		server = ServersDataSource.getInstance().getServer(cid);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		
+		if(server != null) {
+			presets.setSelection(0);
+			presets.setVisibility(View.GONE);
+			channelsWrapper.setVisibility(View.GONE);
+			hostname.setText(server.hostname);
+			port.setText(String.valueOf(server.port));
+			ssl.setChecked(server.ssl > 0);
+			nickname.setText(server.nick);
+			realname.setText(server.realname);
+			join_commands.setText(server.join_commands);
+			nickserv_pass.setText(server.nickserv_pass);
+			server_pass.setText(server.server_pass);
+		}
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle savedInstanceState) {
+		if(server != null)
+			savedInstanceState.putInt("cid", server.cid);
+	}
+	
     class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
@@ -169,14 +201,8 @@ public class EditConnectionFragment extends DialogFragment {
 						ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 								nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
 			} else {
-				String netname = hostname.getText().toString();
-				if(presets.getSelectedItemPosition() > 0) {
-					netname = PRESET_NETWORKS[presets.getSelectedItemPosition()];
-				} else if(!server.name.contains(".")) {
-					netname = server.name;
-				}
 				NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
-						ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
+						ssl.isChecked()?1:0, server.name, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 								nickserv_pass.getText().toString(), join_commands.getText().toString());
 				
 			}

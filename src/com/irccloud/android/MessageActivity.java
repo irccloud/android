@@ -737,9 +737,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		dialog.show();
             	return true;
             case R.id.menu_editconnection:
-                intent = new Intent(this, EditConnectionFragment.class);
-                intent.putExtra("cid", cid);
-                startActivity(intent);
+	        	EditConnectionFragment editFragment = new EditConnectionFragment();
+	        	editFragment.setCid(cid);
+	            editFragment.show(getSupportFragmentManager(), "editconnection");
             	return true;
             case R.id.menu_disconnect:
         		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
