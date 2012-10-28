@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <drawable name="compose_bar_bg">#FFFFFF</drawable>
-    <color name="dialog_prompt">#000000</color>
+    <drawable name="compose_bar_bg">#FFF</drawable>
+    <color name="dialog_prompt">#000</color>
+    <color name="markAsReadColor">#FFF</color>
 </resources>

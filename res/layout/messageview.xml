@@ -43,7 +43,8 @@
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mark As Read" />
+                android:text="Mark As Read"
+                android:textColor="@color/markAsReadColor" />
 
         </LinearLayout>
         
