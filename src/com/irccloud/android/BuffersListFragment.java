@@ -462,7 +462,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	
 	private void updateUnreadIndicators(int first, int last) {
 		if(topUnreadIndicator != null) {
-			if(firstUnreadPosition != -1 && first >= firstUnreadPosition) {
+			if(firstUnreadPosition != -1 && first > firstUnreadPosition) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
 				topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
 			} else {
@@ -475,14 +475,14 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 		}
 		if(bottomUnreadIndicator != null) {
-			if(lastUnreadPosition != -1 && last <= lastUnreadPosition) {
+			if(lastUnreadPosition != -1 && last < lastUnreadPosition) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
 				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
 			} else {
 				bottomUnreadIndicator.setVisibility(View.GONE);
 			}
-			if((firstHighlightPosition != -1 && last <= firstHighlightPosition) ||
-					(lastHighlightPosition != -1 && last <= lastHighlightPosition)) {
+			if((firstHighlightPosition != -1 && last < firstHighlightPosition) ||
+					(lastHighlightPosition != -1 && last < lastHighlightPosition)) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
 				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
 			}
