@@ -221,7 +221,7 @@ public class EventsDataSource {
 	    			if(event.has("start"))
 	    				e.msg += event.getString("start") + "<br/>";
 	    			for(int i = 0; i < lines.size(); i++) {
-	    				e.msg += TextUtils.htmlEncode(lines.get(i).getAsString()).replace(" ", "&nbsp;") + "<br/>";
+	    				e.msg += TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;") + "<br/>";
 	    			}
 	    			e.msg += "</pre>";
 	    		}
