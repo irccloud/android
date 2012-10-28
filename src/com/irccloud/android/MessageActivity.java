@@ -365,6 +365,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        	} else {
 	        		subtitle.setVisibility(View.GONE);
 	        	}
+    		} else if(type.equalsIgnoreCase("console")) {
+    			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+    			if(s != null) {
+	        		subtitle.setVisibility(View.VISIBLE);
+	        		subtitle.setText(s.hostname + ":" + s.port);
+	        	} else {
+	        		subtitle.setVisibility(View.GONE);
+    			}
     		}
     	}
     	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
@@ -1007,6 +1015,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 		        	}
+	    		} else if(type.equalsIgnoreCase("console")) {
+	    			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+	    			if(s != null) {
+		        		subtitle.setVisibility(View.VISIBLE);
+		        		subtitle.setText(s.hostname + ":" + s.port);
+		        	} else {
+		        		subtitle.setVisibility(View.GONE);
+	    			}
 	    		} else {
 	        		subtitle.setText("");
 	        		subtitle.setVisibility(View.GONE);
