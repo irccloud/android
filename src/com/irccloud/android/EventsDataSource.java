@@ -157,6 +157,7 @@ public class EventsDataSource {
 	    		e.msg += "User modes: " + event.getString("user_modes") + "\n";
 	    		e.msg += "Channel modes: " + event.getString("channel_modes") + "\n";
 	    		e.bg_color = R.color.status_bg;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("wait")) {
 	    		e.from = "";
 	    		e.bg_color = R.color.status_bg;
@@ -217,6 +218,8 @@ public class EventsDataSource {
     			e.from = "";
 	    		if(lines != null) {
 	    			e.msg = "<pre>";
+	    			if(event.has("start"))
+	    				e.msg += event.getString("start") + "<br/>";
 	    			for(int i = 0; i < lines.size(); i++) {
 	    				e.msg += TextUtils.htmlEncode(lines.get(i).getAsString()).replace(" ", "&nbsp;") + "<br/>";
 	    			}
@@ -227,6 +230,7 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.notice;
 	    	} else if(e.type.toLowerCase().startsWith("server_")) {
 	    		e.bg_color = R.color.status_bg;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("inviting_to_channel")) {
 	    		e.from = "";
 	    		e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
