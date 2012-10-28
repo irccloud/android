@@ -90,7 +90,7 @@ public class CollapsedEventsList {
 					e.type = type;
 					e.msg = msg;
 					e.old_nick = old_nick;
-				} else if(type == TYPE_MODE) {
+				} else if(type == TYPE_MODE || e.type == type) {
 				} else if(type == TYPE_JOIN) {
 					e.type = TYPE_POPOUT;
 				} else if(e.type == TYPE_POPOUT) {
