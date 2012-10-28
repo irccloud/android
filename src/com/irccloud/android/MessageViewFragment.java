@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -332,6 +333,10 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(e.group_msg != null && e.html == null)
 				e.html = ColorFormatter.irc_to_html(e.group_msg);
 			if(holder.message != null && e.html != null) {
+				if(e.linkify)
+					holder.message.setAutoLinkMask(Linkify.WEB_URLS);
+				else
+					holder.message.setAutoLinkMask(0);
 				if(e.msg != null && e.msg.startsWith("<pre>"))
 					holder.message.setTypeface(Typeface.MONOSPACE);
 				else
@@ -622,6 +627,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				event.color = R.color.timestamp;
 				event.group_msg = msg;
 				event.html = null;
+				event.linkify = false;
 			} else {
 				currentCollapsedEid = -1;
 				collapsedEvents.clear();

@@ -37,6 +37,7 @@ public class EventsDataSource {
 		long group_eid;
 		int row_type;
 		String group_msg;
+		boolean linkify;
 	}
 	
 	public class comparator implements Comparator<Event> {
@@ -98,6 +99,7 @@ public class EventsDataSource {
 	    	e.row_type = 0;
 	    	e.html = null;
 	    	e.group_msg = null;
+	    	e.linkify = true;
 
 			if(e.from != null)
 				e.from = TextUtils.htmlEncode(e.from);
@@ -147,6 +149,7 @@ public class EventsDataSource {
 	    		e.from = "";
 	    		e.msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
 	    		e.bg_color = R.color.status_bg;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("myinfo")) {
 	    		e.from = "";
 	    		e.msg = "Host: " + event.getString("server") + "\n";
@@ -175,6 +178,7 @@ public class EventsDataSource {
 	    		if(event.has("reason"))
 	    			e.msg += ": " + event.getString("reason");
 	    		e.bg_color = R.color.status_bg;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("banned")) {
 	    		e.from = "";
 	    		e.msg = "You were banned";
@@ -183,6 +187,7 @@ public class EventsDataSource {
 	    		if(event.has("reason"))
 	    			e.msg += ": " + event.getString("reason");
 	    		e.bg_color = R.color.status_bg;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("channel_topic")) {
 	    		e.from = event.getString("author");
 	    		e.msg = "set the topic: " + event.getString("topic");
@@ -202,9 +207,11 @@ public class EventsDataSource {
 	    		e.from = "← " + event.getString("nick");
 	    		e.msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
 	    		e.color = R.color.timestamp;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("channel_mode_list_change")) {
 	    		e.msg = "set mode: <b>" + event.getString("diff") + "</b>";
 	    		e.color = R.color.timestamp;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("motd_response") || e.type.equalsIgnoreCase("server_motd")) {
 	    		JsonArray lines = event.getJsonArray("lines");
     			e.from = "";
