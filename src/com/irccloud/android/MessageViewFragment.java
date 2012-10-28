@@ -332,7 +332,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(e.group_msg != null && e.html == null)
 				e.html = ColorFormatter.irc_to_html(e.group_msg);
 			if(holder.message != null && e.html != null) {
-				if(e.msg.startsWith("<pre>"))
+				if(e.msg != null && e.msg.startsWith("<pre>"))
 					holder.message.setTypeface(Typeface.MONOSPACE);
 				else
 					holder.message.setTypeface(Typeface.DEFAULT);
