@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
@@ -266,7 +267,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				d.row_type = ROW_TIMESTAMP;
 				d.eid = eid;
 				d.timestamp = formatter.format(calendar.getTime());
-				d.bg_color = R.color.dateline_bg;
+				d.bg_color = R.drawable.row_timestamp_bg;
 				data.add(insert_pos, d);
 				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 				if(currentGroupPosition > -1)
@@ -331,6 +332,10 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(e.group_msg != null && e.html == null)
 				e.html = ColorFormatter.irc_to_html(e.group_msg);
 			if(holder.message != null && e.html != null) {
+				if(e.msg.startsWith("<pre>"))
+					holder.message.setTypeface(Typeface.MONOSPACE);
+				else
+					holder.message.setTypeface(Typeface.DEFAULT);
 				holder.message.setTextColor(getResources().getColorStateList(e.color));
 				holder.message.setText(ColorFormatter.html_to_spanned(e.html));
 			}

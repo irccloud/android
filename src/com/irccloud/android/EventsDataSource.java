@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 @SuppressLint("UseSparseArrays")
@@ -145,25 +146,25 @@ public class EventsDataSource {
 	    	} else if(e.type.equalsIgnoreCase("self_details")) {
 	    		e.from = "";
 	    		e.msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("myinfo")) {
 	    		e.from = "";
 	    		e.msg = "Host: " + event.getString("server") + "\n";
 	    		e.msg += "IRCd: " + event.getString("version") + "\n";
 	    		e.msg += "User modes: " + event.getString("user_modes") + "\n";
 	    		e.msg += "Channel modes: " + event.getString("channel_modes") + "\n";
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("wait")) {
 	    		e.from = "";
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("user_mode")) {
 	    		e.from = "";
 	    		e.msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("your_unique_id")) {
 	    		e.from = "";
 	    		e.msg = "Your unique ID is: <b>" + event.getString("unique_id") + "</b>";
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("kill")) {
 	    		e.from = "";
 	    		e.msg = "You were killed";
@@ -173,7 +174,7 @@ public class EventsDataSource {
 	    			e.msg += " (" + event.getString("killer_hostmask") + ")";
 	    		if(event.has("reason"))
 	    			e.msg += ": " + event.getString("reason");
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("banned")) {
 	    		e.from = "";
 	    		e.msg = "You were banned";
@@ -181,19 +182,22 @@ public class EventsDataSource {
 	    			e.msg += " from " + event.getString("server");
 	    		if(event.has("reason"))
 	    			e.msg += ": " + event.getString("reason");
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("channel_topic")) {
 	    		e.from = event.getString("author");
 	    		e.msg = "set the topic: " + event.getString("topic");
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("channel_mode")) {
 	    		e.from = "";
 	    		e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
-	    		e.bg_color = R.color.dateline_bg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("channel_mode_is")) {
 	    		e.from = "";
-	    		e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
-	    		e.bg_color = R.color.dateline_bg;
+	    		if(event.getString("diff") != null && event.getString("diff").length() > 0)
+	    			e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
+	    		else
+	    			e.msg = "No channel mode";
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("kicked_channel") || e.type.equalsIgnoreCase("you_kicked_channel")) {
 	    		e.from = "← " + event.getString("nick");
 	    		e.msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
@@ -202,7 +206,20 @@ public class EventsDataSource {
 	    		e.msg = "set mode: <b>" + event.getString("diff") + "</b>";
 	    		e.color = R.color.timestamp;
 	    	} else if(e.type.equalsIgnoreCase("motd_response") || e.type.equalsIgnoreCase("server_motd")) {
-	    		//TODO: parse the MOTD lines
+	    		JsonArray lines = event.getJsonArray("lines");
+    			e.from = "";
+	    		if(lines != null) {
+	    			e.msg = "<pre>";
+	    			for(int i = 0; i < lines.size(); i++) {
+	    				e.msg += lines.get(i).getAsString() + "<br/>";
+	    			}
+	    			e.msg += "</pre>";
+	    		}
+	    		e.bg_color = R.color.self;
+	    	} else if(e.type.equalsIgnoreCase("notice")) {
+	    		e.bg_color = R.color.notice;
+	    	} else if(e.type.toLowerCase().startsWith("server_")) {
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("inviting_to_channel")) {
 	    		e.from = "";
 	    		e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");

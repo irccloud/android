@@ -19,7 +19,7 @@
     <color name="dialog_prompt">#FFF</color>
     <color name="timestamp">#AAA</color>
     <color name="message_bg">#FFF</color>
-    <color name="dateline_bg">#EEE</color>
+    <color name="status_bg">#EEE</color>
     <color name="highlight">#D9E7FF</color>
     <color name="self">#EDF4FF</color>
     <color name="error">#FFEE97</color>
