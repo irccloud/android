@@ -221,7 +221,7 @@ public class NetworkConnection {
 						synchronized(parserLock) {
 							parse_object(new IRCCloudJSONObject(message), false);
 						}
-					} catch (JSONException e) {
+					} catch (Exception e) {
 						Log.e(TAG, "Unable to parse: " + message);
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -237,8 +237,11 @@ public class NetworkConnection {
 		    @Override
 		    public void onDisconnect(int code, String reason) {
 		        Log.d(TAG, String.format("Disconnected! Code: %d Reason: %s", code, reason));
-		        if(state != STATE_DISCONNECTING)
+		        if(state == STATE_DISCONNECTING)
+		        	cancel_idle_timer();
+		        else
 		        	schedule_idle_timer();
+		        	
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
@@ -542,11 +545,21 @@ public class NetworkConnection {
 		}
 	}
 
-	private void schedule_idle_timer() {
+	public void cancel_idle_timer() {
 		if(idleTimer != null) {
 			idleTimer.cancel();
 			idleTimer = null;
 		}
+	}
+	
+	public void schedule_idle_timer() {
+		if(idleTimer != null) {
+			idleTimer.cancel();
+			idleTimer = null;
+		}
+		if(idle_interval <= 0)
+			return;
+		
 		idleTimer = new Timer();
 
 		idleTimer.schedule( new TimerTask(){
@@ -570,6 +583,7 @@ public class NetworkConnection {
 	}
 	
 	private void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
+		cancel_idle_timer();
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
 			Log.d(TAG, "Response: " + object);

@@ -810,6 +810,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	}
 
 	private void refresh(TreeMap<Long,EventsDataSource.Event> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
+		conn.cancel_idle_timer(); //This may take a while...
 		collapsedEvents.clear();
 		currentCollapsedEid = -1;
 		
@@ -862,6 +863,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
 		mHandler.post(mFirstScrollRunnable);
 		mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
+		conn.schedule_idle_timer();
 	}
 
 	private Runnable mFirstScrollRunnable = new Runnable() {
