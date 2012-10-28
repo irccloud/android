@@ -837,14 +837,18 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		long start = System.currentTimeMillis();
 	    		Iterator<EventsDataSource.Event> i = events.values().iterator();
 	    		EventsDataSource.Event next = i.next();
+				Calendar calendar = Calendar.getInstance();
 	    		while(next != null) {
 	    			EventsDataSource.Event e = next;
 	    			next = i.hasNext()?i.next():null;
 	    			String type = (next == null)?"":next.type;
-	    			if(next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")))
-	    				insertEvent(e, true, true);
-	    			else
+
+	    			if(next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
+						calendar.setTimeInMillis(next.eid / 1000);
+	    				insertEvent(e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);
+	    			} else {
 	    				insertEvent(e, true, false);
+	    			}
 	    		}
 	    		if(adapter.getLastSeenEIDPosition() == -1)
 	    			adapter.insertLastSeenEIDMarker();
