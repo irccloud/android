@@ -25,6 +25,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -383,6 +385,15 @@ public class MessageViewFragment extends SherlockListFragment {
 				Long e = adapter.data.get(adapter.data.size() - 1).eid;
 				new HeartbeatTask().execute(e);
     		}
+    	});
+    	((ListView)v.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
+				mListener.onMessageLongClicked(adapter.data.get(pos - 1));
+				return true;
+			}
+    		
     	});
     	((ListView)v.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
 			@Override
@@ -1155,5 +1166,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	
 	public interface MessageViewListener {
 		public void onMessageViewReady();
+		public void onMessageLongClicked(EventsDataSource.Event event);
 	}
 }
