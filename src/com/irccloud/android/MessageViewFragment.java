@@ -654,6 +654,10 @@ public class MessageViewFragment extends SherlockListFragment {
 					return;
 			}
 
+			if(type.equalsIgnoreCase("channel_mode")) {
+				event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick) + "</b>";
+			}
+			
 	    	adapter.addItem(eid, event);
 
 	    	if(!backlog)
