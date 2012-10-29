@@ -208,7 +208,6 @@ public class EventsDataSource {
 	    		e.from = "";
 	    		e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
 	    		e.bg_color = R.color.status_bg;
-	    		Log.e("IRCCloud", event.toString());
 	    	} else if(e.type.equalsIgnoreCase("channel_mode_is")) {
 	    		e.from = "";
 	    		if(event.getString("diff") != null && event.getString("diff").length() > 0)

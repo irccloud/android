@@ -11,8 +11,6 @@ import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,10 +18,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Html;
+import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -85,6 +88,24 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
          	   }
          	   return true;
            	}
+        });
+        messageTxt.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {
+            	Object[] spans = s.getSpans(0, s.length(), Object.class);
+            	for(Object o : spans) {
+            		if(((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && (o.getClass() == StyleSpan.class || o.getClass() == ForegroundColorSpan.class || o.getClass() == BackgroundColorSpan.class || o.getClass() == UnderlineSpan.class)) {
+            			s.removeSpan(o);
+            		}
+            	}
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+
+            public void onTextChanged(CharSequence s, int start, int before,
+                    int count) {
+            }
         });
         sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setOnClickListener(new OnClickListener() {
@@ -671,7 +692,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	Intent intent;
     	AlertDialog.Builder builder;
     	AlertDialog dialog;
     	
