@@ -817,28 +817,42 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		String from = event.from;
 		if(from == null || from.length() == 0)
 			from = event.nick;
+
+		UsersDataSource.User user;
+		
+		if(type.equals("channel"))
+			user = UsersDataSource.getInstance().getUser(cid, name, from);
+		else
+			user = UsersDataSource.getInstance().getUser(cid, name, from);
+
+		if(user == null && from != null && event.hostmask != null) {
+			user = UsersDataSource.getInstance().new User();
+			user.nick = from;
+			user.hostmask = event.hostmask;
+			user.mode = "";
+		}
 		
 		if(event.html != null)
-			showUserPopup(from, ColorFormatter.html_to_spanned(event.html));
+			showUserPopup(user, ColorFormatter.html_to_spanned(event.html));
 		else
-			showUserPopup(from, null);
+			showUserPopup(user, null);
     }
     
 	@Override
 	public void onUserSelected(int c, String chan, String nick) {
-		showUserPopup(nick, null);
+		UsersDataSource u = UsersDataSource.getInstance();
+		if(type.equals("channel"))
+			showUserPopup(u.getUser(cid, name, nick), null);
+		else
+			showUserPopup(u.getUser(cid, nick), null);
 	}
 	
 	@SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
-	private void showUserPopup(String nick, Spanned message) {
+	private void showUserPopup(UsersDataSource.User user, Spanned message) {
    		final CharSequence[] items;
    		final Spanned text_to_copy = message;
-		UsersDataSource u = UsersDataSource.getInstance();
-		if(type.equals("channel"))
-			selected_user = u.getUser(cid, name, nick);
-		else
-			selected_user = u.getUser(cid, nick);
+		selected_user = user;
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
