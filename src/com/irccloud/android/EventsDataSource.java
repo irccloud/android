@@ -120,8 +120,8 @@ public class EventsDataSource {
 				else
 					e.msg = "Connection closed unexpectedly";
 			} else if(e.type.equalsIgnoreCase("buffer_me_msg")) {
-	    		e.from = "* <i>" + e.from + "</i>";
-	    		e.msg = "<i>" + e.msg + "</i>";
+				e.nick = e.from;
+	    		e.from = "";
 	    	} else if(e.type.equalsIgnoreCase("too_fast")) {
 	    		e.from = "";
 	    		e.bg_color = R.color.error;
@@ -216,8 +216,10 @@ public class EventsDataSource {
 	    			e.msg = "No channel mode";
 	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("kicked_channel") || e.type.equalsIgnoreCase("you_kicked_channel")) {
-	    		e.from = "← " + event.getString("nick");
-	    		e.msg = "was kicked by " + event.getString("kicker") + " (" + event.getString("kicker_hostmask") + ")";
+	    		e.from = "";
+	    		e.old_nick = event.getString("nick");
+	    		e.nick = event.getString("kicker");
+	    		e.hostmask = event.getString("kicker_hostmask");
 	    		e.color = R.color.timestamp;
 	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("channel_mode_list_change")) {

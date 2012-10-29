@@ -648,7 +648,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			event.html = event.msg;
 			}
 
-			if(!type.equalsIgnoreCase("user_channel_mode") && event.from != null && event.hostmask != null) {
+			if(event.from != null && event.hostmask != null && !type.equalsIgnoreCase("user_channel_mode") && !type.contains("kicked")) {
 				String usermask = event.from + "!" + event.hostmask;
 				if(ignore.match(usermask))
 					return;
@@ -656,6 +656,21 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			if(type.equalsIgnoreCase("channel_mode")) {
 				event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick) + "</b>";
+			} else if(type.equalsIgnoreCase("buffer_me_msg")) {
+				event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick) + "</b> " + event.msg + "</i>";
+	    	} else if(type.equalsIgnoreCase("kicked_channel")) {
+	    		event.html = "← ";
+	    		if(event.type.startsWith("you_"))
+	    			event.html += "You";
+	    		else
+	    			event.html += "<b>" + collapsedEvents.formatNick(event.old_nick) + "</b>";
+	    		if(event.type.startsWith("you_"))
+	    			event.html += " were";
+	    		else
+	    			event.html += " was";
+	    		event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick) + "</b> (" + event.hostmask + ")";
+	    		if(event.msg != null && event.msg.length() > 0)
+	    			event.html += ": " + event.msg;
 			}
 			
 	    	adapter.addItem(eid, event);
@@ -1084,6 +1099,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
 			case NetworkConnection.EVENT_USERINFO:
+				collapsedEvents.setChannel(cid, name);
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();
@@ -1121,6 +1137,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 				break;
 			case NetworkConnection.EVENT_USERCHANNELMODE:
+				collapsedEvents.setChannel(cid, name);
 			case NetworkConnection.EVENT_SETIGNORES:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.cid() == cid) {
