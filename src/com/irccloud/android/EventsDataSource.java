@@ -108,8 +108,17 @@ public class EventsDataSource {
 				e.msg = TextUtils.htmlEncode(e.msg);
 			
 			if(e.type.equalsIgnoreCase("socket_closed")) {
+				e.from = "";
 				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
-				e.bg_color = R.drawable.socketclosed_bg;
+				e.color = R.color.timestamp;
+				if(event.has("pool_lost"))
+					e.msg = "Connection pool lost";
+				else if(event.has("server_ping_timeout"))
+					e.msg = "Server PING timed out";
+				else if(event.has("reason") && event.getString("reason").length() > 0)
+					e.msg = "Connection lost: " + event.getString("reason");
+				else
+					e.msg = "Connection closed unexpectedly";
 			} else if(e.type.equalsIgnoreCase("buffer_me_msg")) {
 	    		e.from = "* <i>" + e.from + "</i>";
 	    		e.msg = "<i>" + e.msg + "</i>";
@@ -138,9 +147,10 @@ public class EventsDataSource {
 	    		e.msg = "Cancelled";
 	    		e.bg_color = R.color.error;
 	    	} else if(e.type.equalsIgnoreCase("connecting_failed")) {
+				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
+				e.color = R.color.timestamp;
 	    		e.from = "";
 	    		e.msg = "Failed to connect: " + event.getString("reason");
-	    		e.bg_color = R.color.error;
 	    	} else if(e.type.equalsIgnoreCase("quit_server")) {
 	    		e.from = "";
 	    		e.msg = "⇐ You disconnected";
@@ -228,6 +238,11 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.self;
 	    	} else if(e.type.equalsIgnoreCase("notice")) {
 	    		e.bg_color = R.color.notice;
+	    	} else if(e.type.toLowerCase().startsWith("hidden_host_set")) {
+	    		e.bg_color = R.color.status_bg;
+	    		e.linkify = false;
+	    		e.from = "";
+	    		e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
 	    	} else if(e.type.toLowerCase().startsWith("server_")) {
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
