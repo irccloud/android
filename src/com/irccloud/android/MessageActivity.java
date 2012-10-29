@@ -361,6 +361,26 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	updateUsersListFragmentVisibility();
     	title.setText(name);
     	getSupportActionBar().setTitle(name);
+    	update_subtitle();
+    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
+    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
+    	
+        if(refreshUpIndicatorTask != null)
+        	refreshUpIndicatorTask.cancel(true);
+        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+        refreshUpIndicatorTask.execute((Void)null);
+
+    	invalidateOptionsMenu();
+    }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	if(conn != null)
+    		conn.removeHandler(mHandler);
+    }
+	
+    private void update_subtitle() {
     	if(archived > 0 && !type.equalsIgnoreCase("console")) {
     		subtitle.setVisibility(View.VISIBLE);
     		subtitle.setText("(archived)");
@@ -398,24 +418,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			}
     		}
     	}
-    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
-    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
-    	
-        if(refreshUpIndicatorTask != null)
-        	refreshUpIndicatorTask.cancel(true);
-        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-        refreshUpIndicatorTask.execute((Void)null);
-
-    	invalidateOptionsMenu();
     }
-
-    @Override
-    public void onPause() {
-    	super.onPause();
-    	if(conn != null)
-    		conn.removeHandler(mHandler);
-    }
-	
+    
     private void updateUsersListFragmentVisibility() {
     	boolean hide = false;
 		if(userListView != null) {
@@ -441,6 +445,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			Integer event_bid = 0;
 			IRCCloudJSONObject event = null;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_BACKLOG_END:
+		    	update_subtitle();
+		    	break;
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
 				invalidateOptionsMenu();
@@ -513,12 +520,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(channel.bid == bid) {
 					joined = 1;
 					archived = 0;
-		        	if(channel.topic_text.length() > 0) {
-		        		subtitle.setVisibility(View.VISIBLE);
-		        		subtitle.setText(channel.topic_text);
-		        	} else {
-		        		subtitle.setVisibility(View.GONE);
-		        	}
+			    	update_subtitle();
 					invalidateOptionsMenu();
 				}
 				break;
@@ -1076,46 +1078,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			this.status = status;
 	    	title.setText(name);
 	    	getSupportActionBar().setTitle(name);
-	    	if(archived > 0 && !type.equalsIgnoreCase("console")) {
-	    		subtitle.setVisibility(View.VISIBLE);
-	    		subtitle.setText("(archived)");
-	    	} else {
-	    		if(type.equalsIgnoreCase("conversation")) {
-	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
-	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-	    			if(user != null && user.away > 0) {
-		        		subtitle.setVisibility(View.VISIBLE);
-	    				if(user.away_msg != null && user.away_msg.length() > 0) {
-	    					subtitle.setText("Away: " + user.away_msg);
-	    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
-	    	        		subtitle.setText("Away: " + b.away_msg);
-	    				} else {
-	    					subtitle.setText("Away");
-	    				}
-	    			} else {
-		        		subtitle.setVisibility(View.GONE);
-	    			}
-	    		} else if(type.equalsIgnoreCase("channel")) {
-		        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
-		        	if(c != null && c.topic_text.length() > 0) {
-		        		subtitle.setVisibility(View.VISIBLE);
-		        		subtitle.setText(c.topic_text);
-		        	} else {
-		        		subtitle.setVisibility(View.GONE);
-		        	}
-	    		} else if(type.equalsIgnoreCase("console")) {
-	    			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-	    			if(s != null) {
-		        		subtitle.setVisibility(View.VISIBLE);
-		        		subtitle.setText(s.hostname + ":" + s.port);
-		        	} else {
-		        		subtitle.setVisibility(View.GONE);
-	    			}
-	    		} else {
-	        		subtitle.setText("");
-	        		subtitle.setVisibility(View.GONE);
-	    		}
-	    	}
+	    	update_subtitle();
 	    	Bundle b = new Bundle();
 	    	b.putInt("cid", cid);
 	    	b.putInt("bid", bid);

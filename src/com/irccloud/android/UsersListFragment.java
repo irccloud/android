@@ -335,6 +335,7 @@ public class UsersListFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_MEMBERUPDATES:
 			case NetworkConnection.EVENT_USERCHANNELMODE:
 			case NetworkConnection.EVENT_KICK:
+			case NetworkConnection.EVENT_BACKLOG_END:
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();
