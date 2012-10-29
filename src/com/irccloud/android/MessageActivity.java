@@ -823,7 +823,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(type.equals("channel"))
 			user = UsersDataSource.getInstance().getUser(cid, name, from);
 		else
-			user = UsersDataSource.getInstance().getUser(cid, name, from);
+			user = UsersDataSource.getInstance().getUser(cid, from);
 
 		if(user == null && from != null && event.hostmask != null) {
 			user = UsersDataSource.getInstance().new User();
