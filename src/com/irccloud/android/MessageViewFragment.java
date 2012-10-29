@@ -924,7 +924,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		public void run() {
 			if(adapter != null) {
 				int markerPos = adapter.getLastSeenEIDPosition();
-	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > (markerPos + 1)) {
 	    			if(shouldTrackUnread()) {
 		    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos - 1) + " unread messages");
 		    			unreadTopView.setVisibility(View.VISIBLE);
