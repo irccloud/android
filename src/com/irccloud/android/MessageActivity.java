@@ -64,6 +64,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private boolean shouldFadeIn = false;
 	ImageView upView;
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
+	private ArrayList<Integer> backStack = new ArrayList<Integer>();
 	
     @SuppressLint("NewApi")
 	@SuppressWarnings("deprecation")
@@ -223,6 +224,22 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	state.putInt("joined", joined);
     	state.putInt("archived", archived);
     	state.putString("status", status);
+    }
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
+        	if(backStack.size() > 0) {
+        		Integer bid = backStack.get(0);
+        		backStack.remove(0);
+        		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);
+    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+    					buffer.type, 1, buffer.archived, status);
+        		backStack.remove(0);
+                return true;
+        	}
+        }
+        return super.onKeyDown(keyCode, event);
     }
     
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
@@ -1089,6 +1106,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			upView.setVisibility(View.VISIBLE);
 		}
 		if(bid != this.bid) {
+	    	for(int i = 0; i < backStack.size(); i++) {
+	    		if(backStack.get(i) == this.bid)
+	    			backStack.remove(i);
+	    	}
+	    	backStack.add(0, this.bid);
 			this.cid = cid;
 			this.bid = bid;
 			this.name = name;
