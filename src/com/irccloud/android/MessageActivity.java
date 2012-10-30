@@ -600,17 +600,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 		        refreshUpIndicatorTask.execute((Void)null);
 				break;
-			default:
+			case NetworkConnection.EVENT_BUFFERMSG:
 				try {
-					event = (IRCCloudJSONObject)msg.obj;
-					if(event.bid() != bid && upView != null) {
+					EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
+					if(e.bid != bid && upView != null) {
 				        if(refreshUpIndicatorTask != null)
 				        	refreshUpIndicatorTask.cancel(true);
 				        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 				        refreshUpIndicatorTask.execute((Void)null);
 					}
 				} catch (Exception e1) {
-					
 				}
 				break;
 			}
