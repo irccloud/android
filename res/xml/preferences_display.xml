@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="Display">
+		<CheckBoxPreference
+			android:key="time-24hr"
+			android:defaultValue="false"
+			android:title="24-hour clock"/>
+		<CheckBoxPreference
+			android:key="time-seconds"
+			android:defaultValue="false"
+			android:title="Show seconds"/>
+		<CheckBoxPreference
+			android:key="mode-showsymbol"
+			android:defaultValue="false"
+			android:summary="\@, +, etc." android:title="Show usermode symbols"/>
+	</PreferenceCategory>
+
+</PreferenceScreen>

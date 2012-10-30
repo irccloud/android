@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="Account">
+		<EditTextPreference
+			android:key="email"
+			android:title="Email address"/>
+		<EditTextPreference
+			android:key="name"
+			android:title="Full name"/>
+		<EditTextPreference
+			android:key="highlights"
+			android:title="Highlight words"/>
+		<CheckBoxPreference
+			android:key="autoaway"
+			android:defaultValue="true"
+			android:summary="Set your away status when you leave the app" android:title="Auto-away"/>
+	</PreferenceCategory>
+
+</PreferenceScreen>

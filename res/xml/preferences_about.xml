@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="About">
+		<Preference
+			android:title="FAQ"
+			android:key="faq"
+			/>
+		<Preference
+			android:title="Subscriptions"
+			android:key="subscriptions"
+			/>
+		<Preference
+			android:title="ChangeLog"
+			android:key="changes"
+			/>
+		<Preference
+			android:title="Version"
+			android:key="version"
+			/>
+	</PreferenceCategory>
+</PreferenceScreen>

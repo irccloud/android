@@ -21,11 +21,13 @@ import java.util.zip.GZIPInputStream;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -35,6 +37,7 @@ import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -108,6 +111,7 @@ public class NetworkConnection {
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
 	public static final int EVENT_FAILURE_MSG = 102;
+	public static final int EVENT_SUCCESS = 103;
 	
 	private static final String IRCCLOUD_HOST = "alpha.irccloud.com";
 	
@@ -531,6 +535,24 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int set_user_settings(String email, String realname, String hwords, boolean autoaway) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", ++last_reqid);
+			o.put("_method", "user-settings");
+			o.put("email", email);
+			o.put("realname", realname);
+			o.put("hwords", hwords);
+			o.put("autoaway", autoaway?"1":"0");
+			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: user-settings");
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
@@ -589,6 +611,8 @@ public class NetworkConnection {
 			Log.d(TAG, "Response: " + object);
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
 				notifyHandlers(EVENT_FAILURE_MSG, object);
+			} else if(object.has("success")) {
+				notifyHandlers(EVENT_SUCCESS, object);
 			}
 			return;
 		}
@@ -602,6 +626,21 @@ public class NetworkConnection {
 					userInfo.num_invites = object.getInt("num_invites");
 			} else if(type.equalsIgnoreCase("stat_user")) {
 				userInfo = new UserInfo(object);
+				SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+				prefs.putString("name", userInfo.name);
+				prefs.putString("email", userInfo.email);
+				prefs.putString("highlights", userInfo.highlights);
+				prefs.putBoolean("autoaway", userInfo.auto_away);
+				if(userInfo.prefs != null) {
+					prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr")?userInfo.prefs.getBoolean("time-24hr"):false);
+					prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds")?userInfo.prefs.getBoolean("time-seconds"):false);
+					prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol")?userInfo.prefs.getBoolean("mode-showsymbol"):false);
+				} else {
+					prefs.putBoolean("time-24hr", false);
+					prefs.putBoolean("time-seconds", false);
+					prefs.putBoolean("mode-showsymbol", false);
+				}
+				prefs.commit();
 				notifyHandlers(EVENT_USERINFO, userInfo);
 			} else if(type.equalsIgnoreCase("bad_channel_key")) {
 				notifyHandlers(EVENT_BADCHANNELKEY, object);
@@ -991,6 +1030,7 @@ public class NetworkConnection {
 		long limit_maxhistorydays;
 		int num_invites;
 		JSONObject prefs;
+		String highlights;
 		
 		public UserInfo(IRCCloudJSONObject object) throws JSONException {
 			name = object.getString("name");
@@ -1013,6 +1053,15 @@ public class NetworkConnection {
 			limit_zombiehours = limits.get("zombiehours").getAsLong();
 			limit_download_logs = limits.get("download_logs").getAsBoolean();
 			limit_maxhistorydays = limits.get("maxhistorydays").getAsLong();
+			if(object.has("highlights")) {
+				JsonArray h = object.getJsonArray("highlights");
+				highlights = "";
+				for(int i = 0; i < h.size(); i++) {
+					if(highlights.length() > 0)
+						highlights += ", ";
+					highlights += h.get(i).getAsString();
+				}
+			}
 		}
 	}
 	

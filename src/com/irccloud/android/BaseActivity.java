@@ -361,6 +361,8 @@ public class BaseActivity extends SherlockFragmentActivity {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+    	Intent i;
+    	
         switch (item.getItemId()) {
             case R.id.menu_logout:
             	conn.disconnect();
@@ -372,7 +374,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 				ChannelsDataSource.getInstance().clear();
 				UsersDataSource.getInstance().clear();
 				EventsDataSource.getInstance().clear();
-        		Intent i = new Intent(this, LoginActivity.class);
+        		i = new Intent(this, LoginActivity.class);
         		i.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
                         Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -381,6 +383,10 @@ public class BaseActivity extends SherlockFragmentActivity {
                 GCMRegistrar.checkDevice(this);
                 GCMRegistrar.checkManifest(this);
                 GCMRegistrar.unregister(this);
+            	break;
+            case R.id.menu_settings:
+        		i = new Intent(this, PreferencesActivity.class);
+        		startActivity(i);
             	break;
         }
         return super.onOptionsItemSelected(item);
