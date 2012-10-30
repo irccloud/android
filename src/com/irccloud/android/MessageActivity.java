@@ -864,15 +864,25 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 		if(selected_user != null && message != null) {
-			CharSequence[] newitems = {"Copy Message", "Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
-			items = newitems;
-			if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
-				items[4] = "Deop";
+			if(type.equalsIgnoreCase("channel")) {
+				CharSequence[] newitems = {"Copy Message", "Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
+				items = newitems;
+				if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
+					items[4] = "Deop";
+			} else {
+				CharSequence[] newitems = {"Copy Message", "Open", "Invite to a channel...", "Ignore"};
+				items = newitems;
+			}
 		} else if(selected_user != null) {
-			CharSequence[] newitems = {"Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
-			items = newitems;
-			if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
-				items[3] = "Deop";
+			if(type.equalsIgnoreCase("channel")) {
+				CharSequence[] newitems = {"Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
+				items = newitems;
+				if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
+					items[3] = "Deop";
+			} else {
+				CharSequence[] newitems = {"Open", "Invite to a channel...", "Ignore"};
+				items = newitems;
+			}
 		} else if(message != null) {
 			CharSequence[] newitems = {"Copy Message"};
 			items = newitems;
