@@ -611,6 +611,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		getSupportMenuInflater().inflate(R.menu.activity_message_console, menu);
 
     	getSupportMenuInflater().inflate(R.menu.activity_message_archive, menu);
+    	getSupportMenuInflater().inflate(R.menu.activity_main, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -698,6 +699,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	AlertDialog dialog;
     	
         switch (item.getItemId()) {
+	        case R.id.menu_add_network:
+	        	EditConnectionFragment connFragment = new EditConnectionFragment();
+	            connFragment.show(getSupportFragmentManager(), "dialog");
+	            break;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
 	            newFragment.show(getSupportFragmentManager(), "dialog");
