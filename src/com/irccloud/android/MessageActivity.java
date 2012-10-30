@@ -857,38 +857,36 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	@SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
 	private void showUserPopup(UsersDataSource.User user, Spanned message) {
-   		final CharSequence[] items;
+		ArrayList<String> itemList = new ArrayList<String>();
+   		final String[] items;
    		final Spanned text_to_copy = message;
 		selected_user = user;
 		
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-		if(selected_user != null && message != null) {
+		if(message != null)
+			itemList.add("Copy Message");
+		
+		if(selected_user != null) {
+			itemList.add("Open");
+			itemList.add("Invite to a channel…");
+			itemList.add("Ignore");
 			if(type.equalsIgnoreCase("channel")) {
-				CharSequence[] newitems = {"Copy Message", "Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
-				items = newitems;
-				if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
-					items[4] = "Deop";
-			} else {
-				CharSequence[] newitems = {"Copy Message", "Open", "Invite to a channel...", "Ignore"};
-				items = newitems;
+				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, name, ServersDataSource.getInstance().getServer(cid).nick);
+				if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")) {
+					if(selected_user.mode.contains("o"))
+						itemList.add("Deop");
+					else
+						itemList.add("Op");
+				}
+				if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o") || self_user.mode.contains("h")) {
+					itemList.add("Kick…");
+					itemList.add("Ban…");
+				}
 			}
-		} else if(selected_user != null) {
-			if(type.equalsIgnoreCase("channel")) {
-				CharSequence[] newitems = {"Open", "Invite to a channel...", "Ignore", "Op", "Kick...", "Ban..."};
-				items = newitems;
-				if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
-					items[3] = "Deop";
-			} else {
-				CharSequence[] newitems = {"Open", "Invite to a channel...", "Ignore"};
-				items = newitems;
-			}
-		} else if(message != null) {
-			CharSequence[] newitems = {"Copy Message"};
-			items = newitems;
-		} else {
-			return;
 		}
+
+		items = itemList.toArray(new String[itemList.size()]);
 		
 		if(selected_user != null)
 			builder.setTitle(selected_user.nick + "\n(" + selected_user.hostmask + ")");
@@ -905,12 +903,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		final TextView prompt;
 	    		final EditText input;
 	    		AlertDialog dialog;
-	    		
-	    		if(text_to_copy == null)
-	    			item++;
-	    		
-	    		switch(item) {
-	    		case 0:
+
+	    		if(items[item].equals("Copy Message")) {
 	    			if(Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
 						android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 	    			    clipboard.setText(text_to_copy);
@@ -919,8 +913,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message",text_to_copy);
 	    			    clipboard.setPrimaryClip(clip);
 	    			}
-	    			break;
-		    	case 1:
+	    		} else if(items[item].equals("Open")) {
 		    		BuffersDataSource b = BuffersDataSource.getInstance();
 		    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, selected_user.nick);
 		    		if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null) {
@@ -955,8 +948,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		}
 			    		startActivity(i);
 		    		}
-		    		break;
-		    	case 2:
+	    		} else if(items[item].equals("Invite to a channel…")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
@@ -980,8 +972,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
-		    		break;
-		    	case 3:
+	    		} else if(items[item].equals("Ignore")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
@@ -1006,14 +997,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
-		    		break;
-		    	case 4:
-		    		if(selected_user.mode.contains("o") || selected_user.mode.contains("O"))
-		    			conn.mode(cid, name, "-o " + selected_user.nick);
-		    		else
-		    			conn.mode(cid, name, "+o " + selected_user.nick);
-		    		break;
-		    	case 5:
+	    		} else if(items[item].equals("Op")) {
+	    			conn.mode(cid, name, "+o " + selected_user.nick);
+	    		} else if(items[item].equals("Deop")) {
+	    			conn.mode(cid, name, "-o " + selected_user.nick);
+	    		} else if(items[item].equals("Kick…")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
@@ -1037,8 +1025,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
-		    		break;
-		    	case 6:
+	    		} else if(items[item].equals("Ban…")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
@@ -1063,8 +1050,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
-		    		break;
-		    	}
+	    		}
 		    	dialogInterface.dismiss();
 		    }
 		});
