@@ -501,7 +501,6 @@ public class MessageViewFragment extends SherlockListFragment {
 		newMsgTime = 0;
 		earliest_eid = 0;
 		backlog_eid = 0;
-		collapsedEvents.setChannel(cid, name);
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.INVISIBLE);
 		if(headerView != null) {
@@ -576,13 +575,13 @@ public class MessageViewFragment extends SherlockListFragment {
 				event.bg_color = R.color.message_bg;
 				
 				if(type.equalsIgnoreCase("joined_channel")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, null);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null);
 				} else if(type.equalsIgnoreCase("parted_channel")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, null);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, null);
 				} else if(type.equalsIgnoreCase("quit")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.msg);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg);
 				} else if(type.equalsIgnoreCase("nickchange")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, null);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null);
 				} else if(type.equalsIgnoreCase("user_channel_mode")) {
 					boolean unknown = false;
 					JsonObject ops = event.ops;
@@ -591,15 +590,15 @@ public class MessageViewFragment extends SherlockListFragment {
 						for(int i = 0; i < add.size(); i++) {
 							JsonObject op = add.get(i).getAsJsonObject();
 							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_OWNER);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OWNER, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_ADMIN);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_ADMIN, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_OP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OP, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_HALFOP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_HALFOP, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_VOICE);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_VOICE, event.target_mode);
 							else
 								unknown = true;
 						}
@@ -607,15 +606,15 @@ public class MessageViewFragment extends SherlockListFragment {
 						for(int i = 0; i < remove.size(); i++) {
 							JsonObject op = remove.get(i).getAsJsonObject();
 							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEOWNER);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOWNER, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEADMIN);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEADMIN, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEOP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOP, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEHALFOP);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEHALFOP, event.target_mode);
 							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, null, CollapsedEventsList.MODE_DEVOICE);
+								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEVOICE, event.target_mode);
 							else
 								unknown = true;
 						}
@@ -632,7 +631,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					msg = event.old_nick + " → <b>" + event.nick + "</b>";
 				}
 				if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
-		    		msg = "<b>" + collapsedEvents.formatNick(event.from) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+		    		msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
 		    		currentCollapsedEid = eid;
 				}
 				if(!expandedSectionEids.contains(currentCollapsedEid)) {
@@ -650,7 +649,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				currentCollapsedEid = -1;
 				collapsedEvents.clear();
 	    		if(event.from != null)
-	    			event.html = "<b>" + collapsedEvents.formatNick(event.from) + "</b> " + event.msg;
+	    			event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> " + event.msg;
 	    		else
 	    			event.html = event.msg;
 			}
@@ -662,25 +661,25 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 
 			if(type.equalsIgnoreCase("channel_mode")) {
-				event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick) + "</b>";
+				event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
 			} else if(type.equalsIgnoreCase("buffer_me_msg")) {
-				event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick) + "</b> " + event.msg + "</i>";
+				event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> " + event.msg + "</i>";
 	    	} else if(type.equalsIgnoreCase("kicked_channel")) {
 	    		event.html = "← ";
 	    		if(event.type.startsWith("you_"))
 	    			event.html += "You";
 	    		else
-	    			event.html += "<b>" + collapsedEvents.formatNick(event.old_nick) + "</b>";
+	    			event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null) + "</b>";
 	    		if(event.type.startsWith("you_"))
 	    			event.html += " were";
 	    		else
 	    			event.html += " was";
-	    		event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick) + "</b> (" + event.hostmask + ")";
+	    		event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> (" + event.hostmask + ")";
 	    		if(event.msg != null && event.msg.length() > 0)
 	    			event.html += ": " + event.msg;
 			} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
 				if(event.from.length() == 0) {
-					event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick) + "</b>";
+					event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
 				}
 			}
 			
@@ -753,7 +752,6 @@ public class MessageViewFragment extends SherlockListFragment {
     	if(ServersDataSource.getInstance().getServer(cid) != null)
     		ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
     	if(bid != -1) {
-    		collapsedEvents.setChannel(cid, name);
     		TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		if(events != null) {
     			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
@@ -1110,7 +1108,6 @@ public class MessageViewFragment extends SherlockListFragment {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
 			case NetworkConnection.EVENT_USERINFO:
-				collapsedEvents.setChannel(cid, name);
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();
@@ -1147,8 +1144,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	                getActivity().finish();
 				}
 				break;
-			case NetworkConnection.EVENT_USERCHANNELMODE:
-				collapsedEvents.setChannel(cid, name);
 			case NetworkConnection.EVENT_SETIGNORES:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.cid() == cid) {
@@ -1178,6 +1173,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_CHANNELMODE:
 			case NetworkConnection.EVENT_SELFDETAILS:
 			case NetworkConnection.EVENT_USERMODE:
+			case NetworkConnection.EVENT_USERCHANNELMODE:
 				e = (IRCCloudJSONObject)msg.obj;
 				if(e.bid() == bid) {
 					EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());

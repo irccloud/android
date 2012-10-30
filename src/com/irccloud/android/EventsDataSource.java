@@ -24,6 +24,7 @@ public class EventsDataSource {
 		String msg;
 		String hostmask;
 		String from;
+		String from_mode;
 		String nick;
 		String old_nick;
 		String server;
@@ -38,6 +39,7 @@ public class EventsDataSource {
 		int row_type;
 		String group_msg;
 		boolean linkify;
+		String target_mode;
 	}
 	
 	public class comparator implements Comparator<Event> {
@@ -84,6 +86,7 @@ public class EventsDataSource {
 			e.msg = event.getString("msg");
 			e.hostmask = event.getString("hostmask");
 			e.from = event.getString("from");
+			e.from_mode = event.getString("from_mode");
 			if(event.has("newnick"))
 				e.nick = event.getString("newnick");
 			else
@@ -100,6 +103,7 @@ public class EventsDataSource {
 	    	e.html = null;
 	    	e.group_msg = null;
 	    	e.linkify = true;
+	    	e.target_mode = null;
 
 			if(e.from != null)
 				e.from = TextUtils.htmlEncode(e.from);
@@ -119,6 +123,8 @@ public class EventsDataSource {
 					e.msg = "Connection lost: " + event.getString("reason");
 				else
 					e.msg = "Connection closed unexpectedly";
+			} else if(e.type.equalsIgnoreCase("user_channel_mode")) {
+				e.target_mode = event.getString("newmode");
 			} else if(e.type.equalsIgnoreCase("buffer_me_msg")) {
 				e.nick = e.from;
 	    		e.from = "";
@@ -217,6 +223,7 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("kicked_channel") || e.type.equalsIgnoreCase("you_kicked_channel")) {
 	    		e.from = "";
+	    		e.from_mode = null;
 	    		e.old_nick = event.getString("nick");
 	    		e.nick = event.getString("kicker");
 	    		e.hostmask = event.getString("kicker_hostmask");

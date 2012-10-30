@@ -3,7 +3,6 @@ package com.irccloud.android;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 
 import org.json.JSONException;
@@ -28,9 +27,6 @@ public class CollapsedEventsList {
 	public static final int MODE_VOICE = 9;
 	public static final int MODE_DEVOICE = 10;
 	
-	private int cid = 0;
-	private String channel = null;
-	
 	public class CollapsedEvent {
 		int type;
 		int mode = 0;
@@ -38,6 +34,8 @@ public class CollapsedEventsList {
 		String old_nick;
 		String hostmask;
 		String msg;
+		String from_mode;
+		String target_mode;
 		
 		public String toString() {
 			return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + "}";
@@ -56,13 +54,12 @@ public class CollapsedEventsList {
 	}
 	
 	private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
-	private HashMap<String, String> formattedNickCache = new HashMap<String, String>();
 	
-	public void addEvent(int type, String nick, String old_nick, String hostmask, String msg) {
-		addEvent(type, nick, old_nick, hostmask, msg, 0);
+	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg) {
+		addEvent(type, nick, old_nick, hostmask, from_mode, msg, 0, null);
 	}
 	
-	public void addEvent(int type, String nick, String old_nick, String hostmask, String msg, int mode) {
+	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, int mode, String target_mode) {
 		//Log.d("IRCCloud", "+++ Before: " + data.toString());
 		CollapsedEvent e = null;
 		
@@ -82,15 +79,23 @@ public class CollapsedEventsList {
 				e.nick = nick;
 				e.old_nick = old_nick;
 				e.hostmask = hostmask;
+				e.from_mode = from_mode;
 				e.msg = msg;
 				e.mode = mode;
+				e.target_mode = target_mode;
 				data.add(e);
 			} else {
 				if(e.type == TYPE_MODE) {
 					e.type = type;
 					e.msg = msg;
 					e.old_nick = old_nick;
-				} else if(type == TYPE_MODE || e.type == type) {
+					if(from_mode != null)
+						e.from_mode = from_mode;
+					if(target_mode != null)
+						e.target_mode = target_mode;
+				} else if(type == TYPE_MODE) {
+					e.from_mode = target_mode;
+				} else if(e.type == type) {
 				} else if(type == TYPE_JOIN) {
 					e.type = TYPE_POPOUT;
 				} else if(e.type == TYPE_POPOUT) {
@@ -146,54 +151,46 @@ public class CollapsedEventsList {
 		return null;
 	}
 	
-	public void setChannel(int cid, String channel) {
-		this.cid = cid;
-		this.channel = channel;
-		formattedNickCache.clear();
-	}
-	
-	public String formatNick(String nick) {
-		if(formattedNickCache.containsKey(nick))
-			return formattedNickCache.get(nick);
+	public String formatNick(String nick, String from_mode) {
 		String output = "";
-		if(channel != null) {
-			boolean showSymbol = false;
-			try {
-				if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null)
-				showSymbol = NetworkConnection.getInstance().getUserInfo().prefs.getBoolean("mode-showsymbol");
-			} catch (JSONException e) {
-			}
-			UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, channel, nick);
-			if(u != null) {
-				if(showSymbol) {
-					if(u.mode.contains("q"))
-						output += "\u0004E7AA00\u0002~\u000f ";
-					else if(u.mode.contains("a"))
-						output += "\u00046500A5\u0002&amp;\u000f ";
-					else if(u.mode.contains("o"))
-						output += "\u0004BA1719\u0002@\u000f ";
-					else if(u.mode.contains("h"))
-						output += "\u0004B55900\u0002%\u000f ";
-					else if(u.mode.contains("v"))
-						output += "\u000425B100\u0002+\u000f ";
-				} else {
-					if(u.mode.contains("q"))
-						output += "\u0004E7AA00\u0002•\u000f ";
-					else if(u.mode.contains("a"))
-						output += "\u00046500A5\u0002•\u000f ";
-					else if(u.mode.contains("o"))
-						output += "\u0004BA1719\u0002•\u000f ";
-					else if(u.mode.contains("h"))
-						output += "\u0004B55900\u0002•\u000f ";
-					else if(u.mode.contains("v"))
-						output += "\u000425B100\u0002•\u000f ";
-				}
+		boolean showSymbol = false;
+		try {
+			if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null)
+			showSymbol = NetworkConnection.getInstance().getUserInfo().prefs.getBoolean("mode-showsymbol");
+		} catch (JSONException e) {
+		}
+		String mode = "";
+		if(from_mode != null) {
+			mode = from_mode;
+		}
+		if(mode != null && mode.length() > 0) {
+			if(showSymbol) {
+				if(mode.contains("q"))
+					output += "\u0004E7AA00\u0002~\u000f ";
+				else if(mode.contains("a"))
+					output += "\u00046500A5\u0002&amp;\u000f ";
+				else if(mode.contains("o"))
+					output += "\u0004BA1719\u0002@\u000f ";
+				else if(mode.contains("h"))
+					output += "\u0004B55900\u0002%\u000f ";
+				else if(mode.contains("v"))
+					output += "\u000425B100\u0002+\u000f ";
+			} else {
+				if(mode.contains("q"))
+					output += "\u0004E7AA00\u0002•\u000f ";
+				else if(mode.contains("a"))
+					output += "\u00046500A5\u0002•\u000f ";
+				else if(mode.contains("o"))
+					output += "\u0004BA1719\u0002•\u000f ";
+				else if(mode.contains("h"))
+					output += "\u0004B55900\u0002•\u000f ";
+				else if(mode.contains("v"))
+					output += "\u000425B100\u0002•\u000f ";
 			}
 		}
 		
 		output += nick;
 		output = ColorFormatter.irc_to_html(output);
-		formattedNickCache.put(nick, output);
 		return output;
 	}
 	
@@ -255,7 +252,7 @@ public class CollapsedEventsList {
 			CollapsedEvent e = data.get(0);
 			switch(e.type) {
 			case TYPE_MODE:
-				message = "<b>" + formatNick(e.nick) + "</b> was ";
+				message = "<b>" + formatNick(e.nick, e.target_mode) + "</b> was ";
 				switch(e.mode) {
 					case MODE_OWNER:
 						message += "promoted to owner (\u0004E7AA00+q\u000f)";
@@ -289,32 +286,32 @@ public class CollapsedEventsList {
 						break;
 				}
 				if(e.old_nick != null)
-					message += " by " + formatNick(e.old_nick);
+					message += " by " + formatNick(e.old_nick, e.from_mode);
 				break;
 			case TYPE_JOIN:
-	    		message = "→ <b>" + formatNick(e.nick) + "</b>" + was(e);
+	    		message = "→ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
 	    		message += " joined (" + e.hostmask + ")";
 				break;
 			case TYPE_PART:
-	    		message = "← <b>" + formatNick(e.nick) + "</b>" + was(e);
+	    		message = "← <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
 	    		message += " left (" + e.hostmask + ")";
 				break;
 			case TYPE_QUIT:
-	    		message = "⇐ <b>" + formatNick(e.nick) + "</b>" + was(e);
+	    		message = "⇐ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
 	    		if(e.hostmask != null)
 	    			message += " quit (" + e.hostmask + ") " + e.msg;
 	    		else
 	    			message += " quit: " + e.msg;
 				break;
 			case TYPE_NICKCHANGE:
-	    		message = e.old_nick + " → <b>" + formatNick(e.nick) + "</b>";
+	    		message = e.old_nick + " → <b>" + formatNick(e.nick, e.from_mode) + "</b>";
 				break;
 			case TYPE_POPIN:
-	    		message = "↔ <b>" + formatNick(e.nick) + "</b>" + was(e);
+	    		message = "↔ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
 	    		message += " popped in";
 	    		break;
 			case TYPE_POPOUT:
-	    		message = "↔ <b>" + formatNick(e.nick) + "</b>" + was(e);
+	    		message = "↔ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
 	    		message += " nipped out";
 	    		break;
 			}
@@ -368,13 +365,13 @@ public class CollapsedEventsList {
 				}
 
 				if(e.type == TYPE_NICKCHANGE) {
-					message += e.old_nick + " → <b>" + formatNick(e.nick) + "</b>";
+					message += e.old_nick + " → <b>" + formatNick(e.nick, e.from_mode) + "</b>";
 					String old_nick = e.old_nick;
 					e.old_nick = null;
 					message += was(e);
 					e.old_nick = old_nick;
 				} else {
-					message += "<b>" + formatNick(e.nick) + "</b>" + was(e);
+					message += "<b>" + formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode) + "</b>" + was(e);
 				}
 				
 				if(next == null || next.type != e.type) {
