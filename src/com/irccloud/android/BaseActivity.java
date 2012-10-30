@@ -342,6 +342,28 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 	    		dialog.show();
 	    		break;
+			case NetworkConnection.EVENT_CHANPRIVSNEEDED:
+	        	try {
+					o = (IRCCloudJSONObject)msg.obj;
+		    		s = ServersDataSource.getInstance();
+		    		server = s.getServer(o.cid());
+		    		builder = new AlertDialog.Builder(BaseActivity.this);
+		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+						builder.setMessage(o.getString("chan") + ": " + o.getString("msg"));
+		    		builder.setNegativeButton("Ok", new OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+		    		});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(BaseActivity.this);
+		    		dialog.show();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+	    		break;
 			default:
 				break;
 			}
