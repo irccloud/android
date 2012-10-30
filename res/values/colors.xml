@@ -2,7 +2,6 @@
 
 <resources>
     <drawable name="background_blue">#D9E7FF</drawable>
-    <drawable name="disconnected_yellow">#FFEE97</drawable>
     <drawable name="heading_bg_blue">#E2EDFF</drawable>
     <drawable name="row_bg_blue">#F2F7FC</drawable>
     <drawable name="selected_blue">#527DFF</drawable>

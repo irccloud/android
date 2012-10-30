@@ -232,11 +232,6 @@ public class BuffersListFragment extends SherlockListFragment {
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			}
 
-			if(conn.getState() != NetworkConnection.STATE_CONNECTED)
-				row.setBackgroundResource(R.drawable.disconnected_yellow);
-			else
-				row.setBackgroundResource(R.drawable.bg);
-			
 			if(holder.key != null) {
 				if(e.key > 0) {
 					holder.key.setVisibility(View.VISIBLE);
@@ -577,11 +572,6 @@ public class BuffersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
- 		if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-			view.setBackgroundResource(R.drawable.disconnected_yellow);
-		} else {
-			view.setBackgroundResource(R.drawable.background_blue);
-		}
 		if(adapter != null)
 			adapter.showProgress(-1);
 
@@ -639,11 +629,6 @@ public class BuffersListFragment extends SherlockListFragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-					view.setBackgroundResource(R.drawable.disconnected_yellow);
-				} else {
-					view.setBackgroundResource(R.drawable.background_blue);
-				}
 				if(adapter != null)
 					adapter.notifyDataSetChanged();
 				break;

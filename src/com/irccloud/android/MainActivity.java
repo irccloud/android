@@ -43,11 +43,6 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     	
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-		if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-			connecting.setBackgroundResource(R.drawable.disconnected_yellow);
-		} else {
-			connecting.setBackgroundResource(R.drawable.background_blue);
-		}
 
     	launchLastChannel();
     }
@@ -65,14 +60,10 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-					connecting.setBackgroundResource(R.drawable.disconnected_yellow);
-				} else {
-					connecting.setBackgroundResource(R.drawable.background_blue);
+				if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 					errorMsg.setText("Loading");
 					error = null;
-				}
-				if(conn.getState() == NetworkConnection.STATE_CONNECTING) {
+				} else if(conn.getState() == NetworkConnection.STATE_CONNECTING) {
 					errorMsg.setText("Connecting");
 					error = null;
 				}

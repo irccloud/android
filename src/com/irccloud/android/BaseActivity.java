@@ -55,13 +55,11 @@ public class BaseActivity extends SherlockFragmentActivity {
 			if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
 				if(lastState != 1) {
 					setLoadingIndicator(true);
-					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
 					lastState = 1;
 				}
 			} else {
 				if(lastState != 2) {
 					setLoadingIndicator(false);
-					getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
 					lastState = 2;
 				}
 			}
@@ -106,13 +104,11 @@ public class BaseActivity extends SherlockFragmentActivity {
 				if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
 					if(lastState != 1) {
 						setLoadingIndicator(true);
-						getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.disconnected_yellow));
 						lastState = 1;
 					}
 				} else {
 					if(lastState != 2) {
 						setLoadingIndicator(false);
-			    		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
 						lastState = 2;
 					}
 				}
