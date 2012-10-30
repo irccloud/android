@@ -572,6 +572,9 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(expandedSectionEids.contains(currentCollapsedEid))
 					collapsedEvents.clear();
 				
+				event.color = R.color.timestamp;
+				event.bg_color = R.color.message_bg;
+				
 				if(type.equalsIgnoreCase("joined_channel")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, null);
 				} else if(type.equalsIgnoreCase("parted_channel")) {
@@ -620,6 +623,8 @@ public class MessageViewFragment extends SherlockListFragment {
 					if(unknown) {
 						collapsedEvents.clear();
 					}
+					event.color = R.color.row_message_label;
+					event.bg_color = R.color.status_bg;
 				}
 				
 				String msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage();
@@ -631,11 +636,13 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		currentCollapsedEid = eid;
 				}
 				if(!expandedSectionEids.contains(currentCollapsedEid)) {
-					if(eid != currentCollapsedEid)
+					if(eid != currentCollapsedEid) {
 						msg = "[+] " + msg;
+						event.color = R.color.timestamp;
+						event.bg_color = R.color.message_bg;
+					}
 					eid = currentCollapsedEid;
 				}
-				event.color = R.color.timestamp;
 				event.group_msg = msg;
 				event.html = null;
 				event.linkify = false;
@@ -671,6 +678,10 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick) + "</b> (" + event.hostmask + ")";
 	    		if(event.msg != null && event.msg.length() > 0)
 	    			event.html += ": " + event.msg;
+			} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
+				if(event.from.length() == 0) {
+					event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick) + "</b>";
+				}
 			}
 			
 	    	adapter.addItem(eid, event);

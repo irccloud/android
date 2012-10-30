@@ -223,8 +223,34 @@ public class EventsDataSource {
 	    		e.color = R.color.timestamp;
 	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("channel_mode_list_change")) {
-	    		e.msg = "set mode: <b>" + event.getString("diff") + "</b>";
-	    		e.color = R.color.timestamp;
+	    		boolean unknown = true;
+	    		JsonObject ops = event.getJsonObject("ops");
+	    		if(ops != null) {
+	    			JsonArray add = ops.getAsJsonArray("add");
+	    			if(add != null && add.size() > 0) {
+	    				JsonObject op = add.get(0).getAsJsonObject();
+	    				if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
+	    					e.nick = e.from;
+	    					e.from = "";
+	    					e.msg = "Channel ban set for <b>" + op.get("param").getAsString() + "</b> (+b) by ";
+	    					unknown = false;
+	    				}
+	    			}
+	    			JsonArray remove = ops.getAsJsonArray("remove");
+	    			if(remove != null && remove.size() > 0) {
+	    				JsonObject op = remove.get(0).getAsJsonObject();
+	    				if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
+	    					e.nick = e.from;
+	    					e.from = "";
+	    					e.msg = "Channel ban removed for <b>" + op.get("param").getAsString() + "</b> (-b) by ";
+	    					unknown = false;
+	    				}
+	    			}
+	    		}
+	    		if(unknown) {
+	    			e.msg = "set mode: <b>" + event.getString("diff") + "</b>";
+	    		}
+	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("motd_response") || e.type.equalsIgnoreCase("server_motd")) {
 	    		JsonArray lines = event.getJsonArray("lines");
