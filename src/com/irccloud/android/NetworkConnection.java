@@ -107,6 +107,7 @@ public class NetworkConnection {
 	public static final int EVENT_NOSUCHNICK = 31;
 	public static final int EVENT_TOOMANYCHANNELS = 32;
 	public static final int EVENT_INVALIDNICK = 33;
+	public static final int EVENT_BANLIST = 34;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -654,6 +655,8 @@ public class NetworkConnection {
 				notifyHandlers(EVENT_NOSUCHNICK, object);
 			} else if(type.equalsIgnoreCase("invalid_nick")) {
 				notifyHandlers(EVENT_INVALIDNICK, object);
+			} else if(type.equalsIgnoreCase("ban_list")) {
+				notifyHandlers(EVENT_BANLIST, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteServer(object.getInt("cid"));

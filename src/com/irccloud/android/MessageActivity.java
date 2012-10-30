@@ -445,6 +445,23 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			Integer event_bid = 0;
 			IRCCloudJSONObject event = null;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_BANLIST:
+				event = (IRCCloudJSONObject)msg.obj;
+				if(event.getString("channel").equalsIgnoreCase(name)) {
+	            	Bundle args = new Bundle();
+	            	args.putInt("cid", cid);
+	            	args.putInt("bid", bid);
+	            	args.putString("event", event.toString());
+	            	BanListFragment banList = (BanListFragment)getSupportFragmentManager().findFragmentByTag("banlist");
+	            	if(banList == null) {
+	            		banList = new BanListFragment();
+			        	banList.setArguments(args);
+			        	banList.show(getSupportFragmentManager(), "banlist");
+	            	} else {
+			        	banList.setArguments(args);
+	            	}
+				}
+	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 		    	update_subtitle();
 		    	break;
@@ -458,14 +475,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
-					IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-					if(o.cid() == cid) {
-						status = o.getString("new_status");
+					event = (IRCCloudJSONObject)msg.obj;
+					if(event.cid() == cid) {
+						status = event.getString("new_status");
 						invalidateOptionsMenu();
 					}
-				} catch (Exception e) {
+				} catch (Exception e1) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					e1.printStackTrace();
 				}
 				break;
 			case NetworkConnection.EVENT_MAKESERVER:
@@ -546,9 +563,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						} else {
 							subtitle.setVisibility(View.GONE);
 						}
-					} catch (Exception e) {
+					} catch (Exception e1) {
 						subtitle.setVisibility(View.GONE);
-						e.printStackTrace();
+						e1.printStackTrace();
 					}
 				}
 				break;
@@ -592,7 +609,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 				        refreshUpIndicatorTask.execute((Void)null);
 					}
-				} catch (Exception e) {
+				} catch (Exception e1) {
 					
 				}
 				break;
@@ -722,6 +739,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        	IgnoreListFragment ignoreList = new IgnoreListFragment();
 	        	ignoreList.setArguments(args);
 	            ignoreList.show(getSupportFragmentManager(), "ignorelist");
+                return true;
+            case R.id.menu_ban_list:
+            	conn.mode(cid, name, "b");
                 return true;
             case R.id.menu_leave:
             	if(joined == 0)
