@@ -67,7 +67,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private ArrayList<Integer> backStack = new ArrayList<Integer>();
 	
     @SuppressLint("NewApi")
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "unchecked" })
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -202,6 +202,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	joined = savedInstanceState.getInt("joined");
         	archived = savedInstanceState.getInt("archived");
         	status = savedInstanceState.getString("status");
+        	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
         
         GCMRegistrar.checkDevice(this);
@@ -224,6 +225,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	state.putInt("joined", joined);
     	state.putInt("archived", archived);
     	state.putString("status", status);
+    	state.putSerializable("backStack", backStack);
     }
     
     @Override
