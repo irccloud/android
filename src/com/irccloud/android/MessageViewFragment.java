@@ -390,8 +390,7 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-				mListener.onMessageLongClicked(adapter.data.get(pos - 1));
-				return true;
+				return mListener.onMessageLongClicked(adapter.data.get(pos - 1));
 			}
     		
     	});
@@ -1194,6 +1193,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	
 	public interface MessageViewListener {
 		public void onMessageViewReady();
-		public void onMessageLongClicked(EventsDataSource.Event event);
+		public boolean onMessageLongClicked(EventsDataSource.Event event);
 	}
 }

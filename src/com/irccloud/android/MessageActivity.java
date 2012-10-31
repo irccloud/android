@@ -868,7 +868,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
     
 	@Override
-	public void onMessageLongClicked(EventsDataSource.Event event) {
+	public boolean onMessageLongClicked(EventsDataSource.Event event) {
 		String from = event.from;
 		if(from == null || from.length() == 0)
 			from = event.nick;
@@ -887,10 +887,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			user.mode = "";
 		}
 		
+		if(user == null && event.html == null)
+			return false;
+		
 		if(event.html != null)
 			showUserPopup(user, ColorFormatter.html_to_spanned(event.html));
 		else
 			showUserPopup(user, null);
+		return true;
     }
     
 	@Override
