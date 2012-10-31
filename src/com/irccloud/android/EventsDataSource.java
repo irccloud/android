@@ -255,7 +255,9 @@ public class EventsDataSource {
 	    			}
 	    		}
 	    		if(unknown) {
-	    			e.msg = "set mode: <b>" + event.getString("diff") + "</b>";
+	    			e.nick = e.from;
+	    			e.from = "";
+	    			e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b> by ";
 	    		}
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
