@@ -33,6 +33,7 @@ public class BanListFragment extends SherlockDialogFragment {
 	BansAdapter adapter;
 	NetworkConnection conn;
 	ListView listView;
+	boolean canUnBan = false;
 	
 	private class BansAdapter extends BaseAdapter {
 		private SherlockDialogFragment ctx;
@@ -105,11 +106,16 @@ public class BanListFragment extends SherlockDialogFragment {
 			}
 			
 			try {
-				holder.mask.setText(Html.fromHtml("<b>Ban mask:</b> " + bans.get(position).getAsJsonObject().get("mask").getAsString()));
+				holder.mask.setText(Html.fromHtml(bans.get(position).getAsJsonObject().get("mask").getAsString()));
 				holder.setBy.setText("Set " + DateUtils.getRelativeTimeSpanString(bans.get(position).getAsJsonObject().get("time").getAsLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
 						+ " by " + bans.get(position).getAsJsonObject().get("usermask").getAsString());
-				holder.removeBtn.setOnClickListener(removeClickListener);
-				holder.removeBtn.setTag(position);
+				if(canUnBan) {
+					holder.removeBtn.setVisibility(View.VISIBLE);
+					holder.removeBtn.setOnClickListener(removeClickListener);
+					holder.removeBtn.setTag(position);
+				} else {
+					holder.removeBtn.setVisibility(View.GONE);
+				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -222,6 +228,11 @@ public class BanListFragment extends SherlockDialogFragment {
         	adapter = new BansAdapter(this);
         	listView.setAdapter(adapter);
     	}
+		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, event.getString("channel"), ServersDataSource.getInstance().getServer(cid).nick);
+		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
+			canUnBan = true;
+		else
+			canUnBan = false;
     }
     
     @Override
@@ -234,6 +245,15 @@ public class BanListFragment extends SherlockDialogFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_USERCHANNELMODE:
+				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, event.getString("channel"), ServersDataSource.getInstance().getServer(cid).nick);
+				if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
+					canUnBan = true;
+				else
+					canUnBan = false;
+				if(adapter != null)
+					adapter.notifyDataSetChanged();
+				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
 				if(e.bid == bid && e.type.equals("channel_mode_list_change"))
