@@ -14,10 +14,13 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -65,6 +68,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	ImageView upView;
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
 	private ArrayList<Integer> backStack = new ArrayList<Integer>();
+	PowerManager.WakeLock screenLock = null;
 	
     @SuppressLint("NewApi")
 	@SuppressWarnings({ "deprecation", "unchecked" })
@@ -370,6 +374,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public void onResume() {
     	super.onResume();
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+    	if(prefs.getBoolean("screenlock", false)) {
+    		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    	} else {
+    		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    	}
     	
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);

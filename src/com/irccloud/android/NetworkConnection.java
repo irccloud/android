@@ -31,6 +31,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Debug;
@@ -117,7 +118,8 @@ public class NetworkConnection {
 	
 	private static final String IRCCLOUD_HOST = "alpha.irccloud.com";
 	
-	Object parserLock = new Object();
+	private Object parserLock = new Object();
+	private WifiManager.WifiLock wifiLock = null;
 	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
@@ -151,6 +153,9 @@ public class NetworkConnection {
 			useragent += "; " + network_type;
 		
 		useragent += ")";
+		
+		WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+		wifiLock = wfm.createWifiLock("IRCCloud");
 	}
 	
 	public int getState() {
@@ -168,6 +173,8 @@ public class NetworkConnection {
 			idleTimer.cancel();
 			idleTimer = null;
 		}
+		if(wifiLock.isHeld())
+			wifiLock.release();
 	}
 	
 	public JSONObject login(String email, String password) throws IOException {
@@ -200,6 +207,8 @@ public class NetworkConnection {
 	
 	public void connect(String sk) {
 		session = sk;
+		if(!wifiLock.isHeld())
+			wifiLock.acquire();
 		
 		List<BasicNameValuePair> extraHeaders = Arrays.asList(
 		    new BasicNameValuePair("Cookie", "session="+session),
@@ -979,6 +988,7 @@ public class NetworkConnection {
 			handlers = new ArrayList<Handler>();
 		handlers.add(handler);
 		if(shutdownTimer != null) {
+			Log.d("IRCCloud", "Disconnect timer cancelled");
 			shutdownTimer.cancel();
 			shutdownTimer = null;
 		}
@@ -989,7 +999,9 @@ public class NetworkConnection {
 		if(handlers.isEmpty()){
 			if(shutdownTimer == null) {
 				shutdownTimer = new Timer();
-
+				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+				long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
+				Log.d("IRCCloud", "Scheduling disconnect timer for " + timeout + "ms");
 				shutdownTimer.schedule( new TimerTask(){
 		             public void run() {
 		            	 if(handlers.isEmpty()) {
@@ -997,7 +1009,7 @@ public class NetworkConnection {
 		            	 }
 		                 shutdownTimer = null;
 		              }
-		           }, 5*60000); //TODO: Make this value configurable
+		           }, timeout);
 			}
 			if(idleTimer != null && state != STATE_CONNECTED) {
 				idleTimer.cancel();

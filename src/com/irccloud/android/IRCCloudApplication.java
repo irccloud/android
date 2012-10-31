@@ -4,6 +4,7 @@ import android.app.Application;
 
 public class IRCCloudApplication extends Application {
 	private static IRCCloudApplication instance = null;
+	private NetworkConnection conn = null;
 	
 	public static IRCCloudApplication getInstance() {
 		if(instance != null) {
@@ -17,5 +18,6 @@ public class IRCCloudApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		instance = this;
+		conn = NetworkConnection.getInstance();
 	}
 }

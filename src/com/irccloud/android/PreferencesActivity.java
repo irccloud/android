@@ -34,6 +34,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		addPreferencesFromResource(R.xml.preferences_account);
 		addPreferencesFromResource(R.xml.preferences_display);
+		addPreferencesFromResource(R.xml.preferences_device);
 		addPreferencesFromResource(R.xml.preferences_about);
 		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 		findPreference("email").setOnPreferenceChangeListener(settingstoggle);
