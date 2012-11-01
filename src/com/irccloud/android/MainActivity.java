@@ -44,7 +44,11 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
 
-    	launchLastChannel();
+    	if(getIntent() != null && getIntent().hasExtra("bid")) {
+    		launchBid(getIntent().getIntExtra("bid", -1));
+    	} else {
+    		launchLastChannel();
+    	}
     }
     
     @Override

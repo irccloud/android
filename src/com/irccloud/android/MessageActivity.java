@@ -400,6 +400,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         refreshUpIndicatorTask.execute((Void)null);
 
     	invalidateOptionsMenu();
+    	
+    	Notifications.getInstance().excludeBid = bid;
+    	Notifications.getInstance().showNotifications(null);
     }
 
     @Override
@@ -407,6 +410,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	super.onPause();
     	if(conn != null)
     		conn.removeHandler(mHandler);
+    	Notifications.getInstance().excludeBid = -1;
     }
 	
     private void update_subtitle() {
@@ -528,6 +532,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					bid = buffer.bid;
 			    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
 			    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
+			    	Notifications.getInstance().excludeBid = bid;
+			    	Notifications.getInstance().showNotifications(null);
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
@@ -1163,6 +1169,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	
 	    	updateUsersListFragmentVisibility();
 	    	invalidateOptionsMenu();
+	    	Notifications.getInstance().excludeBid = bid;
+	    	Notifications.getInstance().showNotifications(null);
 		}
 	}
 

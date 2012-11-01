@@ -631,6 +631,7 @@ public class NetworkConnection {
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
+				Notifications.getInstance().clear();
 			} else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog") || type.equalsIgnoreCase("backlog_complete")) {
 			} else if(type.equalsIgnoreCase("num_invites")) {
 				if(userInfo != null)
@@ -676,6 +677,12 @@ public class NetworkConnection {
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
 								object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"));
+				Notifications.getInstance().deleteNetwork(object.getInt("cid"));
+				if(object.getString("name") != null && object.getString("name").length() > 0)
+					Notifications.getInstance().addNetwork(object.getInt("cid"), object.getString("name"));
+				else
+					Notifications.getInstance().addNetwork(object.getInt("cid"), object.getString("hostname"));
+
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("connection_deleted")) {
@@ -728,6 +735,21 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				EventsDataSource.Event event = e.addEvent(object);
+				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.getInt("bid"));
+				
+				if((event.highlight && e.isImportant(event, b.type) || b.type.equals("conversation"))) {
+					if(event.eid > b.last_seen_eid) {
+						Notifications.getInstance().deleteNotification(event.cid, event.bid, event.eid);
+						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, event.from, event.msg, b.name, b.type, event.type);
+					}
+					if(!backlog) {
+						if(b.type.equals("conversation"))
+							Notifications.getInstance().showNotifications(b.name + ": " + event.msg);
+						else
+							Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + event.msg);
+					}
+				}
+				
 				if(!backlog)
 					notifyHandlers(EVENT_BUFFERMSG, event);
 			} else if(type.equalsIgnoreCase("channel_init")) {
@@ -907,10 +929,13 @@ public class NetworkConnection {
 						String bid = eidentry.getKey();
 						long eid = eidentry.getValue().getAsLong();
 						BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+						Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
 					}
 				}
-				if(!backlog)
+				if(!backlog) {
 					notifyHandlers(EVENT_HEARTBEATECHO, object);
+					Notifications.getInstance().showNotifications(null);
+				}
 			} else if(type.equalsIgnoreCase("oob_include")) {
 				try {
 					if(Looper.myLooper() == null)
@@ -1127,6 +1152,7 @@ public class NetworkConnection {
 
 				if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
 					synchronized(parserLock) {
+						Notifications.getInstance().beginBatch();
 						long time = System.currentTimeMillis();
 						Log.i("IRCCloud", "Beginning backlog...");
 						notifyHandlers(EVENT_BACKLOG_START, null);
@@ -1143,6 +1169,7 @@ public class NetworkConnection {
 						reader.endArray();
 						Log.i("IRCCloud", "Backlog complete: " + count + " events");
 						Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
+						Notifications.getInstance().endBatch();
 					}
 				} else if(ServersDataSource.getInstance().count() < 1) {
 					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
@@ -1152,6 +1179,7 @@ public class NetworkConnection {
 					reader.close();
 
 				notifyHandlers(EVENT_BACKLOG_END, null);
+				Notifications.getInstance().showNotifications(null);
 				return true;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

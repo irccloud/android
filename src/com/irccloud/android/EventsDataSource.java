@@ -362,7 +362,7 @@ public class EventsDataSource {
 		return count;
 	}
 
-	private boolean isImportant(Event e, String buffer_type) {
+	public boolean isImportant(Event e, String buffer_type) {
 		if(e == null) {
 			Log.w("IRCCloud", "isImportant: NULL event");
 			return false;

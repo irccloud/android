@@ -3,11 +3,8 @@ package com.irccloud.android;
 import java.io.IOException;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.text.Html;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -26,22 +23,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 		if(intent != null && intent.getExtras() != null) {
 	    	Log.i("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
 		}
-        Notification noti = new Notification.InboxStyle(
-      	      new Notification.Builder(this)
-      	         .setContentTitle("7 unread highlights")
-      	         .setSmallIcon(R.drawable.ic_launcher))
-      	      .addLine(Html.fromHtml("<b>IRCCloud</b>"))
-      	      .addLine(Html.fromHtml("• #alpha: &lt;<b>@RJ</b>&gt; sam: hello from IRCCloud this line is long…"))
-      	      .addLine(Html.fromHtml("• #mobiledev: &lt;<b>@james</b>&gt; sam: hi"))
-      	      .addLine("+2 more")
-      	      .addLine(Html.fromHtml("<b>Last.fm</b>"))
-      	      .addLine(Html.fromHtml("• #last.social: &lt;<b>jonty</b>&gt; pub"))
-      	      .setSummaryText("+2 more")
-      	      .build();
-      
-      NotificationManager mNotificationManager =
-          (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-      mNotificationManager.notify(123, noti);
 	}
 
 	@Override
