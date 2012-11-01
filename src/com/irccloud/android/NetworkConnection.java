@@ -740,13 +740,13 @@ public class NetworkConnection {
 				if((event.highlight && e.isImportant(event, b.type) || b.type.equals("conversation"))) {
 					if(event.eid > b.last_seen_eid) {
 						Notifications.getInstance().deleteNotification(event.cid, event.bid, event.eid);
-						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, event.from, event.msg, b.name, b.type, event.type);
+						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
 					}
 					if(!backlog) {
 						if(b.type.equals("conversation"))
-							Notifications.getInstance().showNotifications(b.name + ": " + event.msg);
+							Notifications.getInstance().showNotifications(b.name + ": " + ColorFormatter.html_to_spanned(event.msg).toString());
 						else
-							Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + event.msg);
+							Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + ColorFormatter.html_to_spanned(event.msg).toString());
 					}
 				}
 				
