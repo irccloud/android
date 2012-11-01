@@ -241,6 +241,7 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public void showNotifications(String ticker) {
+		String from = "";
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getNotifications();
@@ -249,60 +250,71 @@ public class Notifications extends SQLiteOpenHelper {
 		
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 			i.putExtra("bid", notifications.get(0).bid);
-			int lastcid = -1;
-			int lastbid = -1;
-			int count = 0;
-			String lastChan = "";
-			String from = "";
-			for(int j = 0; j < notifications.size(); j++) {
-				String chan = notifications.get(j).chan;
-				if(!lastChan.equals(chan)) {
-					if(from.length() > 0) {
-						from += " (" + (count+1) + "), ";
-					}
-					from += chan;
-					lastChan = chan;
-					count = 0;
-				} else {
-					count++;
-				}
-			}
-			from += " (" + (count+1) + ")";
-			count = 0;
 			NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
-	         .setContentTitle(notifications.size() + " unread highlight(s)")
 	         .setTicker(ticker)
-	         .setContentText(from)
 	         .setNumber(notifications.size())
 	         .setLights(0xFF0000FF, 500, 1000)
 	         .setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
 	         .setSmallIcon(R.drawable.ic_launcher);
+
 			if(ticker != null) {
 				if(prefs.getBoolean("notify_vibrate", true))
 					builder.setDefaults(android.app.Notification.DEFAULT_VIBRATE);
 				if(prefs.getBoolean("notify_sound", true))
 					builder.setSound(Uri.parse("android.resource://com.irccloud.android/"+R.raw.digit));
 			}
-	        NotificationCompat2.InboxStyle inbox = new NotificationCompat2.InboxStyle(builder);
-	        for(Notification n : notifications) {
-	    		if(++count > 4)
-	    			break;
-	        	if(n.cid != lastcid) {
-	        		inbox.addLine(Html.fromHtml("<b>" + n.network.toUpperCase() + "</b>"));
-	        		lastcid = n.cid;
-	        	}
-	        	if(n.bid != lastbid) {
-	        		inbox.addLine(Html.fromHtml("&nbsp;- <b>" + n.chan + "</b>"));
-	        		lastbid = n.bid;
-	        	}
-	        	if(n.buffer_type.equals("conversation"))
-	        		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ " + n.message));
-	        	else
-		    		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ <b>&lt;" + n.nick + "&gt;</b> " + n.message));
-	        }
-	        if(count > 4)
-	        	inbox.setSummaryText("+" + (notifications.size() - count + 1) + " more");
-	        nm.notify(NOTIFY_ID, inbox.build());
+			if(notifications.size() == 1) {
+				Notification n = notifications.get(0);
+				from = n.nick;
+				if(!n.buffer_type.equals("conversation"))
+					from += " in " + n.chan;
+				from += " (" + n.network + ")";
+				builder.setContentTitle(from);
+				builder.setContentText(n.message);
+		        nm.notify(NOTIFY_ID, builder.build());
+			} else {
+				int lastcid = -1;
+				int lastbid = -1;
+				int count = 0;
+				String lastChan = "";
+				for(int j = 0; j < notifications.size(); j++) {
+					String chan = notifications.get(j).chan;
+					if(!lastChan.equals(chan)) {
+						if(from.length() > 0) {
+							from += " (" + (count+1) + "), ";
+						}
+						from += chan;
+						lastChan = chan;
+						count = 0;
+					} else {
+						count++;
+					}
+				}
+				from += " (" + (count+1) + ")";
+				count = 0;
+		         builder.setContentTitle(notifications.size() + " unread highlight(s)")
+		         .setContentText(from);
+		        NotificationCompat2.InboxStyle inbox = new NotificationCompat2.InboxStyle(builder);
+		        for(Notification n : notifications) {
+		    		if(++count > 4)
+		    			break;
+		        	if(n.cid != lastcid) {
+		        		inbox.addLine(Html.fromHtml("<b>" + n.network.toUpperCase() + "</b>"));
+		        		lastcid = n.cid;
+		        	}
+		        	if(n.bid != lastbid) {
+		        		inbox.addLine(Html.fromHtml("&nbsp;- <b>" + n.chan + "</b>"));
+		        		lastbid = n.bid;
+		        	}
+		        	if(n.buffer_type.equals("conversation"))
+		        		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ " + n.message));
+		        	else
+			    		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ <b>&lt;" + n.nick + "&gt;</b> " + n.message));
+		        }
+		        if(count > 4)
+		        	inbox.setSummaryText("+" + (notifications.size() - count + 1) + " more");
+		        nm.notify(NOTIFY_ID, inbox.build());
+			}
 		} else {
 			nm.cancel(NOTIFY_ID);
 		}
