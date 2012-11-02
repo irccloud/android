@@ -885,9 +885,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			return;
 		
 		if(messageTxt.getText().length() == 0)
-			messageTxt.setText(from + ": ");
+			messageTxt.append(from + ": ");
 		else
-			messageTxt.setText(messageTxt.getText() + " " + from + " ");
+			messageTxt.append(" " + from + " ");
 	}
 	
 	@Override
