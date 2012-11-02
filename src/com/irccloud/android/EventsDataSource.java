@@ -383,7 +383,7 @@ public class EventsDataSource {
 			return false;
 		}
 		if (type.equals("notice") && buffer_type != null && buffer_type.equals("console")) {
-			if (e.server == null || e.to_chan == true) {
+			if (e.server != null || e.to_chan == true) {
 				return false;
 			}
 		}
