@@ -385,7 +385,7 @@ public class EventsDataSource {
 			}
 		}
 		return (type.equals("buffer_msg") ||
-				type.equals("buffer_me_msg") 
+				type.equals("buffer_me_msg") ||
 				type.equals("notice") ||
 				type.equals("channel_invite") ||
 				type.equals("callerid") ||
