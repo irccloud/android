@@ -353,7 +353,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		}
     	}
 
-    	MessageViewFragment f = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
     	Bundle b = new Bundle();
     	b.putInt("cid", cid);
     	b.putInt("bid", bid);
@@ -361,7 +362,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	b.putLong("min_eid", min_eid);
     	b.putString("name", name);
     	b.putString("type", type);
-    	f.setArguments(b);
+    	ulf.setArguments(b);
+    	mvf.setArguments(b);
     }
     
     @Override
@@ -401,7 +403,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	invalidateOptionsMenu();
     	
-    	Notifications.getInstance().excludeBid = bid;
+    	Notifications.getInstance().excludeBid(bid);
     	Notifications.getInstance().showNotifications(null);
     }
 
@@ -410,7 +412,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	super.onPause();
     	if(conn != null)
     		conn.removeHandler(mHandler);
-    	Notifications.getInstance().excludeBid = -1;
+    	Notifications.getInstance().excludeBid(-1);
     }
 	
     private void update_subtitle() {
@@ -532,7 +534,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					bid = buffer.bid;
 			    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
 			    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
-			    	Notifications.getInstance().excludeBid = bid;
+			    	Notifications.getInstance().excludeBid(bid);
 			    	Notifications.getInstance().showNotifications(null);
 				}
 				break;
@@ -1169,7 +1171,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	
 	    	updateUsersListFragmentVisibility();
 	    	invalidateOptionsMenu();
-	    	Notifications.getInstance().excludeBid = bid;
+	    	Notifications.getInstance().excludeBid(bid);
 	    	Notifications.getInstance().showNotifications(null);
 		}
 	}

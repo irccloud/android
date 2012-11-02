@@ -288,6 +288,11 @@ public class EventsDataSource {
 	    		e.from = "";
 	    		e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
 	    		e.bg_color = R.color.notice;
+	    	} else if(e.type.equalsIgnoreCase("channel_invite")) {
+	    		e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
+	    		e.bg_color = R.color.highlight;
+	    		e.old_nick = event.getString("channel");
+	    		e.highlight = true;
 	    	}
 	    	
 	    	if(event.has("value")) {

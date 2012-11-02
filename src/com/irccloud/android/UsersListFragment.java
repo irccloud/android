@@ -316,6 +316,7 @@ public class UsersListFragment extends SherlockListFragment {
 					adapter.notifyDataSetChanged();
 				break;
 			case NetworkConnection.EVENT_USERINFO:
+			case NetworkConnection.EVENT_CHANNELINIT:
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_QUIT:

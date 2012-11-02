@@ -676,6 +676,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> (" + event.hostmask + ")";
 	    		if(event.msg != null && event.msg.length() > 0)
 	    			event.html += ": " + event.msg;
+	    	} else if(type.equalsIgnoreCase("channel_invite")) {
+	    		event.html += ". Tap to join.";
 			} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
 				if(event.from.length() == 0) {
 					event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
@@ -717,15 +719,22 @@ public class MessageViewFragment extends SherlockListFragment {
     }
     
     public void onListItemClick(ListView l, View v, int position, long id) {
-    	long group = adapter.getGroupForPosition(position-1);
-    	if(expandedSectionEids.contains(group))
-    		expandedSectionEids.remove(group);
-    	else
-    		expandedSectionEids.add(group);
-        if(refreshTask != null)
-        	refreshTask.cancel(true);
-		refreshTask = new RefreshTask();
-		refreshTask.execute((Void)null);
+    	if(adapter != null) {
+	    	EventsDataSource.Event e = adapter.data.get(position-1);
+	    	if(e != null && e.type.equals("channel_invite")) {
+	    		conn.join(cid, e.old_nick, null);
+	    	} else {
+		    	long group = adapter.getGroupForPosition(position-1);
+		    	if(expandedSectionEids.contains(group))
+		    		expandedSectionEids.remove(group);
+		    	else
+		    		expandedSectionEids.add(group);
+		        if(refreshTask != null)
+		        	refreshTask.cancel(true);
+				refreshTask = new RefreshTask();
+				refreshTask.execute((Void)null);
+	    	}
+    	}
     }
     
     @SuppressWarnings("unchecked")

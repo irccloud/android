@@ -151,4 +151,13 @@ public class BuffersDataSource {
 		Collections.sort(list, new comparator());
 		return list;
 	}
+	
+	public synchronized ArrayList<Buffer> getBuffers() {
+		ArrayList<Buffer> list = new ArrayList<Buffer>();
+		Iterator<Buffer> i = buffers.iterator();
+		while(i.hasNext()) {
+			list.add(i.next());
+		}
+		return list;
+	}
 }

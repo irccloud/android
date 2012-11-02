@@ -40,7 +40,7 @@ public class Notifications extends SQLiteOpenHelper {
 	public static final String TABLE_NETWORKS = "networks";
 
 	private static final String DATABASE_NAME = "notifications.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 1;
 	private static final int NOTIFY_ID = 1;
 
 	private static Notifications instance = null;
@@ -49,7 +49,7 @@ public class Notifications extends SQLiteOpenHelper {
 	private Semaphore readSemaphore = new Semaphore(1);
 	private Semaphore writeSemaphore = new Semaphore(1);
 	
-	public int excludeBid = -1;
+	private int excludeBid = -1;
 	
 	public static Notifications getInstance() {
 		if(instance == null)
@@ -215,6 +215,15 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public void deleteOldNotifications(int bid, long last_seen_eid) {
+        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+		ArrayList<Notification> notifications = getInviteNotifications();
+		
+		if(notifications.size() > 0) {
+	        for(Notification n : notifications) {
+	        	if(n.eid <= last_seen_eid)
+	        		nm.cancel((int)(n.eid/1000));
+	        }
+		}
 		SQLiteDatabase db = getSafeWritableDatabase();
 		db.delete(TABLE_NOTIFICATIONS, "bid = ? and eid <= ?", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)});
 		if(!isBatch())
@@ -222,11 +231,11 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 	
-	public ArrayList<Notification> getNotifications() {
+	public ArrayList<Notification> getMessageNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
 		SQLiteDatabase db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and bid != " + excludeBid, null, null, null, "cid,chan,eid");
+		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and bid != " + excludeBid + " and (message_type='buffer_msg' or message_type='buffer_me_msg' or message_type='notice' or message_type='wallops')", null, null, null, "cid,chan,eid");
 
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -240,11 +249,77 @@ public class Notifications extends SQLiteOpenHelper {
 		return notifications;
 	}
 	
+	public ArrayList<Notification> getInviteNotifications() {
+		ArrayList<Notification> notifications = new ArrayList<Notification>();
+
+		SQLiteDatabase db = getSafeReadableDatabase();
+		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and bid != " + excludeBid + " and message_type='channel_invite'", null, null, null, "cid,chan,eid");
+
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			Notification n = cursorToNotification(cursor);
+			notifications.add(n);
+			cursor.moveToNext();
+		}
+		cursor.close();
+		db.close();
+		releaseReadableDatabase();
+		return notifications;
+	}
+	
+	public void excludeBid(int bid) {
+		excludeBid = -1;
+        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+		ArrayList<Notification> notifications = getInviteNotifications();
+		
+		if(notifications.size() > 0) {
+	        for(Notification n : notifications) {
+	        	if(n.bid == bid)
+	        		nm.cancel((int)(n.eid/1000));
+	        }
+		}
+		excludeBid = bid;
+	}
+	
 	public void showNotifications(String ticker) {
+		showMessageNotifications(ticker);
+		showInviteNotifications();
+	}
+	
+	private void showInviteNotifications() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+		ArrayList<Notification> notifications = getInviteNotifications();
+		
+		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
+	        for(Notification n : notifications) {
+	    		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class);
+	    		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+	    		i.putExtra("bid", n.bid);
+				NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+		         .setTicker(n.message)
+		         .setOnlyAlertOnce(true)
+		         .setNumber(notifications.size())
+		         .setLights(0xFF0000FF, 500, 1000)
+		         .setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
+		         .setSmallIcon(R.drawable.ic_launcher);
+	
+				if(prefs.getBoolean("notify_vibrate", true))
+					builder.setDefaults(android.app.Notification.DEFAULT_VIBRATE);
+				if(prefs.getBoolean("notify_sound", true))
+					builder.setSound(Uri.parse("android.resource://com.irccloud.android/"+R.raw.digit));
+				builder.setContentTitle(n.nick + " (" + n.network + ")");
+				builder.setContentText(n.message);
+		        nm.notify((int)(n.eid/1000), builder.build());
+	        }
+		}
+	}
+	
+	private void showMessageNotifications(String ticker) {
 		String from = "";
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		ArrayList<Notification> notifications = getNotifications();
+		ArrayList<Notification> notifications = getMessageNotifications();
 		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class);
 		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		
@@ -266,7 +341,7 @@ public class Notifications extends SQLiteOpenHelper {
 			if(notifications.size() == 1) {
 				Notification n = notifications.get(0);
 				from = n.nick;
-				if(!n.buffer_type.equals("conversation"))
+				if(!n.buffer_type.equals("conversation") && !n.message_type.equals("wallops"))
 					from += " in " + n.chan;
 				from += " (" + n.network + ")";
 				builder.setContentTitle(from);
@@ -306,8 +381,12 @@ public class Notifications extends SQLiteOpenHelper {
 		        		inbox.addLine(Html.fromHtml("&nbsp;- <b>" + n.chan + "</b>"));
 		        		lastbid = n.bid;
 		        	}
-		        	if(n.buffer_type.equals("conversation"))
+		        	if(n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
+		        		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;* " + n.message));
+		        	else if(n.buffer_type.equals("conversation"))
 		        		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ " + n.message));
+		        	else if(n.message_type.equals("buffer_me_msg"))
+			    		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ <b>* &lt;" + n.nick + "&gt;</b> " + n.message));
 		        	else
 			    		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ <b>&lt;" + n.nick + "&gt;</b> " + n.message));
 		        }

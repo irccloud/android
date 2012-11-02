@@ -730,7 +730,7 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart") || type.equalsIgnoreCase("wait") || type.equalsIgnoreCase("banned") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("connecting_cancelled")
 					 || type.equalsIgnoreCase("notice") || type.equalsIgnoreCase("server_welcome") || type.equalsIgnoreCase("server_motd") || type.equalsIgnoreCase("server_endofmotd") || type.equalsIgnoreCase("services_down") || type.equalsIgnoreCase("your_unique_id")
 					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns") || type.equalsIgnoreCase("myinfo") || type.equalsIgnoreCase("hidden_host_set") || type.equalsIgnoreCase("unhandled_line") || type.equalsIgnoreCase("unparsed_line")
-					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local") || type.equalsIgnoreCase("server_luserchannels") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("nickname_in_use")
+					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local") || type.equalsIgnoreCase("server_luserchannels") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("nickname_in_use") || type.equalsIgnoreCase("channel_invite")
 					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown") || type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("channel_mode_list_change")
 					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")) {
 				EventsDataSource e = EventsDataSource.getInstance();
@@ -740,7 +740,7 @@ public class NetworkConnection {
 				if((event.highlight && e.isImportant(event, b.type) || b.type.equals("conversation"))) {
 					if(event.eid > b.last_seen_eid) {
 						Notifications.getInstance().deleteNotification(event.cid, event.bid, event.eid);
-						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
+						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
 					}
 					if(!backlog) {
 						if(b.type.equals("conversation"))
@@ -1178,8 +1178,12 @@ public class NetworkConnection {
 				if(reader != null)
 					reader.close();
 
-				notifyHandlers(EVENT_BACKLOG_END, null);
+				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
+				for(BuffersDataSource.Buffer b : buffers) {
+					Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
+				}
 				Notifications.getInstance().showNotifications(null);
+				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
