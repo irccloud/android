@@ -737,7 +737,7 @@ public class NetworkConnection {
 				EventsDataSource.Event event = e.addEvent(object);
 				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.getInt("bid"));
 				
-				if((event.highlight && e.isImportant(event, b.type) || b.type.equals("conversation"))) {
+				if(b != null && ((event.highlight && e.isImportant(event, b.type) || b.type.equals("conversation")))) {
 					if(event.eid > b.last_seen_eid) {
 						Notifications.getInstance().deleteNotification(event.cid, event.bid, event.eid);
 						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
