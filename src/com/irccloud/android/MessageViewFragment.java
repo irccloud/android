@@ -35,6 +35,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.irccloud.android.BuffersListFragment.OnBufferSelectedListener;
 
 public class MessageViewFragment extends SherlockListFragment {
 	private NetworkConnection conn;
@@ -678,6 +679,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			event.html += ": " + event.msg;
 	    	} else if(type.equalsIgnoreCase("channel_invite")) {
 	    		event.html += ". Tap to join.";
+	    	} else if(type.equalsIgnoreCase("callerid")) {
+    			event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
 			} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
 				if(event.from.length() == 0) {
 					event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
@@ -723,6 +726,16 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	EventsDataSource.Event e = adapter.data.get(position-1);
 	    	if(e != null && e.type.equals("channel_invite")) {
 	    		conn.join(cid, e.old_nick, null);
+	    	} else if(e != null && e.type.equals("callerid")) {
+	    		conn.say(cid, null, "/accept " + e.from);
+	    		BuffersDataSource b = BuffersDataSource.getInstance();
+	    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
+	    		if(buffer != null) {
+	    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+	    					buffer.type, 1, buffer.archived, "connected_ready");
+	    		} else {
+	    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
+	    		}
 	    	} else {
 		    	long group = adapter.getGroupForPosition(position-1);
 		    	if(expandedSectionEids.contains(group))
@@ -1200,7 +1213,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
 	};
 	
-	public interface MessageViewListener {
+	public interface MessageViewListener extends OnBufferSelectedListener {
 		public void onMessageViewReady();
 		public boolean onMessageLongClicked(EventsDataSource.Event event);
 	}

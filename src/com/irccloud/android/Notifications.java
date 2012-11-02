@@ -216,7 +216,7 @@ public class Notifications extends SQLiteOpenHelper {
 	
 	public void deleteOldNotifications(int bid, long last_seen_eid) {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		ArrayList<Notification> notifications = getInviteNotifications();
+		ArrayList<Notification> notifications = getOtherNotifications();
 		
 		if(notifications.size() > 0) {
 	        for(Notification n : notifications) {
@@ -249,11 +249,11 @@ public class Notifications extends SQLiteOpenHelper {
 		return notifications;
 	}
 	
-	public ArrayList<Notification> getInviteNotifications() {
+	public ArrayList<Notification> getOtherNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
 		SQLiteDatabase db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and bid != " + excludeBid + " and message_type='channel_invite'", null, null, null, "cid,chan,eid");
+		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and bid != " + excludeBid + " and (message_type='channel_invite' or message_type='callerid')", null, null, null, "cid,chan,eid");
 
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -270,7 +270,7 @@ public class Notifications extends SQLiteOpenHelper {
 	public void excludeBid(int bid) {
 		excludeBid = -1;
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		ArrayList<Notification> notifications = getInviteNotifications();
+		ArrayList<Notification> notifications = getOtherNotifications();
 		
 		if(notifications.size() > 0) {
 	        for(Notification n : notifications) {
@@ -283,13 +283,13 @@ public class Notifications extends SQLiteOpenHelper {
 	
 	public void showNotifications(String ticker) {
 		showMessageNotifications(ticker);
-		showInviteNotifications();
+		showOtherNotifications();
 	}
 	
-	private void showInviteNotifications() {
+	private void showOtherNotifications() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-		ArrayList<Notification> notifications = getInviteNotifications();
+		ArrayList<Notification> notifications = getOtherNotifications();
 		
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 	        for(Notification n : notifications) {
@@ -297,7 +297,6 @@ public class Notifications extends SQLiteOpenHelper {
 	    		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 	    		i.putExtra("bid", n.bid);
 				NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
-		         .setTicker(n.message)
 		         .setOnlyAlertOnce(true)
 		         .setNumber(notifications.size())
 		         .setLights(0xFF0000FF, 500, 1000)
@@ -308,8 +307,15 @@ public class Notifications extends SQLiteOpenHelper {
 					builder.setDefaults(android.app.Notification.DEFAULT_VIBRATE);
 				if(prefs.getBoolean("notify_sound", true))
 					builder.setSound(Uri.parse("android.resource://com.irccloud.android/"+R.raw.digit));
-				builder.setContentTitle(n.nick + " (" + n.network + ")");
-				builder.setContentText(n.message);
+				if(n.message_type.equals("callerid")) {
+					builder.setContentTitle("Callerid: " + n.nick + " (" + n.network + ")");
+					builder.setContentText(n.nick + " " + n.message);
+					builder.setTicker(n.nick + " " + n.message);
+				} else {
+					builder.setContentTitle(n.nick + " (" + n.network + ")");
+					builder.setContentText(n.message);
+					builder.setTicker(n.message);
+				}
 		        nm.notify((int)(n.eid/1000), builder.build());
 	        }
 		}

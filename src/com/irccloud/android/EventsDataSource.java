@@ -296,16 +296,21 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.notice;
 	    	} else if(e.type.equalsIgnoreCase("channel_invite")) {
 	    		e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
-	    		e.bg_color = R.color.highlight;
 	    		e.old_nick = event.getString("channel");
 	    		e.highlight = true;
+	    	} else if(e.type.equalsIgnoreCase("callerid")) {
+	    		e.from = e.nick;
+	    		e.msg = "<pre>" + e.msg + "</pre>";
+	    		e.highlight = true;
+	    		e.linkify = false;
+	    		e.hostmask = event.getString("usermask");
 	    	}
 	    	
 	    	if(event.has("value")) {
 	    		e.msg = event.getString("value") + " " + e.msg;
 	    	}
 
-	    	if(event.has("highlight") && event.getBoolean("highlight"))
+	    	if(e.highlight)
 	    		e.bg_color = R.color.highlight;
 	    	
 	    	if(e.self)
