@@ -308,7 +308,7 @@ public class EventsDataSource {
 	    	if(event.has("highlight") && event.getBoolean("highlight"))
 	    		e.bg_color = R.color.highlight;
 	    	
-	    	if(event.has("self") && event.getBoolean("self"))
+	    	if(e.self)
 	    		e.bg_color = R.color.self;
 			
 	    	if(e.msg != null && e.msg .length() > 0)
@@ -377,6 +377,8 @@ public class EventsDataSource {
 			Log.w("IRCCloud", "isImportant: NULL event");
 			return false;
 		}
+		if(e.self)
+			return false;
 		String type = e.type;
 		if(type == null) {
 			Log.w("IRCCloud", "isImportant: NULL type");
