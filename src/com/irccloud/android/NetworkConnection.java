@@ -748,7 +748,6 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_BUFFERMSG, event);
 			} else if(type.equalsIgnoreCase("channel_init")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				c.deleteChannel(object.getLong("bid"));
 				ChannelsDataSource.Channel channel = c.createChannel(object.getInt("cid"), object.getLong("bid"), object.getString("chan"),
 						object.getJsonObject("topic").get("text").isJsonNull()?"":object.getJsonObject("topic").get("text").getAsString(),
 								object.getJsonObject("topic").get("time").getAsLong(), 
@@ -787,7 +786,6 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
 			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
 				UsersDataSource u = UsersDataSource.getInstance();
-				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
 				u.createUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"), object.getString("hostmask"), "", 0);
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);

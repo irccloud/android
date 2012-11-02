@@ -43,13 +43,17 @@ public class UsersDataSource {
 	}
 	
 	public synchronized User createUser(int cid, String channel, String nick, String hostmask, String mode, int away) {
-		User u = findOldNickForHostmask(cid, hostmask);
-		if(u == null)
-			u = new User();
-		else if(!u.nick.equals(nick))
-			u.old_nick = u.nick;
-		else
-			u.old_nick = null;
+		User u = getUser(cid, channel, nick);
+		if(u == null) {
+			u = findOldNickForHostmask(cid, hostmask);
+			if(u == null)
+				u = new User();
+			else if(!u.nick.equals(nick))
+				u.old_nick = u.nick;
+			else
+				u.old_nick = null;
+			users.add(u);
+		}
 		u.cid = cid;
 		u.channel = channel;
 		u.nick = nick;
@@ -57,7 +61,6 @@ public class UsersDataSource {
 		u.mode = mode;
 		u.away = away;
 		u.joined = 1;
-		users.add(u);
 		return u;
 	}
 
