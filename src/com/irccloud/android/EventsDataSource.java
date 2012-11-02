@@ -32,6 +32,7 @@ public class EventsDataSource {
 		String html;
 		boolean highlight;
 		boolean self;
+		boolean to_chan;
 		int color;
 		int bg_color;
 		JsonObject ops;
@@ -96,6 +97,7 @@ public class EventsDataSource {
 			e.diff = event.getString("diff");
 			e.highlight = event.getBoolean("highlight");
 			e.self = event.getBoolean("self");
+			e.to_chan = event.getBoolean("to_chan");
 			e.ops = event.getJsonObject("ops");
 			e.color = R.color.row_message_label;
 	    	e.bg_color = R.color.message_bg;
@@ -377,8 +379,17 @@ public class EventsDataSource {
 			Log.w("IRCCloud", "isImportant: NULL type");
 			return false;
 		}
-		return (type.equals("buffer_msg") || type.equals("buffer_me_msg") 
-				|| (type.equals("notice") && buffer_type != null && (!buffer_type.equals("console") || !(e.server != null && !e.server.equals("undefined")))));
+		if (type.equals("notice") && buffer_type != null && buffer_type.equals("console")) {
+			if (e.server == null || e.to_chan == true) {
+				return false;
+			}
+		}
+		return (type.equals("buffer_msg") ||
+				type.equals("buffer_me_msg") 
+				type.equals("notice") ||
+				type.equals("channel_invite") ||
+				type.equals("callerid") ||
+				type.equals("wallops"));
 	}
 	
 	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
