@@ -93,6 +93,13 @@ public class ServersDataSource {
 		}
 	}
 
+	public void updateNick(int cid, String nick) {
+		Server s = getServer(cid);
+		if(s != null) {
+			s.nick = nick;
+		}
+	}
+
 	public void updateStatus(int cid, String status, JsonObject fail_info) {
 		Server s = getServer(cid);
 		if(s != null) {

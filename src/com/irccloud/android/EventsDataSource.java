@@ -41,6 +41,7 @@ public class EventsDataSource {
 		String group_msg;
 		boolean linkify;
 		String target_mode;
+		int reqid;
 	}
 	
 	public class comparator implements Comparator<Event> {
@@ -71,6 +72,15 @@ public class EventsDataSource {
 	public void clear() {
 		synchronized(events) {
 			events.clear();
+		}
+	}
+	
+	public void addEvent(Event event) {
+		synchronized(events) {
+			if(!events.containsKey(event.bid))
+				events.put(event.bid, new TreeMap<Long,Event>());
+			
+			events.get(event.bid).put(event.eid, event);
 		}
 	}
 	
@@ -112,6 +122,10 @@ public class EventsDataSource {
 	    	e.group_msg = null;
 	    	e.linkify = true;
 	    	e.target_mode = null;
+	    	if(event.has("reqid"))
+	    		e.reqid = event.getInt("reqid");
+	    	else
+	    		e.reqid = -1;
 
 			if(e.from != null)
 				e.from = TextUtils.htmlEncode(e.from);

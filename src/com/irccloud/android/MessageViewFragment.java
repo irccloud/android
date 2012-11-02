@@ -112,6 +112,15 @@ public class MessageViewFragment extends SherlockListFragment {
 			data.clear();
 		}
 		
+		public void clearPending() {
+			for(int i = 0; i < data.size(); i++) {
+				if(data.get(i).reqid != -1) {
+					data.remove(i);
+					i--;
+				}
+			}
+		}
+
 		public void removeItem(long eid) {
 			for(int i = 0; i < data.size(); i++) {
 				if(data.get(i).eid == eid) {
@@ -192,7 +201,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				data.remove(currentGroupPosition);
 				data.add(currentGroupPosition, e);
 				insert_pos = currentGroupPosition;
-			} else if(eid > max_eid || data.size() == 0) { //Message at the bottom
+			} else if(eid > max_eid || data.size() == 0 || eid > data.get(data.size()-1).eid) { //Message at the bottom
 				if(data.size() > 0) {
 					calendar.setTimeInMillis(data.get(data.size()-1).eid / 1000);
 					lastDay = calendar.get(Calendar.DAY_OF_YEAR);
@@ -1154,6 +1163,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
 			case NetworkConnection.EVENT_USERINFO:
+			case NetworkConnection.EVENT_CONNECTIVITY:
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();
@@ -1229,6 +1239,16 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
 				if(event.bid == bid) {
+					if(event.from.equals(name) && event.reqid == -1) {
+						adapter.clearPending();
+					} else if(event.reqid != -1) {
+						for(EventsDataSource.Event e : adapter.data) {
+							if(e.reqid == event.reqid) {
+								e.eid = event.eid;
+								break;
+							}
+						}
+					}
 					insertEvent(event, false, false);
 				}
 				break;

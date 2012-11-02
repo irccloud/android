@@ -1,6 +1,7 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,6 +70,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
 	private ArrayList<Integer> backStack = new ArrayList<Integer>();
 	PowerManager.WakeLock screenLock = null;
+	
+	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
     @SuppressLint("NewApi")
 	@SuppressWarnings({ "deprecation", "unchecked" })
@@ -249,15 +252,57 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
     
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
+    	EventsDataSource.Event e = null;
+    	
     	@Override
     	protected void onPreExecute() {
-    		sendBtn.setEnabled(false);
+			if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+	    		sendBtn.setEnabled(false);
+	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+	    		e = EventsDataSource.getInstance().new Event();
+	    		e.cid = cid;
+	    		e.bid = bid;
+	    		e.eid = (System.currentTimeMillis() + conn.clockOffset) * 1000L;
+	    		e.self = true;
+	    		e.from = s.nick;
+	    		e.nick = s.nick;
+	    		String msg = messageTxt.getText().toString();
+	    		if(msg.startsWith("//"))
+	    			msg = msg.substring(1);
+	    		else if(msg.startsWith("/") && !msg.startsWith("/me "))
+	    			msg = null;
+	    		e.msg = msg;
+	    		if(msg != null && msg.toLowerCase().startsWith("/me ")) {
+		    		e.type = "buffer_me_msg";
+		    		e.msg = msg.substring(4);
+	    		} else {
+		    		e.type = "buffer_msg";
+	    		}
+				e.color = R.color.timestamp;
+				if(name.equals(s.nick))
+					e.bg_color = R.color.message_bg;
+				else
+					e.bg_color = R.color.self;
+		    	e.row_type = 0;
+		    	e.html = null;
+		    	e.group_msg = null;
+		    	e.linkify = true;
+		    	e.target_mode = null;
+		    	e.highlight = false;
+		    	e.reqid = -1;
+		    	if(e.msg != null) {
+		    		EventsDataSource.getInstance().addEvent(e);
+		    		conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, mHandler);
+		    	}
+			}
     	}
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
 			if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
-				conn.say(cid, name, messageTxt.getText().toString());
+				e.reqid = conn.say(cid, name, messageTxt.getText().toString());
+				if(e.msg != null)
+					pendingEvents.put(e.reqid, e);
 			}
 			return null;
 		}
@@ -480,6 +525,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			Integer event_bid = 0;
 			IRCCloudJSONObject event = null;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_CONNECTIVITY:
+				for(EventsDataSource.Event e : pendingEvents.values()) {
+					EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+				}
+				pendingEvents.clear();
+				break;
 			case NetworkConnection.EVENT_BANLIST:
 				event = (IRCCloudJSONObject)msg.obj;
 				if(event.getString("channel").equalsIgnoreCase(name)) {
@@ -637,6 +688,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 		        refreshUpIndicatorTask.execute((Void)null);
 				break;
+			case NetworkConnection.EVENT_FAILURE_MSG:
+				event = (IRCCloudJSONObject)msg.obj;
+				int reqid = event.getInt("_reqid");
+				if(pendingEvents.containsKey(reqid)) {
+					EventsDataSource.Event e = pendingEvents.get(reqid);
+					EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+					pendingEvents.remove(event.getInt("_reqid"));
+					e.msg = ColorFormatter.irc_to_html(e.msg + " \u00034(FAILED)\u000f");
+					conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
+				}
+				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				try {
 					EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
@@ -645,6 +707,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				        	refreshUpIndicatorTask.cancel(true);
 				        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 				        refreshUpIndicatorTask.execute((Void)null);
+					}
+					if(e.from.equalsIgnoreCase(name)) {
+						for(EventsDataSource.Event e1 : pendingEvents.values()) {
+							EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
+						}
+						pendingEvents.clear();
+					} else if(pendingEvents.containsKey(e.reqid)) {
+						e = pendingEvents.get(e.reqid);
+						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+						pendingEvents.remove(e.reqid);
 					}
 				} catch (Exception e1) {
 				}

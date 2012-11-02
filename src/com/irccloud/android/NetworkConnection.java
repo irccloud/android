@@ -21,7 +21,6 @@ import java.util.zip.GZIPInputStream;
 import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -121,6 +120,8 @@ public class NetworkConnection {
 	
 	private Object parserLock = new Object();
 	private WifiManager.WifiLock wifiLock = null;
+	
+	public long clockOffset = 0;
 	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
@@ -632,7 +633,9 @@ public class NetworkConnection {
 		if(type != null && type.length() > 0) {
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
+				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
 				Notifications.getInstance().clear();
+				Log.d("IRCCloud", "Clock offset: " + clockOffset + "ms");
 			} else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog") || type.equalsIgnoreCase("backlog_complete")) {
 			} else if(type.equalsIgnoreCase("num_invites")) {
 				if(userInfo != null)
@@ -844,10 +847,13 @@ public class NetworkConnection {
 				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
 				if(chan != null) {
 					UsersDataSource u = UsersDataSource.getInstance();
-					u.updateNick(object.getInt("cid"), chan.name, object.getString("oldnick"), object.getString("newnick"));
+					u.updateNick(object.cid(), chan.name, object.getString("oldnick"), object.getString("newnick"));
 				}
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
+				if(type.equalsIgnoreCase("you_nickchange")) {
+					ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
+				}
 				if(!backlog)
 					notifyHandlers(EVENT_NICKCHANGE, object);
 			} else if(type.equalsIgnoreCase("user_channel_mode")) {
@@ -1050,11 +1056,17 @@ public class NetworkConnection {
 		}
 	}
 
-	private void notifyHandlers(int message, Object object) {
+	public void notifyHandlers(int message, Object object) {
+		notifyHandlers(message,object,null);
+	}
+	
+	public synchronized void notifyHandlers(int message, Object object, Handler exclude) {
 		for(int i = 0; i < handlers.size(); i++) {
 			Handler handler = handlers.get(i);
-			Message msg = handler.obtainMessage(message, object);
-			handler.sendMessage(msg);
+			if(handler != exclude) {
+				Message msg = handler.obtainMessage(message, object);
+				handler.sendMessage(msg);
+			}
 		}
 	}
 	
