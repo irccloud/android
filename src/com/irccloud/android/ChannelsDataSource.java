@@ -36,7 +36,11 @@ public class ChannelsDataSource {
 	}
 	
 	public synchronized Channel createChannel(int cid, long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode, long timestamp) {
-		Channel c = new Channel();
+		Channel c = getChannelForBuffer(bid);
+		if(c == null) {
+			c = new Channel();
+			channels.add(c);
+		}
 		c.cid = cid;
 		c.bid = bid;
 		c.name = name;
@@ -46,7 +50,6 @@ public class ChannelsDataSource {
 		c.type = type;
 		c.mode = mode;
 		c.timestamp = timestamp;
-		channels.add(c);
 		return c;
 	}
 

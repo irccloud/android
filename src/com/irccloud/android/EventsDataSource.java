@@ -79,7 +79,11 @@ public class EventsDataSource {
 			if(!events.containsKey(event.bid()))
 				events.put(event.bid(), new TreeMap<Long,Event>());
 			
-			Event e = new Event();
+			Event e = getEvent(event.eid(), event.bid());
+			if(e == null) {
+				e = new Event();
+				events.get(event.bid()).put(event.eid(), e);
+			}
 			e.cid = event.cid();
 			e.bid = event.bid();
 			e.eid = event.eid();
@@ -310,7 +314,6 @@ public class EventsDataSource {
 	    	if(e.msg != null && e.msg .length() > 0)
 	    		e.msg = ColorFormatter.irc_to_html(e.msg);
 	    	
-			events.get(event.bid()).put(e.eid, e);
 			if(highest_eid < event.eid())
 				highest_eid = event.eid();
 			

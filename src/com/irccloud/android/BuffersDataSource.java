@@ -64,7 +64,11 @@ public class BuffersDataSource {
 	}
 	
 	public synchronized Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred) {
-		Buffer b = new Buffer();
+		Buffer b = getBuffer(bid);
+		if(b == null) {
+			b = new Buffer();
+			buffers.add(b);
+		}
 		b.bid = bid;
 		b.cid = cid;
 		b.min_eid = min_eid;
@@ -73,7 +77,6 @@ public class BuffersDataSource {
 		b.type = type;
 		b.archived = archived;
 		b.deferred = deferred;
-		buffers.add(b);
 		return b;
 	}
 

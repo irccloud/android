@@ -672,7 +672,6 @@ public class NetworkConnection {
 				notifyHandlers(EVENT_CHANPRIVSNEEDED, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.deleteServer(object.getInt("cid"));
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
@@ -692,9 +691,6 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_CONNECTIONDELETED, object.getInt("cid"));
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				b.deleteBuffer(object.getInt("bid"));
-				c.deleteChannel(object.getInt("bid"));
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
 						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
 								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0);
@@ -737,11 +733,9 @@ public class NetworkConnection {
 				EventsDataSource.Event event = e.addEvent(object);
 				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.getInt("bid"));
 				
-				if(b != null && ((event.highlight && e.isImportant(event, b.type) || b.type.equals("conversation")))) {
-					if(event.eid > b.last_seen_eid) {
-						Notifications.getInstance().deleteNotification(event.cid, event.bid, event.eid);
-						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
-					}
+				if(b != null && event.eid > b.last_seen_eid && ((event.highlight && e.isImportant(event, b.type) || b.type.equals("conversation")))) {
+					Notifications.getInstance().deleteNotification(event.cid, event.bid, event.eid);
+					Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
 					if(!backlog) {
 						if(b.type.equals("conversation"))
 							Notifications.getInstance().showNotifications(b.name + ": " + ColorFormatter.html_to_spanned(event.msg).toString());

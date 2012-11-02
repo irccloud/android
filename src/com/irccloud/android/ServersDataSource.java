@@ -56,7 +56,11 @@ public class ServersDataSource {
 	}
 	
 	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, JsonObject fail_info, String away, JsonArray ignores) {
-		Server s = new Server();
+		Server s = getServer(cid);
+		if(s == null) {
+			s = new Server();
+			servers.add(s);
+		}
 		s.cid = cid;
 		s.name = name;
 		s.hostname = hostname;
@@ -74,7 +78,6 @@ public class ServersDataSource {
 		s.usermask = "";
 		s.mode = "";
 		s.ignores = ignores;
-		servers.add(s);
 		Collections.sort(servers, new comparator());
 		return s;
 	}
