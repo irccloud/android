@@ -876,6 +876,21 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
     
 	@Override
+	public void onMessageDoubleClicked(EventsDataSource.Event event) {
+		String from = event.from;
+		if(from == null || from.length() == 0)
+			from = event.nick;
+
+		if(messageTxt == null || event == null || from == null || from.length() == 0)
+			return;
+		
+		if(messageTxt.getText().length() == 0)
+			messageTxt.setText(from + ": ");
+		else
+			messageTxt.setText(messageTxt.getText() + " " + from + " ");
+	}
+	
+	@Override
 	public boolean onMessageLongClicked(EventsDataSource.Event event) {
 		String from = event.from;
 		if(from == null || from.length() == 0)

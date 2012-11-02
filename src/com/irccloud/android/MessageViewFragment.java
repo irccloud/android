@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 import org.json.JSONException;
@@ -79,6 +81,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private RefreshTask refreshTask = null;
 	private HeartbeatTask heartbeatTask = null;
 	private Ignore ignore = new Ignore();
+	private Timer tapTimer = null;
 
 	private class MessageAdapter extends BaseAdapter {
 		ArrayList<EventsDataSource.Event> data;
@@ -721,32 +724,54 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     }
     
-    public void onListItemClick(ListView l, View v, int position, long id) {
+    public void onListItemClick(ListView l, View v, int p, long id) {
+    	final int pos = p;
     	if(adapter != null) {
-	    	EventsDataSource.Event e = adapter.data.get(position-1);
-	    	if(e != null && e.type.equals("channel_invite")) {
-	    		conn.join(cid, e.old_nick, null);
-	    	} else if(e != null && e.type.equals("callerid")) {
-	    		conn.say(cid, null, "/accept " + e.from);
-	    		BuffersDataSource b = BuffersDataSource.getInstance();
-	    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
-	    		if(buffer != null) {
-	    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
-	    					buffer.type, 1, buffer.archived, "connected_ready");
-	    		} else {
-	    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
-	    		}
-	    	} else {
-		    	long group = adapter.getGroupForPosition(position-1);
-		    	if(expandedSectionEids.contains(group))
-		    		expandedSectionEids.remove(group);
-		    	else
-		    		expandedSectionEids.add(group);
-		        if(refreshTask != null)
-		        	refreshTask.cancel(true);
-				refreshTask = new RefreshTask();
-				refreshTask.execute((Void)null);
-	    	}
+    		if(tapTimer != null) {
+    			tapTimer.cancel();
+    			tapTimer = null;
+    			mListener.onMessageDoubleClicked(adapter.data.get(p - 1));
+    		} else {
+    			tapTimer = new Timer();
+    			tapTimer.schedule(new TimerTask() {
+    				int position = pos;
+    				
+					@Override
+					public void run() {
+			    		mHandler.post(new Runnable() {
+							@Override
+							public void run() {
+						    	EventsDataSource.Event e = adapter.data.get(position-1);
+						    	if(e != null && e.type.equals("channel_invite")) {
+						    		conn.join(cid, e.old_nick, null);
+						    	} else if(e != null && e.type.equals("callerid")) {
+						    		conn.say(cid, null, "/accept " + e.from);
+						    		BuffersDataSource b = BuffersDataSource.getInstance();
+						    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
+						    		if(buffer != null) {
+						    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+						    					buffer.type, 1, buffer.archived, "connected_ready");
+						    		} else {
+						    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
+						    		}
+						    	} else {
+							    	long group = adapter.getGroupForPosition(position-1);
+							    	if(expandedSectionEids.contains(group))
+							    		expandedSectionEids.remove(group);
+							    	else
+							    		expandedSectionEids.add(group);
+							        if(refreshTask != null)
+							        	refreshTask.cancel(true);
+									refreshTask = new RefreshTask();
+									refreshTask.execute((Void)null);
+						    	}
+							}
+			    		});
+		    			tapTimer = null;
+					}
+    				
+    			}, 300);
+    		}
     	}
     }
     
@@ -1216,5 +1241,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	public interface MessageViewListener extends OnBufferSelectedListener {
 		public void onMessageViewReady();
 		public boolean onMessageLongClicked(EventsDataSource.Event event);
+		public void onMessageDoubleClicked(EventsDataSource.Event event);
 	}
 }

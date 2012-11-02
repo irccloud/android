@@ -94,8 +94,10 @@ public class EventsDataSource {
 			e.from_mode = event.getString("from_mode");
 			if(event.has("newnick"))
 				e.nick = event.getString("newnick");
-			else
+			else if(event.has("nick"))
 				e.nick = event.getString("nick");
+			else
+				e.nick = null;
 			e.old_nick = event.getString("oldnick");
 			e.server = event.getString("server");
 			e.diff = event.getString("diff");
