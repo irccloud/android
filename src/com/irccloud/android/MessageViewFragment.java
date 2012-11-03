@@ -1242,10 +1242,11 @@ public class MessageViewFragment extends SherlockListFragment {
 					if(event.from.equals(name) && event.reqid == -1) {
 						adapter.clearPending();
 					} else if(event.reqid != -1) {
-						for(EventsDataSource.Event e : adapter.data) {
+						for(int i = 0; i < adapter.data.size(); i++) {
+							EventsDataSource.Event e = adapter.data.get(i);
 							if(e.reqid == event.reqid) {
-								e.eid = event.eid;
-								break;
+								adapter.data.remove(e);
+								i--;
 							}
 						}
 					}

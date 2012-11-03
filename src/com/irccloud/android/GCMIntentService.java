@@ -25,6 +25,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 	    	int cid = Integer.valueOf(intent.getStringExtra("cid"));
 	    	int bid = Integer.valueOf(intent.getStringExtra("bid"));
 	    	long eid = Long.valueOf(intent.getStringExtra("eid"));
+	    	if(Notifications.getInstance().getNotification(eid) != null) {
+	    		Log.d("IRCCloud", "A notification for this event already exists in the db, ignoring");
+	    		return;
+	    	}
 	    	String from = intent.getStringExtra("from_nick");
 	    	String msg = intent.getStringExtra("msg");
 	    	String chan = intent.getStringExtra("chan");

@@ -749,15 +749,16 @@ public class NetworkConnection {
 				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.getInt("bid"));
 				
 				if(b != null && event.eid > b.last_seen_eid && e.isImportant(event, b.type) && ((event.highlight || b.type.equals("conversation")))) {
-					Notifications.getInstance().deleteNotification(event.cid, event.bid, event.eid);
-					Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
-					if(!backlog) {
-						if(b.type.equals("conversation"))
-							Notifications.getInstance().showNotifications(b.name + ": " + ColorFormatter.html_to_spanned(event.msg).toString());
-						else if(b.type.equals("console"))
-							Notifications.getInstance().showNotifications(event.from + ": " + ColorFormatter.html_to_spanned(event.msg).toString());
-						else
-							Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + ColorFormatter.html_to_spanned(event.msg).toString());
+					if(Notifications.getInstance().getNotification(event.eid) == null) {
+						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
+						if(!backlog) {
+							if(b.type.equals("conversation"))
+								Notifications.getInstance().showNotifications(b.name + ": " + ColorFormatter.html_to_spanned(event.msg).toString());
+							else if(b.type.equals("console"))
+								Notifications.getInstance().showNotifications(event.from + ": " + ColorFormatter.html_to_spanned(event.msg).toString());
+							else
+								Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + ColorFormatter.html_to_spanned(event.msg).toString());
+						}
 					}
 				}
 				

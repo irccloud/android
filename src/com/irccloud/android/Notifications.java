@@ -312,6 +312,28 @@ public class Notifications extends SQLiteOpenHelper {
 		return n;
 	}
 	
+	public Notification getNotification(long eid) {
+		Notification n = null;
+		SQLiteDatabase db;
+		if(isBatch())
+			db = batchDb;
+		else
+			db = getSafeReadableDatabase();
+		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and eid == " + eid, null, null, null, null);
+
+		cursor.moveToFirst();
+		
+		if(!cursor.isAfterLast()) {
+			n = cursorToNotification(cursor);
+		}
+		cursor.close();
+		if(!isBatch()) {
+			db.close();
+			releaseReadableDatabase();
+		}
+		return n;
+	}
+	
 	public void excludeBid(int bid) {
 		excludeBid = -1;
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);

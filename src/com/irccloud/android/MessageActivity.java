@@ -259,6 +259,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 	    		sendBtn.setEnabled(false);
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+	    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, name, s.nick);
 	    		e = EventsDataSource.getInstance().new Event();
 	    		e.cid = cid;
 	    		e.bid = bid;
@@ -266,6 +267,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		e.self = true;
 	    		e.from = s.nick;
 	    		e.nick = s.nick;
+	    		if(u != null)
+	    			e.from_mode = u.mode;
 	    		String msg = messageTxt.getText().toString();
 	    		if(msg.startsWith("//"))
 	    			msg = msg.substring(1);
