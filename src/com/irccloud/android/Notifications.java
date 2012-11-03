@@ -36,6 +36,11 @@ public class Notifications extends SQLiteOpenHelper {
 		}
 	}
 	
+	public class Network {
+		int cid;
+		String name;
+	}
+	
 	public static final String TABLE_NOTIFICATIONS = "notifications";
 	public static final String TABLE_NETWORKS = "networks";
 
@@ -190,6 +195,21 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
+		Log.d("IRCCloud", "Adding notification: " 
+				+ "cid: " + cid + " "
+				+ "bid: " + bid + " "
+				+ "eid: " + eid + " "
+				+ "from: " + from + " "
+				+ "message: " + message + " "
+				+ "chan: " + chan + " "
+				+ "buffer_type: " + buffer_type + " "
+				+ "message_type: " + message_type + " "
+				);
+		Network network = getNetwork(cid);
+		if(network != null)
+			Log.d("IRCCloud", "Name for network: " + network.name);
+		else
+			Log.w("IRCCloud", "No network name!");
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("bid", bid);
@@ -232,6 +252,7 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public ArrayList<Notification> getMessageNotifications() {
+		Log.d("IRCCloud", "+++ Begin message notifications");
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
 		SQLiteDatabase db = getSafeReadableDatabase();
@@ -240,12 +261,14 @@ public class Notifications extends SQLiteOpenHelper {
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Notification n = cursorToNotification(cursor);
+			Log.d("IRCCloud", "Notification: " + n.toString());
 			notifications.add(n);
 			cursor.moveToNext();
 		}
 		cursor.close();
 		db.close();
 		releaseReadableDatabase();
+		Log.d("IRCCloud", "--- End message notifications");
 		return notifications;
 	}
 	
@@ -265,6 +288,28 @@ public class Notifications extends SQLiteOpenHelper {
 		db.close();
 		releaseReadableDatabase();
 		return notifications;
+	}
+	
+	public Network getNetwork(int cid) {
+		Network n = null;
+		SQLiteDatabase db;
+		if(isBatch())
+			db = batchDb;
+		else
+			db = getSafeReadableDatabase();
+		Cursor cursor = db.query(TABLE_NETWORKS, new String[] {"cid", "network"}, "cid == " + cid, null, null, null, null);
+
+		cursor.moveToFirst();
+		
+		if(!cursor.isAfterLast()) {
+			n = cursorToNetwork(cursor);
+		}
+		cursor.close();
+		if(!isBatch()) {
+			db.close();
+			releaseReadableDatabase();
+		}
+		return n;
 	}
 	
 	public void excludeBid(int bid) {
@@ -347,7 +392,7 @@ public class Notifications extends SQLiteOpenHelper {
 			if(notifications.size() == 1) {
 				Notification n = notifications.get(0);
 				from = n.nick;
-				if(!n.buffer_type.equals("conversation") && !n.message_type.equals("wallops"))
+				if(!n.buffer_type.equals("conversation") && !n.message_type.equals("wallops") && n.chan.length() > 0)
 					from += " in " + n.chan;
 				from += " (" + n.network + ")";
 				builder.setContentTitle(from);
@@ -384,7 +429,10 @@ public class Notifications extends SQLiteOpenHelper {
 		        		lastcid = n.cid;
 		        	}
 		        	if(n.bid != lastbid) {
-		        		inbox.addLine(Html.fromHtml("&nbsp;- <b>" + n.chan + "</b>"));
+		        		if(n.buffer_type.equals("console"))
+			        		inbox.addLine(Html.fromHtml("&nbsp;- <b>CONSOLE</b>"));
+		        		else
+		        			inbox.addLine(Html.fromHtml("&nbsp;- <b>" + n.chan + "</b>"));
 		        		lastbid = n.bid;
 		        	}
 		        	if(n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
@@ -417,5 +465,12 @@ public class Notifications extends SQLiteOpenHelper {
 		notification.buffer_type = cursor.getString(cursor.getColumnIndex("buffer_type"));
 		notification.message_type = cursor.getString(cursor.getColumnIndex("message_type"));
 		return notification;
+	}
+
+	private Network cursorToNetwork(Cursor cursor) {
+		Network network = new Network();
+		network.name = cursor.getString(cursor.getColumnIndex("network"));
+		network.cid = cursor.getInt(cursor.getColumnIndex("cid"));
+		return network;
 	}
 }
