@@ -851,11 +851,12 @@ public class NetworkConnection {
 				}
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
-				if(type.equalsIgnoreCase("you_nickchange")) {
-					ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
-				}
-				if(!backlog)
+				if(!backlog) {
+					if(type.equalsIgnoreCase("you_nickchange")) {
+						ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
+					}
 					notifyHandlers(EVENT_NICKCHANGE, object);
+				}
 			} else if(type.equalsIgnoreCase("user_channel_mode")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
