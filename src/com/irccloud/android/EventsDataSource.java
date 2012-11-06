@@ -72,6 +72,7 @@ public class EventsDataSource {
 	public void clear() {
 		synchronized(events) {
 			events.clear();
+			highest_eid = -1;
 		}
 	}
 	
