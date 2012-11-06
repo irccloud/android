@@ -1239,7 +1239,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
 				if(event.bid == bid) {
-					if(event.from.equals(name) && event.reqid == -1) {
+					if(event.from != null && event.from.equals(name) && event.reqid == -1) {
 						adapter.clearPending();
 					} else if(event.reqid != -1) {
 						for(int i = 0; i < adapter.data.size(); i++) {
