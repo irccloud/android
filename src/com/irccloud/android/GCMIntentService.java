@@ -1,6 +1,5 @@
 package com.irccloud.android;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -10,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -17,8 +17,18 @@ import com.google.android.gcm.GCMRegistrar;
 
 public class GCMIntentService extends GCMBaseIntentService {
 
-	public static final int GCM_VERSION = 1;
 	public static final String GCM_ID = "";
+
+	public static int versionCode() {
+		int code = 0;
+		try {
+			code = IRCCloudApplication.getInstance().getPackageManager().getPackageInfo("com.irccloud.android", 0).versionCode;
+		} catch (NameNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return code;
+	}
 	
 	@Override
 	protected void onError(Context context, String errorId) {
@@ -102,7 +112,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.i("IRCCloud", "GCM registered, id: " + regId);
 		scheduleRegisterTimer(30000);
 		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-		editor.putInt("GCM_VERSION", GCM_VERSION);
+		editor.putInt("GCM_VERSION", versionCode());
 		editor.commit();
 	}
 
@@ -112,7 +122,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 		editor.remove("gcm_registered");
 		editor.commit();
-		if(getSharedPreferences("prefs", 0).contains("session_key") && getSharedPreferences("prefs", 0).getInt("GCM_VERSION", 0) != GCM_VERSION)
+		if(getSharedPreferences("prefs", 0).contains("session_key") && getSharedPreferences("prefs", 0).getInt("GCM_VERSION", 0) != versionCode())
 			GCMRegistrar.register(this, GCM_ID);
 	}
 
