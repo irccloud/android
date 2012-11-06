@@ -89,8 +89,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 					JSONObject result = NetworkConnection.getInstance().registerGCM(GCMRegistrar.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()));
 					if(result.has("success"))
 						success = result.getBoolean("success");
-					if(!success && result.has("message") && result.getString("message").equals("already_registered"))
-						success = true;
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
