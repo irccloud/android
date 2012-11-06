@@ -69,6 +69,15 @@ public class Notifications extends SQLiteOpenHelper {
 
 	public void clear() {
 		try {
+	        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+			ArrayList<Notification> notifications = getOtherNotifications();
+			
+			if(notifications.size() > 0) {
+		        for(Notification n : notifications) {
+	        		nm.cancel((int)(n.eid/1000));
+		        }
+			}
+			nm.cancel(NOTIFY_ID);
 			readSemaphore.acquire();
 			SQLiteDatabase db = getSafeWritableDatabase();
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
