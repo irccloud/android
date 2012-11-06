@@ -13,9 +13,11 @@ import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -457,6 +459,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	Notifications.getInstance().excludeBid(bid);
     	Notifications.getInstance().showNotifications(null);
+        IntentFilter filter = new IntentFilter("com.irccloud.android.LAUNCH_BID");
+        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
+        filter.addCategory(getPackageName());
+        registerReceiver(bidLaunchReciever, filter);
     }
 
     @Override
@@ -465,8 +471,33 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	if(conn != null)
     		conn.removeHandler(mHandler);
     	Notifications.getInstance().excludeBid(-1);
+    	unregisterReceiver(bidLaunchReciever);
     }
 	
+    private BroadcastReceiver bidLaunchReciever = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context ctx, Intent i) {
+			if(isOrderedBroadcast()) {
+				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(i.getIntExtra("bid", -1));
+				if(b != null) {
+					ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+					int joined = 1;
+					if(b.type.equalsIgnoreCase("channel")) {
+						ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+						if(c == null)
+							joined = 0;
+					}
+					if(b.type.equalsIgnoreCase("console"))
+						b.name = s.name;
+					onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
+				}
+				abortBroadcast();
+			}
+		}
+    	
+    };
+    
     private void update_subtitle() {
     	if(archived > 0 && !type.equalsIgnoreCase("console")) {
     		subtitle.setVisibility(View.VISIBLE);

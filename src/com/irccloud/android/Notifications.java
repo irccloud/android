@@ -411,14 +411,13 @@ public class Notifications extends SQLiteOpenHelper {
 		
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 	        for(Notification n : notifications) {
-	    		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class);
-	    		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+	    		Intent i = new Intent("com.irccloud.android.LAUNCH_BID");
 	    		i.putExtra("bid", n.bid);
 				NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
 		         .setOnlyAlertOnce(true)
 		         .setNumber(notifications.size())
 		         .setLights(0xFF0000FF, 500, 1000)
-		         .setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
+		         .setContentIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
 		         .setSmallIcon(R.drawable.ic_launcher);
 	
 				if(prefs.getBoolean("notify_vibrate", true))
@@ -444,8 +443,7 @@ public class Notifications extends SQLiteOpenHelper {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getMessageNotifications();
-		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class);
-		i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+		Intent i = new Intent("com.irccloud.android.LAUNCH_BID");
 		
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 			i.putExtra("bid", notifications.get(0).bid);
@@ -453,7 +451,7 @@ public class Notifications extends SQLiteOpenHelper {
 	         .setTicker(ticker)
 	         .setNumber(notifications.size())
 	         .setLights(0xFF0000FF, 500, 1000)
-	         .setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
+	         .setContentIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
 	         .setSmallIcon(R.drawable.ic_launcher);
 
 			if(ticker != null) {

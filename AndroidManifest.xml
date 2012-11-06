@@ -8,7 +8,9 @@
         android:targetSdkVersion="15" />
 
     <permission android:name="com.irccloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-	<uses-permission android:name="com.irccloud.android.permission.C2D_MESSAGE" />
+    <permission android:name="com.irccloud.android.permission.BROADCAST" android:protectionLevel="signature" />
+   	<uses-permission android:name="com.irccloud.android.permission.C2D_MESSAGE" />
+	<uses-permission android:name="com.irccloud.android.permission.BROADCAST" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -23,7 +25,7 @@
         android:theme="@style/AppTheme"
         android:installLocation="auto">
         <activity
-            android:name=".MainActivity" android:label="@string/title_activity_main" android:launchMode="singleTop">
+            android:name=".MainActivity" android:label="@string/title_activity_main" android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,11 +39,10 @@
         <activity
             android:name=".MessageActivity"
             android:label="@string/title_activity_message"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
         </activity>
-   		<activity android:name=".PreferencesActivity"
-			android:configChanges="orientation|keyboardHidden">
+   		<activity android:name=".PreferencesActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -58,6 +59,11 @@
 		    <category android:name="com.irccloud.android" />
 		  </intent-filter>
 		</receiver>
+		<receiver android:name="LaunchBidBroadcastReceiver"  android:permission="com.irccloud.android.permission.BROADCAST">
+            <intent-filter>
+                <action android:name="com.irccloud.android.LAUNCH_BID" android:priority="0"/>
+            </intent-filter>
+        </receiver>
 		<service android:name=".GCMIntentService" />
 	</application>
 

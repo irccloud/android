@@ -20,6 +20,7 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 	private Timer countdownTimer = null;
 	private String error = null;
 	private View connecting = null;
+	private int launchBid = -1;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,10 +46,9 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
     	conn.addHandler(mHandler);
 
     	if(getIntent() != null && getIntent().hasExtra("bid")) {
-    		launchBid(getIntent().getIntExtra("bid", -1));
-    	} else {
-    		launchLastChannel();
+    		launchBid = getIntent().getIntExtra("bid", -1);
     	}
+		launchLastChannel();
     }
     
     @Override
@@ -130,10 +130,12 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 	
 	private void launchLastChannel() {
 		if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null) {
-			int bid = conn.getUserInfo().last_selected_bid;
-			if(!launchBid(bid)) {
-				if(!launchBid(BuffersDataSource.getInstance().firstBid()))
-					Log.e("IRCCLoud", "FIXME: unable to locate the last bid!");
+			if(!launchBid(launchBid)) {
+				int bid = conn.getUserInfo().last_selected_bid;
+				if(!launchBid(bid)) {
+					if(!launchBid(BuffersDataSource.getInstance().firstBid()))
+						Log.e("IRCCLoud", "FIXME: unable to locate the last bid!");
+				}
 			}
 		} else {
 			Log.e("IRCCLoud", "FIXME: unable to locate the last bid");
