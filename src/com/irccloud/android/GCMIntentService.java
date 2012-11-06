@@ -98,7 +98,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 					editor.commit();
 				} else {
 					Log.e("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
-					scheduleRegisterTimer(retrydelay * 2);
+					//scheduleRegisterTimer(retrydelay * 2);
 				}
 			}
 			
