@@ -219,11 +219,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        GCMRegistrar.checkManifest(this);
 	        final String regId = GCMRegistrar.getRegistrationId(this);
 	        if (regId.equals("")) {
-	        	GCMRegistrar.register(this, "841915816917");
+	        	GCMRegistrar.register(this, GCMIntentService.GCM_ID);
 	        } else {
-	        	if(!getSharedPreferences("prefs", 0).contains("gcm_registered")) {
+	        	if(getSharedPreferences("prefs", 0).getInt("GCM_VERSION", 0) != GCMIntentService.GCM_VERSION)
+	        		GCMRegistrar.unregister(this);
+	        	else if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
 	        		GCMIntentService.scheduleRegisterTimer(30000);
-	        	}
 	        }
         }
     }

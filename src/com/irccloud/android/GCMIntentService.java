@@ -17,6 +17,9 @@ import com.google.android.gcm.GCMRegistrar;
 
 public class GCMIntentService extends GCMBaseIntentService {
 
+	public static final int GCM_VERSION = 1;
+	public static final String GCM_ID = "";
+	
 	@Override
 	protected void onError(Context context, String errorId) {
 		Log.e("IRCCloud", "GCM Error: " + errorId);
@@ -98,14 +101,19 @@ public class GCMIntentService extends GCMBaseIntentService {
 	protected void onRegistered(Context context, String regId) {
 		Log.i("IRCCloud", "GCM registered, id: " + regId);
 		scheduleRegisterTimer(30000);
+		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+		editor.putInt("GCM_VERSION", GCM_VERSION);
+		editor.commit();
 	}
 
 	@Override
 	protected void onUnregistered(Context context, String regId) {
 		Log.i("IRCCloud", "GCM unregistered, id: " + regId);
-		SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 		editor.remove("gcm_registered");
 		editor.commit();
+		if(getSharedPreferences("prefs", 0).contains("session_key") && getSharedPreferences("prefs", 0).getInt("GCM_VERSION", 0) != GCM_VERSION)
+			GCMRegistrar.register(this, GCM_ID);
 	}
 
 }
