@@ -1,13 +1,19 @@
 package com.irccloud.android;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
+import com.google.android.gcm.GCMRegistrar;
 
 public class GCMIntentService extends GCMBaseIntentService {
 
@@ -54,19 +60,47 @@ public class GCMIntentService extends GCMBaseIntentService {
 		}
 	}
 
+	public static void scheduleRegisterTimer(int delay) {
+		final int retrydelay = delay;
+		
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				boolean success = false;
+				try {
+					JSONObject result = NetworkConnection.getInstance().registerGCM(GCMRegistrar.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()));
+					if(result.has("success"))
+						success = result.getBoolean("success");
+					if(!success && result.has("message") && result.getString("message").equals("already_registered"))
+						success = true;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				if(success) {
+					SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+					editor.putBoolean("gcm_registered", true);
+					editor.commit();
+				} else {
+					Log.e("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+					scheduleRegisterTimer(retrydelay * 2);
+				}
+			}
+			
+		}, delay);
+	}
+	
 	@Override
 	protected void onRegistered(Context context, String regId) {
 		Log.i("IRCCloud", "GCM registered, id: " + regId);
-		try {
-			NetworkConnection.getInstance().registerGCM(regId);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		scheduleRegisterTimer(30000);
 	}
 
 	@Override
 	protected void onUnregistered(Context context, String regId) {
 		Log.i("IRCCloud", "GCM unregistered, id: " + regId);
+		SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+		editor.remove("gcm_registered");
+		editor.commit();
 	}
 
 }

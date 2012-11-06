@@ -408,6 +408,7 @@ public class BaseActivity extends SherlockFragmentActivity {
             	conn.disconnect();
 				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 				editor.remove("session_key");
+				editor.remove("gcm_registered");
 				editor.commit();
 				ServersDataSource.getInstance().clear();
 				BuffersDataSource.getInstance().clear();

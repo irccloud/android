@@ -2,6 +2,7 @@ package com.irccloud.android;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -211,14 +212,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	status = savedInstanceState.getString("status");
         	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
-        
-        GCMRegistrar.checkDevice(this);
-        GCMRegistrar.checkManifest(this);
-        final String regId = GCMRegistrar.getRegistrationId(this);
-        if (regId.equals("")) {
-        	GCMRegistrar.register(this, "841915816917");
-        } else {
-        	Log.v("IRCCloud", "Already registered");
+        if(getSharedPreferences("prefs", 0).contains("session_key")) {
+	        GCMRegistrar.checkDevice(this);
+	        GCMRegistrar.checkManifest(this);
+	        final String regId = GCMRegistrar.getRegistrationId(this);
+	        if (regId.equals("")) {
+	        	GCMRegistrar.register(this, "841915816917");
+	        } else {
+	        	if(!getSharedPreferences("prefs", 0).contains("gcm_registered")) {
+	        		GCMIntentService.scheduleRegisterTimer(30000);
+	        	}
+	        }
         }
     }
 
@@ -238,7 +242,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
-        	if(backStack.size() > 0) {
+        	if(backStack != null && backStack.size() > 0) {
         		Integer bid = backStack.get(0);
         		backStack.remove(0);
         		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);

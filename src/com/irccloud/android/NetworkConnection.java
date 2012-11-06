@@ -1206,8 +1206,11 @@ public class NetworkConnection {
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				return true;
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				if(ServersDataSource.getInstance().count() < 1) {
+					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
+					client.disconnect();
+				}
 			}
 			if(Build.VERSION.SDK_INT >= 14)
 				TrafficStats.clearThreadStatsTag();

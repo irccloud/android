@@ -76,16 +76,14 @@ public class MainActivity extends BaseActivity implements BuffersListFragment.On
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
 				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-				if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-					try {
-						error = o.getString("message");
-						if(error.equals("temp_unavailable"))
-							error = "Your account is temporarily unavailable";
-						updateReconnecting();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+				try {
+					error = o.getString("message");
+					if(error.equals("temp_unavailable"))
+						error = "Your account is temporarily unavailable";
+					updateReconnecting();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				break;
 			case NetworkConnection.EVENT_USERINFO:
