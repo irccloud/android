@@ -709,6 +709,7 @@ public class NetworkConnection {
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
 						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
 								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0);
+				Notifications.getInstance().updateEid(buffer.bid, buffer.last_seen_eid);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
 				if(object.getString("buffer_type") == null)
@@ -944,6 +945,7 @@ public class NetworkConnection {
 						long eid = eidentry.getValue().getAsLong();
 						BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
 						Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
+						Notifications.getInstance().updateEid(Integer.valueOf(bid), eid);
 					}
 				}
 				if(!backlog) {

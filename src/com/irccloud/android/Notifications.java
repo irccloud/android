@@ -43,9 +43,10 @@ public class Notifications extends SQLiteOpenHelper {
 	
 	public static final String TABLE_NOTIFICATIONS = "notifications";
 	public static final String TABLE_NETWORKS = "networks";
+	public static final String TABLE_EIDS = "eids";
 
 	private static final String DATABASE_NAME = "notifications.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private static final int NOTIFY_ID = 1;
 
 	private static Notifications instance = null;
@@ -72,6 +73,7 @@ public class Notifications extends SQLiteOpenHelper {
 			SQLiteDatabase db = getSafeWritableDatabase();
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NETWORKS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EIDS);
 			onCreate(db);
 			db.close();
 			writeSemaphore.release();
@@ -161,6 +163,10 @@ public class Notifications extends SQLiteOpenHelper {
 				+ "cid integer not null, "
 				+ "network text, "
 				+ "PRIMARY KEY(cid));");
+		database.execSQL("create table " + TABLE_EIDS + " ("
+				+ "bid integer not null, "
+				+ "eid integer, "
+				+ "PRIMARY KEY(bid));");
 	}
 
 	@Override
@@ -172,9 +178,49 @@ public class Notifications extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NETWORKS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_EIDS);
 		onCreate(db);
 	}
 	
+	public long getEid(int bid) {
+		long eid = -1;
+
+		SQLiteDatabase db;
+		if(isBatch())
+			db = batchDb;
+		else
+			db = getSafeReadableDatabase();
+		Cursor cursor = db.query(TABLE_EIDS, new String[] {"eid"}, "bid == " + bid, null, null, null, null);
+
+		cursor.moveToFirst();
+		
+		if(!cursor.isAfterLast()) {
+			eid = cursor.getLong(cursor.getColumnIndex("eid"));
+		}
+		cursor.close();
+		if(!isBatch()) {
+			db.close();
+			releaseReadableDatabase();
+		}
+		
+		return eid;
+	}
+	
+	public void updateEid(int bid, long eid) {
+		long last_eid = getEid(bid);
+		SQLiteDatabase db = getSafeWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("bid", bid);
+		values.put("eid", eid);
+		if(last_eid > 0)
+			db.update(TABLE_EIDS, values, "bid == " + bid, null);
+		else
+			db.insert(TABLE_EIDS, null, values);
+		if(!isBatch())
+			db.close();
+		releaseWriteableDatabase();
+	}
+
 	public void addNetwork(int cid, String network) {
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -195,7 +241,12 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
-		Log.d("IRCCloud", "Adding notification: " 
+		long last_eid = getEid(bid);
+		if(eid <= last_eid) {
+			Log.d("IRCCloud", "This notification's EID has already been seen, skipping...");
+			return;
+		}
+		Log.d("IRCCloud", "Adding notification: "
 				+ "cid: " + cid + " "
 				+ "bid: " + bid + " "
 				+ "eid: " + eid + " "
