@@ -655,8 +655,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					if(cid != -1)
 						messageTxt.setEnabled(true);
 				} else {
-		    		if(scrollView != null && ServersDataSource.getInstance().count() == 0)
-						scrollView.setEnabled(false);
+		    		if(scrollView != null) {
+		    			if(ServersDataSource.getInstance().count() == 0)
+		    				scrollView.setEnabled(false);
+		        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+		        		upView.setVisibility(View.VISIBLE);
+		    		}
 		    		messageTxt.setEnabled(false);
 				}
 				break;
@@ -679,14 +683,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 		    	update_subtitle();
+				if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
+						scrollView.setEnabled(true);
+				}
 		    	if(cid == -1) {
-		    		if(launchBid != -1 && !open_bid(launchBid))
-		    			if(conn.getUserInfo() != null && !open_bid(conn.getUserInfo().last_selected_bid))
+		    		if(launchBid != -1 && !open_bid(launchBid)) {
+		    			if(conn.getUserInfo() != null && !open_bid(conn.getUserInfo().last_selected_bid)) {
 		    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-		    						if(scrollView != null)
-		    							scrollView.setEnabled(true);
-		    						scrollView.scrollTo(0, 0);
+		    						if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
+			    						scrollView.scrollTo(0, 0);
+		    						}
 		    					}
+		    			}
+		    		}
 		    	}
 		    	break;
 			case NetworkConnection.EVENT_USERINFO:

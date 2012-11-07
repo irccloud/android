@@ -1145,7 +1145,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("pool_unavailable")) {
     		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Disconnected: Connection temporarily unavailable");
+    		statusView.setText("Connection temporarily unavailable");
     		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
     		statusView.setBackgroundResource(R.drawable.status_fail_bg);
     	} else if(status.equals("waiting_to_retry")) {
@@ -1181,7 +1181,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	private void updateReconnecting() {
 		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 			connectingMsg.setText("Loading");
-			error = null;
 		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
 			if(connecting.getVisibility() == View.GONE) {
 				TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
@@ -1205,6 +1204,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		} else {
 					connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
 					errorMsg.setVisibility(View.GONE);
+					error = null;
 	    		}
 				if(countdownTimer != null)
 					countdownTimer.cancel();
@@ -1259,6 +1259,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						
 					});
 					connecting.startAnimation(anim);
+					error = null;
 				}
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
