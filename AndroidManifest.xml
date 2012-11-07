@@ -25,7 +25,10 @@
         android:theme="@style/AppTheme"
         android:installLocation="auto">
         <activity
-            android:name=".MainActivity" android:label="@string/title_activity_main" android:launchMode="singleTask">
+            android:name=".MessageActivity"
+            android:label="@string/title_activity_message"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,12 +38,6 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login" >
-        </activity>
-        <activity
-            android:name=".MessageActivity"
-            android:label="@string/title_activity_message"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize">
         </activity>
    		<activity android:name=".PreferencesActivity">
 			<intent-filter>

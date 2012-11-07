@@ -25,6 +25,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
@@ -47,8 +50,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	private TextView unreadView;
 	private TextView unreadTopLabel;
 	private View unreadTopView;
-	private int cid;
-	private int bid;
+	private int cid = -1;
+	private int bid = -1;
 	private long last_seen_eid;
 	private long min_eid;
 	private long earliest_eid;
@@ -62,6 +65,11 @@ public class MessageViewFragment extends SherlockListFragment {
 	private int newMsgs = 0;
 	private long newMsgTime = 0;
 	private MessageViewListener mListener;
+	private TextView errorMsg = null;
+	private TextView connectingMsg = null;
+	private Timer countdownTimer = null;
+	private String error = null;
+	private View connecting = null;
 	
 	public static final int ROW_MESSAGE = 0;
 	public static final int ROW_TIMESTAMP = 1;
@@ -366,6 +374,9 @@ public class MessageViewFragment extends SherlockListFragment {
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
+        connecting = v.findViewById(R.id.connecting);
+		errorMsg = (TextView)v.findViewById(R.id.errorMsg);
+		connectingMsg = (TextView)v.findViewById(R.id.connectingMsg);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	unreadView = (TextView)v.findViewById(R.id.unread);
     	unreadView.setOnClickListener(new OnClickListener() {
@@ -403,7 +414,10 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-				return mListener.onMessageLongClicked(adapter.data.get(pos - 1));
+				if(pos > 1)
+					return mListener.onMessageLongClicked(adapter.data.get(pos - 1));
+				else
+					return false;
 			}
     		
     	});
@@ -539,7 +553,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					}
 				}
 				
-			}, 100);
+			}, 200);
 		}
     }
     
@@ -734,6 +748,8 @@ public class MessageViewFragment extends SherlockListFragment {
     }
     
     public void onListItemClick(ListView l, View v, int p, long id) {
+    	if(p < 1)
+    		return;
     	final int pos = p;
     	if(adapter != null) {
     		if(tapTimer != null) {
@@ -789,7 +805,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	super.onResume();
         getListView().setStackFromBottom(true);
         getListView().requestFocus();
-    	if(bid == -1) {
+    	if(bid == -1 && cid != -1) {
     		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
     		if(b != null) {
     			bid = b.bid;
@@ -804,6 +820,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+    	updateReconnecting();
     	if(ServersDataSource.getInstance().getServer(cid) != null)
     		ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
     	if(bid != -1) {
@@ -824,6 +841,9 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		adapter.notifyDataSetChanged();
 				getListView().setSelection(adapter.getCount() - 1);
     		}
+    	} else {
+    		if(cid == -1)
+    			headerView.setVisibility(View.GONE);
     	}
     }
     
@@ -915,7 +935,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	}
 
 	private void refresh(TreeMap<Long,EventsDataSource.Event> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
-		conn.cancel_idle_timer(); //This may take a while...
+		if(conn.getReconnectTimestamp() == 0)
+			conn.cancel_idle_timer(); //This may take a while...
 		collapsedEvents.clear();
 		currentCollapsedEid = -1;
 		
@@ -968,7 +989,8 @@ public class MessageViewFragment extends SherlockListFragment {
 		mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
 		mHandler.post(mFirstScrollRunnable);
 		mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
-		conn.schedule_idle_timer();
+		if(conn.getReconnectTimestamp() == 0)
+			conn.schedule_idle_timer();
 	}
 
 	private Runnable mFirstScrollRunnable = new Runnable() {
@@ -1156,18 +1178,107 @@ public class MessageViewFragment extends SherlockListFragment {
     		conn.removeHandler(mHandler);
    	}
     
+	private void updateReconnecting() {
+		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+			connectingMsg.setText("Loading");
+			error = null;
+		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
+			if(connecting.getVisibility() == View.GONE) {
+				TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
+				anim.setDuration(200);
+				anim.setFillAfter(true);
+				connecting.startAnimation(anim);
+				connecting.setVisibility(View.VISIBLE);
+			}
+			if(conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.getReconnectTimestamp() > 0) {
+	    		String plural = "";
+	    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
+	    		if(seconds != 1)
+	    			plural = "s";
+	    		if(seconds < 1) {
+	    			connectingMsg.setText("Connecting");
+					errorMsg.setVisibility(View.GONE);
+	    		} else if(seconds > 10 && error != null) {
+	    			connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
+					errorMsg.setText(error);
+					errorMsg.setVisibility(View.VISIBLE);
+	    		} else {
+					connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
+					errorMsg.setVisibility(View.GONE);
+	    		}
+				if(countdownTimer != null)
+					countdownTimer.cancel();
+				countdownTimer = new Timer();
+				countdownTimer.schedule( new TimerTask(){
+		             public void run() {
+		    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+		    				 mHandler.post(new Runnable() {
+								@Override
+								public void run() {
+				 					updateReconnecting();
+								}
+		    				 });
+		    			 }
+		    			 countdownTimer = null;
+		             }
+				}, 1000);
+			} else {
+				connectingMsg.setText("Connecting");
+				error = null;
+				errorMsg.setVisibility(View.GONE);
+			}
+    	} else {
+			connectingMsg.setText("Offline");
+    	}
+    }
+    
 	private final Handler mHandler = new Handler() {
 		IRCCloudJSONObject e;
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_BACKLOG_END:
-			case NetworkConnection.EVENT_USERINFO:
+				if(connecting.getVisibility() == View.VISIBLE) {
+					TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
+					anim.setDuration(200);
+					anim.setFillAfter(true);
+					anim.setAnimationListener(new AnimationListener() {
+
+						@Override
+						public void onAnimationEnd(Animation arg0) {
+							connecting.setVisibility(View.GONE);
+						}
+
+						@Override
+						public void onAnimationRepeat(Animation animation) {
+						}
+
+						@Override
+						public void onAnimationStart(Animation animation) {
+						}
+						
+					});
+					connecting.startAnimation(anim);
+				}
 			case NetworkConnection.EVENT_CONNECTIVITY:
+				updateReconnecting();
+			case NetworkConnection.EVENT_USERINFO:
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();
 				refreshTask.execute((Void)null);
+				break;
+			case NetworkConnection.EVENT_FAILURE_MSG:
+				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+				try {
+					error = o.getString("message");
+					if(error.equals("temp_unavailable"))
+						error = "Your account is temporarily unavailable";
+					updateReconnecting();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
@@ -1188,16 +1299,6 @@ public class MessageViewFragment extends SherlockListFragment {
 		            	refreshTask.cancel(true);
 					refreshTask = new RefreshTask();
 					refreshTask.execute((Void)null);
-				}
-				break;
-			case NetworkConnection.EVENT_DELETEBUFFER:
-				if((Integer)msg.obj == bid) {
-	                Intent parentActivityIntent = new Intent(getActivity(), MainActivity.class);
-	                parentActivityIntent.addFlags(
-	                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-	                        Intent.FLAG_ACTIVITY_NEW_TASK);
-	                getActivity().startActivity(parentActivityIntent);
-	                getActivity().finish();
 				}
 				break;
 			case NetworkConnection.EVENT_SETIGNORES:

@@ -9,7 +9,7 @@ public class LaunchBidBroadcastReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if(isOrderedBroadcast()) {
-			Intent i = new Intent(context, MainActivity.class);
+			Intent i = new Intent(context, MessageActivity.class);
 			i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 			i.putExtra("bid", intent.getIntExtra("bid", -1));
 			context.startActivity(i);

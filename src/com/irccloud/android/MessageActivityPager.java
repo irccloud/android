@@ -30,40 +30,44 @@ public class MessageActivityPager extends HorizontalScrollView {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		if(event.getAction() == MotionEvent.ACTION_MOVE && startX == 0) {
-			startX = getScrollX();
-		}
-		if(event.getAction() == MotionEvent.ACTION_MOVE) { //Prevent dragging from one drawer to the other
-			if((startX < buffersDisplayWidth && getScrollX() >= buffersDisplayWidth) ||
-					(startX >= buffersDisplayWidth + usersDisplayWidth / 4 && getScrollX() <= buffersDisplayWidth))
-				return true;
-		} else if(event.getAction() == MotionEvent.ACTION_UP) { //Finger is lifted, snap into place!
-			if(Math.abs(startX - getScrollX()) > buffersDisplayWidth / 4) { //If they've dragged a drawer more than 25% on screen, snap the drawer onto the screen
-				if(startX < buffersDisplayWidth + buffersDisplayWidth / 4 && getScrollX() < startX) {
-					smoothScrollTo(0, 0);
-					activity.showUpButton(false);
-					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
-				} else if(startX >= buffersDisplayWidth && getScrollX() > startX) {
-					smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
-					activity.showUpButton(true);
-					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
-				} else {
-					smoothScrollTo(buffersDisplayWidth, 0);
-					activity.showUpButton(true);
-					//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), true);
-				}
-			} else { //Snap back
-				if(startX < buffersDisplayWidth)
-					smoothScrollTo(0, 0);
-				else if(startX > buffersDisplayWidth + buffersDisplayWidth / 4)
-					smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
-				else
-					smoothScrollTo(buffersDisplayWidth, 0);
+		if(isEnabled()) {
+			if(event.getAction() == MotionEvent.ACTION_MOVE && startX == 0) {
+				startX = getScrollX();
 			}
-			startX = 0;
-			return true;
+			if(event.getAction() == MotionEvent.ACTION_MOVE) { //Prevent dragging from one drawer to the other
+				if((startX < buffersDisplayWidth && getScrollX() >= buffersDisplayWidth) ||
+						(startX >= buffersDisplayWidth + usersDisplayWidth / 4 && getScrollX() <= buffersDisplayWidth))
+					return true;
+			} else if(event.getAction() == MotionEvent.ACTION_UP) { //Finger is lifted, snap into place!
+				if(Math.abs(startX - getScrollX()) > buffersDisplayWidth / 4) { //If they've dragged a drawer more than 25% on screen, snap the drawer onto the screen
+					if(startX < buffersDisplayWidth + buffersDisplayWidth / 4 && getScrollX() < startX) {
+						smoothScrollTo(0, 0);
+						activity.showUpButton(false);
+						//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
+					} else if(startX >= buffersDisplayWidth && getScrollX() > startX) {
+						smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
+						activity.showUpButton(true);
+						//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
+					} else {
+						smoothScrollTo(buffersDisplayWidth, 0);
+						activity.showUpButton(true);
+						//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), true);
+					}
+				} else { //Snap back
+					if(startX < buffersDisplayWidth)
+						smoothScrollTo(0, 0);
+					else if(startX > buffersDisplayWidth + buffersDisplayWidth / 4)
+						smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
+					else
+						smoothScrollTo(buffersDisplayWidth, 0);
+				}
+				startX = 0;
+				return true;
+			}
+			return super.onTouchEvent(event);
+		} else {
+			return false;
 		}
-		return super.onTouchEvent(event);
 	}
 	
 	//originally: http://stackoverflow.com/questions/5418510/disable-the-touch-events-for-all-the-views

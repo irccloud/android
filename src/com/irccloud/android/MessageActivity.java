@@ -52,7 +52,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener {
 	int cid = -1;
-	int bid;
+	int bid = -1;
 	String name;
 	String type;
 	TextView messageTxt;
@@ -73,6 +73,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
 	private ArrayList<Integer> backStack = new ArrayList<Integer>();
 	PowerManager.WakeLock screenLock = null;
+	private int launchBid = -1;
 	
 	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
@@ -108,6 +109,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             			s.removeSpan(o);
             		}
             	}
+            	if(s.length() > 0) {
+	           		sendBtn.setEnabled(true);
+	           		if(Build.VERSION.SDK_INT >= 11)
+	           			sendBtn.setAlpha(1);
+            	} else {
+	           		sendBtn.setEnabled(false);
+	           		if(Build.VERSION.SDK_INT >= 11)
+	           			sendBtn.setAlpha(0.5f);
+            	}
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count,
@@ -127,11 +137,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         });
         userListView = findViewById(R.id.usersListFragment);
         
-       	getSupportActionBar().setHomeButtonEnabled(false);
-       	getSupportActionBar().setDisplayShowHomeEnabled(false);
+        getSupportActionBar().setLogo(R.drawable.logo);
+        getSupportActionBar().setHomeButtonEnabled(false);
        	getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
         
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
@@ -249,9 +258,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         		Integer bid = backStack.get(0);
         		backStack.remove(0);
         		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);
-    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
-    					buffer.type, 1, buffer.archived, status);
-        		backStack.remove(0);
+        		if(buffer != null) {
+	    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+	    					buffer.type, 1, buffer.archived, status);
+	    			if(backStack.size() > 0)
+	    				backStack.remove(0);
+        		} else {
+        	        return super.onKeyDown(keyCode, event);
+        		}
                 return true;
         	}
         }
@@ -388,47 +402,75 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	long min_eid = 0;
     	long last_seen_eid = 0;
 
-    	cid = intent.getIntExtra("cid", 0);
     	bid = intent.getIntExtra("bid", 0);
-    	name = intent.getStringExtra("name");
-    	type = intent.getStringExtra("type");
-    	joined = intent.getIntExtra("joined", 0);
-    	archived = intent.getIntExtra("archived", 0);
-    	status = intent.getStringExtra("status");
-    	min_eid = intent.getLongExtra("min_eid", 0);
-    	last_seen_eid = intent.getLongExtra("last_seen_eid", 0);
-    	
-    	if(bid == -1) {
-    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
+
+    	if(intent.hasExtra("cid")) {
+	    	cid = intent.getIntExtra("cid", 0);
+	    	name = intent.getStringExtra("name");
+	    	type = intent.getStringExtra("type");
+	    	joined = intent.getIntExtra("joined", 0);
+	    	archived = intent.getIntExtra("archived", 0);
+	    	status = intent.getStringExtra("status");
+	    	min_eid = intent.getLongExtra("min_eid", 0);
+	    	last_seen_eid = intent.getLongExtra("last_seen_eid", 0);
+	    	
+	    	if(bid == -1) {
+	    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
+	    		if(b != null) {
+	    			bid = b.bid;
+	    			last_seen_eid = b.last_seen_eid;
+	    			min_eid = b.min_eid;
+	    			archived = b.archived;
+	    		}
+	    	}
+    	} else if(bid != -1) {
+    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
     		if(b != null) {
-    			bid = b.bid;
-    			last_seen_eid = b.last_seen_eid;
-    			min_eid = b.min_eid;
-    			archived = b.archived;
+				ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+				joined = 1;
+				if(b.type.equalsIgnoreCase("channel")) {
+					ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+					if(c == null)
+						joined = 0;
+				}
+				if(b.type.equalsIgnoreCase("console"))
+					b.name = s.name;
+	    		cid = b.cid;
+	    		name = b.name;
+	    		type = b.type;
+	    		archived = b.archived;
+	    		min_eid = b.min_eid;
+	    		last_seen_eid = b.last_seen_eid;
+	    		status = s.status;
     		}
     	}
 
-    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
-    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-    	Bundle b = new Bundle();
-    	b.putInt("cid", cid);
-    	b.putInt("bid", bid);
-    	b.putLong("last_seen_eid", last_seen_eid);
-    	b.putLong("min_eid", min_eid);
-    	b.putString("name", name);
-    	b.putString("type", type);
-    	ulf.setArguments(b);
-    	mvf.setArguments(b);
+    	if(cid == -1) {
+			launchBid = bid;
+    	} else {
+	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+	    	Bundle b = new Bundle();
+	    	b.putInt("cid", cid);
+	    	b.putInt("bid", bid);
+	    	b.putLong("last_seen_eid", last_seen_eid);
+	    	b.putLong("min_eid", min_eid);
+	    	b.putString("name", name);
+	    	b.putString("type", type);
+	    	ulf.setArguments(b);
+	    	mvf.setArguments(b);
+    	}
     }
     
     @Override
     protected void onNewIntent(Intent intent) {
-    	if(intent != null && intent.hasExtra("cid")) {
+    	if(intent != null && intent.hasExtra("bid")) {
     		setFromIntent(intent);
     	}
     }
     
-    @Override
+    @SuppressLint("NewApi")
+	@Override
     public void onResume() {
     	super.onResume();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
@@ -440,9 +482,27 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-    	
-    	if(getIntent() != null && getIntent().hasExtra("cid") && cid == -1) {
-    		setFromIntent(getIntent());
+
+    	if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
+    		if(scrollView != null && ServersDataSource.getInstance().count() == 0)
+    			scrollView.setEnabled(false);
+    		messageTxt.setEnabled(false);
+    	} else {
+    		if(scrollView != null)
+    			scrollView.setEnabled(true);
+    		messageTxt.setEnabled(true);
+    	}
+
+    	if(cid == -1) {
+	    	if(getIntent() != null && getIntent().hasExtra("bid")) {
+	    		setFromIntent(getIntent());
+	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null) {
+	    		if(!open_bid(conn.getUserInfo().last_selected_bid))
+	    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
+	    				//if(scrollView != null)
+	    					//scrollView.scrollTo(0,0);
+	    			}
+	    	}
     	}
     	updateUsersListFragmentVisibility();
     	title.setText(name);
@@ -464,6 +524,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         filter.addCategory(getPackageName());
         registerReceiver(bidLaunchReciever, filter);
+   		sendBtn.setEnabled(messageTxt.getText().length() > 0);
+   		if(Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
+   			sendBtn.setAlpha(0.5f);
     }
 
     @Override
@@ -475,24 +538,30 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	unregisterReceiver(bidLaunchReciever);
     }
 	
+    private boolean open_bid(int bid) {
+		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+		if(b != null) {
+			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+			int joined = 1;
+			if(b.type.equalsIgnoreCase("channel")) {
+				ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+				if(c == null)
+					joined = 0;
+			}
+			if(b.type.equalsIgnoreCase("console"))
+				b.name = s.name;
+			onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
+			return true;
+		}
+		return false;
+    }
+    
     private BroadcastReceiver bidLaunchReciever = new BroadcastReceiver() {
 
 		@Override
 		public void onReceive(Context ctx, Intent i) {
 			if(isOrderedBroadcast()) {
-				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(i.getIntExtra("bid", -1));
-				if(b != null) {
-					ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
-					int joined = 1;
-					if(b.type.equalsIgnoreCase("channel")) {
-						ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
-						if(c == null)
-							joined = 0;
-					}
-					if(b.type.equalsIgnoreCase("console"))
-						b.name = s.name;
-					onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
-				}
+				open_bid(i.getIntExtra("bid", -1));
 				abortBroadcast();
 			}
 		}
@@ -500,42 +569,53 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     };
     
     private void update_subtitle() {
-    	if(archived > 0 && !type.equalsIgnoreCase("console")) {
-    		subtitle.setVisibility(View.VISIBLE);
-    		subtitle.setText("(archived)");
+    	if(cid == -1) {
+    		
+           	getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
     	} else {
-    		if(type.equalsIgnoreCase("conversation")) {
-        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
-    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-    			if(user != null && user.away > 0) {
-	        		subtitle.setVisibility(View.VISIBLE);
-    				if(user.away_msg != null && user.away_msg.length() > 0) {
-    					subtitle.setText("Away: " + user.away_msg);
-    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
-    	        		subtitle.setText("Away: " + b.away_msg);
-    				} else {
-    					subtitle.setText("Away");
-    				}
-    			} else {
+           	getSupportActionBar().setDisplayShowHomeEnabled(false);
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
+
+            if(archived > 0 && !type.equalsIgnoreCase("console")) {
+	    		subtitle.setVisibility(View.VISIBLE);
+	    		subtitle.setText("(archived)");
+	    	} else {
+	    		if(type == null) {
 	        		subtitle.setVisibility(View.GONE);
-    			}
-    		} else if(type.equalsIgnoreCase("channel")) {
-	        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
-	        	if(c != null && c.topic_text.length() > 0) {
-	        		subtitle.setVisibility(View.VISIBLE);
-	        		subtitle.setText(c.topic_text);
-	        	} else {
-	        		subtitle.setVisibility(View.GONE);
-	        	}
-    		} else if(type.equalsIgnoreCase("console")) {
-    			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-    			if(s != null) {
-	        		subtitle.setVisibility(View.VISIBLE);
-	        		subtitle.setText(s.hostname + ":" + s.port);
-	        	} else {
-	        		subtitle.setVisibility(View.GONE);
-    			}
-    		}
+	    		} else if(type.equalsIgnoreCase("conversation")) {
+	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
+	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+	    			if(user != null && user.away > 0) {
+		        		subtitle.setVisibility(View.VISIBLE);
+	    				if(user.away_msg != null && user.away_msg.length() > 0) {
+	    					subtitle.setText("Away: " + user.away_msg);
+	    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
+	    	        		subtitle.setText("Away: " + b.away_msg);
+	    				} else {
+	    					subtitle.setText("Away");
+	    				}
+	    			} else {
+		        		subtitle.setVisibility(View.GONE);
+	    			}
+	    		} else if(type.equalsIgnoreCase("channel")) {
+		        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
+		        	if(c != null && c.topic_text.length() > 0) {
+		        		subtitle.setVisibility(View.VISIBLE);
+		        		subtitle.setText(c.topic_text);
+		        	} else {
+		        		subtitle.setVisibility(View.GONE);
+		        	}
+	    		} else if(type.equalsIgnoreCase("console")) {
+	    			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+	    			if(s != null) {
+		        		subtitle.setVisibility(View.VISIBLE);
+		        		subtitle.setText(s.hostname + ":" + s.port);
+		        	} else {
+		        		subtitle.setVisibility(View.GONE);
+	    			}
+	    		}
+	    	}
     	}
     }
     
@@ -551,7 +631,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-	    	if(hide || !type.equalsIgnoreCase("channel"))
+	    	if(hide || type == null || !type.equalsIgnoreCase("channel"))
 	    		userListView.setVisibility(View.GONE);
 	    	else
 	    		userListView.setVisibility(View.VISIBLE);
@@ -565,10 +645,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			IRCCloudJSONObject event = null;
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				for(EventsDataSource.Event e : pendingEvents.values()) {
-					EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+				if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+					for(EventsDataSource.Event e : pendingEvents.values()) {
+						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+					}
+					pendingEvents.clear();
+		    		if(scrollView != null && ServersDataSource.getInstance().count() > 0)
+						scrollView.setEnabled(true);
+					if(cid != -1)
+						messageTxt.setEnabled(true);
+				} else {
+		    		if(scrollView != null && ServersDataSource.getInstance().count() == 0)
+						scrollView.setEnabled(false);
+		    		messageTxt.setEnabled(false);
 				}
-				pendingEvents.clear();
 				break;
 			case NetworkConnection.EVENT_BANLIST:
 				event = (IRCCloudJSONObject)msg.obj;
@@ -589,6 +679,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 		    	update_subtitle();
+		    	if(cid == -1) {
+		    		if(launchBid != -1 && !open_bid(launchBid))
+		    			if(conn.getUserInfo() != null && !open_bid(conn.getUserInfo().last_selected_bid))
+		    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
+		    						if(scrollView != null)
+		    							scrollView.setEnabled(true);
+		    						scrollView.scrollTo(0, 0);
+		    					}
+		    	}
 		    	break;
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
@@ -597,6 +696,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	refreshUpIndicatorTask.cancel(true);
 		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 		        refreshUpIndicatorTask.execute((Void)null);
+		        if(launchBid == -1 && cid == -1)
+		        	launchBid = conn.getUserInfo().last_selected_bid;
 				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
@@ -672,12 +773,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			case NetworkConnection.EVENT_DELETEBUFFER:
 				Integer id = (Integer)msg.obj;
 				if(id == ((msg.what==NetworkConnection.EVENT_CONNECTIONDELETED)?cid:bid)) {
-	                Intent parentActivityIntent = new Intent(MessageActivity.this, MainActivity.class);
-	                parentActivityIntent.addFlags(
-	                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-	                        Intent.FLAG_ACTIVITY_NEW_TASK);
-	                startActivity(parentActivityIntent);
-	                finish();
+		        	if(backStack != null && backStack.size() > 0) {
+		        		Integer bid = backStack.get(0);
+		        		backStack.remove(0);
+		        		buffer = BuffersDataSource.getInstance().getBuffer(bid);
+		    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+		    					buffer.type, 1, buffer.archived, status);
+		        		backStack.remove(0);
+		        	} else {
+		        		if(!open_bid(BuffersDataSource.getInstance().firstBid()))
+		        			finish();
+		        	}
 				}
 				break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
@@ -729,13 +835,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
 				event = (IRCCloudJSONObject)msg.obj;
-				int reqid = event.getInt("_reqid");
-				if(pendingEvents.containsKey(reqid)) {
-					EventsDataSource.Event e = pendingEvents.get(reqid);
-					EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
-					pendingEvents.remove(event.getInt("_reqid"));
-					e.msg = ColorFormatter.irc_to_html(e.msg + " \u00034(FAILED)\u000f");
-					conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
+				if(event.has("_reqid")) {
+					int reqid = event.getInt("_reqid");
+					if(pendingEvents.containsKey(reqid)) {
+						EventsDataSource.Event e = pendingEvents.get(reqid);
+						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+						pendingEvents.remove(event.getInt("_reqid"));
+						e.msg = ColorFormatter.irc_to_html(e.msg + " \u00034(FAILED)\u000f");
+						conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
+					}
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
@@ -766,15 +874,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	if(type.equalsIgnoreCase("channel")) {
-    		getSupportMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
-    		getSupportMenuInflater().inflate(R.menu.activity_message_channel, menu);
-    	} else if(type.equalsIgnoreCase("conversation"))
-    		getSupportMenuInflater().inflate(R.menu.activity_message_conversation, menu);
-    	else if(type.equalsIgnoreCase("console"))
-    		getSupportMenuInflater().inflate(R.menu.activity_message_console, menu);
-
-    	getSupportMenuInflater().inflate(R.menu.activity_message_archive, menu);
+    	if(type != null) {
+	    	if(type.equalsIgnoreCase("channel")) {
+	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
+	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel, menu);
+	    	} else if(type.equalsIgnoreCase("conversation"))
+	    		getSupportMenuInflater().inflate(R.menu.activity_message_conversation, menu);
+	    	else if(type.equalsIgnoreCase("console"))
+	    		getSupportMenuInflater().inflate(R.menu.activity_message_console, menu);
+	
+	    	getSupportMenuInflater().inflate(R.menu.activity_message_archive, menu);
+    	}
     	getSupportMenuInflater().inflate(R.menu.activity_main, menu);
 
         return super.onCreateOptionsMenu(menu);
@@ -782,60 +892,62 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
-    	if(archived == 0) {
-    		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
-    	} else {
-    		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
-    	}
-    	if(type.equalsIgnoreCase("channel")) {
-        	if(joined == 0) {
-        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
-        		menu.findItem(R.id.menu_archive).setVisible(true);
-        		menu.findItem(R.id.menu_archive).setEnabled(true);
-        		menu.findItem(R.id.menu_delete).setVisible(true);
-        		menu.findItem(R.id.menu_delete).setEnabled(true);
-        		if(menu.findItem(R.id.menu_userlist) != null) {
-        			menu.findItem(R.id.menu_userlist).setEnabled(false);
-        			menu.findItem(R.id.menu_userlist).setVisible(false);
-        		}
+    	if(type != null) {
+        	if(archived == 0) {
+        		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
         	} else {
-        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
-        		menu.findItem(R.id.menu_archive).setVisible(false);
-        		menu.findItem(R.id.menu_archive).setEnabled(false);
-        		menu.findItem(R.id.menu_delete).setVisible(false);
-        		menu.findItem(R.id.menu_delete).setEnabled(false);
-        		if(menu.findItem(R.id.menu_userlist) != null) {
-	        		boolean hide = false;
-	        		try {
-	        			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-							JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
-							if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
-								hide = true;
-	        			}
-					} catch (JSONException e) {
-					}
-					if(hide) {
-		        		menu.findItem(R.id.menu_userlist).setEnabled(false);
-		        		menu.findItem(R.id.menu_userlist).setVisible(false);
-					} else {
-		        		menu.findItem(R.id.menu_userlist).setEnabled(true);
-		        		menu.findItem(R.id.menu_userlist).setVisible(true);
-					}
-        		}
+        		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
         	}
-    	} else if(type.equalsIgnoreCase("console")) {
-    		menu.findItem(R.id.menu_archive).setVisible(false);
-    		menu.findItem(R.id.menu_archive).setEnabled(false);
-    		Log.i("IRCCloud", "Status: " + status);
-    		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
-    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
-        		menu.findItem(R.id.menu_delete).setVisible(false);
-        		menu.findItem(R.id.menu_delete).setEnabled(false);
-    		} else {
-    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_reconnect);
-        		menu.findItem(R.id.menu_delete).setVisible(true);
-        		menu.findItem(R.id.menu_delete).setEnabled(true);
-    		}
+	    	if(type.equalsIgnoreCase("channel")) {
+	        	if(joined == 0) {
+	        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
+	        		menu.findItem(R.id.menu_archive).setVisible(true);
+	        		menu.findItem(R.id.menu_archive).setEnabled(true);
+	        		menu.findItem(R.id.menu_delete).setVisible(true);
+	        		menu.findItem(R.id.menu_delete).setEnabled(true);
+	        		if(menu.findItem(R.id.menu_userlist) != null) {
+	        			menu.findItem(R.id.menu_userlist).setEnabled(false);
+	        			menu.findItem(R.id.menu_userlist).setVisible(false);
+	        		}
+	        	} else {
+	        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
+	        		menu.findItem(R.id.menu_archive).setVisible(false);
+	        		menu.findItem(R.id.menu_archive).setEnabled(false);
+	        		menu.findItem(R.id.menu_delete).setVisible(false);
+	        		menu.findItem(R.id.menu_delete).setEnabled(false);
+	        		if(menu.findItem(R.id.menu_userlist) != null) {
+		        		boolean hide = false;
+		        		try {
+		        			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+								JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
+								if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
+									hide = true;
+		        			}
+						} catch (JSONException e) {
+						}
+						if(hide) {
+			        		menu.findItem(R.id.menu_userlist).setEnabled(false);
+			        		menu.findItem(R.id.menu_userlist).setVisible(false);
+						} else {
+			        		menu.findItem(R.id.menu_userlist).setEnabled(true);
+			        		menu.findItem(R.id.menu_userlist).setVisible(true);
+						}
+	        		}
+	        	}
+	    	} else if(type.equalsIgnoreCase("console")) {
+	    		menu.findItem(R.id.menu_archive).setVisible(false);
+	    		menu.findItem(R.id.menu_archive).setEnabled(false);
+	    		Log.i("IRCCloud", "Status: " + status);
+	    		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
+	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
+	        		menu.findItem(R.id.menu_delete).setVisible(false);
+	        		menu.findItem(R.id.menu_delete).setEnabled(false);
+	    		} else {
+	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_reconnect);
+	        		menu.findItem(R.id.menu_delete).setVisible(true);
+	        		menu.findItem(R.id.menu_delete).setEnabled(true);
+	    		}
+	    	}
     	}
     	return super.onPrepareOptionsMenu(menu);
     }
@@ -1251,16 +1363,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			long last_seen_eid, long min_eid, String type, int joined,
 			int archived, String status) {
 		if(scrollView != null) {
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+			if(buffersListView.getWidth() > 0)
+				scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
 			upView.setVisibility(View.VISIBLE);
 		}
 		if(bid != this.bid) {
+			if(bid != -1 && conn != null && conn.getUserInfo() != null)
+				conn.getUserInfo().last_selected_bid = bid;
 	    	for(int i = 0; i < backStack.size(); i++) {
 	    		if(backStack.get(i) == this.bid)
 	    			backStack.remove(i);
 	    	}
-	    	backStack.add(0, this.bid);
+	    	if(this.bid >= 0)
+	    		backStack.add(0, this.bid);
 			this.cid = cid;
 			this.bid = bid;
 			this.name = name;
@@ -1289,7 +1404,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		ulf.setArguments(b);
 	
 	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
-			anim.setDuration(100);
+			anim.setDuration(200);
 			anim.setFillAfter(true);
 			mvf.getListView().startAnimation(anim);
 			ulf.getListView().startAnimation(anim);
@@ -1299,6 +1414,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	invalidateOptionsMenu();
 	    	Notifications.getInstance().excludeBid(bid);
 	    	Notifications.getInstance().showNotifications(null);
+		}
+		if(cid != -1) {
+			if(scrollView != null)
+				scrollView.setEnabled(true);
+			messageTxt.setEnabled(true);
 		}
 	}
 
@@ -1318,7 +1438,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
-			anim.setDuration(100);
+			anim.setDuration(200);
 			anim.setFillAfter(true);
 			mvf.getListView().startAnimation(anim);
 			ulf.getListView().startAnimation(anim);

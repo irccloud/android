@@ -94,7 +94,7 @@ public class LoginActivity extends SherlockActivity {
 					e.printStackTrace();
 				}
 				editor.commit();
-	    		Intent i = new Intent(LoginActivity.this, MainActivity.class);
+	    		Intent i = new Intent(LoginActivity.this, MessageActivity.class);
 	    		startActivity(i);
 	    		finish();
 			} else {

@@ -1,76 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#fff">
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent" >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" >
-        
-        <ListView
-            android:id="@android:id/list"
+        android:background="#fff"
+        android:orientation="vertical" >
+
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:divider="#FFF"
-            android:dividerHeight="1dip"
-            android:fastScrollEnabled="true"
-            android:transcriptMode="normal"/>
+            android:layout_weight="1" >
 
-        <LinearLayout
-            android:id="@+id/unreadTop"
-            android:background="@color/dark_blue"
-            android:padding="2dp"
-            android:layout_alignParentTop="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            <ListView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="#FFF"
+                android:dividerHeight="1dip"
+                android:fastScrollEnabled="true"
+                android:transcriptMode="normal" />
 
-            <TextView
-                android:id="@+id/unreadTopText"
+            <LinearLayout
+                android:id="@+id/unreadTop"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/message_bg"
-                android:layout_weight="1"
-	            android:paddingLeft="6dp"
-	            android:paddingRight="6dp"
-                android:textStyle="bold" />
+                android:layout_alignParentTop="true"
+                android:background="@color/dark_blue"
+                android:padding="2dp" >
 
-            <Button
-                android:id="@+id/markAsRead"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/unreadTopText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingLeft="6dp"
+                    android:paddingRight="6dp"
+                    android:textColor="@color/message_bg"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/markAsRead"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mark As Read"
+                    android:textColor="@color/markAsReadColor" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/unread"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Mark As Read"
-                android:textColor="@color/markAsReadColor" />
+                android:layout_alignParentBottom="true"
+                android:background="@color/dark_blue"
+                android:padding="4dp"
+                android:textColor="@color/message_bg"
+                android:textStyle="bold" />
+        </RelativeLayout>
 
-        </LinearLayout>
-        
         <TextView
-            android:id="@+id/unread"
+            android:id="@+id/statusView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@color/dark_blue"
-            android:padding="4dp"
-            android:textColor="@color/message_bg"
-            android:textStyle="bold" />
+            android:layout_gravity="left|center_vertical"
+            android:layout_weight="0"
+            android:background="@drawable/background_blue"
+            android:padding="6dp"
+            android:textColor="@color/dark_blue"
+            android:textSize="16sp"
+            android:visibility="gone" />
+    </LinearLayout>
 
-
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/statusView"
+    <LinearLayout
+        android:id="@+id/connecting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|center_vertical"
-        android:layout_weight="0"
-        android:background="@drawable/background_blue"
+        android:background="@drawable/bg"
+        android:orientation="vertical"
         android:padding="6dp"
-        android:textColor="@color/dark_blue"
-        android:textSize="16sp"
-        android:visibility="gone" />
+        android:visibility="gone" >
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/connectingMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connecting"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ProgressBar
+            android:id="@+id/connectingProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/errorMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</FrameLayout>

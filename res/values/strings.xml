@@ -19,12 +19,8 @@
     <string name="menu_add_network">Add Network</string>
     <string name="menu_channel_options">Channel Options</string>
     
-    <string name="title_activity_main">IRCCloud</string>
+    <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>
-    <string name="title_activity_message">Messages</string>
-    <string name="title_activity_user_list">Users</string>
-    <string name="title_activity_edit_connection">Connection Settings</string>
-    <string name="title_activity_ignore_list">Ignore List</string>
     
     <string name="email">Email Address</string>
     <string name="password">Password</string>
