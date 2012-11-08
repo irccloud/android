@@ -394,14 +394,17 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		}
 		    		pattern += "]\\S+)\\s*";
 
-					Linkify.addLinks(html, Pattern.compile(pattern), "irc://", null, new TransformFilter() {
+					Linkify.addLinks(html, Pattern.compile(pattern), null, null, new TransformFilter() {
 				        public final String transformUrl(final Matcher match, String url) {
 				        	String channel = match.group(2);
 				        	try {
 				        		channel = URLEncoder.encode(channel, "UTF-8");
 							} catch (UnsupportedEncodingException e) {
 							}
-				            return "irc://" + mServer.hostname + ":" + mServer.port + "/" + channel;
+							if(mServer.ssl > 0)
+								return "ircs://" + mServer.hostname + ":" + mServer.port + "/" + channel;
+							else
+								return "irc://" + mServer.hostname + ":" + mServer.port + "/" + channel;
 				        }
 				    });
 				}

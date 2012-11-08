@@ -62,11 +62,6 @@
 		    <category android:name="com.irccloud.android" />
 		  </intent-filter>
 		</receiver>
-		<receiver android:name="LaunchBidBroadcastReceiver"  android:permission="com.irccloud.android.permission.BROADCAST">
-            <intent-filter>
-                <action android:name="com.irccloud.android.LAUNCH_BID" android:priority="0"/>
-            </intent-filter>
-        </receiver>
 		<service android:name=".GCMIntentService" />
 	</application>
 

@@ -405,9 +405,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	launchBid = -1;
     	launchURI = null;
     	
-    	if(intent.hasExtra("bid"))
+    	if(intent.hasExtra("bid")) {
+	    	if(bid >= 0)
+	    		backStack.add(0, bid);
     		bid = intent.getIntExtra("bid", 0);
-
+    	}
+    	
     	if(intent.getData() != null) {
     		if(open_uri(intent.getData()))
     			return;
@@ -528,10 +531,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	Notifications.getInstance().excludeBid(bid);
     	Notifications.getInstance().showNotifications(null);
-        IntentFilter filter = new IntentFilter("com.irccloud.android.LAUNCH_BID");
-        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-        filter.addCategory(getPackageName());
-        registerReceiver(bidLaunchReciever, filter);
    		sendBtn.setEnabled(messageTxt.getText().length() > 0);
    		if(Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
    			sendBtn.setAlpha(0.5f);
@@ -543,7 +542,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	if(conn != null)
     		conn.removeHandler(mHandler);
     	Notifications.getInstance().excludeBid(-1);
-    	unregisterReceiver(bidLaunchReciever);
     }
 	
     private boolean open_uri(Uri uri) {
@@ -609,18 +607,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		}
 		return false;
     }
-    
-    private BroadcastReceiver bidLaunchReciever = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context ctx, Intent i) {
-			if(isOrderedBroadcast()) {
-				open_bid(i.getIntExtra("bid", -1));
-				abortBroadcast();
-			}
-		}
-    	
-    };
     
     private void update_subtitle() {
     	if(cid == -1 || ServersDataSource.getInstance().count() == 0) {
