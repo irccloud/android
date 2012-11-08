@@ -425,7 +425,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 				if(headerView != null) {
-					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1) {
+					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1 && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 						requestingBacklog = true;
 						conn.request_backlog(cid, bid, earliest_eid);
 					}
@@ -434,7 +434,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(adapter != null)
 					markerPos = adapter.getLastSeenEIDPosition();
 				
-				if(unreadView != null && adapter != null) {
+				if(unreadView != null && adapter != null && adapter.data.size() > 0) {
 					if(firstVisibleItem + visibleItemCount == totalItemCount) {
 						unreadView.setVisibility(View.GONE);
 						if(newMsgs > 0 || unreadTopView.getVisibility() == View.GONE) {
@@ -451,7 +451,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(firstVisibleItem + visibleItemCount < totalItemCount)
 					shouldShowUnread = true;
 
-				if(adapter != null && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
+				if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
 		    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
 		    			unreadTopView.setVisibility(View.GONE);
 						Long e = adapter.data.get(adapter.data.size() - 1).eid;
@@ -840,6 +840,8 @@ public class MessageViewFragment extends SherlockListFragment {
 				refresh(events, server, buffer);
 	    		adapter.notifyDataSetChanged();
 				getListView().setSelection(adapter.getCount() - 1);
+    		} else if(conn.getState() != NetworkConnection.STATE_CONNECTED || ServersDataSource.getInstance().count() < 1) {
+    			headerView.setVisibility(View.GONE);
     		}
     	} else {
     		if(cid == -1)

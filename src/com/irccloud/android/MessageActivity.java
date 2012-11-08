@@ -567,8 +567,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     };
     
     private void update_subtitle() {
-    	if(cid == -1) {
-    		
+    	if(cid == -1 || ServersDataSource.getInstance().count() == 0) {
            	getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayShowCustomEnabled(false);
     	} else {
@@ -615,6 +614,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		}
 	    	}
     	}
+    	invalidateOptionsMenu();
     }
     
     private void updateUsersListFragmentVisibility() {
@@ -680,21 +680,21 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-		    	update_subtitle();
-				if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
+				if(scrollView != null) {
 						scrollView.setEnabled(true);
 				}
 		    	if(cid == -1) {
 		    		if(launchBid != -1 && !open_bid(launchBid)) {
 		    			if(conn.getUserInfo() != null && !open_bid(conn.getUserInfo().last_selected_bid)) {
-		    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-		    						if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
-			    						scrollView.scrollTo(0, 0);
-		    						}
-		    					}
+	    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
+	    						if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
+		    						scrollView.scrollTo(0, 0);
+	    						}
+	    					}
 		    			}
 		    		}
 		    	}
+		    	update_subtitle();
 		    	break;
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
@@ -881,7 +881,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	if(type != null) {
+    	if(type != null && ServersDataSource.getInstance().count() > 0) {
 	    	if(type.equalsIgnoreCase("channel")) {
 	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
 	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel, menu);
@@ -899,7 +899,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
-    	if(type != null) {
+    	if(type != null && ServersDataSource.getInstance().count() > 0) {
         	if(archived == 0) {
         		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
         	} else {
@@ -944,7 +944,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	} else if(type.equalsIgnoreCase("console")) {
 	    		menu.findItem(R.id.menu_archive).setVisible(false);
 	    		menu.findItem(R.id.menu_archive).setEnabled(false);
-	    		Log.i("IRCCloud", "Status: " + status);
 	    		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
 	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
 	        		menu.findItem(R.id.menu_delete).setVisible(false);
