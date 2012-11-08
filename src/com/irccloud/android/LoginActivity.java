@@ -1,13 +1,17 @@
 package com.irccloud.android;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.actionbarsherlock.app.SherlockActivity;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,13 +22,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends SherlockActivity {
-	EditText email;
+	AutoCompleteTextView email;
 	EditText password;
 	Button loginBtn;
 	
@@ -34,7 +40,16 @@ public class LoginActivity extends SherlockActivity {
         setContentView(R.layout.activity_login);
 		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
         
-        email = (EditText)findViewById(R.id.email);
+        email = (AutoCompleteTextView)findViewById(R.id.email);
+        ArrayList<String> accounts = new ArrayList<String>();
+        AccountManager am = (AccountManager)getSystemService(Context.ACCOUNT_SERVICE);
+        for(Account a : am.getAccounts()) {
+        	if(a.name.contains("@") && !accounts.contains(a.name))
+        		accounts.add(a.name);
+        }
+        if(accounts.size() > 0)
+        	email.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts.toArray(new String[accounts.size()])));
+        
         password = (EditText)findViewById(R.id.password);
         password.setOnEditorActionListener(new OnEditorActionListener() {
 			public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {

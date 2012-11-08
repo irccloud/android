@@ -4,8 +4,8 @@
     android:layout_height="match_parent"
     tools:context=".LoginActivity" >
 
-    <EditText
-        android:id="@+id/email"
+	<AutoCompleteTextView
+	    android:id="@+id/email"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -14,7 +14,7 @@
         android:hint="@string/email"
         android:inputType="textEmailAddress"
         android:ems="10" >
-    </EditText>
+    </AutoCompleteTextView>
 
     <EditText
         android:id="@+id/password"

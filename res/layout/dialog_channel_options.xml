@@ -6,21 +6,18 @@
 
     <CheckBox
         android:id="@+id/members"
-        style="@style/dialogCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show members" />
 
     <CheckBox
         android:id="@+id/unread"
-        style="@style/dialogCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Track unread messages" />
 
     <CheckBox
         android:id="@+id/joinpart"
-        style="@style/dialogCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Show nick changes, joins, and parts" />

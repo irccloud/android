@@ -4,9 +4,12 @@ import java.util.ArrayList;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -60,8 +63,11 @@ public class AddChannelFragment extends DialogFragment {
     
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+		Context ctx = getActivity();
+		if(Build.VERSION.SDK_INT < 11)
+			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
+		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	
-    	LayoutInflater inflater = getActivity().getLayoutInflater();
     	View v = inflater.inflate(R.layout.dialog_add_channel,null);
     	spinner = (Spinner)v.findViewById(R.id.networkSpinner);
     	channels = (TextView)v.findViewById(R.id.channels);
@@ -74,7 +80,7 @@ public class AddChannelFragment extends DialogFragment {
 			}
     	});
     	
-    	return new AlertDialog.Builder(getActivity())
+    	return new AlertDialog.Builder(ctx)
                 .setTitle("Join A Channel")
                 .setView(v)
                 .setPositiveButton("Join", new DoneClickListener())
