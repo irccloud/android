@@ -34,6 +34,10 @@ public class EditConnectionFragment extends DialogFragment {
 	EditText join_commands;
 	EditText server_pass;
 	
+	public String default_hostname = null;
+	public int default_port = 6667;
+	public String default_channels = null;
+	
 	private static final String[] PRESET_NETWORKS = new String[] { "Choose a network…",
 		"IRCCloud", "Freenode", "Freenode (SSL)", "QuakeNet", "IRCNet", "Undernet",
 		"DALNet", "OFTC", "GameSurge", "Efnet", "Mozilla", "Mozilla (SSL)", "Rizon",
@@ -111,9 +115,12 @@ public class EditConnectionFragment extends DialogFragment {
 			    		port.setText(String.valueOf(server.port));
 			   			ssl.setChecked(server.ssl == 1);
 					} else {
-						hostname.setText("");
-			    		port.setText("");
-			   			ssl.setChecked(false);
+						if(default_hostname != null)
+							hostname.setText(default_hostname);
+						else
+							hostname.setText("");
+						port.setText(String.valueOf(default_port));
+			   			ssl.setChecked(default_port == 6697);
 					}
 				} else {
 					hostname.setText(PRESET_SERVERS[position]);
@@ -134,9 +141,12 @@ public class EditConnectionFragment extends DialogFragment {
 		    		port.setText(String.valueOf(server.port));
 		   			ssl.setChecked(server.ssl == 1);
 				} else {
-					hostname.setText("");
-		    		port.setText("");
-		   			ssl.setChecked(false);
+					if(default_hostname != null)
+						hostname.setText(default_hostname);
+					else
+						hostname.setText("");
+					port.setText(String.valueOf(default_port));
+		   			ssl.setChecked(default_port == 6697);
 				}
 			}
 			
@@ -180,6 +190,13 @@ public class EditConnectionFragment extends DialogFragment {
 			join_commands.setText(server.join_commands);
 			nickserv_pass.setText(server.nickserv_pass);
 			server_pass.setText(server.server_pass);
+		} else {
+			if(default_hostname != null)
+				hostname.setText(default_hostname);
+			port.setText(String.valueOf(default_port));
+			ssl.setChecked(default_port == 6697);
+			if(default_channels != null)
+				channels.setText(default_channels);
 		}
 	}
 	

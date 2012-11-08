@@ -19,6 +19,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -74,6 +75,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private ArrayList<Integer> backStack = new ArrayList<Integer>();
 	PowerManager.WakeLock screenLock = null;
 	private int launchBid = -1;
+	private Uri launchURI = null;
 	
 	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
@@ -400,9 +402,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	long min_eid = 0;
     	long last_seen_eid = 0;
 
-    	bid = intent.getIntExtra("bid", 0);
+    	launchBid = -1;
+    	launchURI = null;
+    	
+    	if(intent.hasExtra("bid"))
+    		bid = intent.getIntExtra("bid", 0);
 
-    	if(intent.hasExtra("cid")) {
+    	if(intent.getData() != null) {
+    		if(open_uri(intent.getData()))
+    			return;
+    		launchURI = intent.getData();
+    	} else if(intent.hasExtra("cid")) {
 	    	cid = intent.getIntExtra("cid", 0);
 	    	name = intent.getStringExtra("name");
 	    	type = intent.getStringExtra("type");
@@ -462,7 +472,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     protected void onNewIntent(Intent intent) {
-    	if(intent != null && intent.hasExtra("bid")) {
+    	if(intent != null) {
     		setFromIntent(intent);
     	}
     }
@@ -492,13 +502,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	}
 
     	if(cid == -1) {
-	    	if(getIntent() != null && getIntent().hasExtra("bid")) {
+	    	if(getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
 	    		setFromIntent(getIntent());
-	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null) {
+	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && ServersDataSource.getInstance().count() > 0) {
 	    		if(!open_bid(conn.getUserInfo().last_selected_bid))
 	    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-	    				//if(scrollView != null)
-	    					//scrollView.scrollTo(0,0);
+	    				if(scrollView != null)
+	    					scrollView.scrollTo(0,0);
 	    			}
 	    	}
     	}
@@ -536,6 +546,52 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	unregisterReceiver(bidLaunchReciever);
     }
 	
+    private boolean open_uri(Uri uri) {
+    	Log.i("IRCCloud", "Launch URI: " + uri);
+		if(uri != null && ServersDataSource.getInstance().count() > 0) {
+    		ServersDataSource.Server s = null;
+    		if(uri.getPort() > 0)
+    			s = ServersDataSource.getInstance().getServer(uri.getHost(), uri.getPort());
+			else if(uri.getScheme().equalsIgnoreCase("ircs"))
+    			s = ServersDataSource.getInstance().getServer(uri.getHost(), true);
+    		else
+    			s = ServersDataSource.getInstance().getServer(uri.getHost());
+
+    		if(s != null) {
+    			if(uri.getPath().length() > 1) {
+	    			String key = null;
+	    			String channel = uri.getPath().substring(1);
+	    			if(channel.contains(",")) {
+	    				key = channel.substring(channel.indexOf(",") + 1);
+	    				channel = channel.substring(0, channel.indexOf(","));
+	    			}
+	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(s.cid, channel);
+	    			if(b != null)
+	    				return open_bid(b.bid);
+	    			else
+	    				conn.join(s.cid, channel, key);
+	    			return true;
+    			} else {
+	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(s.cid, "*");
+	    			if(b != null)
+	    				return open_bid(b.bid);
+    			}
+    		} else {
+	        	EditConnectionFragment connFragment = new EditConnectionFragment();
+	        	connFragment.default_hostname = uri.getHost();
+    			if(uri.getPort() > 0)
+    				connFragment.default_port = uri.getPort();
+    			else if(uri.getScheme().equalsIgnoreCase("ircs"))
+    				connFragment.default_port = 6697;
+    			if(uri.getPath().length() > 1)
+    				connFragment.default_channels = uri.getPath().substring(1).replace(",", " ");
+	            connFragment.show(getSupportFragmentManager(), "addnetwork");
+	            return true;
+    		}
+		}
+		return false;
+    }
+    
     private boolean open_bid(int bid) {
 		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 		if(b != null) {
@@ -684,14 +740,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						scrollView.setEnabled(true);
 				}
 		    	if(cid == -1) {
-		    		if(launchBid != -1 && !open_bid(launchBid)) {
-		    			if(conn.getUserInfo() != null && !open_bid(conn.getUserInfo().last_selected_bid)) {
-	    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-	    						if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
-		    						scrollView.scrollTo(0, 0);
-	    						}
-	    					}
-		    			}
+		    		if(launchURI == null || !open_uri(launchURI)) {
+			    		if(launchBid == -1 || !open_bid(launchBid)) {
+			    			if(conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+		    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
+		    						if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
+			    						scrollView.scrollTo(0, 0);
+		    						}
+		    					}
+			    			}
+			    		}
 		    		}
 		    	}
 		    	update_subtitle();
@@ -983,11 +1041,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         switch (item.getItemId()) {
 	        case R.id.menu_add_network:
 	        	EditConnectionFragment connFragment = new EditConnectionFragment();
-	            connFragment.show(getSupportFragmentManager(), "dialog");
+	            connFragment.show(getSupportFragmentManager(), "addnetwork");
 	            break;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
-	            newFragment.show(getSupportFragmentManager(), "dialog");
+	            newFragment.show(getSupportFragmentManager(), "channeloptions");
 	        	break;
             case R.id.menu_userlist:
             	if(scrollView != null) {

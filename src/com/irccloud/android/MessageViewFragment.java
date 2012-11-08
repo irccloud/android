@@ -1,5 +1,7 @@
 package com.irccloud.android;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,6 +10,8 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,8 +23,14 @@ import android.os.Bundle;
 import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Spannable;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.util.Linkify;
+import android.text.util.Linkify.MatchFilter;
+import android.text.util.Linkify.TransformFilter;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -90,6 +100,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private HeartbeatTask heartbeatTask = null;
 	private Ignore ignore = new Ignore();
 	private Timer tapTimer = null;
+	private ServersDataSource.Server mServer = null;
 
 	private class MessageAdapter extends BaseAdapter {
 		ArrayList<EventsDataSource.Event> data;
@@ -356,16 +367,50 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(e.group_msg != null && e.html == null)
 				e.html = ColorFormatter.irc_to_html(e.group_msg);
 			if(holder.message != null && e.html != null) {
-				if(e.linkify)
-					holder.message.setAutoLinkMask(Linkify.WEB_URLS);
-				else
-					holder.message.setAutoLinkMask(0);
+				Spannable html = (Spannable)ColorFormatter.html_to_spanned(e.html);
+				if(e.linkify) {
+					holder.message.setMovementMethod(LinkMovementMethod.getInstance());
+					Linkify.addLinks(html, Patterns.WEB_URL, "http://", new MatchFilter() {
+				        public final boolean acceptMatch(CharSequence s, int start, int end) {
+				        	if(start > 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
+				        		return false;
+				        	if(start > 7 && s.subSequence(start - 7, end).toString().startsWith("ircs://"))
+				        		return false;
+				        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
+				        }
+				    }, null);
+					Linkify.addLinks(html, Patterns.EMAIL_ADDRESS, "mailto:");
+					Linkify.addLinks(html, Pattern.compile("ircs?://\\S+"), null, null, new TransformFilter() {
+				        public final String transformUrl(final Matcher match, String url) {
+				            return url.replace("#", "%23");
+				        }
+				    });
+		    		
+					String pattern = "(\\s+|^)([";
+		    		if(mServer != null && mServer.isupport != null) {
+		    			pattern += mServer.isupport.get("CHANTYPES").getAsString();
+		    		} else {
+		    			pattern += "#";
+		    		}
+		    		pattern += "]\\S+)\\s*";
+
+					Linkify.addLinks(html, Pattern.compile(pattern), "irc://", null, new TransformFilter() {
+				        public final String transformUrl(final Matcher match, String url) {
+				        	String channel = match.group(2);
+				        	try {
+				        		channel = URLEncoder.encode(channel, "UTF-8");
+							} catch (UnsupportedEncodingException e) {
+							}
+				            return "irc://" + mServer.hostname + ":" + mServer.port + "/" + channel;
+				        }
+				    });
+				}
 				if(e.msg != null && e.msg.startsWith("<pre>"))
 					holder.message.setTypeface(Typeface.MONOSPACE);
 				else
 					holder.message.setTypeface(Typeface.DEFAULT);
 				holder.message.setTextColor(getResources().getColorStateList(e.color));
-				holder.message.setText(ColorFormatter.html_to_spanned(e.html));
+				holder.message.setText(html);
 			}
 			
 			return row;
@@ -527,6 +572,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		newMsgTime = 0;
 		earliest_eid = 0;
 		backlog_eid = 0;
+		mServer = ServersDataSource.getInstance().getServer(cid);
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.INVISIBLE);
 		if(headerView != null) {
@@ -545,7 +591,7 @@ public class MessageViewFragment extends SherlockListFragment {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
-							ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
+							ignore.setIgnores(mServer.ignores);
 						}
 						adapter.clear();
 						adapter.notifyDataSetInvalidated();
@@ -821,13 +867,12 @@ public class MessageViewFragment extends SherlockListFragment {
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	updateReconnecting();
-    	if(ServersDataSource.getInstance().getServer(cid) != null)
-    		ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
+    	if(mServer != null)
+    		ignore.setIgnores(mServer.ignores);
     	if(bid != -1) {
     		TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		if(events != null) {
     			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
-	    		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
 	    		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 	    		if(backlog_eid > 0) {
 					EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
@@ -837,7 +882,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					backlogMarker.bg_color = R.color.message_bg;
 					events.put(backlog_eid, backlogMarker);
 	    		}
-				refresh(events, server, buffer);
+				refresh(events, buffer);
 	    		adapter.notifyDataSetChanged();
 				getListView().setSelection(adapter.getCount() - 1);
     		} else if(conn.getState() != NetworkConnection.STATE_CONNECTED || ServersDataSource.getInstance().count() < 1) {
@@ -882,14 +927,12 @@ public class MessageViewFragment extends SherlockListFragment {
     
 	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
 		TreeMap<Long,EventsDataSource.Event> events;
-		ServersDataSource.Server server;
 		BuffersDataSource.Buffer buffer;
 		
 		@SuppressWarnings("unchecked")
 		@Override
 		protected Void doInBackground(Void... params) {
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
-			server = ServersDataSource.getInstance().getServer(cid);
 			long time = System.currentTimeMillis();
 			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
@@ -920,7 +963,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					events.put(backlog_eid, backlogMarker);
 				}
 				adapter.clear();
-				refresh(events, server, buffer);
+				refresh(events, buffer);
 				try {
 					int markerPos = adapter.getBacklogMarkerPosition();
 					if(markerPos != -1 && requestingBacklog) {
@@ -936,7 +979,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
 	}
 
-	private void refresh(TreeMap<Long,EventsDataSource.Event> events, ServersDataSource.Server server, BuffersDataSource.Buffer buffer) {
+	private void refresh(TreeMap<Long,EventsDataSource.Event> events, BuffersDataSource.Buffer buffer) {
 		if(conn.getReconnectTimestamp() == 0)
 			conn.cancel_idle_timer(); //This may take a while...
 		collapsedEvents.clear();
@@ -950,8 +993,9 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		headerView.setVisibility(View.GONE);
 			}
 		} else if(events.size() > 0) {
-	    	if(ServersDataSource.getInstance().getServer(cid) != null)
-	    		ignore.setIgnores(ServersDataSource.getInstance().getServer(cid).ignores);
+			mServer = ServersDataSource.getInstance().getServer(cid);
+	    	if(mServer != null)
+	    		ignore.setIgnores(mServer.ignores);
 	    	else
 	    		ignore.setIgnores(null);
 			earliest_eid = events.firstKey();
@@ -1029,9 +1073,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	    				heartbeatTask.execute(e);
 	    			}
 	    		}
-	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-	    		if(s != null)
-	    			update_status(s.status, s.fail_info);
+	    		if(mServer != null)
+	    			update_status(mServer.status, mServer.fail_info);
 				if(mListener != null)
 					mListener.onMessageViewReady();
 			} else {

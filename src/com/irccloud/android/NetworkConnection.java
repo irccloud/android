@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -181,7 +182,7 @@ public class NetworkConnection {
 	}
 	
 	public JSONObject login(String email, String password) throws IOException {
-		String postdata = "email="+email+"&password="+password;
+		String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
 		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata);
 		try {
 			Log.d(TAG, "Result: " + response);

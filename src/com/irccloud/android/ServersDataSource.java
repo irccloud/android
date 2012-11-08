@@ -183,4 +183,34 @@ public class ServersDataSource {
 		}
 		return null;
 	}
+
+	public Server getServer(String hostname) {
+		Iterator<Server> i = servers.iterator();
+		while(i.hasNext()) {
+			Server s = i.next();
+			if(s.hostname.equalsIgnoreCase(hostname))
+				return s;
+		}
+		return null;
+	}
+
+	public Server getServer(String hostname, int port) {
+		Iterator<Server> i = servers.iterator();
+		while(i.hasNext()) {
+			Server s = i.next();
+			if(s.hostname.equalsIgnoreCase(hostname) && s.port == port)
+				return s;
+		}
+		return null;
+	}
+
+	public Server getServer(String hostname, boolean ssl) {
+		Iterator<Server> i = servers.iterator();
+		while(i.hasNext()) {
+			Server s = i.next();
+			if(s.hostname.equalsIgnoreCase(hostname) && ((!ssl && s.ssl == 0) || (ssl && s.ssl > 0)))
+				return s;
+		}
+		return null;
+	}
 }
