@@ -122,7 +122,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		
 		public void clearPending() {
 			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).reqid != -1) {
+				if(data.get(i).reqid != -1 && data.get(i).color == R.color.timestamp) {
 					data.remove(i);
 					i--;
 				}

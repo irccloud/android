@@ -177,6 +177,7 @@ public class NetworkConnection {
 		}
 		if(wifiLock.isHeld())
 			wifiLock.release();
+		reconnect_timestamp = 0;
 	}
 	
 	public JSONObject login(String email, String password) throws IOException {

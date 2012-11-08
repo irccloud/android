@@ -35,6 +35,8 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    	conn.addHandler(mHandler);
 	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
 	    		conn.connect(session);
+	    	else
+	    		Log.e("IRCCloud", "Connection state: " + conn.getState());
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
     		i.addFlags(
