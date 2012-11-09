@@ -507,8 +507,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			scrollView.setEnabled(false);
     		messageTxt.setEnabled(false);
     	} else {
-    		if(scrollView != null)
+    		if(scrollView != null) {
     			scrollView.setEnabled(true);
+    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+            	upView.setVisibility(View.VISIBLE);
+    		}
     		messageTxt.setEnabled(true);
     	}
 
@@ -1054,6 +1057,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	} else {
 		        		scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
 		        	}
+		        	upView.setVisibility(View.VISIBLE);
             	}
             	return true;
             case R.id.menu_ignore_list:
