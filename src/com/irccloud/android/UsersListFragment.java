@@ -11,9 +11,11 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
@@ -243,6 +245,19 @@ public class UsersListFragment extends SherlockListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.userslist, null);
+    	((ListView)view.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
+		    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
+		    	if(e.type == TYPE_USER) {
+		    		mListener.onUserSelected(cid, channel, e.text);
+		    		return true;
+		    	}
+		    	return false;
+			}
+    		
+    	});
 		return view;
 	}
 
