@@ -322,6 +322,7 @@ public class Notifications extends SQLiteOpenHelper {
 		while (!cursor.isAfterLast()) {
 			Notification n = cursorToNotification(cursor);
 			Log.d("IRCCloud", "Notification: " + n.toString());
+			cursor.moveToNext();
 			notifications.add(n);
 			cursor.moveToNext();
 		}
@@ -409,6 +410,18 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public void showNotifications(String ticker) {
+		if(ServersDataSource.getInstance().count() > 0) {
+			ArrayList<Notification> notifications = getMessageNotifications();
+			for(Notification n : notifications) {
+				if(ServersDataSource.getInstance().getServer(n.cid) == null
+						|| BuffersDataSource.getInstance().getBuffer(n.bid) == null
+						|| EventsDataSource.getInstance().getEvent(n.eid, n.bid) == null) {
+					Log.d("IRCCloud", "Removing stale notification: " + n.toString());
+					deleteNotification(n.cid, n.bid, n.eid);
+				}
+			}
+		}
+		
 		showMessageNotifications(ticker);
 		showOtherNotifications();
 	}
@@ -453,7 +466,7 @@ public class Notifications extends SQLiteOpenHelper {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getMessageNotifications();
 		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
-		
+
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 			i.putExtra("bid", notifications.get(0).bid);
 			NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
