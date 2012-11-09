@@ -63,6 +63,11 @@
 		  </intent-filter>
 		</receiver>
 		<service android:name=".GCMIntentService" />
+        <receiver android:name="NotificationDismissBroadcastReceiver" android:permission="com.irccloud.android.permission.BROADCAST">
+		  <intent-filter>
+		    <action android:name="com.irccloud.android.DISMISS_NOTIFICATION" />
+		  </intent-filter>
+		</receiver>
 	</application>
 
 </manifest>

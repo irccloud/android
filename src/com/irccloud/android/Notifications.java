@@ -43,10 +43,11 @@ public class Notifications extends SQLiteOpenHelper {
 	
 	public static final String TABLE_NOTIFICATIONS = "notifications";
 	public static final String TABLE_NETWORKS = "networks";
-	public static final String TABLE_EIDS = "eids";
+	public static final String TABLE_LAST_SEEN_EIDS = "last_seen_eids";
+	public static final String TABLE_DISMISSED_EIDS = "dismissed_eids";
 
 	private static final String DATABASE_NAME = "notifications.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 1;
 	private static final int NOTIFY_ID = 1;
 
 	private static Notifications instance = null;
@@ -82,7 +83,7 @@ public class Notifications extends SQLiteOpenHelper {
 			SQLiteDatabase db = getSafeWritableDatabase();
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NETWORKS);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_EIDS);
+			db.execSQL("DROP TABLE IF EXISTS " + TABLE_LAST_SEEN_EIDS);
 			onCreate(db);
 			db.close();
 			writeSemaphore.release();
@@ -103,7 +104,6 @@ public class Notifications extends SQLiteOpenHelper {
 			return batchDb;
 		else {
 			SQLiteDatabase d = getWritableDatabase();
-			d.execSQL("PRAGMA synchronous = OFF");
 			return d;
 		}
 	}
@@ -117,7 +117,6 @@ public class Notifications extends SQLiteOpenHelper {
 			return null;
 		}
 		SQLiteDatabase d = getReadableDatabase();
-		d.execSQL("PRAGMA synchronous = OFF");
 		return d;
 	}
 	
@@ -172,10 +171,14 @@ public class Notifications extends SQLiteOpenHelper {
 				+ "cid integer not null, "
 				+ "network text, "
 				+ "PRIMARY KEY(cid));");
-		database.execSQL("create table " + TABLE_EIDS + " ("
+		database.execSQL("create table " + TABLE_LAST_SEEN_EIDS + " ("
 				+ "bid integer not null, "
 				+ "eid integer, "
 				+ "PRIMARY KEY(bid));");
+		database.execSQL("create table if not exists " + TABLE_DISMISSED_EIDS + " ("
+				+ "bid integer not null, "
+				+ "eid integer, "
+				+ "PRIMARY KEY(bid,eid));");
 	}
 
 	@Override
@@ -187,11 +190,12 @@ public class Notifications extends SQLiteOpenHelper {
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NETWORKS);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_EIDS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LAST_SEEN_EIDS);
+		db.execSQL("DROP TABLE IF EXISTS " + TABLE_DISMISSED_EIDS);
 		onCreate(db);
 	}
 	
-	public long getEid(int bid) {
+	public long getLastSeenEid(int bid) {
 		long eid = -1;
 
 		SQLiteDatabase db;
@@ -199,7 +203,7 @@ public class Notifications extends SQLiteOpenHelper {
 			db = batchDb;
 		else
 			db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_EIDS, new String[] {"eid"}, "bid == " + bid, null, null, null, null);
+		Cursor cursor = db.query(TABLE_LAST_SEEN_EIDS, new String[] {"eid"}, "bid = " + bid, null, null, null, null);
 
 		cursor.moveToFirst();
 		
@@ -215,21 +219,55 @@ public class Notifications extends SQLiteOpenHelper {
 		return eid;
 	}
 	
-	public void updateEid(int bid, long eid) {
-		long last_eid = getEid(bid);
+	public void updateLastSeenEid(int bid, long eid) {
+		long last_eid = getLastSeenEid(bid);
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("bid", bid);
 		values.put("eid", eid);
 		if(last_eid > 0)
-			db.update(TABLE_EIDS, values, "bid == " + bid, null);
+			db.update(TABLE_LAST_SEEN_EIDS, values, "bid == " + bid, null);
 		else
-			db.insert(TABLE_EIDS, null, values);
+			db.insert(TABLE_LAST_SEEN_EIDS, null, values);
 		if(!isBatch())
 			db.close();
 		releaseWriteableDatabase();
 	}
 
+	public boolean isDismissed(int bid, long eid) {
+		boolean result = false;
+		SQLiteDatabase db;
+		if(isBatch())
+			db = batchDb;
+		else
+			db = getSafeReadableDatabase();
+		Cursor cursor = db.query(TABLE_DISMISSED_EIDS, new String[] {"eid"}, "bid = " + bid + " and eid = " + eid, null, null, null, null);
+
+		cursor.moveToFirst();
+		
+		if(!cursor.isAfterLast()) {
+			result = true;
+		}
+		cursor.close();
+		if(!isBatch()) {
+			db.close();
+			releaseReadableDatabase();
+		}
+		
+		return result;
+	}
+	
+	public void dismiss(int bid, long eid) {
+		SQLiteDatabase db = getSafeWritableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("bid", bid);
+		values.put("eid", eid);
+		db.insert(TABLE_DISMISSED_EIDS, null, values);
+		if(!isBatch())
+			db.close();
+		releaseWriteableDatabase();
+	}
+	
 	public void addNetwork(int cid, String network) {
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
@@ -250,7 +288,11 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
-		long last_eid = getEid(bid);
+		if(isDismissed(bid, eid)) {
+			Log.d("IRCCloud", "This notification's EID has been dismissed, skipping...");
+			return;
+		}
+		long last_eid = getLastSeenEid(bid);
 		if(eid <= last_eid) {
 			Log.d("IRCCloud", "This notification's EID has already been seen, skipping...");
 			return;
@@ -316,13 +358,13 @@ public class Notifications extends SQLiteOpenHelper {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
 		SQLiteDatabase db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and bid != " + excludeBid + " and (message_type='buffer_msg' or message_type='buffer_me_msg' or message_type='notice' or message_type='wallops')", null, null, null, "cid,chan,eid");
+		Cursor cursor = db.query(TABLE_NOTIFICATIONS + " INNER JOIN " + TABLE_NETWORKS + " ON " + TABLE_NOTIFICATIONS + ".cid=" + TABLE_NETWORKS +".cid",
+				new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, "bid != " + excludeBid + " and (message_type='buffer_msg' or message_type='buffer_me_msg' or message_type='notice' or message_type='wallops')", null, null, null, "cid,chan,eid");
 
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			Notification n = cursorToNotification(cursor);
 			Log.d("IRCCloud", "Notification: " + n.toString());
-			cursor.moveToNext();
 			notifications.add(n);
 			cursor.moveToNext();
 		}
@@ -419,6 +461,10 @@ public class Notifications extends SQLiteOpenHelper {
 					Log.d("IRCCloud", "Removing stale notification: " + n.toString());
 					deleteNotification(n.cid, n.bid, n.eid);
 				}
+				if(isDismissed(n.bid, n.eid)) {
+					Log.d("IRCCloud", "Removing dismissed notification: " + n.toString());
+					deleteNotification(n.cid, n.bid, n.eid);
+				}
 			}
 		}
 		
@@ -433,6 +479,9 @@ public class Notifications extends SQLiteOpenHelper {
 		
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 	        for(Notification n : notifications) {
+	        	Intent dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
+	        	dismiss.putExtra("bids", new int[] {n.bid});
+	        	dismiss.putExtra("eids", new long[] {n.eid});
 	    		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
 	    		i.putExtra("bid", n.bid);
 				NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
@@ -440,6 +489,7 @@ public class Notifications extends SQLiteOpenHelper {
 		         .setNumber(notifications.size())
 		         .setLights(0xFF0000FF, 500, 1000)
 		         .setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
+		         .setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT))
 		         .setSmallIcon(R.drawable.ic_launcher);
 	
 				if(prefs.getBoolean("notify_vibrate", true))
@@ -466,6 +516,7 @@ public class Notifications extends SQLiteOpenHelper {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getMessageNotifications();
 		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
+    	Intent dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
 
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 			i.putExtra("bid", notifications.get(0).bid);
@@ -485,17 +536,22 @@ public class Notifications extends SQLiteOpenHelper {
 			if(notifications.size() == 1) {
 				Notification n = notifications.get(0);
 				from = n.nick;
+	        	dismiss.putExtra("bids", new int[] {n.bid});
+				dismiss.putExtra("eids", new long[] { n.eid });
 				if(!n.buffer_type.equals("conversation") && !n.message_type.equals("wallops") && n.chan.length() > 0)
 					from += " in " + n.chan;
 				from += " (" + n.network + ")";
 				builder.setContentTitle(from);
 				builder.setContentText(n.message);
+				builder.setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
 		        nm.notify(NOTIFY_ID, builder.build());
 			} else {
 				int lastcid = -1;
 				int lastbid = -1;
 				int count = 0;
 				String lastChan = "";
+				int[] bids = new int[notifications.size()];
+				long[] eids = new long[notifications.size()];
 				for(int j = 0; j < notifications.size(); j++) {
 					String chan = notifications.get(j).chan;
 					if(!lastChan.equals(chan)) {
@@ -508,10 +564,15 @@ public class Notifications extends SQLiteOpenHelper {
 					} else {
 						count++;
 					}
+					bids[j] = notifications.get(j).bid;
+					eids[j] = notifications.get(j).eid;
 				}
 				from += " (" + (count+1) + ")";
 				count = 0;
+				dismiss.putExtra("bids", bids);
+				dismiss.putExtra("eids", eids);
 		         builder.setContentTitle(notifications.size() + " unread highlight(s)")
+		         .setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT))
 		         .setContentText(from);
 		        NotificationCompat2.InboxStyle inbox = new NotificationCompat2.InboxStyle(builder);
 		        for(Notification n : notifications) {

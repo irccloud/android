@@ -542,7 +542,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	invalidateOptionsMenu();
     	
-    	new ShowNotificationsTask().execute((Void)null);
+    	if(ServersDataSource.getInstance().count() > 0)
+    		new ShowNotificationsTask().execute((Void)null);
    		sendBtn.setEnabled(messageTxt.getText().length() > 0);
    		if(Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
    			sendBtn.setAlpha(0.5f);
