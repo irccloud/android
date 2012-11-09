@@ -2,7 +2,6 @@ package com.irccloud.android;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Timer;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,11 +12,9 @@ import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
@@ -83,6 +80,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	@Override
     public void onCreate(Bundle savedInstanceState) {
+    	Log.e("IRCCloud", "MessageActivity: onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         buffersListView = findViewById(R.id.BuffersList);
@@ -398,6 +396,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		}
     }
     
+    private class ShowNotificationsTask extends AsyncTaskEx<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+	    	Notifications.getInstance().excludeBid(bid);
+			Notifications.getInstance().showNotifications(null);
+			return null;
+		}
+    }
+    
     private void setFromIntent(Intent intent) {
     	long min_eid = 0;
     	long last_seen_eid = 0;
@@ -508,17 +516,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	if(getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
 	    		setFromIntent(getIntent());
 	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && ServersDataSource.getInstance().count() > 0) {
-	    		if(!open_bid(conn.getUserInfo().last_selected_bid))
+	    		if(!open_bid(conn.getUserInfo().last_selected_bid)) {
 	    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
 	    				if(scrollView != null)
 	    					scrollView.scrollTo(0,0);
 	    			}
+	    		}
 	    	}
     	}
+
     	updateUsersListFragmentVisibility();
     	title.setText(name);
     	getSupportActionBar().setTitle(name);
     	update_subtitle();
+
     	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
     		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
     	
@@ -529,8 +540,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	invalidateOptionsMenu();
     	
-    	Notifications.getInstance().excludeBid(bid);
-    	Notifications.getInstance().showNotifications(null);
+    	new ShowNotificationsTask().execute((Void)null);
    		sendBtn.setEnabled(messageTxt.getText().length() > 0);
    		if(Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
    			sendBtn.setAlpha(0.5f);
@@ -739,6 +749,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		}
 		    	}
 		    	update_subtitle();
+		        if(refreshUpIndicatorTask != null)
+		        	refreshUpIndicatorTask.cancel(true);
+		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+		        refreshUpIndicatorTask.execute((Void)null);
 		    	break;
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
@@ -1417,7 +1431,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
 			upView.setVisibility(View.VISIBLE);
 		}
-		if(bid != this.bid) {
+		if(bid != this.bid || this.cid == -1) {
 			if(bid != -1 && conn != null && conn.getUserInfo() != null)
 				conn.getUserInfo().last_selected_bid = bid;
 	    	for(int i = 0; i < backStack.size(); i++) {
@@ -1462,8 +1476,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	
 	    	updateUsersListFragmentVisibility();
 	    	invalidateOptionsMenu();
-	    	Notifications.getInstance().excludeBid(bid);
-	    	Notifications.getInstance().showNotifications(null);
+	    	new ShowNotificationsTask().execute((Void)null);
 		}
 		if(cid != -1) {
 			if(scrollView != null)

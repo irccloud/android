@@ -869,6 +869,13 @@ public class MessageViewFragment extends SherlockListFragment {
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+    	if(conn.getState() != NetworkConnection.STATE_CONNECTED || ServersDataSource.getInstance().count() == 0) {
+			TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
+			anim.setDuration(200);
+			anim.setFillAfter(true);
+			connecting.startAnimation(anim);
+			connecting.setVisibility(View.VISIBLE);
+    	}
     	updateReconnecting();
     	if(mServer != null)
     		ignore.setIgnores(mServer.ignores);
@@ -1224,6 +1231,27 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     	if(conn != null)
     		conn.removeHandler(mHandler);
+		TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, -1);
+		anim.setDuration(10);
+		anim.setFillAfter(true);
+		anim.setAnimationListener(new AnimationListener() {
+
+			@Override
+			public void onAnimationEnd(Animation arg0) {
+				connecting.setVisibility(View.GONE);
+			}
+
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+			}
+
+			@Override
+			public void onAnimationStart(Animation animation) {
+			}
+			
+		});
+		connecting.startAnimation(anim);
+		error = null;
    	}
     
 	private void updateReconnecting() {
