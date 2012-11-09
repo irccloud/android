@@ -20,6 +20,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -533,6 +535,15 @@ public class BuffersListFragment extends SherlockListFragment {
 			public void onScrollStateChanged(AbsListView view, int scrollState) {
 			}
 		});
+    	listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
+				return mListener.onBufferLongClicked(BuffersDataSource.getInstance().getBuffer(adapter.data.get(pos).bid));
+			}
+    		
+    	});
+
         if(savedInstanceState != null && savedInstanceState.containsKey("data")) {
     		ArrayList<Integer> expandedArchives = savedInstanceState.getIntegerArrayList("expandedArchives");
     		Iterator<Integer> i = expandedArchives.iterator();
@@ -648,5 +659,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	
 	public interface OnBufferSelectedListener {
 		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status);
+		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
 	}
 }

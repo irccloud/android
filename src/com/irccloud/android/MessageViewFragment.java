@@ -366,6 +366,16 @@ public class MessageViewFragment extends SherlockListFragment {
 				holder.timestamp.setText(e.timestamp);
 			if(e.group_msg != null && e.html == null)
 				e.html = ColorFormatter.irc_to_html(e.group_msg);
+			if(e.row_type == ROW_SOCKETCLOSED) {
+				if(e.msg.length() > 0) {
+					holder.timestamp.setVisibility(View.VISIBLE);
+					holder.message.setVisibility(View.VISIBLE);
+				} else {
+					holder.timestamp.setVisibility(View.GONE);
+					holder.message.setVisibility(View.GONE);
+				}
+			}
+			
 			if(holder.message != null && e.html != null) {
 				Spannable html = (Spannable)ColorFormatter.html_to_spanned(e.html);
 				if(e.linkify) {
@@ -387,7 +397,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				    });
 		    		
 					String pattern = "(\\s+|^)([";
-		    		if(mServer != null && mServer.isupport != null) {
+		    		if(mServer != null && mServer.isupport != null && mServer.isupport.get("CHANTYPES") != null) {
 		    			pattern += mServer.isupport.get("CHANTYPES").getAsString();
 		    		} else {
 		    			pattern += "#";

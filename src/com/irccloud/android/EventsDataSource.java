@@ -145,7 +145,7 @@ public class EventsDataSource {
 				else if(event.has("reason") && event.getString("reason").length() > 0)
 					e.msg = "Connection lost: " + event.getString("reason");
 				else
-					e.msg = "Connection closed unexpectedly";
+					e.msg = "";
 			} else if(e.type.equalsIgnoreCase("user_channel_mode")) {
 				e.target_mode = event.getString("newmode");
 			} else if(e.type.equalsIgnoreCase("buffer_me_msg")) {

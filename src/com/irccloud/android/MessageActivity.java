@@ -1068,9 +1068,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 return true;
             case R.id.menu_leave:
             	if(joined == 0)
-            		conn.join(cid, name, "");
+            		conn.join(cid, name, null);
             	else
-            		conn.part(cid, name, "");
+            		conn.part(cid, name, null);
             	return true;
             case R.id.menu_archive:
             	if(archived == 0)
@@ -1123,7 +1123,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	return true;
             case R.id.menu_disconnect:
         		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
-        			conn.disconnect(cid, "");
+        			conn.disconnect(cid, null);
         		} else {
         			conn.reconnect(cid);
         		}
@@ -1175,6 +1175,129 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			messageTxt.append(from + ": ");
 		else
 			messageTxt.append(" " + from + " ");
+	}
+	
+	@Override
+	public boolean onBufferLongClicked(BuffersDataSource.Buffer b) {
+   		if(b == null)
+			return false;
+
+   		ArrayList<String> itemList = new ArrayList<String>();
+   		final String[] items;
+   		final BuffersDataSource.Buffer buffer = b;
+		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(buffer.cid);
+
+		if(buffer.bid != bid)
+			itemList.add("Open");
+		
+		if(ChannelsDataSource.getInstance().getChannelForBuffer(b.bid) != null) {
+			itemList.add("Leave");
+			itemList.add("Channel Options…");
+		} else {
+			if(b.type.equalsIgnoreCase("channel"))
+				itemList.add("Join");
+			else if(b.type.equalsIgnoreCase("console")) {
+				if(s.status.contains("connected") && !s.status.startsWith("dis")) {
+					itemList.add("Disconnect");
+				} else {
+					itemList.add("Connect");
+					itemList.add("Delete");
+				}
+				itemList.add("Edit Connection…");
+			}
+			if(!b.type.equalsIgnoreCase("console")) {
+				if(b.archived == 0)
+					itemList.add("Archive");
+				else
+					itemList.add("Unarchive");
+				itemList.add("Delete");
+			}
+		}
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		if(b.type.equalsIgnoreCase("console"))
+			builder.setTitle(s.name);
+		else
+			builder.setTitle(b.name);
+		items = itemList.toArray(new String[itemList.size()]);
+		builder.setItems(items, new DialogInterface.OnClickListener() {
+		    public void onClick(DialogInterface dialogInterface, int item) {
+	    		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	    		AlertDialog dialog;
+
+	    		if(items[item].equals("Open")) {
+	    			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(buffer.cid);
+	    			if(buffer.type.equalsIgnoreCase("console")) {
+	    				onBufferSelected(buffer.cid, buffer.bid, s.name, buffer.last_seen_eid, buffer.min_eid, 
+	    						buffer.type, 1, buffer.archived, s.status);
+	    			} else {
+		    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+		    					buffer.type, 1, buffer.archived, s.status);
+	    			}
+	    		} else if(items[item].equals("Join")) {
+	    			conn.join(buffer.cid, buffer.name, null);
+	    		} else if(items[item].equals("Leave")) {
+	    			conn.part(buffer.cid, buffer.name, null);
+	    		} else if(items[item].equals("Archive")) {
+	    			conn.archiveBuffer(buffer.cid, buffer.bid);
+	    		} else if(items[item].equals("Unarchive")) {
+	    			conn.unarchiveBuffer(buffer.cid, buffer.bid);
+	    		} else if(items[item].equals("Connect")) {
+	    			conn.reconnect(buffer.cid);
+	    		} else if(items[item].equals("Disconnect")) {
+	    			conn.disconnect(buffer.cid, null);
+	    		} else if(items[item].equals("Channel Options…")) {
+		        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.cid, buffer.bid);
+		            newFragment.show(getSupportFragmentManager(), "channeloptions");
+	    		} else if(items[item].equals("Edit Connection…")) {
+		        	EditConnectionFragment editFragment = new EditConnectionFragment();
+		        	editFragment.setCid(buffer.cid);
+		            editFragment.show(getSupportFragmentManager(), "editconnection");
+	    		} else if(items[item].equals("Delete")) {
+	            	builder = new AlertDialog.Builder(MessageActivity.this);
+	            	
+	            	if(buffer.type.equalsIgnoreCase("console"))
+	            		builder.setTitle("Delete Connection");
+	            	else
+	            		builder.setTitle("Delete History");
+	            	
+	            	if(buffer.type.equalsIgnoreCase("console"))
+	            		builder.setMessage("Are you sure you want to remove this connection?");
+	            	else if(buffer.type.equalsIgnoreCase("channel"))
+	            		builder.setMessage("Are you sure you want to clear your history in " + buffer.name + "?");
+	            	else
+	            		builder.setMessage("Are you sure you want to clear your history with " + buffer.name + "?");
+	            	
+	            	builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.dismiss();
+						}
+	            	});
+	            	builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+			            	if(type.equalsIgnoreCase("console")) {
+			            		conn.deleteServer(buffer.cid);
+			            	} else {
+			                	conn.deleteBuffer(buffer.cid, buffer.bid);
+			            	}
+							dialog.dismiss();
+						}
+	            	});
+		    		dialog = builder.create();
+		    		dialog.setOwnerActivity(MessageActivity.this);
+		    		dialog.show();
+	    		}
+		    }
+		});
+		
+		AlertDialog dialog = builder.create();
+		dialog.setOwnerActivity(this);
+		dialog.show();
+		return true;
 	}
 	
 	@Override
