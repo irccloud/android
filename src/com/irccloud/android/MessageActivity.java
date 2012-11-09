@@ -53,7 +53,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	int bid = -1;
 	String name;
 	String type;
-	TextView messageTxt;
+	EditText messageTxt;
 	View sendBtn;
 	int joined;
 	int archived;
@@ -80,7 +80,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	@Override
     public void onCreate(Bundle savedInstanceState) {
-    	Log.e("IRCCloud", "MessageActivity: onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
         buffersListView = findViewById(R.id.BuffersList);
@@ -92,7 +91,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        params.width = getWindowManager().getDefaultDisplay().getWidth();
 	        messageContainer.setLayoutParams(params);
         }
-        messageTxt = (TextView)findViewById(R.id.messageTxt);
+        messageTxt = (EditText)findViewById(R.id.messageTxt);
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
          	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -1175,10 +1174,66 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(messageTxt == null || event == null || from == null || from.length() == 0)
 			return;
 		
-		if(messageTxt.getText().length() == 0)
+		if(messageTxt.getText().length() == 0) {
 			messageTxt.append(from + ": ");
-		else
-			messageTxt.append(" " + from + " ");
+		} else {
+			int oldPosition = messageTxt.getSelectionStart();
+			String text = messageTxt.getText().toString();
+			int start = oldPosition - 1;
+			if(start > 0 && text.charAt(start) == ' ')
+				start--;
+			while(start > 0 && text.charAt(start) != ' ')
+				start--;
+			int match = text.indexOf(from, start);
+			int end = oldPosition + from.length();
+			if(end > text.length() - 1)
+				end = text.length() - 1;
+			if(match >= 0 && match < end) {
+				String newtext = "";
+				if(match > 1 && text.charAt(match - 1) == ' ')
+					newtext = text.substring(0, match - 1);
+				else
+					newtext = text.substring(0, match);
+				if(match+from.length() < text.length() && text.charAt(match+from.length()) == ':' &&
+						match+from.length()+1 < text.length() && text.charAt(match+from.length()+1) == ' ') {
+					if(match+from.length()+2 < text.length())
+						newtext += text.substring(match+from.length()+2, text.length());
+				} else if(match+from.length() < text.length()) {
+					newtext += text.substring(match+from.length(), text.length());
+				}
+				if(newtext.endsWith(" "))
+					newtext = newtext.substring(0, newtext.length() - 1);
+				if(newtext.equals(":"))
+					newtext = "";
+				messageTxt.setText(newtext);
+				if(match < newtext.length())
+					messageTxt.setSelection(match);
+				else
+					messageTxt.setSelection(newtext.length());
+			} else {
+				if(oldPosition == text.length() - 1) {
+					text += " " + from;
+				} else {
+					String newtext = text.substring(0, oldPosition);
+					if(!newtext.endsWith(" "))
+						from = " " + from;
+					if(!text.substring(oldPosition, text.length()).startsWith(" "))
+						from += " ";
+					newtext += from;
+					newtext += text.substring(oldPosition, text.length());
+					if(newtext.endsWith(" "))
+						newtext = newtext.substring(0, newtext.length() - 1);
+					text = newtext;
+				}
+				messageTxt.setText(text);
+				if(text.length() > 0) {
+					if(oldPosition + from.length() + 2 < text.length())
+						messageTxt.setSelection(oldPosition + from.length());
+					else
+						messageTxt.setSelection(text.length());
+				}
+			}
+		}
 	}
 	
 	@Override

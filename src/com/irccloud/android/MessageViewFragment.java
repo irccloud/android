@@ -41,6 +41,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -361,6 +362,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				holder = (ViewHolder) row.getTag();
 			}
 
+			row.setOnClickListener(new OnItemClickListener(position));
 			row.setBackgroundResource(e.bg_color);
 			if(holder.timestamp != null)
 				holder.timestamp.setText(e.timestamp);
@@ -377,9 +379,10 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 			
 			if(holder.message != null && e.html != null) {
+				holder.message.setMovementMethod(LinkMovementMethod.getInstance());
+				holder.message.setOnClickListener(new OnItemClickListener(position));
 				Spannable html = (Spannable)ColorFormatter.html_to_spanned(e.html);
 				if(e.linkify) {
-					holder.message.setMovementMethod(LinkMovementMethod.getInstance());
 					Linkify.addLinks(html, Patterns.WEB_URL, "http://", new MatchFilter() {
 				        public final boolean acceptMatch(CharSequence s, int start, int end) {
 				        	if(start > 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
@@ -806,56 +809,64 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     }
     
-    public void onListItemClick(ListView l, View v, int p, long id) {
-    	if(p < 1)
-    		return;
-    	final int pos = p;
-    	if(adapter != null) {
-    		if(tapTimer != null) {
-    			tapTimer.cancel();
-    			tapTimer = null;
-    			mListener.onMessageDoubleClicked(adapter.data.get(p - 1));
-    		} else {
-    			tapTimer = new Timer();
-    			tapTimer.schedule(new TimerTask() {
-    				int position = pos;
-    				
-					@Override
-					public void run() {
-			    		mHandler.post(new Runnable() {
-							@Override
-							public void run() {
-						    	EventsDataSource.Event e = adapter.data.get(position-1);
-						    	if(e != null && e.type.equals("channel_invite")) {
-						    		conn.join(cid, e.old_nick, null);
-						    	} else if(e != null && e.type.equals("callerid")) {
-						    		conn.say(cid, null, "/accept " + e.from);
-						    		BuffersDataSource b = BuffersDataSource.getInstance();
-						    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
-						    		if(buffer != null) {
-						    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
-						    					buffer.type, 1, buffer.archived, "connected_ready");
-						    		} else {
-						    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
-						    		}
-						    	} else {
-							    	long group = adapter.getGroupForPosition(position-1);
-							    	if(expandedSectionEids.contains(group))
-							    		expandedSectionEids.remove(group);
-							    	else
-							    		expandedSectionEids.add(group);
-							        if(refreshTask != null)
-							        	refreshTask.cancel(true);
-									refreshTask = new RefreshTask();
-									refreshTask.execute((Void)null);
-						    	}
-							}
-			    		});
-		    			tapTimer = null;
-					}
-    				
-    			}, 300);
-    		}
+    private class OnItemClickListener implements OnClickListener{       
+        private int pos;
+        OnItemClickListener(int position){
+            pos = position;
+        }
+        
+        @Override
+        public void onClick(View arg0) {
+	    	if(pos < 0)
+	    		return;
+
+	    	if(adapter != null) {
+	    		if(tapTimer != null) {
+	    			tapTimer.cancel();
+	    			tapTimer = null;
+	    			mListener.onMessageDoubleClicked(adapter.data.get(pos));
+	    		} else {
+	    			tapTimer = new Timer();
+	    			tapTimer.schedule(new TimerTask() {
+	    				int position = pos;
+	    				
+						@Override
+						public void run() {
+				    		mHandler.post(new Runnable() {
+								@Override
+								public void run() {
+							    	EventsDataSource.Event e = adapter.data.get(position);
+							    	if(e != null && e.type.equals("channel_invite")) {
+							    		conn.join(cid, e.old_nick, null);
+							    	} else if(e != null && e.type.equals("callerid")) {
+							    		conn.say(cid, null, "/accept " + e.from);
+							    		BuffersDataSource b = BuffersDataSource.getInstance();
+							    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
+							    		if(buffer != null) {
+							    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+							    					buffer.type, 1, buffer.archived, "connected_ready");
+							    		} else {
+							    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
+							    		}
+							    	} else {
+								    	long group = adapter.getGroupForPosition(position);
+								    	if(expandedSectionEids.contains(group))
+								    		expandedSectionEids.remove(group);
+								    	else
+								    		expandedSectionEids.add(group);
+								        if(refreshTask != null)
+								        	refreshTask.cancel(true);
+										refreshTask = new RefreshTask();
+										refreshTask.execute((Void)null);
+							    	}
+								}
+				    		});
+			    			tapTimer = null;
+						}
+	    				
+	    			}, 300);
+	    		}
+	    	}
     	}
     }
     
