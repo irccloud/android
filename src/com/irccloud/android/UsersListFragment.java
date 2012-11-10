@@ -1,6 +1,8 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONException;
 
@@ -11,6 +13,7 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -23,13 +26,14 @@ public class UsersListFragment extends SherlockListFragment {
 	private static final int TYPE_HEADING = 0;
 	private static final int TYPE_USER = 1;
 	
-	NetworkConnection conn;
-	UserListAdapter adapter;
-	OnUserSelectedListener mListener;
-	int cid = -1;
-	String channel;
-	View view;
-	RefreshTask refreshTask = null;
+	private NetworkConnection conn;
+	private UserListAdapter adapter;
+	private OnUserSelectedListener mListener;
+	private int cid = -1;
+	private String channel;
+	private View view;
+	private RefreshTask refreshTask = null;
+	private Timer tapTimer = null;
 	
 	private class UserListAdapter extends BaseAdapter {
 		ArrayList<UserListEntry> data;
@@ -111,6 +115,7 @@ public class UsersListFragment extends SherlockListFragment {
 				holder = (ViewHolder) row.getTag();
 			}
 
+			row.setOnClickListener(new OnItemClickListener(position));
 			holder.label.setText(e.text);
 			if(e.type == TYPE_USER && e.away) {
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_user_away));
@@ -317,11 +322,48 @@ public class UsersListFragment extends SherlockListFragment {
     	state.putString("channel", channel);
     }
     
-    public void onListItemClick(ListView l, View v, int position, long id) {
-    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(position);
-    	if(e.type == TYPE_USER)
-    		mListener.onUserSelected(cid, channel, e.text);
+    private class OnItemClickListener implements OnClickListener {
+        private int pos;
+        OnItemClickListener(int position){
+            pos = position;
+        }
+        
+        @Override
+        public void onClick(View arg0) {
+	    	if(pos < 0)
+	    		return;
+
+	    	if(adapter != null) {
+	    		if(tapTimer != null) {
+	    			tapTimer.cancel();
+	    			tapTimer = null;
+			    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
+			    	if(e.type == TYPE_USER)
+		    			mListener.onUserDoubleClicked(e.text);
+	    		} else {
+	    			tapTimer = new Timer();
+	    			tapTimer.schedule(new TimerTask() {
+	    				int position = pos;
+	    				
+						@Override
+						public void run() {
+				    		mHandler.post(new Runnable() {
+								@Override
+								public void run() {
+							    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(position);
+							    	if(e.type == TYPE_USER)
+							    		mListener.onUserSelected(cid, channel, e.text);
+								}
+				    		});
+			    			tapTimer = null;
+						}
+	    				
+	    			}, 300);
+	    		}
+	    	}
+    	}
     }
+
     
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
@@ -353,5 +395,6 @@ public class UsersListFragment extends SherlockListFragment {
 	
 	public interface OnUserSelectedListener {
 		public void onUserSelected(int cid, String channel, String name);
+		public void onUserDoubleClicked(String name);
 	}
 }

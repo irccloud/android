@@ -813,7 +813,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
     }
     
-    private class OnItemClickListener implements OnClickListener{       
+    private class OnItemClickListener implements OnClickListener {
         private int pos;
         OnItemClickListener(int position){
             pos = position;

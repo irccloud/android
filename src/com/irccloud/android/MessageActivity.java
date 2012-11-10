@@ -1168,11 +1168,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
 	@Override
 	public void onMessageDoubleClicked(EventsDataSource.Event event) {
+		if(event == null)
+			return;
+		
 		String from = event.from;
 		if(from == null || from.length() == 0)
 			from = event.nick;
+		
+		onUserDoubleClicked(from);
+	}
 
-		if(messageTxt == null || event == null || from == null || from.length() == 0)
+	@Override
+	public void onUserDoubleClicked(String from) {
+		if(messageTxt == null || from == null || from.length() == 0)
 			return;
 		
 		if(messageTxt.getText().length() == 0) {
@@ -1414,6 +1422,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		
 		if(selected_user != null) {
 			itemList.add("Open");
+			itemList.add("Mention (double tap)");
 			itemList.add("Invite to a channel…");
 			itemList.add("Ignore");
 			if(type.equalsIgnoreCase("channel")) {
@@ -1493,6 +1502,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		}
 			    		startActivity(i);
 		    		}
+	    		} else if(items[item].equals("Mention (double tap)")) {
+	    			onUserDoubleClicked(selected_user.nick);
 	    		} else if(items[item].equals("Invite to a channel…")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
