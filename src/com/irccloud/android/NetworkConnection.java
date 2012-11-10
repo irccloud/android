@@ -1152,6 +1152,9 @@ public class NetworkConnection {
 		@Override
 		protected Boolean doInBackground(URL... url) {
 			try {
+				long totalTime = System.currentTimeMillis();
+				long totalParseTime = 0;
+				long totalJSONTime = 0;
 				if(Build.VERSION.SDK_INT >= 14)
 					TrafficStats.setThreadStatsTag(BACKLOG_TAG);
 				Log.d(TAG, "Requesting: " + url[0]);
@@ -1191,23 +1194,35 @@ public class NetworkConnection {
 
 				if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
 					synchronized(parserLock) {
+						//Debug.startMethodTracing("oob", 16 * 1024 * 1024);
+						Log.i("IRCCloud", "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
 						Notifications.getInstance().beginBatch();
-						long time = System.currentTimeMillis();
 						Log.i("IRCCloud", "Beginning backlog...");
 						notifyHandlers(EVENT_BACKLOG_START, null);
 						JsonParser parser = new JsonParser();
 						reader.beginArray();
 						int count = 0;
 						while(reader.hasNext()) {
+							long time = System.currentTimeMillis();
 							JsonElement e = parser.parse(reader);
+							totalJSONTime += (System.currentTimeMillis() - time);
+							time = System.currentTimeMillis();
 							parse_object(new IRCCloudJSONObject(e.getAsJsonObject()), true);
+							totalParseTime += (System.currentTimeMillis() - time);
 							count++;
 							if(Build.VERSION.SDK_INT >= 14)
 								TrafficStats.incrementOperationCount(1);
 						}
 						reader.endArray();
+						//Debug.stopMethodTracing();
+						totalTime = (System.currentTimeMillis() - totalTime);
 						Log.i("IRCCloud", "Backlog complete: " + count + " events");
-						Log.i("IRCCloud", "Backlog processing took: " + (System.currentTimeMillis() - time) + "ms");
+						Log.i("IRCCloud", "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
+						Log.i("IRCCloud", "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
+						Log.i("IRCCloud", "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+						totalTime -= totalJSONTime;
+						totalTime -= totalParseTime;
+						Log.i("IRCCloud", "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 						Notifications.getInstance().endBatch();
 					}
 				} else if(ServersDataSource.getInstance().count() < 1) {
@@ -1223,6 +1238,9 @@ public class NetworkConnection {
 				}
 				Notifications.getInstance().showNotifications(null);
 				notifyHandlers(EVENT_BACKLOG_END, null);
+				Log.i("IRCCloud", "OOB fetch complete!");
+				if(Build.VERSION.SDK_INT >= 14)
+					TrafficStats.clearThreadStatsTag();
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -190,7 +190,6 @@ public class CollapsedEventsList {
 		}
 		
 		output += nick;
-		output = ColorFormatter.irc_to_html(output);
 		return output;
 	}
 	

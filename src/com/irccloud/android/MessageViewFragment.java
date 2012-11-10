@@ -214,7 +214,13 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 			e.timestamp = formatter.format(calendar.getTime());
 			e.group_eid = currentCollapsedEid;
-			
+			if(e.group_msg != null && e.html == null)
+				e.html = e.group_msg;
+
+			if(e.html != null) {
+				e.html = ColorFormatter.irc_to_html(e.html);
+			}
+
 			if(currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
 				calendar.setTimeInMillis(e.eid / 1000);
 				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
@@ -366,8 +372,6 @@ public class MessageViewFragment extends SherlockListFragment {
 			row.setBackgroundResource(e.bg_color);
 			if(holder.timestamp != null)
 				holder.timestamp.setText(e.timestamp);
-			if(e.group_msg != null && e.html == null)
-				e.html = ColorFormatter.irc_to_html(e.group_msg);
 			if(e.row_type == ROW_SOCKETCLOSED) {
 				if(e.msg.length() > 0) {
 					holder.timestamp.setVisibility(View.VISIBLE);

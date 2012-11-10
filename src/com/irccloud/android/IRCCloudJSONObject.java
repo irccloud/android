@@ -8,6 +8,10 @@ import com.google.gson.JsonParser;
 
 public class IRCCloudJSONObject {
 	JsonObject o;
+	int cid = -1;
+	int bid = -1;
+	long eid = -1;
+	String type = null;
 	
 	public IRCCloudJSONObject() {
 		o = new JsonObject();
@@ -28,30 +32,30 @@ public class IRCCloudJSONObject {
 	}
 	
 	public int cid() {
-		int cid = 0;
-		if(o.has("cid"))
+		if(cid == -1 && o.has("cid"))
 			cid = o.get("cid").getAsInt();
 		return cid;
 	}
 	
 	public int bid() {
-		int bid = 0;
-		if(o.has("bid"))
+		if(bid == -1 && o.has("bid"))
 			bid = o.get("bid").getAsInt();
 		return bid;
 	}
 
 	public long eid() {
-		long eid = 0;
-		if(o.has("eid"))
+		if(eid == -1 && o.has("eid"))
 			eid = o.get("eid").getAsLong();
 		return eid;
 	}
 	
 	public String type() {
-		String type = "undefined";
-		if(o.has("type"))
-			type = o.get("type").getAsString();
+		if(type == null) {
+			if(o.has("type"))
+				type = o.get("type").getAsString();
+			else
+				type = "undefined";
+		}
 		return type;
 	}
 

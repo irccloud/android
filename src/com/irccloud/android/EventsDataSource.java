@@ -123,6 +123,7 @@ public class EventsDataSource {
 	    	e.group_msg = null;
 	    	e.linkify = true;
 	    	e.target_mode = null;
+
 	    	if(event.has("reqid"))
 	    		e.reqid = event.getInt("reqid");
 	    	else
@@ -333,9 +334,6 @@ public class EventsDataSource {
 	    	if(e.self)
 	    		e.bg_color = R.color.self;
 			
-	    	if(e.msg != null && e.msg .length() > 0)
-	    		e.msg = ColorFormatter.irc_to_html(e.msg);
-	    	
 			if(highest_eid < event.eid())
 				highest_eid = event.eid();
 			
