@@ -1448,6 +1448,13 @@ public class MessageViewFragment extends SherlockListFragment {
 						for(int i = 0; i < adapter.data.size(); i++) {
 							EventsDataSource.Event e = adapter.data.get(i);
 							if(e.reqid == event.reqid) {
+								if(i > 1) {
+									EventsDataSource.Event p = adapter.data.get(i-1);
+									if(p.row_type == ROW_TIMESTAMP) {
+										adapter.data.remove(p);
+										i--;
+									}
+								}
 								adapter.data.remove(e);
 								i--;
 							}

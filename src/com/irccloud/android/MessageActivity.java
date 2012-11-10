@@ -281,7 +281,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		e = EventsDataSource.getInstance().new Event();
 	    		e.cid = cid;
 	    		e.bid = bid;
-	    		e.eid = (System.currentTimeMillis() + conn.clockOffset) * 1000L;
+	    		e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
 	    		e.self = true;
 	    		e.from = s.nick;
 	    		e.nick = s.nick;
