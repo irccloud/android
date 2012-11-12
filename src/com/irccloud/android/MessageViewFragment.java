@@ -46,6 +46,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -78,6 +79,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private MessageViewListener mListener;
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
+	private ProgressBar progressBar = null;
 	private Timer countdownTimer = null;
 	private String error = null;
 	private View connecting = null;
@@ -442,6 +444,7 @@ public class MessageViewFragment extends SherlockListFragment {
         connecting = v.findViewById(R.id.connecting);
 		errorMsg = (TextView)v.findViewById(R.id.errorMsg);
 		connectingMsg = (TextView)v.findViewById(R.id.connectingMsg);
+		progressBar = (ProgressBar)v.findViewById(R.id.connectingProgress);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	unreadView = (TextView)v.findViewById(R.id.unread);
     	unreadView.setOnClickListener(new OnClickListener() {
@@ -1283,6 +1286,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 			connectingMsg.setText("Loading");
 		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
+			progressBar.setIndeterminate(true);
 			if(connecting.getVisibility() == View.GONE) {
 				TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
 				anim.setDuration(200);
@@ -1338,6 +1342,11 @@ public class MessageViewFragment extends SherlockListFragment {
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+			case NetworkConnection.EVENT_PROGRESS:
+				float progress = (Float)msg.obj;
+				progressBar.setIndeterminate(false);
+				progressBar.setProgress((int)progress);
+				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				if(connecting.getVisibility() == View.VISIBLE) {
 					TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);

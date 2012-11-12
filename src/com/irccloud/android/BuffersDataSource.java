@@ -56,6 +56,10 @@ public class BuffersDataSource {
 		buffers.clear();
 	}
 	
+	public int count() {
+		return buffers.size();
+	}
+	
 	public int firstBid() {
 		if(buffers.size() > 0)
 			return buffers.get(0).bid;

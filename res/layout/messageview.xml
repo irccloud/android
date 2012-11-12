@@ -99,7 +99,8 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:indeterminate="true" />
+            android:indeterminate="true"
+            android:max="100" />
 
         <TextView
             android:id="@+id/errorMsg"

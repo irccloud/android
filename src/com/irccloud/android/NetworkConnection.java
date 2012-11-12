@@ -116,6 +116,7 @@ public class NetworkConnection {
 	public static final int EVENT_BACKLOG_END = 101;
 	public static final int EVENT_FAILURE_MSG = 102;
 	public static final int EVENT_SUCCESS = 103;
+	public static final int EVENT_PROGRESS = 104;
 	
 	private static final String IRCCLOUD_HOST = "alpha.irccloud.com";
 	
@@ -123,6 +124,8 @@ public class NetworkConnection {
 	private WifiManager.WifiLock wifiLock = null;
 	
 	public long clockOffset = 0;
+
+	private long numbuffers = 0;
 	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
@@ -721,6 +724,8 @@ public class NetworkConnection {
 				s.deleteAllDataForServer(object.getInt("cid"));
 				if(!backlog)
 					notifyHandlers(EVENT_CONNECTIONDELETED, object.getInt("cid"));
+			} else if(type.equalsIgnoreCase("backlog_starts")) {
+				numbuffers = object.getInt("numbuffers");
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
@@ -731,6 +736,9 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
 				if(object.getString("buffer_type") == null)
 					Log.w("IRCCloud", "NULL buffer type! JSON: " + object.toString());
+				if(numbuffers > 0) {
+					notifyHandlers(EVENT_PROGRESS, ((float)b.count() / (float)numbuffers) * 100);
+				}
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteAllDataForBuffer(object.getInt("bid"));
@@ -1199,6 +1207,7 @@ public class NetworkConnection {
 						Notifications.getInstance().beginBatch();
 						Log.i("IRCCloud", "Beginning backlog...");
 						notifyHandlers(EVENT_BACKLOG_START, null);
+						numbuffers = 0;
 						JsonParser parser = new JsonParser();
 						reader.beginArray();
 						int count = 0;
@@ -1241,6 +1250,7 @@ public class NetworkConnection {
 				Log.i("IRCCloud", "OOB fetch complete!");
 				if(Build.VERSION.SDK_INT >= 14)
 					TrafficStats.clearThreadStatsTag();
+				numbuffers = 0;
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
