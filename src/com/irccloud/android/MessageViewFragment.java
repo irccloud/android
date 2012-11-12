@@ -1413,7 +1413,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 				break;
 			case NetworkConnection.EVENT_HEARTBEATECHO:
-				if(adapter != null) {
+				if(adapter != null && adapter.data.size() > 0) {
 					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 					if(b != null && last_seen_eid != b.last_seen_eid) {
 						last_seen_eid = b.last_seen_eid;
