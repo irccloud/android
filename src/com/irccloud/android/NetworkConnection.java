@@ -780,14 +780,16 @@ public class NetworkConnection {
 				
 				if(b != null && event.eid > b.last_seen_eid && e.isImportant(event, b.type) && ((event.highlight || b.type.equals("conversation")))) {
 					if(Notifications.getInstance().getNotification(event.eid) == null) {
-						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, ColorFormatter.html_to_spanned(event.msg).toString(), b.name, b.type, event.type);
+						String message = ColorFormatter.irc_to_html(event.msg);
+						message = ColorFormatter.html_to_spanned(message).toString();
+						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, message, b.name, b.type, event.type);
 						if(!backlog) {
 							if(b.type.equals("conversation"))
-								Notifications.getInstance().showNotifications(b.name + ": " + ColorFormatter.html_to_spanned(event.msg).toString());
+								Notifications.getInstance().showNotifications(b.name + ": " + message);
 							else if(b.type.equals("console"))
-								Notifications.getInstance().showNotifications(event.from + ": " + ColorFormatter.html_to_spanned(event.msg).toString());
+								Notifications.getInstance().showNotifications(event.from + ": " + message);
 							else
-								Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + ColorFormatter.html_to_spanned(event.msg).toString());
+								Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
 						}
 					}
 				}

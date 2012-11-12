@@ -985,7 +985,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			
 			if(events != null && events.size() > 0) {
 				int oldPosition = getListView().getFirstVisiblePosition();
-				if(earliest_eid > events.firstKey()) {
+				if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
 					backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
 					if(backlog_eid < 0) {
 						backlog_eid = adapter.getItemId(oldPosition) - 1;
