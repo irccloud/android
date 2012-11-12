@@ -722,6 +722,8 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("connection_deleted")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.deleteAllDataForServer(object.getInt("cid"));
+				Notifications.getInstance().deleteNetwork(object.getInt("cid"));
+				Notifications.getInstance().showNotifications(null);
 				if(!backlog)
 					notifyHandlers(EVENT_CONNECTIONDELETED, object.getInt("cid"));
 			} else if(type.equalsIgnoreCase("backlog_starts")) {
@@ -742,6 +744,8 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteAllDataForBuffer(object.getInt("bid"));
+				Notifications.getInstance().deleteNotificationsForBid(object.getInt("bid"));
+				Notifications.getInstance().showNotifications(null);
 				if(!backlog)
 					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
 			} else if(type.equalsIgnoreCase("buffer_archived")) {

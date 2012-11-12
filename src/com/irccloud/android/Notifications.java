@@ -205,9 +205,7 @@ public class Notifications extends SQLiteOpenHelper {
 			db = getSafeReadableDatabase();
 		Cursor cursor = db.query(TABLE_LAST_SEEN_EIDS, new String[] {"eid"}, "bid = " + bid, null, null, null, null);
 
-		cursor.moveToFirst();
-		
-		if(!cursor.isAfterLast()) {
+		if(cursor.moveToFirst()) {
 			eid = cursor.getLong(cursor.getColumnIndex("eid"));
 		}
 		cursor.close();
@@ -226,7 +224,7 @@ public class Notifications extends SQLiteOpenHelper {
 		values.put("bid", bid);
 		values.put("eid", eid);
 		if(last_eid > 0)
-			db.update(TABLE_LAST_SEEN_EIDS, values, "bid == " + bid, null);
+			db.update(TABLE_LAST_SEEN_EIDS, values, "bid = " + bid, null);
 		else
 			db.insert(TABLE_LAST_SEEN_EIDS, null, values);
 		if(!isBatch())
@@ -243,9 +241,7 @@ public class Notifications extends SQLiteOpenHelper {
 			db = getSafeReadableDatabase();
 		Cursor cursor = db.query(TABLE_DISMISSED_EIDS, new String[] {"eid"}, "bid = " + bid + " and eid = " + eid, null, null, null, null);
 
-		cursor.moveToFirst();
-		
-		if(!cursor.isAfterLast()) {
+		if(cursor.moveToFirst()) {
 			result = true;
 		}
 		cursor.close();
@@ -342,12 +338,31 @@ public class Notifications extends SQLiteOpenHelper {
 		
 		if(notifications.size() > 0) {
 	        for(Notification n : notifications) {
-	        	if(n.eid <= last_seen_eid)
+	        	if(n.bid == bid && n.eid <= last_seen_eid)
 	        		nm.cancel((int)(n.eid/1000));
 	        }
 		}
 		SQLiteDatabase db = getSafeWritableDatabase();
 		db.delete(TABLE_NOTIFICATIONS, "bid = ? and eid <= ?", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)});
+		db.delete(TABLE_DISMISSED_EIDS, "bid = ? and eid <= ?", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)});
+		if(!isBatch())
+			db.close();
+		releaseWriteableDatabase();
+	}
+	
+	public void deleteNotificationsForBid(int bid) {
+        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+		ArrayList<Notification> notifications = getOtherNotifications();
+		
+		if(notifications.size() > 0) {
+	        for(Notification n : notifications) {
+	        	if(n.bid == bid)
+	        		nm.cancel((int)(n.eid/1000));
+	        }
+		}
+		SQLiteDatabase db = getSafeWritableDatabase();
+		db.delete(TABLE_NOTIFICATIONS, "bid = ?", new String[] {String.valueOf(bid)});
+		db.delete(TABLE_DISMISSED_EIDS, "bid = ?", new String[] {String.valueOf(bid)});
 		if(!isBatch())
 			db.close();
 		releaseWriteableDatabase();
@@ -400,7 +415,7 @@ public class Notifications extends SQLiteOpenHelper {
 			db = batchDb;
 		else
 			db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NETWORKS, new String[] {"cid", "network"}, "cid == " + cid, null, null, null, null);
+		Cursor cursor = db.query(TABLE_NETWORKS, new String[] {"cid", "network"}, "cid = " + cid, null, null, null, null);
 
 		cursor.moveToFirst();
 		
@@ -422,11 +437,9 @@ public class Notifications extends SQLiteOpenHelper {
 			db = batchDb;
 		else
 			db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and eid == " + eid, null, null, null, null);
+		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and eid = " + eid, null, null, null, null);
 
-		cursor.moveToFirst();
-		
-		if(!cursor.isAfterLast()) {
+		if(cursor.moveToFirst()) {
 			n = cursorToNotification(cursor);
 		}
 		cursor.close();

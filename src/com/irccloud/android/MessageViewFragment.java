@@ -772,8 +772,6 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> (" + event.hostmask + ")";
 	    		if(event.msg != null && event.msg.length() > 0)
 	    			event.html += ": " + event.msg;
-	    	} else if(type.equalsIgnoreCase("channel_invite")) {
-	    		event.html += ". Tap to join.";
 	    	} else if(type.equalsIgnoreCase("callerid")) {
     			event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
 			} else if(type.equalsIgnoreCase("channel_mode_list_change")) {

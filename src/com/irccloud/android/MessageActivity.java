@@ -840,14 +840,28 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
 			case NetworkConnection.EVENT_DELETEBUFFER:
 				Integer id = (Integer)msg.obj;
+				if(msg.what==NetworkConnection.EVENT_DELETEBUFFER) {
+					Log.i("IRCCloud", "Back stack: " + backStack.toString() + " ID: " + id);
+					for(int i = 0; i < backStack.size(); i++) {
+						if(backStack.get(i).equals(id)) {
+							backStack.remove(i);
+							i--;
+						}
+					}
+					Log.i("IRCCloud", "Back stack: " + backStack.toString());
+				}
 				if(id == ((msg.what==NetworkConnection.EVENT_CONNECTIONDELETED)?cid:bid)) {
 		        	if(backStack != null && backStack.size() > 0) {
 		        		Integer bid = backStack.get(0);
 		        		backStack.remove(0);
 		        		buffer = BuffersDataSource.getInstance().getBuffer(bid);
-		    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
-		    					buffer.type, 1, buffer.archived, status);
-		        		backStack.remove(0);
+		        		if(buffer != null) {
+			    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+			    					buffer.type, 1, buffer.archived, status);
+			        		backStack.remove(0);
+		        		} else {
+		        			finish();
+		        		}
 		        	} else {
 		        		if(!open_bid(BuffersDataSource.getInstance().firstBid()))
 		        			finish();

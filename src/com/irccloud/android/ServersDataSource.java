@@ -165,6 +165,7 @@ public class ServersDataSource {
 			while(i.hasNext()) {
 				BuffersDataSource.Buffer b = i.next();
 				BuffersDataSource.getInstance().deleteAllDataForBuffer(b.bid);
+				Notifications.getInstance().deleteNotificationsForBid(b.bid);
 			}
 			servers.remove(s);
 		}
