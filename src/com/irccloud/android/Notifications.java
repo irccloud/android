@@ -293,6 +293,7 @@ public class Notifications extends SQLiteOpenHelper {
 			Log.d("IRCCloud", "This notification's EID has already been seen, skipping...");
 			return;
 		}
+		message = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(message)).toString();
 		Log.d("IRCCloud", "Adding notification: "
 				+ "cid: " + cid + " "
 				+ "bid: " + bid + " "
