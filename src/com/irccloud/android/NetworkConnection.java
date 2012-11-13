@@ -276,13 +276,6 @@ public class NetworkConnection {
 		        else
 		        	schedule_idle_timer();
 		        
-		        if(error.getMessage() != null) {
-			        JsonObject o = new JsonObject();
-			        o.addProperty("success", false);
-			        o.addProperty("message", error.getClass().getCanonicalName() + "\n" + error.getMessage());
-			        notifyHandlers(EVENT_FAILURE_MSG, new IRCCloudJSONObject(o));
-		        }
-		        
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
