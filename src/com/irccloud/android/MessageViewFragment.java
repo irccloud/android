@@ -614,7 +614,10 @@ public class MessageViewFragment extends SherlockListFragment {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
-							ignore.setIgnores(mServer.ignores);
+							if(mServer != null)
+								ignore.setIgnores(mServer.ignores);
+							else
+								ignore.setIgnores(null);
 						}
 						adapter.clear();
 						adapter.notifyDataSetInvalidated();
@@ -1078,7 +1081,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private Runnable mFirstScrollRunnable = new Runnable() {
 		@Override
 		public void run() {
-			if(adapter != null) {
+			if(adapter != null && adapter.data.size() > 0) {
 				if(firstScroll) {
 					getListView().setSelection(adapter.data.size() - 1);
 					firstScroll = false;
