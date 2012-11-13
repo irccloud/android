@@ -270,7 +270,6 @@ public class NetworkConnection {
 
 		    @Override
 		    public void onError(Exception error) {
-		        Log.e(TAG, "Error!", error);
 		        if(state == STATE_DISCONNECTING)
 		        	cancel_idle_timer();
 		        else
@@ -1187,14 +1186,14 @@ public class NetworkConnection {
 					if(conn.getInputStream() != null) {
 						if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
 							reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())));
-						else
+						else if(conn.getInputStream() != null)
 							reader = new JsonReader(new InputStreamReader(conn.getInputStream()));
 					}
 				} catch (IOException e) {
 					if(conn.getErrorStream() != null) {
 						if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
 							reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())));
-						else
+						else if(conn.getErrorStream() != null)
 							reader = new JsonReader(new InputStreamReader(conn.getErrorStream()));
 					}
 				}
@@ -1252,7 +1251,6 @@ public class NetworkConnection {
 				numbuffers = 0;
 				return true;
 			} catch (Exception e) {
-				e.printStackTrace();
 				if(ServersDataSource.getInstance().count() < 1) {
 					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
