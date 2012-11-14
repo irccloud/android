@@ -478,10 +478,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	b.putString("type", type);
 	    	ulf.setArguments(b);
 	    	mvf.setArguments(b);
-			if(status.equalsIgnoreCase("connected_ready"))
-				messageTxt.setEnabled(true);
-			else
-				messageTxt.setEnabled(false);
+			messageTxt.setEnabled(true);
     	}
     }
     
@@ -516,10 +513,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
             	upView.setVisibility(View.VISIBLE);
     		}
-    		if(status != null && status.equalsIgnoreCase("connected_ready"))
-    			messageTxt.setEnabled(true);
-    		else
-    			messageTxt.setEnabled(false);
+   			messageTxt.setEnabled(true);
     	}
 
     	if(cid == -1) {
@@ -781,10 +775,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					if(event.cid() == cid) {
 						status = event.getString("new_status");
 						invalidateOptionsMenu();
-						if(status.equalsIgnoreCase("connected_ready"))
-							messageTxt.setEnabled(true);
-						else
-							messageTxt.setEnabled(false);
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -796,10 +786,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(server.cid == cid) {
 					status = server.status;
 					invalidateOptionsMenu();
-					if(status.equalsIgnoreCase("connected_ready"))
-						messageTxt.setEnabled(true);
-					else
-						messageTxt.setEnabled(false);
 				}
 				break;
 			case NetworkConnection.EVENT_MAKEBUFFER:
@@ -1705,10 +1691,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(cid != -1) {
 			if(scrollView != null)
 				scrollView.setEnabled(true);
-			if(status.equalsIgnoreCase("connected_ready"))
-				messageTxt.setEnabled(true);
-			else
-				messageTxt.setEnabled(false);
+			messageTxt.setEnabled(true);
 		}
 	}
 
