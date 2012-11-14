@@ -12,13 +12,14 @@ public class MessageActivityPager extends HorizontalScrollView {
 	private int startX = 0;
 	private int buffersDisplayWidth = 0;
 	private int usersDisplayWidth = 0;
-	MessageActivity activity;
+	MessageActivity activity = null;
 	
 	public MessageActivityPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		buffersDisplayWidth = (int)getResources().getDimension(R.dimen.drawer_width);
 		usersDisplayWidth = (int)getResources().getDimension(R.dimen.userlist_width);
-		activity = (MessageActivity)context;
+		if(!isInEditMode())
+			activity = (MessageActivity)context;
 	}
 
 	@Override

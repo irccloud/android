@@ -28,4 +28,5 @@
     <drawable name="archived_bg_highlighted">#eee</drawable>
     <drawable name="highlight_red">#BA1719</drawable>
     <color name="markAsReadColor">#000</color>
+    <color name="border">#C0D2FF</color>
 </resources>

@@ -10,10 +10,12 @@
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/bg"
+        android:cacheColorHint="#D9E7FF"
         android:descendantFocusability="blocksDescendants"
         android:divider="#00000000"
         android:dividerHeight="1dip"
-        android:fastScrollEnabled="true"/>
+        android:fastScrollEnabled="true" />
 
     <LinearLayout
         android:id="@+id/topUnreadIndicator"
@@ -42,4 +44,13 @@
 	        android:layout_height="12dip"
 	        android:background="@color/dark_blue"/>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:background="@color/border" >
+
+    </LinearLayout>
+
 </RelativeLayout>
