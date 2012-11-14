@@ -54,9 +54,9 @@
 
             <TextView
                 android:id="@+id/unread"
+	            android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:background="@color/dark_blue"
                 android:padding="4dp"
                 android:textColor="@color/message_bg"
@@ -64,6 +64,14 @@
                 android:visibility="gone" />
 
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/away"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/status_bg"
+            android:padding="4dp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/statusView"

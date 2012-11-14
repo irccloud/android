@@ -83,6 +83,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private Timer countdownTimer = null;
 	private String error = null;
 	private View connecting = null;
+	private TextView awayView = null;
 	
 	public static final int ROW_MESSAGE = 0;
 	public static final int ROW_TIMESTAMP = 1;
@@ -446,6 +447,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		connectingMsg = (TextView)v.findViewById(R.id.connectingMsg);
 		progressBar = (ProgressBar)v.findViewById(R.id.connectingProgress);
     	statusView = (TextView)v.findViewById(R.id.statusView);
+    	awayView = (TextView)v.findViewById(R.id.away);
     	unreadView = (TextView)v.findViewById(R.id.unread);
     	unreadView.setOnClickListener(new OnClickListener() {
 
@@ -596,6 +598,15 @@ public class MessageViewFragment extends SherlockListFragment {
 		earliest_eid = 0;
 		backlog_eid = 0;
 		mServer = ServersDataSource.getInstance().getServer(cid);
+    	if(mServer != null) {
+    		ignore.setIgnores(mServer.ignores);
+    		if(mServer.away != null && mServer.away.length() > 0) {
+    			awayView.setText("Away (" + mServer.away + ")");
+    			awayView.setVisibility(View.VISIBLE);
+    		} else {
+    			awayView.setVisibility(View.GONE);
+    		}
+    	}
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.INVISIBLE);
 		if(headerView != null) {
@@ -614,10 +625,6 @@ public class MessageViewFragment extends SherlockListFragment {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
-							if(mServer != null)
-								ignore.setIgnores(mServer.ignores);
-							else
-								ignore.setIgnores(null);
 						}
 						adapter.clear();
 						adapter.notifyDataSetInvalidated();
@@ -889,6 +896,9 @@ public class MessageViewFragment extends SherlockListFragment {
     			bid = b.bid;
     		}
     	}
+    	if(cid != -1) {
+			mServer = ServersDataSource.getInstance().getServer(cid);
+    	}
     	if(getListView().getHeaderViewsCount() == 0) {
     		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
     		headerView = headerViewContainer.findViewById(R.id.progress);
@@ -906,8 +916,15 @@ public class MessageViewFragment extends SherlockListFragment {
 			connecting.setVisibility(View.VISIBLE);
     	}
     	updateReconnecting();
-    	if(mServer != null)
+    	if(mServer != null) {
     		ignore.setIgnores(mServer.ignores);
+    		if(mServer.away != null && mServer.away.length() > 0) {
+    			awayView.setText("Away (" + mServer.away + ")");
+    			awayView.setVisibility(View.VISIBLE);
+    		} else {
+    			awayView.setVisibility(View.GONE);
+    		}
+    	}
     	if(bid != -1) {
     		TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		if(events != null) {
@@ -1473,6 +1490,17 @@ public class MessageViewFragment extends SherlockListFragment {
 					insertEvent(event, false, false);
 				}
 				break;
+			case NetworkConnection.EVENT_AWAY:
+			case NetworkConnection.EVENT_SELFBACK:
+				if(mServer != null) {
+		    		if(mServer.away != null && mServer.away.length() > 0) {
+		    			awayView.setText("Away (" + mServer.away + ")");
+		    			awayView.setVisibility(View.VISIBLE);
+		    		} else {
+		    			awayView.setVisibility(View.GONE);
+		    		}
+				}
+	    		break;
 			default:
 				break;
 			}

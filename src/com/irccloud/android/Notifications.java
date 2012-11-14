@@ -217,7 +217,7 @@ public class Notifications extends SQLiteOpenHelper {
 		return eid;
 	}
 	
-	public void updateLastSeenEid(int bid, long eid) {
+	public synchronized void updateLastSeenEid(int bid, long eid) {
 		long last_eid = getLastSeenEid(bid);
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
