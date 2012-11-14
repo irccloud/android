@@ -21,15 +21,15 @@ import android.util.Log;
 
 public class Notifications extends SQLiteOpenHelper {
 	public class Notification {
-		int cid;
-		int bid;
-		long eid;
-		String nick;
-		String message;
-		String network;
-		String chan;
-		String buffer_type;
-		String message_type;
+		public int cid;
+		public int bid;
+		public long eid;
+		public String nick;
+		public String message;
+		public String network;
+		public String chan;
+		public String buffer_type;
+		public String message_type;
 		
 		public String toString() {
 			return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + "}";
@@ -68,6 +68,14 @@ public class Notifications extends SQLiteOpenHelper {
 		super(IRCCloudApplication.getInstance().getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
+	public void clearDismissed() {
+		SQLiteDatabase db = getSafeWritableDatabase();
+		db.delete(TABLE_DISMISSED_EIDS, null, null);
+		if(!isBatch())
+			db.close();
+		releaseWriteableDatabase();
+	}
+	
 	public void clear() {
 		try {
 	        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -259,6 +267,7 @@ public class Notifications extends SQLiteOpenHelper {
 		values.put("bid", bid);
 		values.put("eid", eid);
 		db.insert(TABLE_DISMISSED_EIDS, null, values);
+		db.delete(TABLE_NOTIFICATIONS, "bid = ? and eid = ?", new String[] {String.valueOf(bid), String.valueOf(eid)});
 		if(!isBatch())
 			db.close();
 		releaseWriteableDatabase();

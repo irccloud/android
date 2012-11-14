@@ -373,6 +373,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 				UsersDataSource.getInstance().clear();
 				EventsDataSource.getInstance().clear();
 				Notifications.getInstance().clear();
+				Notifications.getInstance().clearDismissed();
         		i = new Intent(this, LoginActivity.class);
         		i.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
