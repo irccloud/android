@@ -92,6 +92,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        messageContainer.setLayoutParams(params);
         }
         messageTxt = (EditText)findViewById(R.id.messageTxt);
+		messageTxt.setEnabled(false);
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
          	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -477,6 +478,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	b.putString("type", type);
 	    	ulf.setArguments(b);
 	    	mvf.setArguments(b);
+			if(status.equalsIgnoreCase("connected_ready"))
+				messageTxt.setEnabled(true);
+			else
+				messageTxt.setEnabled(false);
     	}
     }
     
@@ -508,10 +513,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	} else {
     		if(scrollView != null) {
     			scrollView.setEnabled(true);
-    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+    			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
             	upView.setVisibility(View.VISIBLE);
     		}
-    		messageTxt.setEnabled(true);
+    		if(status != null && status.equalsIgnoreCase("connected_ready"))
+    			messageTxt.setEnabled(true);
+    		else
+    			messageTxt.setEnabled(false);
     	}
 
     	if(cid == -1) {
@@ -773,6 +781,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					if(event.cid() == cid) {
 						status = event.getString("new_status");
 						invalidateOptionsMenu();
+						if(status.equalsIgnoreCase("connected_ready"))
+							messageTxt.setEnabled(true);
+						else
+							messageTxt.setEnabled(false);
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -784,6 +796,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(server.cid == cid) {
 					status = server.status;
 					invalidateOptionsMenu();
+					if(status.equalsIgnoreCase("connected_ready"))
+						messageTxt.setEnabled(true);
+					else
+						messageTxt.setEnabled(false);
 				}
 				break;
 			case NetworkConnection.EVENT_MAKEBUFFER:
@@ -1689,7 +1705,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(cid != -1) {
 			if(scrollView != null)
 				scrollView.setEnabled(true);
-			messageTxt.setEnabled(true);
+			if(status.equalsIgnoreCase("connected_ready"))
+				messageTxt.setEnabled(true);
+			else
+				messageTxt.setEnabled(false);
 		}
 	}
 
