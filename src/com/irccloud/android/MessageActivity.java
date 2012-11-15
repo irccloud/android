@@ -41,6 +41,7 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
@@ -1274,6 +1275,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 			}
 		}
+		messageTxt.requestFocus();
+		InputMethodManager keyboard = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        keyboard.showSoftInput(messageTxt, 0);
 	}
 	
 	@Override
