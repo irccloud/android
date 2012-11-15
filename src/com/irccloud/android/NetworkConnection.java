@@ -1238,6 +1238,12 @@ public class NetworkConnection {
 						totalTime -= totalParseTime;
 						Log.i("IRCCloud", "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 						Notifications.getInstance().endBatch();
+
+						ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
+						for(BuffersDataSource.Buffer b : buffers) {
+							Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
+						}
+						Notifications.getInstance().showNotifications(null);
 					}
 				} else if(ServersDataSource.getInstance().count() < 1) {
 					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
@@ -1246,11 +1252,6 @@ public class NetworkConnection {
 				if(reader != null)
 					reader.close();
 
-				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
-				for(BuffersDataSource.Buffer b : buffers) {
-					Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
-				}
-				Notifications.getInstance().showNotifications(null);
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				Log.i("IRCCloud", "OOB fetch complete!");
 				if(Build.VERSION.SDK_INT >= 14)

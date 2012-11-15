@@ -377,7 +377,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 	
-	public ArrayList<Notification> getMessageNotifications() {
+	public synchronized ArrayList<Notification> getMessageNotifications() {
 		Log.d("IRCCloud", "+++ Begin message notifications");
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
@@ -399,7 +399,7 @@ public class Notifications extends SQLiteOpenHelper {
 		return notifications;
 	}
 	
-	public ArrayList<Notification> getOtherNotifications() {
+	public synchronized ArrayList<Notification> getOtherNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
 		SQLiteDatabase db = getSafeReadableDatabase();
