@@ -1712,6 +1712,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	updateUsersListFragmentVisibility();
 	    	invalidateOptionsMenu();
 	    	new ShowNotificationsTask().execute(bid);
+	    	if(upView != null)
+	    		new RefreshUpIndicatorTask().execute((Void)null);
 		}
 		if(cid != -1) {
 			if(scrollView != null)

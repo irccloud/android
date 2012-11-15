@@ -965,7 +965,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			Long eid = params[0];
 
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(250);
 			} catch (InterruptedException e) {
 			}
 
