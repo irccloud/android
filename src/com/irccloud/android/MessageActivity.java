@@ -1311,6 +1311,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					itemList.add("Unarchive");
 				itemList.add("Delete");
 			}
+			if(!b.type.equalsIgnoreCase("channel")) {
+				itemList.add("Buffer Options…");
+			}
 		}
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1348,6 +1351,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		} else if(items[item].equals("Channel Options…")) {
 		        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.cid, buffer.bid);
 		            newFragment.show(getSupportFragmentManager(), "channeloptions");
+	    		} else if(items[item].equals("Buffer Options…")) {
+		        	BufferOptionsFragment newFragment = new BufferOptionsFragment(buffer.cid, buffer.bid, buffer.type);
+		            newFragment.show(getSupportFragmentManager(), "bufferoptions");
 	    		} else if(items[item].equals("Edit Connection…")) {
 		        	EditConnectionFragment editFragment = new EditConnectionFragment();
 		        	editFragment.setCid(buffer.cid);
