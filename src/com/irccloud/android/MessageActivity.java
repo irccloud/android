@@ -95,8 +95,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         messageTxt = (EditText)findViewById(R.id.messageTxt);
 		messageTxt.setEnabled(false);
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
-            public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
-         	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+            public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+         	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN && view.getText().length() > 0) {
          		   new SendTask().execute((Void)null);
          	   }
          	   return true;
@@ -276,7 +276,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	@Override
     	protected void onPreExecute() {
-			if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0) {
 	    		sendBtn.setEnabled(false);
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
 	    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, name, s.nick);
