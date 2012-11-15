@@ -432,7 +432,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		bid = intent.getIntExtra("bid", 0);
     	}
     	
-    	if(intent.getData() != null) {
+    	if(intent.getData() != null && intent.getData().getScheme().startsWith("irc")) {
     		if(open_uri(intent.getData()))
     			return;
     		launchURI = intent.getData();

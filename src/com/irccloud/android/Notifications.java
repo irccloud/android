@@ -48,7 +48,6 @@ public class Notifications extends SQLiteOpenHelper {
 
 	private static final String DATABASE_NAME = "notifications.db";
 	private static final int DATABASE_VERSION = 1;
-	private static final int NOTIFY_ID = 1;
 
 	private static Notifications instance = null;
 	private SQLiteDatabase batchDb;
@@ -84,9 +83,9 @@ public class Notifications extends SQLiteOpenHelper {
 			if(notifications.size() > 0) {
 		        for(Notification n : notifications) {
 	        		nm.cancel((int)(n.eid/1000));
+	        		nm.cancel(n.bid);
 		        }
 			}
-			nm.cancel(NOTIFY_ID);
 			readSemaphore.acquire();
 			SQLiteDatabase db = getSafeWritableDatabase();
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
@@ -351,6 +350,7 @@ public class Notifications extends SQLiteOpenHelper {
 	        		nm.cancel((int)(n.eid/1000));
 	        }
 		}
+		nm.cancel(bid);
 		SQLiteDatabase db = getSafeWritableDatabase();
 		db.delete(TABLE_NOTIFICATIONS, "bid = ? and eid <= ?", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)});
 		db.delete(TABLE_DISMISSED_EIDS, "bid = ? and eid <= ?", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)});
@@ -377,7 +377,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 	
-	public synchronized ArrayList<Notification> getMessageNotifications() {
+	public ArrayList<Notification> getMessageNotifications() {
 		Log.d("IRCCloud", "+++ Begin message notifications");
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
@@ -399,7 +399,7 @@ public class Notifications extends SQLiteOpenHelper {
 		return notifications;
 	}
 	
-	public synchronized ArrayList<Notification> getOtherNotifications() {
+	public ArrayList<Notification> getOtherNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
 		SQLiteDatabase db = getSafeReadableDatabase();
@@ -470,6 +470,7 @@ public class Notifications extends SQLiteOpenHelper {
 	        		nm.cancel((int)(n.eid/1000));
 	        }
 		}
+		nm.cancel(bid);
 		excludeBid = bid;
 	}
 	
@@ -502,7 +503,8 @@ public class Notifications extends SQLiteOpenHelper {
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 	        for(Notification n : notifications) {
 	        	Intent dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
-	        	dismiss.putExtra("bids", new int[] {n.bid});
+	    		dismiss.setData(Uri.parse("irccloud-dismiss://" + n.bid));
+	        	dismiss.putExtra("bid", n.bid);
 	        	dismiss.putExtra("eids", new long[] {n.eid});
 	    		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
 	    		i.putExtra("bid", n.bid);
@@ -537,16 +539,11 @@ public class Notifications extends SQLiteOpenHelper {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getMessageNotifications();
-		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
-    	Intent dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
 
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
-			i.putExtra("bid", notifications.get(0).bid);
 			NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
 	         .setTicker(ticker)
-	         .setNumber(notifications.size())
 	         .setLights(0xFF0000FF, 500, 1000)
-	         .setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT))
 	         .setSmallIcon(R.drawable.ic_launcher);
 
 			if(ticker != null) {
@@ -558,74 +555,118 @@ public class Notifications extends SQLiteOpenHelper {
 			if(notifications.size() == 1) {
 				Notification n = notifications.get(0);
 				from = n.nick;
-	        	dismiss.putExtra("bids", new int[] {n.bid});
+				Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
+				i.putExtra("bid", n.bid);
+	    		i.setData(Uri.parse("bid://" + n.bid));
+		    	Intent dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
+	    		dismiss.setData(Uri.parse("irccloud-dismiss://" + n.bid));
+	        	dismiss.putExtra("bid", n.bid);
 				dismiss.putExtra("eids", new long[] { n.eid });
 				if(!n.buffer_type.equals("conversation") && !n.message_type.equals("wallops") && n.chan.length() > 0)
 					from += " in " + n.chan;
 				from += " (" + n.network + ")";
+		        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 				builder.setContentTitle(from);
-				builder.setContentText(n.message);
+				if(n.message_type.equals("buffer_me_msg"))
+					builder.setContentText("Ñ " + n.message);
+				else
+					builder.setContentText(n.message);
 				builder.setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
-		        nm.notify(NOTIFY_ID, builder.build());
+		        nm.notify(n.bid, builder.build());
 			} else {
-				int lastcid = -1;
-				int lastbid = -1;
+				Intent i = null;
+				Intent dismiss = null;
+				int lastbid = notifications.get(0).bid;
 				int count = 0;
-				String lastChan = "";
-				int[] bids = new int[notifications.size()];
 				long[] eids = new long[notifications.size()];
-				for(int j = 0; j < notifications.size(); j++) {
-					String chan = notifications.get(j).chan;
-					if(!lastChan.equals(chan)) {
-						if(from.length() > 0) {
-							from += " (" + (count+1) + "), ";
-						}
-						from += chan;
-						lastChan = chan;
-						count = 0;
-					} else {
-						count++;
-					}
-					bids[j] = notifications.get(j).bid;
-					eids[j] = notifications.get(j).eid;
-				}
-				from += " (" + (count+1) + ")";
+				Notification last = null;
 				count = 0;
-				dismiss.putExtra("bids", bids);
-				dismiss.putExtra("eids", eids);
-		         builder.setContentTitle(notifications.size() + " unread highlight(s)")
-		         .setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT))
-		         .setContentText(from);
 		        NotificationCompat2.InboxStyle inbox = new NotificationCompat2.InboxStyle(builder);
+        		from = notifications.get(0).chan + " (" + notifications.get(0).network + ")";
+				builder.setContentTitle(from);
 		        for(Notification n : notifications) {
-		    		if(++count > 4)
-		    			break;
-		        	if(n.cid != lastcid) {
-		        		inbox.addLine(Html.fromHtml("<b>" + n.network.toUpperCase() + "</b>"));
-		        		lastcid = n.cid;
-		        	}
 		        	if(n.bid != lastbid) {
-		        		if(n.buffer_type.equals("console"))
-			        		inbox.addLine(Html.fromHtml("&nbsp;- <b>CONSOLE</b>"));
-		        		else
-		        			inbox.addLine(Html.fromHtml("&nbsp;- <b>" + n.chan + "</b>"));
+		        		i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
+						i.putExtra("bid", lastbid);
+			    		i.setData(Uri.parse("bid://" + lastbid));
+		            	dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
+			    		dismiss.setData(Uri.parse("irccloud-dismiss://" + lastbid));
+			        	dismiss.putExtra("bid", lastbid);
+						dismiss.putExtra("eids", eids);
+				        builder.setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
+						if(count > 4) {
+							inbox.setSummaryText("+" + (count - 4) + " more");
+						}
+				        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+						if(count == 1) {
+							builder.setContentInfo(null);
+							if(last.message_type.equals("buffer_me_msg"))
+								builder.setContentText("Ñ " + last.message);
+							else
+								builder.setContentText(last.message);
+							from = last.nick;
+							if(!last.buffer_type.equals("conversation") && !last.message_type.equals("wallops") && last.chan.length() > 0)
+								from += " in " + last.chan;
+							from += " (" + last.network + ")";
+							builder.setContentTitle(from);
+					        nm.notify(lastbid, builder.build());
+						} else {
+							builder.setNumber(count);
+							builder.setContentText(count + " unread highlight(s)");
+					        nm.notify(lastbid, inbox.build());
+						}
+		        		inbox = new NotificationCompat2.InboxStyle(builder);
 		        		lastbid = n.bid;
+		        		from = n.chan + " (" + n.network + ")";
+						builder.setContentTitle(from);
+						count = 0;
+						eids = new long[notifications.size()];
 		        	}
-		        	if(n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
-		        		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;* " + n.message));
-		        	else if(n.buffer_type.equals("conversation"))
-		        		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ " + n.message));
-		        	else if(n.message_type.equals("buffer_me_msg"))
-			    		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ <b>* &lt;" + n.nick + "&gt;</b> " + n.message));
-		        	else
-			    		inbox.addLine(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;¥ <b>&lt;" + n.nick + "&gt;</b> " + n.message));
+		        	if(count < 4) {
+			        	if(n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
+			        		inbox.addLine(Html.fromHtml("Ñ " + n.message));
+			        	else if(n.buffer_type.equals("conversation"))
+			        		inbox.addLine(Html.fromHtml(n.message));
+			        	else if(n.message_type.equals("buffer_me_msg"))
+				    		inbox.addLine(Html.fromHtml("<b>Ñ " + n.nick + "</b> " + n.message));
+			        	else
+				    		inbox.addLine(Html.fromHtml("<b>" + n.nick + "</b> " + n.message));
+		        	}
+		        	eids[count++] = n.eid;
+		        	last = n;
 		        }
-		        if(count > 4)
-		        	inbox.setSummaryText("+" + (notifications.size() - count + 1) + " more");
-		        nm.notify(NOTIFY_ID, inbox.build());
+        		i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
+				i.putExtra("bid", lastbid);
+	    		i.setData(Uri.parse("bid://" + lastbid));
+            	dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
+	    		dismiss.setData(Uri.parse("irccloud-dismiss://" + lastbid));
+				dismiss.putExtra("bid", lastbid);
+				dismiss.putExtra("eids", eids);
+		        builder.setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
+				builder.setNumber(count);
+				builder.setContentText(count + " unread highlight(s)");
+				if(count > 4) {
+					inbox.setSummaryText("+" + (count - 4) + " more");
+				}
+		        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+				if(count == 1) {
+					builder.setContentInfo(null);
+					if(last.message_type.equals("buffer_me_msg"))
+						builder.setContentText("Ñ " + last.message);
+					else
+						builder.setContentText(last.message);
+					from = last.nick;
+					if(!last.buffer_type.equals("conversation") && !last.message_type.equals("wallops") && last.chan.length() > 0)
+						from += " in " + last.chan;
+					from += " (" + last.network + ")";
+					builder.setContentTitle(from);
+			        nm.notify(lastbid, builder.build());
+				} else {
+					builder.setNumber(count);
+					builder.setContentText(count + " unread highlight(s)");
+			        nm.notify(lastbid, inbox.build());
+				}
 			}
-		} else {
-			nm.cancel(NOTIFY_ID);
 		}
 	}
 	
