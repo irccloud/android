@@ -18,6 +18,7 @@
     <string name="menu_ban_list">Ban List</string>
     <string name="menu_add_network">Add Network</string>
     <string name="menu_channel_options">Channel Options</string>
+    <string name="menu_buffer_options">Buffer Options</string>
     
     <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>

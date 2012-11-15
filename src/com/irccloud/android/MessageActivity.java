@@ -344,10 +344,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		protected Void doInBackground(Void... arg0) {
 			ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
 
-			JSONObject disabledMap = null;
-			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+			JSONObject channelDisabledMap = null;
+			JSONObject bufferDisabledMap = null;
+			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 				try {
-					disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+					if(conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
+						channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+					if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
+						bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -366,15 +370,22 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							int u = 0;
 							try {
 								u = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-								if(disabledMap != null && disabledMap.has(String.valueOf(b.bid)) && disabledMap.getBoolean(String.valueOf(b.bid)))
+								if(b.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid)))
+									u = 0;
+								else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
 									u = 0;
 							} catch (JSONException e) {
 								e.printStackTrace();
 							}
 							unread += u;
 						}
-						if(highlights == 0)
-							highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+						if(highlights == 0) {
+							try {
+								if(!b.type.equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.bid)) || !bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+									highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+							} catch (JSONException e) {
+							}
+						}
 					}
 				}
 			}
@@ -1065,6 +1076,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
 	            newFragment.show(getSupportFragmentManager(), "channeloptions");
+	        	break;
+	        case R.id.menu_buffer_options:
+	        	BufferOptionsFragment bufferFragment = new BufferOptionsFragment(cid, bid, type);
+	        	bufferFragment.show(getSupportFragmentManager(), "bufferoptions");
 	        	break;
             case R.id.menu_userlist:
             	if(scrollView != null) {

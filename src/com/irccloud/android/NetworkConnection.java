@@ -771,7 +771,14 @@ public class NetworkConnection {
 				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.getInt("bid"));
 				
 				if(b != null && event.eid > b.last_seen_eid && e.isImportant(event, b.type) && ((event.highlight || b.type.equals("conversation")))) {
-					if(Notifications.getInstance().getNotification(event.eid) == null) {
+					JSONObject bufferDisabledMap = null;
+					boolean show = true;
+					if(userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
+						bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
+						if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+							show = false;
+					}
+					if(show && Notifications.getInstance().getNotification(event.eid) == null) {
 						String message = ColorFormatter.irc_to_html(event.msg);
 						message = ColorFormatter.html_to_spanned(message).toString();
 						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, message, b.name, b.type, event.type);

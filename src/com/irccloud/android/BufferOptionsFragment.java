@@ -15,16 +15,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 
-public class ChannelOptionsFragment extends DialogFragment {
-	CheckBox members;
+public class BufferOptionsFragment extends DialogFragment {
 	CheckBox unread;
 	CheckBox joinpart;
 	int cid;
 	int bid;
+	String type;
 	
-	public ChannelOptionsFragment(int cid, int bid) {
+	public BufferOptionsFragment(int cid, int bid, String type) {
 		this.cid = cid;
 		this.bid = bid;
+		this.type = type;
 	}
 	
 	public JSONObject updatePref(JSONObject prefs, CheckBox control, String key) throws JSONException {
@@ -56,9 +57,9 @@ public class ChannelOptionsFragment extends DialogFragment {
 				if(prefs == null)
 					prefs = new JSONObject();
 				
-				prefs = updatePref(prefs, members, "channel-hiddenMembers");
-				prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
-				prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
+				prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");
+		    	if(!type.equalsIgnoreCase("console"))
+		    		prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
 				
 				NetworkConnection.getInstance().set_prefs(prefs.toString());
 			} catch (Exception e) {
@@ -75,8 +76,8 @@ public class ChannelOptionsFragment extends DialogFragment {
 	    	if(NetworkConnection.getInstance().getUserInfo() != null) {
 		    	JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
 		    	if(prefs != null) {
-		    		if(prefs.has("channel-hideJoinPart")) {
-				    	JSONObject hiddenMap = prefs.getJSONObject("channel-hideJoinPart");
+		    		if(prefs.has("buffer-hideJoinPart")) {
+				    	JSONObject hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
 						if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
 							joinpart.setChecked(false);
 						else
@@ -84,23 +85,14 @@ public class ChannelOptionsFragment extends DialogFragment {
 		    		} else {
 						joinpart.setChecked(true);
 		    		}
-		    		if(prefs.has("channel-disableTrackUnread")) {
-				    	JSONObject unreadMap = prefs.getJSONObject("channel-disableTrackUnread");
+		    		if(prefs.has("buffer-disableTrackUnread")) {
+				    	JSONObject unreadMap = prefs.getJSONObject("buffer-disableTrackUnread");
 						if(unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
 							unread.setChecked(false);
 						else
 							unread.setChecked(true);
 		    		} else {
-		    			unread.setChecked(true);
-		    		}
-		    		if(prefs.has("channel-hiddenMembers")) {
-				    	JSONObject membersMap = prefs.getJSONObject("channel-hiddenMembers");
-						if(membersMap.has(String.valueOf(bid)) && membersMap.getBoolean(String.valueOf(bid)))
-							members.setChecked(false);
-						else
-							members.setChecked(true);
-		    		} else {
-		    			members.setChecked(true);
+						unread.setChecked(true);
 		    		}
 		    	}
 	    	}
@@ -115,13 +107,14 @@ public class ChannelOptionsFragment extends DialogFragment {
 		if(Build.VERSION.SDK_INT < 11)
 			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View v = inflater.inflate(R.layout.dialog_channel_options,null);
-    	members = (CheckBox)v.findViewById(R.id.members);
+    	View v = inflater.inflate(R.layout.dialog_buffer_options,null);
     	unread = (CheckBox)v.findViewById(R.id.unread);
     	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
+    	if(type.equalsIgnoreCase("console"))
+    		joinpart.setVisibility(View.GONE);
     	
     	return new AlertDialog.Builder(ctx)
-                .setTitle("Channel Options")
+                .setTitle("Buffer Options")
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

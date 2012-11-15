@@ -8,4 +8,7 @@
     <item android:id="@+id/menu_disconnect"
         android:title="@string/menu_disconnect"
         android:showAsAction="never" />
+    <item android:id="@+id/menu_buffer_options"
+        android:title="@string/menu_buffer_options"
+        android:showAsAction="never" />
 </menu>
