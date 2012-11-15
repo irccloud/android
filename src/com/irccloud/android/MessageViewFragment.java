@@ -396,9 +396,12 @@ public class MessageViewFragment extends SherlockListFragment {
 				        		return false;
 				        	if(start > 7 && s.subSequence(start - 7, end).toString().startsWith("ircs://"))
 				        		return false;
+				        	if(s.subSequence(start, end).toString().startsWith("https://"))
+				        		return false;
 				        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
 				        }
 				    }, null);
+					Linkify.addLinks(html, Pattern.compile("https://\\S+"), null, null, null);
 					Linkify.addLinks(html, Patterns.EMAIL_ADDRESS, "mailto:");
 					Linkify.addLinks(html, Pattern.compile("ircs?://\\S+"), null, null, new TransformFilter() {
 				        public final String transformUrl(final Matcher match, String url) {
