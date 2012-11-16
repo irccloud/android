@@ -12,13 +12,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
@@ -115,6 +113,7 @@ public class UsersListFragment extends SherlockListFragment {
 				holder = (ViewHolder) row.getTag();
 			}
 
+			row.setOnLongClickListener(new OnItemLongClickListener(position));
 			row.setOnClickListener(new OnItemClickListener(position));
 			holder.label.setText(e.text);
 			if(e.type == TYPE_USER && e.away) {
@@ -250,19 +249,6 @@ public class UsersListFragment extends SherlockListFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
 		view = inflater.inflate(R.layout.userslist, null);
-    	((ListView)view.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
-
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-		    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
-		    	if(e.type == TYPE_USER) {
-		    		mListener.onUserSelected(cid, channel, e.text);
-		    		return true;
-		    	}
-		    	return false;
-			}
-    		
-    	});
 		return view;
 	}
 
@@ -320,6 +306,24 @@ public class UsersListFragment extends SherlockListFragment {
     	super.onSaveInstanceState(state);
     	state.putInt("cid", cid);
     	state.putString("channel", channel);
+    }
+    
+    private class OnItemLongClickListener implements OnLongClickListener {
+        private int pos;
+        OnItemLongClickListener(int position){
+            pos = position;
+        }
+        
+		@Override
+		public boolean onLongClick(View v) {
+	    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
+	    	if(e.type == TYPE_USER) {
+	    		mListener.onUserSelected(cid, channel, e.text);
+	    		return true;
+	    	}
+	    	return false;
+		}
+    	
     }
     
     private class OnItemClickListener implements OnClickListener {
