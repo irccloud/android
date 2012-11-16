@@ -257,8 +257,18 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         		Integer bid = backStack.get(0);
         		backStack.remove(0);
         		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);
+        		String name = buffer.name;
         		if(buffer != null) {
-	    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+        			if(buffer.type.equalsIgnoreCase("console")) {
+        				ServersDataSource.Server s = ServersDataSource.getInstance().getServer(buffer.cid);
+        				if(s != null) {
+	        				if(s.name != null && s.name.length() > 0)
+	        					name = s.name;
+	        				else
+	        					name = s.hostname;
+        				}
+        			}
+	    			onBufferSelected(buffer.cid, buffer.bid, name, buffer.last_seen_eid, buffer.min_eid, 
 	    					buffer.type, 1, buffer.archived, status);
 	    			if(backStack.size() > 0)
 	    				backStack.remove(0);
