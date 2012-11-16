@@ -125,7 +125,8 @@ public class NetworkConnection {
 	
 	public long clockOffset = 0;
 
-	private long numbuffers = 0;
+	private float numbuffers = 0;
+	private float totalbuffers = 0;
 	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
@@ -720,6 +721,7 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_CONNECTIONDELETED, object.getInt("cid"));
 			} else if(type.equalsIgnoreCase("backlog_starts")) {
 				numbuffers = object.getInt("numbuffers");
+				totalbuffers = 0;
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
@@ -731,7 +733,7 @@ public class NetworkConnection {
 				if(object.getString("buffer_type") == null)
 					Log.w("IRCCloud", "NULL buffer type! JSON: " + object.toString());
 				if(numbuffers > 0) {
-					notifyHandlers(EVENT_PROGRESS, ((float)b.count() / (float)numbuffers) * 100);
+					notifyHandlers(EVENT_PROGRESS, (totalbuffers++ / numbuffers) * 100);
 				}
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
@@ -1213,6 +1215,7 @@ public class NetworkConnection {
 						Log.i("IRCCloud", "Beginning backlog...");
 						notifyHandlers(EVENT_BACKLOG_START, null);
 						numbuffers = 0;
+						totalbuffers = 0;
 						JsonParser parser = new JsonParser();
 						reader.beginArray();
 						int count = 0;
