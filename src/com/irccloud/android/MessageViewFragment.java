@@ -586,6 +586,9 @@ public class MessageViewFragment extends SherlockListFragment {
     
     @Override
     public void setArguments(Bundle args) {
+    	if(tapTimer != null)
+    		tapTimer.cancel();
+    	tapTimer = null;
     	cid = args.getInt("cid", 0);
     	bid = args.getInt("bid", 0);
     	last_seen_eid = args.getLong("last_seen_eid", 0);
