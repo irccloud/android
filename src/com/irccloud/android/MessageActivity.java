@@ -323,6 +323,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    	e.target_mode = null;
 		    	e.highlight = false;
 		    	e.reqid = -1;
+		    	e.pending = true;
 		    	if(e.msg != null) {
 		    		EventsDataSource.getInstance().addEvent(e);
 		    		conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, mHandler);

@@ -1482,7 +1482,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					} else if(event.reqid != -1) {
 						for(int i = 0; i < adapter.data.size(); i++) {
 							EventsDataSource.Event e = adapter.data.get(i);
-							if(e.reqid == event.reqid && e.color == R.color.timestamp) {
+							if(e.reqid == event.reqid && e.pending) {
 								if(i > 1) {
 									EventsDataSource.Event p = adapter.data.get(i-1);
 									if(p.row_type == ROW_TIMESTAMP) {

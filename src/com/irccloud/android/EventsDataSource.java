@@ -42,6 +42,7 @@ public class EventsDataSource {
 		boolean linkify;
 		String target_mode;
 		int reqid;
+		boolean pending;
 	}
 	
 	public class comparator implements Comparator<Event> {
@@ -123,6 +124,7 @@ public class EventsDataSource {
 	    	e.group_msg = null;
 	    	e.linkify = true;
 	    	e.target_mode = null;
+	    	e.pending = false;
 
 	    	if(event.has("reqid"))
 	    		e.reqid = event.getInt("reqid");
