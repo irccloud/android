@@ -809,7 +809,7 @@ public class NetworkConnection {
 				JsonArray users = object.getJsonArray("members");
 				for(int i = 0; i < users.size(); i++) {
 					JsonObject user = users.get(i).getAsJsonObject();
-					u.createUser(object.getInt("cid"), object.getString("chan"), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0);
+					u.createUser(object.getInt("cid"), object.getString("chan"), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0, false);
 				}
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELINIT, channel);
@@ -1209,7 +1209,8 @@ public class NetworkConnection {
 
 				if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
 					synchronized(parserLock) {
-						//Debug.startMethodTracing("oob", 16 * 1024 * 1024);
+						//if(ServersDataSource.getInstance().count() > 0)
+						//	Debug.startMethodTracing("oob", 16 * 1024 * 1024);
 						Log.i("IRCCloud", "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
 						Notifications.getInstance().beginBatch();
 						Log.i("IRCCloud", "Beginning backlog...");

@@ -43,9 +43,16 @@ public class UsersDataSource {
 	}
 	
 	public synchronized User createUser(int cid, String channel, String nick, String hostmask, String mode, int away) {
-		User u = getUser(cid, channel, nick);
+		return createUser(cid, channel, nick, hostmask, mode, away, true);
+	}
+	public synchronized User createUser(int cid, String channel, String nick, String hostmask, String mode, int away, boolean find_old) {
+		User u = null;
+		if(find_old)
+			u = getUser(cid, channel, nick);
+		
 		if(u == null) {
-			u = findOldNickForHostmask(cid, hostmask);
+			if(find_old)
+				u = findOldNickForHostmask(cid, hostmask);
 			if(u == null)
 				u = new User();
 			else if(!u.nick.equals(nick))
