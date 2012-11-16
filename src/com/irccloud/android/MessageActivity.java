@@ -639,9 +639,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(c == null)
 					joined = 0;
 			}
-			if(b.type.equalsIgnoreCase("console"))
-				b.name = s.name;
-			onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
+			String name = b.name;
+			if(b.type.equalsIgnoreCase("console")) {
+				if(s.name != null && s.name.length() > 0)
+					name = s.name;
+				else
+					name = s.hostname;
+			}
+			onBufferSelected(b.cid, b.bid, name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
 			return true;
 		}
 		return false;
