@@ -5,7 +5,7 @@
 
     <uses-sdk
         android:minSdkVersion="8"
-        android:targetSdkVersion="15" />
+        android:targetSdkVersion="17" />
 
     <permission android:name="com.irccloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
     <permission android:name="com.irccloud.android.permission.BROADCAST" android:protectionLevel="signature" />

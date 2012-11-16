@@ -38,4 +38,13 @@
         <item name="android:ellipsize">none</item>
         <item name="android:padding">4dp</item>
 	</style>
+	
+    <style name="NotificationText">
+      <item name="android:textColor">#000</item>
+    </style>
+    <style name="NotificationTitle">
+      <item name="android:textColor">#000</item>
+      <item name="android:textStyle">bold</item>
+    </style>
+    
 </resources>
