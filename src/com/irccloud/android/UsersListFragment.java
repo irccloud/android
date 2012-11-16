@@ -133,6 +133,11 @@ public class UsersListFragment extends SherlockListFragment {
 					holder.count.setVisibility(View.GONE);
 					holder.count.setText("");
 				}
+				row.setFocusable(false);
+				row.setEnabled(false);
+			} else {
+				row.setFocusable(true);
+				row.setEnabled(true);
 			}
 			
 			return row;
