@@ -139,9 +139,9 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 	}
 
-	private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<UsersDataSource.User> users, String heading, String symbol, int heading_color, int bg_color) {
+	private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<UsersDataSource.User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
 		if(users.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, bg_color, false));
+			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, heading_bg_color, false));
 			for(int i = 0; i < users.size(); i++) {
 				UsersDataSource.User user = users.get(i);
 				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, user.away > 0));
@@ -186,27 +186,27 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 		
 		if(owners.size() > 0) {
-			addUsersFromList(entries, owners, "OWNERS", (showSymbol?"~ ":"¥ "), R.color.heading_owner, R.drawable.row_owners_bg);
+			addUsersFromList(entries, owners, "OWNERS", (showSymbol?"~ ":"¥ "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
 		}
 		
 		if(admins.size() > 0) {
-			addUsersFromList(entries, admins, "ADMINS", (showSymbol?"& ":"¥ "), R.color.heading_admin, R.drawable.row_admins_bg);
+			addUsersFromList(entries, admins, "ADMINS", (showSymbol?"& ":"¥ "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
 		}
 		
 		if(ops.size() > 0) {
-			addUsersFromList(entries, ops, "OPERATORS", (showSymbol?"@ ":"¥ "), R.color.heading_operators, R.drawable.row_operator_bg);
+			addUsersFromList(entries, ops, "OPERATORS", (showSymbol?"@ ":"¥ "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
 		}
 		
 		if(halfops.size() > 0) {
-			addUsersFromList(entries, halfops, "HALFOPS", (showSymbol?"% ":"¥ "), R.color.heading_halfop, R.drawable.row_halfops_bg);
+			addUsersFromList(entries, halfops, "HALFOPS", (showSymbol?"% ":"¥ "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
 		}
 		
 		if(voiced.size() > 0) {
-			addUsersFromList(entries, voiced, "VOICED", (showSymbol?"+ ":"¥ "), R.color.heading_voiced, R.drawable.row_voiced_bg);
+			addUsersFromList(entries, voiced, "VOICED", (showSymbol?"+ ":"¥ "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
 		}
 		
 		if(members.size() > 0) {
-			addUsersFromList(entries, members, "MEMBERS", "", R.color.heading_members, R.drawable.row_members_bg);
+			addUsersFromList(entries, members, "MEMBERS", "", R.color.heading_members, R.drawable.row_members_bg, R.drawable.background_blue);
 		}
 
 		adapter.setItems(entries);
