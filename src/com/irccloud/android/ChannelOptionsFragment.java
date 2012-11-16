@@ -121,7 +121,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
     	
     	return new AlertDialog.Builder(ctx)
-                .setTitle("Channel Options")
+                .setTitle("Display Options")
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

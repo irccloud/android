@@ -3,6 +3,6 @@
         android:title="@string/menu_whois"
         android:showAsAction="never" />
     <item android:id="@+id/menu_buffer_options"
-        android:title="@string/menu_buffer_options"
+        android:title="@string/menu_display_options"
         android:showAsAction="never" />
 </menu>

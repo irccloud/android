@@ -114,7 +114,7 @@ public class BufferOptionsFragment extends DialogFragment {
     		joinpart.setVisibility(View.GONE);
     	
     	return new AlertDialog.Builder(ctx)
-                .setTitle("Buffer Options")
+                .setTitle("Display Options")
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

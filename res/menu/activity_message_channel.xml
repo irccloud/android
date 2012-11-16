@@ -12,6 +12,6 @@
         android:showAsAction="never" />
     
     <item android:id="@+id/menu_channel_options"
-        android:title="@string/menu_channel_options"
+        android:title="@string/menu_display_options"
         android:showAsAction="never" />
 </menu>
