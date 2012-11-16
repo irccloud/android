@@ -37,6 +37,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
@@ -94,6 +95,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         }
         messageTxt = (EditText)findViewById(R.id.messageTxt);
 		messageTxt.setEnabled(false);
+		messageTxt.setOnFocusChangeListener(new OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(scrollView != null && v == messageTxt && hasFocus)
+					scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+			}
+		});
+		messageTxt.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(scrollView != null)
+					scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+			}
+		});
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
          	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN && view.getText().length() > 0) {
@@ -1230,9 +1245,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	public void onUserDoubleClicked(String from) {
 		if(messageTxt == null || from == null || from.length() == 0)
 			return;
-		
-		if(scrollView != null)
-			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
 		
 		if(messageTxt.getText().length() == 0) {
 			messageTxt.append(from + ": ");
