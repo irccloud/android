@@ -608,22 +608,26 @@ public class NetworkConnection {
 		if(idle_interval <= 0)
 			return;
 		
-		idleTimer = new Timer();
-
-		idleTimer.schedule( new TimerTask(){
-             public void run() {
-            	 if(handlers.size() > 0) {
-	            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
-	            	 state = STATE_CONNECTING;
-	            	 notifyHandlers(EVENT_CONNECTIVITY, null);
-	            	 client.disconnect();
-	            	 connect(session);
-            	 }
-                 idleTimer = null;
-                 reconnect_timestamp = 0;
-              }
-           }, idle_interval + 10000);
-		reconnect_timestamp = System.currentTimeMillis() + idle_interval + 10000;
+		try {
+			idleTimer = new Timer();
+			idleTimer.schedule( new TimerTask() {
+	             public void run() {
+	            	 if(handlers.size() > 0) {
+		            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
+		            	 state = STATE_CONNECTING;
+		            	 notifyHandlers(EVENT_CONNECTIVITY, null);
+		            	 client.disconnect();
+		            	 connect(session);
+	            	 }
+	                 idleTimer = null;
+	                 reconnect_timestamp = 0;
+	              }
+	           }, idle_interval + 10000);
+			reconnect_timestamp = System.currentTimeMillis() + idle_interval + 10000;
+		} catch (IllegalStateException e) {
+			//It's possible for timer to get canceled by another thread before before it gets scheduled
+			//so catch the exception
+		}
 	}
 	
 	public long getReconnectTimestamp() {
