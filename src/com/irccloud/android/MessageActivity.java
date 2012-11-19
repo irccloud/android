@@ -1246,6 +1246,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(messageTxt == null || from == null || from.length() == 0)
 			return;
 		
+		if(scrollView != null)
+			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+		
 		if(messageTxt.getText().length() == 0) {
 			messageTxt.append(from + ": ");
 		} else {

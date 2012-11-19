@@ -23,6 +23,17 @@ public class MessageActivityPager extends HorizontalScrollView {
 	}
 
 	@Override
+	public void scrollTo(int x, int y) {
+		if(x < buffersDisplayWidth)
+			x = 0;
+		else if(x > buffersDisplayWidth + usersDisplayWidth / 4)
+			x = buffersDisplayWidth + usersDisplayWidth;
+		else
+			x = buffersDisplayWidth;
+		super.scrollTo(x, y);
+	}
+	
+	@Override
 	protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 		if(changed)
@@ -41,7 +52,7 @@ public class MessageActivityPager extends HorizontalScrollView {
 					return true;
 			} else if(event.getAction() == MotionEvent.ACTION_UP) { //Finger is lifted, snap into place!
 				if(Math.abs(startX - getScrollX()) > buffersDisplayWidth / 4) { //If they've dragged a drawer more than 25% on screen, snap the drawer onto the screen
-					if(startX < buffersDisplayWidth + buffersDisplayWidth / 4 && getScrollX() < startX) {
+					if(startX < buffersDisplayWidth + usersDisplayWidth / 4 && getScrollX() < startX) {
 						smoothScrollTo(0, 0);
 						activity.showUpButton(false);
 						//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
@@ -57,7 +68,7 @@ public class MessageActivityPager extends HorizontalScrollView {
 				} else { //Snap back
 					if(startX < buffersDisplayWidth)
 						smoothScrollTo(0, 0);
-					else if(startX > buffersDisplayWidth + buffersDisplayWidth / 4)
+					else if(startX > buffersDisplayWidth + usersDisplayWidth / 4)
 						smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
 					else
 						smoothScrollTo(buffersDisplayWidth, 0);
