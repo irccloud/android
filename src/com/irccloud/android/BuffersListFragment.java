@@ -289,6 +289,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			        	AddChannelFragment newFragment = new AddChannelFragment();
 			        	newFragment.setDefaultCid(e.cid);
 			            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+			            mListener.addButtonPressed(e.cid);
 					}
 				});
 			}
@@ -673,5 +674,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	public interface OnBufferSelectedListener {
 		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status);
 		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
+		public void addButtonPressed(int cid);
 	}
 }

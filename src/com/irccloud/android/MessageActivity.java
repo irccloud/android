@@ -348,7 +348,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 				e.reqid = conn.say(cid, name, messageTxt.getText().toString());
 				if(e.msg != null)
 					pendingEvents.put(e.reqid, e);
@@ -1778,5 +1778,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			ulf.getListView().startAnimation(anim);
 			shouldFadeIn = false;
 		}
+	}
+
+	@Override
+	public void addButtonPressed(int cid) {
+		if(scrollView != null)
+			scrollView.scrollTo(0,0);
 	}
 }

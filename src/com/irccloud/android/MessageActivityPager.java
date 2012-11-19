@@ -1,7 +1,9 @@
 package com.irccloud.android;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.MotionEvent;
@@ -13,6 +15,7 @@ public class MessageActivityPager extends HorizontalScrollView {
 	private int buffersDisplayWidth = 0;
 	private int usersDisplayWidth = 0;
 	MessageActivity activity = null;
+	private boolean overrideScrollPos = false;
 	
 	public MessageActivityPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -25,12 +28,26 @@ public class MessageActivityPager extends HorizontalScrollView {
 	@Override
 	public void scrollTo(int x, int y) {
 		if(x < buffersDisplayWidth)
-			x = 0;
+			super.scrollTo(0, 0);
 		else if(x > buffersDisplayWidth + usersDisplayWidth / 4)
-			x = buffersDisplayWidth + usersDisplayWidth;
+			super.scrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
 		else
-			x = buffersDisplayWidth;
-		super.scrollTo(x, y);
+			super.scrollTo(buffersDisplayWidth, 0);
+	}
+	
+	@Override
+	public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {
+		overrideScrollPos = true;
+		return super.requestChildRectangleOnScreen(child, rectangle, immediate);
+	}
+	
+	@Override
+	public void computeScroll() {
+		super.computeScroll();
+		if(overrideScrollPos) {
+			super.scrollTo(buffersDisplayWidth, 0);
+			overrideScrollPos = false;
+		}
 	}
 	
 	@Override
@@ -55,15 +72,12 @@ public class MessageActivityPager extends HorizontalScrollView {
 					if(startX < buffersDisplayWidth + usersDisplayWidth / 4 && getScrollX() < startX) {
 						smoothScrollTo(0, 0);
 						activity.showUpButton(false);
-						//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
 					} else if(startX >= buffersDisplayWidth && getScrollX() > startX) {
 						smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
 						activity.showUpButton(true);
-						//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), false);
 					} else {
 						smoothScrollTo(buffersDisplayWidth, 0);
 						activity.showUpButton(true);
-						//enableDisableViewGroup((ViewGroup)findViewById(R.id.messageContainer), true);
 					}
 				} else { //Snap back
 					if(startX < buffersDisplayWidth)
@@ -79,29 +93,6 @@ public class MessageActivityPager extends HorizontalScrollView {
 			return super.onTouchEvent(event);
 		} else {
 			return false;
-		}
-	}
-	
-	//originally: http://stackoverflow.com/questions/5418510/disable-the-touch-events-for-all-the-views
-	//modified for the needs here
-	public void enableDisableViewGroup(ViewGroup viewGroup, boolean enabled) {
-		int childCount = viewGroup.getChildCount();
-		for (int i = 0; i < childCount; i++) {
-			View view = viewGroup.getChildAt(i);
-			if(view.isFocusable())
-				view.setEnabled(enabled);
-			if (view instanceof ViewGroup) {
-				enableDisableViewGroup((ViewGroup) view, enabled);
-			} else if (view instanceof ListView) {
-				if(view.isFocusable())
-					view.setEnabled(enabled);
-				ListView listView = (ListView) view;
-				int listChildCount = listView.getChildCount();
-				for (int j = 0; j < listChildCount; j++) {
-					if(view.isFocusable())
-						listView.getChildAt(j).setEnabled(false);
-				}
-			}
 		}
 	}
 }
