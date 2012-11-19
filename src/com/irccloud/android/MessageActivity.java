@@ -41,6 +41,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
+import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -453,8 +454,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	launchURI = null;
     	
     	if(intent.hasExtra("bid")) {
-	    	if(bid >= 0)
-	    		backStack.add(0, bid);
     		int new_bid = intent.getIntExtra("bid", 0);
     		if(ServersDataSource.getInstance().count() > 0 && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
     			Log.w("IRCCloud", "Invalid bid requested by launch intent");
@@ -462,6 +461,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			new ShowNotificationsTask().execute(bid);
     			return;
     		} else {
+    	    	if(bid >= 0)
+    	    		backStack.add(0, bid);
     			bid = new_bid;
     		}
     	}
@@ -787,6 +788,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			        	banList.setArguments(args);
 	            	}
 				}
+	            break;
+			case NetworkConnection.EVENT_WHOLIST:
+				event = (IRCCloudJSONObject)msg.obj;
+            	Bundle args = new Bundle();
+            	args.putString("event", event.toString());
+            	WhoListFragment whoList = (WhoListFragment)getSupportFragmentManager().findFragmentByTag("wholist");
+            	if(whoList == null) {
+            		whoList = new WhoListFragment();
+            		whoList.setArguments(args);
+            		whoList.show(getSupportFragmentManager(), "wholist");
+            	} else {
+            		whoList.setArguments(args);
+            	}
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				if(scrollView != null) {

@@ -136,6 +136,7 @@ public class BanListFragment extends SherlockDialogFragment {
     	listView = (ListView)v.findViewById(android.R.id.list);
     	TextView empty = (TextView)v.findViewById(android.R.id.empty);
     	empty.setText("No bans in effect.  You can ban people from a menu on tapping their nickname, long-pressing a message, or by using /ban.");
+    	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
         	bid = savedInstanceState.getInt("bid");

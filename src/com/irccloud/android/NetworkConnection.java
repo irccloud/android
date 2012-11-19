@@ -111,6 +111,7 @@ public class NetworkConnection {
 	public static final int EVENT_BANLIST = 34;
 	public static final int EVENT_CHANPRIVSNEEDED = 35;
 	public static final int EVENT_ACCEPTEXISTS = 36;
+	public static final int EVENT_WHOLIST = 37;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -696,6 +697,9 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("ban_list")) {
 				if(!backlog)
 					notifyHandlers(EVENT_BANLIST, object);
+			} else if(type.equalsIgnoreCase("who_response")) {
+				if(!backlog)
+					notifyHandlers(EVENT_WHOLIST, object);
 			} else if(type.equalsIgnoreCase("chan_privs_needed")) {
 				if(!backlog)
 					notifyHandlers(EVENT_CHANPRIVSNEEDED, object);

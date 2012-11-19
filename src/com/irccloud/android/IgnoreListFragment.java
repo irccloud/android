@@ -122,6 +122,7 @@ public class IgnoreListFragment extends SherlockDialogFragment {
     	listView = (ListView)v.findViewById(android.R.id.list);
     	TextView empty = (TextView)v.findViewById(android.R.id.empty);
     	empty.setText("You're not ignoring anyone at the moment.  You can ignore people from a menu on tapping their nickname, long-pressing a message, or by using /ignore.");
+    	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
         	ignores = ServersDataSource.getInstance().getServer(cid).ignores;
