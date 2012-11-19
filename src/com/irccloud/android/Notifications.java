@@ -483,12 +483,6 @@ public class Notifications extends SQLiteOpenHelper {
 		if(ServersDataSource.getInstance().count() > 0) {
 			ArrayList<Notification> notifications = getMessageNotifications();
 			for(Notification n : notifications) {
-				if(ServersDataSource.getInstance().getServer(n.cid) == null
-						|| BuffersDataSource.getInstance().getBuffer(n.bid) == null
-						|| EventsDataSource.getInstance().getEvent(n.eid, n.bid) == null) {
-					Log.d("IRCCloud", "Removing stale notification: " + n.toString());
-					deleteNotification(n.cid, n.bid, n.eid);
-				}
 				if(isDismissed(n.bid, n.eid)) {
 					Log.d("IRCCloud", "Removing dismissed notification: " + n.toString());
 					deleteNotification(n.cid, n.bid, n.eid);
