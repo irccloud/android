@@ -38,6 +38,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
+import android.view.View.OnKeyListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
@@ -96,6 +97,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         }
         messageTxt = (EditText)findViewById(R.id.messageTxt);
 		messageTxt.setEnabled(false);
+		messageTxt.setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+	         		   new SendTask().execute((Void)null);
+				}
+				return false;
+			}
+		});
 		messageTxt.setOnFocusChangeListener(new OnFocusChangeListener() {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
@@ -112,7 +122,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		});
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-         	   if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN && view.getText().length() > 0) {
+         	   if (actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
          		   new SendTask().execute((Void)null);
          	   }
          	   return true;
@@ -137,12 +147,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	}
             }
 
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
-            public void onTextChanged(CharSequence s, int start, int before,
-                    int count) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
         });
         sendBtn = findViewById(R.id.sendBtn);
@@ -302,7 +310,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	@Override
     	protected void onPreExecute() {
-			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText().length() > 0) {
+			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 	    		sendBtn.setEnabled(false);
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
 	    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, name, s.nick);
