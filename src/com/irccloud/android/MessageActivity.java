@@ -448,14 +448,22 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     private void setFromIntent(Intent intent) {
     	long min_eid = 0;
     	long last_seen_eid = 0;
-
+    	
     	launchBid = -1;
     	launchURI = null;
     	
     	if(intent.hasExtra("bid")) {
 	    	if(bid >= 0)
 	    		backStack.add(0, bid);
-    		bid = intent.getIntExtra("bid", 0);
+    		int new_bid = intent.getIntExtra("bid", 0);
+    		if(ServersDataSource.getInstance().count() > 0 && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
+    			Log.w("IRCCloud", "Invalid bid requested by launch intent");
+    			Notifications.getInstance().deleteNotificationsForBid(new_bid);
+    			new ShowNotificationsTask().execute(bid);
+    			return;
+    		} else {
+    			bid = new_bid;
+    		}
     	}
     	
     	if(intent.getData() != null && intent.getData().getScheme().startsWith("irc")) {
