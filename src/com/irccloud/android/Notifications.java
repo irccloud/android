@@ -306,6 +306,7 @@ public class Notifications extends SQLiteOpenHelper {
 			Log.d("IRCCloud", "This notification's EID has already been seen, skipping...");
 			return;
 		}
+		
 		Log.d("IRCCloud", "Adding notification: "
 				+ "cid: " + cid + " "
 				+ "bid: " + bid + " "
@@ -319,8 +320,10 @@ public class Notifications extends SQLiteOpenHelper {
 		Network network = getNetwork(cid);
 		if(network != null)
 			Log.d("IRCCloud", "Name for network: " + network.name);
-		else
+		else {
 			Log.w("IRCCloud", "No network name!");
+			addNetwork(cid, "Unknown Network");
+		}
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("bid", bid);
@@ -374,6 +377,8 @@ public class Notifications extends SQLiteOpenHelper {
 	        		nm.cancel((int)(n.eid/1000));
 	        }
 		}
+		nm.cancel(bid);
+
 		SQLiteDatabase db = getSafeWritableDatabase();
 		db.delete(TABLE_NOTIFICATIONS, "bid = ?", new String[] {String.valueOf(bid)});
 		db.delete(TABLE_DISMISSED_EIDS, "bid = ?", new String[] {String.valueOf(bid)});
