@@ -235,10 +235,15 @@ public class Notifications extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put("bid", bid);
 		values.put("eid", eid);
-		if(last_eid > 0)
-			db.update(TABLE_LAST_SEEN_EIDS, values, "bid = " + bid, null);
-		else
-			db.insert(TABLE_LAST_SEEN_EIDS, null, values);
+		
+		try {
+			if(last_eid > 0)
+				db.update(TABLE_LAST_SEEN_EIDS, values, "bid = " + bid, null);
+			else
+				db.insert(TABLE_LAST_SEEN_EIDS, null, values);
+		} catch (Exception e) {
+		}
+
 		if(!isBatch())
 			db.close();
 		releaseWriteableDatabase();

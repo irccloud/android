@@ -104,20 +104,16 @@ public class NetworkConnection {
 	public static final int EVENT_SETIGNORES = 27;
 	public static final int EVENT_BADCHANNELKEY = 28;
 	public static final int EVENT_OPENBUFFER = 29;
-	public static final int EVENT_NOSUCHCHANNEL = 30;
-	public static final int EVENT_NOSUCHNICK = 31;
-	public static final int EVENT_TOOMANYCHANNELS = 32;
-	public static final int EVENT_INVALIDNICK = 33;
-	public static final int EVENT_BANLIST = 34;
-	public static final int EVENT_CHANPRIVSNEEDED = 35;
-	public static final int EVENT_ACCEPTEXISTS = 36;
-	public static final int EVENT_WHOLIST = 37;
+	public static final int EVENT_INVALIDNICK = 30;
+	public static final int EVENT_BANLIST = 31;
+	public static final int EVENT_WHOLIST = 32;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
 	public static final int EVENT_FAILURE_MSG = 102;
 	public static final int EVENT_SUCCESS = 103;
 	public static final int EVENT_PROGRESS = 104;
+	public static final int EVENT_ALERT = 105;
 	
 	private static final String IRCCLOUD_HOST = "alpha.irccloud.com";
 	
@@ -679,18 +675,32 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("bad_channel_key")) {
 				if(!backlog)
 					notifyHandlers(EVENT_BADCHANNELKEY, object);
-			} else if(type.equalsIgnoreCase("too_many_channels")) {
+			} else if(type.equalsIgnoreCase("too_many_channels") || type.equalsIgnoreCase("no_such_channel") ||
+					type.equalsIgnoreCase("no_such_nick") || type.equalsIgnoreCase("invalid_nick_change") ||
+					type.equalsIgnoreCase("chan_privs_needed") || type.equalsIgnoreCase("accept_exists") ||
+					type.equalsIgnoreCase("banned_from_channel") || type.equalsIgnoreCase("oper_only") ||
+					type.equalsIgnoreCase("no_nick_change") || type.equalsIgnoreCase("no_messages_from_non_registered") ||
+					type.equalsIgnoreCase("not_registered") || type.equalsIgnoreCase("already_registered") ||
+					type.equalsIgnoreCase("too_many_targets") || type.equalsIgnoreCase("no_such_server") ||
+					type.equalsIgnoreCase("unknown_command") || type.equalsIgnoreCase("help_not_found") ||
+					type.equalsIgnoreCase("accept_full") || type.equalsIgnoreCase("accept_not") ||
+					type.equalsIgnoreCase("nick_collision") || type.equalsIgnoreCase("nick_too_fast") ||
+					type.equalsIgnoreCase("save_nick") || type.equalsIgnoreCase("unknown_mode") ||
+					type.equalsIgnoreCase("user_not_in_channel") || type.equalsIgnoreCase("need_more_params") ||
+					type.equalsIgnoreCase("users_dont_match") || type.equalsIgnoreCase("users_disabled") ||
+					type.equalsIgnoreCase("invalid_operator_password") || type.equalsIgnoreCase("flood_warning") ||
+					type.equalsIgnoreCase("privs_needed") || type.equalsIgnoreCase("operator_fail") ||
+					type.equalsIgnoreCase("not_on_channel") || type.equalsIgnoreCase("ban_on_chan") ||
+					type.equalsIgnoreCase("cannot_send_to_chan") || type.equalsIgnoreCase("user_on_channel") ||
+					type.equalsIgnoreCase("no_nick_given") || type.equalsIgnoreCase("no_text_to_send") ||
+					type.equalsIgnoreCase("no_origin") || type.equalsIgnoreCase("only_servers_can_change_mode") ||
+					type.equalsIgnoreCase("silence") || type.equalsIgnoreCase("no_channel_topic") ||
+					type.equalsIgnoreCase("invite_only_chan") || type.equalsIgnoreCase("channel_full")) {
 				if(!backlog)
-					notifyHandlers(EVENT_TOOMANYCHANNELS, object);
+					notifyHandlers(EVENT_ALERT, object);
 			} else if(type.equalsIgnoreCase("open_buffer")) {
 				if(!backlog)
 					notifyHandlers(EVENT_OPENBUFFER, object);
-			} else if(type.equalsIgnoreCase("no_such_channel")) {
-				if(!backlog)
-					notifyHandlers(EVENT_NOSUCHCHANNEL, object);
-			} else if(type.equalsIgnoreCase("no_such_nick")) {
-				if(!backlog)
-					notifyHandlers(EVENT_NOSUCHNICK, object);
 			} else if(type.equalsIgnoreCase("invalid_nick")) {
 				if(!backlog)
 					notifyHandlers(EVENT_INVALIDNICK, object);
@@ -700,12 +710,6 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("who_response")) {
 				if(!backlog)
 					notifyHandlers(EVENT_WHOLIST, object);
-			} else if(type.equalsIgnoreCase("chan_privs_needed")) {
-				if(!backlog)
-					notifyHandlers(EVENT_CHANPRIVSNEEDED, object);
-			} else if(type.equalsIgnoreCase("accept_exists")) {
-				if(!backlog)
-					notifyHandlers(EVENT_ACCEPTEXISTS, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),

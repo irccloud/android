@@ -120,72 +120,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 					e2.printStackTrace();
 				}
 				break;
-			case NetworkConnection.EVENT_NOSUCHNICK:
-	        	try {
-					o = (IRCCloudJSONObject)msg.obj;
-		    		s = ServersDataSource.getInstance();
-		    		server = s.getServer(o.cid());
-		    		builder = new AlertDialog.Builder(BaseActivity.this);
-		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
-						builder.setMessage("No such nickname: " + o.getString("nick") + " on " + server.name + " (" + server.hostname + ":" + (server.port) + "). Please try again.");
-		    		builder.setNegativeButton("Ok", new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-		    		});
-		    		dialog = builder.create();
-		    		dialog.setOwnerActivity(BaseActivity.this);
-		    		dialog.show();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	    		break;
-			case NetworkConnection.EVENT_NOSUCHCHANNEL:
-	        	try {
-					o = (IRCCloudJSONObject)msg.obj;
-		    		s = ServersDataSource.getInstance();
-		    		server = s.getServer(o.cid());
-		    		builder = new AlertDialog.Builder(BaseActivity.this);
-		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
-						builder.setMessage("No such channel: " + o.getString("chan") + " on " + server.name + " (" + server.hostname + ":" + (server.port) + "). Please try again.");
-		    		builder.setNegativeButton("Ok", new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-		    		});
-		    		dialog = builder.create();
-		    		dialog.setOwnerActivity(BaseActivity.this);
-		    		dialog.show();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	    		break;
-			case NetworkConnection.EVENT_TOOMANYCHANNELS:
-	        	try {
-					o = (IRCCloudJSONObject)msg.obj;
-		    		s = ServersDataSource.getInstance();
-		    		server = s.getServer(o.cid());
-		    		builder = new AlertDialog.Builder(BaseActivity.this);
-		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
-						builder.setMessage("Couldn't join " + o.getString("chan") + ". You have joined too many channels.");
-		    		builder.setNegativeButton("Ok", new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-		    		});
-		    		dialog = builder.create();
-		    		dialog.setOwnerActivity(BaseActivity.this);
-		    		dialog.show();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	    		break;
 			case NetworkConnection.EVENT_BADCHANNELKEY:
 				o = (IRCCloudJSONObject)msg.obj;
 	    		s = ServersDataSource.getInstance();
@@ -299,45 +233,81 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 	    		dialog.show();
 	    		break;
-			case NetworkConnection.EVENT_CHANPRIVSNEEDED:
+			case NetworkConnection.EVENT_ALERT:
 	        	try {
 					o = (IRCCloudJSONObject)msg.obj;
-		    		s = ServersDataSource.getInstance();
-		    		server = s.getServer(o.cid());
-		    		builder = new AlertDialog.Builder(BaseActivity.this);
-		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
-						builder.setMessage(o.getString("chan") + ": " + o.getString("msg"));
-		    		builder.setNegativeButton("Ok", new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-		    		});
-		    		dialog = builder.create();
-		    		dialog.setOwnerActivity(BaseActivity.this);
-		    		dialog.show();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-	    		break;
-			case NetworkConnection.EVENT_ACCEPTEXISTS:
-	        	try {
-					o = (IRCCloudJSONObject)msg.obj;
-		    		s = ServersDataSource.getInstance();
-		    		server = s.getServer(o.cid());
-		    		builder = new AlertDialog.Builder(BaseActivity.this);
-		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
-						builder.setMessage(o.getString("nick") + " " + o.getString("msg"));
-		    		builder.setNegativeButton("Ok", new OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-		    		});
-		    		dialog = builder.create();
-		    		dialog.setOwnerActivity(BaseActivity.this);
-		    		dialog.show();
+	        		String type = o.type();
+	        		
+	        		if(type.equalsIgnoreCase("invite_only_chan"))
+	        			showAlert(o.cid(), "You need an invitation to join " + o.getString("chan"));
+	        		else if(type.equalsIgnoreCase("channel_full"))
+	        			showAlert(o.cid(), o.getString("chan") + " isn't allowing any more members to join.");
+	        		else if(type.equalsIgnoreCase("banned_from_channel"))
+	        			showAlert(o.cid(), "You've been banned from " + o.getString("chan"));
+	        		else if(type.equalsIgnoreCase("invalid_nickchange"))
+	        			showAlert(o.cid(), o.getString("ban_channel") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("no_messages_from_non_registered")) {
+	        			if(o.has("nick") && o.getString("nick").length() > 0)
+	        				showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg"));
+	        			else
+	        				showAlert(o.cid(), o.getString("msg"));
+	        		} else if(type.equalsIgnoreCase("not_registered")) {
+	        			String first = o.getString("first");
+	        			if(o.has("rest"))
+	        				first += " " + o.getString("rest");
+	        			showAlert(o.cid(), first + ": " + o.getString("msg"));
+	        		} else if(type.equalsIgnoreCase("too_many_channels"))
+	        			showAlert(o.cid(), "Couldn't join " + o.getString("chan") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("too_many_targets"))
+	        			showAlert(o.cid(), o.getString("description") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("no_such_server"))
+	        			showAlert(o.cid(), o.getString("server") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("unknown_command"))
+	        			showAlert(o.cid(), "Unknown command: " + o.getString("command"));
+	        		else if(type.equalsIgnoreCase("help_not_found"))
+	        			showAlert(o.cid(), o.getString("topic") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("accept_exists"))
+						showAlert(o.cid(), o.getString("nick") + " " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("accept_not"))
+						showAlert(o.cid(), o.getString("nick") + " " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("nick_collision"))
+						showAlert(o.cid(), o.getString("collision") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("nick_too_fast"))
+						showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("save_nick"))
+						showAlert(o.cid(), o.getString("nick") + ": " + o.getString("msg") + ": " + o.getString("new_nick"));
+	        		else if(type.equalsIgnoreCase("unknown_mode"))
+						showAlert(o.cid(), "Missing mode: " + o.getString("params"));
+	        		else if(type.equalsIgnoreCase("user_not_in_channel"))
+						showAlert(o.cid(), o.getString("nick") + " is not in " + o.getString("channel"));
+	        		else if(type.equalsIgnoreCase("need_more_params"))
+						showAlert(o.cid(), "Missing parameters for command: " + o.getString("command"));
+	        		else if(type.equalsIgnoreCase("chan_privs_needed"))
+						showAlert(o.cid(), o.getString("chan") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("not_on_channel"))
+						showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("ban_on_chan"))
+						showAlert(o.cid(), "You cannot change your nick to " + o.getString("proposed_nick") + " while banned on " + o.getString("channel"));
+	        		else if(type.equalsIgnoreCase("cannot_send_to_chan"))
+						showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
+	        		else if(type.equalsIgnoreCase("user_on_channel"))
+						showAlert(o.cid(), o.getString("nick") + " is already a member of " + o.getString("channel"));
+	        		else if(type.equalsIgnoreCase("no_nick_given"))
+						showAlert(o.cid(), "No nickname given");
+	        		else if(type.equalsIgnoreCase("silence")) {
+	        			String mask = o.getString("usermask");
+	        			String message = "";
+	        			if(mask.startsWith("-"))
+	        				message = mask.substring(1) + " removed from silence list";
+	        			else if(mask.startsWith("+"))
+	        				message = mask.substring(1) + " added to silence list";
+	        			else
+	        				message = "Silence list change: " + mask;
+						showAlert(o.cid(), message);
+	        		} else if(type.equalsIgnoreCase("no_channel_topic"))
+						showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
+	        		else
+	        			showAlert(o.cid(), o.getString("msg"));
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -349,6 +319,22 @@ public class BaseActivity extends SherlockFragmentActivity {
 		}
 	};
     
+	private void showAlert(int cid, String msg) {
+		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
+		AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+    	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+			builder.setMessage(msg);
+		builder.setNegativeButton("Ok", new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+			}
+		});
+		AlertDialog dialog = builder.create();
+		dialog.setOwnerActivity(BaseActivity.this);
+		dialog.show();
+	}
+	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportMenuInflater().inflate(R.menu.activity_base, menu);
