@@ -663,11 +663,13 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 					JSONObject hiddenMap = null;
 					if(this.type.equalsIgnoreCase("channel"))
-						hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
+						if(conn.getUserInfo().prefs.has("channel-hideJoinPart"))
+							hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
 					else
-						hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
+						if(conn.getUserInfo().prefs.has("buffer-hideJoinPart"))
+							hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
 
-					if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
+					if(hiddenMap != null && hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
 			    		adapter.removeItem(event.eid);
 				    	if(!backlog)
 				    		adapter.notifyDataSetChanged();
