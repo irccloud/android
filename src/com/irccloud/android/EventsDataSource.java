@@ -198,6 +198,7 @@ public class EventsDataSource {
 	    		e.msg += "IRCd: " + event.getString("version") + "\n";
 	    		e.msg += "User modes: " + event.getString("user_modes") + "\n";
 	    		e.msg += "Channel modes: " + event.getString("channel_modes") + "\n";
+	    		e.msg = TextUtils.htmlEncode(e.msg);
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("wait")) {
@@ -219,7 +220,7 @@ public class EventsDataSource {
 	    		if(event.has("killer_hostmask"))
 	    			e.msg += " (" + event.getString("killer_hostmask") + ")";
 	    		if(event.has("reason"))
-	    			e.msg += ": " + event.getString("reason");
+	    			e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("banned")) {
@@ -228,12 +229,12 @@ public class EventsDataSource {
 	    		if(event.has("server"))
 	    			e.msg += " from " + event.getString("server");
 	    		if(event.has("reason"))
-	    			e.msg += ": " + event.getString("reason");
+	    			e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("channel_topic")) {
 	    		e.from = event.getString("author");
-	    		e.msg = "set the topic: " + event.getString("topic");
+	    		e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
 	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("channel_mode")) {
 	    		e.nick = e.from;

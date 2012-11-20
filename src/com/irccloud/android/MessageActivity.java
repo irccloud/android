@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
@@ -349,6 +350,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    	e.reqid = -1;
 		    	e.pending = true;
 		    	if(e.msg != null) {
+		    		e.msg = TextUtils.htmlEncode(e.msg);
 		    		EventsDataSource.getInstance().addEvent(e);
 		    		conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, mHandler);
 		    	}
