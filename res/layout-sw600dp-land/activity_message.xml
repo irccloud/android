@@ -31,16 +31,16 @@
             android:padding="4dp"
             android:paddingTop="2dp" >
 
-            <EditText
+            <com.irccloud.android.ActionEditText
                 android:id="@+id/messageTxt"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Message"
-                android:inputType="textShortMessage"
-                android:imeOptions="actionSend" />
+                android:imeOptions="actionSend"
+                android:inputType="textAutoCorrect|textCapSentences|textMultiLine" />
 
             <include
                 android:id="@+id/sendBtn"
