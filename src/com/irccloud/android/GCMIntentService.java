@@ -38,7 +38,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		    		return;
 		    	}
 		    	String from = intent.getStringExtra("from_nick");
-		    	String msg = intent.getStringExtra("msg");
+		    	String msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(intent.getStringExtra("msg"))).toString();
 		    	String chan = intent.getStringExtra("chan");
 		    	if(chan == null)
 		    		chan = "";
@@ -56,9 +56,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 		    	Notifications.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type);
 		    	
 				if(buffer_type.equals("channel"))
-					Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + ColorFormatter.html_to_spanned(msg));
+					Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
 				else
-					Notifications.getInstance().showNotifications(from + ": " + ColorFormatter.html_to_spanned(msg));
+					Notifications.getInstance().showNotifications(from + ": " + msg);
 	    	} catch (Exception e) {
 	    		e.printStackTrace();
 	    		Log.w("IRCCloud", "Unable to parse GCM message");
