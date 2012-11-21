@@ -293,13 +293,14 @@ public class EventsDataSource {
 	    		JsonArray lines = event.getJsonArray("lines");
     			e.from = "";
 	    		if(lines != null) {
-	    			e.msg = "<pre>";
+	    			StringBuilder builder = new StringBuilder("<pre>");
 	    			if(event.has("start"))
-	    				e.msg += event.getString("start") + "<br/>";
+	    				builder.append(event.getString("start") + "<br/>");
 	    			for(int i = 0; i < lines.size(); i++) {
-	    				e.msg += TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;") + "<br/>";
+	    				builder.append(TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;") + "<br/>");
 	    			}
-	    			e.msg += "</pre>";
+	    			builder.append("</pre>");
+	    			e.msg = builder.toString();
 	    		}
 	    		e.bg_color = R.color.self;
 	    	} else if(e.type.equalsIgnoreCase("notice")) {
