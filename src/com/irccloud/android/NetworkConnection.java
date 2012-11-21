@@ -26,7 +26,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -132,6 +135,21 @@ public class NetworkConnection {
 		return instance;
 	}
 
+	BroadcastReceiver connectivityListener = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo ni = cm.getActiveNetworkInfo();
+			if(ni != null && ni.isConnected() && state == STATE_DISCONNECTED && reconnect_timestamp > 0) {
+				if(idleTimer != null)
+					idleTimer.cancel();
+				idleTimer = null;
+				connect(session);
+			}
+		}
+	};
+	
 	@SuppressWarnings("deprecation")
 	public NetworkConnection() {
 		String version;
@@ -180,6 +198,7 @@ public class NetworkConnection {
 		if(wifiLock.isHeld())
 			wifiLock.release();
 		reconnect_timestamp = 0;
+		IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
 	}
 	
 	public JSONObject login(String email, String password) throws IOException {
@@ -214,6 +233,10 @@ public class NetworkConnection {
 		session = sk;
 		if(!wifiLock.isHeld())
 			wifiLock.acquire();
+		
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+		IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
 		
 		List<BasicNameValuePair> extraHeaders = Arrays.asList(
 		    new BasicNameValuePair("Cookie", "session="+session),
