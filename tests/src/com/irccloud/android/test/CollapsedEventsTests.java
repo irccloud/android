@@ -61,6 +61,13 @@ public class CollapsedEventsTests extends TestCase {
 		assertEquals("↔ <b>sam</b> popped in", list.getCollapsedMessage());
 	}
 
+	public void testJoinJoin() {
+		CollapsedEventsList list = new CollapsedEventsList();
+		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null);
+		list.addEvent(CollapsedEventsList.TYPE_JOIN, "james", null, "james@example.net", null, null);
+		assertEquals("→ <b>james</b> and <b>sam</b> joined", list.getCollapsedMessage());
+	}
+
 	public void testJoinQuit2() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null);

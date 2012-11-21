@@ -152,7 +152,7 @@ public class CollapsedEventsList {
 	}
 	
 	public String formatNick(String nick, String from_mode) {
-		String output = "";
+		StringBuilder output = new StringBuilder();
 		boolean showSymbol = false;
 		try {
 			if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null)
@@ -166,83 +166,83 @@ public class CollapsedEventsList {
 		if(mode != null && mode.length() > 0) {
 			if(showSymbol) {
 				if(mode.contains("q"))
-					output += "\u0004E7AA00\u0002~\u000f ";
+					output.append("\u0004E7AA00\u0002~\u000f ");
 				else if(mode.contains("a"))
-					output += "\u00046500A5\u0002&amp;\u000f ";
+					output.append("\u00046500A5\u0002&amp;\u000f ");
 				else if(mode.contains("o"))
-					output += "\u0004BA1719\u0002@\u000f ";
+					output.append("\u0004BA1719\u0002@\u000f ");
 				else if(mode.contains("h"))
-					output += "\u0004B55900\u0002%\u000f ";
+					output.append("\u0004B55900\u0002%\u000f ");
 				else if(mode.contains("v"))
-					output += "\u000425B100\u0002+\u000f ";
+					output.append("\u000425B100\u0002+\u000f ");
 			} else {
 				if(mode.contains("q"))
-					output += "\u0004E7AA00\u0002•\u000f ";
+					output.append("\u0004E7AA00\u0002•\u000f ");
 				else if(mode.contains("a"))
-					output += "\u00046500A5\u0002•\u000f ";
+					output.append("\u00046500A5\u0002•\u000f ");
 				else if(mode.contains("o"))
-					output += "\u0004BA1719\u0002•\u000f ";
+					output.append("\u0004BA1719\u0002•\u000f ");
 				else if(mode.contains("h"))
-					output += "\u0004B55900\u0002•\u000f ";
+					output.append("\u0004B55900\u0002•\u000f ");
 				else if(mode.contains("v"))
-					output += "\u000425B100\u0002•\u000f ";
+					output.append("\u000425B100\u0002•\u000f ");
 			}
 		}
 		
-		output += nick;
-		return output;
+		output.append(nick);
+		return output.toString();
 	}
 	
 	private String was(CollapsedEvent e) {
-		String was = "";
+		StringBuilder was = new StringBuilder();
 		
 		if(e.old_nick != null && e.type != TYPE_MODE)
-			was += "was " + e.old_nick;
+			was.append("was ").append(e.old_nick);
 		if(e.mode > 0) {
 			if(was.length() > 0)
-				was += "; ";
+				was.append("; ");
 			switch(e.mode) {
 			case MODE_OWNER:
-				was += "promoted to owner";
+				was.append("promoted to owner");
 				break;
 			case MODE_DEOWNER:
-				was += "demoted from owner";
+				was.append("demoted from owner");
 				break;
 			case MODE_ADMIN:
-				was += "promoted to admin";
+				was.append("promoted to admin");
 				break;
 			case MODE_DEADMIN:
-				was += "demoted from admin";
+				was.append("demoted from admin");
 				break;
 			case MODE_OP:
-				was += "opped";
+				was.append("opped");
 				break;
 			case MODE_DEOP:
-				was += "de-opped";
+				was.append("de-opped");
 				break;
 			case MODE_HALFOP:
-				was += "halfopped";
+				was.append("halfopped");
 				break;
 			case MODE_DEHALFOP:
-				was += "de-halfopped";
+				was.append("de-halfopped");
 				break;
 			case MODE_VOICE:
-				was += "voiced";
+				was.append("voiced");
 				break;
 			case MODE_DEVOICE:
-				was += "de-voiced";
+				was.append("de-voiced");
 				break;
 			}
 		}
 		
 		if(was.length() > 0)
-			was = " (" + was + ")";
+			was.insert(0, " (").append(")");
 		
-		return was;
+		return was.toString();
 	}
 	
 	public String getCollapsedMessage() {
-		String message = "";
+		StringBuilder message = new StringBuilder();
 
 		if(data.size() == 0)
 			return null;
@@ -251,67 +251,67 @@ public class CollapsedEventsList {
 			CollapsedEvent e = data.get(0);
 			switch(e.type) {
 			case TYPE_MODE:
-				message = "<b>" + formatNick(e.nick, e.target_mode) + "</b> was ";
+				message.append("<b>").append(formatNick(e.nick, e.target_mode)).append("</b> was ");
 				switch(e.mode) {
 					case MODE_OWNER:
-						message += "promoted to owner (\u0004E7AA00+q\u000f)";
+						message.append("promoted to owner (\u0004E7AA00+q\u000f)");
 						break;
 					case MODE_DEOWNER:
-						message += "demoted from owner (\u0004E7AA00-q\u000f)";
+						message.append("demoted from owner (\u0004E7AA00-q\u000f)");
 						break;
 					case MODE_ADMIN:
-						message += "promoted to admin (\u00046500A5+a\u000f)";
+						message.append("promoted to admin (\u00046500A5+a\u000f)");
 						break;
 					case MODE_DEADMIN:
-						message += "demoted from admin (\u00046500A5-a\u000f)";
+						message.append("demoted from admin (\u00046500A5-a\u000f)");
 						break;
 					case MODE_OP:
-						message += "opped (\u0004BA1719+o\u000f)";
+						message.append("opped (\u0004BA1719+o\u000f)");
 						break;
 					case MODE_DEOP:
-						message += "de-opped (\u0004BA1719-o\u000f)";
+						message.append("de-opped (\u0004BA1719-o\u000f)");
 						break;
 					case MODE_HALFOP:
-						message += "halfopped (\u0004B55900+h\u000f)";
+						message.append("halfopped (\u0004B55900+h\u000f)");
 						break;
 					case MODE_DEHALFOP:
-						message += "de-halfopped (\u0004B55900-h\u000f)";
+						message.append("de-halfopped (\u0004B55900-h\u000f)");
 						break;
 					case MODE_VOICE:
-						message += "voiced (\u000425B100+v\u000f)";
+						message.append("voiced (\u000425B100+v\u000f)");
 						break;
 					case MODE_DEVOICE:
-						message += "de-voiced (\u000425B100-v\u000f)";
+						message.append("de-voiced (\u000425B100-v\u000f)");
 						break;
 				}
 				if(e.old_nick != null)
-					message += " by " + formatNick(e.old_nick, e.from_mode);
+					message.append(" by ").append(formatNick(e.old_nick, e.from_mode));
 				break;
 			case TYPE_JOIN:
-	    		message = "→ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
-	    		message += " joined (" + e.hostmask + ")";
+	    		message.append("→ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append(" joined (").append(e.hostmask + ")");
 				break;
 			case TYPE_PART:
-	    		message = "← <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
-	    		message += " left (" + e.hostmask + ")";
+	    		message.append("← <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append(" left (").append(e.hostmask).append(")");
 				break;
 			case TYPE_QUIT:
-	    		message = "⇐ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
+	    		message.append("⇐ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
 	    		if(e.hostmask != null)
-	    			message += " quit (" + e.hostmask + ") " + e.msg;
+	    			message.append(" quit (").append(e.hostmask).append(") ").append(e.msg);
 	    		else
-	    			message += " quit: " + e.msg;
+	    			message.append(" quit: ").append(e.msg);
 				break;
 			case TYPE_NICKCHANGE:
-	    		message = e.old_nick + " → <b>" + formatNick(e.nick, e.from_mode) + "</b>";
+	    		message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode)).append("</b>");
 				break;
 			case TYPE_POPIN:
-	    		message = "↔ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
-	    		message += " popped in";
+	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append(" popped in");
 	    		break;
 			case TYPE_POPOUT:
-	    		message = "↔ <b>" + formatNick(e.nick, e.from_mode) + "</b>" + was(e);
-	    		message += " nipped out";
+	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append(" nipped out");
 	    		break;
 			}
 		} else {
@@ -332,79 +332,79 @@ public class CollapsedEventsList {
 				
 				if(message.length() > 0 && e.type < TYPE_NICKCHANGE && ((next == null || next.type != e.type) && last != null && last.type == e.type)) {
 					if(groupcount == 1)
-						message = message.substring(0, message.length() - 2) + " ";
-					message += "and ";
+						message.delete(message.length() - 2, message.length()).append(" ");
+					message.append("and ");
 				}
 				
 				if(last == null || last.type != e.type) {
 					switch(e.type) {
 					case TYPE_MODE:
 						if(message.length() > 0)
-							message += "• ";
-						message += "mode: ";
+							message.append("• ");
+						message.append("mode: ");
 						break;
 					case TYPE_JOIN:
-						message += "→ ";
+						message.append("→ ");
 						break;
 					case TYPE_PART:
-						message += "← ";
+						message.append("← ");
 						break;
 					case TYPE_QUIT:
-						message += "⇐ ";
+						message.append("⇐ ");
 						break;
 					case TYPE_NICKCHANGE:
 						if(message.length() > 0)
-							message += "• ";
+							message.append("• ");
 						break;
 					case TYPE_POPIN:
 					case TYPE_POPOUT:
-						message += "↔ ";
+						message.append("↔ ");
 						break;
 					}
 				}
 
 				if(e.type == TYPE_NICKCHANGE) {
-					message += e.old_nick + " → <b>" + formatNick(e.nick, e.from_mode) + "</b>";
+					message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode)).append("</b>");
 					String old_nick = e.old_nick;
 					e.old_nick = null;
-					message += was(e);
+					message.append(was(e));
 					e.old_nick = old_nick;
 				} else {
-					message += "<b>" + formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode) + "</b>" + was(e);
+					message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode)).append("</b>").append(was(e));
 				}
 				
 				if(next == null || next.type != e.type) {
 					switch(e.type) {
 					case TYPE_JOIN:
-						message += " joined";
+						message.append(" joined");
 						break;
 					case TYPE_PART:
-						message += " left";
+						message.append(" left");
 						break;
 					case TYPE_QUIT:
-						message += " quit";
+						message.append(" quit");
 						break;
 					case TYPE_POPIN:
-						message += " popped in";
+						message.append(" popped in");
 						break;
 					case TYPE_POPOUT:
-						message += " nipped out";
+						message.append(" nipped out");
 						break;
 					}
 				}
 
 				if(next != null && next.type == e.type) {
-					message += ", ";
+					message.append(", ");
 					groupcount++;
 				} else if(next != null) {
-					message += " ";
+					message.append(" ");
 					groupcount = 0;
 				}
 				
 				last = e;
 			}
 		}
-		return message;
+		return message.toString();
 	}
 	
 	public void clear() {
