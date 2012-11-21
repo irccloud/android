@@ -73,36 +73,37 @@ public class ColorFormatter {
 		int pos=0;
 		boolean bold=false, underline=false, italics=false;
 		String fg="", bg="";
+		StringBuilder builder = new StringBuilder(msg);
 		
-		while(pos < msg.length()) {
-			if(msg.charAt(pos) == 2) { //Bold
+		while(pos < builder.length()) {
+			if(builder.charAt(pos) == 2) { //Bold
 				String html = "";
 				if(bold)
 					html += "</b>";
 				else
 					html += "<b>";
 				bold = !bold;
-				msg = removeCharAtIndex(msg, pos);
-				msg = insertAtIndex(msg, pos, html);
-			} else if(msg.charAt(pos) == 16 || msg.charAt(pos) == 29) { //Italics
+				builder.deleteCharAt(pos);
+				builder.insert(pos, html);
+			} else if(builder.charAt(pos) == 16 || builder.charAt(pos) == 29) { //Italics
 				String html = "";
 				if(italics)
 					html += "</i>";
 				else
 					html += "<i>";
 				italics = !italics;
-				msg = removeCharAtIndex(msg, pos);
-				msg = insertAtIndex(msg, pos, html);
-			} else if(msg.charAt(pos) == 31) { //Underline
+				builder.deleteCharAt(pos);
+				builder.insert(pos, html);
+			} else if(builder.charAt(pos) == 31) { //Underline
 				String html = "";
 				if(underline)
 					html += "</u>";
 				else
 					html += "<u>";
 				underline = !underline;
-				msg = removeCharAtIndex(msg, pos);
-				msg = insertAtIndex(msg, pos, html);
-			} else if(msg.charAt(pos) == 15) { //Formatting clear
+				builder.deleteCharAt(pos);
+				builder.insert(pos, html);
+			} else if(builder.charAt(pos) == 15) { //Formatting clear
 				String html = "";
 				if(fg.length() > 0) {
 					html += "</font>";
@@ -124,55 +125,55 @@ public class ColorFormatter {
 					html += "</i>";
 					italics = false;
 				}
-				msg = removeCharAtIndex(msg, pos);
+				builder.deleteCharAt(pos);
 				if(html.length() > 0)
-					msg = insertAtIndex(msg, pos, html);
-			} else if(msg.charAt(pos) == 3 || msg.charAt(pos) == 4) { //Color
-				boolean rgb = (msg.charAt(pos) == 4);
+					builder.insert(pos, html);
+			} else if(builder.charAt(pos) == 3 || builder.charAt(pos) == 4) { //Color
+				boolean rgb = (builder.charAt(pos) == 4);
+				int count = 0;
 				String new_fg="", new_bg="";
-				String v = "";
-				msg = removeCharAtIndex(msg, pos);
-				if(pos < msg.length()) {
-					while(pos < msg.length() && (
-							(msg.charAt(pos) >= '0' && msg.charAt(pos) <= '9') ||
-							rgb && ((msg.charAt(pos) >= 'a' && msg.charAt(pos) <= 'f') ||
-							(msg.charAt(pos) >= 'A' && msg.charAt(pos) <= 'F')))) {
-						v += msg.charAt(pos);
-	    				msg = removeCharAtIndex(msg, pos);
+				builder.deleteCharAt(pos);
+				if(pos < builder.length()) {
+					while(pos+count < builder.length() && (
+							(builder.charAt(pos+count) >= '0' && builder.charAt(pos+count) <= '9') ||
+							rgb && ((builder.charAt(pos+count) >= 'a' && builder.charAt(pos+count) <= 'f') ||
+							(builder.charAt(pos+count) >= 'A' && builder.charAt(pos+count) <= 'F')))) {
+						count++;
 					}
-					if(v.length() > 0) {
-						if(v.length() < 3 && !rgb) {
+					if(count > 0) {
+						if(count < 3 && !rgb) {
 							try {
-								new_fg = COLOR_MAP[Integer.parseInt(v)];
+								new_fg = COLOR_MAP[Integer.parseInt(builder.substring(pos, pos + count))];
 							} catch (NumberFormatException e) {
-		    					new_fg = v;
+		    					new_fg = builder.substring(pos, pos + count);
 							}
 						} else
-	    					new_fg = v;
+	    					new_fg = builder.substring(pos, pos + count);
+						builder.delete(pos, pos + count);
 					}
-					v="";
-					if(pos < msg.length() && msg.charAt(pos) == ',') {
-	    				msg = removeCharAtIndex(msg, pos);
+					if(pos < builder.length() && builder.charAt(pos) == ',') {
+						builder.deleteCharAt(pos);
 						if(new_fg.length() == 0)
 							new_fg = "clear";
 						new_bg = "clear";
-						while(pos < msg.length() && (
-								(msg.charAt(pos) >= '0' && msg.charAt(pos) <= '9') ||
-								rgb && ((msg.charAt(pos) >= 'a' && msg.charAt(pos) <= 'f') ||
-								(msg.charAt(pos) >= 'A' && msg.charAt(pos) <= 'F')))) {
-							v += msg.charAt(pos);
-		    				msg = removeCharAtIndex(msg, pos);
+						count = 0;
+						while(pos+count < builder.length() && (
+								(builder.charAt(pos+count) >= '0' && builder.charAt(pos+count) <= '9') ||
+								rgb && ((builder.charAt(pos+count) >= 'a' && builder.charAt(pos+count) <= 'f') ||
+								(builder.charAt(pos+count) >= 'A' && builder.charAt(pos+count) <= 'F')))) {
+							count++;
 						}
-	    				if(v.length() > 0) {
-							if(v.length() < 3 && !rgb) {
+						if(count > 0) {
+							if(count < 3 && !rgb) {
 								try {
-									new_bg = COLOR_MAP[Integer.parseInt(v)];
+									new_bg = COLOR_MAP[Integer.parseInt(builder.substring(pos, pos + count))];
 								} catch (NumberFormatException e) {
-			    					new_bg = v;
+			    					new_bg = builder.substring(pos, pos + count);
 								}
 							} else
-		    					new_bg = v;
-	    				}
+		    					new_bg = builder.substring(pos, pos + count);
+							builder.delete(pos, pos + count);
+						}
 					}
 					String html = "";
 					if(new_fg.length() == 0 && new_bg.length() == 0) {
@@ -205,38 +206,24 @@ public class ColorFormatter {
 							}
 						}
 					}
-					msg = insertAtIndex(msg, pos, html);
+					builder.insert(pos, html);
 				}
 			}
 			pos++;
 		}
 		if(fg.length() > 0) {
-			msg += "</font>";
+			builder.append("</font>");
 		}
 		if(bg.length() > 0) {
-			msg += "</_bg" + bg + ">";
+			builder.append("</_bg" + bg + ">");
 		}
 		if(bold)
-			msg += "</b>";
+			builder.append("</b>");
 		if(underline)
-			msg += "</u>";
+			builder.append("</u>");
 		if(italics)
-			msg += "</i>";
+			builder.append("</i>");
 
-		return msg;
+		return builder.toString();
 	}
-	
-    public static String insertAtIndex(String input, int index, String text) {
-    	String head = input.substring(0, index);
-    	String tail = input.substring(index, input.length());
-    	return head + text + tail;
-    }
-    
-    public static String removeCharAtIndex(String input, int index) {
-    	if(index >= input.length() - 1)
-        	return input.substring(0, input.length() - 1);
-    	else
-    		return input.substring(0, index) + input.substring(index+1, input.length());
-    }
-
 }
