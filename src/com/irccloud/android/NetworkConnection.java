@@ -599,6 +599,37 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int ns_help_register(int cid) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", ++last_reqid);
+			o.put("_method", "ns-help-register");
+			o.put("cid", cid);
+			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: ns-help-register");
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
+	public int set_nspass(int cid, String nspass) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", ++last_reqid);
+			o.put("_method", "set-nspass");
+			o.put("cid", cid);
+			o.put("nspass", nspass);
+			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: set-nspass");
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
@@ -678,6 +709,7 @@ public class NetworkConnection {
 				if(userInfo != null)
 					userInfo.num_invites = object.getInt("num_invites");
 			} else if(type.equalsIgnoreCase("stat_user")) {
+				Log.i("IRCCloud", object.toString());
 				userInfo = new UserInfo(object);
 				SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
 				prefs.putString("name", userInfo.name);
@@ -801,7 +833,7 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("notice") || type.equalsIgnoreCase("server_welcome") || type.equalsIgnoreCase("server_motd") || type.equalsIgnoreCase("server_endofmotd") || type.equalsIgnoreCase("services_down") || type.equalsIgnoreCase("your_unique_id") || type.equalsIgnoreCase("callerid")
 					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns") || type.equalsIgnoreCase("myinfo") || type.equalsIgnoreCase("hidden_host_set") || type.equalsIgnoreCase("unhandled_line") || type.equalsIgnoreCase("unparsed_line")
 					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local") || type.equalsIgnoreCase("server_luserchannels") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("nickname_in_use") || type.equalsIgnoreCase("channel_invite")
-					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown") || type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("channel_mode_list_change")
+					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown") || type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("channel_mode_list_change") || type.equalsIgnoreCase("msg_services")
 					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				EventsDataSource.Event event = e.addEvent(object);

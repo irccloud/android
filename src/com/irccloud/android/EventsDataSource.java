@@ -179,6 +179,9 @@ public class EventsDataSource {
 	    		e.from = "";
 	    		e.msg = "Cancelled";
 	    		e.bg_color = R.color.error;
+	    	} else if(e.type.equalsIgnoreCase("msg_services")) {
+	    		e.from = "";
+	    		e.bg_color = R.color.error;
 	    	} else if(e.type.equalsIgnoreCase("connecting_failed")) {
 				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
 				e.color = R.color.timestamp;
@@ -207,7 +210,7 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("user_mode")) {
 	    		e.from = "";
-	    		e.msg = "Your user mode is: <b>" + event.getString("diff") + "</b>";
+	    		e.msg = "Your user mode is: <b>" + event.getString("newmode") + "</b>";
 	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("your_unique_id")) {
 	    		e.from = "";

@@ -1133,6 +1133,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	AlertDialog dialog;
     	
         switch (item.getItemId()) {
+	        case R.id.menu_identify:
+	        	NickservFragment nsFragment = new NickservFragment();
+	        	nsFragment.setCid(cid);
+	            nsFragment.show(getSupportFragmentManager(), "nickserv");
+	            break;
 	        case R.id.menu_add_network:
 	        	EditConnectionFragment connFragment = new EditConnectionFragment();
 	            connFragment.show(getSupportFragmentManager(), "addnetwork");

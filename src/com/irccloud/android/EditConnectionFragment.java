@@ -197,6 +197,17 @@ public class EditConnectionFragment extends DialogFragment {
 			ssl.setChecked(default_port == 6697);
 			if(default_channels != null)
 				channels.setText(default_channels);
+			if(NetworkConnection.getInstance().getUserInfo() != null) {
+				String name = NetworkConnection.getInstance().getUserInfo().name;
+				String nick;
+				if(name.contains(" ")) {
+					nick = name.substring(0, name.indexOf(" "));
+				} else {
+					nick = name;
+				}
+				realname.setText(name);
+				nickname.setText(nick.toLowerCase());
+			}
 		}
 	}
 	
