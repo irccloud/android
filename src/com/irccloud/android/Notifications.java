@@ -539,13 +539,17 @@ public class Notifications extends SQLiteOpenHelper {
         .setLights(0xFF0000FF, 500, 1000)
         .setSmallIcon(R.drawable.ic_launcher);
 
-		if(ticker != null) {
+		if(ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
 			if(prefs.getBoolean("notify_vibrate", true))
 				builder.setDefaults(android.app.Notification.DEFAULT_VIBRATE);
 			if(prefs.getBoolean("notify_sound", true))
 				builder.setSound(Uri.parse("android.resource://com.irccloud.android/"+R.raw.digit));
 		}
 
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putLong("lastNotificationTime", System.currentTimeMillis());
+		editor.commit();
+		
 		if(count == 1)
 			builder.setOnlyAlertOnce(true);
 		
