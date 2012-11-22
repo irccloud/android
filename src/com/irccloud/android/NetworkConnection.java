@@ -709,7 +709,6 @@ public class NetworkConnection {
 				if(userInfo != null)
 					userInfo.num_invites = object.getInt("num_invites");
 			} else if(type.equalsIgnoreCase("stat_user")) {
-				Log.i("IRCCloud", object.toString());
 				userInfo = new UserInfo(object);
 				SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
 				prefs.putString("name", userInfo.name);

@@ -1,7 +1,6 @@
 package com.irccloud.android;
 
 import android.annotation.SuppressLint;
-import android.os.Debug;
 import android.text.TextUtils;
 import android.util.Log;
 
