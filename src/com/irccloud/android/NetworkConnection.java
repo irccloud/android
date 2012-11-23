@@ -110,6 +110,7 @@ public class NetworkConnection {
 	public static final int EVENT_INVALIDNICK = 30;
 	public static final int EVENT_BANLIST = 31;
 	public static final int EVENT_WHOLIST = 32;
+	public static final int EVENT_WHOIS = 33;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -630,6 +631,24 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int whois(int cid, String nick, String server) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", ++last_reqid);
+			o.put("_method", "whois");
+			o.put("cid", cid);
+			o.put("nick", nick);
+			if(server != null)
+				o.put("server", server);
+			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: whois");
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
@@ -764,6 +783,9 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("who_response")) {
 				if(!backlog)
 					notifyHandlers(EVENT_WHOLIST, object);
+			} else if(type.equalsIgnoreCase("whois_response")) {
+				if(!backlog)
+					notifyHandlers(EVENT_WHOIS, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),

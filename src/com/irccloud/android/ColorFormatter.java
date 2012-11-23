@@ -109,7 +109,7 @@ public class ColorFormatter {
 	    		} else {
 	    			pattern += "#";
 	    		}
-	    		pattern += "]\\S+)\\s*";
+	    		pattern += "][0-9A-Za-z.]+)\\s*";
 	
 				Linkify.addLinks(output, Pattern.compile(pattern), null, null, new TransformFilter() {
 			        public final String transformUrl(final Matcher match, String url) {

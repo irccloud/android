@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.Message;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -64,7 +65,8 @@ public class BaseActivity extends SherlockFragmentActivity {
     	View view;
     	TextView prompt;
 		AlertDialog dialog;
-    	
+    	String message = "";
+		
 		public void handleMessage(Message msg) {
 			final IRCCloudJSONObject o;
 			final BuffersDataSource.Buffer b;
@@ -296,7 +298,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 						showAlert(o.cid(), "No nickname given");
 	        		else if(type.equalsIgnoreCase("silence")) {
 	        			String mask = o.getString("usermask");
-	        			String message = "";
 	        			if(mask.startsWith("-"))
 	        				message = mask.substring(1) + " removed from silence list";
 	        			else if(mask.startsWith("+"))
@@ -323,7 +324,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
 		AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
     	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
-			builder.setMessage(msg);
+		builder.setMessage(msg);
 		builder.setNegativeButton("Ok", new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {

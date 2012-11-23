@@ -768,6 +768,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
 			IRCCloudJSONObject event = null;
+			Bundle args = null;
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
@@ -792,7 +793,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			case NetworkConnection.EVENT_BANLIST:
 				event = (IRCCloudJSONObject)msg.obj;
 				if(event.getString("channel").equalsIgnoreCase(name)) {
-	            	Bundle args = new Bundle();
+	            	args = new Bundle();
 	            	args.putInt("cid", cid);
 	            	args.putInt("bid", bid);
 	            	args.putString("event", event.toString());
@@ -808,7 +809,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            break;
 			case NetworkConnection.EVENT_WHOLIST:
 				event = (IRCCloudJSONObject)msg.obj;
-            	Bundle args = new Bundle();
+            	args = new Bundle();
             	args.putString("event", event.toString());
             	WhoListFragment whoList = (WhoListFragment)getSupportFragmentManager().findFragmentByTag("wholist");
             	if(whoList == null) {
@@ -817,6 +818,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             		whoList.show(getSupportFragmentManager(), "wholist");
             	} else {
             		whoList.setArguments(args);
+            	}
+	            break;
+			case NetworkConnection.EVENT_WHOIS:
+				event = (IRCCloudJSONObject)msg.obj;
+            	args = new Bundle();
+            	args.putString("event", event.toString());
+            	WhoisFragment whois = (WhoisFragment)getSupportFragmentManager().findFragmentByTag("whois");
+            	if(whois == null) {
+            		whois = new WhoisFragment();
+            		whois.setArguments(args);
+            		whois.show(getSupportFragmentManager(), "whois");
+            	} else {
+            		whois.setArguments(args);
             	}
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
@@ -925,14 +939,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			case NetworkConnection.EVENT_DELETEBUFFER:
 				Integer id = (Integer)msg.obj;
 				if(msg.what==NetworkConnection.EVENT_DELETEBUFFER) {
-					Log.i("IRCCloud", "Back stack: " + backStack.toString() + " ID: " + id);
 					for(int i = 0; i < backStack.size(); i++) {
 						if(backStack.get(i).equals(id)) {
 							backStack.remove(i);
 							i--;
 						}
 					}
-					Log.i("IRCCloud", "Back stack: " + backStack.toString());
 				}
 				if(id == ((msg.what==NetworkConnection.EVENT_CONNECTIONDELETED)?cid:bid)) {
 		        	if(backStack != null && backStack.size() > 0) {
@@ -1140,6 +1152,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	AlertDialog dialog;
     	
         switch (item.getItemId()) {
+	        case R.id.menu_whois:
+	        	conn.whois(cid, name, null);
+	        	break;
 	        case R.id.menu_identify:
 	        	NickservFragment nsFragment = new NickservFragment();
 	        	nsFragment.setCid(cid);
@@ -1540,6 +1555,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			itemList.add("Copy Message");
 		
 		if(selected_user != null) {
+			itemList.add("Whois…");
 			itemList.add("Open");
 			itemList.add("Mention (double tap)");
 			itemList.add("Invite to a channel…");
@@ -1586,6 +1602,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message",text_to_copy);
 	    			    clipboard.setPrimaryClip(clip);
 	    			}
+	    		} else if(items[item].equals("Whois…")) {
+	    			conn.whois(cid, selected_user.nick, null);
 	    		} else if(items[item].equals("Open")) {
 		    		BuffersDataSource b = BuffersDataSource.getInstance();
 		    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, selected_user.nick);

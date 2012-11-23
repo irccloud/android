@@ -454,7 +454,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	((ListView)v.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				if(headerView != null) {
+				if(headerView != null && min_eid > 0) {
 					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1 && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 						requestingBacklog = true;
 						conn.request_backlog(cid, bid, earliest_eid);
@@ -584,7 +584,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						refreshTask = new RefreshTask();
 						refreshTask.execute((Void)null);
 					} else {
-						if(bid == -1) {
+						if(bid == -1 || min_eid == 0) {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
