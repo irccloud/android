@@ -24,6 +24,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -177,9 +178,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
 	            	builder.setTitle("Channel Topic");
 	            	if(c.topic_text.length() > 0) {
-	            		final SpannableString s = new SpannableString(c.topic_text);
-	            		Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
-	            		builder.setMessage(s);
+	            		builder.setMessage(ColorFormatter.html_to_spanned(TextUtils.htmlEncode(c.topic_text), true, ServersDataSource.getInstance().getServer(cid)));
 	            	} else
 	            		builder.setMessage("No topic set.");
 	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
@@ -197,10 +196,18 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							editTopic();
 						}
 	            	});
-		    		AlertDialog dialog = builder.create();
+		    		final AlertDialog dialog = builder.create();
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.show();
 		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+		    		((TextView)dialog.findViewById(android.R.id.message)).setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							dialog.dismiss();
+						}
+		    			
+		    		});
             	} else if(archived == 0 && subtitle.getText().length() > 0){
             		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
 	            	builder.setTitle(title.getText().toString());

@@ -388,55 +388,12 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(holder.message != null && e.html != null) {
 				holder.message.setMovementMethod(LinkMovementMethod.getInstance());
 				holder.message.setOnClickListener(new OnItemClickListener(position));
-				Spannable html = (Spannable)ColorFormatter.html_to_spanned(e.html);
-				if(e.linkify) {
-					Linkify.addLinks(html, Patterns.WEB_URL, "http://", new MatchFilter() {
-				        public final boolean acceptMatch(CharSequence s, int start, int end) {
-				        	if(start > 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
-				        		return false;
-				        	if(start > 7 && s.subSequence(start - 7, end).toString().startsWith("ircs://"))
-				        		return false;
-				        	if(s.subSequence(start, end).toString().startsWith("https://"))
-				        		return false;
-				        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
-				        }
-				    }, null);
-					Linkify.addLinks(html, Pattern.compile("https://\\S+"), null, null, null);
-					Linkify.addLinks(html, Patterns.EMAIL_ADDRESS, "mailto:");
-					Linkify.addLinks(html, Pattern.compile("ircs?://\\S+"), null, null, new TransformFilter() {
-				        public final String transformUrl(final Matcher match, String url) {
-				            return url.replace("#", "%23");
-				        }
-				    });
-		    		
-					String pattern = "(\\s+|^)([";
-		    		if(mServer != null && mServer.isupport != null && mServer.isupport.get("CHANTYPES") != null) {
-		    			pattern += mServer.isupport.get("CHANTYPES").getAsString();
-		    		} else {
-		    			pattern += "#";
-		    		}
-		    		pattern += "]\\S+)\\s*";
-
-					Linkify.addLinks(html, Pattern.compile(pattern), null, null, new TransformFilter() {
-				        public final String transformUrl(final Matcher match, String url) {
-				        	String channel = match.group(2);
-				        	try {
-				        		channel = URLEncoder.encode(channel, "UTF-8");
-							} catch (UnsupportedEncodingException e) {
-							}
-							if(mServer.ssl > 0)
-								return "ircs://" + mServer.hostname + ":" + mServer.port + "/" + channel;
-							else
-								return "irc://" + mServer.hostname + ":" + mServer.port + "/" + channel;
-				        }
-				    });
-				}
 				if(e.msg != null && e.msg.startsWith("<pre>"))
 					holder.message.setTypeface(Typeface.MONOSPACE);
 				else
 					holder.message.setTypeface(Typeface.DEFAULT);
 				holder.message.setTextColor(getResources().getColorStateList(e.color));
-				holder.message.setText(html);
+				holder.message.setText(ColorFormatter.html_to_spanned(e.html, e.linkify, mServer));
 			}
 			
 			return row;
