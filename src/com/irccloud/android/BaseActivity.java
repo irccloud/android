@@ -367,9 +367,13 @@ public class BaseActivity extends SherlockFragmentActivity {
                         Intent.FLAG_ACTIVITY_NEW_TASK);
         		startActivity(i);
         		finish();
-                GCMRegistrar.checkDevice(this);
-                GCMRegistrar.checkManifest(this);
-                GCMRegistrar.unregister(this);
+        		try {
+	                GCMRegistrar.checkDevice(this);
+	                GCMRegistrar.checkManifest(this);
+	                GCMRegistrar.unregister(this);
+        		} catch (Exception e) {
+        			//GCM might not be available on the device
+        		}
             	break;
             case R.id.menu_settings:
         		i = new Intent(this, PreferencesActivity.class);

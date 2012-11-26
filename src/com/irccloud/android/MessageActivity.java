@@ -256,16 +256,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	status = savedInstanceState.getString("status");
         	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
-        if(getSharedPreferences("prefs", 0).contains("session_key")) {
-	        GCMRegistrar.checkDevice(this);
-	        GCMRegistrar.checkManifest(this);
-	        final String regId = GCMRegistrar.getRegistrationId(this);
-	        if (regId.equals("")) {
-	        	GCMRegistrar.register(this, GCMIntentService.GCM_ID);
-	        } else {
-	        	if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
-	        		GCMIntentService.scheduleRegisterTimer(30000);
+        try {
+	        if(getSharedPreferences("prefs", 0).contains("session_key")) {
+		        GCMRegistrar.checkDevice(this);
+		        GCMRegistrar.checkManifest(this);
+		        final String regId = GCMRegistrar.getRegistrationId(this);
+		        if (regId.equals("")) {
+		        	GCMRegistrar.register(this, GCMIntentService.GCM_ID);
+		        } else {
+		        	if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
+		        		GCMIntentService.scheduleRegisterTimer(30000);
+		        }
 	        }
+        } catch (Exception e) {
+        	//GCM might not be available on the device
         }
     }
 
