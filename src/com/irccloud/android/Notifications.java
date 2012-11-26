@@ -537,7 +537,7 @@ public class Notifications extends SQLiteOpenHelper {
 		.setContentTitle(title)
 		.setContentText(text)
         .setLights(0xFF0000FF, 500, 1000)
-        .setSmallIcon(R.drawable.ic_launcher);
+        .setSmallIcon(R.drawable.ic_stat_notify);
 
 		if(ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
 			if(prefs.getBoolean("notify_vibrate", true))
