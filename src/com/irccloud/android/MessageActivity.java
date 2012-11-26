@@ -1272,7 +1272,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				conn.say(cid, name, "/topic " + input.getText().toString());
+				conn.topic(cid, name, input.getText().toString());
 				dialog.dismiss();
 			}
 		});

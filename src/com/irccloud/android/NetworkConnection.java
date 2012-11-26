@@ -649,6 +649,23 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int topic(int cid, String channel, String topic) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", ++last_reqid);
+			o.put("_method", "topic");
+			o.put("cid", cid);
+			o.put("channel", channel);
+			o.put("topic", topic);
+			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: topic");
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)
