@@ -10,7 +10,7 @@
         android:padding="6dp" >
 
         <TextView
-            android:id="@+id/userip"
+            android:id="@+id/extra"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
@@ -66,6 +66,32 @@
             android:layout_height="wrap_content" />
 
         <TextView
+            android:id="@+id/ownerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:text="Owner In"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/ownerChannels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+	    <TextView
+            android:id="@+id/adminTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:text="Admin In"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/adminChannels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
             android:id="@+id/opTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -79,6 +105,33 @@
             android:layout_height="wrap_content" />
 
         <TextView
+            android:id="@+id/halfopTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:text="Half-Operator In"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/halfopChannels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/voicedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:text="Voiced In"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/voicedChannels"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/channelsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
@@ -89,13 +142,6 @@
             android:id="@+id/channels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-
-        <TextView
-            android:id="@+id/secure"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="6dp"
-            android:textStyle="bold" />
         
 	</LinearLayout>
 </ScrollView>

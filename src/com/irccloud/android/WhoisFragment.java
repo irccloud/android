@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -19,7 +18,8 @@ import com.google.gson.JsonArray;
 
 public class WhoisFragment extends SherlockDialogFragment {
 	IRCCloudJSONObject event;
-	TextView userip, name, mask, server, time, timeTitle, channels, opChannels, opTitle, secure;
+	TextView extra, name, mask, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
+		ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle;
 	
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -29,12 +29,30 @@ public class WhoisFragment extends SherlockDialogFragment {
 
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.dialog_whois, null);
-    	userip = (TextView)v.findViewById(R.id.userip);
+    	extra = (TextView)v.findViewById(R.id.extra);
     	name = (TextView)v.findViewById(R.id.name);
     	mask = (TextView)v.findViewById(R.id.mask);
     	server = (TextView)v.findViewById(R.id.server);
     	timeTitle = (TextView)v.findViewById(R.id.timeTitle);
     	time = (TextView)v.findViewById(R.id.time);
+    	ownerTitle = (TextView)v.findViewById(R.id.ownerTitle);
+    	ownerChannels = (TextView)v.findViewById(R.id.ownerChannels);
+    	ownerChannels.setMovementMethod(LinkMovementMethod.getInstance());
+    	ownerChannels.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getDialog().dismiss();
+			}
+    	});
+    	adminTitle = (TextView)v.findViewById(R.id.adminTitle);
+    	adminChannels = (TextView)v.findViewById(R.id.adminChannels);
+    	adminChannels.setMovementMethod(LinkMovementMethod.getInstance());
+    	adminChannels.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getDialog().dismiss();
+			}
+    	});
     	opTitle = (TextView)v.findViewById(R.id.opTitle);
     	opChannels = (TextView)v.findViewById(R.id.opChannels);
     	opChannels.setMovementMethod(LinkMovementMethod.getInstance());
@@ -44,6 +62,25 @@ public class WhoisFragment extends SherlockDialogFragment {
 				getDialog().dismiss();
 			}
     	});
+    	halfopTitle = (TextView)v.findViewById(R.id.halfopTitle);
+    	halfopChannels = (TextView)v.findViewById(R.id.halfopChannels);
+    	halfopChannels.setMovementMethod(LinkMovementMethod.getInstance());
+    	halfopChannels.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getDialog().dismiss();
+			}
+    	});
+    	voicedTitle = (TextView)v.findViewById(R.id.voicedTitle);
+    	voicedChannels = (TextView)v.findViewById(R.id.voicedChannels);
+    	voicedChannels.setMovementMethod(LinkMovementMethod.getInstance());
+    	voicedChannels.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				getDialog().dismiss();
+			}
+    	});
+    	channelsTitle = (TextView)v.findViewById(R.id.channelsTitle);
     	channels = (TextView)v.findViewById(R.id.channels);
     	channels.setMovementMethod(LinkMovementMethod.getInstance());
     	channels.setOnClickListener(new OnClickListener() {
@@ -52,7 +89,6 @@ public class WhoisFragment extends SherlockDialogFragment {
 				getDialog().dismiss();
 			}
     	});
-    	secure = (TextView)v.findViewById(R.id.secure);
         if(savedInstanceState != null && savedInstanceState.containsKey("event")) {
         	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
         }
@@ -97,11 +133,34 @@ public class WhoisFragment extends SherlockDialogFragment {
     	super.onResume();
     	
     	if(event != null) {
+    		String nick = event.getString("user_nick");
+    		String extratxt = "";
+    		if(event.has("stats_dline")) {
+    			extratxt += nick + " " + event.getString("stats_dline") + "\n";
+    		}
     		if(event.has("userip")) {
-    			userip.setVisibility(View.VISIBLE);
-    			userip.setText(event.getString("user_nick") + " " + event.getString("userip"));
+    			extratxt += nick + " " + event.getString("userip") + "\n";
+    		}
+    		if(event.has("bot_msg")) {
+    			extratxt += nick + " " + event.getString("bot_msg") + "\n";
+    		}
+    		if(event.has("cgi")) {
+    			extratxt += nick + " " + event.getString("cgi") + "\n";
+    		}
+    		if(event.has("help")) {
+    			extratxt += nick + " " + event.getString("help") + "\n";
+    		}
+    		if(event.has("vworld")) {
+    			extratxt += nick + " " + event.getString("vworld") + "\n";
+    		}
+    		if(event.has("secure")) {
+    			extratxt += nick + " " + event.getString("secure") + "\n";
+    		}
+    		if(extratxt.length() > 0) {
+    			extra.setVisibility(View.VISIBLE);
+    			extra.setText(extratxt.substring(0, extratxt.length() - 1));
     		} else {
-    			userip.setVisibility(View.GONE);
+    			extra.setVisibility(View.GONE);
     		}
     		String nametxt = event.getString("user_realname");
     		if(event.has("user_logged_in_as") && event.getString("user_logged_in_as").length() > 0) {
@@ -124,24 +183,21 @@ public class WhoisFragment extends SherlockDialogFragment {
     			timeTitle.setVisibility(View.GONE);
     			time.setVisibility(View.GONE);
     		}
-    		if(event.has("channels_op")) {
-    			opTitle.setVisibility(View.VISIBLE);
-    			opChannels.setVisibility(View.VISIBLE);
-	    		String channelstxt = "";
-	    		JsonArray c = event.getJsonArray("channels_op");
-	    		for(int i = 0; i < c.size(); i++) {
-	    			String chan = c.get(i).getAsString();
-	    			if(i > 0)
-	    				channelstxt += ", ";
-	    			channelstxt += chan;
-	    		}
-	    		opChannels.setText(ColorFormatter.html_to_spanned(channelstxt, true, ServersDataSource.getInstance().getServer(event.cid())));
-    		} else {
-    			opTitle.setVisibility(View.GONE);
-    			opChannels.setVisibility(View.GONE);
-    		}
+    		buildChannelList("channels_owner", ownerTitle, ownerChannels);
+    		buildChannelList("channels_admin", adminTitle, adminChannels);
+    		buildChannelList("channels_op", opTitle, opChannels);
+    		buildChannelList("channels_halfop", halfopTitle, halfopChannels);
+    		buildChannelList("channels_voiced", voicedTitle, voicedChannels);
+    		buildChannelList("channels_member", channelsTitle, channels);
+    	}
+    }
+    
+    private void buildChannelList(String field, TextView title, TextView channels) {
+		if(event.has(field)) {
+			title.setVisibility(View.VISIBLE);
+			channels.setVisibility(View.VISIBLE);
     		String channelstxt = "";
-    		JsonArray c = event.getJsonArray("channels_member");
+    		JsonArray c = event.getJsonArray(field);
     		for(int i = 0; i < c.size(); i++) {
     			String chan = c.get(i).getAsString();
     			if(i > 0)
@@ -149,12 +205,9 @@ public class WhoisFragment extends SherlockDialogFragment {
     			channelstxt += chan;
     		}
     		channels.setText(ColorFormatter.html_to_spanned(channelstxt, true, ServersDataSource.getInstance().getServer(event.cid())));
-    		if(event.has("secure")) {
-    			secure.setVisibility(View.VISIBLE);
-    			secure.setText(event.getString("user_nick") + " " + event.getString("secure"));
-    		} else {
-    			secure.setVisibility(View.GONE);
-    		}
-    	}
+		} else {
+			title.setVisibility(View.GONE);
+			channels.setVisibility(View.GONE);
+		}
     }
 }
