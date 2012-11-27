@@ -103,7 +103,7 @@ public class ColorFormatter {
     		
 			
 			if(server != null) {
-				String pattern = "(\\s+|^)([";
+				String pattern = "\\B([";
 	    		if(server.isupport != null && server.isupport.get("CHANTYPES") != null) {
 	    			pattern += server.isupport.get("CHANTYPES").getAsString();
 	    		} else {
@@ -113,7 +113,7 @@ public class ColorFormatter {
 	
 				Linkify.addLinks(output, Pattern.compile(pattern), null, null, new TransformFilter() {
 			        public final String transformUrl(final Matcher match, String url) {
-			        	String channel = match.group(2);
+			        	String channel = match.group(1);
 			        	try {
 			        		channel = URLEncoder.encode(channel, "UTF-8");
 						} catch (UnsupportedEncodingException e) {
