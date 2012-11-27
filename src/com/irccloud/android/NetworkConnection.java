@@ -111,6 +111,7 @@ public class NetworkConnection {
 	public static final int EVENT_BANLIST = 31;
 	public static final int EVENT_WHOLIST = 32;
 	public static final int EVENT_WHOIS = 33;
+	public static final int EVENT_LINKCHANNEL = 34;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -724,7 +725,7 @@ public class NetworkConnection {
 	private void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
 		cancel_idle_timer();
 		//Log.d(TAG, "New event: " + object);
-		if(!object.has("type")) { //TODO: This is probably a command response, parse it and send the result back up to the UI!
+		if(!object.has("type")) {
 			Log.d(TAG, "Response: " + object);
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
 				notifyHandlers(EVENT_FAILURE_MSG, object);
@@ -902,6 +903,11 @@ public class NetworkConnection {
 				
 				if(!backlog)
 					notifyHandlers(EVENT_BUFFERMSG, event);
+			} else if(type.equalsIgnoreCase("link_channel")) {
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog)
+					notifyHandlers(EVENT_LINKCHANNEL, object);
 			} else if(type.equalsIgnoreCase("channel_init")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				ChannelsDataSource.Channel channel = c.createChannel(object.getInt("cid"), object.getLong("bid"), object.getString("chan"),

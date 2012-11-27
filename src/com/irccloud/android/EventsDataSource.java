@@ -329,6 +329,10 @@ public class EventsDataSource {
 	    		e.highlight = true;
 	    		e.linkify = false;
 	    		e.hostmask = event.getString("usermask");
+	    	} else if(e.type.equalsIgnoreCase("link_channel")) {
+	    		e.from = "";
+	    		e.msg = "<pre>You tried to join " + event.getString("invalid_chan") + " but were forwarded to " + event.getString("valid_chan") + "</pre>";
+	    		e.bg_color = R.color.error;
 	    	}
 	    	
 	    	if(event.has("value")) {

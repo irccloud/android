@@ -69,7 +69,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 		
 		public void handleMessage(Message msg) {
 			final IRCCloudJSONObject o;
-			final BuffersDataSource.Buffer b;
+			BuffersDataSource.Buffer b;
 			ServersDataSource s;
 			ServersDataSource.Server server;
 			AlertDialog.Builder builder;
@@ -78,6 +78,13 @@ public class BaseActivity extends SherlockFragmentActivity {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				Log.i("IRCCloud", "New connection state: " + NetworkConnection.getInstance().getState());
 				break;
+			case NetworkConnection.EVENT_LINKCHANNEL:
+				o = (IRCCloudJSONObject)msg.obj;
+				if(cidToOpen == o.cid() && o.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
+					Log.d("IRCCloud", "Linked channel");
+					bufferToOpen = o.getString("valid_chan");
+					msg.obj = BuffersDataSource.getInstance().getBuffer(o.bid());
+				}
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				b = (BuffersDataSource.Buffer)msg.obj;
 				if(cidToOpen == b.cid && b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(getSupportActionBar().getTitle().toString())) {

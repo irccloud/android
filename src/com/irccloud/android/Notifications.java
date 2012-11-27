@@ -105,7 +105,7 @@ public class Notifications extends SQLiteOpenHelper {
 		}
 	}
 	
-	public SQLiteDatabase getSafeWritableDatabase() {
+	public synchronized SQLiteDatabase getSafeWritableDatabase() {
 		try {
 			writeSemaphore.acquire();
 		} catch (InterruptedException e) {
@@ -120,7 +120,7 @@ public class Notifications extends SQLiteOpenHelper {
 		}
 	}
 
-	public SQLiteDatabase getSafeReadableDatabase() {
+	public synchronized SQLiteDatabase getSafeReadableDatabase() {
 		try {
 			readSemaphore.acquire();
 			writeSemaphore.acquire();
@@ -132,11 +132,11 @@ public class Notifications extends SQLiteOpenHelper {
 		return d;
 	}
 	
-	public void releaseWriteableDatabase() {
+	public synchronized void releaseWriteableDatabase() {
 		writeSemaphore.release();
 	}
 	
-	public void releaseReadableDatabase() {
+	public synchronized void releaseReadableDatabase() {
 		writeSemaphore.release();
 		readSemaphore.release();
 	}
