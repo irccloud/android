@@ -75,6 +75,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private boolean shouldFadeIn = false;
 	ImageView upView;
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
+	private ShowNotificationsTask showNotificationsTask = null;
 	private ArrayList<Integer> backStack = new ArrayList<Integer>();
 	PowerManager.WakeLock screenLock = null;
 	private int launchBid = -1;
@@ -463,6 +464,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	Notifications.getInstance().excludeBid(params[0]);
 	    	if(params[0] > 0)
 	    		Notifications.getInstance().showNotifications(null);
+	    	showNotificationsTask = null;
 			return null;
 		}
     }
@@ -479,7 +481,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		if(ServersDataSource.getInstance().count() > 0 && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
     			Log.w("IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
     			Notifications.getInstance().deleteNotificationsForBid(new_bid);
-    			new ShowNotificationsTask().execute(bid);
+    			if(showNotificationsTask != null)
+    				showNotificationsTask.cancel(true);
+    			showNotificationsTask = new ShowNotificationsTask();
+    			showNotificationsTask.execute(bid);
     			return;
     		} else {
     	    	if(bid >= 0)
@@ -613,8 +618,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	invalidateOptionsMenu();
     	
-    	if(ServersDataSource.getInstance().count() > 0)
-    		new ShowNotificationsTask().execute(bid);
+    	if(ServersDataSource.getInstance().count() > 0) {
+			if(showNotificationsTask != null)
+				showNotificationsTask.cancel(true);
+			showNotificationsTask = new ShowNotificationsTask();
+			showNotificationsTask.execute(bid);
+    	}
    		sendBtn.setEnabled(messageTxt.getText().length() > 0);
    		if(Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
    			sendBtn.setAlpha(0.5f);
@@ -625,7 +634,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	super.onPause();
     	if(conn != null)
     		conn.removeHandler(mHandler);
-		new ShowNotificationsTask().execute(-1);
+		if(showNotificationsTask != null)
+			showNotificationsTask.cancel(true);
+		showNotificationsTask = new ShowNotificationsTask();
+		showNotificationsTask.execute(-1);
     }
 	
     private boolean open_uri(Uri uri) {
@@ -896,7 +908,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					bid = buffer.bid;
 			    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
 			    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
-		    		new ShowNotificationsTask().execute(bid);
+	    			if(showNotificationsTask != null)
+	    				showNotificationsTask.cancel(true);
+	    			showNotificationsTask = new ShowNotificationsTask();
+	    			showNotificationsTask.execute(bid);
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
@@ -1811,7 +1826,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	
 	    	updateUsersListFragmentVisibility();
 	    	invalidateOptionsMenu();
-	    	new ShowNotificationsTask().execute(bid);
+			if(showNotificationsTask != null)
+				showNotificationsTask.cancel(true);
+			showNotificationsTask = new ShowNotificationsTask();
+			showNotificationsTask.execute(bid);
 	    	if(upView != null)
 	    		new RefreshUpIndicatorTask().execute((Void)null);
 		}

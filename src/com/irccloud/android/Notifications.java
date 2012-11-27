@@ -105,7 +105,7 @@ public class Notifications extends SQLiteOpenHelper {
 		}
 	}
 	
-	public synchronized SQLiteDatabase getSafeWritableDatabase() {
+	public SQLiteDatabase getSafeWritableDatabase() {
 		try {
 			writeSemaphore.acquire();
 		} catch (InterruptedException e) {
@@ -120,7 +120,7 @@ public class Notifications extends SQLiteOpenHelper {
 		}
 	}
 
-	public synchronized SQLiteDatabase getSafeReadableDatabase() {
+	public SQLiteDatabase getSafeReadableDatabase() {
 		try {
 			readSemaphore.acquire();
 			writeSemaphore.acquire();
@@ -132,11 +132,11 @@ public class Notifications extends SQLiteOpenHelper {
 		return d;
 	}
 	
-	public synchronized void releaseWriteableDatabase() {
+	public void releaseWriteableDatabase() {
 		writeSemaphore.release();
 	}
 	
-	public synchronized void releaseReadableDatabase() {
+	public void releaseReadableDatabase() {
 		writeSemaphore.release();
 		readSemaphore.release();
 	}
@@ -249,7 +249,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 
-	public boolean isDismissed(int bid, long eid) {
+	public synchronized boolean isDismissed(int bid, long eid) {
 		boolean result = false;
 		SQLiteDatabase db;
 		if(isBatch())
@@ -270,7 +270,7 @@ public class Notifications extends SQLiteOpenHelper {
 		return result;
 	}
 	
-	public void dismiss(int bid, long eid) {
+	public synchronized void dismiss(int bid, long eid) {
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("bid", bid);
@@ -282,7 +282,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 	
-	public void addNetwork(int cid, String network) {
+	public synchronized void addNetwork(int cid, String network) {
 		SQLiteDatabase db = getSafeWritableDatabase();
 		ContentValues values = new ContentValues();
 		values.put("cid", cid);
@@ -293,7 +293,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 
-	public void deleteNetwork(int cid) {
+	public synchronized void deleteNetwork(int cid) {
 		SQLiteDatabase db = getSafeWritableDatabase();
 		db.delete(TABLE_NETWORKS, "cid = ?", new String[] {String.valueOf(cid)});
 		if(!isBatch())
@@ -301,7 +301,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 	
-	public void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
+	public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
 		if(isDismissed(bid, eid)) {
 			Log.d("IRCCloud", "This notification's EID has been dismissed, skipping...");
 			return;
@@ -345,7 +345,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 
-	public void deleteNotification(int cid, int bid, long eid) {
+	public synchronized void deleteNotification(int cid, int bid, long eid) {
 		SQLiteDatabase db = getSafeWritableDatabase();
 		db.delete(TABLE_NOTIFICATIONS, "cid = ? and bid = ? and eid = ?", new String[] {String.valueOf(cid), String.valueOf(bid), String.valueOf(eid)});
 		if(!isBatch())
@@ -353,7 +353,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 	
-	public void deleteOldNotifications(int bid, long last_seen_eid) {
+	public synchronized void deleteOldNotifications(int bid, long last_seen_eid) {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getOtherNotifications();
 		
@@ -372,7 +372,7 @@ public class Notifications extends SQLiteOpenHelper {
 		releaseWriteableDatabase();
 	}
 	
-	public void deleteNotificationsForBid(int bid) {
+	public synchronized void deleteNotificationsForBid(int bid) {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getOtherNotifications();
 		
@@ -454,7 +454,7 @@ public class Notifications extends SQLiteOpenHelper {
 		return n;
 	}
 	
-	public Notification getNotification(long eid) {
+	public synchronized Notification getNotification(long eid) {
 		Notification n = null;
 		SQLiteDatabase db;
 		if(isBatch())
@@ -474,7 +474,7 @@ public class Notifications extends SQLiteOpenHelper {
 		return n;
 	}
 	
-	public void excludeBid(int bid) {
+	public synchronized void excludeBid(int bid) {
 		excludeBid = -1;
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getOtherNotifications();
@@ -489,7 +489,7 @@ public class Notifications extends SQLiteOpenHelper {
 		excludeBid = bid;
 	}
 	
-	public void showNotifications(String ticker) {
+	public synchronized void showNotifications(String ticker) {
 		if(ServersDataSource.getInstance().count() > 0) {
 			ArrayList<Notification> notifications = getMessageNotifications();
 			for(Notification n : notifications) {
