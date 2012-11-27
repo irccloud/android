@@ -1,6 +1,8 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -9,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.irccloud.android.EventsDataSource.Event;
 import com.jakewharton.notificationcompat2.NotificationCompat2;
 
 import android.annotation.SuppressLint;
@@ -41,6 +44,17 @@ public class Notifications {
 		
 		public String toString() {
 			return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + "}";
+		}
+	}
+	
+	public class comparator implements Comparator<Notification> {
+		public int compare(Notification n1, Notification n2) {
+			if(n1.cid != n2.cid)
+				return Integer.valueOf(n1.cid).compareTo(n2.cid);
+			else if(n1.bid != n2.bid)
+				return Integer.valueOf(n1.bid).compareTo(n2.bid);
+			else
+				return Long.valueOf(n1.eid).compareTo(n2.eid);
 		}
 	}
 	
@@ -111,6 +125,7 @@ public class Notifications {
 					n.network = mNetworks.get(n.cid);
 					mNotifications.add(n);
 				}
+				Collections.sort(mNotifications, new comparator());
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -303,6 +318,7 @@ public class Notifications {
 		n.network = network;
 		
 		mNotifications.add(n);
+		Collections.sort(mNotifications, new comparator());
 		save();
 	}
 
