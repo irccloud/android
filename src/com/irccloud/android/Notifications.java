@@ -1,30 +1,33 @@
 package com.irccloud.android;
 
 import java.util.ArrayList;
-import java.util.concurrent.Semaphore;
+import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.jakewharton.notificationcompat2.NotificationCompat2;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
 
-public class Notifications extends SQLiteOpenHelper {
+public class Notifications {
 	public class Notification {
 		public int cid;
 		public int bid;
@@ -41,25 +44,12 @@ public class Notifications extends SQLiteOpenHelper {
 		}
 	}
 	
-	public class Network {
-		int cid;
-		String name;
-	}
+	private ArrayList<Notification> mNotifications = null;
+	private SparseArray<String> mNetworks = null;
+	private SparseArray<Long> mLastSeenEIDs = null;
+	private SparseArray<HashSet<Long>> mDismissedEIDs = null;
 	
-	public static final String TABLE_NOTIFICATIONS = "notifications";
-	public static final String TABLE_NETWORKS = "networks";
-	public static final String TABLE_LAST_SEEN_EIDS = "last_seen_eids";
-	public static final String TABLE_DISMISSED_EIDS = "dismissed_eids";
-
-	private static final String DATABASE_NAME = "notifications.db";
-	private static final int DATABASE_VERSION = 1;
-
 	private static Notifications instance = null;
-	private SQLiteDatabase batchDb;
-	
-	private Semaphore readSemaphore = new Semaphore(1);
-	private Semaphore writeSemaphore = new Semaphore(1);
-	
 	private int excludeBid = -1;
 	
 	public static Notifications getInstance() {
@@ -69,15 +59,144 @@ public class Notifications extends SQLiteOpenHelper {
 	}
 	
 	public Notifications() {
-		super(IRCCloudApplication.getInstance().getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
+		load();
 	}
 
+	private void load() {
+		mNotifications = new ArrayList<Notification>();
+		mNetworks = new SparseArray<String>();
+		mLastSeenEIDs = new SparseArray<Long>();
+		mDismissedEIDs = new SparseArray<HashSet<Long>>();
+
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+
+		if(prefs.contains("notifications_json")) {
+			try {
+				JSONArray array = new JSONArray(prefs.getString("networks_json", "{}"));
+				for(int i = 0; i < array.length(); i++) {
+					JSONObject o = array.getJSONObject(i);
+					mNetworks.put(o.getInt("cid"), o.getString("network"));
+				}
+				
+				array = new JSONArray(prefs.getString("lastseeneids_json", "{}"));
+				for(int i = 0; i < array.length(); i++) {
+					JSONObject o = array.getJSONObject(i);
+					mLastSeenEIDs.put(o.getInt("bid"), o.getLong("eid"));
+				}
+				
+				array = new JSONArray(prefs.getString("dismissedeids_json", "{}"));
+				for(int i = 0; i < array.length(); i++) {
+					JSONObject o = array.getJSONObject(i);
+					int bid = o.getInt("bid");
+					mDismissedEIDs.put(bid, new HashSet<Long>());
+					
+					JSONArray eids = o.getJSONArray("eids");
+					for(int j = 0; j < eids.length(); j++) {
+						mDismissedEIDs.get(bid).add(eids.getLong(j));
+					}
+				}
+				
+				array = new JSONArray(prefs.getString("notifications_json", "{}"));
+				for(int i = 0; i < array.length(); i++) {
+					JSONObject o = array.getJSONObject(i);
+					Notification n = new Notification();
+					n.bid = o.getInt("bid");
+					n.cid = o.getInt("cid");
+					n.eid = o.getLong("eid");
+					n.nick = o.getString("nick");
+					n.message = o.getString("message");
+					n.chan = o.getString("chan");
+					n.buffer_type = o.getString("buffer_type");
+					n.message_type = o.getString("message_type");
+					n.network = mNetworks.get(n.cid);
+					mNotifications.add(n);
+				}
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+	private Timer mSaveTimer = null;
+	
+	private void save() {
+		if(mSaveTimer != null)
+			mSaveTimer.cancel();
+		mSaveTimer = new Timer();
+		mSaveTimer.schedule(new TimerTask() {
+
+			@Override
+			public void run() {
+				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+				try {
+					JSONArray array = new JSONArray();
+					for(Notification n : mNotifications) {
+						JSONObject o = new JSONObject();
+						o.put("cid", n.cid);
+						o.put("bid", n.bid);
+						o.put("eid", n.eid);
+						o.put("nick", n.nick);
+						o.put("message", n.message);
+						o.put("chan", n.chan);
+						o.put("buffer_type", n.buffer_type);
+						o.put("message_type", n.message_type);
+						array.put(o);
+					}
+					editor.putString("notifications_json", array.toString());
+
+					array = new JSONArray();
+					for(int i = 0; i < mNetworks.size(); i++) {
+						int cid = mNetworks.keyAt(i);
+						String network = mNetworks.get(cid);
+						JSONObject o = new JSONObject();
+						o.put("cid", cid);
+						o.put("network", network);
+						array.put(o);
+					}
+					editor.putString("networks_json", array.toString());
+
+					array = new JSONArray();
+					for(int i = 0; i < mLastSeenEIDs.size(); i++) {
+						int bid = mLastSeenEIDs.keyAt(i);
+						long eid = mLastSeenEIDs.get(bid);
+						JSONObject o = new JSONObject();
+						o.put("bid", bid);
+						o.put("eid", eid);
+						array.put(o);
+					}
+					editor.putString("lastseeneids_json", array.toString());
+
+					array = new JSONArray();
+					for(int i = 0; i < mDismissedEIDs.size(); i++) {
+						JSONArray a = new JSONArray();
+						int bid = mDismissedEIDs.keyAt(i);
+						HashSet<Long> eids = mDismissedEIDs.get(bid);
+						for(long eid : eids) {
+							a.put(eid);
+						}
+						JSONObject o = new JSONObject();
+						o.put("bid", bid);
+						o.put("eids", a);
+						array.put(o);
+					}
+					editor.putString("dismissedeids_json", array.toString());
+
+					editor.commit();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				mSaveTimer = null;
+			}
+			
+		}, 1000);
+	}
+	
 	public void clearDismissed() {
-		SQLiteDatabase db = getSafeWritableDatabase();
-		db.delete(TABLE_DISMISSED_EIDS, null, null);
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		mDismissedEIDs.clear();
+		save();
 	}
 	
 	public void clear() {
@@ -91,214 +210,57 @@ public class Notifications extends SQLiteOpenHelper {
 	        		nm.cancel(n.bid);
 		        }
 			}
-			readSemaphore.acquire();
-			SQLiteDatabase db = getSafeWritableDatabase();
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NETWORKS);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_LAST_SEEN_EIDS);
-			onCreate(db);
-			db.close();
-			writeSemaphore.release();
-			readSemaphore.release();
-		} catch (InterruptedException e) {
+			mNotifications.clear();
+			mNetworks.clear();
+			mLastSeenEIDs.clear();
+			save();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public SQLiteDatabase getSafeWritableDatabase() {
-		try {
-			writeSemaphore.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return null;
-		}
-		if(batchDb != null)
-			return batchDb;
-		else {
-			SQLiteDatabase d = getWritableDatabase();
-			return d;
-		}
-	}
-
-	public SQLiteDatabase getSafeReadableDatabase() {
-		try {
-			readSemaphore.acquire();
-			writeSemaphore.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return null;
-		}
-		SQLiteDatabase d = getReadableDatabase();
-		return d;
-	}
-	
-	public void releaseWriteableDatabase() {
-		writeSemaphore.release();
-	}
-	
-	public void releaseReadableDatabase() {
-		writeSemaphore.release();
-		readSemaphore.release();
-	}
-	
-	public void beginBatch() {
-		try {
-			readSemaphore.acquire();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return;
-		}
-		Log.d("IRCCloud", "+++ Starting batch transactions");
-		batchDb = getWritableDatabase();
-		batchDb.execSQL("PRAGMA synchronous = OFF");
-		batchDb.beginTransaction();
-	}
-	
-	public void endBatch() {
-		Log.d("IRCCloud", "--- Batch transactions finished");
-		batchDb.setTransactionSuccessful();
-		batchDb.endTransaction();
-		batchDb.close();
-		batchDb = null;
-		readSemaphore.release();
-	}
-	
-	public boolean isBatch() {
-		return(batchDb != null);
-	}
-	
-	@Override
-	public void onCreate(SQLiteDatabase database) {
-		database.execSQL("create table " + TABLE_NOTIFICATIONS + " ("
-				+ "eid integer not null, "
-				+ "cid integer not null, "
-				+ "bid integer not null, "
-				+ "nick text not null, "
-				+ "message text not null, "
-				+ "chan text, "
-				+ "buffer_type text not null, "
-				+ "message_type text not null, "
-				+ "PRIMARY KEY(eid,bid));");
-		database.execSQL("create table " + TABLE_NETWORKS + " ("
-				+ "cid integer not null, "
-				+ "network text, "
-				+ "PRIMARY KEY(cid));");
-		database.execSQL("create table " + TABLE_LAST_SEEN_EIDS + " ("
-				+ "bid integer not null, "
-				+ "eid integer, "
-				+ "PRIMARY KEY(bid));");
-		database.execSQL("create table if not exists " + TABLE_DISMISSED_EIDS + " ("
-				+ "bid integer not null, "
-				+ "eid integer, "
-				+ "PRIMARY KEY(bid,eid));");
-	}
-
-	@Override
-	public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		onUpgrade(db,oldVersion,newVersion);
-	}
-
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_NETWORKS);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_LAST_SEEN_EIDS);
-		db.execSQL("DROP TABLE IF EXISTS " + TABLE_DISMISSED_EIDS);
-		onCreate(db);
 	}
 	
 	public long getLastSeenEid(int bid) {
-		long eid = -1;
-
-		SQLiteDatabase db;
-		if(isBatch())
-			db = batchDb;
+		if(mLastSeenEIDs.get(bid) != null)
+			return mLastSeenEIDs.get(bid);
 		else
-			db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_LAST_SEEN_EIDS, new String[] {"eid"}, "bid = " + bid, null, null, null, null);
-
-		if(cursor.moveToFirst()) {
-			eid = cursor.getLong(cursor.getColumnIndex("eid"));
-		}
-		cursor.close();
-		if(!isBatch()) {
-			db.close();
-			releaseReadableDatabase();
-		}
-		
-		return eid;
+			return -1;
 	}
 	
 	public synchronized void updateLastSeenEid(int bid, long eid) {
-		long last_eid = getLastSeenEid(bid);
-		SQLiteDatabase db = getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("bid", bid);
-		values.put("eid", eid);
-		
-		try {
-			if(last_eid > 0)
-				db.update(TABLE_LAST_SEEN_EIDS, values, "bid = " + bid, null);
-			else
-				db.insert(TABLE_LAST_SEEN_EIDS, null, values);
-		} catch (Exception e) {
-		}
-
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		mLastSeenEIDs.put(bid, eid);
+		save();
 	}
 
 	public synchronized boolean isDismissed(int bid, long eid) {
-		boolean result = false;
-		SQLiteDatabase db;
-		if(isBatch())
-			db = batchDb;
-		else
-			db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_DISMISSED_EIDS, new String[] {"eid"}, "bid = " + bid + " and eid = " + eid, null, null, null, null);
-
-		if(cursor.moveToFirst()) {
-			result = true;
+		if(mDismissedEIDs.get(bid) != null) {
+			for(Long e : mDismissedEIDs.get(bid)) {
+				if(e == eid)
+					return true;
+			}
 		}
-		cursor.close();
-		if(!isBatch()) {
-			db.close();
-			releaseReadableDatabase();
-		}
-		
-		return result;
+		return false;
 	}
 	
 	public synchronized void dismiss(int bid, long eid) {
-		SQLiteDatabase db = getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("bid", bid);
-		values.put("eid", eid);
-		db.insert(TABLE_DISMISSED_EIDS, null, values);
-		db.delete(TABLE_NOTIFICATIONS, "bid = ? and eid = ?", new String[] {String.valueOf(bid), String.valueOf(eid)});
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		if(mDismissedEIDs.get(bid) == null)
+			mDismissedEIDs.put(bid, new HashSet<Long>());
+		
+		mDismissedEIDs.get(bid).add(eid);
+		Notification n = getNotification(eid);
+		if(n != null)
+			mNotifications.remove(n);
+
+		save();
 	}
 	
 	public synchronized void addNetwork(int cid, String network) {
-		SQLiteDatabase db = getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("cid", cid);
-		values.put("network", network);
-		db.insert(TABLE_NETWORKS, null, values);
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		mNetworks.put(cid, network);
+		save();
 	}
 
 	public synchronized void deleteNetwork(int cid) {
-		SQLiteDatabase db = getSafeWritableDatabase();
-		db.delete(TABLE_NETWORKS, "cid = ?", new String[] {String.valueOf(cid)});
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		mNetworks.remove(cid);
+		save();
 	}
 	
 	public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
@@ -322,35 +284,36 @@ public class Notifications extends SQLiteOpenHelper {
 				+ "buffer_type: " + buffer_type + " "
 				+ "message_type: " + message_type + " "
 				);
-		Network network = getNetwork(cid);
+		String network = getNetwork(cid);
 		if(network != null)
-			Log.d("IRCCloud", "Name for network: " + network.name);
+			Log.d("IRCCloud", "Name for network: " + network);
 		else {
 			Log.w("IRCCloud", "No network name!");
 			addNetwork(cid, "Unknown Network");
 		}
-		SQLiteDatabase db = getSafeWritableDatabase();
-		ContentValues values = new ContentValues();
-		values.put("bid", bid);
-		values.put("cid", cid);
-		values.put("eid", eid);
-		values.put("nick", from);
-		values.put("message", message);
-		values.put("chan", chan);
-		values.put("buffer_type", buffer_type);
-		values.put("message_type", message_type);
-		db.insert(TABLE_NOTIFICATIONS, null, values);
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		Notification n = new Notification();
+		n.bid = bid;
+		n.cid = cid;
+		n.eid = eid;
+		n.nick = from;
+		n.message = message;
+		n.chan = chan;
+		n.buffer_type = buffer_type;
+		n.message_type = message_type;
+		n.network = network;
+		
+		mNotifications.add(n);
+		save();
 	}
 
 	public synchronized void deleteNotification(int cid, int bid, long eid) {
-		SQLiteDatabase db = getSafeWritableDatabase();
-		db.delete(TABLE_NOTIFICATIONS, "cid = ? and bid = ? and eid = ?", new String[] {String.valueOf(cid), String.valueOf(bid), String.valueOf(eid)});
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		for(Notification n : mNotifications) {
+			if(n.cid == cid && n.bid == bid && n.eid == eid) {
+				mNotifications.remove(n);
+				save();
+				return;
+			}
+		}
 	}
 	
 	public synchronized void deleteOldNotifications(int bid, long last_seen_eid) {
@@ -364,12 +327,25 @@ public class Notifications extends SQLiteOpenHelper {
 	        }
 		}
 		nm.cancel(bid);
-		SQLiteDatabase db = getSafeWritableDatabase();
-		db.delete(TABLE_NOTIFICATIONS, "bid = ? and eid <= ?", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)});
-		db.delete(TABLE_DISMISSED_EIDS, "bid = ? and eid <= ?", new String[] {String.valueOf(bid), String.valueOf(last_seen_eid)});
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+
+		for(int i = 0; i < mNotifications.size(); i++) {
+			Notification n = mNotifications.get(i);
+			if(n.bid == bid && n.eid <= last_seen_eid) {
+				mNotifications.remove(n);
+				i--;
+				continue;
+			}
+		}
+		
+		if(mDismissedEIDs.get(bid) != null) {
+			HashSet<Long> eids = mDismissedEIDs.get(bid);
+			Long[] eidsArray = eids.toArray(new Long[eids.size()]);
+			for(int i = 0; i < eidsArray.length; i++) {
+				if(eidsArray[i] <= last_seen_eid) {
+					eids.remove(eidsArray[i]);
+				}
+			}
+		}
 	}
 	
 	public synchronized void deleteNotificationsForBid(int bid) {
@@ -384,32 +360,37 @@ public class Notifications extends SQLiteOpenHelper {
 		}
 		nm.cancel(bid);
 
-		SQLiteDatabase db = getSafeWritableDatabase();
-		db.delete(TABLE_NOTIFICATIONS, "bid = ?", new String[] {String.valueOf(bid)});
-		db.delete(TABLE_DISMISSED_EIDS, "bid = ?", new String[] {String.valueOf(bid)});
-		if(!isBatch())
-			db.close();
-		releaseWriteableDatabase();
+		for(int i = 0; i < mNotifications.size(); i++) {
+			Notification n = mNotifications.get(i);
+			if(n.bid == bid) {
+				mNotifications.remove(n);
+				i--;
+				continue;
+			}
+		}
+
+		mDismissedEIDs.remove(bid);
+		mLastSeenEIDs.remove(bid);
+	}
+	
+	private boolean isMessage(String type) {
+		return !(type.equalsIgnoreCase("channel_invite") || type.equalsIgnoreCase("callerid"));
 	}
 	
 	public ArrayList<Notification> getMessageNotifications() {
 		Log.d("IRCCloud", "+++ Begin message notifications");
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
-		SQLiteDatabase db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NOTIFICATIONS + " INNER JOIN " + TABLE_NETWORKS + " ON " + TABLE_NOTIFICATIONS + ".cid=" + TABLE_NETWORKS +".cid",
-				new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, "bid != " + excludeBid + " and (message_type='buffer_msg' or message_type='buffer_me_msg' or message_type='notice' or message_type='wallops')", null, null, null, "cid,chan,eid");
-
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Notification n = cursorToNotification(cursor);
-			Log.d("IRCCloud", "Notification: " + n.toString());
-			notifications.add(n);
-			cursor.moveToNext();
+		for(int i = 0; i < mNotifications.size(); i++) {
+			Notification n = mNotifications.get(i);
+			if(n.bid != excludeBid && isMessage(n.message_type)) {
+				Log.d("IRCCloud", "Notification: " + n.toString());
+				if(n.network == null)
+					n.network = getNetwork(n.cid);
+				notifications.add(n);
+			}
 		}
-		cursor.close();
-		db.close();
-		releaseReadableDatabase();
+
 		Log.d("IRCCloud", "--- End message notifications");
 		return notifications;
 	}
@@ -417,61 +398,32 @@ public class Notifications extends SQLiteOpenHelper {
 	public ArrayList<Notification> getOtherNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
-		SQLiteDatabase db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and bid != " + excludeBid + " and (message_type='channel_invite' or message_type='callerid')", null, null, null, "cid,chan,eid");
-
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			Notification n = cursorToNotification(cursor);
-			notifications.add(n);
-			cursor.moveToNext();
+		for(int i = 0; i < mNotifications.size(); i++) {
+			Notification n = mNotifications.get(i);
+			if(n.bid != excludeBid && !isMessage(n.message_type)) {
+				if(n.network == null)
+					n.network = getNetwork(n.cid);
+				notifications.add(n);
+			}
 		}
-		cursor.close();
-		db.close();
-		releaseReadableDatabase();
+
 		return notifications;
 	}
 	
-	public Network getNetwork(int cid) {
-		Network n = null;
-		SQLiteDatabase db;
-		if(isBatch())
-			db = batchDb;
-		else
-			db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NETWORKS, new String[] {"cid", "network"}, "cid = " + cid, null, null, null, null);
-
-		cursor.moveToFirst();
-		
-		if(!cursor.isAfterLast()) {
-			n = cursorToNetwork(cursor);
-		}
-		cursor.close();
-		if(!isBatch()) {
-			db.close();
-			releaseReadableDatabase();
-		}
-		return n;
+	public String getNetwork(int cid) {
+		return mNetworks.get(cid);
 	}
 	
 	public synchronized Notification getNotification(long eid) {
-		Notification n = null;
-		SQLiteDatabase db;
-		if(isBatch())
-			db = batchDb;
-		else
-			db = getSafeReadableDatabase();
-		Cursor cursor = db.query(TABLE_NOTIFICATIONS + "," + TABLE_NETWORKS, new String[] {"bid", TABLE_NETWORKS + ".cid AS cid", "eid", "network", "nick", "message", "chan", "buffer_type", "message_type"}, TABLE_NETWORKS + ".cid = " + TABLE_NOTIFICATIONS + ".cid and eid = " + eid, null, null, null, null);
-
-		if(cursor.moveToFirst()) {
-			n = cursorToNotification(cursor);
+		for(int i = 0; i < mNotifications.size(); i++) {
+			Notification n = mNotifications.get(i);
+			if(n.bid != excludeBid && n.eid == eid && isMessage(n.message_type)) {
+				if(n.network == null)
+					n.network = getNetwork(n.cid);
+				return n;
+			}
 		}
-		cursor.close();
-		if(!isBatch()) {
-			db.close();
-			releaseReadableDatabase();
-		}
-		return n;
+		return null;
 	}
 	
 	public synchronized void excludeBid(int bid) {
@@ -651,26 +603,5 @@ public class Notifications extends SQLiteOpenHelper {
 				}
 			}
 		}
-	}
-	
-	private Notification cursorToNotification(Cursor cursor) {
-		Notification notification = new Notification();
-		notification.bid = cursor.getInt(cursor.getColumnIndex("bid"));
-		notification.cid = cursor.getInt(cursor.getColumnIndex("cid"));
-		notification.eid = cursor.getLong(cursor.getColumnIndex("eid"));
-		notification.nick = cursor.getString(cursor.getColumnIndex("nick"));
-		notification.message = cursor.getString(cursor.getColumnIndex("message"));
-		notification.network = cursor.getString(cursor.getColumnIndex("network"));
-		notification.chan = cursor.getString(cursor.getColumnIndex("chan"));
-		notification.buffer_type = cursor.getString(cursor.getColumnIndex("buffer_type"));
-		notification.message_type = cursor.getString(cursor.getColumnIndex("message_type"));
-		return notification;
-	}
-
-	private Network cursorToNetwork(Cursor cursor) {
-		Network network = new Network();
-		network.name = cursor.getString(cursor.getColumnIndex("network"));
-		network.cid = cursor.getInt(cursor.getColumnIndex("cid"));
-		return network;
 	}
 }

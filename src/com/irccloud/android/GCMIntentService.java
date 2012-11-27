@@ -48,7 +48,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		    	if(server_name == null || server_name.length() == 0)
 		    		server_name = intent.getStringExtra("server_hostname");
 		    	
-		    	Notifications.Network network = Notifications.getInstance().getNetwork(cid);
+		    	String network = Notifications.getInstance().getNetwork(cid);
 		    	if(network == null)
 		    		Notifications.getInstance().addNetwork(cid, server_name);
 		    	

@@ -1323,7 +1323,6 @@ public class NetworkConnection {
 						//if(ServersDataSource.getInstance().count() > 0)
 						//	Debug.startMethodTracing("oob", 16 * 1024 * 1024);
 						Log.i("IRCCloud", "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
-						Notifications.getInstance().beginBatch();
 						Log.i("IRCCloud", "Beginning backlog...");
 						notifyHandlers(EVENT_BACKLOG_START, null);
 						numbuffers = 0;
@@ -1352,7 +1351,6 @@ public class NetworkConnection {
 						totalTime -= totalJSONTime;
 						totalTime -= totalParseTime;
 						Log.i("IRCCloud", "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
-						Notifications.getInstance().endBatch();
 
 						ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
 						for(BuffersDataSource.Buffer b : buffers) {
