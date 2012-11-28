@@ -564,9 +564,8 @@ public class BuffersListFragment extends SherlockListFragment {
     		
     	});
 
-    	if(savedInstanceState != null && savedInstanceState.containsKey("ready"))
-    		ready = savedInstanceState.getBoolean("ready", false);
-
+    	ready = NetworkConnection.getInstance().ready;
+    	
     	if(ready && savedInstanceState != null && savedInstanceState.containsKey("data")) {
     		ArrayList<Integer> expandedArchives = savedInstanceState.getIntegerArrayList("expandedArchives");
     		Iterator<Integer> i = expandedArchives.iterator();
@@ -586,7 +585,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	
     @Override
     public void onSaveInstanceState(Bundle state) {
-    	state.putBoolean("ready", ready);
     	if(adapter != null && adapter.data != null && adapter.data.size() > 0) {
     		ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
     		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
@@ -607,6 +605,7 @@ public class BuffersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+    	ready = conn.ready;
 		if(adapter != null)
 			adapter.showProgress(-1);
 

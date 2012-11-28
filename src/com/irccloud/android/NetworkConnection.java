@@ -129,6 +129,8 @@ public class NetworkConnection {
 
 	private float numbuffers = 0;
 	private float totalbuffers = 0;
+
+	public boolean ready = false;
 	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
@@ -200,6 +202,7 @@ public class NetworkConnection {
 		if(wifiLock.isHeld())
 			wifiLock.release();
 		reconnect_timestamp = 0;
+		ready = false;
 		IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
 	}
 	
@@ -1358,6 +1361,7 @@ public class NetworkConnection {
 						}
 						Notifications.getInstance().showNotifications(null);
 					}
+					ready = true;
 				} else if(ServersDataSource.getInstance().count() < 1) {
 					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
