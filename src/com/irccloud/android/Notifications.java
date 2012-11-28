@@ -11,10 +11,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.irccloud.android.EventsDataSource.Event;
 import com.jakewharton.notificationcompat2.NotificationCompat2;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -136,6 +136,7 @@ public class Notifications {
 	
 	private Timer mSaveTimer = null;
 	
+	@TargetApi(9)
 	private void save() {
 		if(mSaveTimer != null)
 			mSaveTimer.cancel();
@@ -198,7 +199,10 @@ public class Notifications {
 					}
 					editor.putString("dismissedeids_json", array.toString());
 
-					editor.commit();
+					if(Build.VERSION.SDK_INT >= 9)
+						editor.apply();
+					else
+						editor.commit();
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
