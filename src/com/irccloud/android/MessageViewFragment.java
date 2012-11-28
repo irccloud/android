@@ -1,7 +1,5 @@
 package com.irccloud.android;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,27 +8,17 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Spannable;
-import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
-import android.text.util.Linkify.MatchFilter;
-import android.text.util.Linkify.TransformFilter;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,7 +29,6 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -897,7 +884,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	}
     	if(bid != -1) {
     		TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
-    		if(events != null) {
+    		if(events != null && events.size() > 0) {
     			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
 	    		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 	    		if(backlog_eid > 0) {
@@ -913,6 +900,8 @@ public class MessageViewFragment extends SherlockListFragment {
 				getListView().setSelection(adapter.getCount() - 1);
     		} else if(conn.getState() != NetworkConnection.STATE_CONNECTED || ServersDataSource.getInstance().count() < 1) {
     			headerView.setVisibility(View.GONE);
+    		} else {
+    			headerView.setVisibility(View.VISIBLE);
     		}
     	} else {
     		if(cid == -1)

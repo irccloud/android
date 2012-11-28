@@ -49,6 +49,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	LinearLayout bottomUnreadIndicatorColor = null;
 	int selected_bid = -1;
 	RefreshTask refreshTask = null;
+	private boolean ready = false;
 	
 	int firstUnreadPosition = -1;
 	int lastUnreadPosition= -1;
@@ -303,6 +304,9 @@ public class BuffersListFragment extends SherlockListFragment {
 		
 		@Override
 		protected Void doInBackground(Void... params) {
+			if(!ready || isCancelled())
+				return null;
+			
 			ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
 			if(adapter == null) {
 				adapter = new BufferListAdapter(BuffersListFragment.this);
@@ -444,6 +448,10 @@ public class BuffersListFragment extends SherlockListFragment {
 				return;
 			
 			refreshTask = null;
+
+			if(adapter == null)
+				return;
+			
 			adapter.setItems(entries);
 			
 			if(getListAdapter() == null && entries.size() > 0) {
@@ -556,7 +564,10 @@ public class BuffersListFragment extends SherlockListFragment {
     		
     	});
 
-        if(savedInstanceState != null && savedInstanceState.containsKey("data")) {
+    	if(savedInstanceState != null && savedInstanceState.containsKey("ready"))
+    		ready = savedInstanceState.getBoolean("ready", false);
+
+    	if(ready && savedInstanceState != null && savedInstanceState.containsKey("data")) {
     		ArrayList<Integer> expandedArchives = savedInstanceState.getIntegerArrayList("expandedArchives");
     		Iterator<Integer> i = expandedArchives.iterator();
     		while(i.hasNext()) {
@@ -575,6 +586,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	
     @Override
     public void onSaveInstanceState(Bundle state) {
+    	state.putBoolean("ready", ready);
     	if(adapter != null && adapter.data != null && adapter.data.size() > 0) {
     		ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
     		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
@@ -661,6 +673,8 @@ public class BuffersListFragment extends SherlockListFragment {
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 	            break;
+			case NetworkConnection.EVENT_BACKLOG_END:
+				ready = true;
 			default:
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
