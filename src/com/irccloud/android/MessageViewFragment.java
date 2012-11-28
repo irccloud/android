@@ -1359,6 +1359,10 @@ public class MessageViewFragment extends SherlockListFragment {
 					connecting.startAnimation(anim);
 					error = null;
 				}
+				if(!requestingBacklog && bid != -1 && min_eid > 0 && adapter != null && adapter.data != null && adapter.data.size() == 0) {
+					headerView.setVisibility(View.VISIBLE);
+					adapter.notifyDataSetInvalidated();
+				}
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
 			case NetworkConnection.EVENT_USERINFO:
