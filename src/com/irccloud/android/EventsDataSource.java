@@ -215,6 +215,15 @@ public class EventsDataSource {
 	    		e.from = "";
 	    		e.msg = "Your unique ID is: <b>" + event.getString("unique_id") + "</b>";
 	    		e.bg_color = R.color.status_bg;
+	    	} else if(e.type.startsWith("stats")) {
+	    		e.from = "";
+	    		if(event.has("parts") && event.getString("parts").length() > 0)
+	    			e.msg = event.getString("parts") + ": " + e.msg;
+	    		e.bg_color = R.color.status_bg;
+	    	} else if(e.type.equalsIgnoreCase("endofstats")) {
+	    		e.from = "";
+	    		e.msg = event.getString("parts") + ": " + e.msg;
+	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("kill")) {
 	    		e.from = "";
 	    		e.msg = "You were killed";
