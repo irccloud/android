@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="12dp"
+    android:paddingRight="6dp"
+    android:paddingTop="6dp" >
+
+    <TextView
+        android:id="@+id/channel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="#feedback (300 members)"
+        android:textSize="16sp" />
+     
+     <TextView
+         android:id="@+id/topic"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="https://twitter.com/irccloud | #changelog | Tell us your first impressions, don't spare our feelings | Extension/API discussion happens in #themes | Server migration on hold for now, welcome back to the old server | https://blog.irccloud.com/sep-2012-downtime-postmortem"
+         android:textColor="@color/timestamp"
+         android:textSize="14sp"
+         android:textStyle="italic" />
+
+</LinearLayout>

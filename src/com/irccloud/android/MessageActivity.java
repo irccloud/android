@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableString;
@@ -80,6 +81,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	PowerManager.WakeLock screenLock = null;
 	private int launchBid = -1;
 	private Uri launchURI = null;
+	private AlertDialog channelsListDialog;
 	
 	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
@@ -649,6 +651,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			showNotificationsTask.cancel(true);
 		showNotificationsTask = new ShowNotificationsTask();
 		showNotificationsTask.execute(-1);
+		if(channelsListDialog != null)
+			channelsListDialog.dismiss();
     }
 	
     private boolean open_uri(Uri uri) {
@@ -861,6 +865,32 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	} else {
             		whois.setArguments(args);
             	}
+	            break;
+			case NetworkConnection.EVENT_LISTRESPONSEFETCHING:
+				event = (IRCCloudJSONObject)msg.obj;
+				String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
+				if(channelsListDialog == null) {
+	        		Log.d("IRCCloud", "Created new dialog");
+	        		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	            	builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
+	            	builder.setTitle(dialogtitle);
+	        		builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+	        			@Override
+	        			public void onClick(DialogInterface dialog, int which) {
+	        				dialog.dismiss();
+	        			}
+	        		});
+	        		channelsListDialog = builder.create();
+	        		channelsListDialog.setOwnerActivity(MessageActivity.this);
+				} else {
+					channelsListDialog.setTitle(dialogtitle);
+	        		Log.d("IRCCloud", "Re-used dialog");
+				}
+        		channelsListDialog.show();
+				ChannelListFragment channels = (ChannelListFragment)getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
+            	args = new Bundle();
+            	args.putInt("cid", event.cid());
+        		channels.setArguments(args);
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				Log.d("IRCCloud", "Backlog processing ended, cid: " + cid + " bid: " + bid);

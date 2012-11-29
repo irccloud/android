@@ -5,6 +5,7 @@
     android:layout_height="fill_parent"
     android:minHeight="120dp"
     android:orientation="vertical"
+    android:gravity="center"
     tools:context=".IgnoreListFragment" >
     
     <ListView

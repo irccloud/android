@@ -112,6 +112,9 @@ public class NetworkConnection {
 	public static final int EVENT_WHOLIST = 32;
 	public static final int EVENT_WHOIS = 33;
 	public static final int EVENT_LINKCHANNEL = 34;
+	public static final int EVENT_LISTRESPONSEFETCHING = 35;
+	public static final int EVENT_LISTRESPONSE = 36;
+	public static final int EVENT_LISTRESPONSETOOMANY = 37;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -807,6 +810,15 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("whois_response")) {
 				if(!backlog)
 					notifyHandlers(EVENT_WHOIS, object);
+			} else if(type.equalsIgnoreCase("list_response_fetching")) {
+				if(!backlog)
+					notifyHandlers(EVENT_LISTRESPONSEFETCHING, object);
+			} else if(type.equalsIgnoreCase("list_response_toomany")) {
+				if(!backlog)
+					notifyHandlers(EVENT_LISTRESPONSETOOMANY, object);
+			} else if(type.equalsIgnoreCase("list_response")) {
+				if(!backlog)
+					notifyHandlers(EVENT_LISTRESPONSE, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
