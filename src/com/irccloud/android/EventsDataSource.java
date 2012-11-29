@@ -220,6 +220,7 @@ public class EventsDataSource {
 	    		if(event.has("parts") && event.getString("parts").length() > 0)
 	    			e.msg = event.getString("parts") + ": " + e.msg;
 	    		e.bg_color = R.color.status_bg;
+	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("endofstats")) {
 	    		e.from = "";
 	    		e.msg = event.getString("parts") + ": " + e.msg;
