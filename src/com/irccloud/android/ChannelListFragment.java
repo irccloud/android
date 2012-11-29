@@ -132,7 +132,7 @@ public class ChannelListFragment extends SherlockListFragment {
 	}
 	
 	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater i, ViewGroup container, Bundle savedInstanceState) {
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
 
@@ -143,6 +143,7 @@ public class ChannelListFragment extends SherlockListFragment {
 		if(ctx == null)
 			return null;
 		
+		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.ignorelist, null);
     	listView = (ListView)v.findViewById(android.R.id.list);
     	empty = (TextView)v.findViewById(android.R.id.empty);

@@ -37,6 +37,7 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.text.util.Linkify;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -871,7 +872,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
 				if(channelsListDialog == null) {
 	        		Log.d("IRCCloud", "Created new dialog");
-	        		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+	            	Context ctx = MessageActivity.this;
+	        		if(Build.VERSION.SDK_INT < 11)
+	        			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
+	        		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 	            	builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
 	            	builder.setTitle(dialogtitle);
 	        		builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
