@@ -159,21 +159,24 @@ public class MessageViewFragment extends SherlockListFragment {
 					data.remove(i);
 				}
 			}
-			for(int i = data.size() - 1; i >= 0; i--) {
-				if(data.get(i).eid <= last_seen_eid) {
-					lastSeenEidMarkerPosition = i;
-					break;
+			if(min_eid >= last_seen_eid) {
+				lastSeenEidMarkerPosition = 0;
+			} else {
+				for(int i = data.size() - 1; i >= 0; i--) {
+					if(data.get(i).eid <= last_seen_eid) {
+						lastSeenEidMarkerPosition = i;
+						break;
+					}
+				}
+				if(lastSeenEidMarkerPosition != data.size() - 1) {
+					if(lastSeenEidMarkerPosition > 0 && data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
+						lastSeenEidMarkerPosition--;
+					if(lastSeenEidMarkerPosition > 0)
+						data.add(lastSeenEidMarkerPosition + 1, e);
+				} else {
+					lastSeenEidMarkerPosition = -1;
 				}
 			}
-			if(lastSeenEidMarkerPosition != data.size() - 1) {
-				if(lastSeenEidMarkerPosition > 0 && data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
-					lastSeenEidMarkerPosition--;
-				if(lastSeenEidMarkerPosition > 0)
-					data.add(lastSeenEidMarkerPosition + 1, e);
-			} else {
-				lastSeenEidMarkerPosition = -1;
-			}
-			
 			return lastSeenEidMarkerPosition;
 		}
 		
@@ -285,6 +288,9 @@ public class MessageViewFragment extends SherlockListFragment {
 				Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
 				return;
 			}
+			
+			if(eid < min_eid || min_eid == 0)
+				min_eid = eid;
 			
 			if(eid == currentCollapsedEid && e.eid == eid) {
 				currentGroupPosition = insert_pos;
@@ -988,6 +994,9 @@ public class MessageViewFragment extends SherlockListFragment {
 					//The list view doesn't exist yet
 					Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
 				}
+			} else if(bid != -1 && min_eid > 0) {
+				headerView.setVisibility(View.VISIBLE);
+				adapter.notifyDataSetInvalidated();
 			}
 			requestingBacklog = false;
 			refreshTask = null;
@@ -1071,7 +1080,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		public void run() {
 			if(adapter != null) {
 				int markerPos = adapter.getLastSeenEIDPosition();
-	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > (markerPos + 1)) {
+	    		if(markerPos >= 0 && getListView().getFirstVisiblePosition() > (markerPos + 1)) {
 	    			if(shouldTrackUnread()) {
 		    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos - 1) + " unread messages");
 		    			unreadTopView.setVisibility(View.VISIBLE);
@@ -1347,10 +1356,6 @@ public class MessageViewFragment extends SherlockListFragment {
 					});
 					connecting.startAnimation(anim);
 					error = null;
-				}
-				if(!requestingBacklog && bid != -1 && min_eid > 0 && adapter != null && adapter.data != null && adapter.data.size() == 0) {
-					headerView.setVisibility(View.VISIBLE);
-					adapter.notifyDataSetInvalidated();
 				}
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
