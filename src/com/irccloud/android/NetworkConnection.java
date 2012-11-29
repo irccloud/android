@@ -1323,7 +1323,7 @@ public class NetworkConnection {
 
 				if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
 					synchronized(parserLock) {
-						//if(ServersDataSource.getInstance().count() > 0)
+						//if(ready)
 						//	Debug.startMethodTracing("oob", 16 * 1024 * 1024);
 						Log.i("IRCCloud", "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
 						Log.i("IRCCloud", "Beginning backlog...");

@@ -50,7 +50,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private TextView unreadTopLabel;
 	private View unreadTopView;
 	private int cid = -1;
-	private int bid = -1;
+	public int bid = -1;
 	private long last_seen_eid;
 	private long min_eid;
 	private long earliest_eid;
@@ -159,7 +159,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					data.remove(i);
 				}
 			}
-			if(min_eid >= last_seen_eid) {
+			if(min_eid > 0 && last_seen_eid > 0 && min_eid >= last_seen_eid) {
 				lastSeenEidMarkerPosition = 0;
 			} else {
 				for(int i = data.size() - 1; i >= 0; i--) {
@@ -447,7 +447,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	((ListView)v.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
 			@Override
 			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				if(headerView != null && min_eid > 0) {
+				if(headerView != null && min_eid > 0 && conn.ready) {
 					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1 && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 						requestingBacklog = true;
 						conn.request_backlog(cid, bid, earliest_eid);
@@ -577,7 +577,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						refreshTask = new RefreshTask();
 						refreshTask.execute((Void)null);
 					} else {
-						if(bid == -1 || min_eid == 0) {
+						if(bid == -1 || min_eid == 0 || !conn.ready) {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
@@ -871,7 +871,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-    	if(conn.getState() != NetworkConnection.STATE_CONNECTED || ServersDataSource.getInstance().count() == 0) {
+    	if(conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
 			TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
 			anim.setDuration(200);
 			anim.setFillAfter(true);
@@ -904,7 +904,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				refresh(events, buffer);
 	    		adapter.notifyDataSetChanged();
 				getListView().setSelection(adapter.getCount() - 1);
-    		} else if(conn.getState() != NetworkConnection.STATE_CONNECTED || ServersDataSource.getInstance().count() < 1) {
+    		} else if(conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
     			headerView.setVisibility(View.GONE);
     		} else {
     			headerView.setVisibility(View.VISIBLE);
@@ -994,7 +994,7 @@ public class MessageViewFragment extends SherlockListFragment {
 					//The list view doesn't exist yet
 					Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
 				}
-			} else if(bid != -1 && min_eid > 0) {
+			} else if(bid != -1 && min_eid > 0 && conn.ready) {
 				headerView.setVisibility(View.VISIBLE);
 				adapter.notifyDataSetInvalidated();
 			}

@@ -462,13 +462,11 @@ public class Notifications {
 	}
 	
 	public synchronized void showNotifications(String ticker) {
-		if(ServersDataSource.getInstance().count() > 0) {
-			ArrayList<Notification> notifications = getMessageNotifications();
-			for(Notification n : notifications) {
-				if(isDismissed(n.bid, n.eid)) {
-					Log.d("IRCCloud", "Removing dismissed notification: " + n.toString());
-					deleteNotification(n.cid, n.bid, n.eid);
-				}
+		ArrayList<Notification> notifications = getMessageNotifications();
+		for(Notification n : notifications) {
+			if(isDismissed(n.bid, n.eid)) {
+				Log.d("IRCCloud", "Removing dismissed notification: " + n.toString());
+				deleteNotification(n.cid, n.bid, n.eid);
 			}
 		}
 		

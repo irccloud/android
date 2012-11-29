@@ -323,6 +323,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	@Override
     	protected void onPreExecute() {
+	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+	    	if(mvf != null && mvf.bid != bid) {
+	    		Log.w("IRCCloud", "MessageViewFragment's bid differs from MessageActivity's, switching buffers again");
+	    		open_bid(mvf.bid);
+	    	}
+	    	
 			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 	    		sendBtn.setEnabled(false);
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
@@ -478,7 +484,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	if(intent.hasExtra("bid")) {
     		int new_bid = intent.getIntExtra("bid", 0);
-    		if(ServersDataSource.getInstance().count() > 0 && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
+    		if(NetworkConnection.getInstance().ready && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
     			Log.w("IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
     			Notifications.getInstance().deleteNotificationsForBid(new_bid);
     			if(showNotificationsTask != null)
@@ -490,6 +496,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	    	if(bid >= 0)
     	    		backStack.add(0, bid);
     			bid = new_bid;
+    			Log.d("IRCCloud", "BID set by launch intent: " + bid);
     		}
     	}
     	
@@ -516,6 +523,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			archived = b.archived;
 	    		}
 	    	}
+			Log.d("IRCCloud", "CID set by launch intent: " + cid);
     	} else if(bid != -1) {
     		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
     		if(b != null) {
@@ -535,11 +543,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		min_eid = b.min_eid;
 	    		last_seen_eid = b.last_seen_eid;
 	    		status = s.status;
+    		} else {
+    			cid = -1;
     		}
     	}
 
     	if(cid == -1) {
 			launchBid = bid;
+			Log.d("IRCCloud", "Buffer not available yet, assigned to launchBid: " + launchBid);
     	} else {
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
@@ -578,7 +589,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	conn.addHandler(mHandler);
 
     	if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-    		if(scrollView != null && ServersDataSource.getInstance().count() == 0)
+    		if(scrollView != null && !NetworkConnection.getInstance().ready)
     			scrollView.setEnabled(false);
     		messageTxt.setEnabled(false);
     	} else {
@@ -593,7 +604,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	if(cid == -1) {
 	    	if(getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
 	    		setFromIntent(getIntent());
-	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && ServersDataSource.getInstance().count() > 0) {
+	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && NetworkConnection.getInstance().ready) {
 	    		if(!open_bid(conn.getUserInfo().last_selected_bid)) {
 	    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
 	    				if(scrollView != null)
@@ -618,7 +629,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	invalidateOptionsMenu();
     	
-    	if(ServersDataSource.getInstance().count() > 0) {
+    	if(NetworkConnection.getInstance().ready) {
 			if(showNotificationsTask != null)
 				showNotificationsTask.cancel(true);
 			showNotificationsTask = new ShowNotificationsTask();
@@ -642,7 +653,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	
     private boolean open_uri(Uri uri) {
     	Log.i("IRCCloud", "Launch URI: " + uri);
-		if(uri != null && ServersDataSource.getInstance().count() > 0) {
+		if(uri != null && NetworkConnection.getInstance().ready) {
     		ServersDataSource.Server s = null;
     		if(uri.getPort() > 0)
     			s = ServersDataSource.getInstance().getServer(uri.getHost(), uri.getPort());
@@ -687,6 +698,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
     
     private boolean open_bid(int bid) {
+    	Log.d("IRCCloud", "Attempting to open bid: " + bid);
 		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 		if(b != null) {
 			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
@@ -706,11 +718,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			onBufferSelected(b.cid, b.bid, name, b.last_seen_eid, b.min_eid, b.type, joined, b.archived, s.status);
 			return true;
 		}
+		Log.w("IRCCloud", "Requested BID not found");
 		return false;
     }
     
     private void update_subtitle() {
-    	if(cid == -1 || ServersDataSource.getInstance().count() == 0) {
+    	if(cid == -1 || !NetworkConnection.getInstance().ready) {
            	getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayShowCustomEnabled(false);
     	} else {
@@ -792,13 +805,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
 					}
 					pendingEvents.clear();
-		    		if(scrollView != null && ServersDataSource.getInstance().count() > 0)
+		    		if(scrollView != null && NetworkConnection.getInstance().ready)
 						scrollView.setEnabled(true);
 					if(cid != -1)
 						messageTxt.setEnabled(true);
 				} else {
 		    		if(scrollView != null) {
-		    			if(ServersDataSource.getInstance().count() == 0)
+		    			if(!NetworkConnection.getInstance().ready)
 		    				scrollView.setEnabled(false);
 		        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
 		        		upView.setVisibility(View.VISIBLE);
@@ -850,6 +863,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	}
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
+				Log.d("IRCCloud", "Backlog processing ended, cid: " + cid + " bid: " + bid);
 				if(scrollView != null) {
 						scrollView.setEnabled(true);
 				}
@@ -858,7 +872,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		if(launchBid == -1 || !open_bid(launchBid)) {
 			    			if(conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
 		    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-		    						if(scrollView != null && ServersDataSource.getInstance().count() > 0) {
+		    						if(scrollView != null && NetworkConnection.getInstance().ready) {
 			    						scrollView.scrollTo(0, 0);
 		    						}
 		    					}
@@ -1071,7 +1085,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	if(type != null && ServersDataSource.getInstance().count() > 0) {
+    	if(type != null && NetworkConnection.getInstance().ready) {
 	    	if(type.equalsIgnoreCase("channel")) {
 	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
 	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel, menu);
@@ -1089,7 +1103,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
-    	if(type != null && ServersDataSource.getInstance().count() > 0) {
+    	if(type != null && NetworkConnection.getInstance().ready) {
         	if(archived == 0) {
         		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
         	} else {
