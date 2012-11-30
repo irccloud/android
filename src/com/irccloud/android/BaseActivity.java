@@ -36,8 +36,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    	conn.addHandler(mHandler);
 	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
 	    		conn.connect(session);
-	    	else
-	    		Log.e("IRCCloud", "Connection state: " + conn.getState());
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
     		i.addFlags(
@@ -357,6 +355,7 @@ public class BaseActivity extends SherlockFragmentActivity {
         switch (item.getItemId()) {
             case R.id.menu_logout:
             	conn.disconnect();
+            	conn.ready = false;
 				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 				editor.remove("session_key");
 				editor.remove("gcm_registered");

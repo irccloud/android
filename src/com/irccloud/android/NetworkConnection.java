@@ -115,6 +115,7 @@ public class NetworkConnection {
 	public static final int EVENT_LISTRESPONSEFETCHING = 35;
 	public static final int EVENT_LISTRESPONSE = 36;
 	public static final int EVENT_LISTRESPONSETOOMANY = 37;
+	public static final int EVENT_CONNECTIONLAG = 38;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -205,7 +206,6 @@ public class NetworkConnection {
 		if(wifiLock.isHeld())
 			wifiLock.release();
 		reconnect_timestamp = 0;
-		ready = false;
 		IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
 	}
 	
@@ -1082,6 +1082,8 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("connection_lag")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateLag(object.getInt("cid"), object.getLong("lag"));
+				if(!backlog)
+					notifyHandlers(EVENT_CONNECTIONLAG, object);
 			} else if(type.equalsIgnoreCase("isupport_params")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateIsupport(object.getInt("cid"), object.getJsonObject("params"));

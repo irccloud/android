@@ -562,6 +562,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		} else {
     			awayView.setVisibility(View.GONE);
     		}
+			update_status(mServer.status, mServer.fail_info);
     	}
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.INVISIBLE);
@@ -861,6 +862,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	}
     	if(cid != -1) {
 			mServer = ServersDataSource.getInstance().getServer(cid);
+			update_status(mServer.status, mServer.fail_info);
     	}
     	if(getListView().getHeaderViewsCount() == 0) {
     		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
@@ -1180,8 +1182,13 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
 		
     	if(status.equals("connected_ready")) {
-    		statusView.setVisibility(View.GONE);
-    		statusView.setText("");
+    		if(mServer != null && mServer.lag >= 2*1000*1000) {
+	    		statusView.setVisibility(View.VISIBLE);
+	    		statusView.setText("Slow ping response from " + mServer.hostname + " (" + (mServer.lag / 1000 / 1000) + "s)");
+    		} else {
+	    		statusView.setVisibility(View.GONE);
+	    		statusView.setText("");
+    		}
     	} else if(status.equals("quitting")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Disconnecting");
@@ -1377,10 +1384,21 @@ public class MessageViewFragment extends SherlockListFragment {
 					e.printStackTrace();
 				}
 				break;
+			case NetworkConnection.EVENT_CONNECTIONLAG:
+				try {
+					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
+					if(mServer != null && object.cid() == cid) {
+						update_status(mServer.status, mServer.fail_info);
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
 					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
-					if(object.getInt("cid") == cid) {
+					if(object.cid() == cid) {
 						update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
 					}
 				} catch (Exception e) {
