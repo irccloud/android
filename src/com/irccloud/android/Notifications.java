@@ -41,9 +41,10 @@ public class Notifications {
 		public String chan;
 		public String buffer_type;
 		public String message_type;
+		public boolean shown = false;
 		
 		public String toString() {
-			return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + "}";
+			return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + " shown: " + shown + "}";
 		}
 	}
 	
@@ -123,6 +124,8 @@ public class Notifications {
 					n.buffer_type = o.getString("buffer_type");
 					n.message_type = o.getString("message_type");
 					n.network = mNetworks.get(n.cid);
+					if(o.has("shown"))
+						n.shown = o.getBoolean("shown");
 					mNotifications.add(n);
 				}
 				Collections.sort(mNotifications, new comparator());
@@ -158,6 +161,7 @@ public class Notifications {
 						o.put("chan", n.chan);
 						o.put("buffer_type", n.buffer_type);
 						o.put("message_type", n.message_type);
+						o.put("shown", n.shown);
 						array.put(o);
 					}
 					editor.putString("notifications_json", array.toString());
@@ -484,16 +488,19 @@ public class Notifications {
 		
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 	        for(Notification n : notifications) {
-				if(n.message_type.equals("callerid")) {
-					title = "Callerid: " + n.nick + " (" + n.network + ")";
-					text = n.nick + " " + n.message;
-					ticker = n.nick + " " + n.message;
-				} else {
-					title = n.nick + " (" + n.network + ")";
-					text = n.message;
-					ticker = n.message;
-				}
-		        nm.notify((int)(n.eid/1000), buildNotification(ticker, n.bid, new long[] {n.eid}, title, text, Html.fromHtml(text), 1));
+	        	if(!n.shown) {
+					if(n.message_type.equals("callerid")) {
+						title = "Callerid: " + n.nick + " (" + n.network + ")";
+						text = n.nick + " " + n.message;
+						ticker = n.nick + " " + n.message;
+					} else {
+						title = n.nick + " (" + n.network + ")";
+						text = n.message;
+						ticker = n.message;
+					}
+			        nm.notify((int)(n.eid/1000), buildNotification(ticker, n.bid, new long[] {n.eid}, title, text, Html.fromHtml(text), 1));
+			        n.shown = true;
+	        	}
 	        }
 		}
 	}
@@ -562,15 +569,18 @@ public class Notifications {
 		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
 			if(notifications.size() == 1) {
 				Notification n = notifications.get(0);
-				title = n.nick;
-				if(!n.buffer_type.equals("conversation") && !n.message_type.equals("wallops") && n.chan.length() > 0)
-					title += " in " + n.chan;
-				title += " (" + n.network + ")";
-				if(n.message_type.equals("buffer_me_msg"))
-					text = "Ñ " + n.message;
-				else
-					text = n.message;
-		        nm.notify(n.bid, buildNotification(ticker, n.bid, new long[] {n.eid}, title, text, Html.fromHtml(text), 1));
+				if(!n.shown) {
+					title = n.nick;
+					if(!n.buffer_type.equals("conversation") && !n.message_type.equals("wallops") && n.chan.length() > 0)
+						title += " in " + n.chan;
+					title += " (" + n.network + ")";
+					if(n.message_type.equals("buffer_me_msg"))
+						text = "Ñ " + n.message;
+					else
+						text = n.message;
+			        nm.notify(n.bid, buildNotification(ticker, n.bid, new long[] {n.eid}, title, text, Html.fromHtml(text), 1));
+			        n.shown = true;
+				}
 			} else {
 				int lastbid = notifications.get(0).bid;
 				int count = 0;
@@ -578,22 +588,26 @@ public class Notifications {
 				Notification last = null;
 				count = 0;
         		title = notifications.get(0).chan + " (" + notifications.get(0).network + ")";
+        		boolean show = false;
 		        for(Notification n : notifications) {
 		        	if(n.bid != lastbid) {
-						if(count == 1) {
-							title = last.nick;
-							if(!last.buffer_type.equals("conversation") && !last.message_type.equals("wallops") && last.chan.length() > 0)
-								title += " in " + last.chan;
-							title += " (" + last.network + ")";
-					        nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
-						} else {
-					        nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
-						}
+		        		if(show) {
+							if(count == 1) {
+								title = last.nick;
+								if(!last.buffer_type.equals("conversation") && !last.message_type.equals("wallops") && last.chan.length() > 0)
+									title += " in " + last.chan;
+								title += " (" + last.network + ")";
+								nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
+							} else {
+								nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
+							}
+		        		}
 		        		lastbid = n.bid;
 		        		title = n.chan + " (" + n.network + ")";
 		        		text = "";
 						count = 0;
 						eids = new long[notifications.size()];
+						show = false;
 		        	}
 		        	if(count < 4) {
 		        		if(text.length() > 0)
@@ -607,18 +621,24 @@ public class Notifications {
 			        	else
 				    		text += "<b>" + n.nick + "</b> " + n.message;
 		        	}
+		        	if(!n.shown) {
+		        		n.shown = true;
+		        		show = true;
+		        	}
 		        	eids[count++] = n.eid;
 		        	last = n;
 		        }
-				if(count == 1) {
-					title = last.nick;
-					if(!last.buffer_type.equals("conversation") && !last.message_type.equals("wallops") && last.chan.length() > 0)
-						title += " in " + last.chan;
-					title += " (" + last.network + ")";
-			        nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
-				} else {
-			        nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
-				}
+		        if(show) {
+					if(count == 1) {
+						title = last.nick;
+						if(!last.buffer_type.equals("conversation") && !last.message_type.equals("wallops") && last.chan.length() > 0)
+							title += " in " + last.chan;
+						title += " (" + last.network + ")";
+						nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
+					} else {
+							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
+					}
+		        }
 			}
 		}
 	}

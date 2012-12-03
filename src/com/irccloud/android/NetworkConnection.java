@@ -745,7 +745,6 @@ public class NetworkConnection {
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
-				Notifications.getInstance().clear();
 				Log.d("IRCCloud", "Clock offset: " + clockOffset + "ms");
 			} else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog") || type.equalsIgnoreCase("backlog_complete")) {
 			} else if(type.equalsIgnoreCase("num_invites")) {
