@@ -346,17 +346,18 @@ public class Notifications {
 		
 		if(notifications.size() > 0) {
 	        for(Notification n : notifications) {
-	        	if(n.bid == bid && n.eid <= last_seen_eid)
+	        	if(n.bid == bid && n.eid <= last_seen_eid) {
 	        		nm.cancel((int)(n.eid/1000));
+	        	}
 	        }
 		}
-		nm.cancel(bid);
-
+		
 		for(int i = 0; i < mNotifications.size(); i++) {
 			Notification n = mNotifications.get(i);
 			if(n.bid == bid && n.eid <= last_seen_eid) {
 				mNotifications.remove(n);
 				i--;
+				nm.cancel(bid);
 				continue;
 			}
 		}
