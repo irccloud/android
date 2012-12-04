@@ -512,8 +512,6 @@ public class Notifications {
 
 		NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
         .setTicker(ticker)
-		.setContentTitle(title)
-		.setContentText(text)
         .setLights(0xFF0000FF, 500, 1000)
         .setSmallIcon(R.drawable.ic_stat_notify);
 
@@ -542,19 +540,25 @@ public class Notifications {
 		builder.setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
 
 		android.app.Notification notification = builder.build();
+		
+		RemoteViews contentView = new RemoteViews("com.irccloud.android", R.layout.notification);
+		contentView.setTextViewText(R.id.title, title);
+		contentView.setTextViewText(R.id.text, text);
+		notification.contentView = contentView;
+		
 		if(Build.VERSION.SDK_INT >= 16 && big_text != null) {
-			RemoteViews contentView = new RemoteViews("com.irccloud.android", R.layout.notification);
-			contentView.setTextViewText(R.id.title, title);
-			contentView.setTextViewText(R.id.text, big_text);
+			RemoteViews bigContentView = new RemoteViews("com.irccloud.android", R.layout.notification_expanded);
+			bigContentView.setTextViewText(R.id.title, title);
+			bigContentView.setTextViewText(R.id.text, big_text);
 			if(count > 4) {
-				contentView.setViewVisibility(R.id.divider, View.VISIBLE);
-				contentView.setViewVisibility(R.id.more, View.VISIBLE);
-				contentView.setTextViewText(R.id.more, "+" + (count - 4) + " more");
+				bigContentView.setViewVisibility(R.id.divider, View.VISIBLE);
+				bigContentView.setViewVisibility(R.id.more, View.VISIBLE);
+				bigContentView.setTextViewText(R.id.more, "+" + (count - 4) + " more");
 			} else {
-				contentView.setViewVisibility(R.id.divider, View.GONE);
-				contentView.setViewVisibility(R.id.more, View.GONE);
+				bigContentView.setViewVisibility(R.id.divider, View.GONE);
+				bigContentView.setViewVisibility(R.id.more, View.GONE);
 			}
-			notification.bigContentView = contentView;
+			notification.bigContentView = bigContentView;
 		}
 		
 		return notification;
