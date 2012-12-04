@@ -379,6 +379,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		protected Void doInBackground(Void... arg0) {
 			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 				e.reqid = conn.say(cid, name, messageTxt.getText().toString());
+	    		Log.d("IRCCloud", "Inserted pending message, EID: " + e.eid + " reqid: " + e.reqid);
 				if(e.msg != null)
 					pendingEvents.put(e.reqid, e);
 			}
@@ -1132,10 +1133,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
 						}
 						pendingEvents.clear();
+						Log.d("IRCCloud", "Cleared pending events for this PM buffer");
 					} else if(pendingEvents.containsKey(e.reqid)) {
+						Log.d("IRCCloud", "Removed pending event for reqid: " + e.reqid);
 						e = pendingEvents.get(e.reqid);
 						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
 						pendingEvents.remove(e.reqid);
+					}
+					if(pendingEvents.size() > 0) {
+						Log.d("IRCCloud", "pendingEvents reqids: " + pendingEvents.keySet().toString());
 					}
 				} catch (Exception e1) {
 				}

@@ -1484,17 +1484,22 @@ public class MessageViewFragment extends SherlockListFragment {
 					if(event.from != null && event.from.equals(name) && event.reqid == -1) {
 						adapter.clearPending();
 					} else if(event.reqid != -1) {
+						Log.d("IRCCloud", "Searching to remove reqid: " + event.reqid);
 						for(int i = 0; i < adapter.data.size(); i++) {
 							EventsDataSource.Event e = adapter.data.get(i);
+							if(e.reqid == event.reqid)
+								Log.d("IRCCloud", "Found reqid: " + event.reqid + " pending: " + e.pending);
 							if(e.reqid == event.reqid && e.pending) {
 								if(i > 1) {
 									EventsDataSource.Event p = adapter.data.get(i-1);
 									if(p.row_type == ROW_TIMESTAMP) {
+										Log.d("IRCCloud", "Removing the date line");
 										adapter.data.remove(p);
 										i--;
 									}
 								}
 								adapter.data.remove(e);
+								Log.d("IRCCloud", "Removed event");
 								i--;
 							}
 						}

@@ -70,7 +70,7 @@ public class NetworkConnection {
 	private UserInfo userInfo = null;
 	private ArrayList<Handler> handlers = null;
 	private String session = null;
-	private int last_reqid = 0;
+	private volatile int last_reqid = 0;
 	private Timer shutdownTimer = null;
 	private Timer idleTimer = null;
 	private long idle_interval = 30000;
