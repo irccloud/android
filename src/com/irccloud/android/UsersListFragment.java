@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
@@ -50,6 +51,7 @@ public class UsersListFragment extends SherlockListFragment {
 			int color;
 			int bg_color;
 			boolean away;
+			boolean last;
 		}
 
 		public UserListAdapter(SherlockListFragment context) {
@@ -61,7 +63,7 @@ public class UsersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public UserListEntry buildItem(int type, String text, String count, int color, int bg_color, boolean away) {
+		public UserListEntry buildItem(int type, String text, String count, int color, int bg_color, boolean away, boolean last) {
 			UserListEntry e = new UserListEntry();
 			e.type = type;
 			e.text = text;
@@ -69,6 +71,7 @@ public class UsersListFragment extends SherlockListFragment {
 			e.color = color;
 			e.bg_color = bg_color;
 			e.away = away;
+			e.last = last;
 			return e;
 		}
 		
@@ -138,6 +141,10 @@ public class UsersListFragment extends SherlockListFragment {
 			} else {
 				row.setFocusable(true);
 				row.setEnabled(true);
+				if(e.last)
+					row.setPadding(row.getPaddingLeft(), row.getPaddingTop(), row.getPaddingRight(), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
+				else
+					row.setPadding(row.getPaddingLeft(), row.getPaddingTop(), row.getPaddingRight(), 0);
 			}
 			
 			return row;
@@ -146,10 +153,10 @@ public class UsersListFragment extends SherlockListFragment {
 
 	private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<UsersDataSource.User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
 		if(users.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, heading_bg_color, false));
+			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, heading_bg_color, false, false));
 			for(int i = 0; i < users.size(); i++) {
 				UsersDataSource.User user = users.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, user.away > 0));
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, user.away > 0, i == users.size() - 1));
 			}
 		}
 	}
