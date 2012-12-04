@@ -608,7 +608,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && NetworkConnection.getInstance().ready) {
 	    		if(!open_bid(conn.getUserInfo().last_selected_bid)) {
 	    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-	    				if(scrollView != null)
+	    				if(scrollView != null && NetworkConnection.getInstance().ready)
 	    					scrollView.scrollTo(0,0);
 	    			}
 	    		}
@@ -856,10 +856,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					if(cid != -1)
 						messageTxt.setEnabled(true);
 				} else {
-		    		if(scrollView != null) {
-		    			if(!NetworkConnection.getInstance().ready)
-		    				scrollView.setEnabled(false);
-		        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+		    		if(scrollView != null && NetworkConnection.getInstance().ready) {
+		    			scrollView.setEnabled(false);
+		    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
 		        		upView.setVisibility(View.VISIBLE);
 		    		}
 		    		messageTxt.setEnabled(false);
