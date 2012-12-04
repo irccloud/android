@@ -23,9 +23,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.text.Editable;
-import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -46,7 +44,6 @@ import android.view.View.OnKeyListener;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
-import android.view.inputmethod.CompletionInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -580,6 +577,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @SuppressLint("NewApi")
 	@Override
     public void onResume() {
+    	conn = NetworkConnection.getInstance();
+    	conn.addHandler(mHandler);
+
     	super.onResume();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
     	if(prefs.getBoolean("screenlock", false)) {
@@ -588,9 +588,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     	}
     	
-    	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
-
     	if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
     		if(scrollView != null && !NetworkConnection.getInstance().ready)
     			scrollView.setEnabled(false);
@@ -646,14 +643,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public void onPause() {
     	super.onPause();
-    	if(conn != null)
-    		conn.removeHandler(mHandler);
 		if(showNotificationsTask != null)
 			showNotificationsTask.cancel(true);
 		showNotificationsTask = new ShowNotificationsTask();
 		showNotificationsTask.execute(-1);
 		if(channelsListDialog != null)
 			channelsListDialog.dismiss();
+    	if(conn != null)
+    		conn.removeHandler(mHandler);
     }
 	
     private boolean open_uri(Uri uri) {
@@ -799,11 +796,54 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
 	@SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
+    	String bufferToOpen = null;
+    	int cidToOpen = -1;
+
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
 			IRCCloudJSONObject event = null;
 			Bundle args = null;
 			switch (msg.what) {
+			case NetworkConnection.EVENT_LINKCHANNEL:
+				event = (IRCCloudJSONObject)msg.obj;
+				if(cidToOpen == event.cid() && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
+					Log.d("IRCCloud", "Linked channel");
+					bufferToOpen = event.getString("valid_chan");
+					msg.obj = BuffersDataSource.getInstance().getBuffer(event.bid());
+				}
+			case NetworkConnection.EVENT_MAKEBUFFER:
+				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)msg.obj;
+				if(cidToOpen == b.cid && b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(name)) {
+					onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, 1, 0, "connected_ready");
+		    		bufferToOpen = null;
+		    		cidToOpen = -1;
+				} else if(bid == -1 && b.cid == cid && b.name.equalsIgnoreCase(name)) {
+					Log.i("IRCCloud", "Got my new buffer id: " + b.bid);
+					bid = b.bid;
+			    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
+			    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
+	    			if(showNotificationsTask != null)
+	    				showNotificationsTask.cancel(true);
+	    			showNotificationsTask = new ShowNotificationsTask();
+	    			showNotificationsTask.execute(bid);
+				}
+				break;
+			case NetworkConnection.EVENT_OPENBUFFER:
+				event = (IRCCloudJSONObject)msg.obj;
+				try {
+					bufferToOpen = event.getString("name");
+					cidToOpen = event.cid();
+					b = BuffersDataSource.getInstance().getBufferByName(cidToOpen, bufferToOpen);
+					if(b != null && !bufferToOpen.equalsIgnoreCase(name)) {
+						onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, 1, 0, "connected_ready");
+			    		bufferToOpen = null;
+			    		cidToOpen = -1;
+					}
+				} catch (Exception e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 					for(EventsDataSource.Event e : pendingEvents.values()) {
@@ -949,19 +989,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					invalidateOptionsMenu();
 				}
 				break;
-			case NetworkConnection.EVENT_MAKEBUFFER:
-				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
-				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
-					Log.i("IRCCloud", "Got my new buffer id: " + buffer.bid);
-					bid = buffer.bid;
-			    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
-			    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
-	    			if(showNotificationsTask != null)
-	    				showNotificationsTask.cancel(true);
-	    			showNotificationsTask = new ShowNotificationsTask();
-	    			showNotificationsTask.execute(bid);
-				}
-				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
 				event_bid = (Integer)msg.obj;
 				if(event_bid == bid) {
@@ -1017,7 +1044,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	if(backStack != null && backStack.size() > 0) {
 		        		Integer bid = backStack.get(0);
 		        		backStack.remove(0);
-		        		buffer = BuffersDataSource.getInstance().getBuffer(bid);
+		        		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);
 		        		if(buffer != null) {
 			    			onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
 			    					buffer.type, 1, buffer.archived, status);

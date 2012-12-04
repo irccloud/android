@@ -248,15 +248,20 @@ public class MessageViewFragment extends SherlockListFragment {
 				data.add(e);
 				insert_pos = data.size() - 1;
 			} else if(min_eid > eid) { //Message goes on top
-				calendar.setTimeInMillis(data.get(1).eid / 1000);
-				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-				calendar.setTimeInMillis(eid/1000);
-				if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+				if(data.size() > 1) {
+					calendar.setTimeInMillis(data.get(1).eid / 1000);
+					lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+					calendar.setTimeInMillis(eid/1000);
+					if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+						data.add(0, e);
+						insert_pos = 0;
+					} else { //Insert below the dateline
+						data.add(1, e);
+						insert_pos = 1;
+					}
+				} else {
 					data.add(0, e);
 					insert_pos = 0;
-				} else { //Insert below the dateline
-					data.add(1, e);
-					insert_pos = 1;
 				}
 			} else {
 				int i = 0;

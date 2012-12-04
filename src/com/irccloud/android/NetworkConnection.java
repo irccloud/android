@@ -742,6 +742,7 @@ public class NetworkConnection {
 		}
 		String type = object.type();
 		if(type != null && type.length() > 0) {
+			//Log.d(TAG, "New event: " + type);
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);

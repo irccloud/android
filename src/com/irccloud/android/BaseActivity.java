@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.Message;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -57,8 +56,6 @@ public class BaseActivity extends SherlockFragmentActivity {
     
     @SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
-    	String bufferToOpen = null;
-    	int cidToOpen = -1;
     	LayoutInflater inflater;
     	View view;
     	TextView prompt;
@@ -67,7 +64,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 		
 		public void handleMessage(Message msg) {
 			final IRCCloudJSONObject o;
-			BuffersDataSource.Buffer b;
 			ServersDataSource s;
 			ServersDataSource.Server server;
 			AlertDialog.Builder builder;
@@ -75,57 +71,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				Log.i("IRCCloud", "New connection state: " + NetworkConnection.getInstance().getState());
-				break;
-			case NetworkConnection.EVENT_LINKCHANNEL:
-				o = (IRCCloudJSONObject)msg.obj;
-				if(cidToOpen == o.cid() && o.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
-					Log.d("IRCCloud", "Linked channel");
-					bufferToOpen = o.getString("valid_chan");
-					msg.obj = BuffersDataSource.getInstance().getBuffer(o.bid());
-				}
-			case NetworkConnection.EVENT_MAKEBUFFER:
-				b = (BuffersDataSource.Buffer)msg.obj;
-				if(cidToOpen == b.cid && b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(getSupportActionBar().getTitle().toString())) {
-		    		Intent i = new Intent(BaseActivity.this, MessageActivity.class);
-		    		i.putExtra("cid", b.cid);
-		    		i.putExtra("bid", b.bid);
-		    		i.putExtra("last_seen_eid", b.last_seen_eid);
-		    		i.putExtra("min_eid", b.min_eid);
-		    		i.putExtra("type", b.type);
-		    		i.putExtra("name", b.name);
-		    		i.putExtra("joined", 1);
-		    		i.putExtra("archived", 0);
-		    		i.putExtra("status", "connected_ready");
-		    		startActivity(i);
-		    		bufferToOpen = null;
-		    		cidToOpen = -1;
-				}
-				break;
-			case NetworkConnection.EVENT_OPENBUFFER:
-				o = (IRCCloudJSONObject)msg.obj;
-				try {
-					bufferToOpen = o.getString("name");
-					cidToOpen = o.cid();
-					b = BuffersDataSource.getInstance().getBufferByName(cidToOpen, bufferToOpen);
-					if(b != null && !bufferToOpen.equalsIgnoreCase(getSupportActionBar().getTitle().toString())) {
-			    		Intent i = new Intent(BaseActivity.this, MessageActivity.class);
-			    		i.putExtra("cid", b.cid);
-			    		i.putExtra("bid", b.bid);
-			    		i.putExtra("last_seen_eid", b.last_seen_eid);
-			    		i.putExtra("min_eid", b.min_eid);
-			    		i.putExtra("type", b.type);
-			    		i.putExtra("name", b.name);
-			    		i.putExtra("joined", 1);
-			    		i.putExtra("archived", 0);
-			    		i.putExtra("status", "connected_ready");
-			    		startActivity(i);
-			    		bufferToOpen = null;
-			    		cidToOpen = -1;
-					}
-				} catch (Exception e2) {
-					// TODO Auto-generated catch block
-					e2.printStackTrace();
-				}
 				break;
 			case NetworkConnection.EVENT_BADCHANNELKEY:
 				o = (IRCCloudJSONObject)msg.obj;
