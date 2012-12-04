@@ -888,7 +888,8 @@ public class MessageViewFragment extends SherlockListFragment {
     	}
     	if(cid != -1) {
 			mServer = ServersDataSource.getInstance().getServer(cid);
-			update_status(mServer.status, mServer.fail_info);
+			if(mServer != null)
+				update_status(mServer.status, mServer.fail_info);
     	}
     	if(getListView().getHeaderViewsCount() == 0) {
     		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
