@@ -511,6 +511,8 @@ public class Notifications {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 
 		NotificationCompat2.Builder builder = new NotificationCompat2.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+		.setContentTitle(title)
+		.setContentText(text)
         .setTicker(ticker)
         .setLights(0xFF0000FF, 500, 1000)
         .setSmallIcon(R.drawable.ic_stat_notify);
