@@ -17,9 +17,11 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -92,7 +94,21 @@ public class MessageViewFragment extends SherlockListFragment {
 	private Ignore ignore = new Ignore();
 	private Timer tapTimer = null;
 	private ServersDataSource.Server mServer = null;
-
+	private boolean longPressOverride = false;
+	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
+	
+	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
+		@Override
+	    public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
+			if(longPressOverride) {
+				longPressOverride = false;
+				return false;
+			} else {
+				return super.onTouchEvent(widget, buffer, event);
+			}
+		}
+	}
+	
 	private class MessageAdapter extends BaseAdapter {
 		ArrayList<EventsDataSource.Event> data;
 		private SherlockListFragment ctx;
@@ -379,7 +395,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 			
 			if(holder.message != null && e.html != null) {
-				holder.message.setMovementMethod(LinkMovementMethod.getInstance());
+				holder.message.setMovementMethod(linkMovementMethodNoLongPress);
 				holder.message.setOnClickListener(new OnItemClickListener(position));
 				if(e.msg != null && e.msg.startsWith("<pre>"))
 					holder.message.setTypeface(Typeface.MONOSPACE);
@@ -437,10 +453,12 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-				if(pos > 1)
-					return mListener.onMessageLongClicked(adapter.data.get(pos - 1));
-				else
+				if(pos > 1) {
+					longPressOverride = mListener.onMessageLongClicked(adapter.data.get(pos - 1));
+					return longPressOverride;
+				} else {
 					return false;
+				}
 			}
     		
     	});
@@ -796,6 +814,8 @@ public class MessageViewFragment extends SherlockListFragment {
         
         @Override
         public void onClick(View arg0) {
+        	longPressOverride = false;
+        	
 	    	if(pos < 0)
 	    		return;
 
@@ -852,6 +872,7 @@ public class MessageViewFragment extends SherlockListFragment {
     @SuppressWarnings("unchecked")
 	public void onResume() {
     	super.onResume();
+    	longPressOverride = false;
         getListView().setStackFromBottom(true);
         getListView().requestFocus();
     	if(bid == -1 && cid != -1) {
