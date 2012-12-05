@@ -95,6 +95,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {
+				if(!GCMRegistrar.isRegistered(IRCCloudApplication.getInstance().getApplicationContext()) || !IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("session_key")) {
+					Log.w("IRCCloud", "Not logged in, not posting GCM id");
+					return;
+				}
 				boolean success = false;
 				try {
 					JSONObject result = NetworkConnection.getInstance().registerGCM(GCMRegistrar.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()));
