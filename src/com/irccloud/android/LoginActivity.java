@@ -55,8 +55,9 @@ public class LoginActivity extends SherlockActivity {
 			public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
 					new LoginTask().execute((Void)null);
+					return true;
 				}
-				return true;
+				return false;
 			}
         });
         loginBtn = (Button)findViewById(R.id.loginBtn);

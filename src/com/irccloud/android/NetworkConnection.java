@@ -206,7 +206,11 @@ public class NetworkConnection {
 		if(wifiLock.isHeld())
 			wifiLock.release();
 		reconnect_timestamp = 0;
-		IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
+		try {
+			IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
+		} catch (IllegalArgumentException e) {
+			//The broadcast receiver hasn't been registered yet
+		}
 	}
 	
 	public JSONObject login(String email, String password) throws IOException {
