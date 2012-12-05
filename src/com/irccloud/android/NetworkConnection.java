@@ -149,11 +149,19 @@ public class NetworkConnection {
 		public void onReceive(Context context, Intent intent) {
 			ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo ni = cm.getActiveNetworkInfo();
-			if(ni != null && ni.isConnected() && state == STATE_DISCONNECTED && reconnect_timestamp > 0) {
+			if(ni != null && ni.isConnected() && state == STATE_DISCONNECTED && session != null && handlers.size() > 0) {
 				if(idleTimer != null)
 					idleTimer.cancel();
 				idleTimer = null;
 				connect(session);
+			} else if(ni == null || !ni.isConnected()) {
+				if(client != null) {
+					state = STATE_DISCONNECTING;
+					client.disconnect();
+				}
+				cancel_idle_timer();
+				reconnect_timestamp = 0;
+				state = STATE_DISCONNECTED;
 			}
 		}
 	};
@@ -244,12 +252,24 @@ public class NetworkConnection {
 	
 	public void connect(String sk) {
 		session = sk;
-		if(!wifiLock.isHeld())
-			wifiLock.acquire();
 		
 		IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 		IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
+		
+		ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo ni = cm.getActiveNetworkInfo();
+		
+		if(ni == null || !ni.isConnected()) {
+			Log.w("IRCCloud", "Network is not connected");
+			cancel_idle_timer();
+			state = STATE_DISCONNECTED;
+			reconnect_timestamp = 0;
+			return;
+		}
+		
+		if(!wifiLock.isHeld())
+			wifiLock.acquire();
 		
 		List<BasicNameValuePair> extraHeaders = Arrays.asList(
 		    new BasicNameValuePair("Cookie", "session="+session),

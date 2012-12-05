@@ -1364,6 +1364,8 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
     	} else {
 			connectingMsg.setText("Offline");
+			progressBar.setIndeterminate(false);
+			progressBar.setProgress(0);
     	}
     }
     
