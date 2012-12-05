@@ -345,8 +345,12 @@ public class BuffersListFragment extends SherlockListFragment {
 
 					BuffersDataSource.Buffer b = buffers.get(j);
 					if(b.type.equalsIgnoreCase("console")) {
-						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+						int unread = 0;
+						int highlights = 0;
+						if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+							unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+							highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+						}
 						if(s.name.length() == 0)
 							s.name = s.hostname;
 						try {
@@ -387,8 +391,12 @@ public class BuffersListFragment extends SherlockListFragment {
 					else if(b.type.equalsIgnoreCase("conversation"))
 						type = TYPE_CONVERSATION;
 					if(type > 0 && b.archived == 0) {
-						int unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-						int highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+						int unread = 0;
+						int highlights = 0;
+						if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+							unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+							highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+						}
 						try {
 							if(b.type.equalsIgnoreCase("channel")) {
 								if(b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
