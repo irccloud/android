@@ -120,7 +120,7 @@ public class LoginActivity extends SherlockActivity {
 				if(result != null) {
 					try {
 						message = result.getString("message");
-						if(message.equalsIgnoreCase("auth"))
+						if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("password"))
 							message = "Incorrect username or password.  Please try again.";
 						else if(message.equalsIgnoreCase("legacy_account"))
 							message = "Your account hasn't been migrated yet.  Please try again shortly.";
