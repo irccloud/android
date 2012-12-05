@@ -311,13 +311,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 				UsersDataSource.getInstance().clear();
 				EventsDataSource.getInstance().clear();
 				Notifications.getInstance().clear();
-				Notifications.getInstance().clearDismissed();
-        		i = new Intent(this, LoginActivity.class);
-        		i.addFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                        Intent.FLAG_ACTIVITY_NEW_TASK);
-        		startActivity(i);
-        		finish();
         		try {
 	                GCMRegistrar.checkDevice(this);
 	                GCMRegistrar.checkManifest(this);
@@ -325,6 +318,12 @@ public class BaseActivity extends SherlockFragmentActivity {
         		} catch (Exception e) {
         			//GCM might not be available on the device
         		}
+        		i = new Intent(this, LoginActivity.class);
+        		i.addFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                        Intent.FLAG_ACTIVITY_NEW_TASK);
+        		startActivity(i);
+        		finish();
             	break;
             case R.id.menu_settings:
         		i = new Intent(this, PreferencesActivity.class);

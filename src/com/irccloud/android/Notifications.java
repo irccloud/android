@@ -225,10 +225,9 @@ public class Notifications {
 	public void clear() {
 		try {
 	        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-			ArrayList<Notification> notifications = getOtherNotifications();
 			
-			if(notifications.size() > 0) {
-		        for(Notification n : notifications) {
+			if(mNotifications.size() > 0) {
+		        for(Notification n : mNotifications) {
 	        		nm.cancel((int)(n.eid/1000));
 	        		nm.cancel(n.bid);
 		        }
