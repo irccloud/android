@@ -73,6 +73,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private String error = null;
 	private View connecting = null;
 	private TextView awayView = null;
+	private int savedScrollPos = -1;
 	
 	public static final int ROW_MESSAGE = 0;
 	public static final int ROW_TIMESTAMP = 1;
@@ -932,7 +933,11 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		}
 				refresh(events, buffer);
 	    		adapter.notifyDataSetChanged();
-				getListView().setSelection(adapter.getCount() - 1);
+	    		if(savedScrollPos > 0)
+	    			getListView().setSelection(savedScrollPos);
+	    		else
+	    			getListView().setSelection(adapter.getCount() - 1);
+	    		savedScrollPos = -1;
     		} else if(conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
     			headerView.setVisibility(View.GONE);
     		} else {
@@ -1300,6 +1305,11 @@ public class MessageViewFragment extends SherlockListFragment {
 		});
 		connecting.startAnimation(anim);
 		error = null;
+		try {
+			savedScrollPos = getListView().getFirstVisiblePosition();
+		} catch (Exception e) {
+			savedScrollPos = -1;
+		}
    	}
     
 	private void updateReconnecting() {
