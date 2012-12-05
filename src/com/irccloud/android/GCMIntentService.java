@@ -99,9 +99,13 @@ public class GCMIntentService extends GCMBaseIntentService {
 					Log.w("IRCCloud", "Not logged in, not posting GCM id");
 					return;
 				}
+				if(IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("gcm_registered")) {
+					Log.w("IRCCloud", "Already POSTed this ID");
+					return;
+				}
 				boolean success = false;
 				try {
-					JSONObject result = NetworkConnection.getInstance().registerGCM(GCMRegistrar.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()));
+					JSONObject result = NetworkConnection.getInstance().registerGCM(GCMRegistrar.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()), IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
 					if(result.has("success"))
 						success = result.getBoolean("success");
 				} catch (Exception e) {

@@ -206,6 +206,7 @@ public class NetworkConnection {
 		if(wifiLock.isHeld())
 			wifiLock.release();
 		reconnect_timestamp = 0;
+		session = null;
 		try {
 			IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
 		} catch (IllegalArgumentException e) {
@@ -227,8 +228,8 @@ public class NetworkConnection {
 		return null;
 	}
 	
-	public JSONObject registerGCM(String regId) throws IOException {
-		String postdata = "device_id="+regId+"&session="+session;
+	public JSONObject registerGCM(String regId, String sk) throws IOException {
+		String postdata = "device_id="+regId+"&session="+sk;
 		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata);
 		try {
 			Log.d(TAG, "Result: " + response);
