@@ -33,7 +33,7 @@ public class BaseActivity extends SherlockFragmentActivity {
     	if(session != null && session.length() > 0) {
 	    	conn = NetworkConnection.getInstance();
 	    	conn.addHandler(mHandler);
-	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED)
+	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
 	    		conn.connect(session);
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
