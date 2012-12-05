@@ -37,6 +37,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	    	try {
 		    	String type = intent.getStringExtra("type");
 		    	if(type.equalsIgnoreCase("heartbeat_echo")) {
+					NetworkConnection conn = NetworkConnection.getInstance();
 		    		JsonParser parser = new JsonParser();
 		    		JsonObject seenEids = parser.parse(intent.getStringExtra("seenEids")).getAsJsonObject();
 					Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
@@ -48,6 +49,8 @@ public class GCMIntentService extends GCMBaseIntentService {
 							Entry<String, JsonElement> eidentry = j.next();
 							String bid = eidentry.getKey();
 							long eid = eidentry.getValue().getAsLong();
+							if(conn.ready && conn.getState() != NetworkConnection.STATE_CONNECTED)
+								BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
 							Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
 							Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
 						}
