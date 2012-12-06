@@ -672,7 +672,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(type.equalsIgnoreCase("joined_channel")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null);
 				} else if(type.equalsIgnoreCase("parted_channel")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, null);
+					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg);
 				} else if(type.equalsIgnoreCase("quit")) {
 					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg);
 				} else if(type.equalsIgnoreCase("nickchange")) {

@@ -294,6 +294,8 @@ public class CollapsedEventsList {
 			case TYPE_PART:
 	    		message.append("← <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
 	    		message.append(" left (").append(e.hostmask).append(")");
+	    		if(e.msg != null && e.msg.length() > 0)
+	    			message.append(": ").append(e.msg);
 				break;
 			case TYPE_QUIT:
 	    		message.append("⇐ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
