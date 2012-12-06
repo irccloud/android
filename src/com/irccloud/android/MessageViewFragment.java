@@ -438,10 +438,12 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			@Override
 			public void onClick(View v) {
-				unreadTopView.setVisibility(View.GONE);
+				if(adapter.getLastSeenEIDPosition() > 0) {
+					Long e = adapter.data.get(adapter.data.size() - 1).eid;
+					new HeartbeatTask().execute(e);
+				}
 				getListView().setSelection(adapter.getLastSeenEIDPosition());
-				Long e = adapter.data.get(adapter.data.size() - 1).eid;
-				new HeartbeatTask().execute(e);
+				unreadTopView.setVisibility(View.GONE);
 			}
     		
     	});
