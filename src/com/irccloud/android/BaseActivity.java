@@ -36,7 +36,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
 	    		conn.connect(session);
     	} else {
-    		Intent i = new Intent(this, LoginActivity.class);
+    		Intent i = new Intent(this, MainActivity.class);
     		i.addFlags(
                     Intent.FLAG_ACTIVITY_CLEAR_TOP |
                     Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -322,7 +322,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 				UsersDataSource.getInstance().clear();
 				EventsDataSource.getInstance().clear();
 				Notifications.getInstance().clear();
-        		i = new Intent(this, LoginActivity.class);
+        		i = new Intent(this, MainActivity.class);
         		i.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
                         Intent.FLAG_ACTIVITY_NEW_TASK);

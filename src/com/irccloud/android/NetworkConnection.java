@@ -1226,7 +1226,8 @@ public class NetworkConnection {
 	public void addHandler(Handler handler) {
 		if(handlers == null)
 			handlers = new ArrayList<Handler>();
-		handlers.add(handler);
+		if(!handlers.contains(handler))
+			handlers.add(handler);
 		if(shutdownTimer != null) {
 			Log.d("IRCCloud", "Disconnect timer cancelled");
 			shutdownTimer.cancel();
@@ -1264,11 +1265,13 @@ public class NetworkConnection {
 	}
 	
 	public synchronized void notifyHandlers(int message, Object object, Handler exclude) {
-		for(int i = 0; i < handlers.size(); i++) {
-			Handler handler = handlers.get(i);
-			if(handler != exclude) {
-				Message msg = handler.obtainMessage(message, object);
-				handler.sendMessage(msg);
+		if(handlers != null) {
+			for(int i = 0; i < handlers.size(); i++) {
+				Handler handler = handlers.get(i);
+				if(handler != exclude) {
+					Message msg = handler.obtainMessage(message, object);
+					handler.sendMessage(msg);
+				}
 			}
 		}
 	}

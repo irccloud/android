@@ -30,6 +30,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		getWindow().setBackgroundDrawableResource(android.R.drawable.screen_background_light);
 		getSupportActionBar().setTitle("Settings");
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		addPreferencesFromResource(R.xml.preferences_account);

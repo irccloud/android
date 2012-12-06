@@ -1277,7 +1277,8 @@ public class MessageViewFragment extends SherlockListFragment {
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	}
 	}
-	
+
+	@Override
     public void onPause() {
     	super.onPause();
 		if(statusRefreshRunnable != null) {
