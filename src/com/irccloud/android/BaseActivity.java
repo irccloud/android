@@ -302,6 +302,17 @@ public class BaseActivity extends SherlockFragmentActivity {
             	conn.disconnect();
             	conn.ready = false;
 				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+        		try {
+	                GCMRegistrar.checkDevice(this);
+	                GCMRegistrar.checkManifest(this);
+					if(GCMRegistrar.isRegistered(this)) {
+						//Store the old session key so GCM can unregister later
+						editor.putString(GCMRegistrar.getRegistrationId(this), getSharedPreferences("prefs", 0).getString("session_key", ""));
+		                GCMRegistrar.unregister(this);
+					}
+        		} catch (Exception e) {
+        			//GCM might not be available on the device
+        		}
 				editor.remove("session_key");
 				editor.remove("gcm_registered");
 				editor.commit();
@@ -311,13 +322,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 				UsersDataSource.getInstance().clear();
 				EventsDataSource.getInstance().clear();
 				Notifications.getInstance().clear();
-        		try {
-	                GCMRegistrar.checkDevice(this);
-	                GCMRegistrar.checkManifest(this);
-	                GCMRegistrar.unregister(this);
-        		} catch (Exception e) {
-        			//GCM might not be available on the device
-        		}
         		i = new Intent(this, LoginActivity.class);
         		i.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |

@@ -1,5 +1,6 @@
 package com.irccloud.android;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -130,15 +131,44 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@Override
 	protected void onRegistered(Context context, String regId) {
 		Log.i("IRCCloud", "GCM registered, id: " + regId);
-		scheduleRegisterTimer(30000);
+		scheduleRegisterTimer(15000);
 	}
 
+	public static void scheduleUnregisterTimer(int delay, final String regId) {
+		final int retrydelay = delay;
+		
+		new Timer().schedule(new TimerTask() {
+			@Override
+			public void run() {
+				boolean success = false;
+				try {
+					String session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString(regId, "");
+					if(session.length() == 0)
+						session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", "");
+					JSONObject result = NetworkConnection.getInstance().unregisterGCM(regId, session);
+					if(result.has("success"))
+						success = result.getBoolean("success");
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(success) {
+					SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+					editor.remove("gcm_registered");
+					editor.remove(regId);
+					editor.commit();
+				} else {
+					Log.e("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+					scheduleUnregisterTimer(retrydelay * 2, regId);
+				}
+			}
+		}, delay);
+	}
+	
 	@Override
 	protected void onUnregistered(Context context, String regId) {
 		Log.i("IRCCloud", "GCM unregistered, id: " + regId);
-		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-		editor.remove("gcm_registered");
-		editor.commit();
+		scheduleUnregisterTimer(1000, regId);
 	}
 
 }
