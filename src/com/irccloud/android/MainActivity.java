@@ -71,6 +71,9 @@ public class MainActivity extends SherlockActivity {
         }
         if(accounts.size() > 0)
         	email.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts.toArray(new String[accounts.size()])));
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("email"))
+        	email.setText(savedInstanceState.getString("email"));
         
         password = (EditText)findViewById(R.id.password);
         password.setOnEditorActionListener(new OnEditorActionListener() {
@@ -82,6 +85,9 @@ public class MainActivity extends SherlockActivity {
 				return false;
 			}
         });
+        if(savedInstanceState != null && savedInstanceState.containsKey("password"))
+        	password.setText(savedInstanceState.getString("password"));
+
         loginBtn = (Button)findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -89,6 +95,17 @@ public class MainActivity extends SherlockActivity {
 				new LoginTask().execute((Void)null);
 			}
         });
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	if(login != null && login.getVisibility() == View.VISIBLE) {
+	    	if(email != null)
+	    		state.putString("email", email.getText().toString());
+	    	if(password != null)
+	    		state.putString("password", password.getText().toString());
+    	}
     }
 
     @Override
