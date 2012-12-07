@@ -95,10 +95,10 @@ public class ColorFormatter {
 		        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
 		        }
 		    }, null);
-			Linkify.addLinks(output, Pattern.compile("http://\\S+"), null, null, null);
-			Linkify.addLinks(output, Pattern.compile("https://\\S+"), null, null, null);
+			Linkify.addLinks(output, Pattern.compile("http://[^<>\"()\\[\\],\\s]+"), null, null, null);
+			Linkify.addLinks(output, Pattern.compile("https://[^<>\"()\\[\\],\\s]+"), null, null, null);
 			Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:");
-			Linkify.addLinks(output, Pattern.compile("ircs?://\\S+"), null, null, new TransformFilter() {
+			Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\"()\\[\\],\\s]+"), null, null, new TransformFilter() {
 		        public final String transformUrl(final Matcher match, String url) {
 		            return url.replace("#", "%23");
 		        }
@@ -112,7 +112,7 @@ public class ColorFormatter {
 	    		} else {
 	    			pattern += "#";
 	    		}
-	    		pattern += "][^<>\",\\s]+)";
+	    		pattern += "][^<>\"()\\[\\],\\s]+)";
 	
 				Linkify.addLinks(output, Pattern.compile(pattern), null, null, new TransformFilter() {
 			        public final String transformUrl(final Matcher match, String url) {
