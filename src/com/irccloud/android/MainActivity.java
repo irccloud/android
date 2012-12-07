@@ -26,7 +26,11 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -53,6 +57,7 @@ public class MainActivity extends SherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_main);
         if(getSupportActionBar() != null)
         	getSupportActionBar().hide();
@@ -96,6 +101,8 @@ public class MainActivity extends SherlockActivity {
 				new LoginTask().execute((Void)null);
 			}
         });
+        loginBtn.setFocusable(true);
+    	loginBtn.requestFocus();
         
         TextView version = (TextView)findViewById(R.id.version);
         try {
@@ -146,8 +153,6 @@ public class MainActivity extends SherlockActivity {
     		} else {
     			connecting.setVisibility(View.GONE);
     			login.setVisibility(View.VISIBLE);
-				email.requestFocus();
-		    	getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     		}
     	}
     }
@@ -248,7 +253,14 @@ public class MainActivity extends SherlockActivity {
 			loginBtn.setEnabled(false);
 			connectingMsg.setText("Authenticating");
 			progressBar.setIndeterminate(true);
-			login.setVisibility(View.GONE);
+	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
+			anim.setDuration(250);
+			anim.setFillAfter(true);
+			login.startAnimation(anim);
+	    	anim = new AlphaAnimation(0, 1);
+			anim.setDuration(250);
+			anim.setFillAfter(true);
+			connecting.startAnimation(anim);
 			connecting.setVisibility(View.VISIBLE);
 		}
 		
@@ -265,16 +277,13 @@ public class MainActivity extends SherlockActivity {
 
 		@Override
 		public void onPostExecute(JSONObject result) {
-			email.setEnabled(true);
-			password.setEnabled(true);
-			loginBtn.setEnabled(true);
-
 			if(result != null && result.has("session")) {
 				try {
 					SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 					editor.putString("session_key", result.getString("session"));
 					login.setVisibility(View.GONE);
-					connecting.setVisibility(View.VISIBLE);
+					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(password.getWindowToken(), 0);
 					conn.addHandler(mHandler);
 					conn.connect(result.getString("session"));
 					editor.commit();
@@ -283,8 +292,33 @@ public class MainActivity extends SherlockActivity {
 					e.printStackTrace();
 				}
 			} else {
-				login.setVisibility(View.VISIBLE);
-				connecting.setVisibility(View.GONE);
+				email.setEnabled(true);
+				password.setEnabled(true);
+				loginBtn.setEnabled(true);
+		    	AlphaAnimation anim = new AlphaAnimation(0, 1);
+				anim.setDuration(250);
+				anim.setFillAfter(true);
+				login.startAnimation(anim);
+		    	anim = new AlphaAnimation(1, 0);
+				anim.setDuration(250);
+				anim.setFillAfter(true);
+				anim.setAnimationListener(new AnimationListener() {
+
+					@Override
+					public void onAnimationEnd(Animation arg0) {
+						connecting.setVisibility(View.GONE);
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation) {
+					}
+
+					@Override
+					public void onAnimationStart(Animation animation) {
+					}
+					
+				});
+				connecting.startAnimation(anim);
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 				builder.setTitle("Login Failed");
 				String message = "Unable to connect to IRCCloud.  Please try again shortly.";
