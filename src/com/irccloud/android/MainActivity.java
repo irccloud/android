@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -95,6 +96,13 @@ public class MainActivity extends SherlockActivity {
 				new LoginTask().execute((Void)null);
 			}
         });
+        
+        TextView version = (TextView)findViewById(R.id.version);
+        try {
+			version.setText("Version " + getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName);
+		} catch (NameNotFoundException e) {
+			version.setVisibility(View.GONE);
+		}
     }
     
     @Override
