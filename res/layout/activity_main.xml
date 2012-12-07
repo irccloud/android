@@ -12,8 +12,8 @@
 
         <ImageView
             android:id="@+id/splashlogo"
-            android:layout_width="128dp"
-            android:layout_height="128dp"
+            android:layout_width="@dimen/splashlogo_width"
+            android:layout_height="@dimen/splashlogo_width"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="64dp"
