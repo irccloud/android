@@ -90,9 +90,12 @@ public class ColorFormatter {
 		        		return false;
 		        	if(s.subSequence(start, end).toString().startsWith("https://"))
 		        		return false;
+		        	if(s.subSequence(start, end).toString().startsWith("http://"))
+		        		return false;
 		        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
 		        }
 		    }, null);
+			Linkify.addLinks(output, Pattern.compile("http://\\S+"), null, null, null);
 			Linkify.addLinks(output, Pattern.compile("https://\\S+"), null, null, null);
 			Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:");
 			Linkify.addLinks(output, Pattern.compile("ircs?://\\S+"), null, null, new TransformFilter() {
