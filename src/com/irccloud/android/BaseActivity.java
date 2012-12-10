@@ -32,9 +32,11 @@ public class BaseActivity extends SherlockFragmentActivity {
     	String session = getSharedPreferences("prefs", 0).getString("session_key", "");
     	if(session != null && session.length() > 0) {
 	    	conn = NetworkConnection.getInstance();
-	    	conn.addHandler(mHandler);
-	    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-	    		conn.connect(session);
+	    	if(conn.ready) {
+		    	conn.addHandler(mHandler);
+		    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
+		    		conn.connect(session);
+	    	}
     	} else {
     		Intent i = new Intent(this, MainActivity.class);
     		i.addFlags(

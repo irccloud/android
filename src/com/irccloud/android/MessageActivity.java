@@ -579,6 +579,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	@Override
     public void onResume() {
     	conn = NetworkConnection.getInstance();
+    	if(!conn.ready) {
+        	super.onResume();
+    		Intent i = new Intent(this, MainActivity.class);
+    		if(getIntent() != null) {
+    			if(getIntent().getData() != null)
+    				i.setData(getIntent().getData());
+    			if(getIntent().getExtras() != null)
+    				i.putExtras(getIntent().getExtras());
+    		}
+    		startActivity(i);
+    		finish();
+    		return;
+    	}
     	conn.addHandler(mHandler);
 
     	super.onResume();
