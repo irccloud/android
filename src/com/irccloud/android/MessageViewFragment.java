@@ -1310,7 +1310,10 @@ public class MessageViewFragment extends SherlockListFragment {
 		connecting.startAnimation(anim);
 		error = null;
 		try {
-			savedScrollPos = getListView().getFirstVisiblePosition();
+			if(getListView().getLastVisiblePosition() < adapter.getCount())
+				savedScrollPos = getListView().getFirstVisiblePosition();
+			else
+				savedScrollPos = -1;
 		} catch (Exception e) {
 			savedScrollPos = -1;
 		}
