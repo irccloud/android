@@ -493,8 +493,8 @@ public class BuffersListFragment extends SherlockListFragment {
 			} else {
 				topUnreadIndicator.setVisibility(View.GONE);
 			}
-			if((lastHighlightPosition != -1 && first >= lastHighlightPosition) ||
-					(firstHighlightPosition != -1 && first >= firstHighlightPosition)) {
+			if((lastHighlightPosition != -1 && first > lastHighlightPosition) ||
+					(firstHighlightPosition != -1 && first > firstHighlightPosition)) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
 				topUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
 			}
