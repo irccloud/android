@@ -78,10 +78,11 @@ public class GCMIntentService extends GCMBaseIntentService {
 			    	if(network == null)
 			    		Notifications.getInstance().addNetwork(cid, server_name);
 			    	
-			    	Notifications.getInstance().deleteNotification(cid, bid, eid);
 			    	Notifications.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type);
-			    	
-					if(buffer_type.equals("channel"))
+
+			    	if(from == null || from.length() == 0)
+						Notifications.getInstance().showNotifications(server_name + ": " + msg);
+			    	else if(buffer_type.equals("channel"))
 						Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
 					else
 						Notifications.getInstance().showNotifications(from + ": " + msg);

@@ -947,9 +947,17 @@ public class NetworkConnection {
 						if(!backlog) {
 							if(b.type.equals("conversation"))
 								Notifications.getInstance().showNotifications(b.name + ": " + message);
-							else if(b.type.equals("console"))
-								Notifications.getInstance().showNotifications(event.from + ": " + message);
-							else
+							else if(b.type.equals("console")) {
+								if(event.from == null || event.from.length() == 0) {
+									ServersDataSource.Server s = ServersDataSource.getInstance().getServer(event.cid);
+									if(s.name != null && s.name.length() > 0)
+										Notifications.getInstance().showNotifications(s.name + ": " + message);
+									else
+										Notifications.getInstance().showNotifications(s.hostname + ": " + message);
+								} else {
+									Notifications.getInstance().showNotifications(event.from + ": " + message);
+								}
+							} else
 								Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
 						}
 					}
