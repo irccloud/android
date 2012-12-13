@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -65,7 +66,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 			    		return;
 			    	}
 			    	String from = intent.getStringExtra("from_nick");
-			    	String msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(intent.getStringExtra("msg"))).toString();
+			    	String msg = intent.getStringExtra("msg");
+			    	if(msg != null)
+			    		msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(msg))).toString();
 			    	String chan = intent.getStringExtra("chan");
 			    	if(chan == null)
 			    		chan = "";

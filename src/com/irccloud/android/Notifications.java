@@ -25,6 +25,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -318,7 +319,7 @@ public class Notifications {
 		n.cid = cid;
 		n.eid = eid;
 		n.nick = from;
-		n.message = message;
+		n.message = TextUtils.htmlEncode(message);
 		n.chan = chan;
 		n.buffer_type = buffer_type;
 		n.message_type = message_type;
