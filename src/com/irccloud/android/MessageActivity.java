@@ -1273,8 +1273,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            nsFragment.show(getSupportFragmentManager(), "nickserv");
 	            break;
 	        case R.id.menu_add_network:
-	        	EditConnectionFragment connFragment = new EditConnectionFragment();
-	            connFragment.show(getSupportFragmentManager(), "addnetwork");
+				if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+					Intent i = new Intent(this, EditConnectionActivity.class);
+					startActivity(i);
+				} else {
+		        	EditConnectionFragment connFragment = new EditConnectionFragment();
+		            connFragment.show(getSupportFragmentManager(), "addnetwork");
+				}
 	            break;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
@@ -1355,9 +1360,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		dialog.show();
             	return true;
             case R.id.menu_editconnection:
-	        	EditConnectionFragment editFragment = new EditConnectionFragment();
-	        	editFragment.setCid(cid);
-	            editFragment.show(getSupportFragmentManager(), "editconnection");
+				if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+					Intent i = new Intent(this, EditConnectionActivity.class);
+					i.putExtra("cid", cid);
+					startActivity(i);
+				} else {
+		        	EditConnectionFragment editFragment = new EditConnectionFragment();
+		        	editFragment.setCid(cid);
+		            editFragment.show(getSupportFragmentManager(), "editconnection");
+				}
             	return true;
             case R.id.menu_disconnect:
         		if(status != null && status.contains("connected") && !status.startsWith("dis")) {

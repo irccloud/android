@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -75,8 +76,13 @@ public class AddChannelFragment extends DialogFragment {
     	b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-	        	EditConnectionFragment newFragment = new EditConnectionFragment();
-	            newFragment.show(getActivity().getSupportFragmentManager(), "editconnection");
+				if(getActivity().getWindowManager().getDefaultDisplay().getWidth() < 800) {
+					Intent i = new Intent(getActivity(), EditConnectionActivity.class);
+					startActivity(i);
+				} else {
+		        	EditConnectionFragment newFragment = new EditConnectionFragment();
+		            newFragment.show(getActivity().getSupportFragmentManager(), "editconnection");
+				}
 			}
     	});
     	

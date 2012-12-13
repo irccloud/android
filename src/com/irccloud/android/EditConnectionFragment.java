@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -80,14 +81,7 @@ public class EditConnectionFragment extends DialogFragment {
 		"irc.twit.tv"
 	};
 	
-	@Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-		Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
-
-		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View v = inflater.inflate(R.layout.dialog_edit_connection, null);
+	private void init(View v) {
     	channelsWrapper = (LinearLayout)v.findViewById(R.id.channels_wrapper);
 		presets = (Spinner)v.findViewById(R.id.presets);
 		hostname = (EditText)v.findViewById(R.id.hostname);
@@ -151,10 +145,31 @@ public class EditConnectionFragment extends DialogFragment {
 			}
 			
 		});
-		
+	}
+	
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    	if(getShowsDialog()) {
+    		return super.onCreateView(inflater, container, savedInstanceState);
+    	} else {
+	    	final View v = inflater.inflate(R.layout.dialog_edit_connection, container, false);
+	    	init(v);
+	    	return v;
+    	}
+    }
+	
+	@Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+		Context ctx = getActivity();
+		if(Build.VERSION.SDK_INT < 11)
+			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
+
+		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    	View v = inflater.inflate(R.layout.dialog_edit_connection, null);
+    	init(v);
+
 		if(savedInstanceState != null && savedInstanceState.containsKey("cid"))
 			server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
-		
+    	
     	Dialog d = new AlertDialog.Builder(ctx)
         .setTitle("Add A Network")
         .setView(v)
@@ -216,24 +231,28 @@ public class EditConnectionFragment extends DialogFragment {
 		if(server != null)
 			savedInstanceState.putInt("cid", server.cid);
 	}
+
+	public void save() {
+		if(server == null) {
+			String netname = hostname.getText().toString();
+			if(presets.getSelectedItemPosition() > 0) {
+				netname = PRESET_NETWORKS[presets.getSelectedItemPosition()];
+			}
+			NetworkConnection.getInstance().addServer(hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
+					ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
+							nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
+		} else {
+			NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
+					ssl.isChecked()?1:0, server.name, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
+							nickserv_pass.getText().toString(), join_commands.getText().toString());
+			
+		}
+	}
 	
     class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-			if(server == null) {
-				String netname = hostname.getText().toString();
-				if(presets.getSelectedItemPosition() > 0) {
-					netname = PRESET_NETWORKS[presets.getSelectedItemPosition()];
-				}
-				NetworkConnection.getInstance().addServer(hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
-						ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
-								nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
-			} else {
-				NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
-						ssl.isChecked()?1:0, server.name, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
-								nickserv_pass.getText().toString(), join_commands.getText().toString());
-				
-			}
+			save();
 			dialog.dismiss();
 		}
     }

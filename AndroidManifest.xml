@@ -46,6 +46,10 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
         </activity>
+        <activity
+            android:name=".EditConnectionActivity"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity android:name=".PreferencesActivity">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
