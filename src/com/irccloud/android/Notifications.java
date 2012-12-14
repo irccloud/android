@@ -593,6 +593,10 @@ public class Notifications {
 							} else {
 								title = last.network;
 							}
+				        	if(last.message_type.equals("buffer_me_msg"))
+				        		text = "Ñ " + last.message;
+				        	else
+				        		text = last.message;
 							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
 						} else {
 							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
@@ -637,6 +641,10 @@ public class Notifications {
 					} else {
 						title = last.network;
 					}
+		        	if(last.message_type.equals("buffer_me_msg"))
+		        		text = "Ñ " + last.message;
+		        	else
+		        		text = last.message;
 					nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
 				} else {
 					nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
