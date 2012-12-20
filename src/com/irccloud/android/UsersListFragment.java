@@ -50,6 +50,7 @@ public class UsersListFragment extends SherlockListFragment {
 			String count;
 			int color;
 			int bg_color;
+			int static_bg_color;
 			boolean away;
 			boolean last;
 		}
@@ -63,13 +64,14 @@ public class UsersListFragment extends SherlockListFragment {
 			data = items;
 		}
 		
-		public UserListEntry buildItem(int type, String text, String count, int color, int bg_color, boolean away, boolean last) {
+		public UserListEntry buildItem(int type, String text, String count, int color, int bg_color, int static_bg_color, boolean away, boolean last) {
 			UserListEntry e = new UserListEntry();
 			e.type = type;
 			e.text = text;
 			e.count = count;
 			e.color = color;
 			e.bg_color = bg_color;
+			e.static_bg_color = static_bg_color;
 			e.away = away;
 			e.last = last;
 			return e;
@@ -125,7 +127,8 @@ public class UsersListFragment extends SherlockListFragment {
 				holder.label.setTextColor(getResources().getColorStateList(e.color));
 			}
 
-			row.setBackgroundResource(e.bg_color);
+			row.setBackgroundResource(e.static_bg_color);
+			holder.label.setBackgroundResource(e.bg_color);
 				
 			if(holder.count != null) {
 				if(e.count != null) {
@@ -153,10 +156,10 @@ public class UsersListFragment extends SherlockListFragment {
 
 	private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<UsersDataSource.User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
 		if(users.size() > 0) {
-			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, heading_bg_color, false, false));
+			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, heading_bg_color, heading_bg_color, false, false));
 			for(int i = 0; i < users.size(); i++) {
 				UsersDataSource.User user = users.get(i);
-				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, user.away > 0, i == users.size() - 1));
+				entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, heading_bg_color, user.away > 0, i == users.size() - 1));
 			}
 		}
 	}
