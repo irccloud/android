@@ -3,14 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background_blue"
+    android:background="@drawable/bg"
     tools:context=".BuffersListFragment" >
 
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg"
         android:cacheColorHint="#D9E7FF"
         android:descendantFocusability="blocksDescendants"
         android:divider="#00000000"

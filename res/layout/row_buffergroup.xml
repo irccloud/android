@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg"
     android:descendantFocusability="blocksDescendants"
     android:minHeight="64dp"
     android:orientation="horizontal"
@@ -9,11 +10,11 @@
 
     <LinearLayout
         android:id="@+id/unread"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:paddingLeft="8dp"
-	    android:layout_marginRight="8dp"
-	   	android:background="@drawable/background_blue">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/bg"
+        android:paddingLeft="8dp" >
 
       	    <LinearLayout
       	        android:id="@+id/groupbg"
