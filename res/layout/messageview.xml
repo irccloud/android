@@ -54,24 +54,43 @@
 
             <TextView
                 android:id="@+id/unread"
-	            android:layout_alignParentBottom="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
                 android:background="@color/dark_blue"
                 android:padding="4dp"
                 android:textColor="@color/message_bg"
                 android:textStyle="bold"
                 android:visibility="gone" />
-
         </RelativeLayout>
 
-        <TextView
+        <LinearLayout
             android:id="@+id/away"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/status_bg"
-            android:padding="4dp"
-            android:visibility="gone" />
+            android:padding="6dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/awayTxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="middle" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_weight="0"
+                android:gravity="right"
+                android:lines="1"
+                android:text="Tap to come back"
+                android:textColor="@color/timestamp" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/statusView"

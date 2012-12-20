@@ -72,7 +72,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	private Timer countdownTimer = null;
 	private String error = null;
 	private View connecting = null;
-	private TextView awayView = null;
+	private View awayView = null;
+	private TextView awayTxt = null;
 	private int savedScrollPos = -1;
 	
 	public static final int ROW_MESSAGE = 0;
@@ -422,7 +423,16 @@ public class MessageViewFragment extends SherlockListFragment {
 		connectingMsg = (TextView)v.findViewById(R.id.connectingMsg);
 		progressBar = (ProgressBar)v.findViewById(R.id.connectingProgress);
     	statusView = (TextView)v.findViewById(R.id.statusView);
-    	awayView = (TextView)v.findViewById(R.id.away);
+    	awayView = v.findViewById(R.id.away);
+    	awayView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				conn.say(cid, null, "/back");
+			}
+    		
+    	});
+    	awayTxt = (TextView)v.findViewById(R.id.awayTxt);
     	unreadView = (TextView)v.findViewById(R.id.unread);
     	unreadView.setOnClickListener(new OnClickListener() {
 
@@ -583,7 +593,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	if(mServer != null) {
     		ignore.setIgnores(mServer.ignores);
     		if(mServer.away != null && mServer.away.length() > 0) {
-    			awayView.setText("Away (" + mServer.away + ")");
+    			awayTxt.setText("Away (" + mServer.away + ")");
     			awayView.setVisibility(View.VISIBLE);
     		} else {
     			awayView.setVisibility(View.GONE);
@@ -915,7 +925,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	if(mServer != null) {
     		ignore.setIgnores(mServer.ignores);
     		if(mServer.away != null && mServer.away.length() > 0) {
-    			awayView.setText("Away (" + mServer.away + ")");
+    			awayTxt.setText("Away (" + mServer.away + ")");
     			awayView.setVisibility(View.VISIBLE);
     		} else {
     			awayView.setVisibility(View.GONE);
@@ -1531,7 +1541,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			case NetworkConnection.EVENT_SELFBACK:
 				if(mServer != null) {
 		    		if(mServer.away != null && mServer.away.length() > 0) {
-		    			awayView.setText("Away (" + mServer.away + ")");
+		    			awayTxt.setText("Away (" + mServer.away + ")");
 		    			awayView.setVisibility(View.VISIBLE);
 		    		} else {
 		    			awayView.setVisibility(View.GONE);
