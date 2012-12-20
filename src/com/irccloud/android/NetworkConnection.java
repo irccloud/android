@@ -713,6 +713,21 @@ public class NetworkConnection {
 		}
 	}
 	
+	public int back(int cid) {
+		try {
+			JSONObject o = new JSONObject();
+			o.put("_reqid", ++last_reqid);
+			o.put("_method", "back");
+			o.put("cid", cid);
+			client.send(o.toString());
+			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: back");
+			return last_reqid;
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public void request_backlog(int cid, long bid, long beforeId) {
 		try {
 			if(Looper.myLooper() == null)

@@ -439,7 +439,7 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			@Override
 			public void onClick(View v) {
-				conn.say(cid, null, "/back");
+				conn.back(cid);
 			}
     		
     	});
