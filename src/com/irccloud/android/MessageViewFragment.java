@@ -423,6 +423,17 @@ public class MessageViewFragment extends SherlockListFragment {
 		connectingMsg = (TextView)v.findViewById(R.id.connectingMsg);
 		progressBar = (ProgressBar)v.findViewById(R.id.connectingProgress);
     	statusView = (TextView)v.findViewById(R.id.statusView);
+    	statusView.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if(mServer != null && mServer.status != null && mServer.status.equalsIgnoreCase("disconnected")) {
+					conn.reconnect(cid);
+				}
+			}
+    		
+    	});
+    	
     	awayView = v.findViewById(R.id.away);
     	awayView.setOnClickListener(new OnClickListener() {
 
@@ -1241,7 +1252,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("disconnected")) {
     		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Disconnected");
+    		statusView.setText("Disconnected. Tap to reconnect.");
     		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("queued")) {
