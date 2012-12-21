@@ -1036,9 +1036,10 @@ public class NetworkConnection {
 				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
-				if(!backlog && type.equalsIgnoreCase("you_parted_channel")) {
+				if(type.equalsIgnoreCase("you_parted_channel")) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
 					c.deleteChannel(object.getInt("bid"));
+					u.deleteUsersForChannel(object.cid(), object.getString("chan"));
 				}
 				if(!backlog)
 					notifyHandlers(EVENT_PART, object);

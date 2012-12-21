@@ -29,6 +29,7 @@ public class UsersListFragment extends SherlockListFragment {
 	private UserListAdapter adapter;
 	private OnUserSelectedListener mListener;
 	private int cid = -1;
+	private int bid = -1;
 	private String channel;
 	private View view;
 	private RefreshTask refreshTask = null;
@@ -165,6 +166,14 @@ public class UsersListFragment extends SherlockListFragment {
 	}
 	
 	private void refresh(ArrayList<UsersDataSource.User> users) {
+		if(users == null) {
+			if(adapter != null) {
+				adapter.data.clear();
+				adapter.notifyDataSetInvalidated();
+			}
+			return;
+		}
+		
 		ArrayList<UserListAdapter.UserListEntry> entries = new ArrayList<UserListAdapter.UserListEntry>();
 		ArrayList<UsersDataSource.User> owners = new ArrayList<UsersDataSource.User>();
 		ArrayList<UsersDataSource.User> admins = new ArrayList<UsersDataSource.User>();
@@ -233,11 +242,12 @@ public class UsersListFragment extends SherlockListFragment {
 	}
 	
 	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-		ArrayList<UsersDataSource.User> users;
+		ArrayList<UsersDataSource.User> users = null;
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+	    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
+	    		users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
 			return null;
 		}
 		
@@ -256,6 +266,7 @@ public class UsersListFragment extends SherlockListFragment {
         
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
+        	bid = savedInstanceState.getInt("bid");
         	channel = savedInstanceState.getString("channel");
         }
     }
@@ -278,13 +289,16 @@ public class UsersListFragment extends SherlockListFragment {
     @Override
     public void setArguments(Bundle args) {
     	cid = args.getInt("cid", 0);
+    	bid = args.getInt("bid", 0);
     	channel = args.getString("name");
     	
     	mHandler.postDelayed(new Runnable() {
 
 			@Override
 			public void run() {
-		    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+		    	ArrayList<UsersDataSource.User> users = null;
+		    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
+		    		users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
 		    	refresh(users);
 		    	try {
 			    	if(getListView() != null)
@@ -320,6 +334,7 @@ public class UsersListFragment extends SherlockListFragment {
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
     	state.putInt("cid", cid);
+    	state.putInt("bid", bid);
     	state.putString("channel", channel);
     }
     
