@@ -1044,6 +1044,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					archived = 0;
 			    	update_subtitle();
 					invalidateOptionsMenu();
+					updateUsersListFragmentVisibility();
 				}
 				break;
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
