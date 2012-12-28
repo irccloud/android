@@ -1026,6 +1026,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(event.bid() == bid && event.type().equalsIgnoreCase("you_joined_channel")) {
 					joined = 1;
 					invalidateOptionsMenu();
+					updateUsersListFragmentVisibility();
 				}
 				break;
 			case NetworkConnection.EVENT_PART:
@@ -1033,6 +1034,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(event.bid() == bid && event.type().equalsIgnoreCase("you_parted_channel")) {
 					joined = 0;
 					invalidateOptionsMenu();
+					updateUsersListFragmentVisibility();
 				}
 				break;
 			case NetworkConnection.EVENT_CHANNELINIT:
