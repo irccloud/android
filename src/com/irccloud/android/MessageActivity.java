@@ -803,7 +803,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-	    	if(hide || type == null || !type.equalsIgnoreCase("channel"))
+	    	if(hide || type == null || !type.equalsIgnoreCase("channel") || joined == 0)
 	    		userListView.setVisibility(View.GONE);
 	    	else
 	    		userListView.setVisibility(View.VISIBLE);

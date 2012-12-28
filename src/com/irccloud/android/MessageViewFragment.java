@@ -1284,10 +1284,23 @@ public class MessageViewFragment extends SherlockListFragment {
     		try {
 	    		statusView.setVisibility(View.VISIBLE);
 	    		long seconds = (fail_info.get("timestamp").getAsLong() + fail_info.get("retry_timeout").getAsInt()) - System.currentTimeMillis()/1000;
-	    		statusView.setText("Disconnected: " + fail_info.get("reason").getAsString() + ". Reconnecting in " + seconds + " seconds.");
-	    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
-	    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
-	    		statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
+	    		if(seconds > 0) {
+		    		String text = "Disconnected";
+		    		if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0)
+		    			text += ": " + fail_info.get("reason").getAsString() + ". ";
+		    		else
+		    			text += "; ";
+		    		text += "Reconnecting in " + seconds + " seconds.";
+		    		statusView.setText(text);
+		    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
+		    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
+		    		statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
+	    		} else {
+	        		statusView.setVisibility(View.VISIBLE);
+	        		statusView.setText("Ready to connect, waiting our turn…");
+	        		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+	        		statusView.setBackgroundResource(R.drawable.background_blue);
+	    		}
 	    		mHandler.postDelayed(statusRefreshRunnable, 500);
     		} catch (Exception e) {
     			e.printStackTrace();

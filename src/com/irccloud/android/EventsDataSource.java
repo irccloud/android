@@ -147,6 +147,8 @@ public class EventsDataSource {
 					e.msg = "Server PING timed out";
 				else if(event.has("reason") && event.getString("reason").length() > 0)
 					e.msg = "Connection lost: " + event.getString("reason");
+				else if(event.has("abnormal"))
+					e.msg = "Connection closed unexpectedly";
 				else
 					e.msg = "";
 			} else if(e.type.equalsIgnoreCase("user_channel_mode")) {
