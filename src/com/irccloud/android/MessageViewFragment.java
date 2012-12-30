@@ -75,6 +75,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private View awayView = null;
 	private TextView awayTxt = null;
 	private int savedScrollPos = -1;
+	private int timestamp_width = -1;
 	
 	public static final int ROW_MESSAGE = 0;
 	public static final int ROW_TIMESTAMP = 1;
@@ -389,8 +390,10 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			row.setOnClickListener(new OnItemClickListener(position));
 			row.setBackgroundResource(e.bg_color);
-			if(holder.timestamp != null)
+			if(holder.timestamp != null) {
 				holder.timestamp.setText(e.timestamp);
+				holder.timestamp.setMinWidth(timestamp_width);
+			}
 			if(e.row_type == ROW_SOCKETCLOSED) {
 				if(e.msg.length() > 0) {
 					holder.timestamp.setVisibility(View.VISIBLE);
@@ -1067,6 +1070,21 @@ public class MessageViewFragment extends SherlockListFragment {
 		collapsedEvents.clear();
 		currentCollapsedEid = -1;
 		
+		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+			try {
+				JSONObject prefs = conn.getUserInfo().prefs;
+				timestamp_width = (int)getResources().getDimension(R.dimen.timestamp_base);
+				if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+					timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_seconds);
+				if(!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
+					timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_ampm);
+			} catch (Exception e) {
+				
+			}
+		} else {
+			timestamp_width = getResources().getDimensionPixelSize(R.dimen.timestamp_base) + getResources().getDimensionPixelSize(R.dimen.timestamp_ampm);
+		}
+
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
 			if(bid != -1) {
 				requestingBacklog = true;

@@ -1,9 +1,11 @@
 <resources>
-
     <dimen name="padding_small">8dp</dimen>
     <dimen name="padding_medium">8dp</dimen>
     <dimen name="padding_large">16dp</dimen>
     <dimen name="drawer_width">250dp</dimen>
     <dimen name="userlist_width">200dp</dimen>
     <dimen name="splashlogo_width">128dp</dimen>
+    <dimen name="timestamp_base">50dp</dimen>
+    <dimen name="timestamp_ampm">20dp</dimen>
+    <dimen name="timestamp_seconds">20dp</dimen>
 </resources>
