@@ -1,7 +1,10 @@
 package com.irccloud.android;
 
 import android.app.Application;
+import org.acra.*;
+import org.acra.annotation.*;
 
+@ReportsCrashes(formKey = "")
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends Application {
 	private static IRCCloudApplication instance = null;
@@ -31,5 +34,6 @@ public class IRCCloudApplication extends Application {
 		c = ChannelsDataSource.getInstance();
 		u = UsersDataSource.getInstance();
 		e = EventsDataSource.getInstance();
+		ACRA.init(this);
 	}
 }
