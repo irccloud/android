@@ -597,7 +597,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	conn.addHandler(mHandler);
 
     	super.onResume();
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
     	if(prefs.getBoolean("screenlock", false)) {
     		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     	} else {

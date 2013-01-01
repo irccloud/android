@@ -13,10 +13,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -37,6 +39,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonArray;
@@ -827,6 +830,12 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(!backlog && !shouldShowUnread)
 	    		getListView().setSelection(adapter.getCount() - 1);
 	    	
+	    	if(!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
+	    		Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
+	    		SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
+	    		editor.putBoolean("mentionTip", true);
+	    		editor.commit();
+	    	}
 	    	if(!backlog) {
 				int markerPos = adapter.getLastSeenEIDPosition();
 	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
