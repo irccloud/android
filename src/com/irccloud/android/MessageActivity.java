@@ -1696,7 +1696,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		
 		if(selected_user != null) {
 			itemList.add("Whois…");
-			itemList.add("Open");
+			itemList.add("Send a message");
 			itemList.add("Mention (double tap)");
 			itemList.add("Invite to a channel…");
 			itemList.add("Ignore");
@@ -1744,7 +1744,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			}
 	    		} else if(items[item].equals("Whois…")) {
 	    			conn.whois(cid, selected_user.nick, null);
-	    		} else if(items[item].equals("Open")) {
+	    		} else if(items[item].equals("Send a message")) {
 		    		BuffersDataSource b = BuffersDataSource.getInstance();
 		    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, selected_user.nick);
 		    		if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null) {
