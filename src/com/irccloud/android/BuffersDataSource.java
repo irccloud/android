@@ -98,6 +98,12 @@ public class BuffersDataSource {
 			b.archived = archived;
 	}
 	
+	public synchronized void updateTimeout(int bid, int timeout) {
+		Buffer b = getBuffer(bid);
+		if(b != null)
+			b.timeout = timeout;
+	}
+	
 	public synchronized void updateName(int bid, String name) {
 		Buffer b = getBuffer(bid);
 		if(b != null)

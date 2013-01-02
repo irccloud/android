@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -137,6 +138,8 @@ public class NetworkConnection {
 
 	public boolean ready = false;
 	
+	private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
+	
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
 			instance = new NetworkConnection();
@@ -215,6 +218,13 @@ public class NetworkConnection {
 		if(wifiLock.isHeld())
 			wifiLock.release();
 		reconnect_timestamp = 0;
+		for(Integer bid : oobTasks.keySet()) {
+			try {
+				oobTasks.get(bid).cancel(true);
+			} catch (Exception e) {
+			}
+		}
+		oobTasks.clear();
 		session = null;
 		try {
 			IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
@@ -728,14 +738,22 @@ public class NetworkConnection {
 		}
 	}
 	
-	public void request_backlog(int cid, long bid, long beforeId) {
+	public void request_backlog(int cid, int bid, long beforeId) {
 		try {
+			if(oobTasks.containsKey(bid)) {
+				Log.d("IRCCloud", "Backlog is already being requested for bid: " + bid);
+				return;
+			}
 			if(Looper.myLooper() == null)
 				Looper.prepare();
+			
+			OOBIncludeTask task = new OOBIncludeTask(bid);
+			oobTasks.put(bid, task);
+			
 			if(beforeId > 0)
-				new OOBIncludeTask().execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid="+cid+"&bid="+bid+"&beforeid="+beforeId));
+				task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid="+cid+"&bid="+bid+"&beforeid="+beforeId));
 			else
-				new OOBIncludeTask().execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid="+cid+"&bid="+bid));
+				task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid="+cid+"&bid="+bid));
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1191,7 +1209,7 @@ public class NetworkConnection {
 					if(Looper.myLooper() == null)
 						Looper.prepare();
 					String url = "https://" + IRCCLOUD_HOST + object.getString("url");
-					new OOBIncludeTask().execute(new URL(url));
+					new OOBIncludeTask(-1).execute(new URL(url));
 				} catch (MalformedURLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1368,6 +1386,14 @@ public class NetworkConnection {
 	}
 	
 	private class OOBIncludeTask extends AsyncTask<URL, Void, Boolean> {
+		private int bid = -1;
+		private URL mUrl;
+		private long retryDelay = 10000;
+		
+		public OOBIncludeTask(int bid) {
+			this.bid = bid;
+		}
+		
 		@SuppressLint("NewApi")
 		@Override
 		protected Boolean doInBackground(URL... url) {
@@ -1378,7 +1404,7 @@ public class NetworkConnection {
 				if(Build.VERSION.SDK_INT >= 14)
 					TrafficStats.setThreadStatsTag(BACKLOG_TAG);
 				Log.d(TAG, "Requesting: " + url[0]);
-				
+				mUrl = url[0];
 				HttpURLConnection conn = null;
 
 		        if (url[0].getProtocol().toLowerCase().equals("https")) {
@@ -1449,6 +1475,10 @@ public class NetworkConnection {
 						ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
 						for(BuffersDataSource.Buffer b : buffers) {
 							Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
+							if(b.timeout > 0 && bid == -1) {
+								Log.d("IRCCloud", "Requesting backlog for timed-out buffer: " + b.name);
+								request_backlog(b.cid, b.bid, 0);
+							}
 						}
 						Notifications.getInstance().showNotifications(null);
 					}
@@ -1460,6 +1490,11 @@ public class NetworkConnection {
 				if(reader != null)
 					reader.close();
 
+				if(bid != -1) {
+					BuffersDataSource.getInstance().updateTimeout(bid, 0);
+					oobTasks.remove(bid);
+				}
+				
 				notifyHandlers(EVENT_BACKLOG_END, null);
 				Log.i("IRCCloud", "OOB fetch complete!");
 				if(Build.VERSION.SDK_INT >= 14)
@@ -1467,7 +1502,17 @@ public class NetworkConnection {
 				numbuffers = 0;
 				return true;
 			} catch (Exception e) {
-				if(ServersDataSource.getInstance().count() < 1) {
+				if(bid != -1) {
+					if(!isCancelled()) {
+						Log.e("IRCCloud", "Failed to fetch backlog, retrying in " + retryDelay + "ms");
+						new Timer().schedule(new TimerTask() {
+				             public void run() {
+				            	 execute(mUrl);
+				             }
+						}, retryDelay);
+						retryDelay *= 2;
+					}
+				} else if(ServersDataSource.getInstance().count() < 1) {
 					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
 				}

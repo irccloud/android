@@ -70,6 +70,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		long min_eid;
 		int joined;
 		int archived;
+		int timeout;
 		String name;
 		String status;
 	}
@@ -132,7 +133,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			return data.size() - 1;
 		}
 		
-		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status) {
+		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -146,6 +147,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.joined = joined;
 			e.archived = archived;
 			e.status = status;
+			e.timeout = timeout;
 			return e;
 		}
 		
@@ -244,7 +246,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			}
 			
 			if(holder.progress != null) {
-				if(progressRow == position || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
+				if(progressRow == position || e.timeout > 0 || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
 					if(selected_bid == -1 || progressRow != position) {
 						holder.progress.setVisibility(View.VISIBLE);
 					} else {
@@ -252,6 +254,7 @@ public class BuffersListFragment extends SherlockListFragment {
 							holder.bufferbg.setSelected(true);
 						if(holder.groupbg != null)
 							holder.groupbg.setSelected(true);
+						holder.progress.setVisibility(View.GONE);
 					}
 				} else if(e.type != TYPE_ARCHIVES_HEADER) {
 					holder.progress.setVisibility(View.GONE);
@@ -359,7 +362,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status));
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -410,7 +413,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status));
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -426,7 +429,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					}
 				}
 				if(archiveCount > 0) {
-					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status));
+					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0));
 					position++;
 					if(mExpandArchives.get(s.cid, false)) {
 						for(int j = 0; j < buffers.size(); j++) {
@@ -439,7 +442,7 @@ public class BuffersListFragment extends SherlockListFragment {
 									type = TYPE_CONVERSATION;
 								
 								if(type > 0) {
-									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status));
+									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0));
 									position++;
 								}
 							}
@@ -681,6 +684,7 @@ public class BuffersListFragment extends SherlockListFragment {
 	            	refreshTask.cancel(true);
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
+				android.util.Log.e("IRCCloud", "BufferList backlog end! refresh!");
 				ready = true;
 			default:
 	            if(refreshTask != null)
