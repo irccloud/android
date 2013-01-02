@@ -902,7 +902,8 @@ public class NetworkConnection {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
 						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
-								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"), (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0);
+								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"),
+										(object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0, (object.has("timeout") && object.getBoolean("timeout"))?1:0);
 				Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
@@ -1003,95 +1004,103 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELINIT, channel);
 			} else if(type.equalsIgnoreCase("channel_topic")) {
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				c.updateTopic(object.getLong("bid"), object.getString("topic"), object.getLong("eid"), object.getString("author"));
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
-				if(!backlog)
+				if(!backlog) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					c.updateTopic(object.getLong("bid"), object.getString("topic"), object.getLong("eid"), object.getString("author"));
 					notifyHandlers(EVENT_CHANNELTOPIC, object);
+				}
 			} else if(type.equalsIgnoreCase("channel_url")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
 				c.updateURL(object.getLong("bid"), object.getString("url"));
 			} else if(type.equalsIgnoreCase("channel_mode") || type.equalsIgnoreCase("channel_mode_is")) {
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				c.updateMode(object.getLong("bid"), object.getString("newmode"));
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
-				if(!backlog)
-					notifyHandlers(EVENT_CHANNELMODE, object);
-			} else if(type.equalsIgnoreCase("channel_timestamp")) {
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				c.updateTimestamp(object.getLong("bid"), object.getLong("timestamp"));
-				if(!backlog)
-					notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
-			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.createUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"), object.getString("hostmask"), "", 0);
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog)
-					notifyHandlers(EVENT_JOIN, object);
-			} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(type.equalsIgnoreCase("you_parted_channel")) {
+				if(!backlog) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.deleteChannel(object.getInt("bid"));
-					u.deleteUsersForChannel(object.cid(), object.getString("chan"));
+					c.updateMode(object.getLong("bid"), object.getString("newmode"));
+					notifyHandlers(EVENT_CHANNELMODE, object);
 				}
-				if(!backlog)
-					notifyHandlers(EVENT_PART, object);
-			} else if(type.equalsIgnoreCase("quit")) {
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+			} else if(type.equalsIgnoreCase("channel_timestamp")) {
+				if(!backlog) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					c.updateTimestamp(object.getLong("bid"), object.getLong("timestamp"));
+					notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
+				}
+			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
-				if(!backlog)
+				if(!backlog) {
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.createUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"), object.getString("hostmask"), "", 0);
+					notifyHandlers(EVENT_JOIN, object);
+				}
+			} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog) {
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+					if(type.equalsIgnoreCase("you_parted_channel")) {
+						ChannelsDataSource c = ChannelsDataSource.getInstance();
+						c.deleteChannel(object.getInt("bid"));
+						u.deleteUsersForChannel(object.cid(), object.getString("chan"));
+					}
+					notifyHandlers(EVENT_PART, object);
+				}
+			} else if(type.equalsIgnoreCase("quit")) {
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog) {
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
 					notifyHandlers(EVENT_QUIT, object);
+				}
 			} else if(type.equalsIgnoreCase("quit_server")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
 				if(!backlog)
 					notifyHandlers(EVENT_QUIT, object);
 			} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog && type.equalsIgnoreCase("you_kicked_channel")) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.deleteChannel(object.getInt("bid"));
-				}
-				if(!backlog)
-					notifyHandlers(EVENT_KICK, object);
-			} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-				if(chan != null) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.updateNick(object.cid(), chan.name, object.getString("oldnick"), object.getString("newnick"));
-				}
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
 				if(!backlog) {
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+					if(type.equalsIgnoreCase("you_kicked_channel")) {
+						ChannelsDataSource c = ChannelsDataSource.getInstance();
+						c.deleteChannel(object.getInt("bid"));
+					}
+					notifyHandlers(EVENT_KICK, object);
+				}
+			} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
+				EventsDataSource e = EventsDataSource.getInstance();
+				e.addEvent(object);
+				if(!backlog) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+					if(chan != null) {
+						UsersDataSource u = UsersDataSource.getInstance();
+						u.updateNick(object.cid(), chan.name, object.getString("oldnick"), object.getString("newnick"));
+					}
 					if(type.equalsIgnoreCase("you_nickchange")) {
 						ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
 					}
 					notifyHandlers(EVENT_NICKCHANGE, object);
 				}
 			} else if(type.equalsIgnoreCase("user_channel_mode")) {
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-				if(chan != null) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.updateMode(object.getInt("cid"), chan.name, object.getString("nick"), object.getString("newmode"));
-				}
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
-				if(!backlog)
+				if(!backlog) {
+					ChannelsDataSource c = ChannelsDataSource.getInstance();
+					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
+					if(chan != null) {
+						UsersDataSource u = UsersDataSource.getInstance();
+						u.updateMode(object.getInt("cid"), chan.name, object.getString("nick"), object.getString("newmode"));
+					}
 					notifyHandlers(EVENT_USERCHANNELMODE, object);
+				}
 			} else if(type.equalsIgnoreCase("member_updates")) {
 				JsonObject updates = object.getJsonObject("updates");
 				Iterator<Entry<String, JsonElement>> i = updates.entrySet().iterator();
@@ -1137,12 +1146,13 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_SELFDETAILS, object);
 			} else if(type.equalsIgnoreCase("user_mode")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateMode(object.getInt("cid"), object.getString("newmode"));
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
-				if(!backlog)
+				if(!backlog) {
+					ServersDataSource s = ServersDataSource.getInstance();
+					s.updateMode(object.getInt("cid"), object.getString("newmode"));
 					notifyHandlers(EVENT_USERMODE, object);
+				}
 			} else if(type.equalsIgnoreCase("connection_lag")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				s.updateLag(object.getInt("cid"), object.getLong("lag"));

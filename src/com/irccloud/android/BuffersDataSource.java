@@ -15,6 +15,7 @@ public class BuffersDataSource {
 		String type;
 		int archived;
 		int deferred;
+		int timeout;
 		String away_msg;
 	}
 
@@ -67,7 +68,7 @@ public class BuffersDataSource {
 			return -1;
 	}
 	
-	public synchronized Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred) {
+	public synchronized Buffer createBuffer(int bid, int cid, long min_eid, long last_seen_eid, String name, String type, int archived, int deferred, int timeout) {
 		Buffer b = getBuffer(bid);
 		if(b == null) {
 			b = new Buffer();
@@ -81,6 +82,7 @@ public class BuffersDataSource {
 		b.type = type;
 		b.archived = archived;
 		b.deferred = deferred;
+		b.timeout = timeout;
 		return b;
 	}
 
