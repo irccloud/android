@@ -223,7 +223,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.unread.setBackgroundDrawable(null);
 				if(holder.bufferbg != null)
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
-			} else if(e.unread > 0) {
+			} else if(e.unread > 0 || selected_bid == e.bid) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
