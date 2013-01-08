@@ -1388,7 +1388,7 @@ public class NetworkConnection {
 	private class OOBIncludeTask extends AsyncTask<URL, Void, Boolean> {
 		private int bid = -1;
 		private URL mUrl;
-		private long retryDelay = 10000;
+		private long retryDelay = 1000;
 		
 		public OOBIncludeTask(int bid) {
 			this.bid = bid;
@@ -1507,12 +1507,13 @@ public class NetworkConnection {
 						Log.e("IRCCloud", "Failed to fetch backlog, retrying in " + retryDelay + "ms");
 						new Timer().schedule(new TimerTask() {
 				             public void run() {
-				            	 execute(mUrl);
+				            	 doInBackground(mUrl);
 				             }
 						}, retryDelay);
 						retryDelay *= 2;
 					}
 				} else if(ServersDataSource.getInstance().count() < 1) {
+					e.printStackTrace();
 					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
 				}

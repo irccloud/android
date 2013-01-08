@@ -684,7 +684,6 @@ public class BuffersListFragment extends SherlockListFragment {
 	            	refreshTask.cancel(true);
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-				android.util.Log.e("IRCCloud", "BufferList backlog end! refresh!");
 				ready = true;
 			default:
 	            if(refreshTask != null)
