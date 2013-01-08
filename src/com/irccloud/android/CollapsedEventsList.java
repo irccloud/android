@@ -98,6 +98,7 @@ public class CollapsedEventsList {
 				} else if(e.type == type) {
 				} else if(type == TYPE_JOIN) {
 					e.type = TYPE_POPOUT;
+					e.from_mode = from_mode;
 				} else if(e.type == TYPE_POPOUT) {
 					e.type = type;
 				} else {
