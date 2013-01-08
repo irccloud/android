@@ -12,5 +12,10 @@
 		    android:entryValues="@array/pref_timeout_values"
 		    android:summary="Remain connected to IRCCloud while running in the background"
 		    android:defaultValue="300000" />
+		<CheckBoxPreference android:key="acra.enable"
+		    android:title="Crash Reporting"
+		    android:summaryOn="Crash reports will be sent to IRCCloud"
+		    android:summaryOff="Crash reports will not be sent to IRCCloud"
+		    android:defaultValue="true"/>
 	</PreferenceCategory>
 </PreferenceScreen>
