@@ -122,6 +122,16 @@ public class CollapsedEventsList {
 						e1.nick = nick;
 						return;
 					}
+					if((e1.type == TYPE_QUIT || e1.type == TYPE_PART) && e1.nick.equalsIgnoreCase(nick)) {
+						e1.type = TYPE_POPOUT;
+						for(CollapsedEvent e2 : data) {
+							if(e2.type == TYPE_JOIN && e2.nick.equalsIgnoreCase(old_nick)) {
+								data.remove(e2);
+								break;
+							}
+						}
+						return;
+					}
 				}
 				e = new CollapsedEvent();
 				e.type = type;

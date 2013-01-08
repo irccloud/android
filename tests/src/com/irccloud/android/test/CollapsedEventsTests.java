@@ -118,6 +118,14 @@ public class CollapsedEventsTests extends TestCase {
 		assertEquals("↔ <b>sam</b> (was sam_) nipped out", list.getCollapsedMessage());
 	}
 
+	public void testQuitJoinNickchange2() {
+		CollapsedEventsList list = new CollapsedEventsList();
+		list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null);
+		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null);
+		list.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null);
+		assertEquals("↔ <b>sam</b> nipped out", list.getCollapsedMessage());
+	}
+
 	public void testQuitJoinMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null);
