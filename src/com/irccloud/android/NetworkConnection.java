@@ -929,6 +929,7 @@ public class NetworkConnection {
 						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
 								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"),
 										(object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0, (object.has("timeout") && object.getBoolean("timeout"))?1:0);
+				Notifications.getInstance().deleteOldNotifications(buffer.bid, buffer.last_seen_eid);
 				Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
