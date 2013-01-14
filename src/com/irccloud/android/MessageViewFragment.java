@@ -1496,6 +1496,11 @@ public class MessageViewFragment extends SherlockListFragment {
 					connecting.startAnimation(anim);
 					error = null;
 				}
+				if(bid != -1) {
+					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+					if(b != null)
+						last_seen_eid = b.last_seen_eid;
+				}
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
 			case NetworkConnection.EVENT_USERINFO:
