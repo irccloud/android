@@ -79,6 +79,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	private TextView awayTxt = null;
 	private int savedScrollPos = -1;
 	private int timestamp_width = -1;
+	private View globalMsgView = null;
+	private TextView globalMsg = null;
 	
 	public static final int ROW_MESSAGE = 0;
 	public static final int ROW_TIMESTAMP = 1;
@@ -482,6 +484,17 @@ public class MessageViewFragment extends SherlockListFragment {
 				unreadTopView.setVisibility(View.GONE);
 				Long e = adapter.data.get(adapter.data.size() - 1).eid;
 				new HeartbeatTask().execute(e);
+    		}
+    	});
+    	globalMsgView = v.findViewById(R.id.globalMessageView);
+    	globalMsg = (TextView)v.findViewById(R.id.globalMessageTxt);
+    	b = (Button)v.findViewById(R.id.dismissGlobalMessage);
+    	b.setOnClickListener(new OnClickListener() {
+    		@Override
+    		public void onClick(View v) {
+    			if(conn != null)
+    				conn.globalMsg = null;
+    			update_global_msg();
     		}
     	});
     	((ListView)v.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -945,6 +958,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			connecting.setVisibility(View.VISIBLE);
     	}
     	updateReconnecting();
+    	update_global_msg();
     	if(mServer != null) {
     		ignore.setIgnores(mServer.ignores);
     		if(mServer.away != null && mServer.away.length() > 0) {
@@ -1340,6 +1354,17 @@ public class MessageViewFragment extends SherlockListFragment {
     	}
 	}
 
+	private void update_global_msg() {
+		if(globalMsgView != null) {
+			if(conn != null && conn.globalMsg != null) {
+				globalMsg.setText(conn.globalMsg);
+				globalMsgView.setVisibility(View.VISIBLE);
+			} else {
+				globalMsgView.setVisibility(View.GONE);
+			}
+		}
+	}
+	
 	@Override
     public void onPause() {
     	super.onPause();
@@ -1599,6 +1624,9 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		}
 				}
 	    		break;
+			case NetworkConnection.EVENT_GLOBALMSG:
+				update_global_msg();
+				break;
 			default:
 				break;
 			}

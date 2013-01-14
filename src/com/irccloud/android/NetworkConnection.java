@@ -43,7 +43,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -118,6 +117,7 @@ public class NetworkConnection {
 	public static final int EVENT_LISTRESPONSE = 36;
 	public static final int EVENT_LISTRESPONSETOOMANY = 37;
 	public static final int EVENT_CONNECTIONLAG = 38;
+	public static final int EVENT_GLOBALMSG = 39;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -137,6 +137,7 @@ public class NetworkConnection {
 	private float totalbuffers = 0;
 
 	public boolean ready = false;
+	public String globalMsg = null;
 	
 	private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
 	
@@ -820,6 +821,12 @@ public class NetworkConnection {
 				idle_interval = object.getLong("idle_interval");
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
 				Log.d("IRCCloud", "Clock offset: " + clockOffset + "ms");
+			} else if(type.equalsIgnoreCase("global_system_message")) {
+				String msgType = object.getString("system_message_type");
+				if(msgType == null || (!msgType.equalsIgnoreCase("eval") && !msgType.equalsIgnoreCase("refresh"))) {
+					globalMsg = object.getString("msg");
+					notifyHandlers(EVENT_GLOBALMSG, object);
+				}
 			} else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog") || type.equalsIgnoreCase("backlog_complete")) {
 			} else if(type.equalsIgnoreCase("num_invites")) {
 				if(userInfo != null)

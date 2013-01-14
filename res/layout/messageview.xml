@@ -10,6 +10,13 @@
         android:background="#fff"
         android:orientation="vertical" >
 
+        <include
+            android:id="@+id/globalMessageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/globalmessageview"
+            android:visibility="gone" />
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -89,7 +96,6 @@
                 android:lines="1"
                 android:text="Tap to come back"
                 android:textColor="@color/timestamp" />
-
         </LinearLayout>
 
         <TextView
