@@ -198,7 +198,7 @@ public class NetworkConnection {
 		useragent += ")";
 		
 		WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-		wifiLock = wfm.createWifiLock("IRCCloud");
+		wifiLock = wfm.createWifiLock(TAG);
 	}
 	
 	public int getState() {
@@ -287,7 +287,7 @@ public class NetworkConnection {
 		NetworkInfo ni = cm.getActiveNetworkInfo();
 		
 		if(ni == null || !ni.isConnected()) {
-			Log.w("IRCCloud", "Network is not connected");
+			Log.w(TAG, "Network is not connected");
 			cancel_idle_timer();
 			state = STATE_DISCONNECTED;
 			reconnect_timestamp = 0;
@@ -306,7 +306,7 @@ public class NetworkConnection {
 		if(EventsDataSource.getInstance().highest_eid > 0)
 			url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
 
-		Log.d("IRCCloud", "Opening websocket: " + url);
+		Log.d(TAG, "Opening websocket: " + url);
 		
 		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 		    @Override
@@ -367,20 +367,31 @@ public class NetworkConnection {
 		client.connect();
 	}
 	
+	private synchronized int send(String method, JSONObject params) {
+		if(client == null || state != STATE_CONNECTED)
+			return -1;
+		try {
+			params.put("_reqid", ++last_reqid);
+			params.put("_method", method);
+			Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method);
+			client.send(params.toString());
+			return last_reqid;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -1;
+		}
+	}
+	
 	public int heartbeat(long selected_buffer, int cid, long bid, long last_seen_eid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "heartbeat");
 			o.put("selectedBuffer", selected_buffer);
 			JSONObject eids = new JSONObject();
 			eids.put(String.valueOf(bid), last_seen_eid);
 			JSONObject cids = new JSONObject();
 			cids.put(String.valueOf(cid), eids);
 			o.put("seenEids", cids.toString());
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: heartbeat");
-			return last_reqid;
+			return send("heartbeat", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -390,13 +401,9 @@ public class NetworkConnection {
 	public int disconnect(int cid, String message) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "disconnect");
 			o.put("cid", cid);
 			o.put("msg", message);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: disconnect");
-			return last_reqid;
+			return send("disconnect", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -406,12 +413,8 @@ public class NetworkConnection {
 	public int reconnect(int cid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "reconnect");
 			o.put("cid", cid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: reconnect");
-			return last_reqid;
+			return send("reconnect", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -421,15 +424,11 @@ public class NetworkConnection {
 	public int say(int cid, String to, String message) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "say");
 			o.put("cid", cid);
 			if(to != null)
 				o.put("to", to);
 			o.put("msg", message);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: say");
-			return last_reqid;
+			return send("say", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -439,14 +438,10 @@ public class NetworkConnection {
 	public int join(int cid, String channel, String key) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "join");
 			o.put("cid", cid);
 			o.put("channel", channel);
 			o.put("key", key);
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: join");
-			client.send(o.toString());
-			return last_reqid;
+			return send("join", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -456,14 +451,10 @@ public class NetworkConnection {
 	public int part(int cid, String channel, String message) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "part");
 			o.put("cid", cid);
 			o.put("channel", channel);
 			o.put("msg", message);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: part");
-			return last_reqid;
+			return send("part", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -485,13 +476,9 @@ public class NetworkConnection {
 	public int archiveBuffer(int cid, long bid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "archive-buffer");
 			o.put("cid", cid);
 			o.put("id", bid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: archive-buffer");
-			return last_reqid;
+			return send("archive-buffer", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -501,13 +488,9 @@ public class NetworkConnection {
 	public int unarchiveBuffer(int cid, long bid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "unarchive-buffer");
 			o.put("cid", cid);
 			o.put("id", bid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: unarchive-buffer");
-			return last_reqid;
+			return send("unarchive-buffer", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -517,13 +500,9 @@ public class NetworkConnection {
 	public int deleteBuffer(int cid, long bid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "delete-buffer");
 			o.put("cid", cid);
 			o.put("id", bid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: delete-buffer");
-			return last_reqid;
+			return send("delete-buffer", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -533,12 +512,8 @@ public class NetworkConnection {
 	public int deleteServer(int cid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "delete-connection");
 			o.put("cid", cid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: delete-connection");
-			return last_reqid;
+			return send("delete-connection", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -548,8 +523,6 @@ public class NetworkConnection {
 	public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "add-server");
 			o.put("hostname", hostname);
 			o.put("port", port);
 			o.put("ssl", ssl);
@@ -560,9 +533,7 @@ public class NetworkConnection {
 			o.put("nspass", nickserv_pass);
 			o.put("joincommands", joincommands);
 			o.put("channels", channels);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: add-server");
-			return last_reqid;
+			return send("add-server", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -572,8 +543,6 @@ public class NetworkConnection {
 	public int editServer(int cid, String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "edit-server");
 			o.put("hostname", hostname);
 			o.put("port", port);
 			o.put("ssl", ssl);
@@ -584,9 +553,7 @@ public class NetworkConnection {
 			o.put("nspass", nickserv_pass);
 			o.put("joincommands", joincommands);
 			o.put("cid", cid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: edit-server");
-			return last_reqid;
+			return send("edit-server", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -596,13 +563,9 @@ public class NetworkConnection {
 	public int ignore(int cid, String mask) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "ignore");
 			o.put("cid", cid);
 			o.put("mask", mask);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: ignore");
-			return last_reqid;
+			return send("ignore", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -612,13 +575,9 @@ public class NetworkConnection {
 	public int unignore(int cid, String mask) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "unignore");
 			o.put("cid", cid);
 			o.put("mask", mask);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: unignore");
-			return last_reqid;
+			return send("unignore", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -628,12 +587,8 @@ public class NetworkConnection {
 	public int set_prefs(String prefs) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "set-prefs");
 			o.put("prefs", prefs);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: set-prefs");
-			return last_reqid;
+			return send("set-prefs", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -643,15 +598,11 @@ public class NetworkConnection {
 	public int set_user_settings(String email, String realname, String hwords, boolean autoaway) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "user-settings");
 			o.put("email", email);
 			o.put("realname", realname);
 			o.put("hwords", hwords);
 			o.put("autoaway", autoaway?"1":"0");
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: user-settings");
-			return last_reqid;
+			return send("user-settings", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -661,12 +612,8 @@ public class NetworkConnection {
 	public int ns_help_register(int cid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "ns-help-register");
 			o.put("cid", cid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: ns-help-register");
-			return last_reqid;
+			return send("ns-help-register", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -676,13 +623,9 @@ public class NetworkConnection {
 	public int set_nspass(int cid, String nspass) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "set-nspass");
 			o.put("cid", cid);
 			o.put("nspass", nspass);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: set-nspass");
-			return last_reqid;
+			return send("set-nspass", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -692,15 +635,11 @@ public class NetworkConnection {
 	public int whois(int cid, String nick, String server) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "whois");
 			o.put("cid", cid);
 			o.put("nick", nick);
 			if(server != null)
 				o.put("server", server);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: whois");
-			return last_reqid;
+			return send("whois", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -710,14 +649,10 @@ public class NetworkConnection {
 	public int topic(int cid, String channel, String topic) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "topic");
 			o.put("cid", cid);
 			o.put("channel", channel);
 			o.put("topic", topic);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: topic");
-			return last_reqid;
+			return send("topic", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -727,12 +662,8 @@ public class NetworkConnection {
 	public int back(int cid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("_reqid", ++last_reqid);
-			o.put("_method", "back");
 			o.put("cid", cid);
-			client.send(o.toString());
-			Log.d("IRCCloud", "Reqid: " + last_reqid + " Method: back");
-			return last_reqid;
+			return send("back", o);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return -1;
@@ -742,7 +673,7 @@ public class NetworkConnection {
 	public void request_backlog(int cid, int bid, long beforeId) {
 		try {
 			if(oobTasks.containsKey(bid)) {
-				Log.d("IRCCloud", "Backlog is already being requested for bid: " + bid);
+				Log.d(TAG, "Backlog is already being requested for bid: " + bid);
 				return;
 			}
 			if(Looper.myLooper() == null)
@@ -781,7 +712,7 @@ public class NetworkConnection {
 			idleTimer.schedule( new TimerTask() {
 	             public void run() {
 	            	 if(handlers.size() > 0) {
-		            	 Log.i("IRCCloud", "Websocket idle time exceeded, reconnecting...");
+		            	 Log.i(TAG, "Websocket idle time exceeded, reconnecting...");
 		            	 state = STATE_CONNECTING;
 		            	 notifyHandlers(EVENT_CONNECTIVITY, null);
 		            	 client.disconnect();
@@ -820,7 +751,7 @@ public class NetworkConnection {
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
-				Log.d("IRCCloud", "Clock offset: " + clockOffset + "ms");
+				Log.d(TAG, "Clock offset: " + clockOffset + "ms");
 			} else if(type.equalsIgnoreCase("global_system_message")) {
 				String msgType = object.getString("system_message_type");
 				if(msgType == null || (!msgType.equalsIgnoreCase("eval") && !msgType.equalsIgnoreCase("refresh"))) {
@@ -934,7 +865,7 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
 				if(object.getString("buffer_type") == null)
-					Log.w("IRCCloud", "NULL buffer type! JSON: " + object.toString());
+					Log.w(TAG, "NULL buffer type! JSON: " + object.toString());
 				if(numbuffers > 0) {
 					notifyHandlers(EVENT_PROGRESS, (totalbuffers++ / numbuffers) * 100);
 				}
@@ -1290,7 +1221,7 @@ public class NetworkConnection {
 		if(!handlers.contains(handler))
 			handlers.add(handler);
 		if(shutdownTimer != null) {
-			Log.d("IRCCloud", "Disconnect timer cancelled");
+			Log.d(TAG, "Disconnect timer cancelled");
 			shutdownTimer.cancel();
 			shutdownTimer = null;
 		}
@@ -1303,7 +1234,7 @@ public class NetworkConnection {
 				shutdownTimer = new Timer();
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 				long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
-				Log.d("IRCCloud", "Scheduling disconnect timer for " + timeout + "ms");
+				Log.d(TAG, "Scheduling disconnect timer for " + timeout + "ms");
 				shutdownTimer.schedule( new TimerTask(){
 		             public void run() {
 		            	 if(handlers.isEmpty()) {
@@ -1450,8 +1381,8 @@ public class NetworkConnection {
 					synchronized(parserLock) {
 						//if(ready)
 						//	Debug.startMethodTracing("oob", 16 * 1024 * 1024);
-						Log.i("IRCCloud", "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
-						Log.i("IRCCloud", "Beginning backlog...");
+						Log.i(TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
+						Log.i(TAG, "Beginning backlog...");
 						notifyHandlers(EVENT_BACKLOG_START, null);
 						numbuffers = 0;
 						totalbuffers = 0;
@@ -1472,19 +1403,19 @@ public class NetworkConnection {
 						reader.endArray();
 						//Debug.stopMethodTracing();
 						totalTime = (System.currentTimeMillis() - totalTime);
-						Log.i("IRCCloud", "Backlog complete: " + count + " events");
-						Log.i("IRCCloud", "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
-						Log.i("IRCCloud", "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
-						Log.i("IRCCloud", "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+						Log.i(TAG, "Backlog complete: " + count + " events");
+						Log.i(TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
+						Log.i(TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
+						Log.i(TAG, "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 						totalTime -= totalJSONTime;
 						totalTime -= totalParseTime;
-						Log.i("IRCCloud", "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+						Log.i(TAG, "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 
 						ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
 						for(BuffersDataSource.Buffer b : buffers) {
 							Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
 							if(b.timeout > 0 && bid == -1) {
-								Log.d("IRCCloud", "Requesting backlog for timed-out buffer: " + b.name);
+								Log.d(TAG, "Requesting backlog for timed-out buffer: " + b.name);
 								request_backlog(b.cid, b.bid, 0);
 							}
 						}
@@ -1492,7 +1423,7 @@ public class NetworkConnection {
 					}
 					ready = true;
 				} else if(ServersDataSource.getInstance().count() < 1) {
-					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
+					Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
 				}
 				if(reader != null)
@@ -1504,7 +1435,7 @@ public class NetworkConnection {
 				}
 				
 				notifyHandlers(EVENT_BACKLOG_END, null);
-				Log.i("IRCCloud", "OOB fetch complete!");
+				Log.i(TAG, "OOB fetch complete!");
 				if(Build.VERSION.SDK_INT >= 14)
 					TrafficStats.clearThreadStatsTag();
 				numbuffers = 0;
@@ -1512,7 +1443,7 @@ public class NetworkConnection {
 			} catch (Exception e) {
 				if(bid != -1) {
 					if(!isCancelled()) {
-						Log.e("IRCCloud", "Failed to fetch backlog, retrying in " + retryDelay + "ms");
+						Log.e(TAG, "Failed to fetch backlog, retrying in " + retryDelay + "ms");
 						new Timer().schedule(new TimerTask() {
 				             public void run() {
 				            	 doInBackground(mUrl);
@@ -1522,7 +1453,7 @@ public class NetworkConnection {
 					}
 				} else if(ServersDataSource.getInstance().count() < 1) {
 					e.printStackTrace();
-					Log.e("IRCCloud", "Failed to fetch the initial backlog, reconnecting!");
+					Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
 				}
 			}
