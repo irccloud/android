@@ -126,7 +126,7 @@ public class NetworkConnection {
 	public static final int EVENT_PROGRESS = 104;
 	public static final int EVENT_ALERT = 105;
 	
-	private static final String IRCCLOUD_HOST = "alpha.irccloud.com";
+	private static final String IRCCLOUD_HOST = "www.irccloud.com";
 	
 	private Object parserLock = new Object();
 	private WifiManager.WifiLock wifiLock = null;
