@@ -157,6 +157,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             }
         });
         sendBtn = findViewById(R.id.sendBtn);
+        sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -289,7 +290,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) { //Back key pressed
+        if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
         	if(backStack != null && backStack.size() > 0) {
         		Integer bid = backStack.get(0);
         		backStack.remove(0);

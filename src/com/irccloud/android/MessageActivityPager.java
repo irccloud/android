@@ -4,11 +4,10 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
-import android.widget.ListView;
 
 public class MessageActivityPager extends HorizontalScrollView {
 	private int startX = 0;
@@ -16,6 +15,7 @@ public class MessageActivityPager extends HorizontalScrollView {
 	private int usersDisplayWidth = 0;
 	MessageActivity activity = null;
 	private boolean overrideScrollPos = false;
+	private long lastKeyEventTime = 0;
 	
 	public MessageActivityPager(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -25,6 +25,26 @@ public class MessageActivityPager extends HorizontalScrollView {
 			activity = (MessageActivity)context;
 	}
 
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		int keyCode = event.getKeyCode();
+		if(System.currentTimeMillis() - lastKeyEventTime > 100) {
+	        if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+	        	if(getScrollX() >= buffersDisplayWidth + usersDisplayWidth)
+	        		scrollTo(buffersDisplayWidth, 0);
+	        	else
+	        		scrollTo(0,0);
+	        } else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+	        	if(getScrollX() >= buffersDisplayWidth)
+	        		scrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
+	        	else
+	        		scrollTo(buffersDisplayWidth,0);
+	        }
+	        lastKeyEventTime = System.currentTimeMillis();
+		}
+		return super.dispatchKeyEvent(event);
+	}
+	
 	@Override
 	public void scrollTo(int x, int y) {
 		if(x < buffersDisplayWidth)
