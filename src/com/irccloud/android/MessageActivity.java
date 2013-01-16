@@ -112,15 +112,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		messageTxt.setOnFocusChangeListener(new OnFocusChangeListener() {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
-				if(scrollView != null && v == messageTxt && hasFocus)
+				if(scrollView != null && v == messageTxt && hasFocus) {
 					scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+		        	upView.setVisibility(View.VISIBLE);
+				}
 			}
 		});
 		messageTxt.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(scrollView != null)
+				if(scrollView != null) {
 					scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+		        	upView.setVisibility(View.VISIBLE);
+				}
 			}
 		});
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
@@ -291,7 +295,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
-        	if(backStack != null && backStack.size() > 0) {
+        	if(scrollView != null && (scrollView.getScrollX() >= buffersListView.getWidth() + userListView.getWidth() || scrollView.getScrollX() < buffersListView.getWidth())) {
+    			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+	        	upView.setVisibility(View.VISIBLE);
+	        	return true;
+        	} else if(backStack != null && backStack.size() > 0) {
         		Integer bid = backStack.get(0);
         		backStack.remove(0);
         		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);

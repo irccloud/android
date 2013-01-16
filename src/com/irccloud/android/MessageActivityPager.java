@@ -32,13 +32,17 @@ public class MessageActivityPager extends HorizontalScrollView {
 	        if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
 	        	if(getScrollX() >= buffersDisplayWidth + usersDisplayWidth)
 	        		scrollTo(buffersDisplayWidth, 0);
-	        	else
+	        	else {
 	        		scrollTo(0,0);
+	        		activity.showUpButton(false);
+	        	}
 	        } else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
 	        	if(getScrollX() >= buffersDisplayWidth)
 	        		scrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
-	        	else
+	        	else {
 	        		scrollTo(buffersDisplayWidth,0);
+	        		activity.showUpButton(true);
+	        	}
 	        }
 	        lastKeyEventTime = System.currentTimeMillis();
 		}
