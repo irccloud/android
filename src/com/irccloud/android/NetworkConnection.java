@@ -9,6 +9,11 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +26,9 @@ import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -199,6 +207,43 @@ public class NetworkConnection {
 		
 		WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		wifiLock = wfm.createWifiLock(TAG);
+		
+		TrustManager tms[] = new TrustManager[1];
+		tms[0] = new X509TrustManager() {
+			@Override
+			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				throw new CertificateException("Not implemented");
+			}
+
+			@Override
+			public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+				try {
+					TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("X509");
+					trustManagerFactory.init((KeyStore)null);
+
+					for (TrustManager trustManager: trustManagerFactory.getTrustManagers()) {  
+					    if (trustManager instanceof X509TrustManager) {  
+					        X509TrustManager x509TrustManager = (X509TrustManager)trustManager;  
+					        x509TrustManager.checkServerTrusted(chain, authType);
+					    }  
+					}
+				} catch (KeyStoreException e) {
+					throw new CertificateException(e);
+				} catch (NoSuchAlgorithmException e) {
+					throw new CertificateException(e);
+				}
+				
+				if(!chain[0].getSubjectDN().getName().startsWith("CN=*.irccloud.com")) {
+					throw new CertificateException("Incorrect CN in cert chain");
+				}
+			}
+
+			@Override
+			public X509Certificate[] getAcceptedIssuers() {
+				return null;
+			}
+		};
+		WebSocketClient.setTrustManagers(tms);
 	}
 	
 	public int getState() {
