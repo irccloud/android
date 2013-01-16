@@ -29,23 +29,26 @@ public class MessageActivityPager extends HorizontalScrollView {
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int keyCode = event.getKeyCode();
 		if(System.currentTimeMillis() - lastKeyEventTime > 100) {
-	        if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-	        	if(getScrollX() >= buffersDisplayWidth + usersDisplayWidth)
-	        		scrollTo(buffersDisplayWidth, 0);
-	        	else {
-	        		scrollTo(0,0);
-	        		activity.showUpButton(false);
-	        	}
-	        } else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-	        	if(getScrollX() >= buffersDisplayWidth)
-	        		scrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
-	        	else {
-	        		scrollTo(buffersDisplayWidth,0);
-	        		activity.showUpButton(true);
-	        	}
-	        }
-	        lastKeyEventTime = System.currentTimeMillis();
-		}
+	    	View v = findFocus();
+	    	if(v == null || v.getId() != R.id.messageTxt) {
+		        if(keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+		        	if(getScrollX() >= buffersDisplayWidth + usersDisplayWidth)
+		        		scrollTo(buffersDisplayWidth, 0);
+		        	else {
+		        		scrollTo(0,0);
+		        		activity.showUpButton(false);
+		        	}
+		        } else if(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+		        	if(getScrollX() >= buffersDisplayWidth)
+		        		scrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
+		        	else {
+		        		scrollTo(buffersDisplayWidth,0);
+		        		activity.showUpButton(true);
+		        	}
+		        }
+		        lastKeyEventTime = System.currentTimeMillis();
+			}
+    	}
 		return super.dispatchKeyEvent(event);
 	}
 	
