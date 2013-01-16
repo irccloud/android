@@ -233,7 +233,7 @@ public class NetworkConnection {
 					throw new CertificateException(e);
 				}
 				
-				if(!chain[0].getSubjectDN().getName().startsWith("CN=*.irccloud.com")) {
+				if(!chain[0].getSubjectDN().getName().startsWith("CN=*.irccloud.com,")) {
 					throw new CertificateException("Incorrect CN in cert chain");
 				}
 			}
@@ -391,6 +391,15 @@ public class NetworkConnection {
 		        	
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
+		        
+		        if(reason != null && reason.equals("SSL")) {
+		        	try {
+			        	JSONObject o = new JSONObject();
+						o.put("message", "Unable to esatblish a secure connection to the IRCCloud servers.");
+				        notifyHandlers(EVENT_FAILURE_MSG, new IRCCloudJSONObject(o));
+					} catch (JSONException e) {
+					}
+		        }
 		    }
 
 		    @Override
