@@ -112,7 +112,7 @@ public class ColorFormatter {
 	    		} else {
 	    			pattern += "#";
 	    		}
-	    		pattern += "][^<>\"()\\[\\],\\s]+)";
+	    		pattern += "][^<>!?\"()\\[\\],\\s]+)";
 	
 				Linkify.addLinks(output, Pattern.compile(pattern), null, null, new TransformFilter() {
 			        public final String transformUrl(final Matcher match, String url) {
