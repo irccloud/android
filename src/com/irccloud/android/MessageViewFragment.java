@@ -941,6 +941,11 @@ public class MessageViewFragment extends SherlockListFragment {
 			if(mServer != null)
 				update_status(mServer.status, mServer.fail_info);
     	}
+		if(bid != -1) {
+			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+			if(b != null)
+				last_seen_eid = b.last_seen_eid;
+		}
     	if(getListView().getHeaderViewsCount() == 0) {
     		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
     		headerView = headerViewContainer.findViewById(R.id.progress);
