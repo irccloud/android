@@ -614,8 +614,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	}
     	
     	if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-    		if(scrollView != null && !NetworkConnection.getInstance().ready)
+    		if(scrollView != null && !NetworkConnection.getInstance().ready) {
     			scrollView.setEnabled(false);
+            	upView.setVisibility(View.INVISIBLE);
+    		}
     		messageTxt.setEnabled(false);
     	} else {
     		if(scrollView != null) {
@@ -875,8 +877,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
 					}
 					pendingEvents.clear();
-		    		if(scrollView != null && NetworkConnection.getInstance().ready)
+		    		if(scrollView != null && NetworkConnection.getInstance().ready) {
 						scrollView.setEnabled(true);
+						if(scrollView.getScrollX() > 0)
+							upView.setVisibility(View.VISIBLE);
+		    		}
 					if(cid != -1)
 						messageTxt.setEnabled(true);
 				} else {
@@ -964,6 +969,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				Log.d("IRCCloud", "Backlog processing ended, cid: " + cid + " bid: " + bid);
 				if(scrollView != null) {
 						scrollView.setEnabled(true);
+						if(scrollView.getScrollX() > 0)
+							upView.setVisibility(View.VISIBLE);
 				}
 		    	if(cid == -1) {
 		    		if(launchURI == null || !open_uri(launchURI)) {
