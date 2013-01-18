@@ -3,11 +3,13 @@ package com.irccloud.android;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,9 +53,12 @@ public class MessageViewFragment extends SherlockListFragment {
 	private TextView statusView;
 	private View headerViewContainer;
 	private View headerView;
-	private TextView unreadView;
 	private TextView unreadTopLabel;
+	private TextView unreadBottomLabel;
 	private View unreadTopView;
+	private View unreadBottomView;
+	private TextView highlightsTopLabel;
+	private TextView highlightsBottomLabel;
 	private int cid = -1;
 	public int bid = -1;
 	private long last_seen_eid;
@@ -68,6 +73,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private float avgInsertTime = 0;
 	private int newMsgs = 0;
 	private long newMsgTime = 0;
+	private int newHighlights = 0;
 	private MessageViewListener mListener;
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
@@ -125,6 +131,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		private int lastDay = -1;
 		private int lastSeenEidMarkerPosition = -1;
 		private int currentGroupPosition = -1;
+		private TreeSet<Integer> unseenHighlightPositions;
 		
 		private class ViewHolder {
 			int type;
@@ -135,6 +142,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		public MessageAdapter(SherlockListFragment context) {
 			ctx = context;
 			data = new ArrayList<EventsDataSource.Event>();
+			unseenHighlightPositions = new TreeSet<Integer>(Collections.reverseOrder());
 		}
 		
 		public void clear() {
@@ -144,6 +152,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			lastSeenEidMarkerPosition = -1;
 			currentGroupPosition = -1;
 			data.clear();
+			unseenHighlightPositions.clear();
 		}
 		
 		public void clearPending() {
@@ -206,6 +215,20 @@ public class MessageViewFragment extends SherlockListFragment {
 		
 		public int getLastSeenEIDPosition() {
 			return lastSeenEidMarkerPosition;
+		}
+		
+		public int getUnreadHighlightsAbovePosition(int pos) {
+			int count = 0;
+
+			Iterator<Integer> i = unseenHighlightPositions.iterator();
+			while(i.hasNext()) {
+				Integer p = i.next();
+				if(p < pos)
+					break;
+				count++;
+			}
+			
+			return unseenHighlightPositions.size() - count;
 		}
 		
 		public synchronized void addItem(long eid, EventsDataSource.Event e) {
@@ -317,6 +340,9 @@ public class MessageViewFragment extends SherlockListFragment {
 				Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
 				return;
 			}
+			
+			if(eid > last_seen_eid && e.highlight)
+				unseenHighlightPositions.add(insert_pos);
 			
 			if(eid < min_eid || min_eid == 0)
 				min_eid = eid;
@@ -452,8 +478,8 @@ public class MessageViewFragment extends SherlockListFragment {
     		
     	});
     	awayTxt = (TextView)v.findViewById(R.id.awayTxt);
-    	unreadView = (TextView)v.findViewById(R.id.unread);
-    	unreadView.setOnClickListener(new OnClickListener() {
+    	unreadBottomView = v.findViewById(R.id.unreadBottom);
+    	unreadBottomView.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
@@ -461,6 +487,9 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
     		
     	});
+    	unreadBottomLabel = (TextView)v.findViewById(R.id.unread);
+    	highlightsBottomLabel = (TextView)v.findViewById(R.id.highlightsBottom);
+
     	unreadTopView = v.findViewById(R.id.unreadTop);
 		unreadTopView.setVisibility(View.INVISIBLE);
     	unreadTopView.setOnClickListener(new OnClickListener() {
@@ -477,6 +506,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		
     	});
     	unreadTopLabel = (TextView)v.findViewById(R.id.unreadTopText);
+    	highlightsTopLabel = (TextView)v.findViewById(R.id.highlightsTop);
     	Button b = (Button)v.findViewById(R.id.markAsRead);
     	b.setOnClickListener(new OnClickListener() {
     		@Override
@@ -523,10 +553,10 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(adapter != null)
 					markerPos = adapter.getLastSeenEIDPosition();
 				
-				if(unreadView != null && adapter != null && adapter.data.size() > 0) {
+				if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
 					if(firstVisibleItem + visibleItemCount == totalItemCount) {
-						unreadView.setVisibility(View.GONE);
-						if(newMsgs > 0 || unreadTopView.getVisibility() == View.GONE) {
+						unreadBottomView.setVisibility(View.GONE);
+						if(unreadTopView.getVisibility() == View.GONE) {
 							Long e = adapter.data.get(adapter.data.size() - 1).eid;
 		    				if(heartbeatTask != null)
 		    					heartbeatTask.cancel(true);
@@ -535,12 +565,14 @@ public class MessageViewFragment extends SherlockListFragment {
 						}
 						newMsgs = 0;
 						newMsgTime = 0;
+						newHighlights = 0;
 					}
 				}
 				if(firstVisibleItem + visibleItemCount < totalItemCount)
 					shouldShowUnread = true;
 
 				if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
+					mUpdateTopUnreadRunnable.run();
 		    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
 		    			unreadTopView.setVisibility(View.GONE);
 						Long e = adapter.data.get(adapter.data.size() - 1).eid;
@@ -617,6 +649,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		avgInsertTime = 0;
 		newMsgs = 0;
 		newMsgTime = 0;
+		newHighlights = 0;
 		earliest_eid = 0;
 		backlog_eid = 0;
 		mServer = ServersDataSource.getInstance().getServer(cid);
@@ -838,6 +871,8 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		if(newMsgTime == 0)
 	    			newMsgTime = System.currentTimeMillis();
 				newMsgs++;
+				if(event.highlight)
+					newHighlights++;
 	    		update_unread();
 	    	}
 	    	if(!backlog && !shouldShowUnread)
@@ -1186,7 +1221,27 @@ public class MessageViewFragment extends SherlockListFragment {
 				int markerPos = adapter.getLastSeenEIDPosition();
 	    		if(markerPos >= 0 && getListView().getFirstVisiblePosition() > (markerPos + 1)) {
 	    			if(shouldTrackUnread()) {
-		    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos - 1) + " unread messages");
+	    				int highlights = adapter.getUnreadHighlightsAbovePosition(getListView().getFirstVisiblePosition());
+	    				int count = (getListView().getFirstVisiblePosition() - markerPos - 1) - highlights;
+	    				String txt = "";
+	    				if(highlights > 0) {
+		    				if(highlights == 1)
+		    					txt = "mention";
+		    				else if(highlights > 0)
+		    					txt = "mentions";
+		    				highlightsTopLabel.setText(String.valueOf(highlights));
+	    					highlightsTopLabel.setVisibility(View.VISIBLE);
+	    					
+	    					if(count > 0)
+	    						txt += " and ";
+	    				} else {
+	    					highlightsTopLabel.setVisibility(View.GONE);
+	    				}
+	    				if(count == 1)
+	    					txt += count + " unread message";
+	    				else if(count > 0)
+	    					txt += count + " unread messages";
+		    			unreadTopLabel.setText(txt);
 		    			unreadTopView.setVisibility(View.VISIBLE);
 	    			} else {
 		    			unreadTopView.setVisibility(View.GONE);
@@ -1242,19 +1297,39 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
 
 		if(newMsgs > 0) {
-			int minutes = (int)((System.currentTimeMillis() - newMsgTime)/60000);
+			/*int minutes = (int)((System.currentTimeMillis() - newMsgTime)/60000);
 			
 			if(minutes < 1)
-				unreadView.setText("Less than a minute of chatter (");
+				unreadBottomLabel.setText("Less than a minute of chatter (");
 			else if(minutes == 1)
-				unreadView.setText("1 minute of chatter (");
+				unreadBottomLabel.setText("1 minute of chatter (");
 			else
-				unreadView.setText(minutes + " minutes of chatter (");
+				unreadBottomLabel.setText(minutes + " minutes of chatter (");
 			if(newMsgs == 1)
-				unreadView.setText(unreadView.getText() + "1 message)");
+				unreadBottomLabel.setText(unreadBottomLabel.getText() + "1 message)");
 			else
-				unreadView.setText(unreadView.getText() + (newMsgs + " messages)"));
-			unreadView.setVisibility(View.VISIBLE);
+				unreadBottomLabel.setText(unreadBottomLabel.getText() + (newMsgs + " messages)"));*/
+			
+			String txt = "";
+			int msgCnt = newMsgs - newHighlights;
+			if(newHighlights > 0) {
+				if(newHighlights == 1)
+					txt = "mention";
+				else
+					txt = "mentions";
+				if(msgCnt > 0)
+					txt += " and ";
+				highlightsBottomLabel.setText(String.valueOf(newHighlights));
+				highlightsBottomLabel.setVisibility(View.VISIBLE);
+			} else {
+				highlightsBottomLabel.setVisibility(View.GONE);
+			}
+			if(msgCnt == 1)
+				txt += msgCnt + " unread message";
+			else if(msgCnt > 0)
+				txt += msgCnt + " unread messages";
+			unreadBottomLabel.setText(txt);
+			unreadBottomView.setVisibility(View.VISIBLE);
 			unreadRefreshRunnable = new UnreadRefreshRunnable();
 			mHandler.postDelayed(unreadRefreshRunnable, 10000);
 		}
