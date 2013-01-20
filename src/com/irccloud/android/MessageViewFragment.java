@@ -556,9 +556,6 @@ public class MessageViewFragment extends SherlockListFragment {
 						conn.request_backlog(cid, bid, earliest_eid);
 					}
 				}
-				int markerPos = -1;
-				if(adapter != null)
-					markerPos = adapter.getLastSeenEIDPosition();
 				
 				if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
 					if(firstVisibleItem + visibleItemCount == totalItemCount) {
@@ -580,6 +577,9 @@ public class MessageViewFragment extends SherlockListFragment {
 
 				if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
 					mUpdateTopUnreadRunnable.run();
+					int markerPos = -1;
+					if(adapter != null)
+						markerPos = adapter.getLastSeenEIDPosition();
 		    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
 		    			unreadTopView.setVisibility(View.GONE);
 						Long e = adapter.data.get(adapter.data.size() - 1).eid;
