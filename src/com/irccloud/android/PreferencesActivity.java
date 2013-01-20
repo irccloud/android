@@ -30,7 +30,6 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-		getWindow().setBackgroundDrawableResource(android.R.drawable.screen_background_light);
 		getSupportActionBar().setTitle("Settings");
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		addPreferencesFromResource(R.xml.preferences_account);
@@ -46,7 +45,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("faq").setOnPreferenceClickListener(urlClick);
-		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
+		findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
 		try {
 			findPreference("version").setSummary(getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName);

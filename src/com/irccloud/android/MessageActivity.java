@@ -88,6 +88,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+		getWindow().setBackgroundDrawable(null);
         setContentView(R.layout.activity_message);
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout)findViewById(R.id.messageContainer);

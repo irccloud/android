@@ -1,6 +1,5 @@
 <resources>
     <style name="AppTheme" parent="Theme.Sherlock.Light">
-	    <item name="android:windowBackground">@null</item>
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
 	    <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>

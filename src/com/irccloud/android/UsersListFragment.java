@@ -128,8 +128,15 @@ public class UsersListFragment extends SherlockListFragment {
 				holder.label.setTextColor(getResources().getColorStateList(e.color));
 			}
 
-			row.setBackgroundResource(e.static_bg_color);
-			holder.label.setBackgroundResource(e.bg_color);
+			if(e.last || e.type == TYPE_HEADING)
+				row.setBackgroundResource(e.static_bg_color);
+			else
+				row.setBackgroundDrawable(null);
+			
+			if(e.type != TYPE_HEADING)
+				holder.label.setBackgroundResource(e.bg_color);
+			else
+				holder.label.setBackgroundDrawable(null);
 				
 			if(holder.count != null) {
 				if(e.count != null) {

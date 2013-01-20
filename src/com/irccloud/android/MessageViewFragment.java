@@ -421,8 +421,12 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			row.setOnClickListener(new OnItemClickListener(position));
 			
-			if(e.row_type == ROW_MESSAGE)
-				row.setBackgroundResource(e.bg_color);
+			if(e.row_type == ROW_MESSAGE) {
+				if(e.bg_color == R.color.message_bg)
+					row.setBackgroundDrawable(null);
+				else
+					row.setBackgroundResource(e.bg_color);
+			}
 
 			if(holder.timestamp != null) {
 				holder.timestamp.setText(e.timestamp);
