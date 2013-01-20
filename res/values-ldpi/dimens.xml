@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="splashlogo_width">96dp</dimen>
+    <dimen name="splashlogo_margin">32dp</dimen>
+</resources>

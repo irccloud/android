@@ -420,7 +420,10 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
 
 			row.setOnClickListener(new OnItemClickListener(position));
-			row.setBackgroundResource(e.bg_color);
+			
+			if(e.row_type == ROW_MESSAGE)
+				row.setBackgroundResource(e.bg_color);
+
 			if(holder.timestamp != null) {
 				holder.timestamp.setText(e.timestamp);
 				holder.timestamp.setMinWidth(timestamp_width);

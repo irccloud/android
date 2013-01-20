@@ -16,8 +16,8 @@
             android:layout_height="@dimen/splashlogo_width"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="64dp"
-            android:layout_marginTop="64dp"
+            android:layout_marginBottom="@dimen/splashlogo_margin"
+            android:layout_marginTop="@dimen/splashlogo_margin"
             android:src="@drawable/splashlogo" />
 
         <LinearLayout
