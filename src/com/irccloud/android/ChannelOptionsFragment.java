@@ -102,7 +102,15 @@ public class ChannelOptionsFragment extends DialogFragment {
 		    		} else {
 		    			members.setChecked(true);
 		    		}
+		    	} else {
+					joinpart.setChecked(true);
+	    			unread.setChecked(true);
+	    			members.setChecked(true);
 		    	}
+	    	} else {
+				joinpart.setChecked(true);
+    			unread.setChecked(true);
+    			members.setChecked(true);
 	    	}
 		} catch (JSONException e) {
 			e.printStackTrace();
