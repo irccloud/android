@@ -7,14 +7,14 @@
 			android:title="FAQ"
 			android:key="faq"
 			/>
-		<Preference
+		<!-- <Preference
 			android:title="Subscriptions"
 			android:key="subscriptions"
 			/>
 		<Preference
 			android:title="ChangeLog"
 			android:key="changes"
-			/>
+			/>-->
 		<Preference
 			android:title="Version"
 			android:key="version"
