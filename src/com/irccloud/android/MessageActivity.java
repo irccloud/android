@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gcm.GCMRegistrar;
+import com.irccloud.android.BanListFragment.AddClickListener;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -195,14 +196,28 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							dialog.dismiss();
 						}
 	            	});
-	            	builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
-
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							editTopic();
-						}
-	            	});
+	            	boolean canEditTopic;
+	            	if(c.mode.contains("t")) {
+	            		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, name, ServersDataSource.getInstance().getServer(cid).nick);
+	            		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
+	            			canEditTopic = true;
+	            		} else {
+	            			canEditTopic = false;
+	            		}
+	            	} else {
+            			canEditTopic = true;
+	            	}
+	            	
+	            	if(canEditTopic) {
+		            	builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
+	
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+								editTopic();
+							}
+		            	});
+	            	}
 		    		final AlertDialog dialog = builder.create();
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.show();
