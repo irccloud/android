@@ -211,7 +211,7 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("user_mode")) {
 	    		e.from = "";
-	    		e.msg = "Your user mode is: <b>" + event.getString("newmode") + "</b>";
+	    		e.msg = "Your user mode is: <b>+" + event.getString("newmode") + "</b>";
 	    		e.bg_color = R.color.status_bg;
 	    	} else if(e.type.equalsIgnoreCase("your_unique_id")) {
 	    		e.from = "";
