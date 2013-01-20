@@ -213,6 +213,15 @@ public class MessageViewFragment extends SherlockListFragment {
 			return lastSeenEidMarkerPosition;
 		}
 		
+		public void clearLastSeenEIDMarker() {
+			for(int i = 0; i < data.size(); i++) {
+				if(data.get(i).row_type == ROW_LASTSEENEID) {
+					data.remove(i);
+				}
+			}
+			lastSeenEidMarkerPosition = -1;
+		}
+		
 		public int getLastSeenEIDPosition() {
 			return lastSeenEidMarkerPosition;
 		}
@@ -1018,6 +1027,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	if(bid != -1) {
     		TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
     		if(events != null && events.size() > 0) {
+    			adapter.clearLastSeenEIDMarker();
     			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
 	    		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 	    		if(backlog_eid > 0) {
@@ -1048,6 +1058,11 @@ public class MessageViewFragment extends SherlockListFragment {
     
     private class HeartbeatTask extends AsyncTaskEx<Long, Void, Void> {
 
+    	@Override
+    	protected void onPreExecute() {
+    		Log.d("IRCCloud", "Heartbeat task created");
+    	}
+    	
 		@Override
 		protected Void doInBackground(Long... params) {
 			Long eid = params[0];
