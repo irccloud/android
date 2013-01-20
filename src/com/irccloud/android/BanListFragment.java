@@ -145,17 +145,21 @@ public class BanListFragment extends SherlockDialogFragment {
         	adapter = new BansAdapter(this);
         	listView.setAdapter(adapter);
         }
-    	Dialog d = new AlertDialog.Builder(ctx)
+    	AlertDialog.Builder b = new AlertDialog.Builder(ctx)
         .setTitle("Ban list for " + event.getString("channel"))
         .setView(v)
-        .setPositiveButton("Add Ban Mask", new AddClickListener())
         .setNegativeButton("Close", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 			}
-        })
-        .create();
+        });
+		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, event.getString("channel"), ServersDataSource.getInstance().getServer(cid).nick);
+		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
+	        b.setPositiveButton("Add Ban Mask", new AddClickListener());
+		}
+
+        AlertDialog d = b.create();
 	    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     	return d;
     }
