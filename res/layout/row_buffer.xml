@@ -23,8 +23,8 @@
 	
 		        <ImageView
 		            android:id="@+id/key"
-		            android:layout_width="32dp"
-		            android:layout_height="32dp"
+		            android:layout_width="24dp"
+		            android:layout_height="24dp"
 		            android:layout_weight="0"
 		            android:padding="4dp"
 		            android:src="@drawable/lock" />
