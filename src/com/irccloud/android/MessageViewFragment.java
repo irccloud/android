@@ -110,6 +110,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	private ServersDataSource.Server mServer = null;
 	private boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
+	private boolean ready = false;
 	
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
 		@Override
@@ -556,58 +557,62 @@ public class MessageViewFragment extends SherlockListFragment {
 			}
     		
     	});
-    	((ListView)v.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				if(headerView != null && min_eid > 0 && conn.ready) {
-					if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1 && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-						requestingBacklog = true;
-						conn.request_backlog(cid, bid, earliest_eid);
-					}
+    	return v;
+    }
+	
+    private OnScrollListener mOnScrollListener = new OnScrollListener() {
+		@Override
+		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+			if(!ready)
+				return;
+			
+			if(headerView != null && min_eid > 0 && conn.ready) {
+				if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1 && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+					requestingBacklog = true;
+					conn.request_backlog(cid, bid, earliest_eid);
 				}
-				
-				if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
-					if(firstVisibleItem + visibleItemCount == totalItemCount) {
-						unreadBottomView.setVisibility(View.GONE);
-						if(unreadTopView.getVisibility() == View.GONE) {
-							Long e = adapter.data.get(adapter.data.size() - 1).eid;
-		    				if(heartbeatTask != null)
-		    					heartbeatTask.cancel(true);
-		    				heartbeatTask = new HeartbeatTask();
-		    				heartbeatTask.execute(e);
-						}
-						newMsgs = 0;
-						newMsgTime = 0;
-						newHighlights = 0;
-					}
-				}
-				if(firstVisibleItem + visibleItemCount < totalItemCount)
-					shouldShowUnread = true;
-
-				if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
-					mUpdateTopUnreadRunnable.run();
-					int markerPos = -1;
-					if(adapter != null)
-						markerPos = adapter.getLastSeenEIDPosition();
-		    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
-		    			unreadTopView.setVisibility(View.GONE);
+			}
+			
+			if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
+				if(firstVisibleItem + visibleItemCount == totalItemCount) {
+					unreadBottomView.setVisibility(View.GONE);
+					if(unreadTopView.getVisibility() == View.GONE) {
 						Long e = adapter.data.get(adapter.data.size() - 1).eid;
 	    				if(heartbeatTask != null)
 	    					heartbeatTask.cancel(true);
 	    				heartbeatTask = new HeartbeatTask();
 	    				heartbeatTask.execute(e);
-		    		}
+					}
+					newMsgs = 0;
+					newMsgTime = 0;
+					newHighlights = 0;
 				}
 			}
+			if(firstVisibleItem + visibleItemCount < totalItemCount)
+				shouldShowUnread = true;
 
-			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
+			if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
+				mUpdateTopUnreadRunnable.run();
+				int markerPos = -1;
+				if(adapter != null)
+					markerPos = adapter.getLastSeenEIDPosition();
+	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
+	    			unreadTopView.setVisibility(View.GONE);
+					Long e = adapter.data.get(adapter.data.size() - 1).eid;
+    				if(heartbeatTask != null)
+    					heartbeatTask.cancel(true);
+    				heartbeatTask = new HeartbeatTask();
+    				heartbeatTask.execute(e);
+	    		}
 			}
-    		
-    	});
-    	return v;
-    }
-	
+		}
+
+		@Override
+		public void onScrollStateChanged(AbsListView view, int scrollState) {
+		}
+		
+	};
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -662,6 +667,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		firstScroll = true;
 		requestingBacklog = false;
 		shouldShowUnread = false;
+		ready = false;
 		avgInsertTime = 0;
 		newMsgs = 0;
 		newMsgTime = 0;
@@ -979,6 +985,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	public void onResume() {
     	super.onResume();
     	longPressOverride = false;
+    	ready = false;
         getListView().setStackFromBottom(true);
         getListView().requestFocus();
     	if(bid == -1 && cid != -1) {
@@ -1054,6 +1061,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		if(cid == -1)
     			headerView.setVisibility(View.GONE);
     	}
+		getListView().setOnScrollListener(mOnScrollListener);
     }
     
     private class HeartbeatTask extends AsyncTaskEx<Long, Void, Void> {
@@ -1280,8 +1288,9 @@ public class MessageViewFragment extends SherlockListFragment {
 	    		}
 	    		if(mServer != null)
 	    			update_status(mServer.status, mServer.fail_info);
-				if(mListener != null)
+				if(mListener != null && !ready)
 					mListener.onMessageViewReady();
+				ready = true;
 			} else {
 				Log.e("IRCCloud", "Adapter was null!");
 			}
@@ -1502,6 +1511,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				savedScrollPos = getListView().getFirstVisiblePosition();
 			else
 				savedScrollPos = -1;
+			getListView().setOnScrollListener(null);
 		} catch (Exception e) {
 			savedScrollPos = -1;
 		}

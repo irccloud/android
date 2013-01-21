@@ -88,7 +88,7 @@ public class BuffersDataSource {
 
 	public synchronized void updateLastSeenEid(int bid, long last_seen_eid) {
 		Buffer b = getBuffer(bid);
-		if(b != null)
+		if(b != null && b.last_seen_eid < last_seen_eid)
 			b.last_seen_eid = last_seen_eid;
 	}
 	
