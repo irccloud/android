@@ -69,6 +69,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	View buffersListView;
 	TextView title;
 	TextView subtitle;
+	ImageView key;
 	LinearLayout messageContainer;
 	HorizontalScrollView scrollView;
 	NetworkConnection conn;
@@ -266,6 +267,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
         title = (TextView)v.findViewById(R.id.title);
         subtitle = (TextView)v.findViewById(R.id.subtitle);
+        key = (ImageView)v.findViewById(R.id.key);
         getSupportActionBar().setCustomView(v);
         
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
@@ -795,6 +797,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        		subtitle.setText(c.topic_text);
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
+		        	}
+		        	if(c != null && c.mode.contains("k")) {
+		        		key.setVisibility(View.VISIBLE);
+		        	} else {
+		        		key.setVisibility(View.GONE);
 		        	}
 	    		} else if(type.equalsIgnoreCase("console")) {
 	    			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
