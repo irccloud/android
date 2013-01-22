@@ -114,8 +114,8 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 				if(userInfo != null) {
 					JSONObject prefs = userInfo.prefs;
 					((EditTextPreference)findPreference("name")).setText(userInfo.name);
-					((EditTextPreference)findPreference("email")).setText(userInfo.name);
-					((EditTextPreference)findPreference("highlights")).setText(userInfo.name);
+					((EditTextPreference)findPreference("email")).setText(userInfo.email);
+					((EditTextPreference)findPreference("highlights")).setText(userInfo.highlights);
 					((CheckBoxPreference)findPreference("autoaway")).setChecked(userInfo.auto_away);
 					if(prefs != null) {
 						try {
