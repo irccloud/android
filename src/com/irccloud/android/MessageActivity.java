@@ -791,6 +791,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			} else {
 		        		subtitle.setVisibility(View.GONE);
 	    			}
+	        		key.setVisibility(View.GONE);
 	    		} else if(type.equalsIgnoreCase("channel")) {
 		        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
 		        	if(c != null && c.topic_text.length() > 0) {
@@ -812,6 +813,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 	    			}
+	        		key.setVisibility(View.GONE);
 	    		}
 	    	}
     	}
