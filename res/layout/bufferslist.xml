@@ -13,7 +13,7 @@
         android:cacheColorHint="#D9E7FF"
         android:descendantFocusability="blocksDescendants"
         android:divider="#00000000"
-        android:dividerHeight="1dip"
+        android:dividerHeight="0dip"
         android:fastScrollEnabled="true" />
 
     <LinearLayout
