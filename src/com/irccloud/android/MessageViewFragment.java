@@ -707,6 +707,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						adapter.clear();
 						adapter.notifyDataSetInvalidated();
 						mListener.onMessageViewReady();
+						ready = true;
 					}
 				}
 				
@@ -1056,6 +1057,7 @@ public class MessageViewFragment extends SherlockListFragment {
     			headerView.setVisibility(View.GONE);
     		} else {
     			headerView.setVisibility(View.VISIBLE);
+				ready = true;
     		}
     	} else {
     		if(cid == -1)
