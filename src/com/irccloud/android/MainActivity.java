@@ -322,14 +322,12 @@ public class MainActivity extends SherlockActivity {
 				connecting.startAnimation(anim);
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 				builder.setTitle("Login Failed");
-				String message = "Unable to connect to IRCCloud.  Please try again shortly.";
+				String message = "Unable to login to IRCCloud.  Please check your username and password, and try again shortly.";
 				if(result != null) {
 					try {
 						message = result.getString("message");
-						if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("password"))
+						if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
 							message = "Incorrect username or password.  Please try again.";
-						else if(message.equalsIgnoreCase("legacy_account"))
-							message = "Your account hasn't been migrated yet.  Please try again shortly.";
 						else
 							message = "Error: " + message;
 					} catch (JSONException e) {
