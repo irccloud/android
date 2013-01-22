@@ -1185,12 +1185,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				        	refreshUpIndicatorTask.cancel(true);
 				        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 				        refreshUpIndicatorTask.execute((Void)null);
-				    	if(scrollView != null && !getSharedPreferences("prefs", 0).getBoolean("bufferSwipeTip", false)) {
-				    		Toast.makeText(MessageActivity.this, "Swipe right to quickly view your channels and conversations", Toast.LENGTH_LONG).show();
-				    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-				    		editor.putBoolean("bufferSwipeTip", true);
-				    		editor.commit();
-				    	}
 					}
 					if(e.from.equalsIgnoreCase(name)) {
 						for(EventsDataSource.Event e1 : pendingEvents.values()) {
@@ -1300,6 +1294,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         			scrollView.smoothScrollTo(0, 0);
 	        		upView.setVisibility(View.INVISIBLE);
 	        	}
+		    	if(!getSharedPreferences("prefs", 0).getBoolean("bufferSwipeTip", false)) {
+		    		Toast.makeText(MessageActivity.this, "Swipe right and left to quickly open and close channels and conversations list", Toast.LENGTH_LONG).show();
+		    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+		    		editor.putBoolean("bufferSwipeTip", true);
+		    		editor.commit();
+		    	}
         	}
 		}
     	
