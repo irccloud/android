@@ -1240,12 +1240,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        			menu.findItem(R.id.menu_userlist).setEnabled(false);
 	        			menu.findItem(R.id.menu_userlist).setVisible(false);
 	        		}
+	        		menu.findItem(R.id.menu_ban_list).setVisible(false);
+	        		menu.findItem(R.id.menu_ban_list).setEnabled(false);
 	        	} else {
 	        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
 	        		menu.findItem(R.id.menu_archive).setVisible(false);
 	        		menu.findItem(R.id.menu_archive).setEnabled(false);
 	        		menu.findItem(R.id.menu_delete).setVisible(false);
 	        		menu.findItem(R.id.menu_delete).setEnabled(false);
+	        		menu.findItem(R.id.menu_ban_list).setVisible(true);
+	        		menu.findItem(R.id.menu_ban_list).setEnabled(true);
 	        		if(menu.findItem(R.id.menu_userlist) != null) {
 		        		boolean hide = false;
 		        		try {
