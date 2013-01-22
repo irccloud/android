@@ -4,6 +4,11 @@
 
 	<PreferenceCategory android:title="About">
 		<Preference
+			android:title="Send Feedback"
+			android:summary="Join us in #android"
+			android:key="feedback"
+			/>
+	    <Preference
 			android:title="FAQ"
 			android:key="faq"
 			/>

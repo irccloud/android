@@ -45,6 +45,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("faq").setOnPreferenceClickListener(urlClick);
+		findPreference("feedback").setOnPreferenceClickListener(urlClick);
 		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
 		try {
@@ -228,6 +229,8 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 			Intent i = null;
 			if (preference.getKey().equals("faq"))
 				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/faq"));
+			if (preference.getKey().equals("feedback"))
+				i = new Intent(Intent.ACTION_VIEW, Uri.parse("irc://irc.irccloud.com/%23android"));
 			if (preference.getKey().equals("subscriptions"))
 				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/#?/upgrade"));
 			if (preference.getKey().equals("changes"))
