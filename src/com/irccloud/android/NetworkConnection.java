@@ -574,7 +574,7 @@ public class NetworkConnection {
 			JSONObject o = new JSONObject();
 			o.put("hostname", hostname);
 			o.put("port", port);
-			o.put("ssl", ssl);
+			o.put("ssl", String.valueOf(ssl));
 			o.put("netname", netname);
 			o.put("nickname", nickname);
 			o.put("realname", realname);
@@ -594,7 +594,7 @@ public class NetworkConnection {
 			JSONObject o = new JSONObject();
 			o.put("hostname", hostname);
 			o.put("port", port);
-			o.put("ssl", ssl);
+			o.put("ssl", String.valueOf(ssl));
 			o.put("netname", netname);
 			o.put("nickname", nickname);
 			o.put("realname", realname);

@@ -40,16 +40,15 @@ public class EditConnectionFragment extends DialogFragment {
 	public String default_channels = null;
 	
 	private static final String[] PRESET_NETWORKS = new String[] { "Choose a network…",
-		"IRCCloud", "Freenode", "Freenode (SSL)", "QuakeNet", "IRCNet", "Undernet",
-		"DALNet", "OFTC", "GameSurge", "Efnet", "Mozilla", "Mozilla (SSL)", "Rizon",
-		"Espernet", "ReplayIRC", "synIRC", "synIRC (SSL)", "fossnet", "fossnet (SSL)",
-		"P2P-NET", "P2P-NET (SSL)", "euIRCnet", "euIRCnet (SSL)", "SlashNET", "SlashNET (SSL)",
-		"Atrum", "Atrum (SSL)", "Indymedia", "Indymedia (SSL)", "TWiT", "TWiT (SSL)"
+		"IRCCloud", "Freenode (SSL)", "QuakeNet", "IRCNet", "Undernet",
+		"DALNet", "OFTC", "GameSurge", "Efnet", "Mozilla (SSL)", "Rizon (SSL)",
+		"Espernet", "ReplayIRC", "synIRC (SSL)", "fossnet (SSL)",
+		"P2P-NET (SSL)", "euIRCnet (SSL)", "SlashNET (SSL)",
+		"Atrum (SSL)", "Indymedia (SSL)", "TWiT (SSL)"
     };
 	
 	private static final String[] PRESET_SERVERS = new String[] { "",
 		"irc.irccloud.com",
-		"irc.freenode.net",
 		"irc.freenode.net",
 		"irc.quakenet.org",
 		"irc.atw-inter.net",
@@ -59,25 +58,16 @@ public class EditConnectionFragment extends DialogFragment {
 		"irc.gamesurge.net",
 		"efnet.xs4all.nl",
 		"irc.mozilla.org",
-		"irc.mozilla.org",
-		"irc.rizon.net",
+		"irc6.rizon.net",
 		"irc.esper.net",
 		"irc.replayirc.com",
-		"moonlight.se.eu.synirc.net", 
-		"moonlight.se.eu.synirc.net",
+		"naamio.fi.eu.synirc.net",
 		"irc.fossnet.info",
-		"irc.fossnet.info",
-		"irc.p2p-network.net", 
 		"irc.p2p-network.net",
 		"irc.euirc.net",
-		"irc.euirc.net",
-		"irc.slashnet.org", 
 		"irc.slashnet.org",
 		"irc.atrum.org",
-		"irc.atrum.org",
-		"irc.indymedia.org", 
 		"irc.indymedia.org",
-		"irc.twit.tv",
 		"irc.twit.tv"
 	};
 	
