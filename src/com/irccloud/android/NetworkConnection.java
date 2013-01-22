@@ -86,6 +86,8 @@ public class NetworkConnection {
 	private long reconnect_timestamp = 0;
 	private String useragent = null;
 	
+	public static final int BACKLOG_BUFFER_MAX = 100;
+	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
 	public static final int EVENT_MAKESERVER = 2;
@@ -1443,12 +1445,29 @@ public class NetworkConnection {
 						JsonParser parser = new JsonParser();
 						reader.beginArray();
 						int count = 0;
+						int currentBid = -1;
+						long firstEid = 0;
+						int currentcount = 0;
 						while(reader.hasNext()) {
 							long time = System.currentTimeMillis();
 							JsonElement e = parser.parse(reader);
 							totalJSONTime += (System.currentTimeMillis() - time);
 							time = System.currentTimeMillis();
-							parse_object(new IRCCloudJSONObject(e.getAsJsonObject()), true);
+							IRCCloudJSONObject o = new IRCCloudJSONObject(e.getAsJsonObject());
+							parse_object(o, true);
+							if(totalbuffers > 1 && (!reader.hasNext() || (o.bid() > -1 && !o.type().equalsIgnoreCase("makebuffer") && !o.type().equalsIgnoreCase("channel_init")))) {
+								if(o.bid() != currentBid) {
+									if(currentBid != -1) {
+										if(currentcount >= BACKLOG_BUFFER_MAX) {
+											EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
+										}
+									}
+									currentBid = o.bid();
+									currentcount = 0;
+									firstEid = o.eid();
+								}
+								currentcount++;
+							}
 							totalParseTime += (System.currentTimeMillis() - time);
 							count++;
 							if(Build.VERSION.SDK_INT >= 14)

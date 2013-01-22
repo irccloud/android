@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -394,6 +395,23 @@ public class EventsDataSource {
 			}
 		}
 		return null;
+	}
+
+	public void pruneEvents(int bid, long min_eid) {
+		synchronized(events) {
+			if(events.containsKey(bid)) {
+				ArrayList<Event> eventsToDelete = new ArrayList<Event>();
+				for(Event e : events.get(bid).values()) {
+					if(e.eid < min_eid)
+						eventsToDelete.add(e);
+					else
+						break;
+				}
+				for(Event e : eventsToDelete) {
+					events.get(bid).remove(e.eid);
+				}
+			}
+		}
 	}
 
 	public int getUnreadCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
