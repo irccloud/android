@@ -68,12 +68,11 @@
 
    			    <ImageButton
    			        android:id="@+id/addBtn"
-   			        android:layout_width="16dp"
-   			        android:layout_height="16dp"
+   			        android:layout_width="48dp"
+   			        android:layout_height="48dp"
    			        android:layout_marginLeft="8dp"
-   			        android:layout_marginRight="16dp"
-   			        android:layout_weight="0"
-   			        android:background="@drawable/add" />
+   			        android:background="@null"
+   			        android:src="@drawable/add" />
 
 	      </LinearLayout>
     </LinearLayout>
