@@ -52,6 +52,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
 public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener {
@@ -1182,6 +1183,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				        	refreshUpIndicatorTask.cancel(true);
 				        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 				        refreshUpIndicatorTask.execute((Void)null);
+				    	if(scrollView != null && !getSharedPreferences("prefs", 0).getBoolean("bufferSwipeTip", false)) {
+				    		Toast.makeText(MessageActivity.this, "Swipe right to quickly view your channels and conversations", Toast.LENGTH_LONG).show();
+				    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+				    		editor.putBoolean("bufferSwipeTip", true);
+				    		editor.commit();
+				    	}
 					}
 					if(e.from.equalsIgnoreCase(name)) {
 						for(EventsDataSource.Event e1 : pendingEvents.values()) {
@@ -1335,6 +1342,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        		scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
 		        	}
 		        	upView.setVisibility(View.VISIBLE);
+			    	if(!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
+			    		Toast.makeText(this, "Swipe left and right to quickly open and close the user list", Toast.LENGTH_LONG).show();
+			    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+			    		editor.putBoolean("userSwipeTip", true);
+			    		editor.commit();
+			    	}
             	}
             	return true;
             case R.id.menu_ignore_list:
