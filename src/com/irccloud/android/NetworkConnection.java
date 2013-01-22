@@ -285,7 +285,6 @@ public class NetworkConnection {
 		String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
 		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata);
 		try {
-			Log.d(TAG, "Result: " + response);
 			JSONObject o = new JSONObject(response);
 			return o;
 		} catch (Exception e) {
@@ -299,7 +298,6 @@ public class NetworkConnection {
 		String postdata = "device_id="+regId+"&session="+sk;
 		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata);
 		try {
-			Log.d(TAG, "Result: " + response);
 			JSONObject o = new JSONObject(response);
 			return o;
 		} catch (Exception e) {
@@ -313,7 +311,6 @@ public class NetworkConnection {
 		String postdata = "device_id="+regId+"&session="+sk;
 		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata);
 		try {
-			Log.d(TAG, "Result: " + response);
 			JSONObject o = new JSONObject(response);
 			return o;
 		} catch (Exception e) {
@@ -353,12 +350,9 @@ public class NetworkConnection {
 		if(EventsDataSource.getInstance().highest_eid > 0)
 			url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
 
-		Log.d(TAG, "Opening websocket: " + url);
-		
 		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 		    @Override
 		    public void onConnect() {
-		        Log.d(TAG, "Connected!");
 		        state = STATE_CONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
@@ -385,7 +379,6 @@ public class NetworkConnection {
 
 		    @Override
 		    public void onDisconnect(int code, String reason) {
-		        Log.d(TAG, String.format("Disconnected! Code: %d Reason: %s", code, reason));
 		        if(state == STATE_DISCONNECTING)
 		        	cancel_idle_timer();
 		        else
@@ -429,7 +422,7 @@ public class NetworkConnection {
 		try {
 			params.put("_reqid", ++last_reqid);
 			params.put("_method", method);
-			Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method);
+			//Log.d(TAG, "Reqid: " + last_reqid + " Method: " + method);
 			client.send(params.toString());
 			return last_reqid;
 		} catch (Exception e) {
@@ -729,7 +722,6 @@ public class NetworkConnection {
 	public void request_backlog(int cid, int bid, long beforeId) {
 		try {
 			if(oobTasks.containsKey(bid)) {
-				Log.d(TAG, "Backlog is already being requested for bid: " + bid);
 				return;
 			}
 			if(Looper.myLooper() == null)
@@ -793,7 +785,7 @@ public class NetworkConnection {
 		cancel_idle_timer();
 		//Log.d(TAG, "New event: " + object);
 		if(!object.has("type")) {
-			Log.d(TAG, "Response: " + object);
+			//Log.d(TAG, "Response: " + object);
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
 				notifyHandlers(EVENT_FAILURE_MSG, object);
 			} else if(object.has("success")) {
@@ -920,8 +912,6 @@ public class NetworkConnection {
 				Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
-				if(object.getString("buffer_type") == null)
-					Log.w(TAG, "NULL buffer type! JSON: " + object.toString());
 				if(numbuffers > 0) {
 					notifyHandlers(EVENT_PROGRESS, (totalbuffers++ / numbuffers) * 100);
 				}
@@ -1210,7 +1200,7 @@ public class NetworkConnection {
 					e.printStackTrace();
 				}
 			} else {
-				Log.w(TAG, "Unhandled type: " + object);
+				//Log.w(TAG, "Unhandled type: " + object);
 			}
 		}
 		if(idle_interval > 0)
@@ -1218,8 +1208,6 @@ public class NetworkConnection {
 	}
 	
 	private String doPost(URL url, String postdata) throws IOException {
-		Log.d(TAG, "POSTing to: " + url);
-		
 		HttpURLConnection conn = null;
 
         if (url.getProtocol().toLowerCase().equals("https")) {
@@ -1277,7 +1265,6 @@ public class NetworkConnection {
 		if(!handlers.contains(handler))
 			handlers.add(handler);
 		if(shutdownTimer != null) {
-			Log.d(TAG, "Disconnect timer cancelled");
 			shutdownTimer.cancel();
 			shutdownTimer = null;
 		}
@@ -1290,7 +1277,6 @@ public class NetworkConnection {
 				shutdownTimer = new Timer();
 				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 				long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
-				Log.d(TAG, "Scheduling disconnect timer for " + timeout + "ms");
 				shutdownTimer.schedule( new TimerTask(){
 		             public void run() {
 		            	 if(handlers.isEmpty()) {
@@ -1488,7 +1474,7 @@ public class NetworkConnection {
 						for(BuffersDataSource.Buffer b : buffers) {
 							Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
 							if(b.timeout > 0 && bid == -1) {
-								Log.d(TAG, "Requesting backlog for timed-out buffer: " + b.name);
+								Log.i(TAG, "Requesting backlog for timed-out buffer: " + b.name);
 								request_backlog(b.cid, b.bid, 0);
 							}
 						}

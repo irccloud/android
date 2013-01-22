@@ -93,10 +93,8 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 				o = (IRCCloudJSONObject)msg.obj;
 				if(o.getInt("_reqid") == save_settings_reqid) {
 					save_settings_reqid = -1;
-					Log.d("IRCCloud", "Settings updated");
 				} else if(o.getInt("_reqid") == save_prefs_reqid) {
 					save_prefs_reqid = -1;
-					Log.d("IRCCloud", "Prefs updated");
 				}
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:

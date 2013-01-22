@@ -60,7 +60,6 @@ public class CollapsedEventsList {
 	}
 	
 	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, int mode, String target_mode) {
-		//Log.d("IRCCloud", "+++ Before: " + data.toString());
 		CollapsedEvent e = null;
 		
 		if(type < TYPE_NICKCHANGE) {
@@ -115,7 +114,6 @@ public class CollapsedEventsList {
 							data.remove(e1);
 						else
 							e1.nick = nick;
-						//Log.d("IRCCloud", "--- After: " + data.toString());
 						return;
 					}
 					if((e1.type == TYPE_JOIN || e1.type == TYPE_POPOUT) && e1.nick.equalsIgnoreCase(old_nick)) {
@@ -151,7 +149,6 @@ public class CollapsedEventsList {
 				data.add(e);
 			}
 		}
-		//Log.d("IRCCloud", "--- After: " + data.toString());
 	}
 	
 	public CollapsedEvent findEvent(String nick) {

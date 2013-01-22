@@ -1,6 +1,5 @@
 package com.irccloud.android;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,9 +32,8 @@ public class GCMIntentService extends GCMBaseIntentService {
 	@SuppressLint("NewApi")
 	@Override
 	protected void onMessage(Context context, Intent intent) {
-		Log.i("IRCCloud", "Recieved GCM message!");
 		if(intent != null && intent.getExtras() != null) {
-	    	Log.d("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
+	    	//Log.d("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
 	    	try {
 		    	String type = intent.getStringExtra("type");
 		    	if(type.equalsIgnoreCase("heartbeat_echo")) {
@@ -62,7 +60,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 			    	int bid = Integer.valueOf(intent.getStringExtra("bid"));
 			    	long eid = Long.valueOf(intent.getStringExtra("eid"));
 			    	if(Notifications.getInstance().getNotification(eid) != null) {
-			    		Log.d("IRCCloud", "A notification for this event already exists in the db, ignoring");
 			    		return;
 			    	}
 			    	String from = intent.getStringExtra("from_nick");
@@ -104,11 +101,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 			@Override
 			public void run() {
 				if(!GCMRegistrar.isRegistered(IRCCloudApplication.getInstance().getApplicationContext()) || !IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("session_key")) {
-					Log.w("IRCCloud", "Not logged in, not posting GCM id");
 					return;
 				}
 				if(IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("gcm_registered")) {
-					Log.w("IRCCloud", "Already POSTed this ID");
 					return;
 				}
 				boolean success = false;
@@ -124,7 +119,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 					editor.putBoolean("gcm_registered", true);
 					editor.commit();
 				} else {
-					Log.e("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+					Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
 					scheduleRegisterTimer(retrydelay * 2);
 				}
 			}
@@ -134,7 +129,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 	
 	@Override
 	protected void onRegistered(Context context, String regId) {
-		Log.i("IRCCloud", "GCM registered, id: " + regId);
 		scheduleRegisterTimer(15000);
 	}
 
@@ -162,7 +156,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 					editor.remove(regId);
 					editor.commit();
 				} else {
-					Log.e("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+					Log.w("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
 					scheduleUnregisterTimer(retrydelay * 2, regId);
 				}
 			}
@@ -171,7 +165,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 	
 	@Override
 	protected void onUnregistered(Context context, String regId) {
-		Log.i("IRCCloud", "GCM unregistered, id: " + regId);
 		scheduleUnregisterTimer(1000, regId);
 	}
 

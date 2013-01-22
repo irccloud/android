@@ -406,7 +406,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		protected Void doInBackground(Void... arg0) {
 			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 				e.reqid = conn.say(cid, name, messageTxt.getText().toString());
-	    		Log.d("IRCCloud", "Inserted pending message, EID: " + e.eid + " reqid: " + e.reqid);
 				if(e.msg != null)
 					pendingEvents.put(e.reqid, e);
 			}
@@ -447,8 +446,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);
-					if(b.type == null)
-						Log.w("IRCCloud", "Buffer with null type: " + b.bid + " name: " + b.name);
 					if(b.bid != bid) {
 						if(unread == 0) {
 							int u = 0;
@@ -524,7 +521,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	    	if(bid >= 0)
     	    		backStack.add(0, bid);
     			bid = new_bid;
-    			Log.d("IRCCloud", "BID set by launch intent: " + bid);
     		}
     	}
     	
@@ -551,7 +547,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			archived = b.archived;
 	    		}
 	    	}
-			Log.d("IRCCloud", "CID set by launch intent: " + cid);
     	} else if(bid != -1) {
     		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
     		if(b != null) {
@@ -578,7 +573,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	if(cid == -1) {
 			launchBid = bid;
-			Log.d("IRCCloud", "Buffer not available yet, assigned to launchBid: " + launchBid);
     	} else {
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
@@ -697,7 +691,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
 	
     private boolean open_uri(Uri uri) {
-    	Log.i("IRCCloud", "Launch URI: " + uri);
 		if(uri != null && NetworkConnection.getInstance().ready) {
     		ServersDataSource.Server s = null;
     		if(uri.getPort() > 0)
@@ -743,7 +736,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
     
     private boolean open_bid(int bid) {
-    	Log.d("IRCCloud", "Attempting to open bid: " + bid);
 		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 		if(b != null) {
 			ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
@@ -850,7 +842,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			case NetworkConnection.EVENT_LINKCHANNEL:
 				event = (IRCCloudJSONObject)msg.obj;
 				if(cidToOpen == event.cid() && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
-					Log.d("IRCCloud", "Linked channel");
 					bufferToOpen = event.getString("valid_chan");
 					msg.obj = BuffersDataSource.getInstance().getBuffer(event.bid());
 				}
@@ -861,7 +852,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		bufferToOpen = null;
 		    		cidToOpen = -1;
 				} else if(bid == -1 && b.cid == cid && b.name.equalsIgnoreCase(name)) {
-					Log.i("IRCCloud", "Got my new buffer id: " + b.bid);
 					bid = b.bid;
 			    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null)
 			    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(bid);
@@ -956,7 +946,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				event = (IRCCloudJSONObject)msg.obj;
 				String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
 				if(channelsListDialog == null) {
-	        		Log.d("IRCCloud", "Created new dialog");
 	            	Context ctx = MessageActivity.this;
 	        		if(Build.VERSION.SDK_INT < 11)
 	        			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
@@ -973,7 +962,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        		channelsListDialog.setOwnerActivity(MessageActivity.this);
 				} else {
 					channelsListDialog.setTitle(dialogtitle);
-	        		Log.d("IRCCloud", "Re-used dialog");
 				}
         		channelsListDialog.show();
 				ChannelListFragment channels = (ChannelListFragment)getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
@@ -982,7 +970,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         		channels.setArguments(args);
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-				Log.d("IRCCloud", "Backlog processing ended, cid: " + cid + " bid: " + bid);
 				if(scrollView != null) {
 						scrollView.setEnabled(true);
 						if(scrollView.getScrollX() > 0)
@@ -1194,15 +1181,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
 						}
 						pendingEvents.clear();
-						Log.d("IRCCloud", "Cleared pending events for this PM buffer");
 					} else if(pendingEvents.containsKey(e.reqid)) {
-						Log.d("IRCCloud", "Removed pending event for reqid: " + e.reqid);
 						e = pendingEvents.get(e.reqid);
 						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
 						pendingEvents.remove(e.reqid);
-					}
-					if(pendingEvents.size() > 0) {
-						Log.d("IRCCloud", "pendingEvents reqids: " + pendingEvents.keySet().toString());
 					}
 				} catch (Exception e1) {
 				}

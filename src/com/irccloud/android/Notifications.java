@@ -288,32 +288,16 @@ public class Notifications {
 	
 	public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
 		if(isDismissed(bid, eid)) {
-			Log.d("IRCCloud", "This notification's EID has been dismissed, skipping...");
 			return;
 		}
 		long last_eid = getLastSeenEid(bid);
 		if(eid <= last_eid) {
-			Log.d("IRCCloud", "This notification's EID has already been seen, skipping...");
 			return;
 		}
 		
-		Log.d("IRCCloud", "Adding notification: "
-				+ "cid: " + cid + " "
-				+ "bid: " + bid + " "
-				+ "eid: " + eid + " "
-				+ "from: " + from + " "
-				+ "message: " + message + " "
-				+ "chan: " + chan + " "
-				+ "buffer_type: " + buffer_type + " "
-				+ "message_type: " + message_type + " "
-				);
 		String network = getNetwork(cid);
-		if(network != null)
-			Log.d("IRCCloud", "Name for network: " + network);
-		else {
-			Log.w("IRCCloud", "No network name!");
+		if(network == null)
 			addNetwork(cid, "Unknown Network");
-		}
 		Notification n = new Notification();
 		n.bid = bid;
 		n.cid = cid;
@@ -403,20 +387,17 @@ public class Notifications {
 	}
 	
 	public ArrayList<Notification> getMessageNotifications() {
-		Log.d("IRCCloud", "+++ Begin message notifications");
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
 		for(int i = 0; i < mNotifications.size(); i++) {
 			Notification n = mNotifications.get(i);
 			if(n.bid != excludeBid && isMessage(n.message_type)) {
-				Log.d("IRCCloud", "Notification: " + n.toString());
 				if(n.network == null)
 					n.network = getNetwork(n.cid);
 				notifications.add(n);
 			}
 		}
 
-		Log.d("IRCCloud", "--- End message notifications");
 		return notifications;
 	}
 	
@@ -470,7 +451,6 @@ public class Notifications {
 		ArrayList<Notification> notifications = getMessageNotifications();
 		for(Notification n : notifications) {
 			if(isDismissed(n.bid, n.eid)) {
-				Log.d("IRCCloud", "Removing dismissed notification: " + n.toString());
 				deleteNotification(n.cid, n.bid, n.eid);
 			}
 		}

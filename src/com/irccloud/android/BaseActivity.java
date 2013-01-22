@@ -71,9 +71,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 			AlertDialog.Builder builder;
 			
 			switch (msg.what) {
-			case NetworkConnection.EVENT_CONNECTIVITY:
-				Log.i("IRCCloud", "New connection state: " + NetworkConnection.getInstance().getState());
-				break;
 			case NetworkConnection.EVENT_BADCHANNELKEY:
 				o = (IRCCloudJSONObject)msg.obj;
 	    		s = ServersDataSource.getInstance();
@@ -152,7 +149,6 @@ public class BaseActivity extends SherlockFragmentActivity {
                 	}
 	             });
 	        	try {
-	        		Log.i("IRCCloud", server.isupport.toString());
 	        		String message = o.getString("invalid_nick") + " is not a valid nickname, try again";
 	        		if(server.isupport != null && server.isupport.has("NICKLEN"))
 	        			message += " (" + server.isupport.get("NICKLEN").getAsString() + " chars)";

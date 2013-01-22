@@ -444,14 +444,12 @@ public class EventsDataSource {
 
 	public boolean isImportant(Event e, String buffer_type) {
 		if(e == null) {
-			Log.w("IRCCloud", "isImportant: NULL event");
 			return false;
 		}
 		if(e.self)
 			return false;
 		String type = e.type;
 		if(type == null) {
-			Log.w("IRCCloud", "isImportant: NULL type");
 			return false;
 		}
 		if (type.equals("notice") && buffer_type != null && buffer_type.equals("console")) {
