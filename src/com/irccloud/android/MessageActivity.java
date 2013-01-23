@@ -360,54 +360,56 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	}
 	    	
 			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-	    		sendBtn.setEnabled(false);
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-	    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, name, s.nick);
-	    		e = EventsDataSource.getInstance().new Event();
-	    		e.cid = cid;
-	    		e.bid = bid;
-	    		e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
-	    		e.self = true;
-	    		e.from = s.nick;
-	    		e.nick = s.nick;
-	    		if(u != null)
-	    			e.from_mode = u.mode;
-	    		String msg = messageTxt.getText().toString();
-	    		if(msg.startsWith("//"))
-	    			msg = msg.substring(1);
-	    		else if(msg.startsWith("/") && !msg.startsWith("/me "))
-	    			msg = null;
-	    		e.msg = msg;
-	    		if(msg != null && msg.toLowerCase().startsWith("/me ")) {
-		    		e.type = "buffer_me_msg";
-		    		e.msg = msg.substring(4);
-	    		} else {
-		    		e.type = "buffer_msg";
-	    		}
-				e.color = R.color.timestamp;
-				if(name.equals(s.nick))
-					e.bg_color = R.color.message_bg;
-				else
-					e.bg_color = R.color.self;
-		    	e.row_type = 0;
-		    	e.html = null;
-		    	e.group_msg = null;
-		    	e.linkify = true;
-		    	e.target_mode = null;
-		    	e.highlight = false;
-		    	e.reqid = -1;
-		    	e.pending = true;
-		    	if(e.msg != null) {
-		    		e.msg = TextUtils.htmlEncode(e.msg);
-		    		EventsDataSource.getInstance().addEvent(e);
-		    		conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, mHandler);
-		    	}
+	    		if(s != null) {
+		    		sendBtn.setEnabled(false);
+		    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, name, s.nick);
+		    		e = EventsDataSource.getInstance().new Event();
+		    		e.cid = cid;
+		    		e.bid = bid;
+		    		e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
+		    		e.self = true;
+		    		e.from = s.nick;
+		    		e.nick = s.nick;
+		    		if(u != null)
+		    			e.from_mode = u.mode;
+		    		String msg = messageTxt.getText().toString();
+		    		if(msg.startsWith("//"))
+		    			msg = msg.substring(1);
+		    		else if(msg.startsWith("/") && !msg.startsWith("/me "))
+		    			msg = null;
+		    		e.msg = msg;
+		    		if(msg != null && msg.toLowerCase().startsWith("/me ")) {
+			    		e.type = "buffer_me_msg";
+			    		e.msg = msg.substring(4);
+		    		} else {
+			    		e.type = "buffer_msg";
+		    		}
+					e.color = R.color.timestamp;
+					if(name.equals(s.nick))
+						e.bg_color = R.color.message_bg;
+					else
+						e.bg_color = R.color.self;
+			    	e.row_type = 0;
+			    	e.html = null;
+			    	e.group_msg = null;
+			    	e.linkify = true;
+			    	e.target_mode = null;
+			    	e.highlight = false;
+			    	e.reqid = -1;
+			    	e.pending = true;
+			    	if(e.msg != null) {
+			    		e.msg = TextUtils.htmlEncode(e.msg);
+			    		EventsDataSource.getInstance().addEvent(e);
+			    		conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, mHandler);
+			    	}
+				}
 			}
     	}
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+			if(e != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 				e.reqid = conn.say(cid, name, messageTxt.getText().toString());
 				if(e.msg != null)
 					pendingEvents.put(e.reqid, e);
@@ -417,7 +419,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected void onPostExecute(Void result) {
-			messageTxt.setText("");
+			if(e != null && e.reqid != -1) {
+				messageTxt.setText("");
+			}
     		sendBtn.setEnabled(true);
 		}
     }
