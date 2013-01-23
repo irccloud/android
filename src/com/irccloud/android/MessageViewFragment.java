@@ -1250,49 +1250,53 @@ public class MessageViewFragment extends SherlockListFragment {
 		@Override
 		public void run() {
 			if(adapter != null) {
-				int markerPos = adapter.getLastSeenEIDPosition();
-	    		if(markerPos >= 0 && getListView().getFirstVisiblePosition() > (markerPos + 1)) {
-	    			if(shouldTrackUnread()) {
-	    				int highlights = adapter.getUnreadHighlightsAbovePosition(getListView().getFirstVisiblePosition());
-	    				int count = (getListView().getFirstVisiblePosition() - markerPos - 1) - highlights;
-	    				String txt = "";
-	    				if(highlights > 0) {
-		    				if(highlights == 1)
-		    					txt = "mention";
-		    				else if(highlights > 0)
-		    					txt = "mentions";
-		    				highlightsTopLabel.setText(String.valueOf(highlights));
-	    					highlightsTopLabel.setVisibility(View.VISIBLE);
-	    					
-	    					if(count > 0)
-	    						txt += " and ";
-	    				} else {
-	    					highlightsTopLabel.setVisibility(View.GONE);
-	    				}
-	    				if(count == 1)
-	    					txt += count + " unread message";
-	    				else if(count > 0)
-	    					txt += count + " unread messages";
-		    			unreadTopLabel.setText(txt);
-		    			unreadTopView.setVisibility(View.VISIBLE);
-	    			} else {
+				try {
+					int markerPos = adapter.getLastSeenEIDPosition();
+		    		if(markerPos >= 0 && getListView().getFirstVisiblePosition() > (markerPos + 1)) {
+		    			if(shouldTrackUnread()) {
+		    				int highlights = adapter.getUnreadHighlightsAbovePosition(getListView().getFirstVisiblePosition());
+		    				int count = (getListView().getFirstVisiblePosition() - markerPos - 1) - highlights;
+		    				String txt = "";
+		    				if(highlights > 0) {
+			    				if(highlights == 1)
+			    					txt = "mention";
+			    				else if(highlights > 0)
+			    					txt = "mentions";
+			    				highlightsTopLabel.setText(String.valueOf(highlights));
+		    					highlightsTopLabel.setVisibility(View.VISIBLE);
+		    					
+		    					if(count > 0)
+		    						txt += " and ";
+		    				} else {
+		    					highlightsTopLabel.setVisibility(View.GONE);
+		    				}
+		    				if(count == 1)
+		    					txt += count + " unread message";
+		    				else if(count > 0)
+		    					txt += count + " unread messages";
+			    			unreadTopLabel.setText(txt);
+			    			unreadTopView.setVisibility(View.VISIBLE);
+		    			} else {
+			    			unreadTopView.setVisibility(View.GONE);
+		    			}
+		    		} else {
 		    			unreadTopView.setVisibility(View.GONE);
-	    			}
-	    		} else {
-	    			unreadTopView.setVisibility(View.GONE);
-	    			if(adapter.data.size() > 0) {
-		    			Long e = adapter.data.get(adapter.data.size() - 1).eid;
-	    				if(heartbeatTask != null)
-	    					heartbeatTask.cancel(true);
-	    				heartbeatTask = new HeartbeatTask();
-	    				heartbeatTask.execute(e);
-	    			}
-	    		}
-	    		if(mServer != null)
-	    			update_status(mServer.status, mServer.fail_info);
-				if(mListener != null && !ready)
-					mListener.onMessageViewReady();
-				ready = true;
+		    			if(adapter.data.size() > 0) {
+			    			Long e = adapter.data.get(adapter.data.size() - 1).eid;
+		    				if(heartbeatTask != null)
+		    					heartbeatTask.cancel(true);
+		    				heartbeatTask = new HeartbeatTask();
+		    				heartbeatTask.execute(e);
+		    			}
+		    		}
+		    		if(mServer != null)
+		    			update_status(mServer.status, mServer.fail_info);
+					if(mListener != null && !ready)
+						mListener.onMessageViewReady();
+					ready = true;
+				} catch (IllegalStateException e) {
+					//The list view wasn't on screen yet
+				}
 			}
 		}
 	};
