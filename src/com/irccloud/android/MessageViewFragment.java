@@ -947,30 +947,32 @@ public class MessageViewFragment extends SherlockListFragment {
 				    		mHandler.post(new Runnable() {
 								@Override
 								public void run() {
-							    	EventsDataSource.Event e = adapter.data.get(position);
-							    	if(e != null && e.type.equals("channel_invite")) {
-							    		conn.join(cid, e.old_nick, null);
-							    	} else if(e != null && e.type.equals("callerid")) {
-							    		conn.say(cid, null, "/accept " + e.from);
-							    		BuffersDataSource b = BuffersDataSource.getInstance();
-							    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
-							    		if(buffer != null) {
-							    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
-							    					buffer.type, 1, buffer.archived, "connected_ready");
-							    		} else {
-							    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
-							    		}
-							    	} else {
-								    	long group = adapter.getGroupForPosition(position);
-								    	if(expandedSectionEids.contains(group))
-								    		expandedSectionEids.remove(group);
-								    	else
-								    		expandedSectionEids.add(group);
-								        if(refreshTask != null)
-								        	refreshTask.cancel(true);
-										refreshTask = new RefreshTask();
-										refreshTask.execute((Void)null);
-							    	}
+									if(position < adapter.data.size()) {
+								    	EventsDataSource.Event e = adapter.data.get(position);
+								    	if(e != null && e.type.equals("channel_invite")) {
+								    		conn.join(cid, e.old_nick, null);
+								    	} else if(e != null && e.type.equals("callerid")) {
+								    		conn.say(cid, null, "/accept " + e.from);
+								    		BuffersDataSource b = BuffersDataSource.getInstance();
+								    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
+								    		if(buffer != null) {
+								    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
+								    					buffer.type, 1, buffer.archived, "connected_ready");
+								    		} else {
+								    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
+								    		}
+								    	} else {
+									    	long group = adapter.getGroupForPosition(position);
+									    	if(expandedSectionEids.contains(group))
+									    		expandedSectionEids.remove(group);
+									    	else
+									    		expandedSectionEids.add(group);
+									        if(refreshTask != null)
+									        	refreshTask.cancel(true);
+											refreshTask = new RefreshTask();
+											refreshTask.execute((Void)null);
+								    	}
+									}
 								}
 				    		});
 			    			tapTimer = null;
