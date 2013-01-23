@@ -316,6 +316,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 				editor.remove("mentionTip");
 				editor.remove("userSwipeTip");
 				editor.remove("bufferSwipeTip");
+				editor.remove("longPressTip");
 				editor.commit();
 				ServersDataSource.getInstance().clear();
 				BuffersDataSource.getInstance().clear();

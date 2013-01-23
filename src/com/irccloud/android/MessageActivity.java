@@ -1484,6 +1484,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	public void onUserDoubleClicked(String from) {
 		if(messageTxt == null || from == null || from.length() == 0)
 			return;
+
+    	if(!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
+    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+    		editor.putBoolean("mentionTip", true);
+    		editor.commit();
+    	}
 		
 		if(scrollView != null)
 			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
@@ -1737,7 +1743,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(selected_user != null) {
 			itemList.add("Whois…");
 			itemList.add("Send a message");
-			itemList.add("Mention (double tap)");
+			itemList.add("Mention");
 			itemList.add("Invite to a channel…");
 			itemList.add("Ignore");
 			if(type.equalsIgnoreCase("channel")) {
@@ -1819,7 +1825,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		}
 			    		startActivity(i);
 		    		}
-	    		} else if(items[item].equals("Mention (double tap)")) {
+	    		} else if(items[item].equals("Mention")) {
+			    	if(!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
+			    		Toast.makeText(MessageActivity.this, "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
+			    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+			    		editor.putBoolean("mentionTip", true);
+			    		editor.commit();
+			    	}
 	    			onUserDoubleClicked(selected_user.nick);
 	    		} else if(items[item].equals("Invite to a channel…")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);

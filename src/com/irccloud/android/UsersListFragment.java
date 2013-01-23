@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 
@@ -392,8 +394,16 @@ public class UsersListFragment extends SherlockListFragment {
 								@Override
 								public void run() {
 							    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(position);
-							    	if(e.type == TYPE_USER)
+							    	if(e.type == TYPE_USER) {
 							    		mListener.onUserSelected(cid, channel, e.text);
+
+								    	if(!getActivity().getSharedPreferences("prefs", 0).getBoolean("longPressTip", false)) {
+								    		Toast.makeText(getActivity(), "Long-press a message to quickly interact with the sender", Toast.LENGTH_LONG).show();
+								    		SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
+								    		editor.putBoolean("longPressTip", true);
+								    		editor.commit();
+								    	}
+							    	}
 								}
 				    		});
 			    			tapTimer = null;
