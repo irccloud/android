@@ -947,7 +947,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				    		mHandler.post(new Runnable() {
 								@Override
 								public void run() {
-									if(position < adapter.data.size()) {
+									if(adapter != null && adapter.data != null && position < adapter.data.size()) {
 								    	EventsDataSource.Event e = adapter.data.get(position);
 								    	if(e != null && e.type.equals("channel_invite")) {
 								    		conn.join(cid, e.old_nick, null);

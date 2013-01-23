@@ -219,7 +219,7 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 		
 		if(owners.size() > 0) {
-			addUsersFromList(entries, owners, "OWNERS", (showSymbol?"~ ":"¥ "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+			addUsersFromList(entries, owners, "OWNER", (showSymbol?"~ ":"¥ "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
 		}
 		
 		if(admins.size() > 0) {
@@ -227,11 +227,11 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 		
 		if(ops.size() > 0) {
-			addUsersFromList(entries, ops, "OPERATORS", (showSymbol?"@ ":"¥ "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+			addUsersFromList(entries, ops, "OPS", (showSymbol?"@ ":"¥ "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
 		}
 		
 		if(halfops.size() > 0) {
-			addUsersFromList(entries, halfops, "HALFOPS", (showSymbol?"% ":"¥ "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?"% ":"¥ "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
 		}
 		
 		if(voiced.size() > 0) {
