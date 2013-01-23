@@ -1,6 +1,7 @@
 package com.irccloud.android;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -8,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
+import android.widget.Toast;
 
 public class MessageActivityPager extends HorizontalScrollView {
 	private int startX = 0;
@@ -99,9 +101,19 @@ public class MessageActivityPager extends HorizontalScrollView {
 					if(startX < buffersDisplayWidth + usersDisplayWidth / 4 && getScrollX() < startX) {
 						smoothScrollTo(0, 0);
 						activity.showUpButton(false);
+				    	if(!activity.getSharedPreferences("prefs", 0).getBoolean("bufferSwipeTip", false)) {
+				    		SharedPreferences.Editor editor = activity.getSharedPreferences("prefs", 0).edit();
+				    		editor.putBoolean("bufferSwipeTip", true);
+				    		editor.commit();
+				    	}
 					} else if(startX >= buffersDisplayWidth && getScrollX() > startX) {
 						smoothScrollTo(buffersDisplayWidth + usersDisplayWidth, 0);
 						activity.showUpButton(true);
+				    	if(!activity.getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
+				    		SharedPreferences.Editor editor = activity.getSharedPreferences("prefs", 0).edit();
+				    		editor.putBoolean("userSwipeTip", true);
+				    		editor.commit();
+				    	}
 					} else {
 						smoothScrollTo(buffersDisplayWidth, 0);
 						activity.showUpButton(true);
