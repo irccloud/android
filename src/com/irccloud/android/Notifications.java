@@ -112,24 +112,26 @@ public class Notifications {
 					}
 				}
 				
-				array = new JSONArray(prefs.getString("notifications_json", "{}"));
-				for(int i = 0; i < array.length(); i++) {
-					JSONObject o = array.getJSONObject(i);
-					Notification n = new Notification();
-					n.bid = o.getInt("bid");
-					n.cid = o.getInt("cid");
-					n.eid = o.getLong("eid");
-					n.nick = o.getString("nick");
-					n.message = o.getString("message");
-					n.chan = o.getString("chan");
-					n.buffer_type = o.getString("buffer_type");
-					n.message_type = o.getString("message_type");
-					n.network = mNetworks.get(n.cid);
-					if(o.has("shown"))
-						n.shown = o.getBoolean("shown");
-					mNotifications.add(n);
+				synchronized(mNotifications) {
+					array = new JSONArray(prefs.getString("notifications_json", "{}"));
+					for(int i = 0; i < array.length(); i++) {
+						JSONObject o = array.getJSONObject(i);
+						Notification n = new Notification();
+						n.bid = o.getInt("bid");
+						n.cid = o.getInt("cid");
+						n.eid = o.getLong("eid");
+						n.nick = o.getString("nick");
+						n.message = o.getString("message");
+						n.chan = o.getString("chan");
+						n.buffer_type = o.getString("buffer_type");
+						n.message_type = o.getString("message_type");
+						n.network = mNetworks.get(n.cid);
+						if(o.has("shown"))
+							n.shown = o.getBoolean("shown");
+						mNotifications.add(n);
+					}
+					Collections.sort(mNotifications, new comparator());
 				}
-				Collections.sort(mNotifications, new comparator());
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -152,21 +154,23 @@ public class Notifications {
 				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
 				try {
 					JSONArray array = new JSONArray();
-					for(Notification n : mNotifications) {
-						JSONObject o = new JSONObject();
-						o.put("cid", n.cid);
-						o.put("bid", n.bid);
-						o.put("eid", n.eid);
-						o.put("nick", n.nick);
-						o.put("message", n.message);
-						o.put("chan", n.chan);
-						o.put("buffer_type", n.buffer_type);
-						o.put("message_type", n.message_type);
-						o.put("shown", n.shown);
-						array.put(o);
+					synchronized(mNotifications) {
+						for(Notification n : mNotifications) {
+							JSONObject o = new JSONObject();
+							o.put("cid", n.cid);
+							o.put("bid", n.bid);
+							o.put("eid", n.eid);
+							o.put("nick", n.nick);
+							o.put("message", n.message);
+							o.put("chan", n.chan);
+							o.put("buffer_type", n.buffer_type);
+							o.put("message_type", n.message_type);
+							o.put("shown", n.shown);
+							array.put(o);
+						}
+						editor.putString("notifications_json", array.toString());
 					}
-					editor.putString("notifications_json", array.toString());
-
+					
 					array = new JSONArray();
 					for(int i = 0; i < mNetworks.size(); i++) {
 						int cid = mNetworks.keyAt(i);
@@ -227,13 +231,15 @@ public class Notifications {
 		try {
 	        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 			
-			if(mNotifications.size() > 0) {
-		        for(Notification n : mNotifications) {
-	        		nm.cancel((int)(n.eid/1000));
-	        		nm.cancel(n.bid);
-		        }
+			synchronized(mNotifications) {
+				if(mNotifications.size() > 0) {
+			        for(Notification n : mNotifications) {
+		        		nm.cancel((int)(n.eid/1000));
+		        		nm.cancel(n.bid);
+			        }
+				}
+				mNotifications.clear();
 			}
-			mNotifications.clear();
 			mNetworks.clear();
 			mLastSeenEIDs.clear();
 			save();
@@ -270,9 +276,10 @@ public class Notifications {
 		
 		mDismissedEIDs.get(bid).add(eid);
 		Notification n = getNotification(eid);
-		if(n != null)
-			mNotifications.remove(n);
-
+		synchronized(mNotifications) {
+			if(n != null)
+				mNotifications.remove(n);
+		}
 		save();
 	}
 	
@@ -309,22 +316,26 @@ public class Notifications {
 		n.message_type = message_type;
 		n.network = network;
 		
-		mNotifications.add(n);
-		Collections.sort(mNotifications, new comparator());
+		synchronized(mNotifications) {
+			mNotifications.add(n);
+			Collections.sort(mNotifications, new comparator());
+		}
 		save();
 	}
 
-	public synchronized void deleteNotification(int cid, int bid, long eid) {
-		for(Notification n : mNotifications) {
-			if(n.cid == cid && n.bid == bid && n.eid == eid) {
-				mNotifications.remove(n);
-				save();
-				return;
+	public void deleteNotification(int cid, int bid, long eid) {
+		synchronized(mNotifications) {
+			for(Notification n : mNotifications) {
+				if(n.cid == cid && n.bid == bid && n.eid == eid) {
+					mNotifications.remove(n);
+					save();
+					return;
+				}
 			}
 		}
 	}
 	
-	public synchronized void deleteOldNotifications(int bid, long last_seen_eid) {
+	public void deleteOldNotifications(int bid, long last_seen_eid) {
 		if(mNotificationTimer != null) {
 			mNotificationTimer.cancel();
 			mNotificationTimer = null;
@@ -341,16 +352,17 @@ public class Notifications {
 	        }
 		}
 		
-		for(int i = 0; i < mNotifications.size(); i++) {
-			Notification n = mNotifications.get(i);
-			if(n.bid == bid && n.eid <= last_seen_eid) {
-				mNotifications.remove(n);
-				i--;
-				nm.cancel(bid);
-				continue;
+		synchronized(mNotifications) {
+			for(int i = 0; i < mNotifications.size(); i++) {
+				Notification n = mNotifications.get(i);
+				if(n.bid == bid && n.eid <= last_seen_eid) {
+					mNotifications.remove(n);
+					i--;
+					nm.cancel(bid);
+					continue;
+				}
 			}
 		}
-		
 		if(mDismissedEIDs.get(bid) != null) {
 			HashSet<Long> eids = mDismissedEIDs.get(bid);
 			Long[] eidsArray = eids.toArray(new Long[eids.size()]);
@@ -362,7 +374,7 @@ public class Notifications {
 		}
 	}
 	
-	public synchronized void deleteNotificationsForBid(int bid) {
+	public void deleteNotificationsForBid(int bid) {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getOtherNotifications();
 		
@@ -374,15 +386,16 @@ public class Notifications {
 		}
 		nm.cancel(bid);
 
-		for(int i = 0; i < mNotifications.size(); i++) {
-			Notification n = mNotifications.get(i);
-			if(n.bid == bid) {
-				mNotifications.remove(n);
-				i--;
-				continue;
+		synchronized(mNotifications) {
+			for(int i = 0; i < mNotifications.size(); i++) {
+				Notification n = mNotifications.get(i);
+				if(n.bid == bid) {
+					mNotifications.remove(n);
+					i--;
+					continue;
+				}
 			}
 		}
-
 		mDismissedEIDs.remove(bid);
 		mLastSeenEIDs.remove(bid);
 	}
@@ -394,30 +407,32 @@ public class Notifications {
 	public ArrayList<Notification> getMessageNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
-		for(int i = 0; i < mNotifications.size(); i++) {
-			Notification n = mNotifications.get(i);
-			if(n.bid != excludeBid && isMessage(n.message_type)) {
-				if(n.network == null)
-					n.network = getNetwork(n.cid);
-				notifications.add(n);
+		synchronized(mNotifications) {
+			for(int i = 0; i < mNotifications.size(); i++) {
+				Notification n = mNotifications.get(i);
+				if(n.bid != excludeBid && isMessage(n.message_type)) {
+					if(n.network == null)
+						n.network = getNetwork(n.cid);
+					notifications.add(n);
+				}
 			}
 		}
-
 		return notifications;
 	}
 	
 	public ArrayList<Notification> getOtherNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
-		for(int i = 0; i < mNotifications.size(); i++) {
-			Notification n = mNotifications.get(i);
-			if(n.bid != excludeBid && !isMessage(n.message_type)) {
-				if(n.network == null)
-					n.network = getNetwork(n.cid);
-				notifications.add(n);
+		synchronized(mNotifications) {
+			for(int i = 0; i < mNotifications.size(); i++) {
+				Notification n = mNotifications.get(i);
+				if(n.bid != excludeBid && !isMessage(n.message_type)) {
+					if(n.network == null)
+						n.network = getNetwork(n.cid);
+					notifications.add(n);
+				}
 			}
 		}
-
 		return notifications;
 	}
 	
@@ -425,13 +440,15 @@ public class Notifications {
 		return mNetworks.get(cid);
 	}
 	
-	public synchronized Notification getNotification(long eid) {
-		for(int i = 0; i < mNotifications.size(); i++) {
-			Notification n = mNotifications.get(i);
-			if(n.bid != excludeBid && n.eid == eid && isMessage(n.message_type)) {
-				if(n.network == null)
-					n.network = getNetwork(n.cid);
-				return n;
+	public Notification getNotification(long eid) {
+		synchronized(mNotifications) {
+			for(int i = 0; i < mNotifications.size(); i++) {
+				Notification n = mNotifications.get(i);
+				if(n.bid != excludeBid && n.eid == eid && isMessage(n.message_type)) {
+					if(n.network == null)
+						n.network = getNetwork(n.cid);
+					return n;
+				}
 			}
 		}
 		return null;
