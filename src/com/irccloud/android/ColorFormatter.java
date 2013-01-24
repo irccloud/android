@@ -43,6 +43,8 @@ public class ColorFormatter {
 	}
 	
 	public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
+		if(msg == null)
+			msg = "";
 		Spannable output = (Spannable)Html.fromHtml(msg, null, new Html.TagHandler() {
 			@Override
 			public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
