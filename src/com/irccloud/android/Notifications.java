@@ -325,7 +325,12 @@ public class Notifications {
 	}
 	
 	public synchronized void deleteOldNotifications(int bid, long last_seen_eid) {
-        NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+		if(mNotificationTimer != null) {
+			mNotificationTimer.cancel();
+			mNotificationTimer = null;
+		}
+		
+		NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getOtherNotifications();
 		
 		if(notifications.size() > 0) {

@@ -55,6 +55,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 							Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
 						}
 					}
+					Notifications.getInstance().showNotifications(null);
 		    	} else {
 			    	int cid = Integer.valueOf(intent.getStringExtra("cid"));
 			    	int bid = Integer.valueOf(intent.getStringExtra("bid"));
