@@ -930,6 +930,22 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            	}
 				}
 	            break;
+			case NetworkConnection.EVENT_ACCEPTLIST:
+				event = (IRCCloudJSONObject)msg.obj;
+				if(event.cid() == cid) {
+	            	args = new Bundle();
+	            	args.putInt("cid", cid);
+	            	args.putString("event", event.toString());
+	            	AcceptListFragment acceptList = (AcceptListFragment)getSupportFragmentManager().findFragmentByTag("acceptlist");
+	            	if(acceptList == null) {
+	            		acceptList = new AcceptListFragment();
+			        	acceptList.setArguments(args);
+			        	acceptList.show(getSupportFragmentManager(), "acceptlist");
+	            	} else {
+			        	acceptList.setArguments(args);
+	            	}
+				}
+	            break;
 			case NetworkConnection.EVENT_WHOLIST:
 				event = (IRCCloudJSONObject)msg.obj;
             	args = new Bundle();

@@ -17,14 +17,12 @@
            android:id="@+id/mask"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           android:text="sam!test@test.host.name.net"
            android:textSize="16sp" />
         
         <TextView
             android:id="@+id/setBy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Set 3 days ago by james!james@test.host.name.com"
             android:textColor="@color/timestamp"
             android:textSize="14sp"
             android:textStyle="italic" />
