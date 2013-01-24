@@ -26,7 +26,6 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -67,7 +66,8 @@ public class Notifications {
 	
 	private static Notifications instance = null;
 	private int excludeBid = -1;
-	
+	private Timer mNotificationTimer = null;
+
 	public static Notifications getInstance() {
 		if(instance == null)
 			instance = new Notifications();
@@ -447,16 +447,32 @@ public class Notifications {
 		excludeBid = bid;
 	}
 	
+	private String mTicker = null;
+	
 	public synchronized void showNotifications(String ticker) {
+		if(ticker != null)
+			mTicker = ticker;
+		
 		ArrayList<Notification> notifications = getMessageNotifications();
 		for(Notification n : notifications) {
 			if(isDismissed(n.bid, n.eid)) {
 				deleteNotification(n.cid, n.bid, n.eid);
 			}
 		}
+
+		if(mNotificationTimer != null)
+			mNotificationTimer.cancel();
 		
-		showMessageNotifications(ticker);
-		showOtherNotifications();
+		mNotificationTimer = new Timer();
+		mNotificationTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				showMessageNotifications(mTicker);
+				showOtherNotifications();
+				mTicker = null;
+				mNotificationTimer = null;
+			}
+		}, 5000);
 	}
 	
 	private void showOtherNotifications() {
