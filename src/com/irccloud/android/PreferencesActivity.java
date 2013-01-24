@@ -155,8 +155,10 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			JSONObject prefs = conn.getUserInfo().prefs;
 			try {
-				if(prefs == null)
+				if(prefs == null) {
 					prefs = new JSONObject();
+					conn.getUserInfo().prefs = prefs;
+				}
 	
 				if(preference.getKey().equals("time-24hr")) {
 					prefs.put("time-24hr", (Boolean)newValue);
@@ -188,8 +190,10 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 			}
-			if(!isCancelled())
+			if(!isCancelled() && conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
 				save_prefs_reqid = conn.set_prefs(conn.getUserInfo().prefs.toString());
+			else
+				save_prefs_reqid = -1;
 			return null;
 		}
 		
