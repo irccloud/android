@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.android.gcm.GCMRegistrar;
 
 public class PreferencesActivity extends SherlockPreferenceActivity {
 	NetworkConnection conn;
@@ -48,6 +50,17 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		findPreference("feedback").setOnPreferenceClickListener(urlClick);
 		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
+		try {
+	        GCMRegistrar.checkDevice(PreferencesActivity.this);
+	        GCMRegistrar.checkManifest(PreferencesActivity.this);
+			((CheckBoxPreference)findPreference("gcm")).setChecked(GCMRegistrar.isRegistered(PreferencesActivity.this));
+			findPreference("gcm").setOnPreferenceChangeListener(gcmtoggle);
+		} catch (Exception e) {
+			//GCM is not available on this device
+			findPreference("gcm").setEnabled(false);
+			((CheckBoxPreference)findPreference("gcm")).setChecked(false);
+			((CheckBoxPreference)findPreference("gcm")).setSummaryOff("Push notifications are not available on this device");
+		}
 		try {
 			findPreference("version").setSummary(getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName);
 		} catch (NameNotFoundException e) {
@@ -243,6 +256,31 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 			if (i != null)
 				startActivity(i);
 			return false;
+		}
+	};
+	
+	Preference.OnPreferenceChangeListener gcmtoggle = new Preference.OnPreferenceChangeListener() {
+		public boolean onPreferenceChange(Preference preference, Object newValue) {
+    		try {
+		        GCMRegistrar.checkDevice(PreferencesActivity.this);
+		        GCMRegistrar.checkManifest(PreferencesActivity.this);
+    			if((Boolean)newValue) {
+					if(!GCMRegistrar.isRegistered(PreferencesActivity.this)) {
+    		        	GCMRegistrar.register(PreferencesActivity.this, GCMIntentService.GCM_ID);
+					}
+    			} else {
+					if(GCMRegistrar.isRegistered(PreferencesActivity.this)) {
+						//Store the old session key so GCM can unregister later
+						SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+						editor.putString(GCMRegistrar.getRegistrationId(PreferencesActivity.this), getSharedPreferences("prefs", 0).getString("session_key", ""));
+		                GCMRegistrar.unregister(PreferencesActivity.this);
+					}
+    			}
+    		} catch (Exception e) {
+    			//GCM might not be available on the device
+    			return false;
+    		}
+			return true;
 		}
 	};
 }

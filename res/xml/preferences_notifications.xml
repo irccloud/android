@@ -8,6 +8,12 @@
 			android:defaultValue="true"
 			android:title="Enable notifications"/>
 		<CheckBoxPreference
+			android:key="gcm"
+			android:defaultValue="true"
+		    android:summaryOn="Notifications will be pushed to your device"
+		    android:summaryOff="Notifications will not be pushed to your device"
+			android:title="Push notifications"/>
+		<CheckBoxPreference
 			android:key="notify_vibrate"
 			android:dependency="notify"
 			android:defaultValue="true"
