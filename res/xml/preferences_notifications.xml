@@ -3,30 +3,21 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory android:title="Notifications">
-		<CheckBoxPreference
-			android:key="notify"
-			android:defaultValue="true"
-			android:title="Enable notifications"/>
-		<CheckBoxPreference
-			android:key="gcm"
-			android:defaultValue="true"
-		    android:summaryOn="Notifications will be pushed to your device"
-		    android:summaryOff="Notifications will not be pushed to your device"
-			android:title="Push notifications"/>
+	    <ListPreference android:entries="@array/pref_notify_names"
+		    android:title="Notifications" android:key="notify_type"
+		    android:entryValues="@array/pref_notify_values"
+		    android:defaultValue="1" />
 		<CheckBoxPreference
 			android:key="notify_vibrate"
-			android:dependency="notify"
 			android:defaultValue="true"
 			android:title="Vibration"/>
 		<CheckBoxPreference
 			android:key="notify_sound"
 			android:defaultValue="true"
-			android:dependency="notify"
 			android:title="Sound"/>
 		<CheckBoxPreference
 			android:key="notify_lights"
 			android:defaultValue="true"
-			android:dependency="notify"
 			android:title="LED"/>
 	</PreferenceCategory>
 </PreferenceScreen>

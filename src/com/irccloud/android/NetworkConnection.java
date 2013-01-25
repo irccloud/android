@@ -1298,6 +1298,13 @@ public class NetworkConnection {
 		}
 	}
 
+	public boolean isVisible() {
+		if(handlers != null && handlers.size() > 0)
+			return true;
+		else
+			return false;
+	}
+	
 	public void notifyHandlers(int message, Object object) {
 		notifyHandlers(message,object,null);
 	}

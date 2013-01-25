@@ -12,4 +12,14 @@
         <item>10 Minutes</item>
         <item>30 Minutes</item>
 	</string-array>
+    <string-array name="pref_notify_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="pref_notify_names">
+        <item>Disabled</item>
+        <item>Enabled</item>
+        <item>Only while active</item>
+	</string-array>
 </resources>

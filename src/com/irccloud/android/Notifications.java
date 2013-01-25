@@ -505,7 +505,12 @@ public class Notifications {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getOtherNotifications();
 		
-		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
+		int notify_type = Integer.parseInt(prefs.getString("notify_type", "1"));
+		boolean notify = false;
+		if(notify_type == 1 || (notify_type == 2 && NetworkConnection.getInstance().isVisible()))
+			notify = true;
+		
+		if(notifications.size() > 0 && notify) {
 	        for(Notification n : notifications) {
 	        	if(!n.shown) {
 					if(n.message_type.equals("callerid")) {
@@ -593,7 +598,12 @@ public class Notifications {
         NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 		ArrayList<Notification> notifications = getMessageNotifications();
 
-		if(notifications.size() > 0 && prefs.getBoolean("notify", true)) {
+		int notify_type = Integer.parseInt(prefs.getString("notify_type", "1"));
+		boolean notify = false;
+		if(notify_type == 1 || (notify_type == 2 && NetworkConnection.getInstance().isVisible()))
+			notify = true;
+		
+		if(notifications.size() > 0 && notify) {
 			int lastbid = notifications.get(0).bid;
 			int count = 0;
 			long[] eids = new long[notifications.size()];

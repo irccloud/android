@@ -14,6 +14,7 @@ import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -50,17 +51,17 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		findPreference("feedback").setOnPreferenceClickListener(urlClick);
 		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
-		try {
-	        GCMRegistrar.checkDevice(PreferencesActivity.this);
-	        GCMRegistrar.checkManifest(PreferencesActivity.this);
-			((CheckBoxPreference)findPreference("gcm")).setChecked(GCMRegistrar.isRegistered(PreferencesActivity.this));
-			findPreference("gcm").setOnPreferenceChangeListener(gcmtoggle);
-		} catch (Exception e) {
-			//GCM is not available on this device
-			findPreference("gcm").setEnabled(false);
-			((CheckBoxPreference)findPreference("gcm")).setChecked(false);
-			((CheckBoxPreference)findPreference("gcm")).setSummaryOff("Push notifications are not available on this device");
+		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
+		if(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
+			findPreference("notify_vibrate").setEnabled(true);
+			findPreference("notify_sound").setEnabled(true);
+			findPreference("notify_lights").setEnabled(true);
+		} else {
+			findPreference("notify_vibrate").setEnabled(false);
+			findPreference("notify_sound").setEnabled(false);
+			findPreference("notify_lights").setEnabled(false);
 		}
+
 		try {
 			findPreference("version").setSummary(getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName);
 		} catch (NameNotFoundException e) {
@@ -195,6 +196,22 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		}
 	};
 	
+	Preference.OnPreferenceChangeListener notificationstoggle = new Preference.OnPreferenceChangeListener() {
+		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			if(Integer.parseInt((String)newValue) > 0) {
+				findPreference("notify_vibrate").setEnabled(true);
+				findPreference("notify_sound").setEnabled(true);
+				findPreference("notify_lights").setEnabled(true);
+			} else {
+				findPreference("notify_vibrate").setEnabled(false);
+				findPreference("notify_sound").setEnabled(false);
+				findPreference("notify_lights").setEnabled(false);
+				Notifications.getInstance().clear();
+			}
+			return true;
+		}
+	};
+	
 	private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
 
 		@Override
@@ -256,31 +273,6 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 			if (i != null)
 				startActivity(i);
 			return false;
-		}
-	};
-	
-	Preference.OnPreferenceChangeListener gcmtoggle = new Preference.OnPreferenceChangeListener() {
-		public boolean onPreferenceChange(Preference preference, Object newValue) {
-    		try {
-		        GCMRegistrar.checkDevice(PreferencesActivity.this);
-		        GCMRegistrar.checkManifest(PreferencesActivity.this);
-    			if((Boolean)newValue) {
-					if(!GCMRegistrar.isRegistered(PreferencesActivity.this)) {
-    		        	GCMRegistrar.register(PreferencesActivity.this, GCMIntentService.GCM_ID);
-					}
-    			} else {
-					if(GCMRegistrar.isRegistered(PreferencesActivity.this)) {
-						//Store the old session key so GCM can unregister later
-						SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-						editor.putString(GCMRegistrar.getRegistrationId(PreferencesActivity.this), getSharedPreferences("prefs", 0).getString("session_key", ""));
-		                GCMRegistrar.unregister(PreferencesActivity.this);
-					}
-    			}
-    		} catch (Exception e) {
-    			//GCM might not be available on the device
-    			return false;
-    		}
-			return true;
 		}
 	};
 }
