@@ -532,7 +532,6 @@ public class Notifications {
 		.setContentTitle(title)
 		.setContentText(text)
         .setTicker(ticker)
-        .setLights(0xFF0000FF, 500, 1000)
         .setSmallIcon(R.drawable.ic_stat_notify);
 
 		if(ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
@@ -541,6 +540,9 @@ public class Notifications {
 			if(prefs.getBoolean("notify_sound", true))
 				builder.setSound(Uri.parse("android.resource://com.irccloud.android/"+R.raw.digit));
 		}
+
+		if(prefs.getBoolean("notify_lights", true))
+			builder.setLights(0xFF0000FF, 500, 1000);
 
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putLong("lastNotificationTime", System.currentTimeMillis());

@@ -23,5 +23,10 @@
 			android:defaultValue="true"
 			android:dependency="notify"
 			android:title="Sound"/>
+		<CheckBoxPreference
+			android:key="notify_lights"
+			android:defaultValue="true"
+			android:dependency="notify"
+			android:title="LED"/>
 	</PreferenceCategory>
 </PreferenceScreen>
