@@ -54,11 +54,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
 		if(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
 			findPreference("notify_vibrate").setEnabled(true);
-			findPreference("notify_sound").setEnabled(true);
+			findPreference("notify_ringtone").setEnabled(true);
 			findPreference("notify_lights").setEnabled(true);
 		} else {
 			findPreference("notify_vibrate").setEnabled(false);
-			findPreference("notify_sound").setEnabled(false);
+			findPreference("notify_ringtone").setEnabled(false);
 			findPreference("notify_lights").setEnabled(false);
 		}
 
@@ -200,11 +200,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			if(Integer.parseInt((String)newValue) > 0) {
 				findPreference("notify_vibrate").setEnabled(true);
-				findPreference("notify_sound").setEnabled(true);
+				findPreference("notify_ringtone").setEnabled(true);
 				findPreference("notify_lights").setEnabled(true);
 			} else {
 				findPreference("notify_vibrate").setEnabled(false);
-				findPreference("notify_sound").setEnabled(false);
+				findPreference("notify_ringtone").setEnabled(false);
 				findPreference("notify_lights").setEnabled(false);
 				Notifications.getInstance().clear();
 			}

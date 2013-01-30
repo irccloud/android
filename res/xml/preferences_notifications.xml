@@ -11,11 +11,12 @@
 			android:key="notify_vibrate"
 			android:defaultValue="true"
 			android:title="Vibration"/>
-		<CheckBoxPreference
-			android:key="notify_sound"
-			android:defaultValue="true"
-			android:title="Sound"/>
-		<CheckBoxPreference
+		<RingtonePreference android:showDefault="true"
+			android:key="notify_ringtone" android:title="Notification ringtone"
+			android:defaultValue="content://settings/system/notification_sound"
+			android:ringtoneType="notification">
+		 </RingtonePreference>
+  		<CheckBoxPreference
 			android:key="notify_lights"
 			android:defaultValue="true"
 			android:title="LED"/>
