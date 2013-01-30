@@ -60,7 +60,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	int bid = -1;
 	String name;
 	String type;
-	EditText messageTxt;
+	ActionEditText messageTxt;
 	View sendBtn;
 	int joined;
 	int archived;
@@ -102,8 +102,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        params.width = getWindowManager().getDefaultDisplay().getWidth();
 	        messageContainer.setLayoutParams(params);
         }
-        messageTxt = (EditText)findViewById(R.id.messageTxt);
+        messageTxt = (ActionEditText)findViewById(R.id.messageTxt);
 		messageTxt.setEnabled(false);
+		messageTxt.setScrollView(scrollView);
 		messageTxt.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
