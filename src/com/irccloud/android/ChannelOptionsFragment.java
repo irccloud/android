@@ -22,6 +22,11 @@ public class ChannelOptionsFragment extends DialogFragment {
 	int cid;
 	int bid;
 	
+	public ChannelOptionsFragment() {
+		cid = -1;
+		bid = -1;
+	}
+	
 	public ChannelOptionsFragment(int cid, int bid) {
 		this.cid = cid;
 		this.bid = bid;
@@ -119,6 +124,10 @@ public class ChannelOptionsFragment extends DialogFragment {
     
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+    	if(savedInstanceState != null && savedInstanceState.containsKey("cid") && cid == -1) {
+    		cid = savedInstanceState.getInt("cid");
+    		bid = savedInstanceState.getInt("bid");
+    	}
 		Context ctx = getActivity();
 		if(Build.VERSION.SDK_INT < 11)
 			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
@@ -139,5 +148,12 @@ public class ChannelOptionsFragment extends DialogFragment {
 					}
                 })
                 .create();
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	state.putInt("cid", cid);
+    	state.putInt("bid", bid);
     }
 }
