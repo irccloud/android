@@ -52,7 +52,11 @@ public class ColorFormatter {
 				if(tag.startsWith("_bg")) {
 					String rgb = "#" + tag.substring(3);
 			        if(opening) {
-			            output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), len, len, Spannable.SPAN_MARK_MARK);
+			        	try {
+			        		output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), len, len, Spannable.SPAN_MARK_MARK);
+			        	} catch (IllegalArgumentException e) {
+			        		output.setSpan(new BackgroundColorSpan(Color.parseColor("#fff")), len, len, Spannable.SPAN_MARK_MARK);
+			        	}
 			        } else {
 			            Object obj = getLast(output, BackgroundColorSpan.class);
 			            int where = output.getSpanStart(obj);
@@ -60,7 +64,11 @@ public class ColorFormatter {
 			            output.removeSpan(obj);
 
 			            if (where != len) {
-			                output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			            	try {
+			            		output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				        	} catch (IllegalArgumentException e) {
+			            		output.setSpan(new BackgroundColorSpan(Color.parseColor("#fff")), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				        	}
 			            }
 			        }
 				}
