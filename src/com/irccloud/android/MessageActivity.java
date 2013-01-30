@@ -1769,15 +1769,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			itemList.add("Ignore");
 			if(type.equalsIgnoreCase("channel")) {
 				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, name, ServersDataSource.getInstance().getServer(cid).nick);
-				if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")) {
-					if(selected_user.mode.contains("o"))
-						itemList.add("Deop");
-					else
-						itemList.add("Op");
-				}
-				if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o") || self_user.mode.contains("h")) {
-					itemList.add("Kick…");
-					itemList.add("Ban…");
+				if(self_user != null && self_user.mode != null) {
+					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")) {
+						if(selected_user.mode.contains("o"))
+							itemList.add("Deop");
+						else
+							itemList.add("Op");
+					}
+					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o") || self_user.mode.contains("h")) {
+						itemList.add("Kick…");
+						itemList.add("Ban…");
+					}
 				}
 			}
 		}
