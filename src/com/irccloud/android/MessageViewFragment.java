@@ -929,7 +929,7 @@ public class MessageViewFragment extends SherlockListFragment {
         public void onClick(View arg0) {
         	longPressOverride = false;
         	
-	    	if(pos < 0)
+	    	if(pos < 0 || pos >= adapter.data.size())
 	    		return;
 
 	    	if(adapter != null) {
@@ -1127,23 +1127,23 @@ public class MessageViewFragment extends SherlockListFragment {
 				return;
 			
 			if(events != null && events.size() > 0) {
-				int oldPosition = getListView().getFirstVisiblePosition();
-				if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
-					backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
-					if(backlog_eid < 0) {
-						backlog_eid = adapter.getItemId(oldPosition) - 1;
-					}
-					EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
-					backlogMarker.eid = backlog_eid;
-					backlogMarker.type = TYPE_BACKLOGMARKER;
-					backlogMarker.row_type = ROW_BACKLOGMARKER;
-					backlogMarker.html = "__backlog__";
-					backlogMarker.bg_color = R.color.message_bg;
-					events.put(backlog_eid, backlogMarker);
-				}
-				adapter.clear();
-				refresh(events, buffer);
 				try {
+					int oldPosition = getListView().getFirstVisiblePosition();
+					if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
+						backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
+						if(backlog_eid < 0) {
+							backlog_eid = adapter.getItemId(oldPosition) - 1;
+						}
+						EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
+						backlogMarker.eid = backlog_eid;
+						backlogMarker.type = TYPE_BACKLOGMARKER;
+						backlogMarker.row_type = ROW_BACKLOGMARKER;
+						backlogMarker.html = "__backlog__";
+						backlogMarker.bg_color = R.color.message_bg;
+						events.put(backlog_eid, backlogMarker);
+					}
+					adapter.clear();
+					refresh(events, buffer);
 					int markerPos = adapter.getBacklogMarkerPosition();
 					if(markerPos != -1 && requestingBacklog) {
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
