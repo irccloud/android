@@ -40,11 +40,20 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences_notifications);
 		addPreferencesFromResource(R.xml.preferences_about);
 		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
-		findPreference("name").setSummary(conn.getUserInfo().name);
+		if(conn.getUserInfo() != null)
+			findPreference("name").setSummary(conn.getUserInfo().name);
+		else
+			findPreference("name").setSummary(((EditTextPreference)findPreference("name")).getText());
 		findPreference("email").setOnPreferenceChangeListener(settingstoggle);
-		findPreference("email").setSummary(conn.getUserInfo().email);
+		if(conn.getUserInfo() != null)
+			findPreference("email").setSummary(conn.getUserInfo().email);
+		else
+			findPreference("email").setSummary(((EditTextPreference)findPreference("email")).getText());
 		findPreference("highlights").setOnPreferenceChangeListener(settingstoggle);
-		findPreference("highlights").setSummary(conn.getUserInfo().highlights);
+		if(conn.getUserInfo() != null)
+			findPreference("highlights").setSummary(conn.getUserInfo().highlights);
+		else
+			findPreference("highlights").setSummary(((EditTextPreference)findPreference("highlights")).getText());
 		findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
 		findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
