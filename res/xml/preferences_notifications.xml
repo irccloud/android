@@ -7,18 +7,23 @@
 		    android:title="Notifications" android:key="notify_type"
 		    android:entryValues="@array/pref_notify_values"
 		    android:defaultValue="1" />
-	    <CheckBoxPreference
-			android:key="notify_vibrate"
-			android:defaultValue="true"
-			android:title="Vibration"/>
 		<RingtonePreference android:showDefault="true"
 			android:key="notify_ringtone" android:title="Notification ringtone"
 			android:defaultValue="content://settings/system/notification_sound"
+			android:summary="Choose an alert ringtone"
 			android:ringtoneType="notification">
 		 </RingtonePreference>
-  		<CheckBoxPreference
+	    <CheckBoxPreference
+			android:key="notify_vibrate"
+			android:defaultValue="true"
+			android:summaryOn="Your device will vibrate\n(if available)"
+			android:summaryOff="Your device will not vibrate"
+			android:title="Vibration"/>
+		<CheckBoxPreference
 			android:key="notify_lights"
 			android:defaultValue="true"
+			android:summaryOn="The LED on your device will blink\n(if available)"
+			android:summaryOff="The LED on your device will not blink"
 			android:title="LED"/>
 	</PreferenceCategory>
 </PreferenceScreen>
