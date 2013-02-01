@@ -17,5 +17,11 @@
 		    android:summaryOn="Crash reports will be sent to IRCCloud"
 		    android:summaryOff="Crash reports will not be sent to IRCCloud"
 		    android:defaultValue="true"/>
+		<CheckBoxPreference
+			android:key="kb_send"
+			android:defaultValue="false"
+		    android:summaryOn="Send button will be displayed on the on-screen keyboard"
+		    android:summaryOff="Emoticon button will be displayed on the on-screen keyboard"
+			android:title="Show send button on keyboard"/>
 	</PreferenceCategory>
 </PreferenceScreen>
