@@ -104,7 +104,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         }
         messageTxt = (ActionEditText)findViewById(R.id.messageTxt);
 		messageTxt.setEnabled(false);
-		messageTxt.setScrollView(scrollView);
 		messageTxt.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -266,6 +265,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         } else {
         	upView.setVisibility(View.INVISIBLE);
         }
+		messageTxt.setScrollView(scrollView, upView);
 
         title = (TextView)v.findViewById(R.id.title);
         subtitle = (TextView)v.findViewById(R.id.subtitle);
