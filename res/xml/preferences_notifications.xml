@@ -7,7 +7,7 @@
 		    android:title="Notifications" android:key="notify_type"
 		    android:entryValues="@array/pref_notify_values"
 		    android:defaultValue="1" />
-		<CheckBoxPreference
+	    <CheckBoxPreference
 			android:key="notify_vibrate"
 			android:defaultValue="true"
 			android:title="Vibration"/>

@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +19,6 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.google.android.gcm.GCMRegistrar;
 
 public class PreferencesActivity extends SherlockPreferenceActivity {
 	NetworkConnection conn;
@@ -33,6 +31,7 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+		conn = NetworkConnection.getInstance();
 		getSupportActionBar().setTitle("Settings");
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		addPreferencesFromResource(R.xml.preferences_account);
@@ -41,8 +40,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences_notifications);
 		addPreferencesFromResource(R.xml.preferences_about);
 		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
+		findPreference("name").setSummary(conn.getUserInfo().name);
 		findPreference("email").setOnPreferenceChangeListener(settingstoggle);
+		findPreference("email").setSummary(conn.getUserInfo().email);
 		findPreference("highlights").setOnPreferenceChangeListener(settingstoggle);
+		findPreference("highlights").setSummary(conn.getUserInfo().highlights);
 		findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
 		findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
@@ -52,6 +54,17 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
 		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
+		switch(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1"))) {
+			case 0:
+				findPreference("notify_type").setSummary("Disabled");
+				break;
+			case 1:
+				findPreference("notify_type").setSummary("Enabled");
+				break;
+			case 2:
+				findPreference("notify_type").setSummary("Only while active");
+				break;
+		}
 		if(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
 			findPreference("notify_vibrate").setEnabled(true);
 			findPreference("notify_ringtone").setEnabled(true);
@@ -128,8 +141,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 				if(userInfo != null) {
 					JSONObject prefs = userInfo.prefs;
 					((EditTextPreference)findPreference("name")).setText(userInfo.name);
+					findPreference("name").setSummary(userInfo.name);
 					((EditTextPreference)findPreference("email")).setText(userInfo.email);
+					findPreference("email").setSummary(userInfo.email);
 					((EditTextPreference)findPreference("highlights")).setText(userInfo.highlights);
+					findPreference("highlights").setSummary(userInfo.highlights);
 					((CheckBoxPreference)findPreference("autoaway")).setChecked(userInfo.auto_away);
 					if(prefs != null) {
 						try {
@@ -150,10 +166,13 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			if(preference.getKey().equals("name")) {
 				conn.getUserInfo().name = (String)newValue;
+				findPreference("name").setSummary((String)newValue);
 			} else if(preference.getKey().equals("email")) {
 				conn.getUserInfo().email = (String)newValue;
+				findPreference("email").setSummary((String)newValue);
 			} else if(preference.getKey().equals("highlights")) {
 				conn.getUserInfo().highlights = (String)newValue;
+				findPreference("highlights").setSummary((String)newValue);
 			} else if(preference.getKey().equals("autoaway")) {
 				conn.getUserInfo().auto_away = (Boolean)newValue;
 			}
@@ -197,7 +216,19 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 	};
 	
 	Preference.OnPreferenceChangeListener notificationstoggle = new Preference.OnPreferenceChangeListener() {
+		@SuppressWarnings("deprecation")
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			switch(Integer.parseInt((String)newValue)) {
+			case 0:
+				findPreference("notify_type").setSummary("Disabled");
+				break;
+			case 1:
+				findPreference("notify_type").setSummary("Enabled");
+				break;
+			case 2:
+				findPreference("notify_type").setSummary("Only while active");
+				break;
+			}
 			if(Integer.parseInt((String)newValue) > 0) {
 				findPreference("notify_vibrate").setEnabled(true);
 				findPreference("notify_ringtone").setEnabled(true);
