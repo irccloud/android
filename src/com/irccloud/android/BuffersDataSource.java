@@ -128,7 +128,7 @@ public class BuffersDataSource {
 		if(b != null) {
 			if(b.type.equalsIgnoreCase("channel")) {
 				ChannelsDataSource.getInstance().deleteChannel(bid);
-				UsersDataSource.getInstance().deleteUsersForChannel(b.cid, b.name);
+				UsersDataSource.getInstance().deleteUsersForBuffer(b.cid, b.bid);
 			}
 			EventsDataSource.getInstance().deleteEventsForBuffer(bid);
 		}

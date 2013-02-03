@@ -8,7 +8,7 @@ import java.util.Iterator;
 public class UsersDataSource {
 	public class User {
 		int cid;
-		String channel;
+		int bid;
 		String nick;
 		String old_nick = null;
 		String hostmask;
@@ -42,13 +42,13 @@ public class UsersDataSource {
 		users.clear();
 	}
 	
-	public synchronized User createUser(int cid, String channel, String nick, String hostmask, String mode, int away) {
-		return createUser(cid, channel, nick, hostmask, mode, away, true);
+	public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away) {
+		return createUser(cid, bid, nick, hostmask, mode, away, true);
 	}
-	public synchronized User createUser(int cid, String channel, String nick, String hostmask, String mode, int away, boolean find_old) {
+	public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away, boolean find_old) {
 		User u = null;
 		if(find_old)
-			u = getUser(cid, channel, nick);
+			u = getUser(cid, bid, nick);
 		
 		if(u == null) {
 			if(find_old)
@@ -62,7 +62,7 @@ public class UsersDataSource {
 			users.add(u);
 		}
 		u.cid = cid;
-		u.channel = channel;
+		u.bid = bid;
 		u.nick = nick;
 		u.hostmask = hostmask;
 		u.mode = mode;
@@ -71,19 +71,19 @@ public class UsersDataSource {
 		return u;
 	}
 
-	public synchronized void deleteUser(int cid, String channel, String nick) {
-		User u = getUser(cid,channel,nick);
+	public synchronized void deleteUser(int cid, int bid, String nick) {
+		User u = getUser(cid,bid,nick);
 		if(u != null)
 			users.remove(u);
 	}
 
-	public synchronized void deleteUsersForChannel(int cid, String channel) {
+	public synchronized void deleteUsersForBuffer(int cid, int bid) {
 		ArrayList<User> usersToRemove = new ArrayList<User>();
 		
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
 			User u = i.next();
-			if(u.cid == cid && u.channel.equals(channel))
+			if(u.cid == cid && u.bid == bid)
 				usersToRemove.add(u);
 		}
 		
@@ -94,16 +94,16 @@ public class UsersDataSource {
 		}
 	}
 
-	public synchronized void updateNick(int cid, String channel, String old_nick, String new_nick) {
-		User u = getUser(cid,channel,old_nick);
+	public synchronized void updateNick(int cid, int bid, String old_nick, String new_nick) {
+		User u = getUser(cid,bid,old_nick);
 		if(u != null) {
 			u.nick = new_nick;
 			u.old_nick = old_nick;
 		}
 	}
 	
-	public synchronized void updateAway(int cid, String channel, String nick, int away) {
-		User u = getUser(cid,channel,nick);
+	public synchronized void updateAway(int cid, int bid, String nick, int away) {
+		User u = getUser(cid,bid,nick);
 		if(u != null)
 			u.away = away;
 	}
@@ -119,35 +119,35 @@ public class UsersDataSource {
 		}
 	}
 	
-	public synchronized void updateHostmask(int cid, String channel, String nick, String hostmask) {
-		User u = getUser(cid,channel,nick);
+	public synchronized void updateHostmask(int cid, int bid, String nick, String hostmask) {
+		User u = getUser(cid,bid,nick);
 		if(u != null)
 			u.hostmask = hostmask;
 	}
 	
-	public synchronized void updateMode(int cid, String channel, String nick, String mode) {
-		User u = getUser(cid,channel,nick);
+	public synchronized void updateMode(int cid, int bid, String nick, String mode) {
+		User u = getUser(cid,bid,nick);
 		if(u != null)
 			u.mode = mode;
 	}
 	
-	public synchronized ArrayList<User> getUsersForChannel(int cid, String channel) {
+	public synchronized ArrayList<User> getUsersForBuffer(int cid, int bid) {
 		ArrayList<User> list = new ArrayList<User>();
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
 			User u = i.next();
-			if(u.cid == cid && u.channel.equals(channel) && u.joined == 1)
+			if(u.cid == cid && u.bid == bid && u.joined == 1)
 				list.add(u);
 		}
 		Collections.sort(list, new comparator());
 		return list;
 	}
 
-	public synchronized User getUser(int cid, String channel, String nick) {
+	public synchronized User getUser(int cid, int bid, String nick) {
 		Iterator<User> i = users.iterator();
 		while(i.hasNext()) {
 			User u = i.next();
-			if(u.cid == cid && u.channel.equals(channel) && u.nick.equals(nick) && u.joined == 1)
+			if(u.cid == cid && u.bid == bid && u.nick.equals(nick) && u.joined == 1)
 				return u;
 		}
 		return null;

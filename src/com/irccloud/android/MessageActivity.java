@@ -200,7 +200,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            	});
 	            	boolean canEditTopic;
 	            	if(c.mode.contains("t")) {
-	            		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, name, ServersDataSource.getInstance().getServer(cid).nick);
+	            		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
 	            		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
 	            			canEditTopic = true;
 	            		} else {
@@ -364,7 +364,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
 	    		if(s != null) {
 		    		sendBtn.setEnabled(false);
-		    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, name, s.nick);
+		    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, bid, s.nick);
 		    		e = EventsDataSource.getInstance().new Event();
 		    		e.cid = cid;
 		    		e.bid = bid;
@@ -1720,7 +1720,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		UsersDataSource.User user;
 		
 		if(type.equals("channel"))
-			user = UsersDataSource.getInstance().getUser(cid, name, from);
+			user = UsersDataSource.getInstance().getUser(cid, bid, from);
 		else
 			user = UsersDataSource.getInstance().getUser(cid, from);
 
@@ -1745,7 +1745,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	public void onUserSelected(int c, String chan, String nick) {
 		UsersDataSource u = UsersDataSource.getInstance();
 		if(type.equals("channel"))
-			showUserPopup(u.getUser(cid, name, nick), null);
+			showUserPopup(u.getUser(cid, bid, nick), null);
 		else
 			showUserPopup(u.getUser(cid, nick), null);
 	}
@@ -1770,7 +1770,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			itemList.add("Invite to a channel…");
 			itemList.add("Ignore");
 			if(type.equalsIgnoreCase("channel")) {
-				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, name, ServersDataSource.getInstance().getServer(cid).nick);
+				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
 				if(self_user != null && self_user.mode != null) {
 					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")) {
 						if(selected_user.mode.contains("o"))

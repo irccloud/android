@@ -154,7 +154,7 @@ public class BanListFragment extends SherlockDialogFragment {
 				dialog.dismiss();
 			}
         });
-		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, event.getString("channel"), ServersDataSource.getInstance().getServer(cid).nick);
+		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
 		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
 	        b.setPositiveButton("Add Ban Mask", new AddClickListener());
 		}
@@ -235,7 +235,7 @@ public class BanListFragment extends SherlockDialogFragment {
         	adapter = new BansAdapter(this);
         	listView.setAdapter(adapter);
     	}
-		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, event.getString("channel"), ServersDataSource.getInstance().getServer(cid).nick);
+		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
 		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
 			canUnBan = true;
 		else
@@ -253,7 +253,7 @@ public class BanListFragment extends SherlockDialogFragment {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case NetworkConnection.EVENT_USERCHANNELMODE:
-				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, event.getString("channel"), ServersDataSource.getInstance().getServer(cid).nick);
+				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
 				if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
 					canUnBan = true;
 				else

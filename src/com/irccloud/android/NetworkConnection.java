@@ -884,31 +884,31 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_LISTRESPONSE, object);
 			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				ServersDataSource.Server server = s.createServer(object.getInt("cid"), object.getString("name"), object.getString("hostname"),
+				ServersDataSource.Server server = s.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
 						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
 								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
 								object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"));
-				Notifications.getInstance().deleteNetwork(object.getInt("cid"));
+				Notifications.getInstance().deleteNetwork(object.cid());
 				if(object.getString("name") != null && object.getString("name").length() > 0)
-					Notifications.getInstance().addNetwork(object.getInt("cid"), object.getString("name"));
+					Notifications.getInstance().addNetwork(object.cid(), object.getString("name"));
 				else
-					Notifications.getInstance().addNetwork(object.getInt("cid"), object.getString("hostname"));
+					Notifications.getInstance().addNetwork(object.cid(), object.getString("hostname"));
 
 				if(!backlog)
 					notifyHandlers(EVENT_MAKESERVER, server);
 			} else if(type.equalsIgnoreCase("connection_deleted")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.deleteAllDataForServer(object.getInt("cid"));
-				Notifications.getInstance().deleteNetwork(object.getInt("cid"));
+				s.deleteAllDataForServer(object.cid());
+				Notifications.getInstance().deleteNetwork(object.cid());
 				Notifications.getInstance().showNotifications(null);
 				if(!backlog)
-					notifyHandlers(EVENT_CONNECTIONDELETED, object.getInt("cid"));
+					notifyHandlers(EVENT_CONNECTIONDELETED, object.cid());
 			} else if(type.equalsIgnoreCase("backlog_starts")) {
 				numbuffers = object.getInt("numbuffers");
 				totalbuffers = 0;
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
-				BuffersDataSource.Buffer buffer = b.createBuffer(object.getInt("bid"), object.getInt("cid"),
+				BuffersDataSource.Buffer buffer = b.createBuffer(object.bid(), object.cid(),
 						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
 								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"),
 										(object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0, (object.has("timeout") && object.getBoolean("timeout"))?1:0);
@@ -921,29 +921,29 @@ public class NetworkConnection {
 				}
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.deleteAllDataForBuffer(object.getInt("bid"));
-				Notifications.getInstance().deleteNotificationsForBid(object.getInt("bid"));
+				b.deleteAllDataForBuffer(object.bid());
+				Notifications.getInstance().deleteNotificationsForBid(object.bid());
 				Notifications.getInstance().showNotifications(null);
 				if(!backlog)
-					notifyHandlers(EVENT_DELETEBUFFER, object.getInt("bid"));
+					notifyHandlers(EVENT_DELETEBUFFER, object.bid());
 			} else if(type.equalsIgnoreCase("buffer_archived")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.updateArchived(object.getInt("bid"), 1);
+				b.updateArchived(object.bid(), 1);
 				if(!backlog)
-					notifyHandlers(EVENT_BUFFERARCHIVED, object.getInt("bid"));
+					notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
 			} else if(type.equalsIgnoreCase("buffer_unarchived")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.updateArchived(object.getInt("bid"), 0);
+				b.updateArchived(object.bid(), 0);
 				if(!backlog)
-					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.getInt("bid"));
+					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
 			} else if(type.equalsIgnoreCase("rename_conversation")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.updateName(object.getInt("bid"), object.getString("new_name"));
+				b.updateName(object.bid(), object.getString("new_name"));
 				if(!backlog)
-					notifyHandlers(EVENT_RENAMECONVERSATION, object.getInt("bid"));
+					notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
 			} else if(type.equalsIgnoreCase("status_changed")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateStatus(object.getInt("cid"), object.getString("new_status"), object.getJsonObject("fail_info"));
+				s.updateStatus(object.cid(), object.getString("new_status"), object.getJsonObject("fail_info"));
 				if(!backlog)
 					notifyHandlers(EVENT_STATUSCHANGED, object);
 			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart") || type.equalsIgnoreCase("wait") || type.equalsIgnoreCase("banned") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("connecting_cancelled") || type.equalsIgnoreCase("target_callerid")
@@ -954,7 +954,7 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				EventsDataSource.Event event = e.addEvent(object);
-				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.getInt("bid"));
+				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());
 				
 				if(b != null && event.eid > b.last_seen_eid && e.isImportant(event, b.type) && ((event.highlight || b.type.equals("conversation")))) {
 					JSONObject bufferDisabledMap = null;
@@ -996,17 +996,17 @@ public class NetworkConnection {
 					notifyHandlers(EVENT_LINKCHANNEL, object);
 			} else if(type.equalsIgnoreCase("channel_init")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				ChannelsDataSource.Channel channel = c.createChannel(object.getInt("cid"), object.getLong("bid"), object.getString("chan"),
+				ChannelsDataSource.Channel channel = c.createChannel(object.cid(), object.bid(), object.getString("chan"),
 						object.getJsonObject("topic").get("text").isJsonNull()?"":object.getJsonObject("topic").get("text").getAsString(),
 								object.getJsonObject("topic").get("time").getAsLong(), 
 						object.getJsonObject("topic").get("nick").getAsString(), object.getString("channel_type"),
 						object.getString("mode"), object.getLong("timestamp"));
 				UsersDataSource u = UsersDataSource.getInstance();
-				u.deleteUsersForChannel(object.getInt("cid"), object.getString("chan"));
+				u.deleteUsersForBuffer(object.cid(), object.bid());
 				JsonArray users = object.getJsonArray("members");
 				for(int i = 0; i < users.size(); i++) {
 					JsonObject user = users.get(i).getAsJsonObject();
-					u.createUser(object.getInt("cid"), object.getString("chan"), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0, false);
+					u.createUser(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0, false);
 				}
 				if(!backlog)
 					notifyHandlers(EVENT_CHANNELINIT, channel);
@@ -1015,24 +1015,24 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateTopic(object.getLong("bid"), object.getString("topic"), object.getLong("eid"), object.getString("author"));
+					c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid"), object.getString("author"));
 					notifyHandlers(EVENT_CHANNELTOPIC, object);
 				}
 			} else if(type.equalsIgnoreCase("channel_url")) {
 				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				c.updateURL(object.getLong("bid"), object.getString("url"));
+				c.updateURL(object.bid(), object.getString("url"));
 			} else if(type.equalsIgnoreCase("channel_mode") || type.equalsIgnoreCase("channel_mode_is")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
 				if(!backlog) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateMode(object.getLong("bid"), object.getString("newmode"));
+					c.updateMode(object.bid(), object.getString("newmode"));
 					notifyHandlers(EVENT_CHANNELMODE, object);
 				}
 			} else if(type.equalsIgnoreCase("channel_timestamp")) {
 				if(!backlog) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateTimestamp(object.getLong("bid"), object.getLong("timestamp"));
+					c.updateTimestamp(object.bid(), object.getLong("timestamp"));
 					notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
 				}
 			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
@@ -1040,7 +1040,7 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					UsersDataSource u = UsersDataSource.getInstance();
-					u.createUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"), object.getString("hostmask"), "", 0);
+					u.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
 					notifyHandlers(EVENT_JOIN, object);
 				}
 			} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
@@ -1048,11 +1048,11 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					UsersDataSource u = UsersDataSource.getInstance();
-					u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+					u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
 					if(type.equalsIgnoreCase("you_parted_channel")) {
 						ChannelsDataSource c = ChannelsDataSource.getInstance();
-						c.deleteChannel(object.getInt("bid"));
-						u.deleteUsersForChannel(object.cid(), object.getString("chan"));
+						c.deleteChannel(object.bid());
+						u.deleteUsersForBuffer(object.cid(), object.bid());
 					}
 					notifyHandlers(EVENT_PART, object);
 				}
@@ -1061,7 +1061,7 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					UsersDataSource u = UsersDataSource.getInstance();
-					u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+					u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
 					notifyHandlers(EVENT_QUIT, object);
 				}
 			} else if(type.equalsIgnoreCase("quit_server")) {
@@ -1074,10 +1074,10 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					UsersDataSource u = UsersDataSource.getInstance();
-					u.deleteUser(object.getInt("cid"), object.getString("chan"), object.getString("nick"));
+					u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
 					if(type.equalsIgnoreCase("you_kicked_channel")) {
 						ChannelsDataSource c = ChannelsDataSource.getInstance();
-						c.deleteChannel(object.getInt("bid"));
+						c.deleteChannel(object.bid());
 					}
 					notifyHandlers(EVENT_KICK, object);
 				}
@@ -1085,12 +1085,8 @@ public class NetworkConnection {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
 				if(!backlog) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-					if(chan != null) {
-						UsersDataSource u = UsersDataSource.getInstance();
-						u.updateNick(object.cid(), chan.name, object.getString("oldnick"), object.getString("newnick"));
-					}
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.updateNick(object.cid(), object.bid(), object.getString("oldnick"), object.getString("newnick"));
 					if(type.equalsIgnoreCase("you_nickchange")) {
 						ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
 					}
@@ -1100,12 +1096,8 @@ public class NetworkConnection {
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
 				if(!backlog) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-					if(chan != null) {
-						UsersDataSource u = UsersDataSource.getInstance();
-						u.updateMode(object.getInt("cid"), chan.name, object.getString("nick"), object.getString("newmode"));
-					}
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.updateMode(object.cid(), object.bid(), object.getString("nick"), object.getString("newmode"));
 					notifyHandlers(EVENT_USERCHANNELMODE, object);
 				}
 			} else if(type.equalsIgnoreCase("member_updates")) {
@@ -1114,40 +1106,36 @@ public class NetworkConnection {
 				while(i.hasNext()) {
 					Entry<String, JsonElement> entry = i.next();
 					JsonObject user = entry.getValue().getAsJsonObject();
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					ChannelsDataSource.Channel chan = c.getChannelForBuffer(object.getLong("bid"));
-					if(chan != null) {
-						UsersDataSource u = UsersDataSource.getInstance();
-						u.updateAway(object.getInt("cid"), chan.name, user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
-						u.updateHostmask(object.getInt("cid"), chan.name, user.get("nick").getAsString(), user.get("usermask").getAsString());
-					}
+					UsersDataSource u = UsersDataSource.getInstance();
+					u.updateAway(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
+					u.updateHostmask(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
 				}
 				if(!backlog)
 					notifyHandlers(EVENT_MEMBERUPDATES, null);
 			} else if(type.equalsIgnoreCase("user_away") || type.equalsIgnoreCase("away")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateAwayMsg(object.getInt("cid"), object.getString("nick"), 1, object.getString("msg"));
-				b.updateAway(object.getInt("bid"), object.getString("msg"));
+				u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
+				b.updateAway(object.bid(), object.getString("msg"));
 				if(!backlog)
 					notifyHandlers(EVENT_AWAY, object);
 			} else if(type.equalsIgnoreCase("self_away")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateAwayMsg(object.getInt("cid"), object.getString("nick"), 1, object.getString("away_msg"));
-				s.updateAway(object.getInt("cid"), object.getString("away_msg"));
+				u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("away_msg"));
+				s.updateAway(object.cid(), object.getString("away_msg"));
 				if(!backlog)
 					notifyHandlers(EVENT_AWAY, object);
 			} else if(type.equalsIgnoreCase("self_back")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateAwayMsg(object.getInt("cid"), object.getString("nick"), 0, "");
-				s.updateAway(object.getInt("cid"), "");
+				u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
+				s.updateAway(object.cid(), "");
 				if(!backlog)
 					notifyHandlers(EVENT_SELFBACK, object);
 			} else if(type.equalsIgnoreCase("self_details")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateUsermask(object.getInt("cid"), object.getString("usermask"));
+				s.updateUsermask(object.cid(), object.getString("usermask"));
 				EventsDataSource e = EventsDataSource.getInstance();
 				e.addEvent(object);
 				if(!backlog)
@@ -1157,20 +1145,20 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					ServersDataSource s = ServersDataSource.getInstance();
-					s.updateMode(object.getInt("cid"), object.getString("newmode"));
+					s.updateMode(object.cid(), object.getString("newmode"));
 					notifyHandlers(EVENT_USERMODE, object);
 				}
 			} else if(type.equalsIgnoreCase("connection_lag")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateLag(object.getInt("cid"), object.getLong("lag"));
+				s.updateLag(object.cid(), object.getLong("lag"));
 				if(!backlog)
 					notifyHandlers(EVENT_CONNECTIONLAG, object);
 			} else if(type.equalsIgnoreCase("isupport_params")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateIsupport(object.getInt("cid"), object.getJsonObject("params"));
+				s.updateIsupport(object.cid(), object.getJsonObject("params"));
 			} else if(type.equalsIgnoreCase("set_ignores") || type.equalsIgnoreCase("ignore_list")) {
 				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateIgnores(object.getInt("cid"), object.getJsonArray("masks"));
+				s.updateIgnores(object.cid(), object.getJsonArray("masks"));
 				if(!backlog)
 					notifyHandlers(EVENT_SETIGNORES, object);
 			} else if(type.equalsIgnoreCase("heartbeat_echo")) {

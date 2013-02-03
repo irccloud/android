@@ -256,7 +256,7 @@ public class UsersListFragment extends SherlockListFragment {
 		@Override
 		protected Void doInBackground(Void... params) {
 	    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
-	    		users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+	    		users = UsersDataSource.getInstance().getUsersForBuffer(cid, bid);
 			return null;
 		}
 		
@@ -291,7 +291,7 @@ public class UsersListFragment extends SherlockListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(cid, bid);
     	refresh(users);
     }
     
@@ -307,7 +307,7 @@ public class UsersListFragment extends SherlockListFragment {
 			public void run() {
 		    	ArrayList<UsersDataSource.User> users = null;
 		    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
-		    		users = UsersDataSource.getInstance().getUsersForChannel(cid, channel);
+		    		users = UsersDataSource.getInstance().getUsersForBuffer(cid, bid);
 		    	refresh(users);
 		    	try {
 			    	if(getListView() != null)
