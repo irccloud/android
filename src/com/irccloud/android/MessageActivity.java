@@ -859,6 +859,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(cidToOpen == event.cid() && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
 					bufferToOpen = event.getString("valid_chan");
 					msg.obj = BuffersDataSource.getInstance().getBuffer(event.bid());
+				} else {
+					return;
 				}
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)msg.obj;
