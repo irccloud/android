@@ -50,12 +50,17 @@ public class ColorFormatter {
 			public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
 				int len = output.length();
 				if(tag.startsWith("_bg")) {
-					String rgb = "#" + tag.substring(3);
+					String rgb = "#";
+					if(tag.length() == 9) {
+						rgb += tag.substring(3);
+					} else {
+						rgb += "ffffff";
+					}
 			        if(opening) {
 			        	try {
 			        		output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), len, len, Spannable.SPAN_MARK_MARK);
 			        	} catch (IllegalArgumentException e) {
-			        		output.setSpan(new BackgroundColorSpan(Color.parseColor("#fff")), len, len, Spannable.SPAN_MARK_MARK);
+			        		output.setSpan(new BackgroundColorSpan(Color.parseColor("#ffffff")), len, len, Spannable.SPAN_MARK_MARK);
 			        	}
 			        } else {
 			            Object obj = getLast(output, BackgroundColorSpan.class);
@@ -67,7 +72,7 @@ public class ColorFormatter {
 			            	try {
 			            		output.setSpan(new BackgroundColorSpan(Color.parseColor(rgb)), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				        	} catch (IllegalArgumentException e) {
-			            		output.setSpan(new BackgroundColorSpan(Color.parseColor("#fff")), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			            		output.setSpan(new BackgroundColorSpan(Color.parseColor("#ffffff")), where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				        	}
 			            }
 			        }
@@ -265,8 +270,20 @@ public class ColorFormatter {
 							if(new_bg.equals("clear")) {
 								bg = "";
 							} else {
-	    						html += "<_bg" + new_bg + ">";
-	    						bg = new_bg;
+								bg = "";
+								if(new_bg.length() == 6) {
+									bg = new_bg;
+								} else if(new_bg.length() == 3) {
+									bg += new_bg.charAt(0);
+									bg += new_bg.charAt(0);
+									bg += new_bg.charAt(1);
+									bg += new_bg.charAt(1);
+									bg += new_bg.charAt(2);
+									bg += new_bg.charAt(2);
+								} else {
+									bg = "#ffffff";
+								}
+	    						html += "<_bg" + bg + ">";
 							}
 						}
 					}
@@ -275,8 +292,20 @@ public class ColorFormatter {
 							if(new_fg.equals("clear")) {
 								fg = "";
 							} else {
-	    						html += "<font color=\"#" + new_fg + "\">";
-	    						fg = new_fg;
+								fg = "";
+								if(new_fg.length() == 6) {
+									fg = new_fg;
+								} else if(new_fg.length() == 3) {
+									fg += new_fg.charAt(0);
+									fg += new_fg.charAt(0);
+									fg += new_fg.charAt(1);
+									fg += new_fg.charAt(1);
+									fg += new_fg.charAt(2);
+									fg += new_fg.charAt(2);
+								} else {
+									fg = "#000000";
+								}
+	    						html += "<font color=\"#" + fg + "\">";
 							}
 						}
 					}
