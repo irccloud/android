@@ -1241,8 +1241,12 @@ public class MessageViewFragment extends SherlockListFragment {
 		public void run() {
 			if(adapter != null && adapter.data.size() > 0) {
 				if(firstScroll) {
-					getListView().setSelection(adapter.data.size() - 1);
-					firstScroll = false;
+					try {
+						getListView().setSelection(adapter.data.size() - 1);
+						firstScroll = false;
+					} catch (IllegalStateException e) {
+						//The list view isn't ready yet
+					}
 				}
 			}
 		}
