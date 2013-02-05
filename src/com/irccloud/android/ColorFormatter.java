@@ -129,7 +129,16 @@ public class ColorFormatter {
 	    		}
 	    		pattern += "][^<>!?\"()\\[\\],\\s]+)";
 	
-				Linkify.addLinks(output, Pattern.compile(pattern), null, null, new TransformFilter() {
+				Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {
+			        public final boolean acceptMatch(CharSequence s, int start, int end) {
+			        	try {
+			        		Integer.parseInt(s.subSequence(start+1, end).toString());
+			        		return false;
+			        	} catch (NumberFormatException e) {
+			        		return true;
+			        	}
+			        }
+				}, new TransformFilter() {
 			        public final String transformUrl(final Matcher match, String url) {
 			        	String channel = match.group(1);
 			        	try {
