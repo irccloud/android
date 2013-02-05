@@ -217,12 +217,18 @@ public class ColorFormatter {
 							(builder.charAt(pos+count) >= '0' && builder.charAt(pos+count) <= '9') ||
 							rgb && ((builder.charAt(pos+count) >= 'a' && builder.charAt(pos+count) <= 'f') ||
 							(builder.charAt(pos+count) >= 'A' && builder.charAt(pos+count) <= 'F')))) {
-						count++;
+						if(++count == 2 && !rgb)
+							break;
 					}
 					if(count > 0) {
 						if(count < 3 && !rgb) {
 							try {
-								new_fg = COLOR_MAP[Integer.parseInt(builder.substring(pos, pos + count))];
+								int col = Integer.parseInt(builder.substring(pos, pos + count));
+								if(col > 15) {
+									count--;
+									col /= 10;
+								}
+								new_fg = COLOR_MAP[col];
 							} catch (NumberFormatException e) {
 		    					new_fg = builder.substring(pos, pos + count);
 							}
@@ -240,12 +246,18 @@ public class ColorFormatter {
 								(builder.charAt(pos+count) >= '0' && builder.charAt(pos+count) <= '9') ||
 								rgb && ((builder.charAt(pos+count) >= 'a' && builder.charAt(pos+count) <= 'f') ||
 								(builder.charAt(pos+count) >= 'A' && builder.charAt(pos+count) <= 'F')))) {
-							count++;
+							if(++count == 2 && !rgb)
+								break;
 						}
 						if(count > 0) {
 							if(count < 3 && !rgb) {
 								try {
-									new_bg = COLOR_MAP[Integer.parseInt(builder.substring(pos, pos + count))];
+									int col = Integer.parseInt(builder.substring(pos, pos + count));
+									if(col > 15) {
+										count--;
+										col /= 10;
+									}
+									new_bg = COLOR_MAP[col];
 								} catch (NumberFormatException e) {
 			    					new_bg = builder.substring(pos, pos + count);
 								}
