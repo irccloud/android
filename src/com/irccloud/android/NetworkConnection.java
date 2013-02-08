@@ -192,10 +192,13 @@ public class NetworkConnection {
 			version = "";
 		}
 
-		ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo ni = cm.getActiveNetworkInfo();
-		if(ni != null)
-			network_type = ni.getTypeName();
+		try {
+			ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+			NetworkInfo ni = cm.getActiveNetworkInfo();
+			if(ni != null)
+				network_type = ni.getTypeName();
+		} catch (Exception e) {
+		}
 		
 		useragent = "IRCCloud" + version + " (" + android.os.Build.MODEL + "; " + Locale.getDefault().getCountry().toLowerCase() + "; "
 				+ "Android " + android.os.Build.VERSION.RELEASE;
