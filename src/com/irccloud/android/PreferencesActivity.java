@@ -303,9 +303,13 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 			Intent i = null;
 			if (preference.getKey().equals("faq"))
 				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/faq"));
-			if (preference.getKey().equals("feedback"))
-				i = new Intent(Intent.ACTION_VIEW, Uri.parse("irc://irc.irccloud.com/%23android"));
-			if (preference.getKey().equals("subscriptions"))
+			if (preference.getKey().equals("feedback")) {
+				ServersDataSource.Server s = ServersDataSource.getInstance().getServer("irc.irccloud.com");
+				if(s != null && s.ssl > 0)
+					i = new Intent(Intent.ACTION_VIEW, Uri.parse("ircs://irc.irccloud.com/%23android"));
+				else
+					i = new Intent(Intent.ACTION_VIEW, Uri.parse("irc://irc.irccloud.com/%23android"));
+			} if (preference.getKey().equals("subscriptions"))
 				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/#?/upgrade"));
 			if (preference.getKey().equals("changes"))
 				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/android-changelog.txt"));

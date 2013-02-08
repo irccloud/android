@@ -515,6 +515,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	launchBid = -1;
     	launchURI = null;
     	
+    	setIntent(null);
+    	
     	if(intent.hasExtra("bid")) {
     		int new_bid = intent.getIntExtra("bid", 0);
     		if(NetworkConnection.getInstance().ready && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
@@ -535,7 +537,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	if(intent.getData() != null && intent.getData().getScheme().startsWith("irc")) {
     		if(open_uri(intent.getData()))
     			return;
-    		launchURI = intent.getData();
+    		else
+    			launchURI = intent.getData();
     	} else if(intent.hasExtra("cid")) {
 	    	cid = intent.getIntExtra("cid", 0);
 	    	name = intent.getStringExtra("name");
@@ -646,15 +649,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
    			messageTxt.setEnabled(true);
     	}
 
-    	if(cid == -1) {
-	    	if(getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
+    	if(cid == -1 || launchURI != null) {
+    		if(getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
 	    		setFromIntent(getIntent());
-	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && NetworkConnection.getInstance().ready) {
-	    		if(!open_bid(conn.getUserInfo().last_selected_bid)) {
-	    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-	    				if(scrollView != null && NetworkConnection.getInstance().ready)
-	    					scrollView.scrollTo(0,0);
-	    			}
+	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && conn.ready) {
+	    		if(launchURI == null || !open_uri(launchURI)) {
+		    		if(!open_bid(conn.getUserInfo().last_selected_bid)) {
+		    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
+		    				if(scrollView != null && NetworkConnection.getInstance().ready)
+		    					scrollView.scrollTo(0,0);
+		    			}
+		    		}
 	    		}
 	    	}
     	}
@@ -696,10 +701,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			channelsListDialog.dismiss();
     	if(conn != null)
     		conn.removeHandler(mHandler);
+    	conn = null;
     }
 	
     private boolean open_uri(Uri uri) {
-		if(uri != null && NetworkConnection.getInstance().ready) {
+		if(uri != null && conn != null && conn.ready) {
+			launchURI = null;
     		ServersDataSource.Server s = null;
     		if(uri.getPort() > 0)
     			s = ServersDataSource.getInstance().getServer(uri.getHost(), uri.getPort());
@@ -728,15 +735,27 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    				return open_bid(b.bid);
     			}
     		} else {
-	        	EditConnectionFragment connFragment = new EditConnectionFragment();
-	        	connFragment.default_hostname = uri.getHost();
-    			if(uri.getPort() > 0)
-    				connFragment.default_port = uri.getPort();
-    			else if(uri.getScheme().equalsIgnoreCase("ircs"))
-    				connFragment.default_port = 6697;
-    			if(uri.getPath().length() > 1)
-    				connFragment.default_channels = uri.getPath().substring(1).replace(",", " ");
-	            connFragment.show(getSupportFragmentManager(), "addnetwork");
+				if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+					Intent i = new Intent(this, EditConnectionActivity.class);
+					i.putExtra("hostname", uri.getHost());
+					if(uri.getPort() > 0)
+						i.putExtra("port", uri.getPort());
+	    			else if(uri.getScheme().equalsIgnoreCase("ircs"))
+	    				i.putExtra("port", 6697);
+	    			if(uri.getPath().length() > 1)
+	    				i.putExtra("channels", uri.getPath().substring(1).replace(",", " "));
+					startActivity(i);
+				} else {
+		        	EditConnectionFragment connFragment = new EditConnectionFragment();
+		        	connFragment.default_hostname = uri.getHost();
+	    			if(uri.getPort() > 0)
+	    				connFragment.default_port = uri.getPort();
+	    			else if(uri.getScheme().equalsIgnoreCase("ircs"))
+	    				connFragment.default_port = 6697;
+	    			if(uri.getPath().length() > 1)
+	    				connFragment.default_channels = uri.getPath().substring(1).replace(",", " ");
+		            connFragment.show(getSupportFragmentManager(), "addnetwork");
+				}
 	            return true;
     		}
 		}
@@ -1008,7 +1027,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						if(scrollView.getScrollX() > 0)
 							upView.setVisibility(View.VISIBLE);
 				}
-		    	if(cid == -1) {
+		    	if(cid == -1 || launchURI != null) {
 		    		if(launchURI == null || !open_uri(launchURI)) {
 			    		if(launchBid == -1 || !open_bid(launchBid)) {
 			    			if(conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {

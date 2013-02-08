@@ -21,6 +21,11 @@ public class EditConnectionActivity extends SherlockFragmentActivity {
         final EditConnectionFragment newFragment = new EditConnectionFragment();
         if(getIntent() != null && getIntent().hasExtra("cid"))
         	newFragment.setCid(getIntent().getIntExtra("cid", -1));
+        if(getIntent() != null && getIntent().hasExtra("hostname"))
+        	newFragment.default_hostname = getIntent().getStringExtra("hostname");
+        if(getIntent() != null && getIntent().hasExtra("channels"))
+        	newFragment.default_channels = getIntent().getStringExtra("channels");
+    	newFragment.default_port = getIntent().getIntExtra("port", 6667);
         ft.add(R.id.EditConnectionFragment, newFragment);
         ft.commit();
 
