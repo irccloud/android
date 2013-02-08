@@ -1597,7 +1597,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		
 		if(ChannelsDataSource.getInstance().getChannelForBuffer(b.bid) != null) {
 			itemList.add("Leave");
-			itemList.add("Channel Options…");
+			itemList.add("Display Options…");
 		} else {
 			if(b.type.equalsIgnoreCase("channel"))
 				itemList.add("Join");
@@ -1618,7 +1618,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				itemList.add("Delete");
 			}
 			if(!b.type.equalsIgnoreCase("channel")) {
-				itemList.add("Buffer Options…");
+				itemList.add("Display Options…");
 			}
 		}
 
@@ -1654,12 +1654,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			conn.reconnect(buffer.cid);
 	    		} else if(items[item].equals("Disconnect")) {
 	    			conn.disconnect(buffer.cid, null);
-	    		} else if(items[item].equals("Channel Options…")) {
-		        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.cid, buffer.bid);
-		            newFragment.show(getSupportFragmentManager(), "channeloptions");
-	    		} else if(items[item].equals("Buffer Options…")) {
-		        	BufferOptionsFragment newFragment = new BufferOptionsFragment(buffer.cid, buffer.bid, buffer.type);
-		            newFragment.show(getSupportFragmentManager(), "bufferoptions");
+	    		} else if(items[item].equals("Display Options…")) {
+	    			if(buffer.type.equals("channel")) {
+			        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.cid, buffer.bid);
+			            newFragment.show(getSupportFragmentManager(), "channeloptions");
+	    			} else {
+			        	BufferOptionsFragment newFragment = new BufferOptionsFragment(buffer.cid, buffer.bid, buffer.type);
+			            newFragment.show(getSupportFragmentManager(), "bufferoptions");
+	    			}
 	    		} else if(items[item].equals("Edit Connection…")) {
 		        	EditConnectionFragment editFragment = new EditConnectionFragment();
 		        	editFragment.setCid(buffer.cid);
