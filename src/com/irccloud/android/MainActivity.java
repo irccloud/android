@@ -217,15 +217,17 @@ public class MainActivity extends SherlockActivity {
 				progressBar.setProgress((int)progress);
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
-	    		Intent i = new Intent(MainActivity.this, MessageActivity.class);
-	    		if(getIntent() != null) {
-	    			if(getIntent().getData() != null)
-	    				i.setData(getIntent().getData());
-	    			if(getIntent().getExtras() != null)
-	    				i.putExtras(getIntent().getExtras());
-	    		}
-	    		startActivity(i);
-	    		finish();
+				if(conn.ready) {
+		    		Intent i = new Intent(MainActivity.this, MessageActivity.class);
+		    		if(getIntent() != null) {
+		    			if(getIntent().getData() != null)
+		    				i.setData(getIntent().getData());
+		    			if(getIntent().getExtras() != null)
+		    				i.putExtras(getIntent().getExtras());
+		    		}
+		    		startActivity(i);
+		    		finish();
+				}
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
