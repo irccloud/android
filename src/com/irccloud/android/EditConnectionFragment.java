@@ -1,8 +1,12 @@
 package com.irccloud.android;
 
+import java.util.ArrayList;
+
+import com.actionbarsherlock.app.SherlockDialogFragment;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -14,13 +18,144 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
-public class EditConnectionFragment extends DialogFragment {
+public class EditConnectionFragment extends SherlockDialogFragment {
+	private class PresetServersAdapter extends BaseAdapter {
+		private Activity ctx;
+		
+		private class ViewHolder {
+			TextView network;
+			TextView hostname;
+			ImageView lock;
+		}
+		
+		private class PresetServer {
+			String network;
+			String host;
+			int port;
+			
+			public PresetServer(String network, String host, int port) {
+				this.network = network;
+				this.host = host;
+				this.port = port;
+			}
+		}
+		
+		private ArrayList<PresetServer> data;
+		
+		public PresetServersAdapter(Activity context) {
+			ctx = context;
+			data = new ArrayList<PresetServer>();
+			data.add(new PresetServer(null, null, 0));
+			data.add(new PresetServer("IRCCloud", "irc.irccloud.com", 6667));
+			data.add(new PresetServer("Freenode", "irc.freenode.net", 6697));
+			data.add(new PresetServer("QuakeNet", "irc.quakenet.org", 6667));
+			data.add(new PresetServer("IRCNet", "irc.atw-inter.net", 6667));
+			data.add(new PresetServer("Undernet", "irc.undernet.org", 6667));
+			data.add(new PresetServer("DALNet", "irc.dal.net", 6667));
+			data.add(new PresetServer("OFTC", "irc.oftc.net", 6667));
+			data.add(new PresetServer("GameSurge", "irc.gamesurge.net", 6667));
+			data.add(new PresetServer("Efnet", "efnet.xs4all.nl", 6667));
+			data.add(new PresetServer("Mozilla", "irc.mozilla.org", 6697));
+			data.add(new PresetServer("Rizon", "irc6.rizon.net", 6697));
+			data.add(new PresetServer("Espernet", "irc.esper.net", 6667));
+			data.add(new PresetServer("ReplayIRC", "irc.replayirc.com", 6667));
+			data.add(new PresetServer("synIRC", "naamio.fi.eu.synirc.net", 6697));
+			data.add(new PresetServer("fossnet", "irc.fossnet.info", 6697));
+			data.add(new PresetServer("P2P-NET", "irc.p2p-network.net", 6697));
+			data.add(new PresetServer("euIRCnet", "irc.euirc.net", 6697));
+			data.add(new PresetServer("SlashNET", "irc.slashnet.org", 6697));
+			data.add(new PresetServer("Atrum", "irc.atrum.org", 6697));
+			data.add(new PresetServer("Indymedia", "irc.indymedia.org", 6697));
+			data.add(new PresetServer("TWiT", "irc.twit.tv", 6697));
+		}
+		
+		@Override
+		public int getCount() {
+			return data.size();
+		}
+		
+		@Override
+		public Object getItem(int pos) {
+			return data.get(pos);
+		}
+		
+		@Override
+		public long getItemId(int pos) {
+			return pos;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			View row = convertView;
+			TextView label;
+		
+			if (row == null) {
+				LayoutInflater inflater = ctx.getLayoutInflater();
+				row = inflater.inflate(android.R.layout.simple_spinner_item, null);
+		
+				label = (TextView)row.findViewById(android.R.id.text1);
+				row.setTag(label);
+			} else {
+				label = (TextView)row.getTag();
+			}
+			
+			if(position == 0) {
+				label.setText("Choose a network…");
+			} else {
+				label.setText(data.get(position).network);
+			}
+			
+			return row;
+		}
+		
+		@Override
+		public View getDropDownView(int position, View convertView, ViewGroup parent) {
+			View row = convertView;
+			ViewHolder holder;
+		
+			if (row == null) {
+				LayoutInflater inflater = ctx.getLayoutInflater();
+				row = inflater.inflate(R.layout.row_server, null);
+		
+				holder = new ViewHolder();
+				holder.network = (TextView) row.findViewById(R.id.network);
+				holder.hostname = (TextView) row.findViewById(R.id.hostname);
+				holder.lock = (ImageView) row.findViewById(R.id.lock);
+		
+				row.setTag(holder);
+			} else {
+				holder = (ViewHolder) row.getTag();
+			}
+
+			if(position == 0) {
+				holder.network.setText("Choose a network…");
+				holder.hostname.setVisibility(View.GONE);
+				holder.lock.setVisibility(View.GONE);
+			} else {
+				PresetServer s = data.get(position);
+				holder.network.setText(s.network);
+				holder.hostname.setText(s.host);
+				holder.hostname.setVisibility(View.VISIBLE);
+				if(s.port == 6697) {
+					holder.lock.setVisibility(View.VISIBLE);
+				} else {
+					holder.lock.setVisibility(View.GONE);
+				}
+			}
+			return row;
+		}
+	}
+
+	PresetServersAdapter adapter;
+	
 	ServersDataSource.Server server;
 
 	LinearLayout channelsWrapper;
@@ -39,38 +174,6 @@ public class EditConnectionFragment extends DialogFragment {
 	public int default_port = 6667;
 	public String default_channels = null;
 	
-	private static final String[] PRESET_NETWORKS = new String[] { "Choose a network…",
-		"IRCCloud", "Freenode (SSL)", "QuakeNet", "IRCNet", "Undernet",
-		"DALNet", "OFTC", "GameSurge", "Efnet", "Mozilla (SSL)", "Rizon (SSL)",
-		"Espernet", "ReplayIRC", "synIRC (SSL)", "fossnet (SSL)",
-		"P2P-NET (SSL)", "euIRCnet (SSL)", "SlashNET (SSL)",
-		"Atrum (SSL)", "Indymedia (SSL)", "TWiT (SSL)"
-    };
-	
-	private static final String[] PRESET_SERVERS = new String[] { "",
-		"irc.irccloud.com",
-		"irc.freenode.net",
-		"irc.quakenet.org",
-		"irc.atw-inter.net",
-		"irc.undernet.org",
-		"irc.dal.net",
-		"irc.oftc.net",
-		"irc.gamesurge.net",
-		"efnet.xs4all.nl",
-		"irc.mozilla.org",
-		"irc6.rizon.net",
-		"irc.esper.net",
-		"irc.replayirc.com",
-		"naamio.fi.eu.synirc.net",
-		"irc.fossnet.info",
-		"irc.p2p-network.net",
-		"irc.euirc.net",
-		"irc.slashnet.org",
-		"irc.atrum.org",
-		"irc.indymedia.org",
-		"irc.twit.tv"
-	};
-	
 	private void init(View v) {
     	channelsWrapper = (LinearLayout)v.findViewById(R.id.channels_wrapper);
 		presets = (Spinner)v.findViewById(R.id.presets);
@@ -84,10 +187,7 @@ public class EditConnectionFragment extends DialogFragment {
 		join_commands = (EditText)v.findViewById(R.id.commands);
 		server_pass = (EditText)v.findViewById(R.id.serverpassword);
 
-		
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_item, PRESET_NETWORKS);
-    	adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		adapter = new PresetServersAdapter(getActivity());
 		presets.setAdapter(adapter);
 		presets.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -107,14 +207,10 @@ public class EditConnectionFragment extends DialogFragment {
 			   			ssl.setChecked(default_port == 6697);
 					}
 				} else {
-					hostname.setText(PRESET_SERVERS[position]);
-					if(PRESET_NETWORKS[position].contains(" (SSL")) {
-			    		port.setText("6697");
-			   			ssl.setChecked(true);
-					} else {
-			    		port.setText("6667");
-			   			ssl.setChecked(false);
-					}
+					PresetServersAdapter.PresetServer s = (PresetServersAdapter.PresetServer) adapter.getItem(position);
+					hostname.setText(s.host);
+					port.setText(String.valueOf(s.port));
+		   			ssl.setChecked(s.port == 6697);
 				}
 			}
 
@@ -226,7 +322,7 @@ public class EditConnectionFragment extends DialogFragment {
 		if(server == null) {
 			String netname = hostname.getText().toString();
 			if(presets.getSelectedItemPosition() > 0) {
-				netname = PRESET_NETWORKS[presets.getSelectedItemPosition()];
+				netname = ((PresetServersAdapter.PresetServer)adapter.getItem(presets.getSelectedItemPosition())).network;
 			}
 			NetworkConnection.getInstance().addServer(hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
 					ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
