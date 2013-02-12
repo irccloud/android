@@ -128,22 +128,26 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 			switch(msg.what) {
 			case NetworkConnection.EVENT_SUCCESS:
 				o = (IRCCloudJSONObject)msg.obj;
-				if(o.getInt("_reqid") == save_settings_reqid) {
-					save_settings_reqid = -1;
-				} else if(o.getInt("_reqid") == save_prefs_reqid) {
-					save_prefs_reqid = -1;
+				if(o.has("_reqid")) {
+					if(o.getInt("_reqid") == save_settings_reqid) {
+						save_settings_reqid = -1;
+					} else if(o.getInt("_reqid") == save_prefs_reqid) {
+						save_prefs_reqid = -1;
+					}
 				}
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
 				o = (IRCCloudJSONObject)msg.obj;
-				if(o.getInt("_reqid") == save_settings_reqid) {
-					save_settings_reqid = -1;
-					Log.e("IRCCloud", "Settings not updated: " + o.getString("message"));
-				} else if(o.getInt("_reqid") == save_prefs_reqid) {
-					save_prefs_reqid = -1;
-					Log.e("IRCCloud", "Prefs not updated: " + o.getString("message"));
+				if(o.has("_reqid")) {
+					if(o.getInt("_reqid") == save_settings_reqid) {
+						save_settings_reqid = -1;
+						Log.e("IRCCloud", "Settings not updated: " + o.getString("message"));
+					} else if(o.getInt("_reqid") == save_prefs_reqid) {
+						save_prefs_reqid = -1;
+						Log.e("IRCCloud", "Prefs not updated: " + o.getString("message"));
+					}
+					Toast.makeText(PreferencesActivity.this, "An error occured while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
 				}
-				Toast.makeText(PreferencesActivity.this, "An error occured while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
 				break;
 			case NetworkConnection.EVENT_USERINFO:
 				NetworkConnection.UserInfo userInfo = conn.getUserInfo();
