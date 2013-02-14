@@ -315,7 +315,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
-        	if(scrollView != null && (scrollView.getScrollX() >= getResources().getDimension(R.dimen.drawer_width) + getResources().getDimension(R.dimen.userlist_width) || scrollView.getScrollX() < getResources().getDimension(R.dimen.drawer_width))) {
+        	if(scrollView != null && (scrollView.getScrollX() > getResources().getDimension(R.dimen.drawer_width) || scrollView.getScrollX() == 0)) {
     			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
 	        	upView.setVisibility(View.VISIBLE);
 	        	return true;
