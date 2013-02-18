@@ -151,6 +151,7 @@ public class MainActivity extends SherlockActivity {
     			connecting.setVisibility(View.VISIBLE);
     			login.setVisibility(View.GONE);
     			conn.connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
+    			updateReconnecting();
     		} else {
     			connecting.setVisibility(View.GONE);
     			login.setVisibility(View.VISIBLE);

@@ -927,10 +927,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						if(cid != -1)
 							messageTxt.setEnabled(true);
 					} else {
-			    		if(scrollView != null && NetworkConnection.getInstance().ready) {
+			    		if(scrollView != null && !NetworkConnection.getInstance().ready) {
 			    			scrollView.setEnabled(false);
 			    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
-			        		upView.setVisibility(View.VISIBLE);
+			        		upView.setVisibility(View.INVISIBLE);
 			    		}
 			    		messageTxt.setEnabled(false);
 					}
