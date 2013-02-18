@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gcm.GCMRegistrar;
-import com.irccloud.android.BanListFragment.AddClickListener;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -360,7 +359,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		open_bid(mvf.bid);
 	    	}
 	    	
-			if(conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+			if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
 	    		if(s != null) {
 		    		sendBtn.setEnabled(false);
@@ -410,7 +409,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			if(e != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+			if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 				e.reqid = conn.say(cid, name, messageTxt.getText().toString());
 				if(e.msg != null)
 					pendingEvents.put(e.reqid, e);
@@ -443,7 +442,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
 					if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
 						bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
-				} catch (JSONException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -914,25 +913,27 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
-					for(EventsDataSource.Event e : pendingEvents.values()) {
-						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+				if(conn != null) {
+					if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+						for(EventsDataSource.Event e : pendingEvents.values()) {
+							EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+						}
+						pendingEvents.clear();
+			    		if(scrollView != null && NetworkConnection.getInstance().ready) {
+							scrollView.setEnabled(true);
+							if(scrollView.getScrollX() > 0)
+								upView.setVisibility(View.VISIBLE);
+			    		}
+						if(cid != -1)
+							messageTxt.setEnabled(true);
+					} else {
+			    		if(scrollView != null && NetworkConnection.getInstance().ready) {
+			    			scrollView.setEnabled(false);
+			    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+			        		upView.setVisibility(View.VISIBLE);
+			    		}
+			    		messageTxt.setEnabled(false);
 					}
-					pendingEvents.clear();
-		    		if(scrollView != null && NetworkConnection.getInstance().ready) {
-						scrollView.setEnabled(true);
-						if(scrollView.getScrollX() > 0)
-							upView.setVisibility(View.VISIBLE);
-		    		}
-					if(cid != -1)
-						messageTxt.setEnabled(true);
-				} else {
-		    		if(scrollView != null && NetworkConnection.getInstance().ready) {
-		    			scrollView.setEnabled(false);
-		    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
-		        		upView.setVisibility(View.VISIBLE);
-		    		}
-		    		messageTxt.setEnabled(false);
 				}
 				break;
 			case NetworkConnection.EVENT_BANLIST:
