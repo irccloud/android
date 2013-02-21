@@ -394,7 +394,7 @@ public class NetworkConnection {
 		        if(reason != null && reason.equals("SSL")) {
 		        	try {
 			        	JSONObject o = new JSONObject();
-						o.put("message", "Unable to esatblish a secure connection to the IRCCloud servers.");
+						o.put("message", "Unable to establish a secure connection to the IRCCloud servers.");
 				        notifyHandlers(EVENT_FAILURE_MSG, new IRCCloudJSONObject(o));
 					} catch (JSONException e) {
 					}
