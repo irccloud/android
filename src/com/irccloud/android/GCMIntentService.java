@@ -29,6 +29,15 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.e("IRCCloud", "GCM Error: " + errorId);
 	}
 
+	public GCMIntentService() {
+        super(GCM_ID);
+	}
+	
+	protected String[] getSenderIds(Context context) {
+		String[] ids = { GCM_ID };
+		return ids;
+	}
+	
 	@SuppressLint("NewApi")
 	@Override
 	protected void onMessage(Context context, Intent intent) {
