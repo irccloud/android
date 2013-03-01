@@ -110,8 +110,8 @@ public class ColorFormatter {
 		        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
 		        }
 		    }, null);
-			Linkify.addLinks(output, Pattern.compile("http://[^<>\"()\\[\\],\\s]+"), null, null, null);
-			Linkify.addLinks(output, Pattern.compile("https://[^<>\"()\\[\\],\\s]+"), null, null, null);
+			//based on http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+			Linkify.addLinks(output, Pattern.compile("https?://((?:|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?гхрсту]))"), null, null, null);
 			Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:");
 			Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\"()\\[\\],\\s]+"), null, null, new TransformFilter() {
 		        public final String transformUrl(final Matcher match, String url) {
