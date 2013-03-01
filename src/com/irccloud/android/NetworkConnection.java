@@ -1081,6 +1081,7 @@ public class NetworkConnection {
 					if(type.equalsIgnoreCase("you_kicked_channel")) {
 						ChannelsDataSource c = ChannelsDataSource.getInstance();
 						c.deleteChannel(object.bid());
+						u.deleteUsersForBuffer(object.cid(), object.bid());
 					}
 					notifyHandlers(EVENT_KICK, object);
 				}

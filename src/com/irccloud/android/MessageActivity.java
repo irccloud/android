@@ -436,11 +436,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
 			JSONObject channelDisabledMap = null;
 			JSONObject bufferDisabledMap = null;
-			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+			if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
 				try {
-					if(conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
+					if(NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableTrackUnread"))
 						channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-					if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
+					if(NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-disableTrackUnread"))
 						bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -559,8 +559,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	}
     	} else if(bid != -1) {
     		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-    		if(b != null) {
-				ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+			ServersDataSource.Server s = ServersDataSource.getInstance().getServer((b==null)?-1:b.cid);
+    		if(b != null && s != null) {
 				joined = 1;
 				if(b.type.equalsIgnoreCase("channel")) {
 					ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
@@ -1054,7 +1054,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	refreshUpIndicatorTask.cancel(true);
 		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 		        refreshUpIndicatorTask.execute((Void)null);
-		        if(launchBid == -1 && cid == -1)
+		        if(launchBid == -1 && cid == -1 && conn != null && conn.getUserInfo() != null)
 		        	launchBid = conn.getUserInfo().last_selected_bid;
 				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
@@ -2078,8 +2078,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
 			anim.setDuration(200);
 			anim.setFillAfter(true);
-			mvf.getListView().startAnimation(anim);
-			ulf.getListView().startAnimation(anim);
+			if(mvf != null && mvf.getListView() != null)
+				mvf.getListView().startAnimation(anim);
+			if(ulf != null && ulf.getListView() != null)
+				ulf.getListView().startAnimation(anim);
 			shouldFadeIn = false;
 		}
 	}
