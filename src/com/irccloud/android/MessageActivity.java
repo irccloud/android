@@ -533,7 +533,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		}
     	}
     	
-    	if(intent.getData() != null && intent.getData().getScheme().startsWith("irc")) {
+    	if(intent.getData() != null && intent.getData().getScheme() != null && intent.getData().getScheme().startsWith("irc")) {
     		if(open_uri(intent.getData()))
     			return;
     		else
