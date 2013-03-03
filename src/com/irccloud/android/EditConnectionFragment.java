@@ -324,11 +324,11 @@ public class EditConnectionFragment extends SherlockDialogFragment {
 			if(presets.getSelectedItemPosition() > 0) {
 				netname = ((PresetServersAdapter.PresetServer)adapter.getItem(presets.getSelectedItemPosition())).network;
 			}
-			NetworkConnection.getInstance().addServer(hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
+			NetworkConnection.getInstance().addServer(hostname.getText().toString(), (port.getText().length() > 0)?Integer.parseInt(port.getText().toString()):6667, 
 					ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
 		} else {
-			NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), Integer.parseInt(port.getText().toString()), 
+			NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), (port.getText().length() > 0)?Integer.parseInt(port.getText().toString()):6667, 
 					ssl.isChecked()?1:0, server.name, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString());
 			
