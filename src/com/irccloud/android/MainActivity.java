@@ -346,7 +346,10 @@ public class MainActivity extends SherlockActivity {
 				});
 				AlertDialog dialog = builder.create();
 				dialog.setOwnerActivity(MainActivity.this);
-				dialog.show();
+				try {
+					dialog.show();
+				} catch (WindowManager.BadTokenException e) {
+				}
 			}
 		}
     }
