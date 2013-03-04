@@ -219,23 +219,23 @@ public class UsersListFragment extends SherlockListFragment {
 		}
 		
 		if(owners.size() > 0) {
-			addUsersFromList(entries, owners, "OWNER", (showSymbol?"~ ":"¥ "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+			addUsersFromList(entries, owners, "OWNER", (showSymbol?"~ ":"â€¢ "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
 		}
 		
 		if(admins.size() > 0) {
-			addUsersFromList(entries, admins, "ADMINS", (showSymbol?"& ":"¥ "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+			addUsersFromList(entries, admins, "ADMINS", (showSymbol?"& ":"â€¢ "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
 		}
 		
 		if(ops.size() > 0) {
-			addUsersFromList(entries, ops, "OPS", (showSymbol?"@ ":"¥ "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+			addUsersFromList(entries, ops, "OPS", (showSymbol?"@ ":"â€¢ "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
 		}
 		
 		if(halfops.size() > 0) {
-			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?"% ":"¥ "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?"% ":"â€¢ "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
 		}
 		
 		if(voiced.size() > 0) {
-			addUsersFromList(entries, voiced, "VOICED", (showSymbol?"+ ":"¥ "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+			addUsersFromList(entries, voiced, "VOICED", (showSymbol?"+ ":"â€¢ "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
 		}
 		
 		if(members.size() > 0) {

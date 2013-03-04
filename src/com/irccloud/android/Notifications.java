@@ -625,7 +625,7 @@ public class Notifications {
 								title = last.network;
 							}
 				        	if(last.message_type.equals("buffer_me_msg"))
-				        		text = "Ñ " + last.message;
+				        		text = "â€¦ " + last.message;
 				        	else
 				        		text = last.message;
 							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
@@ -647,11 +647,11 @@ public class Notifications {
 	        		if(text.length() > 0)
 	        			text += "<br/>";
 		        	if(n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
-		        		text += "Ñ " + n.message;
+		        		text += "â€¦ " + n.message;
 		        	else if(n.buffer_type.equals("conversation"))
 		        		text += n.message;
 		        	else if(n.message_type.equals("buffer_me_msg"))
-			    		text += "<b>Ñ " + n.nick + "</b> " + n.message;
+			    		text += "<b>â€¦ " + n.nick + "</b> " + n.message;
 		        	else
 			    		text += "<b>" + n.nick + "</b> " + n.message;
 	        	}
@@ -673,7 +673,7 @@ public class Notifications {
 						title = last.network;
 					}
 		        	if(last.message_type.equals("buffer_me_msg"))
-		        		text = "Ñ " + last.message;
+		        		text = "â€¦ " + last.message;
 		        	else
 		        		text = last.message;
 					nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));

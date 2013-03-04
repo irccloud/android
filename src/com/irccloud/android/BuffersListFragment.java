@@ -249,6 +249,10 @@ public class BuffersListFragment extends SherlockListFragment {
 				if(progressRow == position || e.timeout > 0 || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
 					if(selected_bid == -1 || progressRow != position) {
 						holder.progress.setVisibility(View.VISIBLE);
+						if(holder.bufferbg != null)
+							holder.bufferbg.setSelected(false);
+						if(holder.groupbg != null)
+							holder.groupbg.setSelected(false);
 					} else {
 						if(holder.bufferbg != null)
 							holder.bufferbg.setSelected(true);
@@ -268,9 +272,10 @@ public class BuffersListFragment extends SherlockListFragment {
 			if(holder.groupbg != null) {
 				if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable")) {
 					holder.groupbg.setBackgroundResource(R.drawable.row_connecting_bg);
-					holder.label.setTextColor(getResources().getColorStateList(R.color.heading_operators));
+					holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_disconnected));
 				} else {
 					holder.groupbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
+					holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
 				}
 			}
 			

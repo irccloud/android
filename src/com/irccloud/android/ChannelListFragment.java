@@ -147,7 +147,7 @@ public class ChannelListFragment extends SherlockListFragment {
     	View v = inflater.inflate(R.layout.ignorelist, null);
     	listView = (ListView)v.findViewById(android.R.id.list);
     	empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("Loading channel list…");
+    	empty.setText("Loading channel list‚Ä¶");
     	listView.setEmptyView(empty);
     	return v;
     }
@@ -157,7 +157,7 @@ public class ChannelListFragment extends SherlockListFragment {
     	server = ServersDataSource.getInstance().getServer(args.getInt("cid", -1));
     	channels = null;
     	if(listView != null) {
-        	empty.setText("Loading channel list…");
+        	empty.setText("Loading channel list‚Ä¶");
         	adapter = new ChannelsAdapter(this);
         	listView.setAdapter(adapter);
     	}

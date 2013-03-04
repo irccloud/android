@@ -1315,7 +1315,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	} else if(type.equalsIgnoreCase("console")) {
 	    		menu.findItem(R.id.menu_archive).setVisible(false);
 	    		menu.findItem(R.id.menu_archive).setEnabled(false);
-	    		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
+	    		if(status != null && (status.equalsIgnoreCase("waiting_to_retry")) || (status.contains("connected") && !status.startsWith("dis"))) {
 	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
 	        		menu.findItem(R.id.menu_delete).setVisible(false);
 	        		menu.findItem(R.id.menu_delete).setEnabled(false);
@@ -1617,18 +1617,18 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		
 		if(ChannelsDataSource.getInstance().getChannelForBuffer(b.bid) != null) {
 			itemList.add("Leave");
-			itemList.add("Display Options…");
+			itemList.add("Display Options‚Ä¶");
 		} else {
 			if(b.type.equalsIgnoreCase("channel"))
 				itemList.add("Join");
 			else if(b.type.equalsIgnoreCase("console")) {
-				if(s.status.contains("connected") && !s.status.startsWith("dis")) {
+				if(s.status.equalsIgnoreCase("waiting_to_retry") || (s.status.contains("connected") && !s.status.startsWith("dis"))) {
 					itemList.add("Disconnect");
 				} else {
 					itemList.add("Connect");
 					itemList.add("Delete");
 				}
-				itemList.add("Edit Connection…");
+				itemList.add("Edit Connection‚Ä¶");
 			}
 			if(!b.type.equalsIgnoreCase("console")) {
 				if(b.archived == 0)
@@ -1638,7 +1638,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				itemList.add("Delete");
 			}
 			if(!b.type.equalsIgnoreCase("channel")) {
-				itemList.add("Display Options…");
+				itemList.add("Display Options‚Ä¶");
 			}
 		}
 
@@ -1674,7 +1674,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			conn.reconnect(buffer.cid);
 	    		} else if(items[item].equals("Disconnect")) {
 	    			conn.disconnect(buffer.cid, null);
-	    		} else if(items[item].equals("Display Options…")) {
+	    		} else if(items[item].equals("Display Options‚Ä¶")) {
 	    			if(buffer.type.equals("channel")) {
 			        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.cid, buffer.bid);
 			            newFragment.show(getSupportFragmentManager(), "channeloptions");
@@ -1682,7 +1682,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			        	BufferOptionsFragment newFragment = new BufferOptionsFragment(buffer.cid, buffer.bid, buffer.type);
 			            newFragment.show(getSupportFragmentManager(), "bufferoptions");
 	    			}
-	    		} else if(items[item].equals("Edit Connection…")) {
+	    		} else if(items[item].equals("Edit Connection‚Ä¶")) {
 		        	EditConnectionFragment editFragment = new EditConnectionFragment();
 		        	editFragment.setCid(buffer.cid);
 		            editFragment.show(getSupportFragmentManager(), "editconnection");
@@ -1786,10 +1786,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			itemList.add("Copy Message");
 		
 		if(selected_user != null) {
-			itemList.add("Whois…");
+			itemList.add("Whois‚Ä¶");
 			itemList.add("Send a message");
 			itemList.add("Mention");
-			itemList.add("Invite to a channel…");
+			itemList.add("Invite to a channel‚Ä¶");
 			itemList.add("Ignore");
 			if(type.equalsIgnoreCase("channel")) {
 				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
@@ -1801,8 +1801,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							itemList.add("Op");
 					}
 					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o") || self_user.mode.contains("h")) {
-						itemList.add("Kick…");
-						itemList.add("Ban…");
+						itemList.add("Kick‚Ä¶");
+						itemList.add("Ban‚Ä¶");
 					}
 				}
 			}
@@ -1835,7 +1835,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message",text_to_copy);
 	    			    clipboard.setPrimaryClip(clip);
 	    			}
-	    		} else if(items[item].equals("Whois…")) {
+	    		} else if(items[item].equals("Whois‚Ä¶")) {
 	    			conn.whois(cid, selected_user.nick, null);
 	    		} else if(items[item].equals("Send a message")) {
 		    		BuffersDataSource b = BuffersDataSource.getInstance();
@@ -1880,7 +1880,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		editor.commit();
 			    	}
 	    			onUserDoubleClicked(selected_user.nick);
-	    		} else if(items[item].equals("Invite to a channel…")) {
+	    		} else if(items[item].equals("Invite to a channel‚Ä¶")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
@@ -1933,7 +1933,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			conn.mode(cid, name, "+o " + selected_user.nick);
 	    		} else if(items[item].equals("Deop")) {
 	    			conn.mode(cid, name, "-o " + selected_user.nick);
-	    		} else if(items[item].equals("Kick…")) {
+	    		} else if(items[item].equals("Kick‚Ä¶")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
@@ -1957,7 +1957,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
-	    		} else if(items[item].equals("Ban…")) {
+	    		} else if(items[item].equals("Ban‚Ä¶")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);

@@ -108,7 +108,7 @@ public class EditConnectionFragment extends SherlockDialogFragment {
 			}
 			
 			if(position == 0) {
-				label.setText("Choose a network…");
+				label.setText("Choose a network‚Ä¶");
 			} else {
 				label.setText(data.get(position).network);
 			}
@@ -136,7 +136,7 @@ public class EditConnectionFragment extends SherlockDialogFragment {
 			}
 
 			if(position == 0) {
-				holder.network.setText("Choose a network…");
+				holder.network.setText("Choose a network‚Ä¶");
 				holder.hostname.setVisibility(View.GONE);
 				holder.lock.setVisibility(View.GONE);
 			} else {
