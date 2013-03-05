@@ -102,7 +102,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        messageContainer.setLayoutParams(params);
         }
         messageTxt = (ActionEditText)findViewById(R.id.messageTxt);
-		messageTxt.setEnabled(false);
 		messageTxt.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -132,7 +131,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		});
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-         	   if (actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+         	   if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
          		   new SendTask().execute((Void)null);
          	   }
          	   return true;
@@ -146,7 +145,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             			s.removeSpan(o);
             		}
             	}
-            	if(s.length() > 0) {
+            	if(s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
 	           		sendBtn.setEnabled(true);
 	           		if(Build.VERSION.SDK_INT >= 11)
 	           			sendBtn.setAlpha(1);
@@ -168,7 +167,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         sendBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				new SendTask().execute((Void)null);
+				if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED)
+					new SendTask().execute((Void)null);
 			}
         });
         userListView = findViewById(R.id.usersListFragment);
@@ -363,6 +363,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
 	    		if(s != null) {
 		    		sendBtn.setEnabled(false);
+	           		if(Build.VERSION.SDK_INT >= 11)
+	           			sendBtn.setAlpha(0.5f);
 		    		UsersDataSource.User u = UsersDataSource.getInstance().getUser(cid, bid, s.nick);
 		    		e = EventsDataSource.getInstance().new Event();
 		    		e.cid = cid;
@@ -423,6 +425,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				messageTxt.setText("");
 			}
     		sendBtn.setEnabled(true);
+       		if(Build.VERSION.SDK_INT >= 11)
+       			sendBtn.setAlpha(1);
 		}
     }
     
@@ -595,7 +599,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	b.putString("type", type);
 	    	ulf.setArguments(b);
 	    	mvf.setArguments(b);
-			messageTxt.setEnabled(true);
     	}
     }
     
@@ -638,14 +641,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			scrollView.setEnabled(false);
             	upView.setVisibility(View.INVISIBLE);
     		}
-    		messageTxt.setEnabled(false);
+    		sendBtn.setEnabled(false);
+       		if(Build.VERSION.SDK_INT >= 11)
+       			sendBtn.setAlpha(0.5f);
     	} else {
     		if(scrollView != null) {
     			scrollView.setEnabled(true);
     			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
             	upView.setVisibility(View.VISIBLE);
     		}
-   			messageTxt.setEnabled(true);
+    		if(messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+    			sendBtn.setEnabled(true);
+           		if(Build.VERSION.SDK_INT >= 11)
+           			sendBtn.setAlpha(1);
+    		}
     	}
 
     	if(cid == -1 || launchURI != null) {
@@ -924,15 +933,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							if(scrollView.getScrollX() > 0)
 								upView.setVisibility(View.VISIBLE);
 			    		}
-						if(cid != -1)
-							messageTxt.setEnabled(true);
+			    		if(cid != -1 && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+			    			sendBtn.setEnabled(true);
+			           		if(Build.VERSION.SDK_INT >= 11)
+			           			sendBtn.setAlpha(1);
+			    		}
 					} else {
 			    		if(scrollView != null && !NetworkConnection.getInstance().ready) {
 			    			scrollView.setEnabled(false);
 			    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
 			        		upView.setVisibility(View.INVISIBLE);
 			    		}
-			    		messageTxt.setEnabled(false);
+			    		sendBtn.setEnabled(false);
+		           		if(Build.VERSION.SDK_INT >= 11)
+		           			sendBtn.setAlpha(0.5f);
 					}
 				}
 				break;
@@ -2056,7 +2070,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(cid != -1) {
 			if(scrollView != null)
 				scrollView.setEnabled(true);
-			messageTxt.setEnabled(true);
 		}
 	}
 
