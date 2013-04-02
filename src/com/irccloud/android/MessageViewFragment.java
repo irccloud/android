@@ -394,7 +394,10 @@ public class MessageViewFragment extends SherlockListFragment {
 		}
 		
 		public long getGroupForPosition(int position) {
-			return data.get(position).group_eid;
+			if(position < data.size())
+				return data.get(position).group_eid;
+			else
+				return -1;
 		}
 
 		@Override
@@ -1584,22 +1587,25 @@ public class MessageViewFragment extends SherlockListFragment {
 					errorMsg.setVisibility(View.GONE);
 					error = null;
 	    		}
-				if(countdownTimer != null)
-					countdownTimer.cancel();
-				countdownTimer = new Timer();
-				countdownTimer.schedule( new TimerTask(){
-		             public void run() {
-		    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-		    				 mHandler.post(new Runnable() {
-								@Override
-								public void run() {
-				 					updateReconnecting();
-								}
-		    				 });
-		    			 }
-		    			 countdownTimer = null;
-		             }
-				}, 1000);
+				try {
+					if(countdownTimer != null)
+						countdownTimer.cancel();
+					countdownTimer = new Timer();
+					countdownTimer.schedule( new TimerTask(){
+			             public void run() {
+			    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+			    				 mHandler.post(new Runnable() {
+									@Override
+									public void run() {
+					 					updateReconnecting();
+									}
+			    				 });
+			    			 }
+			    			 countdownTimer = null;
+			             }
+					}, 1000);
+				} catch (Exception e) {
+				}
 			} else {
 				connectingMsg.setText("Connecting");
 				error = null;

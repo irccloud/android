@@ -1045,7 +1045,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    	if(cid == -1 || launchURI != null) {
 		    		if(launchURI == null || !open_uri(launchURI)) {
 			    		if(launchBid == -1 || !open_bid(launchBid)) {
-			    			if(conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+			    			if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
 		    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
 		    						if(scrollView != null && NetworkConnection.getInstance().ready) {
 			    						scrollView.scrollTo(0, 0);

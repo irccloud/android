@@ -181,8 +181,11 @@ public class MainActivity extends SherlockActivity {
 					errorMsg.setVisibility(View.GONE);
 					error = null;
 	    		}
-				if(countdownTimer != null)
-					countdownTimer.cancel();
+	    		try {
+					if(countdownTimer != null)
+						countdownTimer.cancel();
+	    		} catch (NullPointerException e) {
+	    		}
 				countdownTimer = new Timer();
 				countdownTimer.schedule( new TimerTask(){
 		             public void run() {

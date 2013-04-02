@@ -319,16 +319,21 @@ public class EditConnectionFragment extends SherlockDialogFragment {
 	}
 
 	public void save() {
+		int portValue = 6667;
+		try {
+			portValue = Integer.parseInt(port.getText().toString());
+		} catch (NumberFormatException e) {
+		}
 		if(server == null) {
 			String netname = hostname.getText().toString();
 			if(presets.getSelectedItemPosition() > 0) {
 				netname = ((PresetServersAdapter.PresetServer)adapter.getItem(presets.getSelectedItemPosition())).network;
 			}
-			NetworkConnection.getInstance().addServer(hostname.getText().toString(), (port.getText().length() > 0)?Integer.parseInt(port.getText().toString()):6667, 
+			NetworkConnection.getInstance().addServer(hostname.getText().toString(), portValue,
 					ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
 		} else {
-			NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), (port.getText().length() > 0)?Integer.parseInt(port.getText().toString()):6667, 
+			NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), portValue,
 					ssl.isChecked()?1:0, server.name, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString());
 			
