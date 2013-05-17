@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/actionbarsherlock.iml" filepath="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/actionbarsherlock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../android-websockets/android-websockets.iml" filepath="$PROJECT_DIR$/../android-websockets/android-websockets.iml" />
+      <module fileurl="file://$PROJECT_DIR$/irccloud-android.iml" filepath="$PROJECT_DIR$/irccloud-android.iml" />
+    </modules>
+  </component>
+</project>
+
