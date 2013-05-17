@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AndroidLayouts">
+    <shared>
+      <config />
+    </shared>
+  </component>
+  <component name="AndroidLogFilters">
+    <option name="TOOL_WINDOW_LOG_LEVEL" value="DEBUG" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="bb04f82b-cf58-434b-ae48-f70105bdf4c9" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/android_support_v4.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.classpath" afterPath="$PROJECT_DIR$/.classpath" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/project.properties" afterPath="$PROJECT_DIR$/project.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/irccloud/android/Notifications.java" afterPath="$PROJECT_DIR$/src/com/irccloud/android/Notifications.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
     </list>
     <ignored path="irccloud-android.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -16,22 +23,33 @@
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/widget/ScrollingTabContainerView.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134075" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/app/ActionBarWrapper.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134075" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/app/ActionBarImpl.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134075" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockPreferenceActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134075" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockPreferenceActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/widget/ActionBarContainer.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134075" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockDialogFragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockDialogFragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/widget/ActionBarContextView.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockExpandableListActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/android/support/v4/app/Watson.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockExpandableListActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/android/support/v4/app/Watson.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/widget/ActionBarView.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockFragmentActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockListFragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockFragmentActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077053" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockListFragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077053" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/widget/IcsAbsSpinner.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/internal/view/menu/MenuPopupHelper.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockFragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockListActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077053" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockFragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077053" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/SherlockListActivity.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077053" ignored="false" />
     <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/view/ActionMode.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811134076" ignored="false" />
-    <file path="/fragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368811630113" ignored="false" />
+    <file path="/fragment.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368813652626" ignored="false" />
+    <file path="/Notifications.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814300535" ignored="false" />
+    <file path="$PROJECT_DIR$/tests/src/com/irccloud/android/test/NotificationsTests.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077036" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/ActionBar.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077053" ignored="false" />
+    <file path="$PROJECT_DIR$/../android-websockets/AndroidManifest.xml" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/ActionBarSherlock.java" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../android-websockets/build.xml" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../android-websockets/build.gradle" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/pom.xml" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/AndroidManifest.xml" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/lint.xml" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
+    <file path="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/project.properties" changelist="bb04f82b-cf58-434b-ae48-f70105bdf4c9" time="1368814077054" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +109,19 @@
     <favorites_list name="irccloud-android" />
   </component>
   <component name="FileEditorManager">
-    <leaf />
+    <leaf>
+      <file leaf-file-name="Notifications.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/irccloud/android/Notifications.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="682" column="44" selection-start="22022" selection-end="22022" vertical-scroll-proportion="0.5810056">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FindManager">
     <FindUsagesManager>
@@ -115,6 +145,7 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/src/com/actionbarsherlock/app/ActionBar.java" />
+        <option value="$PROJECT_DIR$/src/com/irccloud/android/Notifications.java" />
       </list>
     </option>
   </component>
@@ -175,7 +206,15 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="android-websockets" />
+              <option name="myItemId" value="irccloud-android" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="android" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -186,8 +225,10 @@
   </component>
   <component name="PropertiesComponent">
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Facets" />
     <property name="project.structure.proportion" value="0.15" />
+    <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="options.lastSelected" value="File.Encoding" />
     <property name="ExportedApkPath" value="$USER_HOME$/Desktop/irccloud-android.apk" />
     <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
@@ -200,6 +241,8 @@
     <property name="restartRequiresConfirmation" value="true" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
+    <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
   </component>
   <component name="RunManager" selected="Android Application.irccloud-android">
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
@@ -327,21 +370,38 @@
     </configuration>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration" maxAnnotateRevisions="500" myUseAcceleration="nothing" myAutoUpdateAfterCommit="false" cleanupOnStartRun="false" SSL_PROTOCOLS="sslv3">
+    <option name="USER" value="" />
+    <option name="PASSWORD" value="" />
+    <option name="mySSHConnectionTimeout" value="30000" />
+    <option name="mySSHReadTimeout" value="30000" />
+    <option name="LAST_MERGED_REVISION" />
+    <option name="MERGE_DRY_RUN" value="false" />
+    <option name="MERGE_DIFF_USE_ANCESTRY" value="true" />
+    <option name="UPDATE_LOCK_ON_DEMAND" value="false" />
+    <option name="IGNORE_SPACES_IN_MERGE" value="false" />
+    <option name="CHECK_NESTED_FOR_QUICK_MERGE" value="false" />
+    <option name="IGNORE_SPACES_IN_ANNOTATE" value="true" />
+    <option name="SHOW_MERGE_SOURCES_IN_ANNOTATE" value="true" />
+    <option name="FORCE_UPDATE" value="false" />
+    <option name="IGNORE_EXTERNALS" value="false" />
+    <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="bb04f82b-cf58-434b-ae48-f70105bdf4c9" name="Default" comment="" />
       <created>1368809515474</created>
       <updated>1368809515474</updated>
-      <workItem from="1368809528785" duration="2138000" />
+      <workItem from="1368809528785" duration="5048000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2138000" />
+    <option name="totallyTimeSpent" value="5048000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="10" y="22" width="1660" height="963" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
@@ -353,10 +413,10 @@
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32977462" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32977462" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19144982" sideWeight="0.6702254" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2496902" sideWeight="0.6702254" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.20136307" sideWeight="0.6702254" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32977462" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -441,6 +501,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/irccloud/android/MessageViewFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="860" column="30" selection-start="30746" selection-end="30747" vertical-scroll-proportion="0.7614504">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/irccloud/android/EventsDataSource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="16" column="13" selection-start="381" selection-end="381" vertical-scroll-proportion="-4.8603354">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/irccloud/android/Notifications.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="682" column="44" selection-start="22022" selection-end="22022" vertical-scroll-proportion="0.5810056">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
   </component>
   <component name="masterDetails">
     <states>
@@ -493,7 +576,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>actionbarsherlock</last-edited>
+          <last-edited>irccloud-android</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

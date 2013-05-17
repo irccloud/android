@@ -26,6 +26,7 @@ import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -591,7 +592,25 @@ public class Notifications {
 		
 		return notification;
 	}
-	
+
+    private void notifyPebble(String title, String body) {
+        JSONObject jsonData = new JSONObject();
+        try {
+            final Intent i = new Intent("com.getpebble.action.SEND_NOTIFICATION");
+            jsonData.put("title", title);
+            jsonData.put("body", body);
+            final String notificationData = new JSONArray().put(jsonData).toString();
+
+            i.putExtra("messageType", "PEBBLE_ALERT");
+            i.putExtra("sender", "IRCCloud");
+            i.putExtra("notificationData", notificationData);
+            Log.d("IRCCloud", "About to send a modal alert to Pebble: " + notificationData);
+            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(i);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 	private void showMessageNotifications(String ticker) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 		String title = "";
@@ -625,7 +644,7 @@ public class Notifications {
 								title = last.network;
 							}
 				        	if(last.message_type.equals("buffer_me_msg"))
-				        		text = "… " + last.message;
+				        		text = "— " + last.message;
 				        	else
 				        		text = last.message;
 							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
@@ -647,18 +666,34 @@ public class Notifications {
 	        		if(text.length() > 0)
 	        			text += "<br/>";
 		        	if(n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
-		        		text += "… " + n.message;
+		        		text += "— " + n.message;
 		        	else if(n.buffer_type.equals("conversation"))
 		        		text += n.message;
 		        	else if(n.message_type.equals("buffer_me_msg"))
-			    		text += "<b>… " + n.nick + "</b> " + n.message;
+			    		text += "<b>— " + n.nick + "</b> " + n.message;
 		        	else
 			    		text += "<b>" + n.nick + "</b> " + n.message;
 	        	}
 	        	if(!n.shown) {
 	        		n.shown = true;
 	        		show = true;
-	        	}
+                    String pebbleTitle = "";
+                    String pebbleBody = "";
+                    if(n.chan != null && n.chan.length() > 0)
+                        pebbleTitle = n.chan;
+                    else
+                        pebbleTitle = n.network;
+
+                    if(n.message_type.equals("buffer_me_msg"))
+                        pebbleBody = "— " + n.message;
+                    else
+                        pebbleBody = n.message;
+
+                    if(n.nick != null && n.nick.length() > 0)
+                        notifyPebble(n.nick, pebbleTitle + ":\n" + Html.fromHtml(pebbleBody).toString());
+                    else
+                        notifyPebble(n.network, pebbleTitle + ":\n" + Html.fromHtml(pebbleBody).toString());
+                }
 	        	eids[count++] = n.eid;
 	        	last = n;
 	        }
