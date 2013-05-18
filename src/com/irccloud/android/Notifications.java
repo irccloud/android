@@ -677,22 +677,22 @@ public class Notifications {
 	        	if(!n.shown) {
 	        		n.shown = true;
 	        		show = true;
-                    String pebbleTitle = "";
-                    String pebbleBody = "";
-                    if(n.chan != null && n.chan.length() > 0)
-                        pebbleTitle = n.chan;
-                    else
-                        pebbleTitle = n.network;
+                    if(prefs.getBoolean("notify_pebble", true)) {
+                        String pebbleTitle = n.network + ":\n";
+                        String pebbleBody = "";
+                        if(n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
+                            pebbleTitle = n.chan + ":\n";
 
-                    if(n.message_type.equals("buffer_me_msg"))
-                        pebbleBody = "— " + n.message;
-                    else
-                        pebbleBody = n.message;
+                        if(n.message_type.equals("buffer_me_msg"))
+                            pebbleBody = "— " + n.message;
+                        else
+                            pebbleBody = n.message;
 
-                    if(n.nick != null && n.nick.length() > 0)
-                        notifyPebble(n.nick, pebbleTitle + ":\n" + Html.fromHtml(pebbleBody).toString());
-                    else
-                        notifyPebble(n.network, pebbleTitle + ":\n" + Html.fromHtml(pebbleBody).toString());
+                        if(n.nick != null && n.nick.length() > 0)
+                            notifyPebble(n.nick, pebbleTitle + Html.fromHtml(pebbleBody).toString());
+                        else
+                            notifyPebble(n.network, pebbleTitle + Html.fromHtml(pebbleBody).toString());
+                    }
                 }
 	        	eids[count++] = n.eid;
 	        	last = n;

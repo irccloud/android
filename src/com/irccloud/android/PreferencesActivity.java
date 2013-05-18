@@ -38,6 +38,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences_display);
 		addPreferencesFromResource(R.xml.preferences_device);
 		addPreferencesFromResource(R.xml.preferences_notifications);
+        try {
+            getPackageManager().getPackageInfo("com.getpebble.android", 0);
+            addPreferencesFromResource(R.xml.preferences_pebble);
+        } catch (Exception e) {
+        }
 		addPreferencesFromResource(R.xml.preferences_about);
 		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 		if(conn.getUserInfo() != null)
@@ -90,7 +95,6 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
     @Override
