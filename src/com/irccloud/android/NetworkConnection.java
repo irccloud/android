@@ -753,7 +753,11 @@ public class NetworkConnection {
 	
 	public void schedule_idle_timer() {
 		if(idleTimer != null) {
-			idleTimer.cancel();
+            try {
+    			idleTimer.cancel();
+            } catch (Exception e) {
+
+            }
 			idleTimer = null;
 		}
 		if(idle_interval <= 0)

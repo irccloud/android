@@ -380,9 +380,13 @@ public class UsersListFragment extends SherlockListFragment {
 	    		if(tapTimer != null) {
 	    			tapTimer.cancel();
 	    			tapTimer = null;
-			    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
-			    	if(e.type == TYPE_USER)
-		    			mListener.onUserDoubleClicked(e.text);
+                    try {
+                        UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
+                        if(e.type == TYPE_USER)
+                            mListener.onUserDoubleClicked(e.text);
+                    } catch (Exception e) {
+
+                    }
 	    		} else {
 	    			tapTimer = new Timer();
 	    			tapTimer.schedule(new TimerTask() {
@@ -393,17 +397,21 @@ public class UsersListFragment extends SherlockListFragment {
 				    		mHandler.post(new Runnable() {
 								@Override
 								public void run() {
-							    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(position);
-							    	if(e.type == TYPE_USER) {
-							    		mListener.onUserSelected(cid, channel, e.text);
+                                    try {
+                                        UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(position);
+                                        if(e.type == TYPE_USER) {
+                                            mListener.onUserSelected(cid, channel, e.text);
 
-								    	if(!getActivity().getSharedPreferences("prefs", 0).getBoolean("longPressTip", false)) {
-								    		Toast.makeText(getActivity(), "Long-press a message to quickly interact with the sender", Toast.LENGTH_LONG).show();
-								    		SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
-								    		editor.putBoolean("longPressTip", true);
-								    		editor.commit();
-								    	}
-							    	}
+                                            if(!getActivity().getSharedPreferences("prefs", 0).getBoolean("longPressTip", false)) {
+                                                Toast.makeText(getActivity(), "Long-press a message to quickly interact with the sender", Toast.LENGTH_LONG).show();
+                                                SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
+                                                editor.putBoolean("longPressTip", true);
+                                                editor.commit();
+                                            }
+                                        }
+                                    } catch (Exception e) {
+
+                                    }
 								}
 				    		});
 			    			tapTimer = null;

@@ -1845,7 +1845,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 	    			    clipboard.setText(text_to_copy);
 	    			} else {
-	    			    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE); 
+	    			    @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
 	    			    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message",text_to_copy);
 	    			    clipboard.setPrimaryClip(clip);
 	    			}
@@ -2054,8 +2054,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
 			anim.setDuration(200);
 			anim.setFillAfter(true);
-			mvf.getListView().startAnimation(anim);
-			ulf.getListView().startAnimation(anim);
+            try {
+                mvf.getListView().startAnimation(anim);
+                ulf.getListView().startAnimation(anim);
+            } catch (Exception e) {
+
+            }
 			shouldFadeIn = true;
 	
 	    	updateUsersListFragmentVisibility();

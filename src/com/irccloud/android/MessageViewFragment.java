@@ -462,7 +462,11 @@ public class MessageViewFragment extends SherlockListFragment {
 					holder.message.setTypeface(Typeface.MONOSPACE);
 				else
 					holder.message.setTypeface(Typeface.DEFAULT);
-				holder.message.setTextColor(getResources().getColorStateList(e.color));
+                try {
+    				holder.message.setTextColor(getResources().getColorStateList(e.color));
+                } catch (Exception e1) {
+
+                }
 				holder.message.setText(ColorFormatter.html_to_spanned(e.html, e.linkify, mServer));
 			}
 			

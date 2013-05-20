@@ -154,10 +154,14 @@ public class BanListFragment extends SherlockDialogFragment {
 				dialog.dismiss();
 			}
         });
-		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
-		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
-	        b.setPositiveButton("Add Ban Mask", new AddClickListener());
-		}
+        try {
+            UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
+            if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
+                b.setPositiveButton("Add Ban Mask", new AddClickListener());
+            }
+        } catch (Exception e) {
+
+        }
 
         AlertDialog d = b.create();
 	    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);

@@ -485,17 +485,21 @@ public class Notifications {
 
 		if(mNotificationTimer != null)
 			mNotificationTimer.cancel();
-		
-		mNotificationTimer = new Timer();
-		mNotificationTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				showMessageNotifications(mTicker);
-				showOtherNotifications();
-				mTicker = null;
-				mNotificationTimer = null;
-			}
-		}, 5000);
+
+        try {
+            mNotificationTimer = new Timer();
+            mNotificationTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    showMessageNotifications(mTicker);
+                    showOtherNotifications();
+                    mTicker = null;
+                    mNotificationTimer = null;
+                }
+            }, 5000);
+        } catch (Exception e) {
+
+        }
 	}
 	
 	private void showOtherNotifications() {
