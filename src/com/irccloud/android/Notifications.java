@@ -681,7 +681,7 @@ public class Notifications {
 	        	if(!n.shown) {
 	        		n.shown = true;
 	        		show = true;
-                    if(prefs.getBoolean("notify_pebble", true)) {
+                    if(prefs.getBoolean("notify_pebble", false)) {
                         String pebbleTitle = n.network + ":\n";
                         String pebbleBody = "";
                         if(n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
