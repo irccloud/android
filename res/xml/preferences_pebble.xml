@@ -6,8 +6,8 @@
         <CheckBoxPreference
                 android:key="notify_pebble"
                 android:defaultValue="false"
-                android:summaryOn="Notifications will be sent to Pebble"
-                android:summaryOff="Notifications will not be sent to Pebble"
-                android:title="Send to Pebble"/>
+                android:summaryOn="Notifications will be displayed on Pebble"
+                android:summaryOff="Notifications will not be displayed on Pebble"
+                android:title="Display notifications on Pebble"/>
 	</PreferenceCategory>
 </PreferenceScreen>
