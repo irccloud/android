@@ -521,8 +521,10 @@ public class MessageViewFragment extends SherlockListFragment {
 			@Override
 			public void onClick(View v) {
 				if(adapter.getLastSeenEIDPosition() > 0) {
-					Long e = adapter.data.get(adapter.data.size() - 1).eid;
-					new HeartbeatTask().execute(e);
+                    if(heartbeatTask != null)
+                        heartbeatTask.cancel(true);
+                    heartbeatTask = new HeartbeatTask();
+                    heartbeatTask.execute((Void)null);
 				}
 				getListView().setSelection(adapter.getLastSeenEIDPosition());
 				unreadTopView.setVisibility(View.GONE);
@@ -536,8 +538,10 @@ public class MessageViewFragment extends SherlockListFragment {
     		@Override
     		public void onClick(View v) {
 				unreadTopView.setVisibility(View.GONE);
-				Long e = adapter.data.get(adapter.data.size() - 1).eid;
-				new HeartbeatTask().execute(e);
+                if(heartbeatTask != null)
+                    heartbeatTask.cancel(true);
+                heartbeatTask = new HeartbeatTask();
+                heartbeatTask.execute((Void)null);
     		}
     	});
     	globalMsgView = v.findViewById(R.id.globalMessageView);
@@ -584,11 +588,10 @@ public class MessageViewFragment extends SherlockListFragment {
 				if(firstVisibleItem + visibleItemCount == totalItemCount) {
 					unreadBottomView.setVisibility(View.GONE);
 					if(unreadTopView.getVisibility() == View.GONE) {
-						Long e = adapter.data.get(adapter.data.size() - 1).eid;
 	    				if(heartbeatTask != null)
 	    					heartbeatTask.cancel(true);
 	    				heartbeatTask = new HeartbeatTask();
-	    				heartbeatTask.execute(e);
+	    				heartbeatTask.execute((Void)null);
 					}
 					newMsgs = 0;
 					newMsgTime = 0;
@@ -605,11 +608,10 @@ public class MessageViewFragment extends SherlockListFragment {
 					markerPos = adapter.getLastSeenEIDPosition();
 	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
 	    			unreadTopView.setVisibility(View.GONE);
-					Long e = adapter.data.get(adapter.data.size() - 1).eid;
     				if(heartbeatTask != null)
     					heartbeatTask.cancel(true);
     				heartbeatTask = new HeartbeatTask();
-    				heartbeatTask.execute(e);
+    				heartbeatTask.execute((Void)null);
 	    		}
 			}
 		}
@@ -855,8 +857,15 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			if(event.from != null && event.hostmask != null && !type.equalsIgnoreCase("user_channel_mode") && !type.contains("kicked")) {
 				String usermask = event.from + "!" + event.hostmask;
-				if(ignore.match(usermask))
+				if(ignore.match(usermask)) {
+                    if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
+                        if(heartbeatTask != null)
+                            heartbeatTask.cancel(true);
+                        heartbeatTask = new HeartbeatTask();
+                        heartbeatTask.execute((Void)null);
+                    }
 					return;
+                }
 			}
 
 			if(type.equalsIgnoreCase("channel_mode") && event.nick != null && event.nick.length() > 0) {
@@ -1075,7 +1084,7 @@ public class MessageViewFragment extends SherlockListFragment {
 		getListView().setOnScrollListener(mOnScrollListener);
     }
     
-    private class HeartbeatTask extends AsyncTaskEx<Long, Void, Void> {
+    private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {
 
     	@Override
     	protected void onPreExecute() {
@@ -1083,9 +1092,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	}
     	
 		@Override
-		protected Void doInBackground(Long... params) {
-			Long eid = params[0];
-
+		protected Void doInBackground(Void... params) {
 			try {
 				Thread.sleep(250);
 			} catch (InterruptedException e) {
@@ -1093,14 +1100,19 @@ public class MessageViewFragment extends SherlockListFragment {
 
 			if(isCancelled())
 				return null;
-			
-	    	if(eid > last_seen_eid && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-	    		if(getActivity() != null && getActivity().getIntent() != null)
-	    			getActivity().getIntent().putExtra("last_seen_eid", eid);
-	    		NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
-	    		last_seen_eid = eid;
-	    		BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
-	    	}
+
+            TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(bid);
+            if(events != null && events.size() > 0) {
+                Long eid = events.get(events.lastKey()).eid;
+
+                if(eid > last_seen_eid && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    if(getActivity() != null && getActivity().getIntent() != null)
+                        getActivity().getIntent().putExtra("last_seen_eid", eid);
+                    NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
+                    last_seen_eid = eid;
+                    BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
+                }
+            }
 			return null;
 		}
 		
@@ -1323,11 +1335,10 @@ public class MessageViewFragment extends SherlockListFragment {
 		    		} else {
 		    			unreadTopView.setVisibility(View.GONE);
 		    			if(adapter.data.size() > 0) {
-			    			Long e = adapter.data.get(adapter.data.size() - 1).eid;
 		    				if(heartbeatTask != null)
 		    					heartbeatTask.cancel(true);
 		    				heartbeatTask = new HeartbeatTask();
-		    				heartbeatTask.execute(e);
+		    				heartbeatTask.execute((Void)null);
 		    			}
 		    		}
 		    		if(mServer != null)
