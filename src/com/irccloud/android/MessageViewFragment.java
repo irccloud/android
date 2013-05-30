@@ -1297,30 +1297,34 @@ public class MessageViewFragment extends SherlockListFragment {
 		    				}
 		    				if(markerPos == 0) {
 		    			        long seconds = (earliest_eid - last_seen_eid) / 1000000;
-		    			        int minutes = (int)(seconds / 60);
-		    			        int hours = minutes / 60;
-		    			        int days = hours / 24;
-		    			        if(days > 0) {
-		    			            if(days == 1)
-		    			                txt += days + " day of unread messages";
-		    			            else
-		    			                txt += days + " days of unread messages";
-		    			        } else if(hours > 0) {
-		    			            if(hours == 1)
-		    			                txt += hours + " hour of unread messages";
-		    			            else
-		    			                txt += hours + " hours of unread messages";
-		    			        } else if(minutes > 0) {
-		    			            if(minutes == 1)
-		    			                txt += minutes + " minute of unread messages";
-		    			            else
-		    			                txt += minutes + " minutes of unread messages";
-		    			        } else {
-		    			            if(seconds == 1)
-		    			                txt += seconds + " seconds of unread messages";
-		    			            else
-		    			                txt += seconds + " seconds of unread messages";
-		    			        }
+                                if(seconds < 0) {
+                                    unreadTopView.setVisibility(View.GONE);
+                                } else {
+                                    int minutes = (int)(seconds / 60);
+                                    int hours = minutes / 60;
+                                    int days = hours / 24;
+                                    if(days > 0) {
+                                        if(days == 1)
+                                            txt += days + " day of unread messages";
+                                        else
+                                            txt += days + " days of unread messages";
+                                    } else if(hours > 0) {
+                                        if(hours == 1)
+                                            txt += hours + " hour of unread messages";
+                                        else
+                                            txt += hours + " hours of unread messages";
+                                    } else if(minutes > 0) {
+                                        if(minutes == 1)
+                                            txt += minutes + " minute of unread messages";
+                                        else
+                                            txt += minutes + " minutes of unread messages";
+                                    } else {
+                                        if(seconds == 1)
+                                            txt += seconds + " seconds of unread messages";
+                                        else
+                                            txt += seconds + " seconds of unread messages";
+                                    }
+                                }
 		    				} else {
 			    				if(count == 1)
 			    					txt += count + " unread message";
