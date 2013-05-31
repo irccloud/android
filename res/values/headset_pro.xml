@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Constants for Smart Wireless Headset pro. -->
+<resources>
+    <dimen name="headset_pro_text_size">14px</dimen>
+    <dimen name="headset_pro_control_width">128px</dimen>
+    <dimen name="headset_pro_control_height">36px</dimen>
+</resources>

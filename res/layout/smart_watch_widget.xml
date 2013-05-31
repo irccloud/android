@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/smart_watch_widget_width_outer"
+    android:layout_height="@dimen/smart_watch_widget_height_outer">
+
+    <ImageView
+        android:layout_width="108px"
+        android:layout_height="108px"
+        android:layout_centerInParent="true"
+        android:src="@drawable/widget_frame" />
+
+    <ImageView
+        android:layout_width="@dimen/smart_watch_widget_width_inner"
+        android:layout_height="@dimen/smart_watch_widget_height_inner"
+        android:layout_centerInParent="true"
+        android:id="@+id/smart_watch_widget_custom_image" />
+
+    <TextView
+        android:layout_width="88px"
+        android:layout_height="88px"
+        android:maxLines="5"
+        android:layout_centerInParent="true"
+        android:textSize="@dimen/smart_watch_text_size_small"
+        android:textColor="@android:color/white"
+        android:id="@+id/smart_watch_widget_custom_text_view"
+        android:gravity="center_vertical|center_horizontal" />
+
+    <ImageView
+        android:layout_width="30px"
+        android:layout_height="30px"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="1px"
+        android:layout_marginRight="1px"
+        android:id="@+id/smart_watch_widget_icon" />
+
+    <ImageView
+        android:visibility="gone"
+        android:layout_width="32px"
+        android:layout_height="22px"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="8px"
+        android:id="@+id/smart_watch_widget_event_counter_badge"
+        android:src="@drawable/badge_counter" />
+
+    <TextView
+        android:visibility="gone"
+        android:layout_width="32px"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/smart_watch_widget_event_counter_badge"
+        android:layout_alignTop="@+id/smart_watch_widget_event_counter_badge"
+        android:layout_marginTop="1px"
+        android:textSize="@dimen/smart_watch_text_size_small"
+        android:textColor="@android:color/white"
+        android:id="@+id/smart_watch_widget_event_counter_text"
+        android:gravity="center_horizontal" />
+
+</RelativeLayout>

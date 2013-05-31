@@ -43,6 +43,11 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             addPreferencesFromResource(R.xml.preferences_pebble);
         } catch (Exception e) {
         }
+        try {
+            getPackageManager().getPackageInfo("com.sonyericsson.extras.liveview", 0);
+            addPreferencesFromResource(R.xml.preferences_sony);
+        } catch (Exception e) {
+        }
 		addPreferencesFromResource(R.xml.preferences_about);
 		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 		if(conn.getUserInfo() != null)

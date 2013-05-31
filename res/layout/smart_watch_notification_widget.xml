@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/smart_watch_widget_width_inner"
+    android:layout_height="@dimen/smart_watch_widget_height_inner">
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY"
+        android:id="@+id/smart_watch_notification_widget_background" />
+
+    <ImageView
+        android:layout_width="@dimen/smart_watch_widget_text_background_width"
+        android:layout_height="@dimen/smart_watch_widget_text_background_height"
+        android:layout_alignParentBottom="true"
+        android:visibility="gone"
+        android:id="@+id/smart_watch_notification_widget_text_background"
+        android:scaleType="fitEnd"
+        android:src="@drawable/text_bg" />
+
+    <com.sonyericsson.extras.liveware.extension.util.AefTextView
+        android:layout_width="76px"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="3px"
+        android:id="@+id/smart_watch_notification_widget_text_time"
+        android:textSize="@dimen/smart_watch_text_size_widget_time"
+        android:textColor="@color/smart_watch_text_color_grey" />
+
+    <com.sonyericsson.extras.liveware.extension.util.AefTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/smart_watch_notification_widget_text_time"
+        android:layout_marginBottom="16px"
+        android:layout_alignLeft="@id/smart_watch_notification_widget_text_time"
+        android:id="@+id/smart_watch_notification_widget_text_title"
+        android:textSize="@dimen/smart_watch_text_size_small"
+        android:textColor="@android:color/white" />
+
+    <com.sonyericsson.extras.liveware.extension.util.AefTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/smart_watch_notification_widget_text_title"
+        android:layout_marginBottom="17px"
+        android:layout_alignLeft="@id/smart_watch_notification_widget_text_time"
+        android:id="@+id/smart_watch_notification_widget_text_name"
+        android:textSize="@dimen/smart_watch_text_size_normal"
+        android:textColor="@android:color/white" />
+
+</RelativeLayout>

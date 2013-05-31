@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Constants for SmartWatch. -->
+<resources>
+    <dimen name="smart_watch_control_width">128px</dimen>
+    <dimen name="smart_watch_control_height">128px</dimen>
+
+    <dimen name="smart_watch_widget_width_outer">128px</dimen>
+    <dimen name="smart_watch_widget_height_outer">110px</dimen>
+    <dimen name="smart_watch_widget_width_inner">92px</dimen>
+    <dimen name="smart_watch_widget_height_inner">92px</dimen>
+
+    <dimen name="smart_watch_widget_text_background_width">@dimen/smart_watch_widget_width_inner</dimen>
+    <dimen name="smart_watch_widget_text_background_height">60px</dimen>
+
+    <dimen name="smart_watch_text_size_normal">14px</dimen>
+    <dimen name="smart_watch_text_size_small">12px</dimen>
+
+    <dimen name="smart_watch_text_size_widget_name">@dimen/smart_watch_text_size_normal</dimen>
+    <dimen name="smart_watch_text_size_widget_time">@dimen/smart_watch_text_size_small</dimen>
+    <dimen name="smart_watch_text_size_widget_text">@dimen/smart_watch_text_size_small</dimen>
+
+    <!-- Badge only contain numbers and is language independant. -->
+    <dimen name="smart_watch_text_size_widget_badge">14px</dimen>
+
+    <color name="smart_watch_text_color_grey">#ffe6e6e6</color>
+    <color name="smart_watch_text_color_orange">#fff0832d</color>
+    <color name="smart_watch_text_color_white">#ffffffff</color>
+
+</resources>

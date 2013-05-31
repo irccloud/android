@@ -7,6 +7,10 @@ import java.util.HashSet;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.content.ContentValues;
+import android.database.SQLException;
+import com.sonyericsson.extras.liveware.aef.notification.Notification;
+import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -681,6 +685,45 @@ public class Notifications {
 	        	if(!n.shown) {
 	        		n.shown = true;
 	        		show = true;
+
+                    if(prefs.getBoolean("notify_sony", false)) {
+                        long time = System.currentTimeMillis();
+                        long sourceId = NotificationUtil.getSourceId(IRCCloudApplication.getInstance().getApplicationContext(), SonyExtensionService.EXTENSION_SPECIFIC_ID);
+                        if (sourceId == NotificationUtil.INVALID_ID) {
+                            Log.e("IRCCloud", "SONY: Failed to insert data");
+                            return;
+                        }
+
+                        ContentValues eventValues = new ContentValues();
+                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.EVENT_READ_STATUS, false);
+                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.DISPLAY_NAME, n.nick);
+
+                        if(n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.chan);
+                        else
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network);
+
+                        if(n.message_type.equals("buffer_me_msg"))
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + n.message);
+                        else
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, n.message);
+
+                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PERSONAL, 1);
+                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PUBLISHED_TIME, time);
+                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.SOURCE_ID, sourceId);
+                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY, String.valueOf(n.bid));
+
+                        try {
+                            IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(com.sonyericsson.extras.liveware.aef.notification.Notification.Event.URI, eventValues);
+                        } catch (IllegalArgumentException e) {
+                            Log.e("IRCCloud", "Failed to insert event", e);
+                        } catch (SecurityException e) {
+                            Log.e("IRCCloud", "Failed to insert event, is Live Ware Manager installed?", e);
+                        } catch (SQLException e) {
+                            Log.e("IRCCloud", "Failed to insert event", e);
+                        }
+                    }
+
                     if(prefs.getBoolean("notify_pebble", false)) {
                         String pebbleTitle = n.network + ":\n";
                         String pebbleBody = "";

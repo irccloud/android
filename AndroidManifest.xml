@@ -18,7 +18,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    
+    <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION"></uses-permission>
+
     <application
         android:name=".IRCCloudApplication"
         android:icon="@drawable/ic_launcher"
@@ -76,6 +77,21 @@
 			<data android:scheme="irccloud-dismiss" />
 		  </intent-filter>
 		</receiver>
+
+        <service android:name="SonyExtensionService" />
+
+        <receiver android:name="SonyExtensionReceiver">
+            <intent-filter>
+                <!-- Generic extension intents. -->
+                <action android:name="com.sonyericsson.extras.liveware.aef.registration.EXTENSION_REGISTER_REQUEST" />
+                <action android:name="com.sonyericsson.extras.liveware.aef.registration.ACCESSORY_CONNECTION"/>
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+
+                <!-- Notification intents -->
+                <action android:name="com.sonyericsson.extras.liveware.aef.notification.VIEW_EVENT_DETAIL"/>
+                <action android:name="com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST"/>
+            </intent-filter>
+        </receiver>
 	</application>
 
 </manifest>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="Sony SmartWatch">
+        <CheckBoxPreference
+                android:key="notify_sony"
+                android:defaultValue="false"
+                android:summaryOn="Notifications will be displayed on SmartWatch"
+                android:summaryOff="Notifications will not be displayed on SmartWatch"
+                android:title="Display notifications on SmartWatch"/>
+	</PreferenceCategory>
+</PreferenceScreen>
