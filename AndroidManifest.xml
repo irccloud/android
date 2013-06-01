@@ -92,6 +92,18 @@
                 <action android:name="com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST"/>
             </intent-filter>
         </receiver>
+
+        <service android:name=".DashClock"
+                 android:icon="@drawable/ic_stat_notify"
+                 android:label="IRCCloud"
+                 android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA">
+            <intent-filter>
+                <action android:name="com.google.android.apps.dashclock.Extension" />
+            </intent-filter>
+            <meta-data android:name="protocolVersion" android:value="1" />
+            <meta-data android:name="description"
+                       android:value="Displays your unread IRC highlights" />
+        </service>
 	</application>
 
 </manifest>

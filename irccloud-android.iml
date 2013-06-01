@@ -23,6 +23,7 @@
     <orderEntry type="library" name="libs" level="project" />
     <orderEntry type="module" module-name="android-websockets" />
     <orderEntry type="module" module-name="actionbarsherlock" />
+    <orderEntry type="library" name="dashclock-api-r1.1" level="project" />
   </component>
 </module>
 

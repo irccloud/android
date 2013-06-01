@@ -18,6 +18,6 @@ public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
 				}
 			}
 		}
+        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
 	}
-
 }

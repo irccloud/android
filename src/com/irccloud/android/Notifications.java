@@ -248,6 +248,7 @@ public class Notifications {
 			mNetworks.clear();
 			mLastSeenEIDs.clear();
 			save();
+            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -286,6 +287,7 @@ public class Notifications {
 				mNotifications.remove(n);
 		}
 		save();
+        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
 	}
 	
 	public synchronized void addNetwork(int cid, String network) {
@@ -408,7 +410,11 @@ public class Notifications {
 	private boolean isMessage(String type) {
 		return !(type.equalsIgnoreCase("channel_invite") || type.equalsIgnoreCase("callerid"));
 	}
-	
+
+    public int count() {
+        return mNotifications.size();
+    }
+
 	public ArrayList<Notification> getMessageNotifications() {
 		ArrayList<Notification> notifications = new ArrayList<Notification>();
 
@@ -499,6 +505,7 @@ public class Notifications {
                     showOtherNotifications();
                     mTicker = null;
                     mNotificationTimer = null;
+                    IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
                 }
             }, 5000);
         } catch (Exception e) {
