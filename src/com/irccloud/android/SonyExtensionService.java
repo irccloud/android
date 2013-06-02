@@ -164,7 +164,12 @@ public class SonyExtensionService extends ExtensionService {
     @Override
     public void onRegisterResult(boolean result) {
         super.onRegisterResult(result);
-        Log.d(LOG_TAG, "onRegisterResult");
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+        if(prefs.getBoolean("notify_sony",true)) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("notify_sony", true);
+            editor.apply();
+        }
     }
 
     @Override

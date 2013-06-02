@@ -1,5 +1,6 @@
 package com.irccloud.android;
 
+import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,11 +45,13 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
         } catch (Exception e) {
         }
         boolean foundSony=false;
-        try {
-            getPackageManager().getPackageInfo("com.sonyericsson.extras.liveview", 0);
-            addPreferencesFromResource(R.xml.preferences_sony);
-            foundSony = true;
-        } catch (Exception e) {
+        if(!foundSony) {
+            try {
+                getPackageManager().getPackageInfo("com.sonyericsson.extras.liveware", 0);
+                addPreferencesFromResource(R.xml.preferences_sony);
+                foundSony = true;
+            } catch (Exception e) {
+            }
         }
         if(!foundSony) {
             try {
@@ -58,6 +61,16 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
             } catch (Exception e) {
             }
         }
+        if(!foundSony) {
+            try {
+                getPackageManager().getPackageInfo("com.sonyericsson.extras.liveview", 0);
+                addPreferencesFromResource(R.xml.preferences_sony);
+                foundSony = true;
+            } catch (Exception e) {
+            }
+        }
+        if(foundSony)
+            findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
 		addPreferencesFromResource(R.xml.preferences_about);
 		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 		if(conn.getUserInfo() != null)
@@ -215,8 +228,17 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 			return true;
 		}
 	};
-	
-	Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
+
+    Preference.OnPreferenceChangeListener sonytoggle = new Preference.OnPreferenceChangeListener() {
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if(!(Boolean)newValue) {
+                NotificationUtil.deleteAllEvents(PreferencesActivity.this);
+            }
+            return true;
+        }
+    };
+
+    Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			JSONObject prefs = conn.getUserInfo().prefs;
 			try {

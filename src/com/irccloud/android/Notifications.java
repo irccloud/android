@@ -10,6 +10,7 @@ import java.util.TimerTask;
 import android.content.ContentValues;
 import android.database.SQLException;
 import com.sonyericsson.extras.liveware.aef.notification.Notification;
+import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -249,7 +250,9 @@ public class Notifications {
 			mLastSeenEIDs.clear();
 			save();
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-		} catch (Exception e) {
+            if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+                NotificationUtil.deleteAllEvents(IRCCloudApplication.getInstance().getApplicationContext());
+        } catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -379,6 +382,9 @@ public class Notifications {
 				}
 			}
 		}
+        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+            NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(),com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[] {String.valueOf(bid)});
 	}
 	
 	public void deleteNotificationsForBid(int bid) {
@@ -405,6 +411,9 @@ public class Notifications {
 		}
 		mDismissedEIDs.remove(bid);
 		mLastSeenEIDs.remove(bid);
+        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+            NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(),com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[] {String.valueOf(bid)});
 	}
 	
 	private boolean isMessage(String type) {

@@ -80,11 +80,6 @@ public class SonyRegistrationInformation extends RegistrationInformation {
 
     @Override
     public ContentValues getExtensionRegistrationConfiguration() {
-        String extensionIcon = ExtensionUtils.getUriString(mContext,
-                R.drawable.ic_launcher);
-        String iconHostapp = ExtensionUtils.getUriString(mContext,
-                R.drawable.ic_launcher);
-
         String configurationText = "IRCCloud Settings";
         String extensionName = "IRCCloud";
 
@@ -92,10 +87,12 @@ public class SonyRegistrationInformation extends RegistrationInformation {
         values.put(Registration.ExtensionColumns.CONFIGURATION_ACTIVITY,
                 PreferencesActivity.class.getName());
         values.put(Registration.ExtensionColumns.CONFIGURATION_TEXT, configurationText);
-        values.put(Registration.ExtensionColumns.EXTENSION_ICON_URI, extensionIcon);
+        values.put(Registration.ExtensionColumns.EXTENSION_ICON_URI, ExtensionUtils.getUriString(mContext,
+                R.drawable.ic_sony_extension));
         values.put(Registration.ExtensionColumns.EXTENSION_KEY,
                 SonyExtensionService.EXTENSION_KEY);
-        values.put(Registration.ExtensionColumns.HOST_APP_ICON_URI, iconHostapp);
+        values.put(Registration.ExtensionColumns.HOST_APP_ICON_URI, ExtensionUtils.getUriString(mContext,
+                R.drawable.ic_launcher));
         values.put(Registration.ExtensionColumns.NAME, extensionName);
         values.put(Registration.ExtensionColumns.NOTIFICATION_API_VERSION,
                 getRequiredNotificationApiVersion());
@@ -121,18 +118,19 @@ public class SonyRegistrationInformation extends RegistrationInformation {
     public ContentValues getSourceRegistrationConfiguration(String extensionSpecificId) {
         ContentValues sourceValues = null;
 
-        String iconSource1 = ExtensionUtils.getUriString(mContext,
-                R.drawable.ic_launcher);
-
         sourceValues = new ContentValues();
         sourceValues.put(Notification.SourceColumns.ACTION_1, "View Message");
         sourceValues.put(Notification.SourceColumns.ENABLED, true);
-        sourceValues.put(Notification.SourceColumns.ICON_URI_1, iconSource1);
+        sourceValues.put(Notification.SourceColumns.ICON_URI_1, ExtensionUtils.getUriString(mContext,
+                R.drawable.ic_sony_msg));
+        sourceValues.put(Notification.SourceColumns.ICON_URI_2, ExtensionUtils.getUriString(mContext,
+                R.drawable.ic_sony_msg_2));
+        sourceValues.put(Notification.SourceColumns.ICON_URI_BLACK_WHITE, ExtensionUtils.getUriString(mContext,
+                R.drawable.ic_sony_bw));
         sourceValues.put(Notification.SourceColumns.UPDATE_TIME, System.currentTimeMillis());
         sourceValues.put(Notification.SourceColumns.NAME, "IRCCloud");
         sourceValues.put(Notification.SourceColumns.EXTENSION_SPECIFIC_ID, extensionSpecificId);
         sourceValues.put(Notification.SourceColumns.PACKAGE_NAME, mContext.getPackageName());
-        sourceValues.put(Notification.SourceColumns.TEXT_TO_SPEECH, "New message from");
 
         return sourceValues;
     }
