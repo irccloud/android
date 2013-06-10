@@ -525,9 +525,9 @@ public class MessageViewFragment extends SherlockListFragment {
                         heartbeatTask.cancel(true);
                     heartbeatTask = new HeartbeatTask();
                     heartbeatTask.execute((Void)null);
+                    unreadTopView.setVisibility(View.GONE);
 				}
 				getListView().setSelection(adapter.getLastSeenEIDPosition());
-				unreadTopView.setVisibility(View.GONE);
 			}
     		
     	});
@@ -606,7 +606,7 @@ public class MessageViewFragment extends SherlockListFragment {
 				int markerPos = -1;
 				if(adapter != null)
 					markerPos = adapter.getLastSeenEIDPosition();
-	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() <= markerPos) {
+	    		if(markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
 	    			unreadTopView.setVisibility(View.GONE);
     				if(heartbeatTask != null)
     					heartbeatTask.cancel(true);
@@ -1105,7 +1105,7 @@ public class MessageViewFragment extends SherlockListFragment {
             if(events != null && events.size() > 0) {
                 Long eid = events.get(events.lastKey()).eid;
 
-                if(eid > last_seen_eid && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                if(eid > last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     if(getActivity() != null && getActivity().getIntent() != null)
                         getActivity().getIntent().putExtra("last_seen_eid", eid);
                     NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
@@ -1167,6 +1167,8 @@ public class MessageViewFragment extends SherlockListFragment {
 					if(markerPos != -1 && requestingBacklog) {
 						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
 					}
+                } catch (IndexOutOfBoundsException e) {
+                    return;
 				} catch (IllegalStateException e) {
 					//The list view doesn't exist yet
 					Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
@@ -1337,13 +1339,15 @@ public class MessageViewFragment extends SherlockListFragment {
 			    			unreadTopView.setVisibility(View.GONE);
 		    			}
 		    		} else {
-		    			unreadTopView.setVisibility(View.GONE);
-		    			if(adapter.data.size() > 0) {
-		    				if(heartbeatTask != null)
-		    					heartbeatTask.cancel(true);
-		    				heartbeatTask = new HeartbeatTask();
-		    				heartbeatTask.execute((Void)null);
-		    			}
+                        if(markerPos > 0) {
+                            unreadTopView.setVisibility(View.GONE);
+                            if(adapter.data.size() > 0) {
+                                if(heartbeatTask != null)
+                                    heartbeatTask.cancel(true);
+                                heartbeatTask = new HeartbeatTask();
+                                heartbeatTask.execute((Void)null);
+                            }
+                        }
 		    		}
 		    		if(mServer != null)
 		    			update_status(mServer.status, mServer.fail_info);

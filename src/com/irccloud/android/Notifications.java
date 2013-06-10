@@ -1,11 +1,6 @@
 package com.irccloud.android;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import android.content.ContentValues;
 import android.database.SQLException;
@@ -218,6 +213,7 @@ public class Notifications {
 						editor.apply();
 					else
 						editor.commit();
+                } catch (ConcurrentModificationException e) {
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

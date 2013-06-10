@@ -264,7 +264,11 @@ public class NetworkConnection {
 			state = STATE_DISCONNECTED;
 		}
 		if(idleTimer != null) {
-			idleTimer.cancel();
+            try {
+    			idleTimer.cancel();
+            } catch (NullPointerException e) {
+                //The timer expired already
+            }
 			idleTimer = null;
 		}
 		if(wifiLock.isHeld())

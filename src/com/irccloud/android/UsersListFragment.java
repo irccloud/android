@@ -355,11 +355,13 @@ public class UsersListFragment extends SherlockListFragment {
         
 		@Override
 		public boolean onLongClick(View v) {
-	    	UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
-	    	if(e.type == TYPE_USER) {
-	    		mListener.onUserSelected(cid, channel, e.text);
-	    		return true;
-	    	}
+            if(pos < adapter.getCount()) {
+                UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
+                if(e.type == TYPE_USER) {
+                    mListener.onUserSelected(cid, channel, e.text);
+                    return true;
+                }
+            }
 	    	return false;
 		}
     	
