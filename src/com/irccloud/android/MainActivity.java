@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.google.android.gcm.GCMRegistrar;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -240,6 +241,53 @@ public class MainActivity extends SherlockActivity {
 				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
 				try {
 					error = o.getString("message");
+                    if(error.equals("auth")) {
+                        conn.disconnect();
+                        conn.ready = false;
+                        SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                        try {
+                            GCMRegistrar.checkDevice(MainActivity.this);
+                            GCMRegistrar.checkManifest(MainActivity.this);
+                            if(GCMRegistrar.isRegistered(MainActivity.this)) {
+                                //Store the old session key so GCM can unregister later
+                                editor.putString(GCMRegistrar.getRegistrationId(MainActivity.this), getSharedPreferences("prefs", 0).getString("session_key", ""));
+                                GCMRegistrar.unregister(MainActivity.this);
+                            }
+                        } catch (Exception e) {
+                            //GCM might not be available on the device
+                        }
+                        editor.remove("session_key");
+                        editor.remove("gcm_registered");
+                        editor.remove("mentionTip");
+                        editor.remove("userSwipeTip");
+                        editor.remove("bufferSwipeTip");
+                        editor.remove("longPressTip");
+                        editor.remove("email");
+                        editor.remove("name");
+                        editor.remove("highlights");
+                        editor.remove("autoaway");
+                        editor.commit();
+                        ServersDataSource.getInstance().clear();
+                        BuffersDataSource.getInstance().clear();
+                        ChannelsDataSource.getInstance().clear();
+                        UsersDataSource.getInstance().clear();
+                        EventsDataSource.getInstance().clear();
+                        Notifications.getInstance().clear();
+                        connecting.setVisibility(View.GONE);
+                        login.setVisibility(View.VISIBLE);
+                        return;
+                    }
+
+                    if(error.equals("set_shard")) {
+                        conn.disconnect();
+                        conn.ready = false;
+                        SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                        editor.putString("session_key", o.getString("cookie"));
+                        conn.connect(o.getString("cookie"));
+                        editor.commit();
+                        return;
+                    }
+
 					if(error.equals("temp_unavailable"))
 						error = "Your account is temporarily unavailable";
 					updateReconnecting();
@@ -258,7 +306,7 @@ public class MainActivity extends SherlockActivity {
 			email.setEnabled(false);
 			password.setEnabled(false);
 			loginBtn.setEnabled(false);
-			connectingMsg.setText("Authenticating");
+			connectingMsg.setText("Signing In");
 			progressBar.setIndeterminate(true);
 	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
 			anim.setDuration(250);
