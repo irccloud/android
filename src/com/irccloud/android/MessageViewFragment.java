@@ -906,7 +906,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	    	if(getListView().getLastVisiblePosition() >= (adapter.getCount() - 1)) {
 	    		shouldShowUnread = false;
 	    	}
-	    	if(!backlog && shouldShowUnread) {
+	    	if(!backlog && shouldShowUnread && !event.self) {
 	    		if(newMsgTime == 0)
 	    			newMsgTime = System.currentTimeMillis();
 				newMsgs++;
