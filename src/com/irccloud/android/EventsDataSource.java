@@ -452,6 +452,15 @@ public class EventsDataSource {
 		if(type == null) {
 			return false;
 		}
+
+        Ignore ignore = new Ignore();
+        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(e.cid);
+        if(s != null) {
+            ignore.setIgnores(s.ignores);
+            if(ignore.match(e.from + "!" + e.hostmask))
+                return false;
+        }
+
 		if (type.equals("notice") && buffer_type != null && buffer_type.equals("console")) {
 			if (e.server != null || e.to_chan == true) {
 				return false;
