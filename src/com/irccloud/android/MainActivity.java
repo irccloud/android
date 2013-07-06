@@ -306,7 +306,7 @@ public class MainActivity extends SherlockActivity {
 			email.setEnabled(false);
 			password.setEnabled(false);
 			loginBtn.setEnabled(false);
-			connectingMsg.setText("Signing In");
+			connectingMsg.setText("Signing in");
 			progressBar.setIndeterminate(true);
 	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
 			anim.setDuration(250);
