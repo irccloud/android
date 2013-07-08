@@ -291,7 +291,7 @@ public class NetworkConnection {
 	
 	public JSONObject login(String email, String password) throws IOException {
 		String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
-		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata);
+		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
 		try {
 			JSONObject o = new JSONObject(response);
 			return o;
@@ -304,7 +304,7 @@ public class NetworkConnection {
 	
 	public JSONObject registerGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
-		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata);
+		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk);
 		try {
 			JSONObject o = new JSONObject(response);
 			return o;
@@ -317,7 +317,7 @@ public class NetworkConnection {
 	
 	public JSONObject unregisterGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
-		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata);
+		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk);
 		try {
 			JSONObject o = new JSONObject(response);
 			return o;
@@ -1211,7 +1211,7 @@ public class NetworkConnection {
 			schedule_idle_timer();
 	}
 	
-	private String doPost(URL url, String postdata) throws IOException {
+	private String doPost(URL url, String postdata, String sk) throws IOException {
 		HttpURLConnection conn = null;
 
         if (url.getProtocol().toLowerCase().equals("https")) {
@@ -1225,6 +1225,8 @@ public class NetworkConnection {
 		conn.setRequestProperty("Connection", "close");
 		conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
 		conn.setRequestProperty("User-Agent", useragent);
+        if(sk != null)
+            conn.setRequestProperty("Cookie", "session="+sk);
 		OutputStream ostr = null;
 		try {
 			ostr = conn.getOutputStream();
