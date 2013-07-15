@@ -862,7 +862,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						hide = true;
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 			}
 	    	if(hide || type == null || !type.equalsIgnoreCase("channel") || joined == 0)
 	    		userListView.setVisibility(View.GONE);
@@ -1116,8 +1115,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 				break;
 			case NetworkConnection.EVENT_PART:
+            case NetworkConnection.EVENT_KICK:
 				event = (IRCCloudJSONObject)msg.obj;
-				if(event.bid() == bid && event.type().equalsIgnoreCase("you_parted_channel")) {
+				if(event.bid() == bid && event.type().toLowerCase().startsWith("you_")) {
 					joined = 0;
 					invalidateOptionsMenu();
 					updateUsersListFragmentVisibility();

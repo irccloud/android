@@ -708,7 +708,7 @@ public class MessageViewFragment extends SherlockListFragment {
 						refreshTask = new RefreshTask();
 						refreshTask.execute((Void)null);
 					} else {
-						if(bid == -1 || min_eid == 0 || !conn.ready) {
+						if(bid == -1 || min_eid == 0 || earliest_eid == min_eid ||!conn.ready) {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
@@ -729,7 +729,7 @@ public class MessageViewFragment extends SherlockListFragment {
     		long start = System.currentTimeMillis();
     		if(min_eid == 0)
     			min_eid = event.eid;
-	    	if(event.eid == min_eid) {
+	    	if(event.eid <= min_eid) {
 	    		headerView.setVisibility(View.GONE);
 	    	}
 	    	if(event.eid < earliest_eid)
