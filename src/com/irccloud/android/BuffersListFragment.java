@@ -73,6 +73,7 @@ public class BuffersListFragment extends SherlockListFragment {
 		int timeout;
 		String name;
 		String status;
+        int ssl;
 	}
 
 	private class BufferListAdapter extends BaseAdapter {
@@ -87,7 +88,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			LinearLayout unread;
 			LinearLayout groupbg;
 			LinearLayout bufferbg;
-			ImageView key;
+			ImageView icon;
 			ProgressBar progress;
 			ImageButton addBtn;
 		}
@@ -133,7 +134,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			return data.size() - 1;
 		}
 		
-		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout) {
+		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -148,6 +149,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			e.archived = archived;
 			e.status = status;
 			e.timeout = timeout;
+            e.ssl = ssl;
 			return e;
 		}
 		
@@ -190,7 +192,7 @@ public class BuffersListFragment extends SherlockListFragment {
 				holder.unread = (LinearLayout) row.findViewById(R.id.unread);
 				holder.groupbg = (LinearLayout) row.findViewById(R.id.groupbg);
 				holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
-				holder.key = (ImageView) row.findViewById(R.id.key);
+				holder.icon = (ImageView) row.findViewById(R.id.icon);
 				holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
 				holder.addBtn = (ImageButton) row.findViewById(R.id.addBtn);
 				holder.type = e.type;
@@ -237,12 +239,19 @@ public class BuffersListFragment extends SherlockListFragment {
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			}
 
-			if(holder.key != null) {
-				if(e.key > 0) {
-					holder.key.setVisibility(View.VISIBLE);
-				} else {
-					holder.key.setVisibility(View.INVISIBLE);
-				}
+			if(holder.icon != null) {
+                if(e.type == TYPE_SERVER) {
+                    if(e.ssl > 0)
+                        holder.icon.setImageResource(R.drawable.world_shield);
+                    else
+                        holder.icon.setImageResource(R.drawable.world);
+                } else {
+                    if(e.key > 0) {
+                        holder.icon.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.icon.setVisibility(View.INVISIBLE);
+                    }
+                }
 			}
 			
 			if(holder.progress != null) {
@@ -370,7 +379,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0));
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -421,7 +430,7 @@ public class BuffersListFragment extends SherlockListFragment {
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout));
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -437,7 +446,7 @@ public class BuffersListFragment extends SherlockListFragment {
 					}
 				}
 				if(archiveCount > 0) {
-					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0));
+					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl));
 					position++;
 					if(mExpandArchives.get(s.cid, false)) {
 						for(int j = 0; j < buffers.size(); j++) {
@@ -450,7 +459,7 @@ public class BuffersListFragment extends SherlockListFragment {
 									type = TYPE_CONVERSATION;
 								
 								if(type > 0) {
-									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0));
+									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl));
 									position++;
 								}
 							}

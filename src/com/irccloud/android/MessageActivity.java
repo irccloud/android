@@ -833,6 +833,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        		subtitle.setVisibility(View.GONE);
 		        	}
 		        	if(c != null && c.mode.contains("k")) {
+                        key.setImageResource(R.drawable.lock);
 		        		key.setVisibility(View.VISIBLE);
 		        	} else {
 		        		key.setVisibility(View.GONE);
@@ -845,7 +846,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 	    			}
-	        		key.setVisibility(View.GONE);
+                    if(s != null && s.ssl > 0)
+                        key.setImageResource(R.drawable.world_shield);
+                    else
+                        key.setImageResource(R.drawable.world);
+	        		key.setVisibility(View.VISIBLE);
 	    		}
 	    	}
     	}
