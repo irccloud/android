@@ -282,12 +282,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
         try {
-	        if(getSharedPreferences("prefs", 0).contains("session_key")) {
+	        if(getSharedPreferences("prefs", 0).contains("session_key") && Config.GCM_ID.length() > 0) {
 		        GCMRegistrar.checkDevice(this);
 		        GCMRegistrar.checkManifest(this);
 		        final String regId = GCMRegistrar.getRegistrationId(this);
 		        if (regId.equals("")) {
-		        	GCMRegistrar.register(this, GCMIntentService.GCM_ID);
+		        	GCMRegistrar.register(this, Config.GCM_ID);
 		        } else {
 		        	if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
 		        		GCMIntentService.scheduleRegisterTimer(30000);

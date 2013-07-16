@@ -21,20 +21,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class GCMIntentService extends GCMBaseIntentService {
-
-	public static final String GCM_ID = "";
-
 	@Override
 	protected void onError(Context context, String errorId) {
 		Log.e("IRCCloud", "GCM Error: " + errorId);
 	}
 
 	public GCMIntentService() {
-        super(GCM_ID);
+        super(Config.GCM_ID);
 	}
 	
 	protected String[] getSenderIds(Context context) {
-		String[] ids = { GCM_ID };
+		String[] ids = { Config.GCM_ID };
 		return ids;
 	}
 	

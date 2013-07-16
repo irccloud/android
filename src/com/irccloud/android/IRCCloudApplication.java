@@ -17,7 +17,7 @@ import android.util.Log;
 import org.acra.*;
 import org.acra.annotation.*;
 
-@ReportsCrashes(formKey = "")
+@ReportsCrashes(formKey = Config.ACRA_KEY)
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends Application {
 	private static final int RINGTONE_VERSION = 1;
