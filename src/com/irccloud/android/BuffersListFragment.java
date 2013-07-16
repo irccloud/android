@@ -275,7 +275,10 @@ public class BuffersListFragment extends SherlockListFragment {
 					holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_disconnected));
 				} else {
 					holder.groupbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
-					holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+                    if(e.status.equals("connected_ready"))
+    					holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+                    else
+                        holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
 				}
 			}
 			
