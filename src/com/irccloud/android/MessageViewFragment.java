@@ -1499,12 +1499,36 @@ public class MessageViewFragment extends SherlockListFragment {
     	} else if(status.equals("waiting_to_retry")) {
     		try {
 	    		statusView.setVisibility(View.VISIBLE);
-	    		long seconds = (fail_info.get("timestamp").getAsLong() + fail_info.get("retry_timeout").getAsInt()) - System.currentTimeMillis()/1000;
+	    		long seconds = (fail_info.get("timestamp").getAsLong() + fail_info.get("retry_timeout").getAsLong() - conn.clockOffset) - System.currentTimeMillis()/1000;
 	    		if(seconds > 0) {
 		    		String text = "Disconnected";
-		    		if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0)
-		    			text += ": " + fail_info.get("reason").getAsString() + ". ";
-		    		else
+		    		if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0) {
+                        String reason = fail_info.get("reason").getAsString();
+                        if(reason.equalsIgnoreCase("pool_lost")) {
+                            reason = "Connection pool failed";
+                        } else if(reason.equalsIgnoreCase("no_pool")) {
+                            reason = "No available connection pools";
+                        } else if(reason.equalsIgnoreCase("enetdown")) {
+                            reason = "Network down";
+                        } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
+                            reason = "Timed out";
+                        } else if(reason.equalsIgnoreCase("ehostunreach")) {
+                            reason = "Host unreachable";
+                        } else if(reason.equalsIgnoreCase("econnrefused")) {
+                            reason = "Connection refused";
+                        } else if(reason.equalsIgnoreCase("nxdomain")) {
+                            reason = "Invalid hostname";
+                        } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
+                            reason = "PING timeout";
+                        } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
+                            reason = "SSL certificate error";
+                        } else if(reason.equalsIgnoreCase("ssl_error")) {
+                            reason = "SSL error";
+                        } else if(reason.equalsIgnoreCase("crash")) {
+                            reason = "Connection crashed";
+                        }
+		    			text += ": " + reason + ". ";
+                    } else
 		    			text += "; ";
 		    		text += "Reconnecting in " + seconds + " seconds.";
 		    		statusView.setText(text);

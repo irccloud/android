@@ -188,7 +188,31 @@ public class EventsDataSource {
 				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
 				e.color = R.color.timestamp;
 	    		e.from = "";
-	    		e.msg = "Failed to connect: " + event.getString("reason");
+                String reason = event.getString("reason");
+                if(reason.equalsIgnoreCase("pool_lost")) {
+                    reason = "Connection pool failed";
+                } else if(reason.equalsIgnoreCase("no_pool")) {
+                    reason = "No available connection pools";
+                } else if(reason.equalsIgnoreCase("enetdown")) {
+                    reason = "Network down";
+                } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
+                    reason = "Timed out";
+                } else if(reason.equalsIgnoreCase("ehostunreach")) {
+                    reason = "Host unreachable";
+                } else if(reason.equalsIgnoreCase("econnrefused")) {
+                    reason = "Connection refused";
+                } else if(reason.equalsIgnoreCase("nxdomain")) {
+                    reason = "Invalid hostname";
+                } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
+                    reason = "PING timeout";
+                } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
+                    reason = "SSL certificate error";
+                } else if(reason.equalsIgnoreCase("ssl_error")) {
+                    reason = "SSL error";
+                } else if(reason.equalsIgnoreCase("crash")) {
+                    reason = "Connection crashed";
+                }
+	    		e.msg = "Failed to connect: " + reason;
 	    	} else if(e.type.equalsIgnoreCase("quit_server")) {
 	    		e.from = "";
 	    		e.msg = "⇐ You disconnected";

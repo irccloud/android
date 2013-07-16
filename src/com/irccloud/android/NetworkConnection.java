@@ -811,7 +811,7 @@ public class NetworkConnection {
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval");
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
-				Log.d(TAG, "Clock offset: " + clockOffset + "ms");
+				Log.d(TAG, "Clock offset: " + clockOffset + "s");
 			} else if(type.equalsIgnoreCase("global_system_message")) {
 				String msgType = object.getString("system_message_type");
 				if(msgType == null || (!msgType.equalsIgnoreCase("eval") && !msgType.equalsIgnoreCase("refresh"))) {
