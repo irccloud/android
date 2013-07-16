@@ -1702,7 +1702,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
             	return true;
             case R.id.menu_disconnect:
-        		if(status != null && status.contains("connected") && !status.startsWith("dis")) {
+                if(status != null && (status.equalsIgnoreCase("waiting_to_retry")) || (status.contains("connected") && !status.startsWith("dis"))) {
         			conn.disconnect(cid, null);
         		} else {
         			conn.reconnect(cid);
