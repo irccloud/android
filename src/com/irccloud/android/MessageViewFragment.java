@@ -11,6 +11,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import android.widget.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -32,16 +33,8 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.TranslateAnimation;
-import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonArray;
@@ -138,6 +131,8 @@ public class MessageViewFragment extends SherlockListFragment {
 			int type;
 			TextView timestamp;
 			TextView message;
+            ImageView expandable;
+            ImageView failed;
 		}
 	
 		public MessageAdapter(SherlockListFragment context) {
@@ -425,6 +420,8 @@ public class MessageViewFragment extends SherlockListFragment {
 				holder = new ViewHolder();
 				holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
 				holder.message = (TextView) row.findViewById(R.id.message);
+                holder.expandable = (ImageView) row.findViewById(R.id.expandable);
+                holder.failed = (ImageView) row.findViewById(R.id.failed);
 				holder.type = e.row_type;
 
 				row.setTag(holder);
@@ -469,7 +466,29 @@ public class MessageViewFragment extends SherlockListFragment {
                 }
 				holder.message.setText(ColorFormatter.html_to_spanned(e.html, e.linkify, mServer));
 			}
-			
+
+            if(holder.expandable != null) {
+                if(e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
+                    if(expandedSectionEids.contains(e.group_eid)) {
+                        if(e.group_eid == e.eid + 1) {
+                            holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
+                            row.setBackgroundResource(R.color.status_bg);
+                        } else {
+                            holder.expandable.setImageResource(R.drawable.tiny_plus);
+                            row.setBackgroundResource(R.color.expanded_row_bg);
+                        }
+                    } else {
+                        holder.expandable.setImageResource(R.drawable.bullet_toggle_plus);
+                    }
+                    holder.expandable.setVisibility(View.VISIBLE);
+                } else {
+                    holder.expandable.setVisibility(View.GONE);
+                }
+            }
+
+            if(holder.failed != null)
+                holder.failed.setVisibility(e.failed?View.VISIBLE:View.GONE);
+
 			return row;
 		}
 	}
@@ -769,65 +788,38 @@ public class MessageViewFragment extends SherlockListFragment {
 					lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
 				}
 
-				if(expandedSectionEids.contains(currentCollapsedEid))
-					collapsedEvents.clear();
+                if(type.equalsIgnoreCase("user_channel_mode")) {
+                    event.color = R.color.row_message_label;
+                    event.bg_color = R.color.status_bg;
+                } else {
+                    event.color = R.color.timestamp;
+                    event.bg_color = R.color.message_bg;
+                }
 				
-				event.color = R.color.timestamp;
-				event.bg_color = R.color.message_bg;
-				
-				if(type.equalsIgnoreCase("joined_channel")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null);
-				} else if(type.equalsIgnoreCase("parted_channel")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg);
-				} else if(type.equalsIgnoreCase("quit")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg);
-				} else if(type.equalsIgnoreCase("nickchange")) {
-					collapsedEvents.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null);
-				} else if(type.equalsIgnoreCase("user_channel_mode")) {
-					boolean unknown = false;
-					JsonObject ops = event.ops;
-					if(ops != null) {
-						JsonArray add = ops.getAsJsonArray("add");
-						for(int i = 0; i < add.size(); i++) {
-							JsonObject op = add.get(i).getAsJsonObject();
-							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OWNER, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_ADMIN, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OP, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_HALFOP, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_VOICE, event.target_mode);
-							else
-								unknown = true;
-						}
-						JsonArray remove = ops.getAsJsonArray("remove");
-						for(int i = 0; i < remove.size(); i++) {
-							JsonObject op = remove.get(i).getAsJsonObject();
-							if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOWNER, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEADMIN, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOP, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEHALFOP, event.target_mode);
-							else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-								collapsedEvents.addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEVOICE, event.target_mode);
-							else
-								unknown = true;
-						}
-					}
-					if(unknown) {
-						collapsedEvents.clear();
-					}
-					event.color = R.color.row_message_label;
-					event.bg_color = R.color.status_bg;
-				}
-				
-				String msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage();
+				if(!collapsedEvents.addEvent(event))
+				    collapsedEvents.clear();
+
+				String msg;
+                if(expandedSectionEids.contains(currentCollapsedEid)) {
+                    CollapsedEventsList c = new CollapsedEventsList();
+                    c.addEvent(event);
+                    msg = c.getCollapsedMessage();
+                    if(!nextIsGrouped) {
+                        EventsDataSource.Event heading = EventsDataSource.getInstance().new Event();
+                        heading.type = "__expanded_group_heading__";
+                        heading.cid = event.cid;
+                        heading.bid = event.bid;
+                        heading.eid = currentCollapsedEid - 1;
+                        heading.group_msg = collapsedEvents.getCollapsedMessage();
+                        heading.color = R.color.timestamp;
+                        heading.bg_color = R.color.message_bg;
+                        heading.linkify = false;
+                        adapter.addItem(currentCollapsedEid - 1, heading);
+                    }
+                } else {
+                    msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage();
+                }
+
 				if(msg == null && type.equalsIgnoreCase("nickchange")) {
 					msg = event.old_nick + " → <b>" + event.nick + "</b>";
 				}
@@ -837,7 +829,6 @@ public class MessageViewFragment extends SherlockListFragment {
 				}
 				if(!expandedSectionEids.contains(currentCollapsedEid)) {
 					if(eid != currentCollapsedEid) {
-						msg = "[+] " + msg;
 						event.color = R.color.timestamp;
 						event.bg_color = R.color.message_bg;
 					}

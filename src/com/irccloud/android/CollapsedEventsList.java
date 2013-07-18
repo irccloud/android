@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.json.JSONException;
 
 public class CollapsedEventsList {
@@ -54,7 +56,56 @@ public class CollapsedEventsList {
 	}
 	
 	private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
-	
+
+    public boolean addEvent(EventsDataSource.Event event) {
+        if(event.type.equalsIgnoreCase("joined_channel")) {
+            addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null);
+        } else if(event.type.equalsIgnoreCase("parted_channel")) {
+            addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg);
+        } else if(event.type.equalsIgnoreCase("quit")) {
+            addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg);
+        } else if(event.type.equalsIgnoreCase("nickchange")) {
+            addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null);
+        } else if(event.type.equalsIgnoreCase("user_channel_mode")) {
+            JsonObject ops = event.ops;
+            if(ops != null) {
+                JsonArray add = ops.getAsJsonArray("add");
+                for(int i = 0; i < add.size(); i++) {
+                    JsonObject op = add.get(i).getAsJsonObject();
+                    if(op.get("mode").getAsString().equalsIgnoreCase("q"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OWNER, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_ADMIN, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OP, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_HALFOP, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_VOICE, event.target_mode);
+                    else
+                        return false;
+                }
+                JsonArray remove = ops.getAsJsonArray("remove");
+                for(int i = 0; i < remove.size(); i++) {
+                    JsonObject op = remove.get(i).getAsJsonObject();
+                    if(op.get("mode").getAsString().equalsIgnoreCase("q"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOWNER, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEADMIN, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOP, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEHALFOP, event.target_mode);
+                    else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEVOICE, event.target_mode);
+                    else
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
+
 	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg) {
 		addEvent(type, nick, old_nick, hostmask, from_mode, msg, 0, null);
 	}

@@ -1234,7 +1234,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						EventsDataSource.Event e = pendingEvents.get(reqid);
 						EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
 						pendingEvents.remove(event.getInt("_reqid"));
-						e.msg = ColorFormatter.irc_to_html(e.msg + " \u00034(FAILED)\u000f");
+                        e.failed = true;
+                        e.bg_color = R.color.error;
 						conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
 					}
 				} else {
