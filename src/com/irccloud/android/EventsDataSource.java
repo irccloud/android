@@ -501,7 +501,10 @@ public class EventsDataSource {
         ServersDataSource.Server s = ServersDataSource.getInstance().getServer(e.cid);
         if(s != null) {
             ignore.setIgnores(s.ignores);
-            if(ignore.match(e.from + "!" + e.hostmask))
+            String from = e.from;
+            if(from == null || from.length() == 0)
+                from = e.nick;
+            if(ignore.match(from + "!" + e.hostmask))
                 return false;
         }
 

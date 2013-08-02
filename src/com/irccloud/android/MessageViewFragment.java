@@ -862,8 +862,12 @@ public class MessageViewFragment extends SherlockListFragment {
 	    			event.html = event.msg;
 			}
 
-			if(event.from != null && event.hostmask != null && !type.equalsIgnoreCase("user_channel_mode") && !type.contains("kicked")) {
-				String usermask = event.from + "!" + event.hostmask;
+            String from = event.from;
+            if(from == null || from.length() == 0)
+                from = event.nick;
+
+			if(from != null && event.hostmask != null && !type.equalsIgnoreCase("user_channel_mode") && !type.contains("kicked")) {
+				String usermask = from + "!" + event.hostmask;
 				if(ignore.match(usermask)) {
                     if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
                         if(heartbeatTask != null)
