@@ -550,7 +550,7 @@ public class MessageViewFragment extends SherlockListFragment {
     	highlightsBottomLabel = (TextView)v.findViewById(R.id.highlightsBottom);
 
     	unreadTopView = v.findViewById(R.id.unreadTop);
-		unreadTopView.setVisibility(View.INVISIBLE);
+		unreadTopView.setVisibility(View.GONE);
     	unreadTopView.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -730,7 +730,7 @@ public class MessageViewFragment extends SherlockListFragment {
 			update_status(mServer.status, mServer.fail_info);
     	}
 		if(unreadTopView != null)
-			unreadTopView.setVisibility(View.INVISIBLE);
+			unreadTopView.setVisibility(View.GONE);
 		if(headerView != null) {
 			mHandler.postDelayed(new Runnable() {
 
