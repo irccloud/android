@@ -4,8 +4,6 @@
     <option name="DEFAULT_COMPILER" value="Javac" />
     <excludeFromCompile>
       <directory url="file://$PROJECT_DIR$/gen" includeSubdirectories="true" />
-      <directory url="file://$PROJECT_DIR$/../ActionBarSherlock/actionbarsherlock/gen" includeSubdirectories="true" />
-      <directory url="file://$PROJECT_DIR$/../android-websockets/gen" includeSubdirectories="true" />
     </excludeFromCompile>
     <resourceExtensions />
     <wildcardResourcePatterns>

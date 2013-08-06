@@ -8,17 +8,28 @@ buildscript {
 }
 apply plugin: 'android'
 
+tasks.withType(Compile) {
+    options.encoding = "UTF-8"
+}
+
 dependencies {
-    compile files('../../IRCCloud/libs/gson-2.2.2.jar')
+    compile project(':android-websockets')
+    compile files('libs/acra-4.4.0.jar')
+    compile files('libs/dashclock-api-r1.1.jar')
+    compile files('libs/gcm.jar')
+    compile files('libs/gson-2.2.2.jar')
+    compile files('libs/NotificationCompat2-1.1.2.jar')
+    compile 'com.android.support:support-v4:13.0.+'
+    compile 'com.android.support:appcompat-v7:18.0.+'
 }
 
 android {
-    compileSdkVersion 17
+    compileSdkVersion 18
     buildToolsVersion "17"
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 17
+        targetSdkVersion 18
     }
     sourceSets {
         main {

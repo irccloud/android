@@ -1,0 +1,2 @@
+include ':android-websockets'
+project(':android-websockets').projectDir = new File(settingsDir, '../android-websockets')
