@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,10 +37,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.google.gson.JsonArray;
 
-public class IgnoreListFragment extends SherlockDialogFragment {
+public class IgnoreListFragment extends DialogFragment {
 	JsonArray ignores;
 	int cid;
 	IgnoresAdapter adapter;
@@ -47,7 +47,7 @@ public class IgnoreListFragment extends SherlockDialogFragment {
 	ListView listView;
 	
 	private class IgnoresAdapter extends BaseAdapter {
-		private SherlockDialogFragment ctx;
+		private DialogFragment ctx;
 		
 		private class ViewHolder {
 			int position;
@@ -55,7 +55,7 @@ public class IgnoreListFragment extends SherlockDialogFragment {
 			Button removeBtn;
 		}
 	
-		public IgnoresAdapter(SherlockDialogFragment context) {
+		public IgnoresAdapter(DialogFragment context) {
 			ctx = context;
 		}
 		

@@ -21,11 +21,10 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.support.v4.app.FragmentActivity;
 import com.google.android.gcm.GCMRegistrar;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.actionbarsherlock.app.SherlockActivity;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -57,7 +56,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class MainActivity extends SherlockActivity {
+public class MainActivity extends FragmentActivity {
 	private View login = null;
 	private AutoCompleteTextView email;
 	private EditText password;
@@ -77,9 +76,7 @@ public class MainActivity extends SherlockActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_main);
-        if(getSupportActionBar() != null)
-        	getSupportActionBar().hide();
-        
+
         connecting = findViewById(R.id.connecting);
 		errorMsg = (TextView)findViewById(R.id.errorMsg);
 		connectingMsg = (TextView)findViewById(R.id.connectingMsg);

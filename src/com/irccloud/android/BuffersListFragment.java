@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,9 +47,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
-public class BuffersListFragment extends SherlockListFragment {
+public class BuffersListFragment extends ListFragment {
 	private static final int TYPE_SERVER = 0;
 	private static final int TYPE_CHANNEL = 1;
 	private static final int TYPE_CONVERSATION = 2;
@@ -94,7 +93,7 @@ public class BuffersListFragment extends SherlockListFragment {
 
 	private class BufferListAdapter extends BaseAdapter {
 		ArrayList<BufferListEntry> data;
-		private SherlockListFragment ctx;
+		private ListFragment ctx;
 		int progressRow = -1;
 		
 		private class ViewHolder {
@@ -123,7 +122,7 @@ public class BuffersListFragment extends SherlockListFragment {
 			return -1;
 		}
 		
-		public BufferListAdapter(SherlockListFragment context) {
+		public BufferListAdapter(ListFragment context) {
 			ctx = context;
 			data = new ArrayList<BufferListEntry>();
 		}

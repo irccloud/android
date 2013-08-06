@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.ContextThemeWrapper;
@@ -38,10 +39,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.google.gson.JsonArray;
 
-public class AcceptListFragment extends SherlockDialogFragment {
+public class AcceptListFragment extends DialogFragment {
 	JsonArray acceptList;
 	int cid;
 	IRCCloudJSONObject event;
@@ -50,7 +50,7 @@ public class AcceptListFragment extends SherlockDialogFragment {
 	ListView listView;
 	
 	private class AcceptListAdapter extends BaseAdapter {
-		private SherlockDialogFragment ctx;
+		private DialogFragment ctx;
 		
 		private class ViewHolder {
 			int position;
@@ -58,7 +58,7 @@ public class AcceptListFragment extends SherlockDialogFragment {
 			Button removeBtn;
 		}
 	
-		public AcceptListAdapter(SherlockDialogFragment context) {
+		public AcceptListAdapter(DialogFragment context) {
 			ctx = context;
 		}
 		

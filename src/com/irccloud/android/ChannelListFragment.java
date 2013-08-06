@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ListFragment;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextThemeWrapper;
@@ -33,11 +34,10 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class ChannelListFragment extends SherlockListFragment {
+public class ChannelListFragment extends ListFragment {
 	ArrayList<ChannelsAdapter.Channel> channels;
 	ChannelsAdapter adapter;
 	NetworkConnection conn;
@@ -46,7 +46,7 @@ public class ChannelListFragment extends SherlockListFragment {
 	ServersDataSource.Server server;
 	
 	private class ChannelsAdapter extends BaseAdapter {
-		private SherlockListFragment ctx;
+		private ListFragment ctx;
 		
 		private class ViewHolder {
 			TextView channel;
@@ -58,7 +58,7 @@ public class ChannelListFragment extends SherlockListFragment {
 			Spanned topic;
 		}
 		
-		public ChannelsAdapter(SherlockListFragment context) {
+		public ChannelsAdapter(ListFragment context) {
 			ctx = context;
 		}
 		

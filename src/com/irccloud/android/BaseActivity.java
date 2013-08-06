@@ -16,9 +16,8 @@
 
 package com.irccloud.android;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
+import android.view.*;
 import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
@@ -30,16 +29,12 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class BaseActivity extends SherlockFragmentActivity {
+public class BaseActivity extends ActionBarActivity {
 	NetworkConnection conn;
 
     @Override
@@ -302,7 +297,7 @@ public class BaseActivity extends SherlockFragmentActivity {
 	
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportMenuInflater().inflate(R.menu.activity_base, menu);
+        getMenuInflater().inflate(R.menu.activity_base, menu);
 
         return super.onCreateOptionsMenu(menu);
     }

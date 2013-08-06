@@ -18,7 +18,7 @@ package com.irccloud.android;
 
 import java.util.ArrayList;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
+import android.support.v4.app.DialogFragment;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -42,7 +42,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class EditConnectionFragment extends SherlockDialogFragment {
+public class EditConnectionFragment extends DialogFragment {
 	private class PresetServersAdapter extends BaseAdapter {
 		private Activity ctx;
 		

@@ -21,11 +21,6 @@ import java.util.HashMap;
 
 import android.graphics.drawable.Drawable;
 import android.view.*;
-import com.actionbarsherlock.view.*;
-import com.actionbarsherlock.view.ActionProvider;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.SubMenu;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -701,7 +696,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         refreshUpIndicatorTask = new RefreshUpIndicatorTask();
         refreshUpIndicatorTask.execute((Void)null);
 
-    	invalidateOptionsMenu();
+    	supportInvalidateOptionsMenu();
     	
     	if(NetworkConnection.getInstance().ready) {
 			if(showNotificationsTask != null)
@@ -870,7 +865,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		}
 	    	}
     	}
-    	invalidateOptionsMenu();
+    	supportInvalidateOptionsMenu();
     }
     
     private void updateUsersListFragmentVisibility() {
@@ -1083,7 +1078,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    	break;
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
-				invalidateOptionsMenu();
+				supportInvalidateOptionsMenu();
 		        if(refreshUpIndicatorTask != null)
 		        	refreshUpIndicatorTask.cancel(true);
 		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
@@ -1096,7 +1091,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					event = (IRCCloudJSONObject)msg.obj;
 					if(event.cid() == cid) {
 						status = event.getString("new_status");
-						invalidateOptionsMenu();
+						supportInvalidateOptionsMenu();
 					}
 				} catch (Exception e1) {
 					// TODO Auto-generated catch block
@@ -1107,14 +1102,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				ServersDataSource.Server server = (ServersDataSource.Server)msg.obj;
 				if(server.cid == cid) {
 					status = server.status;
-					invalidateOptionsMenu();
+					supportInvalidateOptionsMenu();
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
 				event_bid = (Integer)msg.obj;
 				if(event_bid == bid) {
 					archived = 1;
-					invalidateOptionsMenu();
+					supportInvalidateOptionsMenu();
 					subtitle.setVisibility(View.VISIBLE);
 					subtitle.setText("(archived)");
 				}
@@ -1123,7 +1118,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				event_bid = (Integer)msg.obj;
 				if(event_bid == bid) {
 					archived = 0;
-					invalidateOptionsMenu();
+					supportInvalidateOptionsMenu();
 					subtitle.setVisibility(View.GONE);
 				}
 				break;
@@ -1131,7 +1126,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				event = (IRCCloudJSONObject)msg.obj;
 				if(event.bid() == bid && event.type().equalsIgnoreCase("you_joined_channel")) {
 					joined = 1;
-					invalidateOptionsMenu();
+					supportInvalidateOptionsMenu();
 					updateUsersListFragmentVisibility();
 				}
 				break;
@@ -1140,7 +1135,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				event = (IRCCloudJSONObject)msg.obj;
 				if(event.bid() == bid && event.type().toLowerCase().startsWith("you_")) {
 					joined = 0;
-					invalidateOptionsMenu();
+					supportInvalidateOptionsMenu();
 					updateUsersListFragmentVisibility();
 				}
 				break;
@@ -1150,7 +1145,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					joined = 1;
 					archived = 0;
 			    	update_subtitle();
-					invalidateOptionsMenu();
+					supportInvalidateOptionsMenu();
 					updateUsersListFragmentVisibility();
 				}
 				break;
@@ -1503,16 +1498,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     public boolean onCreateOptionsMenu(Menu menu) {
     	if(type != null && NetworkConnection.getInstance().ready) {
 	    	if(type.equalsIgnoreCase("channel")) {
-	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
-	    		getSupportMenuInflater().inflate(R.menu.activity_message_channel, menu);
+	    		getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
+	    		getMenuInflater().inflate(R.menu.activity_message_channel, menu);
 	    	} else if(type.equalsIgnoreCase("conversation"))
-	    		getSupportMenuInflater().inflate(R.menu.activity_message_conversation, menu);
+	    		getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
 	    	else if(type.equalsIgnoreCase("console"))
-	    		getSupportMenuInflater().inflate(R.menu.activity_message_console, menu);
+	    		getMenuInflater().inflate(R.menu.activity_message_console, menu);
 	
-	    	getSupportMenuInflater().inflate(R.menu.activity_message_archive, menu);
+	    	getMenuInflater().inflate(R.menu.activity_message_archive, menu);
     	}
-    	getSupportMenuInflater().inflate(R.menu.activity_main, menu);
+    	getMenuInflater().inflate(R.menu.activity_main, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -2302,7 +2297,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			shouldFadeIn = true;
 	
 	    	updateUsersListFragmentVisibility();
-	    	invalidateOptionsMenu();
+	    	supportInvalidateOptionsMenu();
 			if(showNotificationsTask != null)
 				showNotificationsTask.cancel(true);
 			showNotificationsTask = new ShowNotificationsTask();

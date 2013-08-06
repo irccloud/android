@@ -15,26 +15,26 @@
   -->
 
 <resources>
-    <style name="AppTheme" parent="Theme.Sherlock.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
 	    <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
     </style>
-    <style name="AppThemeNoActionBar" parent="Theme.Sherlock.Light.NoActionBar">
+<!--    <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
 	    <item name="android:windowBackground">@drawable/background_blue</item>
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-	</style>
+	</style>-->
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
 		<item name="android:textColor">@android:color/primary_text_light</item>
 	</style>
-	<style name="Widget.Styled.ActionBar" parent="Widget.Sherlock.Light.ActionBar.Solid">
+	<style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
 	    <item name="background">@drawable/heading_bg_blue</item>
 	    <item name="android:background">@drawable/heading_bg_blue</item>
 	
 	    <item name="backgroundSplit">@drawable/heading_bg_blue</item>
 	    <item name="android:backgroundSplit">@drawable/heading_bg_blue</item>
 	</style>
-	<style name="EditEventCustomActionButton" parent="Widget.Sherlock.Light.ActionButton">
+	<style name="EditEventCustomActionButton" parent="Widget.AppCompat.Light.ActionButton">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>

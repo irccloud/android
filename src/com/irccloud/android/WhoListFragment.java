@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,10 +33,9 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.google.gson.JsonArray;
 
-public class WhoListFragment extends SherlockDialogFragment {
+public class WhoListFragment extends DialogFragment {
 	JsonArray users;
 	UsersAdapter adapter;
 	NetworkConnection conn;
@@ -43,7 +43,7 @@ public class WhoListFragment extends SherlockDialogFragment {
 	IRCCloudJSONObject event;
 	
 	private class UsersAdapter extends BaseAdapter {
-		private SherlockDialogFragment ctx;
+		private DialogFragment ctx;
 		
 		private class ViewHolder {
 			int position;
@@ -53,7 +53,7 @@ public class WhoListFragment extends SherlockDialogFragment {
 			TextView mask;
 		}
 	
-		public UsersAdapter(SherlockDialogFragment context) {
+		public UsersAdapter(DialogFragment context) {
 			ctx = context;
 		}
 		

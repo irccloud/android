@@ -34,9 +34,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginBottom="@dimen/abs__action_bar_icon_vertical_padding"
+        android:layout_marginBottom="@dimen/abc_action_bar_icon_vertical_padding"
         android:layout_marginRight="8dip"
-        android:layout_marginTop="@dimen/abs__action_bar_icon_vertical_padding"
+        android:layout_marginTop="@dimen/abc_action_bar_icon_vertical_padding"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_launcher" />
@@ -69,7 +69,7 @@
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:singleLine="true"
-                android:textSize="@dimen/abs__action_bar_title_text_size" />
+                android:textSize="@dimen/abc_action_bar_title_text_size" />
 
         </LinearLayout>
 
@@ -77,10 +77,10 @@
             android:id="@+id/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/abs__action_bar_subtitle_top_margin"
+            android:layout_marginTop="@dimen/abc_action_bar_subtitle_top_margin"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="@dimen/abs__action_bar_subtitle_text_size"
+            android:textSize="@dimen/abc_action_bar_subtitle_text_size"
             android:visibility="gone" />
     </LinearLayout>
 

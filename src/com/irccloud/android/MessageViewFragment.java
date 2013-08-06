@@ -27,6 +27,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import android.support.v4.app.ListFragment;
 import android.widget.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,12 +53,11 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-import com.actionbarsherlock.app.SherlockListFragment;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.irccloud.android.BuffersListFragment.OnBufferSelectedListener;
 
-public class MessageViewFragment extends SherlockListFragment {
+public class MessageViewFragment extends ListFragment {
 	private NetworkConnection conn;
 	private TextView statusView;
 	private View headerViewContainer;
@@ -135,7 +135,7 @@ public class MessageViewFragment extends SherlockListFragment {
 	
 	private class MessageAdapter extends BaseAdapter {
 		ArrayList<EventsDataSource.Event> data;
-		private SherlockListFragment ctx;
+		private ListFragment ctx;
 		private long max_eid = 0;
 		private long min_eid = 0;
 		private int lastDay = -1;
@@ -151,7 +151,7 @@ public class MessageViewFragment extends SherlockListFragment {
             ImageView failed;
 		}
 	
-		public MessageAdapter(SherlockListFragment context) {
+		public MessageAdapter(ListFragment context) {
 			ctx = context;
 			data = new ArrayList<EventsDataSource.Event>();
 			unseenHighlightPositions = new TreeSet<Integer>(Collections.reverseOrder());

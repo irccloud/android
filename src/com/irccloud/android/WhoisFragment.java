@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -29,10 +30,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.google.gson.JsonArray;
 
-public class WhoisFragment extends SherlockDialogFragment {
+public class WhoisFragment extends DialogFragment {
 	IRCCloudJSONObject event;
 	TextView extra, name, mask, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
 		ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle;

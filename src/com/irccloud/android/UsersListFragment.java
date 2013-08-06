@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 
 import android.app.Activity;
@@ -37,9 +38,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockListFragment;
-
-public class UsersListFragment extends SherlockListFragment {
+public class UsersListFragment extends ListFragment {
 	private static final int TYPE_HEADING = 0;
 	private static final int TYPE_USER = 1;
 	
@@ -55,7 +54,7 @@ public class UsersListFragment extends SherlockListFragment {
 	
 	private class UserListAdapter extends BaseAdapter {
 		ArrayList<UserListEntry> data;
-		private SherlockListFragment ctx;
+		private ListFragment ctx;
 		
 		private class ViewHolder {
 			int type;
@@ -74,7 +73,7 @@ public class UsersListFragment extends SherlockListFragment {
 			boolean last;
 		}
 
-		public UserListAdapter(SherlockListFragment context) {
+		public UserListAdapter(ListFragment context) {
 			ctx = context;
 			data = new ArrayList<UserListEntry>();
 		}

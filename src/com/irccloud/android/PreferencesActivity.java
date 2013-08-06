@@ -18,6 +18,8 @@ package com.irccloud.android;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.preference.*;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
@@ -31,17 +33,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-import com.actionbarsherlock.view.MenuItem;
-
-public class PreferencesActivity extends SherlockPreferenceActivity {
+public class PreferencesActivity extends PreferenceActivity {
 	NetworkConnection conn;
 	SaveSettingsTask saveSettingsTask = null;
 	SavePreferencesTask savePreferencesTask = null;
@@ -52,9 +47,10 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
+        getWindow().setTitle("Settings");
 		conn = NetworkConnection.getInstance();
-		getSupportActionBar().setTitle("Settings");
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		//getSupportActionBar().setTitle("Settings");
+		//getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		addPreferencesFromResource(R.xml.preferences_account);
 		addPreferencesFromResource(R.xml.preferences_display);
 		addPreferencesFromResource(R.xml.preferences_device);

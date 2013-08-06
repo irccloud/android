@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.ContextThemeWrapper;
@@ -38,10 +39,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockDialogFragment;
 import com.google.gson.JsonArray;
 
-public class BanListFragment extends SherlockDialogFragment {
+public class BanListFragment extends DialogFragment {
 	JsonArray bans;
 	int cid;
 	int bid;
@@ -52,7 +52,7 @@ public class BanListFragment extends SherlockDialogFragment {
 	boolean canUnBan = false;
 	
 	private class BansAdapter extends BaseAdapter {
-		private SherlockDialogFragment ctx;
+		private DialogFragment ctx;
 		
 		private class ViewHolder {
 			int position;
@@ -61,7 +61,7 @@ public class BanListFragment extends SherlockDialogFragment {
 			Button removeBtn;
 		}
 	
-		public BansAdapter(SherlockDialogFragment context) {
+		public BansAdapter(DialogFragment context) {
 			ctx = context;
 		}
 		
