@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.support.v4.app.ListFragment;
+import android.text.TextUtils;
 import android.widget.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -722,7 +723,7 @@ public class MessageViewFragment extends ListFragment {
     	if(mServer != null) {
     		ignore.setIgnores(mServer.ignores);
     		if(mServer.away != null && mServer.away.length() > 0) {
-    			awayTxt.setText("Away (" + mServer.away + ")");
+    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + mServer.away + ")"))).toString());
     			awayView.setVisibility(View.VISIBLE);
     		} else {
     			awayView.setVisibility(View.GONE);
@@ -1055,7 +1056,7 @@ public class MessageViewFragment extends ListFragment {
     	if(mServer != null) {
     		ignore.setIgnores(mServer.ignores);
     		if(mServer.away != null && mServer.away.length() > 0) {
-    			awayTxt.setText("Away (" + mServer.away + ")");
+    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + mServer.away + ")"))).toString());
     			awayView.setVisibility(View.VISIBLE);
     		} else {
     			awayView.setVisibility(View.GONE);
@@ -1831,7 +1832,7 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_SELFBACK:
 				if(mServer != null) {
 		    		if(mServer.away != null && mServer.away.length() > 0) {
-		    			awayTxt.setText("Away (" + mServer.away + ")");
+		    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + mServer.away + ")"))).toString());
 		    			awayView.setVisibility(View.VISIBLE);
 		    		} else {
 		    			awayView.setVisibility(View.GONE);

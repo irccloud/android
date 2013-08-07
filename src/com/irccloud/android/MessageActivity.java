@@ -198,7 +198,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
 	            	builder.setTitle("Channel Topic");
 	            	if(c.topic_text.length() > 0) {
-	            		builder.setMessage(ColorFormatter.html_to_spanned(TextUtils.htmlEncode(c.topic_text), true, ServersDataSource.getInstance().getServer(cid)));
+	            		builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), true, ServersDataSource.getInstance().getServer(cid)));
 	            	} else
 	            		builder.setMessage("No topic set.");
 	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
@@ -825,9 +825,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			if(user != null && user.away > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
 	    				if(user.away_msg != null && user.away_msg.length() > 0) {
-	    					subtitle.setText("Away: " + user.away_msg);
+	    					subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(user.away_msg))).toString());
 	    				} else if(b != null && b.away_msg != null && b.away_msg.length() > 0) {
-	    	        		subtitle.setText("Away: " + b.away_msg);
+	    	        		subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(b.away_msg))).toString());
 	    				} else {
 	    					subtitle.setText("Away");
 	    				}
@@ -839,7 +839,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
 		        	if(c != null && c.topic_text.length() > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
-		        		subtitle.setText(c.topic_text);
+		        		subtitle.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), false, null).toString());
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 		        	}

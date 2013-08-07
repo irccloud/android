@@ -23,6 +23,7 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -182,7 +183,7 @@ public class WhoisFragment extends DialogFragment {
     		if(event.has("user_logged_in_as") && event.getString("user_logged_in_as").length() > 0) {
     			nametxt += " (authed as " + event.getString("user_logged_in_as") + ")";
     		}
-    		name.setText(nametxt);
+    		name.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(nametxt))));
     		mask.setText(event.getString("user_username") + "@" + event.getString("user_host"));
     		String s = event.getString("server_addr");
     		if(event.has("server_extra") && event.getString("server_extra").length() > 0)
