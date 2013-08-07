@@ -33,6 +33,7 @@ public class BuffersDataSource {
 		int deferred;
 		int timeout;
 		String away_msg;
+        int valid;
 	}
 
 	public class comparator implements Comparator<Buffer> {
@@ -99,6 +100,7 @@ public class BuffersDataSource {
 		b.archived = archived;
 		b.deferred = deferred;
 		b.timeout = timeout;
+        b.valid = 1;
 		return b;
 	}
 
@@ -191,4 +193,33 @@ public class BuffersDataSource {
 		}
 		return list;
 	}
+
+    public synchronized void invalidate() {
+        Iterator<Buffer> i = buffers.iterator();
+        while(i.hasNext()) {
+            Buffer b = i.next();
+            b.valid = 0;
+        }
+    }
+
+    public synchronized void purgeInvalidBIDs() {
+        ArrayList<Buffer> buffersToRemove = new ArrayList<Buffer>();
+        Iterator<Buffer> i = buffers.iterator();
+        while(i.hasNext()) {
+            Buffer b = i.next();
+            if(b.valid == 0)
+                buffersToRemove.add(b);
+        }
+        i = buffersToRemove.iterator();
+        while(i.hasNext()) {
+            Buffer b = i.next();
+            EventsDataSource.getInstance().deleteEventsForBuffer(b.bid);
+            ChannelsDataSource.getInstance().deleteChannel(b.bid);
+            UsersDataSource.getInstance().deleteUsersForBuffer(b.cid, b.bid);
+            buffers.remove(b);
+            if(b.type.equalsIgnoreCase("console")) {
+                ServersDataSource.getInstance().deleteServer(b.cid);
+            }
+        }
+    }
 }

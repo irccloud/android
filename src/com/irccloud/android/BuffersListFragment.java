@@ -327,6 +327,7 @@ public class BuffersListFragment extends ListFragment {
 			
 			if(holder.addBtn != null) {
                 if(e.count > 1) {
+                    holder.addBtn.setVisibility(View.VISIBLE);
                     holder.addBtn.setTag(e);
                     holder.addBtn.setOnClickListener(new OnClickListener() {
                         @Override
