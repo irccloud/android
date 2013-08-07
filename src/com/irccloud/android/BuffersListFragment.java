@@ -52,6 +52,7 @@ public class BuffersListFragment extends ListFragment {
 	private static final int TYPE_CHANNEL = 1;
 	private static final int TYPE_CONVERSATION = 2;
 	private static final int TYPE_ARCHIVES_HEADER = 3;
+    private static final int TYPE_JOIN_CHANNEL = 4;
 	
 	NetworkConnection conn;
 	BufferListAdapter adapter;
@@ -89,6 +90,7 @@ public class BuffersListFragment extends ListFragment {
 		String name;
 		String status;
         int ssl;
+        int count;
 	}
 
 	private class BufferListAdapter extends BaseAdapter {
@@ -149,7 +151,7 @@ public class BuffersListFragment extends ListFragment {
 			return data.size() - 1;
 		}
 		
-		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl) {
+		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -165,6 +167,7 @@ public class BuffersListFragment extends ListFragment {
 			e.status = status;
 			e.timeout = timeout;
             e.ssl = ssl;
+            e.count = count;
 			return e;
 		}
 		
@@ -229,6 +232,10 @@ public class BuffersListFragment extends ListFragment {
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 					holder.bufferbg.setSelected(false);
 				}
+            } else if(e.type == TYPE_JOIN_CHANNEL) {
+                holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_join));
+                holder.unread.setBackgroundDrawable(null);
+                holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_join);
 			} else if(e.archived == 1 && holder.bufferbg != null) {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archived));
@@ -255,7 +262,9 @@ public class BuffersListFragment extends ListFragment {
 			}
 
 			if(holder.icon != null) {
-                if(e.type == TYPE_SERVER) {
+                if(e.type == TYPE_JOIN_CHANNEL) {
+                    holder.icon.setImageResource(R.drawable.add);
+                } else if(e.type == TYPE_SERVER) {
                     if(e.ssl > 0)
                         holder.icon.setImageResource(R.drawable.world_shield);
                     else
@@ -317,17 +326,21 @@ public class BuffersListFragment extends ListFragment {
 			}
 			
 			if(holder.addBtn != null) {
-				holder.addBtn.setTag(e);
-				holder.addBtn.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						BufferListEntry e = (BufferListEntry)v.getTag();
-			        	AddChannelFragment newFragment = new AddChannelFragment();
-			        	newFragment.setDefaultCid(e.cid);
-			            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
-			            mListener.addButtonPressed(e.cid);
-					}
-				});
+                if(e.count > 1) {
+                    holder.addBtn.setTag(e);
+                    holder.addBtn.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            BufferListEntry e = (BufferListEntry)v.getTag();
+                            AddChannelFragment newFragment = new AddChannelFragment();
+                            newFragment.setDefaultCid(e.cid);
+                            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+                            mListener.addButtonPressed(e.cid);
+                        }
+                    });
+                } else {
+                    holder.addBtn.setVisibility(View.GONE);
+                }
 			}
 			
 			return row;
@@ -394,7 +407,7 @@ public class BuffersListFragment extends ListFragment {
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl));
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl, buffers.size()));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -445,7 +458,7 @@ public class BuffersListFragment extends ListFragment {
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl));
+						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl, 0));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -461,7 +474,7 @@ public class BuffersListFragment extends ListFragment {
 					}
 				}
 				if(archiveCount > 0) {
-					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl));
+					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0));
 					position++;
 					if(mExpandArchives.get(s.cid, false)) {
 						for(int j = 0; j < buffers.size(); j++) {
@@ -474,13 +487,16 @@ public class BuffersListFragment extends ListFragment {
 									type = TYPE_CONVERSATION;
 								
 								if(type > 0) {
-									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl));
+									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl, 0));
 									position++;
 								}
 							}
 						}
 					}
 				}
+                if(buffers.size() == 1) {
+                    entries.add(adapter.buildItem(s.cid, 0, TYPE_JOIN_CHANNEL, "Join a channel…", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0));
+                }
 			}
 			return null;
 		}
@@ -686,6 +702,12 @@ public class BuffersListFragment extends ListFragment {
 			refreshTask = new RefreshTask();
 			refreshTask.execute((Void)null);
     		return;
+        case TYPE_JOIN_CHANNEL:
+            AddChannelFragment newFragment = new AddChannelFragment();
+            newFragment.setDefaultCid(e.cid);
+            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+            mListener.addButtonPressed(e.cid);
+            return;
     	case TYPE_SERVER:
     		type = "console";
     		break;
