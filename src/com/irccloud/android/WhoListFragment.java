@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
+import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -103,7 +104,7 @@ public class WhoListFragment extends DialogFragment {
 			
 			try {
 				holder.nick.setText(users.get(position).getAsJsonObject().get("nick").getAsString());
-				holder.name.setText(" (" + users.get(position).getAsJsonObject().get("realname").getAsString() + ")");
+				holder.name.setText(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).getAsJsonObject().get("realname").getAsString())) + ")"));
 				holder.server.setText("Connected via " + users.get(position).getAsJsonObject().get("ircserver").getAsString());
 				holder.mask.setText(users.get(position).getAsJsonObject().get("usermask").getAsString());
 			} catch (Exception e) {
