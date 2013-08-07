@@ -812,7 +812,7 @@ public class MessageViewFragment extends ListFragment {
                     event.color = R.color.timestamp;
                     event.bg_color = R.color.message_bg;
                 }
-				
+
 				if(!collapsedEvents.addEvent(event))
 				    collapsedEvents.clear();
 
@@ -822,12 +822,20 @@ public class MessageViewFragment extends ListFragment {
                     c.addEvent(event);
                     msg = c.getCollapsedMessage();
                     if(!nextIsGrouped) {
+                        String group_msg = collapsedEvents.getCollapsedMessage();
+                        if(group_msg == null && type.equalsIgnoreCase("nickchange")) {
+                            group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
+                        }
+                        if(group_msg == null && type.equalsIgnoreCase("user_channel_mode")) {
+                            group_msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                            currentCollapsedEid = eid;
+                        }
                         EventsDataSource.Event heading = EventsDataSource.getInstance().new Event();
                         heading.type = "__expanded_group_heading__";
                         heading.cid = event.cid;
                         heading.bid = event.bid;
                         heading.eid = currentCollapsedEid - 1;
-                        heading.group_msg = collapsedEvents.getCollapsedMessage();
+                        heading.group_msg = group_msg;
                         heading.color = R.color.timestamp;
                         heading.bg_color = R.color.message_bg;
                         heading.linkify = false;

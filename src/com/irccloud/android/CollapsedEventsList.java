@@ -74,15 +74,19 @@ public class CollapsedEventsList {
 	private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
 
     public boolean addEvent(EventsDataSource.Event event) {
-        if(event.type.equalsIgnoreCase("joined_channel")) {
+        String type = event.type;
+        if(type.startsWith("you_"))
+            type = type.substring(4);
+
+        if(type.equalsIgnoreCase("joined_channel")) {
             addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null);
-        } else if(event.type.equalsIgnoreCase("parted_channel")) {
+        } else if(type.equalsIgnoreCase("parted_channel")) {
             addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg);
-        } else if(event.type.equalsIgnoreCase("quit")) {
+        } else if(type.equalsIgnoreCase("quit")) {
             addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg);
-        } else if(event.type.equalsIgnoreCase("nickchange")) {
+        } else if(type.equalsIgnoreCase("nickchange")) {
             addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null);
-        } else if(event.type.equalsIgnoreCase("user_channel_mode")) {
+        } else if(type.equalsIgnoreCase("user_channel_mode")) {
             JsonObject ops = event.ops;
             if(ops != null) {
                 JsonArray add = ops.getAsJsonArray("add");
