@@ -454,9 +454,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
 				try {
 					if(NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableTrackUnread"))
-						channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+						channelDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
 					if(NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-disableTrackUnread"))
-						bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+						bufferDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

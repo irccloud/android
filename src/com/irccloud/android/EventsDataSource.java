@@ -17,8 +17,8 @@
 package com.irccloud.android;
 
 import android.annotation.SuppressLint;
+import android.text.Spanned;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,6 +62,8 @@ public class EventsDataSource {
 		boolean pending;
         boolean failed;
         String command;
+        int day;
+        Spanned formatted;
 	}
 	
 	public class comparator implements Comparator<Event> {
@@ -146,6 +148,7 @@ public class EventsDataSource {
 	    	e.pending = false;
             e.failed = false;
             e.command = null;
+            e.day = -1;
 
 	    	if(event.has("reqid"))
 	    		e.reqid = event.getInt("reqid");
@@ -540,4 +543,18 @@ public class EventsDataSource {
 		}
 		return count;
 	}
+
+    public synchronized void clearCacheForBuffer(int bid) {
+        synchronized(events) {
+            if(events.containsKey(bid)) {
+                Iterator<Event> i = events.get(bid).values().iterator();
+                while(i.hasNext()) {
+                    Event e = i.next();
+                    e.timestamp = null;
+                    e.html = null;
+                    e.formatted = null;
+                }
+            }
+        }
+    }
 }

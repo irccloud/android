@@ -257,24 +257,26 @@ public class MessageViewFragment extends ListFragment {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(eid / 1000);
 			int insert_pos = -1;
-			SimpleDateFormat formatter;
-			formatter = new SimpleDateFormat("h:mm a");
-			if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-				try {
-					JSONObject prefs = conn.getUserInfo().prefs;
-					if(prefs.has("time-24hr") && prefs.getBoolean("time-24hr")) {
-						if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
-							formatter = new SimpleDateFormat("H:mm:ss");
-						else
-							formatter = new SimpleDateFormat("H:mm");
-					} else if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds")) {
-						formatter = new SimpleDateFormat("h:mm:ss a");
-					}
-				} catch (JSONException e1) {
-					e1.printStackTrace();
-				}
-			}
-			e.timestamp = formatter.format(calendar.getTime());
+			SimpleDateFormat formatter = null;
+            if(e.timestamp == null || e.timestamp.length() == 0) {
+                formatter = new SimpleDateFormat("h:mm a");
+                if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                    try {
+                        JSONObject prefs = conn.getUserInfo().prefs;
+                        if(prefs.has("time-24hr") && prefs.getBoolean("time-24hr")) {
+                            if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+                                formatter = new SimpleDateFormat("H:mm:ss");
+                            else
+                                formatter = new SimpleDateFormat("H:mm");
+                        } else if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds")) {
+                            formatter = new SimpleDateFormat("h:mm:ss a");
+                        }
+                    } catch (JSONException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                e.timestamp = formatter.format(calendar.getTime());
+            }
 			e.group_eid = currentCollapsedEid;
 			if(e.group_msg != null && e.html == null)
 				e.html = e.group_msg;
@@ -283,17 +285,22 @@ public class MessageViewFragment extends ListFragment {
 				e.html = ColorFormatter.irc_to_html(e.html);
 			}
 
+            if(e.formatted == null)
+                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+
+            if(e.day < 1) {
+                e.day = calendar.get(Calendar.DAY_OF_YEAR);
+            }
+
 			if(currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
 				calendar.setTimeInMillis(e.eid / 1000);
-				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+				lastDay = e.day;
 				data.remove(currentGroupPosition);
 				data.add(currentGroupPosition, e);
 				insert_pos = currentGroupPosition;
 			} else if(eid > max_eid || data.size() == 0 || eid > data.get(data.size()-1).eid) { //Message at the bottom
 				if(data.size() > 0) {
-					calendar.setTimeInMillis(data.get(data.size()-1).eid / 1000);
-					lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-					calendar.setTimeInMillis(eid/1000);
+					lastDay = data.get(data.size()-1).day;
 				} else {
 					lastDay = 0;
 				}
@@ -302,9 +309,7 @@ public class MessageViewFragment extends ListFragment {
 				insert_pos = data.size() - 1;
 			} else if(min_eid > eid) { //Message goes on top
 				if(data.size() > 1) {
-					calendar.setTimeInMillis(data.get(1).eid / 1000);
-					lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-					calendar.setTimeInMillis(eid/1000);
+					lastDay = data.get(1).day;
 					if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
 						data.add(0, e);
 						insert_pos = 0;
@@ -321,24 +326,19 @@ public class MessageViewFragment extends ListFragment {
 				for(EventsDataSource.Event e1 : data) {
 					if(e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid) { //Insert the message
 						if(i > 0 && data.get(i-1).row_type != ROW_TIMESTAMP) {
-							calendar.setTimeInMillis(data.get(i-1).eid / 1000);
-							lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+							lastDay = data.get(i-1).day;
 							data.add(i, e);
 							insert_pos = i;
 							break;
 						} else { //There was a date line above our insertion point
-							calendar.setTimeInMillis(e1.eid / 1000);
-							lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-							calendar.setTimeInMillis(eid/1000);
+							lastDay = e1.day;
 							if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
 								if(i > 1) {
-									calendar.setTimeInMillis(data.get(i-2).eid / 1000);
-									lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+									lastDay = data.get(i-2).day;
 								} else {
 									//We're above the first dateline, so we'll need to put a new one on top!
 									lastDay = 0;
 								}
-								calendar.setTimeInMillis(eid/1000);
 								data.add(i-1, e);
 								insert_pos = i-1;
 							} else { //Insert below the dateline
@@ -376,7 +376,10 @@ public class MessageViewFragment extends ListFragment {
 			}
 			
 			if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
-				formatter.applyPattern("EEEE, MMMM dd, yyyy");
+                if(formatter == null)
+    				formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
+                else
+                    formatter.applyPattern("EEEE, MMMM dd, yyyy");
 				EventsDataSource.Event d = EventsDataSource.getInstance().new Event();
 				d.type = TYPE_TIMESTAMP;
 				d.row_type = ROW_TIMESTAMP;
@@ -481,7 +484,9 @@ public class MessageViewFragment extends ListFragment {
                 } catch (Exception e1) {
 
                 }
-				holder.message.setText(ColorFormatter.html_to_spanned(e.html, e.linkify, mServer));
+                if(e.formatted == null)
+                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+				holder.message.setText(e.formatted);
 			}
 
             if(holder.expandable != null) {
@@ -704,6 +709,10 @@ public class MessageViewFragment extends ListFragment {
     		tapTimer.cancel();
     	tapTimer = null;
     	cid = args.getInt("cid", 0);
+        if(bid == -1 || (args.containsKey("bid") && args.getInt("bid", 0) != bid)) {
+            Log.i("IRCCloud", "BID changed, clearing caches");
+            EventsDataSource.getInstance().clearCacheForBuffer(args.getInt("bid", 0));
+        }
     	bid = args.getInt("bid", 0);
     	last_seen_eid = args.getLong("last_seen_eid", 0);
     	min_eid = args.getLong("min_eid", 0);
@@ -865,10 +874,12 @@ public class MessageViewFragment extends ListFragment {
 			} else {
 				currentCollapsedEid = -1;
 				collapsedEvents.clear();
-	    		if(event.from != null)
-	    			event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> " + event.msg;
-	    		else
-	    			event.html = event.msg;
+                if(event.html == null) {
+                    if(event.from != null)
+                        event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> " + event.msg;
+                    else
+                        event.html = event.msg;
+                }
 			}
 
             String from = event.from;
@@ -1039,6 +1050,7 @@ public class MessageViewFragment extends ListFragment {
 				update_status(mServer.status, mServer.fail_info);
     	}
 		if(bid != -1) {
+            EventsDataSource.getInstance().clearCacheForBuffer(bid);
 			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 			if(b != null)
 				last_seen_eid = b.last_seen_eid;
@@ -1727,6 +1739,7 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
 			case NetworkConnection.EVENT_USERINFO:
+                EventsDataSource.getInstance().clearCacheForBuffer(bid);
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();
