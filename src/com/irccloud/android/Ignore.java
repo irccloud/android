@@ -19,37 +19,50 @@ package com.irccloud.android;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
+import java.util.ArrayList;
+
 public class Ignore {
-	private JsonArray ignores = null;
+	private ArrayList<String> ignores = new ArrayList<String>();
 	
 	public void setIgnores(JsonArray ignores) {
-		this.ignores = ignores;
-	}
+        for(int i = 0; i < ignores.size(); i++) {
+            String mask = ignores.get(i).getAsString().toLowerCase()
+            .replace("(", "\\(")
+            .replace(")", "\\)")
+            .replace("[", "\\[")
+            .replace("]", "\\]")
+            .replace("{", "\\{")
+            .replace("}", "\\}")
+            .replace("-", "\\-")
+            .replace("^", "\\^")
+            .replace("$", "\\$")
+            .replace("|", "\\|")
+            .replace("*", ".*")
+            .replace("!~", "!");
+            if(!mask.contains("!"))
+                if(mask.contains("@"))
+                    mask = ".*!" + mask;
+                else
+                    mask += "!.*";
+            if(!mask.contains("@"))
+                if(mask.contains("!"))
+                    mask = mask.replace("!", "!.*@");
+                else
+                    mask += "@.*";
+            if(mask.equals(".*!.*@.*"))
+                continue;
+            this.ignores.add(mask);
+        }
+    }
 
 	public void addMask(String usermask) {
-		if(ignores == null)
-			ignores = new JsonArray();
-
-		ignores.add(new JsonPrimitive(usermask));
+		ignores.add(usermask);
 	}
 	
 	public boolean match(String usermask) {
 		if(ignores != null && ignores.size() > 0) {
-			for(int i = 0; i < ignores.size(); i++) {
-				String mask = ignores.get(i).getAsString().toLowerCase().replace("*", ".*").replace("!~", "!");
-				if(!mask.contains("!"))
-					if(mask.contains("@"))
-						mask = ".*!" + mask;
-					else
-						mask += "!.*";
-				if(!mask.contains("@"))
-					if(mask.contains("!"))
-						mask = mask.replace("!", "!.*@");
-					else
-						mask += "@.*";
-				if(mask.equals(".*!.*@.*"))
-					continue;
-				if(usermask.replace("!~","!").toLowerCase().matches(mask))
+            for(String ignore : ignores) {
+				if(usermask.replace("!~","!").toLowerCase().matches(ignore))
 					return true;
 			}
 		}
