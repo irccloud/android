@@ -870,6 +870,7 @@ public class MessageViewFragment extends ListFragment {
 				}
 				event.group_msg = msg;
 				event.html = null;
+                event.formatted = null;
 				event.linkify = false;
 			} else {
 				currentCollapsedEid = -1;
