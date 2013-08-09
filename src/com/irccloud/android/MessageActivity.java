@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.graphics.drawable.Drawable;
+import android.os.Debug;
 import android.view.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -2289,6 +2290,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			anim.setDuration(200);
 			anim.setFillAfter(true);
             try {
+                mvf.showSpinner(true);
                 mvf.getListView().startAnimation(anim);
                 ulf.getListView().startAnimation(anim);
             } catch (Exception e) {
@@ -2329,12 +2331,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
 			anim.setDuration(200);
 			anim.setFillAfter(true);
-			if(mvf != null && mvf.getListView() != null)
+			if(mvf != null && mvf.getListView() != null) {
+                mvf.showSpinner(false);
 				mvf.getListView().startAnimation(anim);
+            }
 			if(ulf != null && ulf.getListView() != null)
 				ulf.getListView().startAnimation(anim);
 			shouldFadeIn = false;
-		}
+        }
 	}
 
 	@Override

@@ -141,7 +141,7 @@ public class IgnoreListFragment extends DialogFragment {
     	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
-        	ignores = ServersDataSource.getInstance().getServer(cid).ignores;
+        	ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
         	adapter = new IgnoresAdapter(this);
         	listView.setAdapter(adapter);
         }
@@ -208,7 +208,7 @@ public class IgnoreListFragment extends DialogFragment {
     public void setArguments(Bundle args) {
     	cid = args.getInt("cid", 0);
     	if(cid > 0 && listView != null) {
-        	ignores = ServersDataSource.getInstance().getServer(cid).ignores;
+        	ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
         	adapter = new IgnoresAdapter(this);
         	listView.setAdapter(adapter);
     	}
@@ -220,7 +220,7 @@ public class IgnoreListFragment extends DialogFragment {
     	conn.addHandler(mHandler);
     	
     	if(ignores == null && cid > 0) {
-        	ignores = ServersDataSource.getInstance().getServer(cid).ignores;
+            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
         	adapter = new IgnoresAdapter(this);
         	listView.setAdapter(adapter);
     	}
@@ -239,14 +239,14 @@ public class IgnoreListFragment extends DialogFragment {
 			case NetworkConnection.EVENT_MAKESERVER:
 				ServersDataSource.Server s = (ServersDataSource.Server)msg.obj;
 				if(s.cid == cid) {
-		        	ignores = ServersDataSource.getInstance().getServer(cid).ignores;
+                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
 		        	adapter.notifyDataSetChanged();
 				}
 				break;
 			case NetworkConnection.EVENT_SETIGNORES:
 				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
 				if(o.cid() == cid) {
-		        	ignores = ServersDataSource.getInstance().getServer(cid).ignores;
+                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
 		        	adapter.notifyDataSetChanged();
 				}
 				break;

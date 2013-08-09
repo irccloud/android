@@ -43,7 +43,8 @@ public class ServersDataSource {
 		String usermask;
 		String mode;
 		JsonObject isupport;
-		JsonArray ignores;
+        JsonArray raw_ignores;
+		ArrayList<String> ignores;
 	}
 
 	public class comparator implements Comparator<Server> {
@@ -52,7 +53,6 @@ public class ServersDataSource {
 		}
 	}
 
-	
 	private ArrayList<Server> servers;
 	
 	private static ServersDataSource instance = null;
@@ -93,8 +93,8 @@ public class ServersDataSource {
 		s.away = away;
 		s.usermask = "";
 		s.mode = "";
-		s.ignores = ignores;
-		Collections.sort(servers, new comparator());
+        updateIgnores(cid, ignores);
+        Collections.sort(servers, new comparator());
 		return s;
 	}
 	
@@ -155,7 +155,42 @@ public class ServersDataSource {
 	public void updateIgnores(int cid, JsonArray ignores) {
 		Server s = getServer(cid);
 		if(s != null) {
-			s.ignores = ignores;
+            s.raw_ignores = ignores;
+            s.ignores = new ArrayList<String>();
+            for(int i = 0; i < ignores.size(); i++) {
+                String mask = ignores.get(i).getAsString().toLowerCase()
+                        .replace("\\", "\\\\")
+                        .replace("(", "\\(")
+                        .replace(")", "\\)")
+                        .replace("[", "\\[")
+                        .replace("]", "\\]")
+                        .replace("{", "\\{")
+                        .replace("}", "\\}")
+                        .replace("-", "\\-")
+                        .replace("^", "\\^")
+                        .replace("$", "\\$")
+                        .replace("|", "\\|")
+                        .replace("+", "\\+")
+                        .replace("?", "\\?")
+                        .replace(".", "\\.")
+                        .replace(",", "\\,")
+                        .replace("#", "\\#")
+                        .replace("*", ".*")
+                        .replace("!~", "!");
+                if(!mask.contains("!"))
+                    if(mask.contains("@"))
+                        mask = ".*!" + mask;
+                    else
+                        mask += "!.*";
+                if(!mask.contains("@"))
+                    if(mask.contains("!"))
+                        mask = mask.replace("!", "!.*@");
+                    else
+                        mask += "@.*";
+                if(mask.equals(".*!.*@.*"))
+                    continue;
+                s.ignores.add(mask);
+            }
 		}
 	}
 

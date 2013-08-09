@@ -27,6 +27,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import android.os.Debug;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.widget.*;
@@ -97,6 +98,7 @@ public class MessageViewFragment extends ListFragment {
 	private int timestamp_width = -1;
 	private View globalMsgView = null;
 	private TextView globalMsg = null;
+    private ProgressBar spinner = null;
 	
 	public static final int ROW_MESSAGE = 0;
 	public static final int ROW_TIMESTAMP = 1;
@@ -281,12 +283,10 @@ public class MessageViewFragment extends ListFragment {
 			if(e.group_msg != null && e.html == null)
 				e.html = e.group_msg;
 
-			if(e.html != null) {
+			/*if(e.html != null) {
 				e.html = ColorFormatter.irc_to_html(e.html);
-			}
-
-            if(e.formatted == null)
                 e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+			}*/
 
             if(e.day < 1) {
                 e.day = calendar.get(Calendar.DAY_OF_YEAR);
@@ -415,6 +415,16 @@ public class MessageViewFragment extends ListFragment {
 				return -1;
 		}
 
+        public void format() {
+            for(int i = 0; i < data.size(); i++) {
+                EventsDataSource.Event e = data.get(i);
+                if(e.html != null) {
+                    e.html = ColorFormatter.irc_to_html(e.html);
+                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                }
+            }
+        }
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			EventsDataSource.Event e = data.get(position);
@@ -471,7 +481,12 @@ public class MessageViewFragment extends ListFragment {
 					holder.message.setVisibility(View.GONE);
 				}
 			}
-			
+
+            if(e.html != null && e.formatted == null) {
+                e.html = ColorFormatter.irc_to_html(e.html);
+                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+            }
+
 			if(holder.message != null && e.html != null) {
 				holder.message.setMovementMethod(linkMovementMethodNoLongPress);
 				holder.message.setOnClickListener(new OnItemClickListener(position));
@@ -484,8 +499,6 @@ public class MessageViewFragment extends ListFragment {
                 } catch (Exception e1) {
 
                 }
-                if(e.formatted == null)
-                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
 				holder.message.setText(e.formatted);
 			}
 
@@ -607,11 +620,19 @@ public class MessageViewFragment extends ListFragment {
 					return false;
 				}
 			}
-    		
     	});
+        spinner = (ProgressBar)v.findViewById(R.id.spinner);
     	return v;
     }
-	
+
+    public void showSpinner(boolean show) {
+        if(show) {
+            spinner.setVisibility(View.VISIBLE);
+        } else {
+            spinner.setVisibility(View.GONE);
+        }
+    }
+
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -938,7 +959,7 @@ public class MessageViewFragment extends ListFragment {
 	    	if(getListView().getLastVisiblePosition() >= (adapter.getCount() - 1)) {
 	    		shouldShowUnread = false;
 	    	}
-	    	if(!backlog && shouldShowUnread && !event.self) {
+	    	if(!backlog && shouldShowUnread && !event.self && EventsDataSource.getInstance().isImportant(event, type)) {
 	    		if(newMsgTime == 0)
 	    			newMsgTime = System.currentTimeMillis();
 				newMsgs++;
@@ -1155,12 +1176,39 @@ public class MessageViewFragment extends ListFragment {
 				heartbeatTask = null;
 		}
     }
-    
-	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
+
+    private class FormatTask extends AsyncTaskEx<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            adapter.format();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+        }
+    }
+
+    private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
 		TreeMap<Long,EventsDataSource.Event> events;
 		BuffersDataSource.Buffer buffer;
-		
-		@SuppressWarnings("unchecked")
+        int oldPosition = -1;
+        int topOffset = -1;
+
+        @Override
+        protected void onPreExecute() {
+            //Debug.startMethodTracing("refresh");
+            oldPosition = getListView().getFirstVisiblePosition();
+            View v = getListView().getChildAt(0);
+            topOffset = (v == null) ? 0 : v.getTop();
+        }
+
+        @SuppressWarnings("unchecked")
 		@Override
 		protected Void doInBackground(Void... params) {
 			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
@@ -1169,49 +1217,56 @@ public class MessageViewFragment extends ListFragment {
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			if(!isCancelled() && events != null && events.size() > 0) {
     			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
+                if(isCancelled())
+                    return null;
+
+                if(events != null && events.size() > 0) {
+                    try {
+                        if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
+                            backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
+                            if(backlog_eid < 0) {
+                                backlog_eid = adapter.getItemId(oldPosition) - 1;
+                            }
+                            EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
+                            backlogMarker.eid = backlog_eid;
+                            backlogMarker.type = TYPE_BACKLOGMARKER;
+                            backlogMarker.row_type = ROW_BACKLOGMARKER;
+                            backlogMarker.html = "__backlog__";
+                            backlogMarker.bg_color = R.color.message_bg;
+                            events.put(backlog_eid, backlogMarker);
+                        }
+                        adapter = new MessageAdapter(MessageViewFragment.this);
+                        refresh(events, buffer);
+                    } catch (IndexOutOfBoundsException e) {
+                        return null;
+                    } catch (IllegalStateException e) {
+                        //The list view doesn't exist yet
+                        Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
+                    }
+                } else if(bid != -1 && min_eid > 0 && conn.ready) {
+                    headerView.setVisibility(View.VISIBLE);
+                }
 			}
 			return null;
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
-			if(isCancelled())
-				return;
-			
-			if(events != null && events.size() > 0) {
-				try {
-					int oldPosition = getListView().getFirstVisiblePosition();
-					if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
-						backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
-						if(backlog_eid < 0) {
-							backlog_eid = adapter.getItemId(oldPosition) - 1;
-						}
-						EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
-						backlogMarker.eid = backlog_eid;
-						backlogMarker.type = TYPE_BACKLOGMARKER;
-						backlogMarker.row_type = ROW_BACKLOGMARKER;
-						backlogMarker.html = "__backlog__";
-						backlogMarker.bg_color = R.color.message_bg;
-						events.put(backlog_eid, backlogMarker);
-					}
-					adapter.clear();
-					refresh(events, buffer);
-					int markerPos = adapter.getBacklogMarkerPosition();
-					if(markerPos != -1 && requestingBacklog) {
-						getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
-					}
-                } catch (IndexOutOfBoundsException e) {
-                    return;
-				} catch (IllegalStateException e) {
-					//The list view doesn't exist yet
-					Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
-				}
-			} else if(bid != -1 && min_eid > 0 && conn.ready) {
-				headerView.setVisibility(View.VISIBLE);
-				adapter.notifyDataSetInvalidated();
-			}
-			requestingBacklog = false;
+            setListAdapter(adapter);
+            if(events != null && events.size() > 0) {
+                int markerPos = adapter.getBacklogMarkerPosition();
+                if(markerPos != -1 && requestingBacklog)
+                    getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
+                else if(firstScroll)
+                    getListView().setSelection(adapter.getCount() - 1);
+                else
+                    getListView().setSelectionFromTop(oldPosition, topOffset);
+            }
 			refreshTask = null;
+            firstScroll = false;
+            requestingBacklog = false;
+            new FormatTask().execute((Void)null);
+            //Debug.stopMethodTracing();
 		}
 	}
 
@@ -1274,38 +1329,19 @@ public class MessageViewFragment extends ListFragment {
 	    				insertEvent(e, true, false);
 	    			}
 	    		}
-	    		if(adapter.getLastSeenEIDPosition() == -1)
-	    			adapter.insertLastSeenEIDMarker();
+    			adapter.insertLastSeenEIDMarker();
 	    		Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
 	    		//Debug.stopMethodTracing();
 	    		avgInsertTime = 0;
-				adapter.notifyDataSetChanged();
+				//adapter.notifyDataSetChanged();
 	    	}
 		}
-		mHandler.removeCallbacks(mFirstScrollRunnable);
 		mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
-		mHandler.post(mFirstScrollRunnable);
 		mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
 		if(conn.getReconnectTimestamp() == 0)
 			conn.schedule_idle_timer();
 	}
 
-	private Runnable mFirstScrollRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if(adapter != null && adapter.data.size() > 0) {
-				if(firstScroll) {
-					try {
-						getListView().setSelection(adapter.data.size() - 1);
-						firstScroll = false;
-					} catch (IllegalStateException e) {
-						//The list view isn't ready yet
-					}
-				}
-			}
-		}
-	};
-	
 	private Runnable mUpdateTopUnreadRunnable = new Runnable() {
 		@Override
 		public void run() {

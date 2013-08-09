@@ -24,48 +24,15 @@ import java.util.ArrayList;
 public class Ignore {
 	private ArrayList<String> ignores = new ArrayList<String>();
 	
-	public void setIgnores(JsonArray ignores) {
-        for(int i = 0; i < ignores.size(); i++) {
-            String mask = ignores.get(i).getAsString().toLowerCase()
-                    .replace("\\", "\\\\")
-                    .replace("(", "\\(")
-                    .replace(")", "\\)")
-                    .replace("[", "\\[")
-                    .replace("]", "\\]")
-                    .replace("{", "\\{")
-                    .replace("}", "\\}")
-                    .replace("-", "\\-")
-                    .replace("^", "\\^")
-                    .replace("$", "\\$")
-                    .replace("|", "\\|")
-                    .replace("+", "\\+")
-                    .replace("?", "\\?")
-                    .replace(".", "\\.")
-                    .replace(",", "\\,")
-                    .replace("#", "\\#")
-                    .replace("*", ".*")
-                    .replace("!~", "!");
-            if(!mask.contains("!"))
-                if(mask.contains("@"))
-                    mask = ".*!" + mask;
-                else
-                    mask += "!.*";
-            if(!mask.contains("@"))
-                if(mask.contains("!"))
-                    mask = mask.replace("!", "!.*@");
-                else
-                    mask += "@.*";
-            if(mask.equals(".*!.*@.*"))
-                continue;
-            this.ignores.add(mask);
-        }
+	public synchronized void setIgnores(ArrayList<String> ignores) {
+        this.ignores = ignores;
     }
 
-	public void addMask(String usermask) {
+	public synchronized void addMask(String usermask) {
 		ignores.add(usermask);
 	}
 	
-	public boolean match(String usermask) {
+	public synchronized boolean match(String usermask) {
 		if(ignores != null && ignores.size() > 0) {
             for(String ignore : ignores) {
 				if(usermask.replace("!~","!").toLowerCase().matches(ignore))
