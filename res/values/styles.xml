@@ -20,10 +20,7 @@
 	    <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
     </style>
-<!--    <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
-	    <item name="android:windowBackground">@drawable/background_blue</item>
-	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-	</style>-->
+    <style name="PrefsTheme" parent="@android:style/Theme"/>
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
 		<item name="android:textColor">@android:color/primary_text_light</item>
 	</style>

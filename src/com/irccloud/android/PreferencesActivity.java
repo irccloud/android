@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.preference.*;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,10 +48,10 @@ public class PreferencesActivity extends PreferenceActivity {
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
-        getWindow().setTitle("Settings");
+        if(Build.VERSION.SDK_INT >= 11) {
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 		conn = NetworkConnection.getInstance();
-		//getSupportActionBar().setTitle("Settings");
-		//getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		addPreferencesFromResource(R.xml.preferences_account);
 		addPreferencesFromResource(R.xml.preferences_display);
 		addPreferencesFromResource(R.xml.preferences_device);

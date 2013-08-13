@@ -52,7 +52,7 @@
             android:name=".EditConnectionActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        <activity android:name=".PreferencesActivity">
+        <activity android:name=".PreferencesActivity" android:theme="@style/PrefsTheme" android:label="@string/menu_settings">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
