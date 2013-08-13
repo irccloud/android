@@ -25,9 +25,8 @@
 		<item name="android:textColor">@android:color/primary_text_light</item>
 	</style>
 	<style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
-	    <item name="background">@drawable/heading_bg_blue</item>
-	    <item name="android:background">@drawable/heading_bg_blue</item>
-	
+	    <item name="background">@drawable/actionbar</item>
+	    <item name="android:background">@drawable/actionbar</item>
 	    <item name="backgroundSplit">@drawable/heading_bg_blue</item>
 	    <item name="android:backgroundSplit">@drawable/heading_bg_blue</item>
 	</style>
