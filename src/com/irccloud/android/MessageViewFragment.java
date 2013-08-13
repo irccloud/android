@@ -1367,13 +1367,13 @@ public class MessageViewFragment extends ListFragment {
 		    					highlightsTopLabel.setVisibility(View.GONE);
 		    				}
 		    				if(markerPos == 0) {
-		    			        long seconds = (earliest_eid - last_seen_eid) / 1000000;
+		    			        long seconds = (long)Math.ceil((earliest_eid - last_seen_eid) / 1000000.0);
                                 if(seconds < 0) {
                                     unreadTopView.setVisibility(View.GONE);
                                 } else {
-                                    int minutes = (int)(seconds / 60);
-                                    int hours = minutes / 60;
-                                    int days = hours / 24;
+                                    int minutes = (int)Math.ceil(seconds / 60.0);
+                                    int hours = (int)Math.ceil(seconds / 60.0 / 60.0);
+                                    int days = (int)Math.ceil(seconds / 60.0 / 60.0 / 24.0);
                                     if(days > 0) {
                                         if(days == 1)
                                             txt += days + " day of unread messages";
