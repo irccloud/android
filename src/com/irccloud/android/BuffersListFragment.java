@@ -570,6 +570,7 @@ public class BuffersListFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
+        conn = NetworkConnection.getInstance();
 		view = inflater.inflate(R.layout.bufferslist, null);
 		topUnreadIndicator = (LinearLayout)view.findViewById(R.id.topUnreadIndicator);
 		topUnreadIndicator.setOnClickListener(new OnClickListener() {
@@ -639,6 +640,10 @@ public class BuffersListFragment extends ListFragment {
         	listView.setSelection(savedInstanceState.getInt("scrollPosition"));
         	if(selected_bid > 0)
         		adapter.showProgress(adapter.positionForBid(selected_bid));
+        } else if(ready) {
+            refreshTask = new RefreshTask();
+            refreshTask.doInBackground((Void)null);
+            refreshTask.onPostExecute((Void)null);
         }
 		return view;
 	}
@@ -663,7 +668,6 @@ public class BuffersListFragment extends ListFragment {
 	
     public void onResume() {
     	super.onResume();
-    	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	ready = conn.ready;
 		if(adapter != null)
