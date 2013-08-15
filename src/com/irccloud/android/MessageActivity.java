@@ -1460,11 +1460,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                         });
                     }
                     if(event.getString("message").equalsIgnoreCase("set_shard")) {
-                        conn.disconnect();
-                        conn.ready = false;
+                        NetworkConnection.getInstance().disconnect();
+                        NetworkConnection.getInstance().ready = false;
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putString("session_key", event.getString("cookie"));
-                        conn.connect(event.getString("cookie"));
+                        NetworkConnection.getInstance().connect(event.getString("cookie"));
                         editor.commit();
                     }
                 }
@@ -1697,9 +1697,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 		            	if(type.equalsIgnoreCase("console")) {
-		            		conn.deleteServer(cid);
+		            		NetworkConnection.getInstance().deleteServer(cid);
 		            	} else {
-		                	conn.deleteBuffer(cid, bid);
+		                	NetworkConnection.getInstance().deleteBuffer(cid, bid);
 		            	}
 						dialog.dismiss();
 					}

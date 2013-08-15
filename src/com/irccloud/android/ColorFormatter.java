@@ -34,6 +34,9 @@ import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
 import android.util.Patterns;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 public class ColorFormatter {
 	private static final String[] COLOR_MAP = {
 		"FFFFFF", //white
@@ -141,11 +144,14 @@ public class ColorFormatter {
 			
 			if(server != null) {
 				String pattern = "\\B([";
-	    		if(server.isupport != null && server.isupport.get("CHANTYPES") != null) {
-	    			pattern += server.isupport.get("CHANTYPES").getAsString();
-	    		} else {
-	    			pattern += "#";
-	    		}
+                String chanTypes = "#";
+                JsonObject isupport = server.isupport;
+                if(isupport != null) {
+                    JsonElement types = isupport.get("CHANTYPES");
+                    if(types != null)
+                        chanTypes = types.getAsString();
+                }
+    			pattern += chanTypes;
 	    		pattern += "][^<>!?\"()\\[\\],\\s]+)";
 	
 				Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {

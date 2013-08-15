@@ -134,20 +134,24 @@ public class BuffersListFragment extends ListFragment {
 		}
 		
 		int unreadPositionAbove(int pos) {
-			for(int i = pos-1; i >= 0; i--) {
-				BufferListEntry e = data.get(i);
-				if(e.unread > 0)
-					return i;
-			}
+            if(pos > 0) {
+                for(int i = pos-1; i >= 0; i--) {
+                    BufferListEntry e = data.get(i);
+                    if(e.unread > 0)
+                        return i;
+                }
+            }
 			return 0;
 		}
 		
 		int unreadPositionBelow(int pos) {
-			for(int i = pos; i < data.size(); i++) {
-				BufferListEntry e = data.get(i);
-				if(e.unread > 0)
-					return i;
-			}
+            if(pos >= 0) {
+                for(int i = pos; i < data.size(); i++) {
+                    BufferListEntry e = data.get(i);
+                    if(e.unread > 0)
+                        return i;
+                }
+            }
 			return data.size() - 1;
 		}
 		

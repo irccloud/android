@@ -613,7 +613,7 @@ public class MessageViewFragment extends ListFragment {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-				if(pos > 1) {
+				if(pos > 1 && pos <= adapter.data.size()) {
 					longPressOverride = mListener.onMessageLongClicked(adapter.data.get(pos - 1));
 					return longPressOverride;
 				} else {
@@ -1007,8 +1007,8 @@ public class MessageViewFragment extends ListFragment {
 	    			tapTimer = null;
 	    			mListener.onMessageDoubleClicked(adapter.data.get(pos));
 	    		} else {
-	    			tapTimer = new Timer();
-	    			tapTimer.schedule(new TimerTask() {
+                    Timer t = new Timer();
+	    			t.schedule(new TimerTask() {
 	    				int position = pos;
 	    				
 						@Override
@@ -1048,6 +1048,7 @@ public class MessageViewFragment extends ListFragment {
 						}
 	    				
 	    			}, 300);
+                    tapTimer = t;
 	    		}
 	    	}
     	}
@@ -1155,17 +1156,20 @@ public class MessageViewFragment extends ListFragment {
 			if(isCancelled())
 				return null;
 
-            TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(bid);
-            if(events != null && events.size() > 0) {
-                Long eid = events.get(events.lastKey()).eid;
+            try {
+                TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(bid);
+                if(events != null && events.size() > 0) {
+                    Long eid = events.get(events.lastKey()).eid;
 
-                if(eid > last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    if(getActivity() != null && getActivity().getIntent() != null)
-                        getActivity().getIntent().putExtra("last_seen_eid", eid);
-                    NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
-                    last_seen_eid = eid;
-                    BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
+                    if(eid > last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                        if(getActivity() != null && getActivity().getIntent() != null)
+                            getActivity().getIntent().putExtra("last_seen_eid", eid);
+                        NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
+                        last_seen_eid = eid;
+                        BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
+                    }
                 }
+            } catch (Exception e) {
             }
 			return null;
 		}
@@ -1223,6 +1227,8 @@ public class MessageViewFragment extends ListFragment {
                 if(events != null && events.size() > 0) {
                     try {
                         if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
+                            if(oldPosition > 0 && oldPosition == adapter.data.size())
+                                oldPosition--;
                             backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
                             if(backlog_eid < 0) {
                                 backlog_eid = adapter.getItemId(oldPosition) - 1;

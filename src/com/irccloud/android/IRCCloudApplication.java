@@ -65,8 +65,11 @@ public class IRCCloudApplication extends Application {
 		c = ChannelsDataSource.getInstance();
 		u = UsersDataSource.getInstance();
 		e = EventsDataSource.getInstance();
-		ACRA.init(this);
-		
+        try {
+    		ACRA.init(this);
+        } catch (IllegalStateException e) {
+
+        }
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if(prefs.contains("notify")) {
 			SharedPreferences.Editor editor = prefs.edit();

@@ -168,7 +168,7 @@ public class SonyExtensionService extends ExtensionService {
         if(prefs.getBoolean("notify_sony",true)) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("notify_sony", true);
-            editor.apply();
+            editor.commit();
         }
     }
 
