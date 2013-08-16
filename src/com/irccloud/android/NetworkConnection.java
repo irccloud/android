@@ -1261,10 +1261,10 @@ public class NetworkConnection {
         }
 
         if (url.getProtocol().toLowerCase().equals("https")) {
-            HttpsURLConnection https = (HttpsURLConnection) url.openConnection(proxy);
+            HttpsURLConnection https = (HttpsURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection());
             conn = https;
         } else {
-        	conn = (HttpURLConnection) url.openConnection(proxy);
+        	conn = (HttpURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection());
         }
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
@@ -1464,10 +1464,10 @@ public class NetworkConnection {
                 }
 
                 if (url[0].getProtocol().toLowerCase().equals("https")) {
-		            HttpsURLConnection https = (HttpsURLConnection) url[0].openConnection(proxy);
+		            HttpsURLConnection https = (proxy != null)?(HttpsURLConnection) url[0].openConnection(proxy):(HttpsURLConnection) url[0].openConnection();
 		            conn = https;
 		        } else {
-		        	conn = (HttpURLConnection) url[0].openConnection(proxy);
+		        	conn = (HttpURLConnection)((proxy != null)?url[0].openConnection(proxy):url[0].openConnection());
 		        }
 				conn.setRequestMethod("GET");
 				conn.setRequestProperty("Connection", "close");
