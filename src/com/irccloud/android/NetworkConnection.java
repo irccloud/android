@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -307,23 +308,31 @@ public class NetworkConnection {
 		}
 	}
 	
-	public JSONObject login(String email, String password) throws IOException {
-		String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
-		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
+	public JSONObject login(String email, String password) {
 		try {
+            String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
+            String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
 			JSONObject o = new JSONObject(response);
 			return o;
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+        } catch (UnknownHostException e) {
+            return null;
+		} catch (IOException e) {
+            return null;
+        } catch (Exception e) {
+            try {
+                JSONObject o = new JSONObject();
+                o.put("exception", e.toString());
+                return o;
+            } catch (JSONException e1) {
+            }
 		}
 		return null;
 	}
 	
 	public JSONObject registerGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
-		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk);
 		try {
+            String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk);
 			JSONObject o = new JSONObject(response);
 			return o;
 		} catch (Exception e) {
@@ -335,8 +344,8 @@ public class NetworkConnection {
 	
 	public JSONObject unregisterGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
-		String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk);
 		try {
+            String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk);
 			JSONObject o = new JSONObject(response);
 			return o;
 		} catch (Exception e) {
@@ -798,19 +807,19 @@ public class NetworkConnection {
 		
 		try {
 			idleTimer = new Timer();
-			idleTimer.schedule( new TimerTask() {
-	             public void run() {
-	            	 if(handlers.size() > 0) {
-		            	 Log.i(TAG, "Websocket idle time exceeded, reconnecting...");
-		            	 state = STATE_CONNECTING;
-		            	 notifyHandlers(EVENT_CONNECTIVITY, null);
-		            	 client.disconnect();
-		            	 connect(session);
-	            	 }
-	                 idleTimer = null;
-	                 reconnect_timestamp = 0;
-	              }
-	           }, idle_interval + 10000);
+			idleTimer.schedule(new TimerTask() {
+                public void run() {
+                    if (handlers.size() > 0) {
+                        Log.i(TAG, "Websocket idle time exceeded, reconnecting...");
+                        state = STATE_CONNECTING;
+                        notifyHandlers(EVENT_CONNECTIVITY, null);
+                        client.disconnect();
+                        connect(session);
+                    }
+                    idleTimer = null;
+                    reconnect_timestamp = 0;
+                }
+            }, idle_interval + 10000);
 			reconnect_timestamp = System.currentTimeMillis() + idle_interval + 10000;
 		} catch (IllegalStateException e) {
 			//It's possible for timer to get canceled by another thread before before it gets scheduled
@@ -1240,7 +1249,7 @@ public class NetworkConnection {
 			schedule_idle_timer();
 	}
 	
-	private String doPost(URL url, String postdata, String sk) throws IOException {
+	private String doPost(URL url, String postdata, String sk) throws Exception {
 		HttpURLConnection conn = null;
 
         Proxy proxy = null;

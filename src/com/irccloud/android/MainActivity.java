@@ -334,13 +334,7 @@ public class MainActivity extends FragmentActivity {
 		
 		@Override
 		protected JSONObject doInBackground(Void... arg0) {
-			try {
-				return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return null;
+			return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
 		}
 
 		@Override
@@ -389,14 +383,18 @@ public class MainActivity extends FragmentActivity {
 				connecting.startAnimation(anim);
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 				builder.setTitle("Login Failed");
-				String message = "Unable to login to IRCCloud.  Please check your username and password, and try again shortly.";
+				String message = "Unable to connect to IRCCloud.  Please try again later.";
 				if(result != null) {
 					try {
-						message = result.getString("message");
-						if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
-							message = "Incorrect username or password.  Please try again.";
-						else
-							message = "Error: " + message;
+                        if(result.has("message")) {
+                            message = result.getString("message");
+                            if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
+                                message = "Incorrect username or password.  Please try again.";
+                            else
+                                message = "Error: " + message;
+                        } else if(result.has("exception")) {
+                            message += "\n\n" + result.getString("exception");
+                        }
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
