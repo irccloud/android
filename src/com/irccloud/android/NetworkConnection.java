@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -41,6 +42,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
+import java.net.Proxy;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
@@ -254,7 +256,7 @@ public class NetworkConnection {
 				} catch (NoSuchAlgorithmException e) {
 					throw new CertificateException(e);
 				}
-				
+
 				if(!chain[0].getSubjectDN().getName().startsWith("CN=*.irccloud.com,")) {
 					throw new CertificateException("Incorrect CN in cert chain");
 				}
@@ -346,8 +348,18 @@ public class NetworkConnection {
 	
 	public void connect(String sk) {
 		session = sk;
-		
-		IntentFilter intentFilter = new IntentFilter();
+        String host = null;
+        int port = -1;
+
+        if(Build.VERSION.SDK_INT <11) {
+            host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
+            port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
+        } else {
+            host = System.getProperty("http.proxyHost", null);
+            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+        }
+
+        IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 		IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
 		
@@ -437,6 +449,7 @@ public class NetworkConnection {
 		reconnect_timestamp = 0;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
 		client.setSocketTag(WEBSOCKET_TAG);
+        client.setProxy(host, port);
 		client.connect();
 	}
 	
@@ -1230,11 +1243,28 @@ public class NetworkConnection {
 	private String doPost(URL url, String postdata, String sk) throws IOException {
 		HttpURLConnection conn = null;
 
+        Proxy proxy = null;
+        String host = null;
+        int port = -1;
+
+        if(Build.VERSION.SDK_INT <11) {
+            host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
+            port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
+        } else {
+            host = System.getProperty("http.proxyHost", null);
+            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+        }
+
+        if(host != null && host.length() > 0) {
+            InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+            proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+        }
+
         if (url.getProtocol().toLowerCase().equals("https")) {
-            HttpsURLConnection https = (HttpsURLConnection) url.openConnection();
+            HttpsURLConnection https = (HttpsURLConnection) url.openConnection(proxy);
             conn = https;
         } else {
-        	conn = (HttpURLConnection) url.openConnection();
+        	conn = (HttpURLConnection) url.openConnection(proxy);
         }
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
@@ -1416,12 +1446,28 @@ public class NetworkConnection {
 				Log.d(TAG, "Requesting: " + url[0]);
 				mUrl = url[0];
 				HttpURLConnection conn = null;
+                Proxy proxy = null;
+                String host = null;
+                int port = -1;
 
-		        if (url[0].getProtocol().toLowerCase().equals("https")) {
-		            HttpsURLConnection https = (HttpsURLConnection) url[0].openConnection();
+                if(Build.VERSION.SDK_INT <11) {
+                    host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
+                    port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
+                } else {
+                    host = System.getProperty("http.proxyHost", null);
+                    port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+                }
+
+                if(host != null && host.length() > 0) {
+                    InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+                    proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+                }
+
+                if (url[0].getProtocol().toLowerCase().equals("https")) {
+		            HttpsURLConnection https = (HttpsURLConnection) url[0].openConnection(proxy);
 		            conn = https;
 		        } else {
-		        	conn = (HttpURLConnection) url[0].openConnection();
+		        	conn = (HttpURLConnection) url[0].openConnection(proxy);
 		        }
 				conn.setRequestMethod("GET");
 				conn.setRequestProperty("Connection", "close");
