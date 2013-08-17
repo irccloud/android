@@ -101,7 +101,8 @@ public class NetworkConnection {
 	private volatile int last_reqid = 0;
 	private Timer shutdownTimer = null;
 	private Timer idleTimer = null;
-	private long idle_interval = 30000;
+	public long idle_interval = 1000;
+    private int failCount = 0;
 	private long reconnect_timestamp = 0;
 	private String useragent = null;
 	
@@ -426,9 +427,17 @@ public class NetworkConnection {
 		    public void onDisconnect(int code, String reason) {
 		        if(state == STATE_DISCONNECTING)
 		        	cancel_idle_timer();
-		        else
+		        else {
+                    failCount++;
+                    if(failCount < 4)
+                        idle_interval = failCount * 1000;
+                    else if(failCount < 10)
+                        idle_interval = 10000;
+                    else
+                        idle_interval = 30000;
 		        	schedule_idle_timer();
-		        	
+                }
+
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		        
@@ -446,8 +455,16 @@ public class NetworkConnection {
 		    public void onError(Exception error) {
 		        if(state == STATE_DISCONNECTING)
 		        	cancel_idle_timer();
-		        else
+		        else {
+                    failCount++;
+                    if(failCount < 4)
+                        idle_interval = failCount * 1000;
+                    else if(failCount < 10)
+                        idle_interval = 10000;
+                    else
+                        idle_interval = 30000;
 		        	schedule_idle_timer();
+                }
 		        
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
@@ -456,6 +473,7 @@ public class NetworkConnection {
 		
 		state = STATE_CONNECTING;
 		reconnect_timestamp = 0;
+        idle_interval = 1000;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
 		client.setSocketTag(WEBSOCKET_TAG);
         client.setProxy(host, port);
@@ -819,8 +837,8 @@ public class NetworkConnection {
                     idleTimer = null;
                     reconnect_timestamp = 0;
                 }
-            }, idle_interval + 10000);
-			reconnect_timestamp = System.currentTimeMillis() + idle_interval + 10000;
+            }, idle_interval);
+			reconnect_timestamp = System.currentTimeMillis() + idle_interval;
 		} catch (IllegalStateException e) {
 			//It's possible for timer to get canceled by another thread before before it gets scheduled
 			//so catch the exception
@@ -847,8 +865,9 @@ public class NetworkConnection {
 		if(type != null && type.length() > 0) {
 			//Log.d(TAG, "New event: " + type);
 			if(type.equalsIgnoreCase("header")) {
-				idle_interval = object.getLong("idle_interval");
+				idle_interval = object.getLong("idle_interval") + 10000;
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
+                failCount = 0;
 				Log.d(TAG, "Clock offset: " + clockOffset + "s");
 			} else if(type.equalsIgnoreCase("global_system_message")) {
 				String msgType = object.getString("system_message_type");
