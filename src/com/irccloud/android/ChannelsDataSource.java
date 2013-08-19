@@ -22,7 +22,7 @@ import java.util.Iterator;
 public class ChannelsDataSource {
 	public class Channel {
 		int cid;
-		long bid;
+		int bid;
 		String name;
 		String topic_text;
 		long topic_time;
@@ -31,6 +31,7 @@ public class ChannelsDataSource {
 		String mode;
 		long timestamp;
 		String url;
+        int valid;
 	}
 	
 	private ArrayList<Channel> channels;
@@ -51,7 +52,7 @@ public class ChannelsDataSource {
 		channels.clear();
 	}
 	
-	public synchronized Channel createChannel(int cid, long bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode, long timestamp) {
+	public synchronized Channel createChannel(int cid, int bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode, long timestamp) {
 		Channel c = getChannelForBuffer(bid);
 		if(c == null) {
 			c = new Channel();
@@ -66,6 +67,7 @@ public class ChannelsDataSource {
 		c.type = type;
 		c.mode = mode;
 		c.timestamp = timestamp;
+        c.valid = 1;
 		return c;
 	}
 
@@ -114,4 +116,28 @@ public class ChannelsDataSource {
 		}
 		return null;
 	}
+
+    public synchronized void invalidate() {
+        Iterator<Channel> i = channels.iterator();
+        while(i.hasNext()) {
+            Channel c = i.next();
+            c.valid = 0;
+        }
+    }
+
+    public synchronized void purgeInvalidChannels() {
+        ArrayList<Channel> channelsToRemove = new ArrayList<Channel>();
+        Iterator<Channel> i = channels.iterator();
+        while(i.hasNext()) {
+            Channel c = i.next();
+            if(c.valid == 0)
+                channelsToRemove.add(c);
+        }
+        i = channelsToRemove.iterator();
+        while(i.hasNext()) {
+            Channel c = i.next();
+            UsersDataSource.getInstance().deleteUsersForBuffer(c.cid, c.bid);
+            channels.remove(c);
+        }
+    }
 }

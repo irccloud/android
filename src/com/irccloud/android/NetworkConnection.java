@@ -1529,8 +1529,10 @@ public class NetworkConnection {
 						Log.i(TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
 						Log.i(TAG, "Beginning backlog...");
 						notifyHandlers(EVENT_BACKLOG_START, null);
-                        if(bid == -1)
+                        if(bid == -1) {
                             BuffersDataSource.getInstance().invalidate();
+                            ChannelsDataSource.getInstance().invalidate();
+                        }
 						numbuffers = 0;
 						totalbuffers = 0;
 						JsonParser parser = new JsonParser();
@@ -1575,8 +1577,10 @@ public class NetworkConnection {
 						totalTime -= totalParseTime;
 						Log.i(TAG, "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 
-                        if(bid == -1)
+                        if(bid == -1) {
                             BuffersDataSource.getInstance().purgeInvalidBIDs();
+                            ChannelsDataSource.getInstance().purgeInvalidChannels();
+                        }
 
 						ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
 						for(BuffersDataSource.Buffer b : buffers) {
