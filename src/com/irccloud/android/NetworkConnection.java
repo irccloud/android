@@ -383,7 +383,7 @@ public class NetworkConnection {
 			reconnect_timestamp = 0;
 			return;
 		}
-		
+
 		if(!wifiLock.isHeld())
 			wifiLock.acquire();
 		
@@ -473,7 +473,7 @@ public class NetworkConnection {
 		
 		state = STATE_CONNECTING;
 		reconnect_timestamp = 0;
-        idle_interval = 1000;
+        idle_interval = 30000;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
 		client.setSocketTag(WEBSOCKET_TAG);
         client.setProxy(host, port);
@@ -1524,6 +1524,7 @@ public class NetworkConnection {
 
 				if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
 					synchronized(parserLock) {
+                        cancel_idle_timer();
 						//if(ready)
 						//	Debug.startMethodTracing("oob", 16 * 1024 * 1024);
 						Log.i(TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
