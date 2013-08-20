@@ -72,10 +72,10 @@ public class EditConnectionFragment extends DialogFragment {
 			data.add(new PresetServer(null, null, 0));
 			data.add(new PresetServer("IRCCloud", "irc.irccloud.com", 6667));
 			data.add(new PresetServer("Freenode", "irc.freenode.net", 6697));
-			data.add(new PresetServer("QuakeNet", "irc.quakenet.org", 6667));
-			data.add(new PresetServer("IRCNet", "irc.atw-inter.net", 6667));
-			data.add(new PresetServer("Undernet", "irc.undernet.org", 6667));
-			data.add(new PresetServer("DALNet", "irc.dal.net", 6667));
+			data.add(new PresetServer("QuakeNet", "blacklotus.ca.us.quakenet.org", 6667));
+			data.add(new PresetServer("IRCNet", "ircnet.blacklotus.net", 6667));
+			data.add(new PresetServer("Undernet", "losangeles.ca.us.undernet.org", 6667));
+			data.add(new PresetServer("DALNet", "dalnet.blacklotus.net", 6667));
 			data.add(new PresetServer("OFTC", "irc.oftc.net", 6667));
 			data.add(new PresetServer("GameSurge", "irc.gamesurge.net", 6667));
 			data.add(new PresetServer("Efnet", "efnet.xs4all.nl", 6667));
@@ -91,6 +91,10 @@ public class EditConnectionFragment extends DialogFragment {
 			data.add(new PresetServer("Atrum", "irc.atrum.org", 6697));
 			data.add(new PresetServer("Indymedia", "irc.indymedia.org", 6697));
 			data.add(new PresetServer("TWiT", "irc.twit.tv", 6697));
+            data.add(new PresetServer("Snoonet", "irc.snoonet.org", 6697));
+            data.add(new PresetServer("BrasIRC", "irc.brasirc.org", 6667));
+            data.add(new PresetServer("darkscience", "irc.darkscience.net", 6697));
+            data.add(new PresetServer("Techman's World", "irc.techmansworld.com", 6697));
 		}
 		
 		@Override
