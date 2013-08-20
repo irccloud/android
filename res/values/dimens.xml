@@ -25,4 +25,5 @@
     <dimen name="unread_top_txt_size">12sp</dimen>
     <dimen name="unread_bottom_txt_size">14sp</dimen>
     <dimen name="unread_bubble_size">24dp</dimen>
+    <dimen name="top_bar_height">64dp</dimen>
 </resources>

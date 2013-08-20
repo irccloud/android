@@ -763,6 +763,9 @@ public class MessageViewFragment extends ListFragment {
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.GONE);
 		if(headerView != null) {
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
+            lp.topMargin = 0;
+            headerView.setLayoutParams(lp);
 			mHandler.postDelayed(new Runnable() {
 
 				@Override
@@ -1258,6 +1261,12 @@ public class MessageViewFragment extends ListFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
+            if(adapter.getLastSeenEIDPosition() == 0)
+                lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+            else
+                lp.topMargin = 0;
+            headerView.setLayoutParams(lp);
             setListAdapter(adapter);
             if(events != null && events.size() > 0) {
                 int markerPos = adapter.getBacklogMarkerPosition();
@@ -1281,7 +1290,7 @@ public class MessageViewFragment extends ListFragment {
 			conn.cancel_idle_timer(); //This may take a while...
 		collapsedEvents.clear();
 		currentCollapsedEid = -1;
-		
+
 		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 			try {
 				JSONObject prefs = conn.getUserInfo().prefs;
