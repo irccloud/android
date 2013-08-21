@@ -43,10 +43,10 @@ public class ChannelsDataSource {
         int valid;
 
         public synchronized void addMode(String mode, String param) {
+            removeMode(mode);
             Mode m = new Mode();
             m.mode = mode;
             m.param = param;
-
             modes.add(m);
         }
 
