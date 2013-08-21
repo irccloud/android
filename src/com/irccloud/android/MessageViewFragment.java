@@ -1406,7 +1406,7 @@ public class MessageViewFragment extends ListFragment {
                                             txt += minutes + " minutes of unread messages";
                                     } else {
                                         if(seconds == 1)
-                                            txt += seconds + " seconds of unread messages";
+                                            txt += seconds + " second of unread messages";
                                         else
                                             txt += seconds + " seconds of unread messages";
                                     }
@@ -1530,7 +1530,20 @@ public class MessageViewFragment extends ListFragment {
 	}
 	
 	StatusRefreshRunnable statusRefreshRunnable = null;
-	
+
+    public static String ordinal(int i) {
+        String[] sufixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
+        switch (i % 100) {
+            case 11:
+            case 12:
+            case 13:
+                return i + "th";
+            default:
+                return i + sufixes[i % 10];
+
+        }
+    }
+
 	private void update_status(String status, JsonObject fail_info) {
 		if(statusRefreshRunnable != null) {
 			mHandler.removeCallbacks(statusRefreshRunnable);
@@ -1614,7 +1627,34 @@ public class MessageViewFragment extends ListFragment {
 		    			text += ": " + reason + ". ";
                     } else
 		    			text += "; ";
-		    		text += "Reconnecting in " + seconds + " seconds.";
+                    text += "Reconnecting in ";
+                    int minutes = (int)(seconds / 60.0);
+                    int hours = (int)(seconds / 60.0 / 60.0);
+                    int days = (int)(seconds / 60.0 / 60.0 / 24.0);
+                    if(days > 0) {
+                        if(days == 1)
+                            text += days + " day.";
+                        else
+                            text += days + " days.";
+                    } else if(hours > 0) {
+                        if(hours == 1)
+                            text += hours + " hour.";
+                        else
+                            text += hours + " hours.";
+                    } else if(minutes > 0) {
+                        if(minutes == 1)
+                            text += minutes + " minute.";
+                        else
+                            text += minutes + " minutes.";
+                    } else {
+                        if(seconds == 1)
+                            text += seconds + " second.";
+                        else
+                            text += seconds + " seconds.";
+                    }
+                    int attempts = fail_info.get("attempts").getAsInt();
+                    if(attempts > 1)
+                        text += " (" + ordinal(attempts) + " attempt)";
 		    		statusView.setText(text);
 		    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
 		    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
