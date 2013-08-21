@@ -936,8 +936,16 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_ACCEPTLIST, object);
 			} else if(type.equalsIgnoreCase("who_response")) {
-				if(!backlog)
+				if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    JsonArray users = object.getJsonArray("users");
+                    for(int i = 0; i < users.size(); i++) {
+                        JsonObject user = users.get(i).getAsJsonObject();
+                        u.updateHostmask(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
+                        u.updateAway(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
+                    }
 					notifyHandlers(EVENT_WHOLIST, object);
+                }
 			} else if(type.equalsIgnoreCase("whois_response")) {
 				if(!backlog)
 					notifyHandlers(EVENT_WHOIS, object);
@@ -1068,7 +1076,8 @@ public class NetworkConnection {
 						object.getJsonObject("topic").get("text").isJsonNull()?"":object.getJsonObject("topic").get("text").getAsString(),
 								object.getJsonObject("topic").get("time").getAsLong(), 
 						object.getJsonObject("topic").get("nick").getAsString(), object.getString("channel_type"),
-						object.getString("mode"), object.getLong("timestamp"));
+						object.getLong("timestamp"));
+                c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"));
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUsersForBuffer(object.cid(), object.bid());
 				JsonArray users = object.getJsonArray("members");
@@ -1094,7 +1103,7 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateMode(object.bid(), object.getString("newmode"));
+					c.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"));
 					notifyHandlers(EVENT_CHANNELMODE, object);
 				}
 			} else if(type.equalsIgnoreCase("channel_timestamp")) {

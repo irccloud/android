@@ -16,10 +16,18 @@
 
 package com.irccloud.android;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class ChannelsDataSource {
+    public class Mode {
+        String mode;
+        String param;
+    }
+
 	public class Channel {
 		int cid;
 		int bid;
@@ -29,10 +37,41 @@ public class ChannelsDataSource {
 		String topic_author;
 		String type;
 		String mode;
+        ArrayList<Mode> modes;
 		long timestamp;
 		String url;
         int valid;
-	}
+
+        public synchronized void addMode(String mode, String param) {
+            Mode m = new Mode();
+            m.mode = mode;
+            m.param = param;
+
+            modes.add(m);
+        }
+
+        public synchronized void removeMode(String mode) {
+            Iterator<Mode> i = modes.iterator();
+            while(i.hasNext()) {
+                Mode m = i.next();
+                if(m.mode.equalsIgnoreCase(mode)) {
+                    modes.remove(m);
+                    return;
+                }
+            }
+        }
+
+        public synchronized boolean hasMode(String mode) {
+            Iterator<Mode> i = modes.iterator();
+            while(i.hasNext()) {
+                Mode m = i.next();
+                if(m.mode.equalsIgnoreCase(mode)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
 	
 	private ArrayList<Channel> channels;
 
@@ -52,7 +91,7 @@ public class ChannelsDataSource {
 		channels.clear();
 	}
 	
-	public synchronized Channel createChannel(int cid, int bid, String name, String topic_text, long topic_time, String topic_author, String type, String mode, long timestamp) {
+	public synchronized Channel createChannel(int cid, int bid, String name, String topic_text, long topic_time, String topic_author, String type, long timestamp) {
 		Channel c = getChannelForBuffer(bid);
 		if(c == null) {
 			c = new Channel();
@@ -65,9 +104,10 @@ public class ChannelsDataSource {
 		c.topic_text = topic_text;
 		c.topic_time = topic_time;
 		c.type = type;
-		c.mode = mode;
 		c.timestamp = timestamp;
         c.valid = 1;
+        c.mode = "";
+        c.modes = new ArrayList<Mode>();
 		return c;
 	}
 
@@ -86,9 +126,19 @@ public class ChannelsDataSource {
 		}
 	}
 	
-	public synchronized void updateMode(long bid, String mode) {
+	public synchronized void updateMode(long bid, String mode, JsonObject ops) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
+            JsonArray add = ops.get("add").getAsJsonArray();
+            for(int i = 0; i < add.size(); i++) {
+                JsonObject m = add.get(i).getAsJsonObject();
+                c.addMode(m.get("mode").getAsString(), m.get("param").getAsString());
+            }
+            JsonArray remove = ops.get("remove").getAsJsonArray();
+            for(int i = 0; i < remove.size(); i++) {
+                JsonObject m = remove.get(i).getAsJsonObject();
+                c.removeMode(m.get("mode").getAsString());
+            }
 			c.mode = mode;
 		}
 	}

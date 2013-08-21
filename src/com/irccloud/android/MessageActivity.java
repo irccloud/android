@@ -844,7 +844,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 		        	}
-		        	if(c != null && c.mode.contains("k")) {
+		        	if(c != null && c.hasMode("k")) {
                         key.setImageResource(R.drawable.lock);
 		        		key.setVisibility(View.VISIBLE);
 		        	} else {
@@ -2060,7 +2060,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		items = itemList.toArray(new String[itemList.size()]);
 		
 		if(selected_user != null)
-			builder.setTitle(selected_user.nick + "\n(" + selected_user.hostmask + ")");
+            if(selected_user.hostmask != null && selected_user.hostmask.length() > 0)
+    			builder.setTitle(selected_user.nick + "\n(" + selected_user.hostmask + ")");
+            else
+                builder.setTitle(selected_user.nick);
 		else
 			builder.setTitle("Message");
 		
