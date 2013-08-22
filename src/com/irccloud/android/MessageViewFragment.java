@@ -638,7 +638,10 @@ public class MessageViewFragment extends ListFragment {
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 			if(!ready)
 				return;
-			
+
+            if(connecting.getVisibility() == View.VISIBLE)
+                return;
+
 			if(headerView != null && min_eid > 0 && conn.ready) {
 				if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1 && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 					requestingBacklog = true;
@@ -1159,6 +1162,9 @@ public class MessageViewFragment extends ListFragment {
 			if(isCancelled())
 				return null;
 
+            if(connecting.getVisibility() == View.VISIBLE)
+                return null;
+
             try {
                 TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(bid);
                 if(events != null && events.size() > 0) {
@@ -1213,6 +1219,8 @@ public class MessageViewFragment extends ListFragment {
             oldPosition = getListView().getFirstVisiblePosition();
             View v = getListView().getChildAt(0);
             topOffset = (v == null) ? 0 : v.getTop();
+            if(adapter != null && adapter.getCount() > 0 && getListView().getLastVisiblePosition() >= adapter.getCount() - 1)
+                firstScroll = true;
         }
 
         @SuppressWarnings("unchecked")
@@ -1719,10 +1727,12 @@ public class MessageViewFragment extends ListFragment {
 		connecting.startAnimation(anim);
 		error = null;
 		try {
-			if(getListView().getLastVisiblePosition() < adapter.getCount())
+			if(getListView().getLastVisiblePosition() < adapter.getCount()) {
 				savedScrollPos = getListView().getFirstVisiblePosition();
-			else
+            } else {
 				savedScrollPos = -1;
+                firstScroll = true;
+            }
 			getListView().setOnScrollListener(null);
 		} catch (Exception e) {
 			savedScrollPos = -1;
