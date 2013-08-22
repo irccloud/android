@@ -22,7 +22,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.support.v4.app.FragmentActivity;
-import com.google.android.gcm.GCMRegistrar;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +37,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -55,6 +55,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 public class MainActivity extends FragmentActivity {
 	private View login = null;
@@ -169,6 +172,7 @@ public class MainActivity extends FragmentActivity {
     		} else {
     			connecting.setVisibility(View.GONE);
     			login.setVisibility(View.VISIBLE);
+                checkPlayServices();
     		}
     	}
     }
@@ -259,12 +263,11 @@ public class MainActivity extends FragmentActivity {
                         conn.ready = false;
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         try {
-                            GCMRegistrar.checkDevice(MainActivity.this);
-                            GCMRegistrar.checkManifest(MainActivity.this);
-                            if(GCMRegistrar.isRegistered(MainActivity.this)) {
+                            String regId = GCMIntentService.getRegistrationId(MainActivity.this);
+                            if(regId.length() > 0) {
                                 //Store the old session key so GCM can unregister later
-                                editor.putString(GCMRegistrar.getRegistrationId(MainActivity.this), getSharedPreferences("prefs", 0).getString("session_key", ""));
-                                GCMRegistrar.unregister(MainActivity.this);
+                                editor.putString(regId, getSharedPreferences("prefs", 0).getString("session_key", ""));
+                                GCMIntentService.scheduleUnregisterTimer(1000, regId);
                             }
                         } catch (Exception e) {
                             //GCM might not be available on the device
@@ -414,5 +417,16 @@ public class MainActivity extends FragmentActivity {
 				}
 			}
 		}
+    }
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 9000).show();
+            }
+            return false;
+        }
+        return true;
     }
 }

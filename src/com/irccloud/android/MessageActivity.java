@@ -25,7 +25,8 @@ import android.view.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gcm.GCMRegistrar;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -293,20 +294,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	status = savedInstanceState.getString("status");
         	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
-        try {
-	        if(getSharedPreferences("prefs", 0).contains("session_key") && Config.GCM_ID.length() > 0) {
-		        GCMRegistrar.checkDevice(this);
-		        GCMRegistrar.checkManifest(this);
-		        final String regId = GCMRegistrar.getRegistrationId(this);
-		        if (regId.equals("")) {
-		        	GCMRegistrar.register(this, Config.GCM_ID);
-		        } else {
-		        	if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
-		        		GCMIntentService.scheduleRegisterTimer(30000);
-		        }
-	        }
-        } catch (Exception e) {
-        	//GCM might not be available on the device
+        if(getSharedPreferences("prefs", 0).contains("session_key") && Config.GCM_ID.length() > 0 && checkPlayServices()) {
+            final String regId = GCMIntentService.getRegistrationId(this);
+            if (regId.equals("")) {
+                GCMIntentService.scheduleRegisterTimer(1000);
+            } else {
+                if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
+                    GCMIntentService.scheduleRegisterTimer(30000);
+            }
         }
     }
 
@@ -2349,4 +2344,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(scrollView != null)
 			scrollView.scrollTo(0,0);
 	}
+
+
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 9000).show();
+            }
+            return false;
+        }
+        return true;
+    }
 }

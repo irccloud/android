@@ -18,7 +18,6 @@ package com.irccloud.android;
 
 import android.support.v7.app.ActionBarActivity;
 import android.view.*;
-import com.google.android.gcm.GCMRegistrar;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -33,6 +32,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 public class BaseActivity extends ActionBarActivity {
 	NetworkConnection conn;
@@ -312,12 +313,11 @@ public class BaseActivity extends ActionBarActivity {
             	conn.ready = false;
 				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
         		try {
-	                GCMRegistrar.checkDevice(this);
-	                GCMRegistrar.checkManifest(this);
-					if(GCMRegistrar.isRegistered(this)) {
+                    String regId = GCMIntentService.getRegistrationId(this);
+					if(regId.length() > 0) {
 						//Store the old session key so GCM can unregister later
-						editor.putString(GCMRegistrar.getRegistrationId(this), getSharedPreferences("prefs", 0).getString("session_key", ""));
-		                GCMRegistrar.unregister(this);
+						editor.putString(regId, getSharedPreferences("prefs", 0).getString("session_key", ""));
+                        GCMIntentService.scheduleUnregisterTimer(1000, regId);
 					}
         		} catch (Exception e) {
         			//GCM might not be available on the device
