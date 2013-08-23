@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     compile project(':android-websockets')
-    compile files('libs/acra-4.4.0.jar')
+    compile files('libs/TestFlightLib.jar')
     compile files('libs/gson-2.2.2.jar')
     compile files('libs/NotificationCompat2-1.1.2.jar')
     compile 'com.android.support:support-v4:13.0.+'

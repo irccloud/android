@@ -28,12 +28,9 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
-import org.acra.*;
-import org.acra.annotation.*;
+import com.testflightapp.lib.TestFlight;
 
-@ReportsCrashes(formKey = Config.ACRA_KEY)
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends Application {
 	private static final int RINGTONE_VERSION = 1;
@@ -66,9 +63,9 @@ public class IRCCloudApplication extends Application {
 		u = UsersDataSource.getInstance();
 		e = EventsDataSource.getInstance();
         try {
-    		ACRA.init(this);
-        } catch (IllegalStateException e) {
-
+            if(Config.ACRA_KEY != null && Config.ACRA_KEY.length() > 0)
+                TestFlight.takeOff(this, Config.ACRA_KEY);
+        } catch (Exception e) {
         }
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if(prefs.contains("notify")) {
