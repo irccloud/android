@@ -802,7 +802,12 @@ public class MessageViewFragment extends ListFragment {
     		if(min_eid == 0)
     			min_eid = event.eid;
 	    	if(event.eid <= min_eid) {
-	    		headerView.setVisibility(View.GONE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.GONE);
+                    }
+                });
 	    	}
 	    	if(event.eid < earliest_eid)
 	    		earliest_eid = event.eid;
@@ -1322,7 +1327,12 @@ public class MessageViewFragment extends ListFragment {
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
 			if(bid != -1) {
 				requestingBacklog = true;
-				conn.request_backlog(cid, bid, 0);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        conn.request_backlog(cid, bid, 0);
+                    }
+                });
 			} else {
                 mHandler.post(new Runnable() {
                     @Override
