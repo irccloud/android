@@ -1261,7 +1261,12 @@ public class MessageViewFragment extends ListFragment {
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
                     }
                 } else if(bid != -1 && min_eid > 0 && conn.ready) {
-                    headerView.setVisibility(View.VISIBLE);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerView.setVisibility(View.VISIBLE);
+                        }
+                    });
                 }
 			}
 			return null;
@@ -1319,8 +1324,13 @@ public class MessageViewFragment extends ListFragment {
 				requestingBacklog = true;
 				conn.request_backlog(cid, bid, 0);
 			} else {
-	    		headerView.setVisibility(View.GONE);
-			}
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+        	    		headerView.setVisibility(View.GONE);
+                    }
+                });
+    		}
 		} else if(events.size() > 0) {
 			mServer = ServersDataSource.getInstance().getServer(cid);
 	    	if(mServer != null)
@@ -1328,11 +1338,21 @@ public class MessageViewFragment extends ListFragment {
 	    	else
 	    		ignore.setIgnores(null);
 			earliest_eid = events.firstKey();
-			if(events.firstKey() > min_eid && min_eid > 0) {
-	    		headerView.setVisibility(View.VISIBLE);
-			} else {
-	    		headerView.setVisibility(View.GONE);
-			}
+            if(events.firstKey() > min_eid && min_eid > 0) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.VISIBLE);
+                    }
+                });
+            } else {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.GONE);
+                    }
+                });
+            }
 	    	if(events.size() > 0) {
 	    		avgInsertTime = 0;
 	    		//Debug.startMethodTracing("refresh");
