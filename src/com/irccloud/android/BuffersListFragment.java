@@ -438,7 +438,7 @@ public class BuffersListFragment extends ListFragment {
 						ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
 						if(c == null)
 							joined = 0;
-						if(c != null && c.hasMode("k"))
+						if(c != null && c.key)
 							key = 1;
 					}
 					else if(b.type.equalsIgnoreCase("conversation"))

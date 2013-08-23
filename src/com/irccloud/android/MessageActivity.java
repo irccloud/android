@@ -839,7 +839,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 		        	}
-		        	if(c != null && c.hasMode("k")) {
+		        	if(c != null && c.key) {
                         key.setImageResource(R.drawable.lock);
 		        		key.setVisibility(View.VISIBLE);
 		        	} else {
@@ -1186,6 +1186,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	}
 				}
 				break;
+            case NetworkConnection.EVENT_CHANNELMODE:
+                event = (IRCCloudJSONObject)msg.obj;
+                if(event.bid() == bid) {
+                    update_subtitle();
+                }
+                break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
 				event = (IRCCloudJSONObject)msg.obj;
 				if(event.bid() == bid) {

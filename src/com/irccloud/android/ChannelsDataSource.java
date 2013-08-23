@@ -41,9 +41,12 @@ public class ChannelsDataSource {
 		long timestamp;
 		String url;
         int valid;
+        boolean key;
 
         public synchronized void addMode(String mode, String param) {
             removeMode(mode);
+            if(mode.equalsIgnoreCase("k"))
+                key = true;
             Mode m = new Mode();
             m.mode = mode;
             m.param = param;
@@ -51,6 +54,8 @@ public class ChannelsDataSource {
         }
 
         public synchronized void removeMode(String mode) {
+            if(mode.equalsIgnoreCase("k"))
+                key = false;
             Iterator<Mode> i = modes.iterator();
             while(i.hasNext()) {
                 Mode m = i.next();
@@ -129,6 +134,7 @@ public class ChannelsDataSource {
 	public synchronized void updateMode(long bid, String mode, JsonObject ops) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
+            c.key = false;
             JsonArray add = ops.get("add").getAsJsonArray();
             for(int i = 0; i < add.size(); i++) {
                 JsonObject m = add.get(i).getAsJsonObject();
