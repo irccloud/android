@@ -58,6 +58,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.testflightapp.lib.TestFlight;
 
 public class MainActivity extends FragmentActivity {
 	private View login = null;
@@ -150,6 +151,7 @@ public class MainActivity extends FragmentActivity {
     
     @Override
     public void onResume() {
+        TestFlight.passCheckpoint("MainActivity");
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	if(conn.ready) {

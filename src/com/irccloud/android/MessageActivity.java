@@ -27,6 +27,7 @@ import org.json.JSONObject;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.testflightapp.lib.TestFlight;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -619,6 +620,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @SuppressLint("NewApi")
 	@Override
     public void onResume() {
+        TestFlight.passCheckpoint("MessageActivity");
     	conn = NetworkConnection.getInstance();
     	if(!conn.ready) {
         	super.onResume();

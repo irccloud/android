@@ -123,6 +123,7 @@ public class MessageViewFragment extends ListFragment {
 	private boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
 	private boolean ready = false;
+    private boolean dirty = true;
 	
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
 		@Override
@@ -734,8 +735,7 @@ public class MessageViewFragment extends ListFragment {
     	tapTimer = null;
     	cid = args.getInt("cid", 0);
         if(bid == -1 || (args.containsKey("bid") && args.getInt("bid", 0) != bid)) {
-            Log.i("IRCCloud", "BID changed, clearing caches");
-            EventsDataSource.getInstance().clearCacheForBuffer(args.getInt("bid", 0));
+            dirty = true;
         }
     	bid = args.getInt("bid", 0);
     	last_seen_eid = args.getLong("last_seen_eid", 0);
@@ -1084,7 +1084,7 @@ public class MessageViewFragment extends ListFragment {
 				update_status(mServer.status, mServer.fail_info);
     	}
 		if(bid != -1) {
-            EventsDataSource.getInstance().clearCacheForBuffer(bid);
+            dirty = true;
 			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 			if(b != null)
 				last_seen_eid = b.last_seen_eid;
@@ -1306,6 +1306,11 @@ public class MessageViewFragment extends ListFragment {
 	private void refresh(TreeMap<Long,EventsDataSource.Event> events, BuffersDataSource.Buffer buffer) {
 		if(conn.getReconnectTimestamp() == 0)
 			conn.cancel_idle_timer(); //This may take a while...
+        if(dirty) {
+            Log.i("IRCCloud", "BID changed, clearing caches");
+            EventsDataSource.getInstance().clearCacheForBuffer(bid);
+            dirty = false;
+        }
 		collapsedEvents.clear();
 		currentCollapsedEid = -1;
 
@@ -1871,7 +1876,7 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
 			case NetworkConnection.EVENT_USERINFO:
-                EventsDataSource.getInstance().clearCacheForBuffer(bid);
+                dirty = true;
 	            if(refreshTask != null)
 	            	refreshTask.cancel(true);
 				refreshTask = new RefreshTask();

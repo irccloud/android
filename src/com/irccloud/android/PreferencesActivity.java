@@ -24,6 +24,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
+import com.testflightapp.lib.TestFlight;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -155,6 +157,7 @@ public class PreferencesActivity extends PreferenceActivity {
 	
     @Override
     public void onResume() {
+        TestFlight.passCheckpoint("PreferencesActivity");
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
