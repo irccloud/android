@@ -19,8 +19,8 @@ repositories {
 dependencies {
     compile project(':android-websockets')
     compile files('libs/TestFlightLib.jar')
-    compile files('libs/gson-2.2.2.jar')
-    compile files('libs/NotificationCompat2-1.1.2.jar')
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.jakewharton:notificationcompat2:1.1.2'
     compile 'com.android.support:support-v4:13.0.+'
     compile 'com.android.support:appcompat-v7:18.0.+'
     compile 'com.google.android.gms:play-services:3.1.+'
