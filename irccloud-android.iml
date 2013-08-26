@@ -41,13 +41,12 @@
       <sourceFolder url="file://$MODULE_DIR$/assets" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/res" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/aidl" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/instrumentTest/aidl" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/assets" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/java" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/jni" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/rs" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/src" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/instrumentTest/jni" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/instrumentTest/rs" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/res" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/tests/resources" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/.git" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/.idea" />
@@ -73,6 +72,7 @@
     <orderEntry type="library" exported="" name="TestFlightLib" level="project" />
     <orderEntry type="library" exported="" name="ComAndroidSupportAppcompatV71800.aar" level="project" />
     <orderEntry type="library" exported="" name="ComGoogleAndroidGmsPlayServices3136.aar" level="project" />
+    <orderEntry type="library" exported="" name="IrccloudAndroidAndroidWebsocketsUnspecified.aar" level="project" />
   </component>
 </module>
 

@@ -34,7 +34,10 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 18
+        testPackageName "com.irccloud.android.test"
+        testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -46,6 +49,11 @@ android {
             assets.srcDirs = ['assets']
         }
 
-        instrumentTest.setRoot('tests')
+        instrumentTest {
+            java.srcDirs = ['tests/src']
+            res.srcDirs = ['tests/res']
+            assets.srcDirs = ['tests/assets']
+            resources.srcDirs = ['tests/src']
+        }
     }
 }

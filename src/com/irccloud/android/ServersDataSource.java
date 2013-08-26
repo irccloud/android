@@ -26,25 +26,25 @@ import com.google.gson.JsonObject;
 
 public class ServersDataSource {
 	public class Server {
-		int cid;
-		String name;
-		String hostname;
-		int port;
-		String nick;
-		String status;
-		long lag;
-		int ssl;
-		String realname;
-		String server_pass;
-		String nickserv_pass;
-		String join_commands;
-		JsonObject fail_info;
-		String away;
-		String usermask;
-		String mode;
-		JsonObject isupport;
-        JsonArray raw_ignores;
-		ArrayList<String> ignores;
+		public int cid;
+        public String name;
+        public String hostname;
+        public int port;
+        public String nick;
+        public String status;
+        public long lag;
+        public int ssl;
+        public String realname;
+        public String server_pass;
+        public String nickserv_pass;
+        public String join_commands;
+        public JsonObject fail_info;
+        public String away;
+        public String usermask;
+        public String mode;
+        public JsonObject isupport;
+        public JsonArray raw_ignores;
+		public ArrayList<String> ignores;
 	}
 
 	public class comparator implements Comparator<Server> {
