@@ -30,6 +30,7 @@ import java.util.TreeSet;
 import android.os.Debug;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
+import android.view.animation.AlphaAnimation;
 import android.widget.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -628,9 +629,32 @@ public class MessageViewFragment extends ListFragment {
 
     public void showSpinner(boolean show) {
         if(show) {
+            AlphaAnimation anim = new AlphaAnimation(0, 1);
+            anim.setDuration(150);
+            anim.setFillAfter(true);
+            spinner.setAnimation(anim);
             spinner.setVisibility(View.VISIBLE);
         } else {
-            spinner.setVisibility(View.GONE);
+            AlphaAnimation anim = new AlphaAnimation(1, 0);
+            anim.setDuration(150);
+            anim.setFillAfter(true);
+            anim.setAnimationListener(new AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    spinner.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            spinner.setAnimation(anim);
         }
     }
 

@@ -58,6 +58,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -2265,7 +2266,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	}
 	    	if(this.bid >= 0)
 	    		backStack.add(0, this.bid);
-			this.cid = cid;
+            if(this.bid == -1 && this.cid == -1)
+                shouldFadeIn = false;
+            else
+                shouldFadeIn = true;
+            this.cid = cid;
 			this.bid = bid;
 			this.name = name;
 			this.type = type;
@@ -2275,7 +2280,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	title.setText(name);
 	    	getSupportActionBar().setTitle(name);
 	    	update_subtitle();
-	    	Bundle b = new Bundle();
+	    	final Bundle b = new Bundle();
 	    	b.putInt("cid", cid);
 	    	b.putInt("bid", bid);
 	    	b.putLong("last_seen_eid", last_seen_eid);
@@ -2283,27 +2288,46 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	b.putString("name", name);
 	    	b.putString("type", type);
 	    	BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+	    	final MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 	    	if(blf != null)
 	    		blf.setSelectedBid(bid);
-	    	if(mvf != null)
-	    		mvf.setArguments(b);
 	    	if(ulf != null)
 	    		ulf.setArguments(b);
-	
-	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
-			anim.setDuration(200);
-			anim.setFillAfter(true);
-            try {
-                mvf.showSpinner(true);
-                mvf.getListView().startAnimation(anim);
-                ulf.getListView().startAnimation(anim);
-            } catch (Exception e) {
 
+            if(shouldFadeIn) {
+                AlphaAnimation anim = new AlphaAnimation(1, 0);
+                anim.setDuration(150);
+                anim.setFillAfter(true);
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if(mvf != null)
+                            mvf.setArguments(b);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                try {
+                    mvf.showSpinner(true);
+                    mvf.getListView().startAnimation(anim);
+                    ulf.getListView().startAnimation(anim);
+                } catch (Exception e) {
+
+                }
+            } else {
+                if(mvf != null)
+                    mvf.setArguments(b);
             }
-			shouldFadeIn = true;
-	
+
 	    	updateUsersListFragmentVisibility();
 	    	supportInvalidateOptionsMenu();
 			if(showNotificationsTask != null)
@@ -2335,7 +2359,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
-			anim.setDuration(200);
+			anim.setDuration(150);
 			anim.setFillAfter(true);
 			if(mvf != null && mvf.getListView() != null) {
                 mvf.showSpinner(false);
