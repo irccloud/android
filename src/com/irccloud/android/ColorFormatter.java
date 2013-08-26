@@ -198,7 +198,7 @@ public class ColorFormatter {
 				bold = !bold;
 				builder.deleteCharAt(pos);
 				builder.insert(pos, html);
-			} else if(builder.charAt(pos) == 16 || builder.charAt(pos) == 29) { //Italics
+			} else if(builder.charAt(pos) == 22 || builder.charAt(pos) == 29) { //Italics
 				String html = "";
 				if(italics)
 					html += "</i>";
