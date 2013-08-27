@@ -155,14 +155,18 @@ public class MainActivity extends FragmentActivity {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	if(conn.ready) {
-    		Intent i = new Intent(MainActivity.this, MessageActivity.class);
-    		if(getIntent() != null) {
-    			if(getIntent().getData() != null)
-    				i.setData(getIntent().getData());
-    			if(getIntent().getExtras() != null)
-    				i.putExtras(getIntent().getExtras());
-    		}
-    		startActivity(i);
+            if(ServersDataSource.getInstance().count() > 0) {
+                Intent i = new Intent(MainActivity.this, MessageActivity.class);
+                if(getIntent() != null) {
+                    if(getIntent().getData() != null)
+                        i.setData(getIntent().getData());
+                    if(getIntent().getExtras() != null)
+                        i.putExtras(getIntent().getExtras());
+                }
+                startActivity(i);
+            } else {
+                startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
+            }
     		finish();
     	} else {
     		conn.addHandler(mHandler);
@@ -235,6 +239,10 @@ public class MainActivity extends FragmentActivity {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+            case NetworkConnection.EVENT_DEBUG:
+                errorMsg.setVisibility(View.VISIBLE);
+                errorMsg.setText(msg.obj.toString());
+                break;
 			case NetworkConnection.EVENT_PROGRESS:
 				float progress = (Float)msg.obj;
 				progressBar.setIndeterminate(false);
@@ -242,15 +250,19 @@ public class MainActivity extends FragmentActivity {
 				break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				if(conn.ready) {
-		    		Intent i = new Intent(MainActivity.this, MessageActivity.class);
-		    		if(getIntent() != null) {
-		    			if(getIntent().getData() != null)
-		    				i.setData(getIntent().getData());
-		    			if(getIntent().getExtras() != null)
-		    				i.putExtras(getIntent().getExtras());
-		    		}
-		    		startActivity(i);
-		    		finish();
+                    if(ServersDataSource.getInstance().count() > 0) {
+                        Intent i = new Intent(MainActivity.this, MessageActivity.class);
+                        if(getIntent() != null) {
+                            if(getIntent().getData() != null)
+                                i.setData(getIntent().getData());
+                            if(getIntent().getExtras() != null)
+                                i.putExtras(getIntent().getExtras());
+                        }
+                        startActivity(i);
+                    } else {
+                        startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
+                    }
+                    finish();
 				}
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
@@ -261,36 +273,7 @@ public class MainActivity extends FragmentActivity {
 				try {
 					error = o.getString("message");
                     if(error.equals("auth")) {
-                        conn.disconnect();
-                        conn.ready = false;
-                        SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                        try {
-                            String regId = GCMIntentService.getRegistrationId(MainActivity.this);
-                            if(regId.length() > 0) {
-                                //Store the old session key so GCM can unregister later
-                                editor.putString(regId, getSharedPreferences("prefs", 0).getString("session_key", ""));
-                                GCMIntentService.scheduleUnregisterTimer(1000, regId);
-                            }
-                        } catch (Exception e) {
-                            //GCM might not be available on the device
-                        }
-                        editor.remove("session_key");
-                        editor.remove("gcm_registered");
-                        editor.remove("mentionTip");
-                        editor.remove("userSwipeTip");
-                        editor.remove("bufferSwipeTip");
-                        editor.remove("longPressTip");
-                        editor.remove("email");
-                        editor.remove("name");
-                        editor.remove("highlights");
-                        editor.remove("autoaway");
-                        editor.commit();
-                        ServersDataSource.getInstance().clear();
-                        BuffersDataSource.getInstance().clear();
-                        ChannelsDataSource.getInstance().clear();
-                        UsersDataSource.getInstance().clear();
-                        EventsDataSource.getInstance().clear();
-                        Notifications.getInstance().clear();
+                        conn.logout();
                         connecting.setVisibility(View.GONE);
                         login.setVisibility(View.VISIBLE);
                         return;

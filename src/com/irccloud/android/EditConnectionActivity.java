@@ -16,16 +16,26 @@
 
 package com.irccloud.android;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 
 public class EditConnectionActivity extends ActionBarActivity {
+    int reqid = -1;
+    boolean shouldLaunchMessageActivity = false;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(ServersDataSource.getInstance().count() == 0)
+            shouldLaunchMessageActivity = true;
+
         setContentView(R.layout.activity_edit_connection);
         
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -48,6 +58,12 @@ public class EditConnectionActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
+                if(ServersDataSource.getInstance().count() < 1) {
+                    NetworkConnection.getInstance().logout();
+                    Intent i = new Intent(EditConnectionActivity.this, MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                }
 				finish();
 			}
         	
@@ -57,11 +73,41 @@ public class EditConnectionActivity extends ActionBarActivity {
 
 			@Override
 			public void onClick(View v) {
-				newFragment.save();
-				finish();
+				reqid = newFragment.save();
 			}
         	
         });
-
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NetworkConnection.getInstance().addHandler(mHandler);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        NetworkConnection.getInstance().removeHandler(mHandler);
+    }
+
+    private final Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            IRCCloudJSONObject obj;
+            switch (msg.what) {
+                case NetworkConnection.EVENT_SUCCESS:
+                    if(shouldLaunchMessageActivity)
+                        startActivity(new Intent(EditConnectionActivity.this, MessageActivity.class));
+                    finish();
+                    break;
+                case NetworkConnection.EVENT_FAILURE_MSG:
+                    obj = (IRCCloudJSONObject)msg.obj;
+                    String message = obj.getString("message");
+                    Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 }

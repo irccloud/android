@@ -1181,11 +1181,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    					buffer.type, 1, buffer.archived, status);
 			        		backStack.remove(0);
 		        		} else {
-		        			finish();
+                            finish();
 		        		}
-		        	} else {
+		        	} else if(BuffersDataSource.getInstance().count() == 0) {
+                        startActivity(new Intent(MessageActivity.this, EditConnectionActivity.class));
+                        finish();
+                    } else {
 		        		if(!open_bid(BuffersDataSource.getInstance().firstBid()))
-		        			finish();
+                            finish();
 		        	}
 				}
 				break;

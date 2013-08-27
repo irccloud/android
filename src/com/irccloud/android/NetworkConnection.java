@@ -153,11 +153,14 @@ public class NetworkConnection {
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
-	public static final int EVENT_FAILURE_MSG = 102;
-	public static final int EVENT_SUCCESS = 103;
-	public static final int EVENT_PROGRESS = 104;
-	public static final int EVENT_ALERT = 105;
-	
+    public static final int EVENT_BACKLOG_FAILED = 102;
+	public static final int EVENT_FAILURE_MSG = 103;
+	public static final int EVENT_SUCCESS = 104;
+	public static final int EVENT_PROGRESS = 105;
+	public static final int EVENT_ALERT = 106;
+
+    public static final int EVENT_DEBUG = 999;
+
 	private static final String IRCCLOUD_HOST = "www.irccloud.com";
 	
 	private Object parserLock = new Object();
@@ -360,10 +363,35 @@ public class NetworkConnection {
 		return null;
 	}
 	
-	public void connect(String sk) {
+	public synchronized void connect(String sk) {
 		session = sk;
         String host = null;
         int port = -1;
+
+        ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+
+        if(ni == null || !ni.isConnected()) {
+            TestFlight.log("Network is not connected");
+            cancel_idle_timer();
+            state = STATE_DISCONNECTED;
+            reconnect_timestamp = 0;
+            return;
+        }
+
+        if(state == STATE_CONNECTING || state == STATE_CONNECTED) {
+            Log.w(TAG, "Ignoring duplicate connect request");
+            return;
+        }
+
+        for(Integer bid : oobTasks.keySet()) {
+            try {
+                oobTasks.get(bid).cancel(true);
+            } catch (Exception e) {
+            }
+        }
+        oobTasks.clear();
+        state = STATE_CONNECTING;
 
         if(Build.VERSION.SDK_INT <11) {
             host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
@@ -376,17 +404,6 @@ public class NetworkConnection {
         IntentFilter intentFilter = new IntentFilter();
 		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 		IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
-		
-		ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo ni = cm.getActiveNetworkInfo();
-		
-		if(ni == null || !ni.isConnected()) {
-            TestFlight.log("Network is not connected");
-			cancel_idle_timer();
-			state = STATE_DISCONNECTED;
-			reconnect_timestamp = 0;
-			return;
-		}
 
 		if(!wifiLock.isHeld())
 			wifiLock.acquire();
@@ -400,16 +417,20 @@ public class NetworkConnection {
 		if(EventsDataSource.getInstance().highest_eid > 0)
 			url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
 
-        if(host != null && host.length() > 0)
+        if(host != null && host.length() > 0) {
             TestFlight.log("Connecting: " + url + " via proxy: " + host);
-        else
+            Log.d(TAG, "Connecting: " + url + " via proxy: " + host);
+        } else {
             TestFlight.log("Connecting: " + url);
+            Log.d(TAG, "Connecting: " + url);
+        }
 
 		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 		    @Override
 		    public void onConnect() {
                 TestFlight.passCheckpoint("connect");
                 TestFlight.log("WebSocket connected");
+                Log.d(TAG, "WebSocket connected");
 		        state = STATE_CONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
@@ -437,6 +458,7 @@ public class NetworkConnection {
 		    @Override
 		    public void onDisconnect(int code, String reason) {
                 TestFlight.log("WebSocket disconnected");
+                Log.d(TAG, "WebSocket disconnected");
                 if(state == STATE_DISCONNECTING)
 		        	cancel_idle_timer();
 		        else {
@@ -449,6 +471,7 @@ public class NetworkConnection {
                         idle_interval = 30000;
 		        	schedule_idle_timer();
                     TestFlight.log("Reconnecting in " + idle_interval/1000 + " seconds");
+                    Log.d(TAG, "Reconnecting in " + idle_interval/1000 + " seconds");
                 }
 
 		        state = STATE_DISCONNECTED;
@@ -468,6 +491,7 @@ public class NetworkConnection {
 		    @Override
 		    public void onError(Exception error) {
                 TestFlight.log("The WebSocket encountered an error: " + error.toString());
+                Log.d(TAG, "The WebSocket encountered an error: " + error.toString());
 		        if(state == STATE_DISCONNECTING)
 		        	cancel_idle_timer();
 		        else {
@@ -487,15 +511,47 @@ public class NetworkConnection {
 		    }
 		}, extraHeaders);
 		
-		state = STATE_CONNECTING;
 		reconnect_timestamp = 0;
-        idle_interval = 30000;
+        idle_interval = 0;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
 		client.setSocketTag(WEBSOCKET_TAG);
         client.setProxy(host, port);
 		client.connect();
 	}
-	
+
+    public void logout() {
+        disconnect();
+        ready = false;
+        SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+        try {
+            String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
+            if(regId.length() > 0) {
+                //Store the old session key so GCM can unregister later
+                editor.putString(regId, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
+                GCMIntentService.scheduleUnregisterTimer(1000, regId);
+            }
+        } catch (Exception e) {
+            //GCM might not be available on the device
+        }
+        editor.remove("session_key");
+        editor.remove("gcm_registered");
+        editor.remove("mentionTip");
+        editor.remove("userSwipeTip");
+        editor.remove("bufferSwipeTip");
+        editor.remove("longPressTip");
+        editor.remove("email");
+        editor.remove("name");
+        editor.remove("highlights");
+        editor.remove("autoaway");
+        editor.commit();
+        ServersDataSource.getInstance().clear();
+        BuffersDataSource.getInstance().clear();
+        ChannelsDataSource.getInstance().clear();
+        UsersDataSource.getInstance().clear();
+        EventsDataSource.getInstance().clear();
+        Notifications.getInstance().clear();
+    }
+
 	private synchronized int send(String method, JSONObject params) {
 		if(client == null || state != STATE_CONNECTED)
 			return -1;
@@ -881,6 +937,7 @@ public class NetworkConnection {
 		}
 		String type = object.type();
 		if(type != null && type.length() > 0) {
+            //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
 			//Log.d(TAG, "New event: " + type);
 			if(type.equalsIgnoreCase("header")) {
 				idle_interval = object.getLong("idle_interval") + 10000;
@@ -1097,7 +1154,7 @@ public class NetworkConnection {
 								object.getJsonObject("topic").get("time").getAsLong(), 
 						object.getJsonObject("topic").get("nick").getAsString(), object.getString("channel_type"),
 						object.getLong("timestamp"));
-                c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"));
+                c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
 				UsersDataSource u = UsersDataSource.getInstance();
 				u.deleteUsersForBuffer(object.cid(), object.bid());
 				JsonArray users = object.getJsonArray("members");
@@ -1123,7 +1180,7 @@ public class NetworkConnection {
 				e.addEvent(object);
 				if(!backlog) {
 					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"));
+					c.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
 					notifyHandlers(EVENT_CHANNELMODE, object);
 				}
 			} else if(type.equalsIgnoreCase("channel_timestamp")) {
@@ -1499,6 +1556,8 @@ public class NetworkConnection {
 				long totalTime = System.currentTimeMillis();
 				long totalParseTime = 0;
 				long totalJSONTime = 0;
+                long longestEventTime = 0;
+                String longestEventType = "";
 				if(Build.VERSION.SDK_INT >= 14)
 					TrafficStats.setThreadStatsTag(BACKLOG_TAG);
 				Log.d(TAG, "Requesting: " + url[0]);
@@ -1537,6 +1596,9 @@ public class NetworkConnection {
 				conn.setRequestProperty("Accept-Encoding", "gzip");
 				conn.setRequestProperty("User-Agent", useragent);
 				conn.connect();
+                if(conn.getResponseCode() != 200)
+                    return false;
+
 				JsonReader reader = null;
 				try {
 					if(conn.getInputStream() != null) {
@@ -1577,6 +1639,8 @@ public class NetworkConnection {
 						long firstEid = 0;
 						int currentcount = 0;
 						while(reader.hasNext()) {
+                            if(isCancelled())
+                                return false;
 							long time = System.currentTimeMillis();
 							JsonElement e = parser.parse(reader);
 							totalJSONTime += (System.currentTimeMillis() - time);
@@ -1597,22 +1661,29 @@ public class NetworkConnection {
 								}
 								currentcount++;
 							}
-							totalParseTime += (System.currentTimeMillis() - time);
+                            long t = (System.currentTimeMillis() - time);
+                            if(t > longestEventTime) {
+                                longestEventTime = t;
+                                longestEventType = o.type();
+                            }
+							totalParseTime += t;
 							count++;
 							if(Build.VERSION.SDK_INT >= 14)
 								TrafficStats.incrementOperationCount(1);
 						}
 						reader.endArray();
-						//Debug.stopMethodTracing();
+						Debug.stopMethodTracing();
 						totalTime = (System.currentTimeMillis() - totalTime);
 						TestFlight.log("Backlog complete: " + count + " events");
                         TestFlight.log("JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
                         TestFlight.log("Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
                         TestFlight.log("Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                        TestFlight.log("Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
                         Log.d(TAG, "Backlog complete: " + count + " events");
                         Log.d(TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
                         Log.d(TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
                         Log.d(TAG, "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                        Log.d(TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
 						totalTime -= totalJSONTime;
 						totalTime -= totalParseTime;
                         TestFlight.log("Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
@@ -1651,7 +1722,6 @@ public class NetworkConnection {
 					oobTasks.remove(bid);
 				}
 				
-				notifyHandlers(EVENT_BACKLOG_END, null);
                 TestFlight.log("OOB fetch complete!");
                 Log.d(TAG, "OOB fetch complete!");
 				if(Build.VERSION.SDK_INT >= 14)
@@ -1681,6 +1751,17 @@ public class NetworkConnection {
 				TrafficStats.clearThreadStatsTag();
 			return false;
 		}
-	}
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if(success) {
+                Log.d(TAG, "OOB successful");
+                notifyHandlers(EVENT_BACKLOG_END, null);
+            } else {
+                Log.d(TAG, "OOB failed");
+                notifyHandlers(EVENT_BACKLOG_FAILED, null);
+            }
+        }
+    }
 	
 }

@@ -338,7 +338,7 @@ public class EditConnectionFragment extends DialogFragment {
 			savedInstanceState.putInt("cid", server.cid);
 	}
 
-	public void save() {
+	public int save() {
 		int portValue = 6667;
 		try {
 			portValue = Integer.parseInt(port.getText().toString());
@@ -349,11 +349,11 @@ public class EditConnectionFragment extends DialogFragment {
 			if(presets.getSelectedItemPosition() > 0) {
 				netname = ((PresetServersAdapter.PresetServer)adapter.getItem(presets.getSelectedItemPosition())).network;
 			}
-			NetworkConnection.getInstance().addServer(hostname.getText().toString(), portValue,
+			return NetworkConnection.getInstance().addServer(hostname.getText().toString(), portValue,
 					ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
 		} else {
-			NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), portValue,
+			return NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), portValue,
 					ssl.isChecked()?1:0, server.name, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString());
 			

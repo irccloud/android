@@ -43,8 +43,9 @@ public class ChannelsDataSource {
         int valid;
         boolean key;
 
-        public synchronized void addMode(String mode, String param) {
-            removeMode(mode);
+        public synchronized void addMode(String mode, String param, boolean init) {
+            if(!init)
+                removeMode(mode);
             if(mode.equalsIgnoreCase("k"))
                 key = true;
             Mode m = new Mode();
@@ -131,14 +132,14 @@ public class ChannelsDataSource {
 		}
 	}
 	
-	public synchronized void updateMode(long bid, String mode, JsonObject ops) {
+	public synchronized void updateMode(long bid, String mode, JsonObject ops, boolean init) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
             c.key = false;
             JsonArray add = ops.get("add").getAsJsonArray();
             for(int i = 0; i < add.size(); i++) {
                 JsonObject m = add.get(i).getAsJsonObject();
-                c.addMode(m.get("mode").getAsString(), m.get("param").getAsString());
+                c.addMode(m.get("mode").getAsString(), m.get("param").getAsString(), init);
             }
             JsonArray remove = ops.get("remove").getAsJsonArray();
             for(int i = 0; i < remove.size(); i++) {

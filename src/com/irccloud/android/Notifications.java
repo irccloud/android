@@ -237,7 +237,7 @@ public class Notifications {
 				mSaveTimer = null;
 			}
 			
-		}, 1000);
+		}, 60000);
 	}
 	
 	public void clearDismissed() {
@@ -358,6 +358,7 @@ public class Notifications {
 	}
 	
 	public void deleteOldNotifications(int bid, long last_seen_eid) {
+        boolean changed = false;
 		if(mNotificationTimer != null) {
 			mNotificationTimer.cancel();
 			mNotificationTimer = null;
@@ -370,6 +371,7 @@ public class Notifications {
 	        for(Notification n : notifications) {
 	        	if(n.bid == bid && n.eid <= last_seen_eid) {
 	        		nm.cancel((int)(n.eid/1000));
+                    changed = true;
 	        	}
 	        }
 		}
@@ -381,6 +383,7 @@ public class Notifications {
 					mNotifications.remove(n);
 					i--;
 					nm.cancel(bid);
+                    changed = true;
 					continue;
 				}
 			}
@@ -394,9 +397,11 @@ public class Notifications {
 				}
 			}
 		}
-        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-            NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(),com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[] {String.valueOf(bid)});
+        if(changed) {
+            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+            if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+                NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(),com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[] {String.valueOf(bid)});
+        }
 	}
 	
 	public void deleteNotificationsForBid(int bid) {

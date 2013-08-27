@@ -1863,6 +1863,10 @@ public class MessageViewFragment extends ListFragment {
 		
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
+            case NetworkConnection.EVENT_DEBUG:
+                errorMsg.setVisibility(View.VISIBLE);
+                errorMsg.setText(msg.obj.toString());
+                break;
 			case NetworkConnection.EVENT_PROGRESS:
 				float progress = (Float)msg.obj;
 				progressBar.setIndeterminate(false);

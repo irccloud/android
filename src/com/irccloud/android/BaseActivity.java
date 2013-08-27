@@ -309,36 +309,7 @@ public class BaseActivity extends ActionBarActivity {
     	
         switch (item.getItemId()) {
             case R.id.menu_logout:
-            	conn.disconnect();
-            	conn.ready = false;
-				SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-        		try {
-                    String regId = GCMIntentService.getRegistrationId(this);
-					if(regId.length() > 0) {
-						//Store the old session key so GCM can unregister later
-						editor.putString(regId, getSharedPreferences("prefs", 0).getString("session_key", ""));
-                        GCMIntentService.scheduleUnregisterTimer(1000, regId);
-					}
-        		} catch (Exception e) {
-        			//GCM might not be available on the device
-        		}
-				editor.remove("session_key");
-				editor.remove("gcm_registered");
-				editor.remove("mentionTip");
-				editor.remove("userSwipeTip");
-				editor.remove("bufferSwipeTip");
-				editor.remove("longPressTip");
-				editor.remove("email");
-				editor.remove("name");
-				editor.remove("highlights");
-				editor.remove("autoaway");
-				editor.commit();
-				ServersDataSource.getInstance().clear();
-				BuffersDataSource.getInstance().clear();
-				ChannelsDataSource.getInstance().clear();
-				UsersDataSource.getInstance().clear();
-				EventsDataSource.getInstance().clear();
-				Notifications.getInstance().clear();
+                conn.logout();
         		i = new Intent(this, MainActivity.class);
         		i.addFlags(
                         Intent.FLAG_ACTIVITY_CLEAR_TOP |
