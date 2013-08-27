@@ -18,6 +18,9 @@ package com.irccloud.android;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.DialogFragment;
 
 import android.app.Activity;
@@ -41,6 +44,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EditConnectionFragment extends DialogFragment {
 	private class PresetServersAdapter extends BaseAdapter {
@@ -193,6 +197,8 @@ public class EditConnectionFragment extends DialogFragment {
 	public String default_hostname = null;
 	public int default_port = 6667;
 	public String default_channels = null;
+
+    private int reqid = -1;
 	
 	private void init(View v) {
     	channelsWrapper = (LinearLayout)v.findViewById(R.id.channels_wrapper);
@@ -283,7 +289,7 @@ public class EditConnectionFragment extends DialogFragment {
         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
+                NetworkConnection.getInstance().removeHandler(mHandler);
 			}
         })
         .create();
@@ -363,8 +369,33 @@ public class EditConnectionFragment extends DialogFragment {
     class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-			save();
-			dialog.dismiss();
+            NetworkConnection.getInstance().removeHandler(mHandler);
+            NetworkConnection.getInstance().addHandler(mHandler);
+            reqid = save();
 		}
     }
+
+    private final Handler mHandler = new Handler() {
+        public void handleMessage(Message msg) {
+            IRCCloudJSONObject obj;
+            switch (msg.what) {
+                case NetworkConnection.EVENT_SUCCESS:
+                    obj = (IRCCloudJSONObject)msg.obj;
+                    if(obj.getInt("_reqid") == reqid) {
+                        NetworkConnection.getInstance().removeHandler(mHandler);
+                    }
+                    break;
+                case NetworkConnection.EVENT_FAILURE_MSG:
+                    obj = (IRCCloudJSONObject)msg.obj;
+                    if(obj.getInt("_reqid") == reqid) {
+                        String message = obj.getString("message");
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                        NetworkConnection.getInstance().removeHandler(mHandler);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 }

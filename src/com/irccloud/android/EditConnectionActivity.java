@@ -29,13 +29,10 @@ import android.widget.Toast;
 
 public class EditConnectionActivity extends ActionBarActivity {
     int reqid = -1;
-    boolean shouldLaunchMessageActivity = false;
+    int cidToOpen = -1;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(ServersDataSource.getInstance().count() == 0)
-            shouldLaunchMessageActivity = true;
-
         setContentView(R.layout.activity_edit_connection);
         
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
@@ -94,16 +91,29 @@ public class EditConnectionActivity extends ActionBarActivity {
     private final Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             IRCCloudJSONObject obj;
+            BuffersDataSource.Buffer buffer;
             switch (msg.what) {
+                case NetworkConnection.EVENT_MAKEBUFFER:
+                    buffer = (BuffersDataSource.Buffer)msg.obj;
+                    if(buffer.cid == cidToOpen) {
+                        Intent i = new Intent(EditConnectionActivity.this, MessageActivity.class);
+                        i.putExtra("bid", buffer.bid);
+                        startActivity(i);
+                        finish();
+                    }
+                    break;
                 case NetworkConnection.EVENT_SUCCESS:
-                    if(shouldLaunchMessageActivity)
-                        startActivity(new Intent(EditConnectionActivity.this, MessageActivity.class));
-                    finish();
+                    obj = (IRCCloudJSONObject)msg.obj;
+                    if(obj.getInt("_reqid") == reqid) {
+                        cidToOpen = obj.cid();
+                    }
                     break;
                 case NetworkConnection.EVENT_FAILURE_MSG:
                     obj = (IRCCloudJSONObject)msg.obj;
-                    String message = obj.getString("message");
-                    Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                    if(obj.getInt("_reqid") == reqid) {
+                        String message = obj.getString("message");
+                        Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 default:
                     break;

@@ -906,7 +906,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)msg.obj;
 				if(cidToOpen == b.cid && b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(name)) {
-					onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, 1, 0, "connected_ready");
+                    ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+					onBufferSelected(b.cid, b.bid, (b.type.equalsIgnoreCase("console"))?s.name:b.name, b.last_seen_eid, b.min_eid, b.type, 1, 0, "connected_ready");
 		    		bufferToOpen = null;
 		    		cidToOpen = -1;
 				} else if(bid == -1 && b.cid == cid && b.name.equalsIgnoreCase(name)) {
@@ -1101,8 +1102,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				ServersDataSource.Server server = (ServersDataSource.Server)msg.obj;
 				if(server.cid == cid) {
 					status = server.status;
-					supportInvalidateOptionsMenu();
-				}
+                    if(type.equalsIgnoreCase("console")) {
+                        name = server.name;
+                        title.setText(name);
+                    }
+                    supportInvalidateOptionsMenu();
+                    update_subtitle();
+				} else {
+                    cidToOpen = server.cid;
+                    bufferToOpen = "*";
+                }
 				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
 				event_bid = (Integer)msg.obj;
@@ -2301,7 +2310,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		ulf.setArguments(b);
 
             if(shouldFadeIn) {
-                Log.d("IRCCloud", "Animating");
                 AlphaAnimation anim = new AlphaAnimation(1, 0);
                 anim.setDuration(150);
                 anim.setFillAfter(true);

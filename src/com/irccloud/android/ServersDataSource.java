@@ -93,6 +93,8 @@ public class ServersDataSource {
 		s.away = away;
 		s.usermask = "";
 		s.mode = "";
+        if(s.name == null || s.name.length() == 0)
+            s.name = s.hostname;
         updateIgnores(cid, ignores);
         Collections.sort(servers, new comparator());
 		return s;
