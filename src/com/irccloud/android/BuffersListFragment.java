@@ -736,8 +736,8 @@ public class BuffersListFragment extends ListFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case NetworkConnection.EVENT_PROGRESS:
-				break;
+//			case NetworkConnection.EVENT_PROGRESS:
+//				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				if(adapter != null)
 					adapter.notifyDataSetChanged();

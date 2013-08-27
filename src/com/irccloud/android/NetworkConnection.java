@@ -170,10 +170,11 @@ public class NetworkConnection {
 
 	private float numbuffers = 0;
 	private float totalbuffers = 0;
+    private int currentcount = 0;
 
 	public boolean ready = false;
 	public String globalMsg = null;
-	
+
 	private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
 	
 	public static NetworkConnection getInstance() {
@@ -1069,9 +1070,8 @@ public class NetworkConnection {
 				Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
-				if(numbuffers > 0) {
-					notifyHandlers(EVENT_PROGRESS, (totalbuffers++ / numbuffers) * 100);
-				}
+                totalbuffers++;
+                currentcount = 0;
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteAllDataForBuffer(object.bid());
@@ -1351,6 +1351,9 @@ public class NetworkConnection {
 				//Log.w(TAG, "Unhandled type: " + object);
 			}
 		}
+        if(numbuffers > 0 && currentcount < BACKLOG_BUFFER_MAX) {
+            notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float)currentcount / (float)BACKLOG_BUFFER_MAX))/ numbuffers) * 1000.0f);
+        }
 		if(!backlog && idle_interval > 0)
 			schedule_idle_timer();
 	}
@@ -1596,138 +1599,137 @@ public class NetworkConnection {
 				conn.setRequestProperty("Accept-Encoding", "gzip");
 				conn.setRequestProperty("User-Agent", useragent);
 				conn.connect();
-                if(conn.getResponseCode() != 200)
-                    return false;
-
-				JsonReader reader = null;
-				try {
-					if(conn.getInputStream() != null) {
-						if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
-							reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())));
-						else if(conn.getInputStream() != null)
-							reader = new JsonReader(new InputStreamReader(conn.getInputStream()));
-					}
-				} catch (IOException e) {
-					if(conn.getErrorStream() != null) {
-						if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
-							reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())));
-						else if(conn.getErrorStream() != null)
-							reader = new JsonReader(new InputStreamReader(conn.getErrorStream()));
-					}
-				}
-
-				if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
-					synchronized(parserLock) {
-                        cancel_idle_timer();
-						//if(ready)
-                        //Debug.startMethodTracing("oob", 16*1024*1024);
-						TestFlight.log("Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
-                        Log.d(TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
-						TestFlight.log("Beginning backlog...");
-                        Log.d(TAG, "Beginning backlog...");
-						notifyHandlers(EVENT_BACKLOG_START, null);
-                        if(bid == -1) {
-                            BuffersDataSource.getInstance().invalidate();
-                            ChannelsDataSource.getInstance().invalidate();
+                if(conn.getResponseCode() == 200) {
+                    JsonReader reader = null;
+                    try {
+                        if(conn.getInputStream() != null) {
+                            if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
+                                reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())));
+                            else if(conn.getInputStream() != null)
+                                reader = new JsonReader(new InputStreamReader(conn.getInputStream()));
                         }
-						numbuffers = 0;
-						totalbuffers = 0;
-						JsonParser parser = new JsonParser();
-						reader.beginArray();
-						int count = 0;
-						int currentBid = -1;
-						long firstEid = 0;
-						int currentcount = 0;
-						while(reader.hasNext()) {
-                            if(isCancelled())
-                                return false;
-							long time = System.currentTimeMillis();
-							JsonElement e = parser.parse(reader);
-							totalJSONTime += (System.currentTimeMillis() - time);
-							time = System.currentTimeMillis();
-							IRCCloudJSONObject o = new IRCCloudJSONObject(e.getAsJsonObject());
-							parse_object(o, true);
-							if(totalbuffers > 1 && (!reader.hasNext() || (o.bid() > -1 && !o.type().equalsIgnoreCase("makebuffer") && !o.type().equalsIgnoreCase("channel_init")))) {
-								if(o.bid() != currentBid) {
-                                    //Debug.stopMethodTracing();
-									if(currentBid != -1) {
-										if(currentcount >= BACKLOG_BUFFER_MAX) {
-											EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
-										}
-									}
-									currentBid = o.bid();
-									currentcount = 0;
-									firstEid = o.eid();
-								}
-								currentcount++;
-							}
-                            long t = (System.currentTimeMillis() - time);
-                            if(t > longestEventTime) {
-                                longestEventTime = t;
-                                longestEventType = o.type();
+                    } catch (IOException e) {
+                        if(conn.getErrorStream() != null) {
+                            if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
+                                reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())));
+                            else if(conn.getErrorStream() != null)
+                                reader = new JsonReader(new InputStreamReader(conn.getErrorStream()));
+                        }
+                    }
+
+                    if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
+                        synchronized(parserLock) {
+                            cancel_idle_timer();
+                            //if(ready)
+                            //Debug.startMethodTracing("oob", 16*1024*1024);
+                            TestFlight.log("Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
+                            Log.d(TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
+                            TestFlight.log("Beginning backlog...");
+                            Log.d(TAG, "Beginning backlog...");
+                            notifyHandlers(EVENT_BACKLOG_START, null);
+                            if(bid == -1) {
+                                BuffersDataSource.getInstance().invalidate();
+                                ChannelsDataSource.getInstance().invalidate();
                             }
-							totalParseTime += t;
-							count++;
-							if(Build.VERSION.SDK_INT >= 14)
-								TrafficStats.incrementOperationCount(1);
-						}
-						reader.endArray();
-						Debug.stopMethodTracing();
-						totalTime = (System.currentTimeMillis() - totalTime);
-						TestFlight.log("Backlog complete: " + count + " events");
-                        TestFlight.log("JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
-                        TestFlight.log("Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
-                        TestFlight.log("Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
-                        TestFlight.log("Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
-                        Log.d(TAG, "Backlog complete: " + count + " events");
-                        Log.d(TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
-                        Log.d(TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
-                        Log.d(TAG, "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
-                        Log.d(TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
-						totalTime -= totalJSONTime;
-						totalTime -= totalParseTime;
-                        TestFlight.log("Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
-                        Log.d(TAG, "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                            numbuffers = 0;
+                            totalbuffers = 0;
+                            JsonParser parser = new JsonParser();
+                            reader.beginArray();
+                            int count = 0;
+                            int currentBid = -1;
+                            long firstEid = 0;
+                            while(reader.hasNext()) {
+                                if(isCancelled())
+                                    return false;
+                                long time = System.currentTimeMillis();
+                                JsonElement e = parser.parse(reader);
+                                totalJSONTime += (System.currentTimeMillis() - time);
+                                time = System.currentTimeMillis();
+                                IRCCloudJSONObject o = new IRCCloudJSONObject(e.getAsJsonObject());
+                                parse_object(o, true);
+                                if(totalbuffers > 1 && (!reader.hasNext() || (o.bid() > -1 && !o.type().equalsIgnoreCase("makebuffer") && !o.type().equalsIgnoreCase("channel_init")))) {
+                                    if(o.bid() != currentBid) {
+                                        //Debug.stopMethodTracing();
+                                        if(currentBid != -1) {
+                                            if(currentcount >= BACKLOG_BUFFER_MAX) {
+                                                EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
+                                            }
+                                        }
+                                        currentBid = o.bid();
+                                        currentcount = 0;
+                                        firstEid = o.eid();
+                                    }
+                                    currentcount++;
+                                }
+                                long t = (System.currentTimeMillis() - time);
+                                if(t > longestEventTime) {
+                                    longestEventTime = t;
+                                    longestEventType = o.type();
+                                }
+                                totalParseTime += t;
+                                count++;
+                                if(Build.VERSION.SDK_INT >= 14)
+                                    TrafficStats.incrementOperationCount(1);
+                            }
+                            reader.endArray();
+                            Debug.stopMethodTracing();
+                            totalTime = (System.currentTimeMillis() - totalTime);
+                            TestFlight.log("Backlog complete: " + count + " events");
+                            TestFlight.log("JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
+                            TestFlight.log("Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
+                            TestFlight.log("Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                            TestFlight.log("Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
+                            Log.d(TAG, "Backlog complete: " + count + " events");
+                            Log.d(TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
+                            Log.d(TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
+                            Log.d(TAG, "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                            Log.d(TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
+                            totalTime -= totalJSONTime;
+                            totalTime -= totalParseTime;
+                            TestFlight.log("Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                            Log.d(TAG, "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 
-                        if(bid == -1) {
-                            BuffersDataSource.getInstance().purgeInvalidBIDs();
-                            ChannelsDataSource.getInstance().purgeInvalidChannels();
+                            if(bid == -1) {
+                                BuffersDataSource.getInstance().purgeInvalidBIDs();
+                                ChannelsDataSource.getInstance().purgeInvalidChannels();
+                            }
+
+                            ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
+                            for(BuffersDataSource.Buffer b : buffers) {
+                                Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
+                                if(b.timeout > 0 && bid == -1) {
+                                    TestFlight.log("Requesting backlog for timed-out buffer: " + b.name);
+                                    Log.d(TAG, "Requesting backlog for timed-out buffer: " + b.name);
+                                    request_backlog(b.cid, b.bid, 0);
+                                }
+                            }
+                            Notifications.getInstance().showNotifications(null);
+                            schedule_idle_timer();
                         }
+                        ready = true;
+                    } else if(ServersDataSource.getInstance().count() < 1) {
+                        TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
+                        Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
+                        client.disconnect();
+                    }
+                    if(reader != null)
+                        reader.close();
 
-						ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
-						for(BuffersDataSource.Buffer b : buffers) {
-							Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
-							if(b.timeout > 0 && bid == -1) {
-                                TestFlight.log("Requesting backlog for timed-out buffer: " + b.name);
-                                Log.d(TAG, "Requesting backlog for timed-out buffer: " + b.name);
-								request_backlog(b.cid, b.bid, 0);
-							}
-						}
-						Notifications.getInstance().showNotifications(null);
-                        schedule_idle_timer();
-					}
-					ready = true;
-				} else if(ServersDataSource.getInstance().count() < 1) {
-                    TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
-                    Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
-					client.disconnect();
-				}
-				if(reader != null)
-					reader.close();
+                    if(bid == -1) {
+                        TestFlight.passCheckpoint("oob");
+                    } else {
+                        BuffersDataSource.getInstance().updateTimeout(bid, 0);
+                        oobTasks.remove(bid);
+                    }
 
-				if(bid == -1) {
-                    TestFlight.passCheckpoint("oob");
-                } else {
-					BuffersDataSource.getInstance().updateTimeout(bid, 0);
-					oobTasks.remove(bid);
-				}
-				
-                TestFlight.log("OOB fetch complete!");
-                Log.d(TAG, "OOB fetch complete!");
-				if(Build.VERSION.SDK_INT >= 14)
-					TrafficStats.clearThreadStatsTag();
-				numbuffers = 0;
-				return true;
+                    TestFlight.log("OOB fetch complete!");
+                    Log.d(TAG, "OOB fetch complete!");
+                    if(Build.VERSION.SDK_INT >= 14)
+                        TrafficStats.clearThreadStatsTag();
+                    numbuffers = 0;
+                    notifyHandlers(EVENT_BACKLOG_END, null);
+                    return true;
+                }
 			} catch (Exception e) {
 				if(bid != -1) {
 					if(!isCancelled()) {
@@ -1749,19 +1751,9 @@ public class NetworkConnection {
 			}
 			if(Build.VERSION.SDK_INT >= 14)
 				TrafficStats.clearThreadStatsTag();
+            notifyHandlers(EVENT_BACKLOG_FAILED, null);
 			return false;
 		}
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            if(success) {
-                Log.d(TAG, "OOB successful");
-                notifyHandlers(EVENT_BACKLOG_END, null);
-            } else {
-                Log.d(TAG, "OOB failed");
-                notifyHandlers(EVENT_BACKLOG_FAILED, null);
-            }
-        }
     }
 	
 }

@@ -2293,12 +2293,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
 	    	final MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+            if(mvf != null)
+                mvf.ready = false;
 	    	if(blf != null)
 	    		blf.setSelectedBid(bid);
 	    	if(ulf != null)
 	    		ulf.setArguments(b);
 
             if(shouldFadeIn) {
+                Log.d("IRCCloud", "Animating");
                 AlphaAnimation anim = new AlphaAnimation(1, 0);
                 anim.setDuration(150);
                 anim.setFillAfter(true);

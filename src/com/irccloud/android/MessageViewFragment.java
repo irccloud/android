@@ -123,7 +123,7 @@ public class MessageViewFragment extends ListFragment {
 	private ServersDataSource.Server mServer = null;
 	private boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
-	private boolean ready = false;
+	public boolean ready = false;
     private boolean dirty = true;
 	
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
@@ -754,6 +754,10 @@ public class MessageViewFragment extends ListFragment {
     
     @Override
     public void setArguments(Bundle args) {
+        ready = false;
+        if(heartbeatTask != null)
+            heartbeatTask.cancel(true);
+        heartbeatTask = null;
     	if(tapTimer != null)
     		tapTimer.cancel();
     	tapTimer = null;
@@ -790,13 +794,13 @@ public class MessageViewFragment extends ListFragment {
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.GONE);
 		if(headerView != null) {
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
-            lp.topMargin = 0;
-            headerView.setLayoutParams(lp);
 			mHandler.postDelayed(new Runnable() {
 
 				@Override
 				public void run() {
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
+                    lp.topMargin = 0;
+                    headerView.setLayoutParams(lp);
 					if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
 						requestingBacklog = true;
 			            if(refreshTask != null)
@@ -1178,7 +1182,7 @@ public class MessageViewFragment extends ListFragment {
 
     	@Override
     	protected void onPreExecute() {
-    		//Log.d("IRCCloud", "Heartbeat task created");
+    		//Log.d("IRCCloud", "Heartbeat task created. Ready: " + ready + " BID: " + bid);
     	}
     	
 		@Override
