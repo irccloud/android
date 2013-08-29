@@ -28,4 +28,22 @@
         android:padding="4dp"
             />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Fetching Failed"
+        android:id="@+id/backlogFailed"
+        android:visibility="gone" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Load More Backlog"
+        android:id="@+id/loadBacklogButton"
+        android:visibility="gone"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp" />
+
 </LinearLayout>

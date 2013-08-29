@@ -1737,14 +1737,21 @@ public class NetworkConnection {
 			} catch (Exception e) {
 				if(bid != -1) {
 					if(!isCancelled()) {
-                        TestFlight.log("Failed to fetch backlog, retrying in " + retryDelay + "ms");
-                        Log.w(TAG, "Failed to fetch backlog, retrying in " + retryDelay + "ms");
-						new Timer().schedule(new TimerTask() {
-				             public void run() {
-				            	 doInBackground(mUrl);
-				             }
-						}, retryDelay);
-						retryDelay *= 2;
+                        BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+                        if(b != null && b.timeout == 1) {
+                            TestFlight.log("Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
+                            Log.w(TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
+                            new Timer().schedule(new TimerTask() {
+                                 public void run() {
+                                     doInBackground(mUrl);
+                                 }
+                            }, retryDelay);
+                            retryDelay *= 2;
+                        } else {
+                            TestFlight.log("Failed to fetch backlog");
+                            Log.w(TAG, "Failed to fetch backlog");
+                            oobTasks.remove(bid);
+                        }
 					}
 				} else if(ServersDataSource.getInstance().count() < 1) {
 					e.printStackTrace();

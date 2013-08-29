@@ -65,6 +65,8 @@ public class MessageViewFragment extends ListFragment {
 	private TextView statusView;
 	private View headerViewContainer;
 	private View headerView;
+    private TextView backlogFailed;
+    private Button loadBacklogButton;
 	private TextView unreadTopLabel;
 	private TextView unreadBottomLabel;
 	private View unreadTopView;
@@ -798,6 +800,8 @@ public class MessageViewFragment extends ListFragment {
 
 				@Override
 				public void run() {
+                    backlogFailed.setVisibility(View.GONE);
+                    loadBacklogButton.setVisibility(View.GONE);
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
                     lp.topMargin = 0;
                     headerView.setLayoutParams(lp);
@@ -834,6 +838,8 @@ public class MessageViewFragment extends ListFragment {
                     @Override
                     public void run() {
                         headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
                     }
                 });
 	    	}
@@ -1120,8 +1126,21 @@ public class MessageViewFragment extends ListFragment {
     	if(getListView().getHeaderViewsCount() == 0) {
     		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
     		headerView = headerViewContainer.findViewById(R.id.progress);
+            backlogFailed = (TextView)headerViewContainer.findViewById(R.id.backlogFailed);
+            loadBacklogButton = (Button)headerViewContainer.findViewById(R.id.loadBacklogButton);
+            loadBacklogButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    backlogFailed.setVisibility(View.GONE);
+                    loadBacklogButton.setVisibility(View.GONE);
+                    headerView.setVisibility(View.VISIBLE);
+                    conn.request_backlog(cid, bid, earliest_eid);
+                }
+            });
     		getListView().addHeaderView(headerViewContainer);
     	}
+        backlogFailed.setVisibility(View.GONE);
+        loadBacklogButton.setVisibility(View.GONE);
     	adapter = new MessageAdapter(this);
     	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
@@ -1167,13 +1186,20 @@ public class MessageViewFragment extends ListFragment {
 	    		savedScrollPos = -1;
     		} else if(conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
     			headerView.setVisibility(View.GONE);
+                backlogFailed.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
     		} else {
     			headerView.setVisibility(View.VISIBLE);
+                backlogFailed.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
 				ready = true;
     		}
     	} else {
-    		if(cid == -1)
+    		if(cid == -1) {
     			headerView.setVisibility(View.GONE);
+                backlogFailed.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
+            }
     	}
 		getListView().setOnScrollListener(mOnScrollListener);
     }
@@ -1298,6 +1324,8 @@ public class MessageViewFragment extends ListFragment {
                         @Override
                         public void run() {
                             headerView.setVisibility(View.VISIBLE);
+                            backlogFailed.setVisibility(View.GONE);
+                            loadBacklogButton.setVisibility(View.GONE);
                         }
                     });
                 }
@@ -1371,6 +1399,8 @@ public class MessageViewFragment extends ListFragment {
                     @Override
                     public void run() {
         	    		headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
                     }
                 });
     		}
@@ -1386,6 +1416,8 @@ public class MessageViewFragment extends ListFragment {
                     @Override
                     public void run() {
                         headerView.setVisibility(View.VISIBLE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
                     }
                 });
             } else {
@@ -1393,6 +1425,8 @@ public class MessageViewFragment extends ListFragment {
                     @Override
                     public void run() {
                         headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
                     }
                 });
             }
@@ -1876,6 +1910,11 @@ public class MessageViewFragment extends ListFragment {
 				progressBar.setIndeterminate(false);
 				progressBar.setProgress((int)progress);
 				break;
+            case NetworkConnection.EVENT_BACKLOG_FAILED:
+                headerView.setVisibility(View.GONE);
+                backlogFailed.setVisibility(View.VISIBLE);
+                loadBacklogButton.setVisibility(View.VISIBLE);
+                break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				if(connecting.getVisibility() == View.VISIBLE) {
 					TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
