@@ -150,6 +150,7 @@ public class NetworkConnection {
 	public static final int EVENT_CONNECTIONLAG = 38;
 	public static final int EVENT_GLOBALMSG = 39;
 	public static final int EVENT_ACCEPTLIST = 40;
+    public static final int EVENT_NAMESLIST = 41;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -1022,6 +1023,9 @@ public class NetworkConnection {
                     }
 					notifyHandlers(EVENT_WHOLIST, object);
                 }
+            } else if(type.equalsIgnoreCase("names_reply")) {
+                if(!backlog)
+                    notifyHandlers(EVENT_NAMESLIST, object);
 			} else if(type.equalsIgnoreCase("whois_response")) {
 				if(!backlog)
 					notifyHandlers(EVENT_WHOIS, object);
