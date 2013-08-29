@@ -1001,7 +1001,7 @@ public class MessageViewFragment extends ListFragment {
 	    	avgInsertTime += time;
 	    	avgInsertTime /= 2.0;
 	    	//Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-	    	if(getListView().getLastVisiblePosition() >= (adapter.getCount() - 1)) {
+	    	if(getListView().getLastVisiblePosition() >= (adapter.getCount() - 2)) {
 	    		shouldShowUnread = false;
 	    	}
 	    	if(!backlog && shouldShowUnread && !event.self && EventsDataSource.getInstance().isImportant(event, type)) {

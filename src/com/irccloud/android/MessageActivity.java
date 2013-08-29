@@ -432,10 +432,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		protected void onPostExecute(Void result) {
 			if(e != null && e.reqid != -1) {
 				messageTxt.setText("");
-			}
-    		sendBtn.setEnabled(true);
-       		if(Build.VERSION.SDK_INT >= 11)
-       			sendBtn.setAlpha(1);
+			} else {
+                sendBtn.setEnabled(true);
+                if(Build.VERSION.SDK_INT >= 11)
+                    sendBtn.setAlpha(1);
+            }
 		}
     }
     
