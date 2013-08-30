@@ -81,9 +81,8 @@ public class MessageViewFragment extends ListFragment {
 	private long backlog_eid = 0;
 	private String name;
 	private String type;
-	private boolean firstScroll = true;
+	private boolean scrolledUp = false;
 	private boolean requestingBacklog = false;
-	private boolean shouldShowUnread = false;
 	private float avgInsertTime = 0;
 	private int newMsgs = 0;
 	private long newMsgTime = 0;
@@ -690,9 +689,11 @@ public class MessageViewFragment extends ListFragment {
 					newHighlights = 0;
 				}
 			}
-			if(firstVisibleItem + visibleItemCount < totalItemCount)
-				shouldShowUnread = true;
-
+			if(firstVisibleItem + visibleItemCount < totalItemCount) {
+				scrolledUp = true;
+            } else {
+                scrolledUp = false;
+            }
 			if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
 				mUpdateTopUnreadRunnable.run();
 				int markerPos = -1;
@@ -724,7 +725,7 @@ public class MessageViewFragment extends ListFragment {
         	last_seen_eid = savedInstanceState.getLong("last_seen_eid");
         	min_eid = savedInstanceState.getLong("min_eid");
         	type = savedInstanceState.getString("type");
-        	firstScroll = savedInstanceState.getBoolean("firstScroll");
+        	scrolledUp = savedInstanceState.getBoolean("scrolledUp");
         	backlog_eid = savedInstanceState.getLong("backlog_eid");
         	//TODO: serialize the adapter data
         }
@@ -749,7 +750,7 @@ public class MessageViewFragment extends ListFragment {
     	state.putLong("min_eid", min_eid);
     	state.putString("name", name);
     	state.putString("type", type);
-    	state.putBoolean("firstScroll", firstScroll);
+    	state.putBoolean("scrolledUp", scrolledUp);
     	state.putLong("backlog_eid", backlog_eid);
     	//TODO: serialize the adapter data
     }
@@ -772,9 +773,8 @@ public class MessageViewFragment extends ListFragment {
     	min_eid = args.getLong("min_eid", 0);
     	name = args.getString("name");
     	type = args.getString("type");
-		firstScroll = true;
+		scrolledUp = false;
 		requestingBacklog = false;
-		shouldShowUnread = false;
 		ready = false;
 		avgInsertTime = 0;
 		newMsgs = 0;
@@ -990,21 +990,19 @@ public class MessageViewFragment extends ListFragment {
 					event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
 				}
 			}
-			
+
 	    	adapter.addItem(eid, event);
 
 	    	if(!backlog)
 	    		adapter.notifyDataSetChanged();
-	    	long time = (System.currentTimeMillis() - start);
+
+        	long time = (System.currentTimeMillis() - start);
 	    	if(avgInsertTime == 0)
 	    		avgInsertTime = time;
 	    	avgInsertTime += time;
 	    	avgInsertTime /= 2.0;
 	    	//Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-	    	if(getListView().getLastVisiblePosition() >= (adapter.getCount() - 2)) {
-	    		shouldShowUnread = false;
-	    	}
-	    	if(!backlog && shouldShowUnread && !event.self && EventsDataSource.getInstance().isImportant(event, type)) {
+	    	if(!backlog && scrolledUp && !event.self && EventsDataSource.getInstance().isImportant(event, type)) {
 	    		if(newMsgTime == 0)
 	    			newMsgTime = System.currentTimeMillis();
 				newMsgs++;
@@ -1012,9 +1010,14 @@ public class MessageViewFragment extends ListFragment {
 					newHighlights++;
 	    		update_unread();
 	    	}
-	    	if(!backlog && !shouldShowUnread)
-	    		getListView().setSelection(adapter.getCount() - 1);
-	    	
+	    	if(!backlog && !scrolledUp)
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        getListView().setSelection(adapter.getCount() - 1);
+                    }
+                }, 200);
+
 	    	if(!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
 	    		Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
 	    		SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
@@ -1278,8 +1281,6 @@ public class MessageViewFragment extends ListFragment {
             oldPosition = getListView().getFirstVisiblePosition();
             View v = getListView().getChildAt(0);
             topOffset = (v == null) ? 0 : v.getTop();
-            if(adapter != null && adapter.getCount() > 0 && getListView().getLastVisiblePosition() >= adapter.getCount() - 1)
-                firstScroll = true;
         }
 
         @SuppressWarnings("unchecked")
@@ -1346,13 +1347,12 @@ public class MessageViewFragment extends ListFragment {
                 int markerPos = adapter.getBacklogMarkerPosition();
                 if(markerPos != -1 && requestingBacklog)
                     getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
-                else if(firstScroll)
+                else if(!scrolledUp)
                     getListView().setSelection(adapter.getCount() - 1);
                 else
                     getListView().setSelectionFromTop(oldPosition, topOffset);
             }
 			refreshTask = null;
-            firstScroll = false;
             requestingBacklog = false;
             new FormatTask().execute((Void)null);
             //Debug.stopMethodTracing();
@@ -1824,11 +1824,10 @@ public class MessageViewFragment extends ListFragment {
 		connecting.startAnimation(anim);
 		error = null;
 		try {
-			if(getListView().getLastVisiblePosition() < adapter.getCount()) {
+			if(scrolledUp) {
 				savedScrollPos = getListView().getFirstVisiblePosition();
             } else {
 				savedScrollPos = -1;
-                firstScroll = true;
             }
 			getListView().setOnScrollListener(null);
 		} catch (Exception e) {
