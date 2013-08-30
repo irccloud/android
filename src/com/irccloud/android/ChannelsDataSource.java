@@ -16,6 +16,8 @@
 
 package com.irccloud.android;
 
+import android.util.SparseArray;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -79,7 +81,7 @@ public class ChannelsDataSource {
         }
     }
 	
-	private ArrayList<Channel> channels;
+	private SparseArray<Channel> channels;
 
 	private static ChannelsDataSource instance = null;
 	
@@ -90,7 +92,7 @@ public class ChannelsDataSource {
 	}
 
 	public ChannelsDataSource() {
-		channels = new ArrayList<Channel>();
+		channels = new SparseArray<Channel>();
 	}
 
 	public synchronized void clear() {
@@ -101,7 +103,7 @@ public class ChannelsDataSource {
 		Channel c = getChannelForBuffer(bid);
 		if(c == null) {
 			c = new Channel();
-			channels.add(c);
+			channels.put(bid, c);
 		}
 		c.cid = cid;
 		c.bid = bid;
@@ -117,13 +119,11 @@ public class ChannelsDataSource {
 		return c;
 	}
 
-	public synchronized void deleteChannel(long bid) {
-		Channel c = getChannelForBuffer(bid);
-		if(c != null)
-			channels.remove(c);
+	public synchronized void deleteChannel(int bid) {
+        channels.remove(bid);
 	}
 
-	public synchronized void updateTopic(long bid, String topic_text, long topic_time, String topic_author) {
+	public synchronized void updateTopic(int bid, String topic_text, long topic_time, String topic_author) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
 			c.topic_text = topic_text;
@@ -132,7 +132,7 @@ public class ChannelsDataSource {
 		}
 	}
 	
-	public synchronized void updateMode(long bid, String mode, JsonObject ops, boolean init) {
+	public synchronized void updateMode(int bid, String mode, JsonObject ops, boolean init) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
             c.key = false;
@@ -150,51 +150,43 @@ public class ChannelsDataSource {
 		}
 	}
 	
-	public synchronized void updateURL(long bid, String url) {
+	public synchronized void updateURL(int bid, String url) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
 			c.url = url;
 		}
 	}
 	
-	public synchronized void updateTimestamp(long bid, long timestamp) {
+	public synchronized void updateTimestamp(int bid, long timestamp) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
 			c.timestamp = timestamp;
 		}
 	}
 	
-	public synchronized Channel getChannelForBuffer(long bid) {
-		Iterator<Channel> i = channels.iterator();
-		while(i.hasNext()) {
-			Channel c = i.next();
-			if(c.bid == bid)
-				return c;
-		}
-		return null;
+	public synchronized Channel getChannelForBuffer(int bid) {
+        return channels.get(bid);
 	}
 
     public synchronized void invalidate() {
-        Iterator<Channel> i = channels.iterator();
-        while(i.hasNext()) {
-            Channel c = i.next();
+        for(int i = 0; i < channels.size(); i++) {
+            Channel c = channels.valueAt(i);
             c.valid = 0;
         }
     }
 
     public synchronized void purgeInvalidChannels() {
         ArrayList<Channel> channelsToRemove = new ArrayList<Channel>();
-        Iterator<Channel> i = channels.iterator();
-        while(i.hasNext()) {
-            Channel c = i.next();
+        for(int i = 0; i < channels.size(); i++) {
+            Channel c = channels.valueAt(i);
             if(c.valid == 0)
                 channelsToRemove.add(c);
         }
-        i = channelsToRemove.iterator();
+        Iterator<Channel> i = channelsToRemove.iterator();
         while(i.hasNext()) {
             Channel c = i.next();
             UsersDataSource.getInstance().deleteUsersForBuffer(c.cid, c.bid);
-            channels.remove(c);
+            channels.remove(c.bid);
         }
     }
 }

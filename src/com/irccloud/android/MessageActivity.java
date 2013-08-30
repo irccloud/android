@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import android.graphics.drawable.Drawable;
 import android.os.Debug;
+import android.util.SparseArray;
 import android.view.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -446,7 +447,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+			SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
 
 			JSONObject channelDisabledMap = null;
 			JSONObject bufferDisabledMap = null;
@@ -463,7 +464,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			}
 
 			for(int i = 0; i < servers.size(); i++) {
-				ServersDataSource.Server s = servers.get(i);
+				ServersDataSource.Server s = servers.valueAt(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 				for(int j = 0; j < buffers.size(); j++) {
 					BuffersDataSource.Buffer b = buffers.get(j);

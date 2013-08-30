@@ -16,6 +16,8 @@
 
 package com.irccloud.android;
 
+import android.util.SparseArray;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,7 +59,8 @@ public class BuffersDataSource {
 	}
 	
 	private ArrayList<Buffer> buffers;
-	
+	private SparseArray<Buffer> buffers_indexed;
+
 	private static BuffersDataSource instance = null;
 	
 	public static BuffersDataSource getInstance() {
@@ -68,10 +71,12 @@ public class BuffersDataSource {
 
 	public BuffersDataSource() {
 		buffers = new ArrayList<Buffer>();
+        buffers_indexed = new SparseArray<Buffer>();
 	}
 
 	public void clear() {
 		buffers.clear();
+        buffers_indexed.clear();
 	}
 	
 	public int count() {
@@ -79,8 +84,8 @@ public class BuffersDataSource {
 	}
 	
 	public int firstBid() {
-		if(buffers.size() > 0)
-			return buffers.get(0).bid;
+		if(buffers_indexed.size() > 0)
+			return buffers_indexed.valueAt(0).bid;
 		else
 			return -1;
 	}
@@ -90,6 +95,7 @@ public class BuffersDataSource {
 		if(b == null) {
 			b = new Buffer();
 			buffers.add(b);
+            buffers_indexed.put(bid, b);
 		}
 		b.bid = bid;
 		b.cid = cid;
@@ -137,8 +143,10 @@ public class BuffersDataSource {
 	
 	public synchronized void deleteBuffer(int bid) {
 		Buffer b = getBuffer(bid);
-		if(b != null)
+		if(b != null) {
 			buffers.remove(b);
+            buffers_indexed.remove(bid);
+        }
 	}
 
 	public synchronized void deleteAllDataForBuffer(int bid) {
@@ -151,16 +159,11 @@ public class BuffersDataSource {
 			EventsDataSource.getInstance().deleteEventsForBuffer(bid);
 		}
 		buffers.remove(b);
+        buffers_indexed.remove(bid);
 	}
 
 	public synchronized Buffer getBuffer(int bid) {
-		Iterator<Buffer> i = buffers.iterator();
-		while(i.hasNext()) {
-			Buffer b = i.next();
-			if(b.bid == bid)
-				return b;
-		}
-		return null;
+        return buffers_indexed.get(bid);
 	}
 	
 	public synchronized Buffer getBufferByName(int cid, String name) {
@@ -217,6 +220,7 @@ public class BuffersDataSource {
             ChannelsDataSource.getInstance().deleteChannel(b.bid);
             UsersDataSource.getInstance().deleteUsersForBuffer(b.cid, b.bid);
             buffers.remove(b);
+            buffers_indexed.remove(b.bid);
             if(b.type.equalsIgnoreCase("console")) {
                 ServersDataSource.getInstance().deleteServer(b.cid);
             }

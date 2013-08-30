@@ -16,6 +16,8 @@
 
 package com.irccloud.android;
 
+import android.util.SparseArray;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,7 +55,7 @@ public class ServersDataSource {
 		}
 	}
 
-	private ArrayList<Server> servers;
+	private SparseArray<Server> servers;
 	
 	private static ServersDataSource instance = null;
 	
@@ -64,7 +66,7 @@ public class ServersDataSource {
 	}
 
 	public ServersDataSource() {
-		servers = new ArrayList<Server>();
+		servers = new SparseArray<Server>();
 	}
 
 	public void clear() {
@@ -75,7 +77,7 @@ public class ServersDataSource {
 		Server s = getServer(cid);
 		if(s == null) {
 			s = new Server();
-			servers.add(s);
+			servers.put(cid, s);
 		}
 		s.cid = cid;
 		s.name = name;
@@ -96,7 +98,6 @@ public class ServersDataSource {
         if(s.name == null || s.name.length() == 0)
             s.name = s.hostname;
         updateIgnores(cid, ignores);
-        Collections.sort(servers, new comparator());
 		return s;
 	}
 	
@@ -197,10 +198,7 @@ public class ServersDataSource {
 	}
 
 	public void deleteServer(int cid) {
-		Server s = getServer(cid);
-		if(s != null) {
-			servers.remove(s);
-		}
+        servers.remove(cid);
 	}
 
 	public void deleteAllDataForServer(int cid) {
@@ -220,51 +218,42 @@ public class ServersDataSource {
 				BuffersDataSource.getInstance().deleteAllDataForBuffer(b.bid);
 				Notifications.getInstance().deleteNotificationsForBid(b.bid);
 			}
-			servers.remove(s);
+			servers.remove(cid);
 		}
 	}
 
-	public synchronized ArrayList<Server> getServers() {
+	public synchronized SparseArray<Server> getServers() {
 		return servers;
 	}
 
 	public Server getServer(int cid) {
-		Iterator<Server> i = servers.iterator();
-		while(i.hasNext()) {
-			Server s = i.next();
-			if(s.cid == cid)
-				return s;
-		}
-		return null;
+        return servers.get(cid);
 	}
 
 	public Server getServer(String hostname) {
-		Iterator<Server> i = servers.iterator();
-		while(i.hasNext()) {
-			Server s = i.next();
-			if(s.hostname.equalsIgnoreCase(hostname))
-				return s;
-		}
+        for(int i = 0; i < servers.size(); i++) {
+            Server s = servers.valueAt(i);
+            if(s.hostname.equalsIgnoreCase(hostname))
+                return s;
+        }
 		return null;
 	}
 
 	public Server getServer(String hostname, int port) {
-		Iterator<Server> i = servers.iterator();
-		while(i.hasNext()) {
-			Server s = i.next();
-			if(s.hostname.equalsIgnoreCase(hostname) && s.port == port)
-				return s;
-		}
+        for(int i = 0; i < servers.size(); i++) {
+            Server s = servers.valueAt(i);
+            if(s.hostname.equalsIgnoreCase(hostname) && s.port == port)
+                return s;
+        }
 		return null;
 	}
 
 	public Server getServer(String hostname, boolean ssl) {
-		Iterator<Server> i = servers.iterator();
-		while(i.hasNext()) {
-			Server s = i.next();
-			if(s.hostname.equalsIgnoreCase(hostname) && ((!ssl && s.ssl == 0) || (ssl && s.ssl > 0)))
-				return s;
-		}
+        for(int i = 0; i < servers.size(); i++) {
+            Server s = servers.valueAt(i);
+            if(s.hostname.equalsIgnoreCase(hostname) && ((!ssl && s.ssl == 0) || (ssl && s.ssl > 0)))
+                return s;
+        }
 		return null;
 	}
 }

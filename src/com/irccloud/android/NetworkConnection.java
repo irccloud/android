@@ -1676,7 +1676,7 @@ public class NetworkConnection {
                                     TrafficStats.incrementOperationCount(1);
                             }
                             reader.endArray();
-                            Debug.stopMethodTracing();
+                            //Debug.stopMethodTracing();
                             totalTime = (System.currentTimeMillis() - totalTime);
                             TestFlight.log("Backlog complete: " + count + " events");
                             TestFlight.log("JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");

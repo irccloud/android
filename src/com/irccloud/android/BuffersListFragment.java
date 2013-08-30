@@ -30,6 +30,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -360,7 +361,7 @@ public class BuffersListFragment extends ListFragment {
 			if(!ready || isCancelled())
 				return null;
 			
-			ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+			SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
 			if(adapter == null) {
 				adapter = new BufferListAdapter(BuffersListFragment.this);
 			}
@@ -390,7 +391,7 @@ public class BuffersListFragment extends ListFragment {
 					return null;
 
 				int archiveCount = 0;
-				ServersDataSource.Server s = servers.get(i);
+				ServersDataSource.Server s = servers.valueAt(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 				for(int j = 0; j < buffers.size(); j++) {
 					if(isCancelled())
@@ -656,10 +657,9 @@ public class BuffersListFragment extends ListFragment {
     public void onSaveInstanceState(Bundle state) {
     	if(adapter != null && adapter.data != null && adapter.data.size() > 0) {
     		ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
-    		ArrayList<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
-    		Iterator<ServersDataSource.Server> i = servers.iterator();
-    		while(i.hasNext()) {
-    			ServersDataSource.Server s = i.next();
+    		SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+            for(int i = 0; i < servers.size(); i++) {
+    			ServersDataSource.Server s = servers.valueAt(i);
     			if(mExpandArchives.get(s.cid, false))
     				expandedArchives.add(s.cid);
     		}
