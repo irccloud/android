@@ -328,7 +328,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
 	        	upView.setVisibility(View.VISIBLE);
 	        	return true;
-        	} else if(backStack != null && backStack.size() > 0) {
+        	}
+            while(backStack != null && backStack.size() > 0) {
         		Integer bid = backStack.get(0);
         		backStack.remove(0);
         		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);
@@ -349,11 +350,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    					buffer.type, 1, buffer.archived, status);
 	    			if(backStack.size() > 0)
 	    				backStack.remove(0);
-        		} else {
-        	        return super.onKeyDown(keyCode, event);
+                    return true;
         		}
-                return true;
         	}
+            return super.onKeyDown(keyCode, event);
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -1066,31 +1066,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	args.putInt("cid", event.cid());
         		channels.setArguments(args);
 	            break;
-			case NetworkConnection.EVENT_BACKLOG_END:
-				if(scrollView != null) {
-						scrollView.setEnabled(true);
-						if(scrollView.getScrollX() > 0)
-							upView.setVisibility(View.VISIBLE);
-				}
-		    	if(cid == -1 || launchURI != null) {
-		    		if(launchURI == null || !open_uri(launchURI)) {
-			    		if(launchBid == -1 || !open_bid(launchBid)) {
-			    			if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-		    					if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-		    						if(scrollView != null && NetworkConnection.getInstance().ready) {
-			    						scrollView.scrollTo(0, 0);
-		    						}
-		    					}
-			    			}
-			    		}
-		    		}
-		    	}
-		    	update_subtitle();
-		        if(refreshUpIndicatorTask != null)
-		        	refreshUpIndicatorTask.cancel(true);
-		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-		        refreshUpIndicatorTask.execute((Void)null);
-		    	break;
 			case NetworkConnection.EVENT_USERINFO:
 		    	updateUsersListFragmentVisibility();
 				supportInvalidateOptionsMenu();
@@ -1172,6 +1147,34 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					updateUsersListFragmentVisibility();
 				}
 				break;
+            case NetworkConnection.EVENT_BACKLOG_END:
+                if(scrollView != null) {
+                    scrollView.setEnabled(true);
+                    if(scrollView.getScrollX() > 0)
+                        upView.setVisibility(View.VISIBLE);
+                }
+                if(cid == -1 || launchURI != null) {
+                    if(launchURI == null || !open_uri(launchURI)) {
+                        if(launchBid == -1 || !open_bid(launchBid)) {
+                            if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+                                if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
+                                    if(scrollView != null && NetworkConnection.getInstance().ready) {
+                                        scrollView.scrollTo(0, 0);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                update_subtitle();
+                if(refreshUpIndicatorTask != null)
+                    refreshUpIndicatorTask.cancel(true);
+                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                refreshUpIndicatorTask.execute((Void)null);
+                if(bid == -1 || BuffersDataSource.getInstance().getBuffer(bid) != null)
+                    break;
+                msg.obj = new Integer(bid);
+                msg.what = NetworkConnection.EVENT_DELETEBUFFER;
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
 			case NetworkConnection.EVENT_DELETEBUFFER:
 				Integer id = (Integer)msg.obj;
@@ -1184,30 +1187,30 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					}
 				}
 				if(id == ((msg.what==NetworkConnection.EVENT_CONNECTIONDELETED)?cid:bid)) {
-		        	if(backStack != null && backStack.size() > 0) {
-		        		Integer bid = backStack.get(0);
-		        		backStack.remove(0);
-		        		BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);
-		        		if(buffer != null) {
-	        				ServersDataSource.Server s = ServersDataSource.getInstance().getServer(buffer.cid);
-	        				if(s != null)
-	        					status = s.status;
-		            		String name = buffer.name;
-		        			if(buffer.type.equalsIgnoreCase("console")) {
-		        				if(s != null) {
-			        				if(s.name != null && s.name.length() > 0)
-			        					name = s.name;
-			        				else
-			        					name = s.hostname;
-		        				}
-		        			}
-			    			onBufferSelected(buffer.cid, buffer.bid, name, buffer.last_seen_eid, buffer.min_eid, 
-			    					buffer.type, 1, buffer.archived, status);
-			        		backStack.remove(0);
-		        		} else {
-                            finish();
-		        		}
-		        	} else if(BuffersDataSource.getInstance().count() == 0) {
+                    while(backStack != null && backStack.size() > 0) {
+                        Integer bid = backStack.get(0);
+                        backStack.remove(0);
+                        BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer(bid);
+                        if(buffer != null) {
+                            ServersDataSource.Server s = ServersDataSource.getInstance().getServer(buffer.cid);
+                            if(s != null)
+                                status = s.status;
+                            String name = buffer.name;
+                            if(buffer.type.equalsIgnoreCase("console")) {
+                                if(s != null) {
+                                    if(s.name != null && s.name.length() > 0)
+                                        name = s.name;
+                                    else
+                                        name = s.hostname;
+                                }
+                            }
+                            onBufferSelected(buffer.cid, buffer.bid, name, buffer.last_seen_eid, buffer.min_eid,
+                                    buffer.type, 1, buffer.archived, status);
+                            backStack.remove(0);
+                            break;
+                        }
+                    }
+		        	if(BuffersDataSource.getInstance().count() == 0) {
                         startActivity(new Intent(MessageActivity.this, EditConnectionActivity.class));
                         finish();
                     } else {

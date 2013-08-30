@@ -860,6 +860,8 @@ public class NetworkConnection {
 	public void request_backlog(int cid, int bid, long beforeId) {
 		try {
 			if(oobTasks.containsKey(bid)) {
+                TestFlight.log("Ignoring duplicate backlog request for BID: " + bid);
+                Log.w("IRCCloud", "Ignoring duplicate backlog request for BID: " + bid);
 				return;
 			}
 			if(Looper.myLooper() == null)
@@ -1733,6 +1735,9 @@ public class NetworkConnection {
                     numbuffers = 0;
                     notifyHandlers(EVENT_BACKLOG_END, null);
                     return true;
+                } else {
+                    Log.e(TAG, "Invalid response code: " + conn.getResponseCode());
+                    throw new Exception("Invalid response code: " + conn.getResponseCode());
                 }
 			} catch (Exception e) {
 				if(bid != -1) {
