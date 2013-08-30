@@ -856,6 +856,7 @@ public class MessageViewFragment extends ListFragment {
 	    		type = type.substring(4);
 	    	
 			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")) {
+                boolean shouldExpand = false;
 				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 					JSONObject hiddenMap = null;
 					if(this.type.equalsIgnoreCase("channel")) {
@@ -872,12 +873,28 @@ public class MessageViewFragment extends ListFragment {
 				    		adapter.notifyDataSetChanged();
 				    	return;
 					}
+
+                    JSONObject expandMap = null;
+                    if(this.type.equalsIgnoreCase("channel")) {
+                        if(conn.getUserInfo().prefs.has("channel-expandJoinPart"))
+                            expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
+                    } else {
+                        if(conn.getUserInfo().prefs.has("buffer-expandJoinPart"))
+                            expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
+                    }
+
+                    if(expandMap != null && expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid))) {
+                        shouldExpand = true;
+                    }
 				}
 
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTimeInMillis(eid / 1000);
 
-				if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay) {
+                if(shouldExpand)
+                    expandedSectionEids.clear();
+
+				if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
 					collapsedEvents.clear();
 					currentCollapsedEid = eid;
 					lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);

@@ -34,6 +34,7 @@ import android.widget.CheckBox;
 public class BufferOptionsFragment extends DialogFragment {
 	CheckBox unread;
 	CheckBox joinpart;
+    CheckBox collapse;
 	int cid;
 	int bid;
 	String type;
@@ -74,9 +75,10 @@ public class BufferOptionsFragment extends DialogFragment {
 					prefs = new JSONObject();
 				
 				prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");
-		    	if(!type.equalsIgnoreCase("console"))
+		    	if(!type.equalsIgnoreCase("console")) {
 		    		prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
-				
+                    prefs = updatePref(prefs, collapse, "buffer-expandJoinPart");
+                }
 				NetworkConnection.getInstance().set_prefs(prefs.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -110,7 +112,20 @@ public class BufferOptionsFragment extends DialogFragment {
 		    		} else {
 						unread.setChecked(true);
 		    		}
-		    	}
+                    if(prefs.has("buffer-expandJoinPart")) {
+                        JSONObject expandMap = prefs.getJSONObject("buffer-expandJoinPart");
+                        if(expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
+                            collapse.setChecked(false);
+                        else
+                            collapse.setChecked(true);
+                    } else {
+                        collapse.setChecked(true);
+                    }
+		    	} else {
+                    joinpart.setChecked(true);
+                    unread.setChecked(true);
+                    collapse.setChecked(true);
+                }
 	    	}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -126,8 +141,11 @@ public class BufferOptionsFragment extends DialogFragment {
     	View v = inflater.inflate(R.layout.dialog_buffer_options,null);
     	unread = (CheckBox)v.findViewById(R.id.unread);
     	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
-    	if(type.equalsIgnoreCase("console"))
+        collapse = (CheckBox)v.findViewById(R.id.collapse);
+    	if(type.equalsIgnoreCase("console")) {
     		joinpart.setVisibility(View.GONE);
+            collapse.setVisibility(View.GONE);
+        }
     	
     	return new AlertDialog.Builder(ctx)
                 .setTitle("Display Options")

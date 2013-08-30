@@ -35,6 +35,7 @@ public class ChannelOptionsFragment extends DialogFragment {
 	CheckBox members;
 	CheckBox unread;
 	CheckBox joinpart;
+    CheckBox collapse;
 	int cid;
 	int bid;
 	
@@ -80,7 +81,8 @@ public class ChannelOptionsFragment extends DialogFragment {
 				prefs = updatePref(prefs, members, "channel-hiddenMembers");
 				prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
 				prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
-				
+                prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
+
 				NetworkConnection.getInstance().set_prefs(prefs.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -123,15 +125,26 @@ public class ChannelOptionsFragment extends DialogFragment {
 		    		} else {
 		    			members.setChecked(true);
 		    		}
+                    if(prefs.has("channel-expandJoinPart")) {
+                        JSONObject expandMap = prefs.getJSONObject("channel-expandJoinPart");
+                        if(expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
+                            collapse.setChecked(false);
+                        else
+                            collapse.setChecked(true);
+                    } else {
+                        collapse.setChecked(true);
+                    }
 		    	} else {
 					joinpart.setChecked(true);
 	    			unread.setChecked(true);
 	    			members.setChecked(true);
+                    collapse.setChecked(true);
 		    	}
 	    	} else {
 				joinpart.setChecked(true);
     			unread.setChecked(true);
     			members.setChecked(true);
+                collapse.setChecked(true);
 	    	}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -152,6 +165,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     	members = (CheckBox)v.findViewById(R.id.members);
     	unread = (CheckBox)v.findViewById(R.id.unread);
     	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
+        collapse = (CheckBox)v.findViewById(R.id.collapse);
     	
     	return new AlertDialog.Builder(ctx)
                 .setTitle("Display Options")
