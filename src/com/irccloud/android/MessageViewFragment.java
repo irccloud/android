@@ -1010,13 +1010,15 @@ public class MessageViewFragment extends ListFragment {
 					newHighlights++;
 	    		update_unread();
 	    	}
-	    	if(!backlog && !scrolledUp)
+	    	if(!backlog && !scrolledUp) {
+                getListView().setSelection(adapter.getCount() - 1);
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         getListView().setSelection(adapter.getCount() - 1);
                     }
                 }, 200);
+            }
 
 	    	if(!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
 	    		Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
