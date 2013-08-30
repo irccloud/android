@@ -114,6 +114,7 @@ public class ChannelsDataSource {
 		c.type = type;
 		c.timestamp = timestamp;
         c.valid = 1;
+        c.key = false;
         c.mode = "";
         c.modes = new ArrayList<Mode>();
 		return c;

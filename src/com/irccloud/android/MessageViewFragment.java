@@ -805,6 +805,9 @@ public class MessageViewFragment extends ListFragment {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
                     lp.topMargin = 0;
                     headerView.setLayoutParams(lp);
+                    lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+                    lp.topMargin = 0;
+                    backlogFailed.setLayoutParams(lp);
 					if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
 						requestingBacklog = true;
 			            if(refreshTask != null)
@@ -1183,6 +1186,18 @@ public class MessageViewFragment extends ListFragment {
 					events.put(backlog_eid, backlogMarker);
 	    		}
 				refresh(events, buffer);
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
+                if(adapter.getLastSeenEIDPosition() == 0)
+                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                else
+                    lp.topMargin = 0;
+                headerView.setLayoutParams(lp);
+                lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+                if(adapter.getLastSeenEIDPosition() == 0)
+                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                else
+                    lp.topMargin = 0;
+                backlogFailed.setLayoutParams(lp);
 	    		adapter.notifyDataSetChanged();
 	    		if(savedScrollPos > 0)
 	    			getListView().setSelection(savedScrollPos);
@@ -1344,6 +1359,12 @@ public class MessageViewFragment extends ListFragment {
             else
                 lp.topMargin = 0;
             headerView.setLayoutParams(lp);
+            lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+            if(adapter.getLastSeenEIDPosition() == 0)
+                lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+            else
+                lp.topMargin = 0;
+            backlogFailed.setLayoutParams(lp);
             setListAdapter(adapter);
             if(events != null && events.size() > 0) {
                 int markerPos = adapter.getBacklogMarkerPosition();
