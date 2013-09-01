@@ -98,7 +98,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private int launchBid = -1;
 	private Uri launchURI = null;
 	private AlertDialog channelsListDialog;
-	
+    String bufferToOpen = null;
+    int cidToOpen = -1;
+
 	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
     @SuppressLint("NewApi")
@@ -528,7 +530,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
     	launchBid = -1;
     	launchURI = null;
-    	
+
     	setIntent(null);
     	
     	if(intent.hasExtra("bid")) {
@@ -744,10 +746,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    				channel = channel.substring(0, channel.indexOf(","));
 	    			}
 	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(s.cid, channel);
-	    			if(b != null)
+	    			if(b != null) {
+                        cid = -1;
 	    				return open_bid(b.bid);
-	    			else
+                    } else {
 	    				conn.join(s.cid, channel, key);
+                    }
 	    			return true;
     			} else {
 	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(s.cid, "*");
@@ -889,8 +893,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     
 	@SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
-    	String bufferToOpen = null;
-    	int cidToOpen = -1;
 
 		public void handleMessage(Message msg) {
 			Integer event_bid = 0;
@@ -909,6 +911,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)msg.obj;
 				if(cidToOpen == b.cid && b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(name)) {
                     ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+                    cid = -1;
 					onBufferSelected(b.cid, b.bid, (b.type.equalsIgnoreCase("console"))?s.name:b.name, b.last_seen_eid, b.min_eid, b.type, 1, 0, "connected_ready");
 		    		bufferToOpen = null;
 		    		cidToOpen = -1;
@@ -929,6 +932,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					cidToOpen = event.cid();
 					b = BuffersDataSource.getInstance().getBufferByName(cidToOpen, bufferToOpen);
 					if(b != null && !bufferToOpen.equalsIgnoreCase(name)) {
+                        cid = -1;
 						onBufferSelected(b.cid, b.bid, b.name, b.last_seen_eid, b.min_eid, b.type, 1, 0, "connected_ready");
 			    		bufferToOpen = null;
 			    		cidToOpen = -1;
@@ -1206,8 +1210,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                             }
                             onBufferSelected(buffer.cid, buffer.bid, name, buffer.last_seen_eid, buffer.min_eid,
                                     buffer.type, 1, buffer.archived, status);
-                            backStack.remove(0);
-                            break;
+                            if(backStack.size() > 0)
+                                backStack.remove(0);
+                            return;
                         }
                     }
 		        	if(BuffersDataSource.getInstance().count() == 0) {
@@ -2095,7 +2100,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	}
 	    	if(this.bid >= 0)
 	    		backStack.add(0, this.bid);
-            if(this.bid == -1 && this.cid == -1)
+            if(this.bid == -1 || this.cid == -1)
                 shouldFadeIn = false;
             else
                 shouldFadeIn = true;

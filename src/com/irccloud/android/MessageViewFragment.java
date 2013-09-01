@@ -2030,6 +2030,7 @@ public class MessageViewFragment extends ListFragment {
 				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
 				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
 					bid = buffer.bid;
+                    min_eid = buffer.min_eid;
 		            if(refreshTask != null)
 		            	refreshTask.cancel(true);
 					refreshTask = new RefreshTask();
