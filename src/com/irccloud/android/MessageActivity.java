@@ -625,7 +625,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @SuppressLint("NewApi")
 	@Override
     public void onResume() {
-        TestFlight.passCheckpoint("MessageActivity");
     	conn = NetworkConnection.getInstance();
     	if(!conn.ready) {
         	super.onResume();

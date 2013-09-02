@@ -157,7 +157,6 @@ public class PreferencesActivity extends PreferenceActivity {
 	
     @Override
     public void onResume() {
-        TestFlight.passCheckpoint("PreferencesActivity");
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);

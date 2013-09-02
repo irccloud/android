@@ -151,7 +151,6 @@ public class MainActivity extends FragmentActivity {
     
     @Override
     public void onResume() {
-        TestFlight.passCheckpoint("MainActivity");
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	if(conn.ready) {

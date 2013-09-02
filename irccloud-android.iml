@@ -74,7 +74,6 @@
     <orderEntry type="library" exported="" name="ComAndroidSupportAppcompatV71800.aar" level="project" />
     <orderEntry type="library" exported="" name="ComGoogleAndroidGmsPlayServices3136.aar" level="project" />
     <orderEntry type="module" module-name="android-websockets" exported="" />
-    <orderEntry type="library" exported="" name="IrccloudAndroidAndroidWebsocketsUnspecified.aar" level="project" />
   </component>
 </module>
 

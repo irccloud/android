@@ -430,7 +430,6 @@ public class NetworkConnection {
 		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 		    @Override
 		    public void onConnect() {
-                TestFlight.passCheckpoint("connect");
                 TestFlight.log("WebSocket connected");
                 Log.d(TAG, "WebSocket connected");
 		        state = STATE_CONNECTED;
@@ -1721,9 +1720,7 @@ public class NetworkConnection {
                     if(reader != null)
                         reader.close();
 
-                    if(bid == -1) {
-                        TestFlight.passCheckpoint("oob");
-                    } else {
+                    if(bid != -1) {
                         BuffersDataSource.getInstance().updateTimeout(bid, 0);
                         oobTasks.remove(bid);
                     }
