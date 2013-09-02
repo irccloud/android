@@ -1312,7 +1312,12 @@ public class MessageViewFragment extends ListFragment {
         @Override
         protected void onPreExecute() {
             //Debug.startMethodTracing("refresh");
+            try {
             oldPosition = getListView().getFirstVisiblePosition();
+            } catch (IllegalStateException e) {
+                //The list view isn't on screen anymore
+                cancel(true);
+            }
             View v = getListView().getChildAt(0);
             topOffset = (v == null) ? 0 : v.getTop();
         }
@@ -1383,18 +1388,22 @@ public class MessageViewFragment extends ListFragment {
                 lp.topMargin = 0;
             backlogFailed.setLayoutParams(lp);
             setListAdapter(adapter);
-            if(events != null && events.size() > 0) {
-                int markerPos = adapter.getBacklogMarkerPosition();
-                if(markerPos != -1 && requestingBacklog)
-                    getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
-                else if(!scrolledUp)
-                    getListView().setSelection(adapter.getCount() - 1);
-                else
-                    getListView().setSelectionFromTop(oldPosition, topOffset);
+            try {
+                if(events != null && events.size() > 0) {
+                    int markerPos = adapter.getBacklogMarkerPosition();
+                    if(markerPos != -1 && requestingBacklog)
+                        getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
+                    else if(!scrolledUp)
+                        getListView().setSelection(adapter.getCount() - 1);
+                    else
+                        getListView().setSelectionFromTop(oldPosition, topOffset);
+                }
+                new FormatTask().execute((Void)null);
+            } catch (IllegalStateException e) {
+                //The list view isn't on screen anymore
             }
 			refreshTask = null;
             requestingBacklog = false;
-            new FormatTask().execute((Void)null);
             //Debug.stopMethodTracing();
 		}
 	}
