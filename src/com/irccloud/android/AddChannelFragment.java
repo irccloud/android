@@ -70,7 +70,7 @@ public class AddChannelFragment extends DialogFragment {
     	ArrayList<String> servernames = new ArrayList<String>();
     	for(int i = 0; i < servers.size(); i++) {
     		servernames.add(servers.valueAt(i).name);
-    		if(servers.get(i).cid == defaultCid)
+    		if(servers.valueAt(i).cid == defaultCid)
     			pos = i;
     	}
     	ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, android.R.id.text1, servernames.toArray(new String[servernames.size()]));
