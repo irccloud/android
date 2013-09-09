@@ -54,6 +54,7 @@ public class CollapsedEventsList {
 		String msg;
 		String from_mode;
 		String target_mode;
+        String chan;
 		
 		public String toString() {
 			return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + "}";
@@ -79,13 +80,13 @@ public class CollapsedEventsList {
             type = type.substring(4);
 
         if(type.equalsIgnoreCase("joined_channel")) {
-            addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null);
+            addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null, event.chan);
         } else if(type.equalsIgnoreCase("parted_channel")) {
-            addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg);
+            addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
         } else if(type.equalsIgnoreCase("quit")) {
-            addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg);
+            addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
         } else if(type.equalsIgnoreCase("nickchange")) {
-            addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null);
+            addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan);
         } else if(type.equalsIgnoreCase("user_channel_mode")) {
             JsonObject ops = event.ops;
             if(ops != null) {
@@ -93,15 +94,15 @@ public class CollapsedEventsList {
                 for(int i = 0; i < add.size(); i++) {
                     JsonObject op = add.get(i).getAsJsonObject();
                     if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OWNER, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OWNER, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_ADMIN, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_ADMIN, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OP, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_OP, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_HALFOP, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_HALFOP, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_VOICE, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_VOICE, event.target_mode, event.chan);
                     else
                         return false;
                 }
@@ -109,15 +110,15 @@ public class CollapsedEventsList {
                 for(int i = 0; i < remove.size(); i++) {
                     JsonObject op = remove.get(i).getAsJsonObject();
                     if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOWNER, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOWNER, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEADMIN, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEADMIN, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOP, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEOP, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEHALFOP, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEHALFOP, event.target_mode, event.chan);
                     else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEVOICE, event.target_mode);
+                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), event.from, event.hostmask, event.from_mode, null, CollapsedEventsList.MODE_DEVOICE, event.target_mode, event.chan);
                     else
                         return false;
                 }
@@ -126,22 +127,22 @@ public class CollapsedEventsList {
         return true;
     }
 
-	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg) {
-		addEvent(type, nick, old_nick, hostmask, from_mode, msg, 0, null);
+	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String chan) {
+		addEvent(type, nick, old_nick, hostmask, from_mode, msg, 0, null, chan);
 	}
 	
-	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, int mode, String target_mode) {
+	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, int mode, String target_mode, String chan) {
 		CollapsedEvent e = null;
 		
 		if(type < TYPE_NICKCHANGE) {
 			if(old_nick != null && type != TYPE_MODE) {
-				e = findEvent(old_nick);
+				e = findEvent(old_nick, chan);
 				if(e != null)
 					e.nick = nick;
 			}
 			
 			if(e == null)
-				e = findEvent(nick);
+				e = findEvent(nick, chan);
 			
 			if(e == null) {
 				e = new CollapsedEvent();
@@ -153,6 +154,7 @@ public class CollapsedEventsList {
 				e.msg = msg;
 				e.mode = mode;
 				e.target_mode = target_mode;
+                e.chan = chan;
 				data.add(e);
 			} else {
 				if(e.type == TYPE_MODE) {
@@ -209,6 +211,7 @@ public class CollapsedEventsList {
 				e.old_nick = old_nick;
 				e.hostmask = hostmask;
 				e.msg = msg;
+                e.chan = chan;
 				data.add(e);
 			} else {
 				e = new CollapsedEvent();
@@ -217,14 +220,15 @@ public class CollapsedEventsList {
 				e.old_nick = old_nick;
 				e.hostmask = hostmask;
 				e.msg = msg;
+                e.chan = chan;
 				data.add(e);
 			}
 		}
 	}
 	
-	public CollapsedEvent findEvent(String nick) {
+	public CollapsedEvent findEvent(String nick, String chan) {
 		for(CollapsedEvent e : data) {
-			if(e.nick.equalsIgnoreCase(nick))
+			if(e.nick.equalsIgnoreCase(nick) && (e.chan == null || e.chan.equalsIgnoreCase(chan)))
 				return e;
 		}
 		return null;
@@ -320,7 +324,7 @@ public class CollapsedEventsList {
 		return was.toString();
 	}
 	
-	public String getCollapsedMessage() {
+	public String getCollapsedMessage(boolean showChan) {
 		StringBuilder message = new StringBuilder();
 
 		if(data.size() == 0)
@@ -368,11 +372,17 @@ public class CollapsedEventsList {
 				break;
 			case TYPE_JOIN:
 	    		message.append("→ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
-	    		message.append(" joined (").append(e.hostmask + ")");
+	    		message.append(" joined");
+                if(showChan)
+                    message.append(" " + e.chan);
+                message.append(" (").append(e.hostmask + ")");
 				break;
 			case TYPE_PART:
 	    		message.append("← <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
-	    		message.append(" left (").append(e.hostmask).append(")");
+	    		message.append(" left");
+                if(showChan)
+                    message.append(" " + e.chan);
+                message.append(" (").append(e.hostmask + ")");
 	    		if(e.msg != null && e.msg.length() > 0)
 	    			message.append(": ").append(e.msg);
 				break;
@@ -389,10 +399,14 @@ public class CollapsedEventsList {
 			case TYPE_POPIN:
 	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
 	    		message.append(" popped in");
+                if(showChan)
+                    message.append(" " + e.chan);
 	    		break;
 			case TYPE_POPOUT:
 	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
 	    		message.append(" nipped out");
+                if(showChan)
+                    message.append(" " + e.chan);
 	    		break;
 			}
 		} else {
@@ -450,11 +464,11 @@ public class CollapsedEventsList {
 					e.old_nick = null;
 					message.append(was(e));
 					e.old_nick = old_nick;
-				} else {
+				} else if(!showChan) {
 					message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode)).append("</b>").append(was(e));
 				}
 				
-				if(next == null || next.type != e.type) {
+				if((next == null || next.type != e.type) && !showChan) {
 					switch(e.type) {
 					case TYPE_JOIN:
 						message.append(" joined");
@@ -472,7 +486,30 @@ public class CollapsedEventsList {
 						message.append(" nipped out");
 						break;
 					}
-				}
+				} else if(showChan) {
+                    if(groupcount == 0) {
+                        message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode)).append("</b>").append(was(e));
+                        switch(e.type) {
+                            case TYPE_JOIN:
+                                message.append(" joined ");
+                                break;
+                            case TYPE_PART:
+                                message.append(" left ");
+                                break;
+                            case TYPE_QUIT:
+                                message.append(" quit ");
+                                break;
+                            case TYPE_POPIN:
+                                message.append(" popped in ");
+                                break;
+                            case TYPE_POPOUT:
+                                message.append(" nipped out ");
+                                break;
+                        }
+                    }
+                    if(e.type != TYPE_QUIT)
+                        message.append(e.chan);
+                }
 
 				if(next != null && next.type == e.type) {
 					message.append(", ");

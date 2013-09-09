@@ -47,6 +47,7 @@ public class EventsDataSource {
 		String server;
 		String diff;
 		String html;
+        String chan;
 		boolean highlight;
 		boolean self;
 		boolean to_chan;
@@ -125,6 +126,7 @@ public class EventsDataSource {
 			e.hostmask = event.getString("hostmask");
 			e.from = event.getString("from");
 			e.from_mode = event.getString("from_mode");
+            e.chan = event.getString("chan");
 			if(event.has("newnick"))
 				e.nick = event.getString("newnick");
 			else if(event.has("nick"))
@@ -177,6 +179,7 @@ public class EventsDataSource {
 					e.msg = "";
 			} else if(e.type.equalsIgnoreCase("user_channel_mode")) {
 				e.target_mode = event.getString("newmode");
+                e.chan = event.getString("channel");
 			} else if(e.type.equalsIgnoreCase("buffer_me_msg")) {
 				e.nick = e.from;
 	    		e.from = "";

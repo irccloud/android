@@ -142,43 +142,43 @@ public class ColorFormatter {
 		    });
     		
 			
-			if(server != null) {
-				String pattern = "\\B([";
-                String chanTypes = "#";
-                JsonObject isupport = server.isupport;
-                if(isupport != null) {
-                    JsonElement types = isupport.get("CHANTYPES");
-                    if(types != null)
-                        chanTypes = types.getAsString();
-                }
-    			pattern += chanTypes;
-	    		pattern += "][^<>!?\"()\\[\\],\\s]+)";
-	
-				Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {
-			        public final boolean acceptMatch(CharSequence s, int start, int end) {
-			        	try {
-			        		Integer.parseInt(s.subSequence(start+1, end).toString());
-			        		return false;
-			        	} catch (NumberFormatException e) {
-			        		return true;
-			        	}
-			        }
-				}, new TransformFilter() {
-			        public final String transformUrl(final Matcher match, String url) {
-			        	String channel = match.group(1);
-			        	try {
-			        		channel = URLEncoder.encode(channel, "UTF-8");
-						} catch (UnsupportedEncodingException e) {
-						}
-						if(server.ssl > 0)
-							return "ircs://" + server.hostname + ":" + server.port + "/" + channel;
-						else
-							return "irc://" + server.hostname + ":" + server.port + "/" + channel;
-			        }
-			    });
-			}
 		}
-		
+        if(server != null) {
+            String pattern = "\\B([";
+            String chanTypes = "#";
+            JsonObject isupport = server.isupport;
+            if(isupport != null) {
+                JsonElement types = isupport.get("CHANTYPES");
+                if(types != null)
+                    chanTypes = types.getAsString();
+            }
+            pattern += chanTypes;
+            pattern += "][^<>!?\"()\\[\\],\\s]+)";
+
+            Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {
+                        public final boolean acceptMatch(CharSequence s, int start, int end) {
+                            try {
+                                Integer.parseInt(s.subSequence(start+1, end).toString());
+                                return false;
+                            } catch (NumberFormatException e) {
+                                return true;
+                            }
+                        }
+                    }, new TransformFilter() {
+                        public final String transformUrl(final Matcher match, String url) {
+                            String channel = match.group(1);
+                            try {
+                                channel = URLEncoder.encode(channel, "UTF-8");
+                            } catch (UnsupportedEncodingException e) {
+                            }
+                            if(server.ssl > 0)
+                                return "ircs://" + server.hostname + ":" + server.port + "/" + channel;
+                            else
+                                return "irc://" + server.hostname + ":" + server.port + "/" + channel;
+                        }
+                    });
+        }
+
 		return output;
 	}
 	

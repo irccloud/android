@@ -857,6 +857,7 @@ public class MessageViewFragment extends ListFragment {
 	    	
 			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")) {
                 boolean shouldExpand = false;
+                boolean showChan = !this.type.equalsIgnoreCase("channel");
 				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 					JSONObject hiddenMap = null;
 					if(this.type.equalsIgnoreCase("channel")) {
@@ -915,9 +916,9 @@ public class MessageViewFragment extends ListFragment {
                 if(expandedSectionEids.contains(currentCollapsedEid)) {
                     CollapsedEventsList c = new CollapsedEventsList();
                     c.addEvent(event);
-                    msg = c.getCollapsedMessage();
+                    msg = c.getCollapsedMessage(showChan);
                     if(!nextIsGrouped) {
-                        String group_msg = collapsedEvents.getCollapsedMessage();
+                        String group_msg = collapsedEvents.getCollapsedMessage(showChan);
                         if(group_msg == null && type.equalsIgnoreCase("nickchange")) {
                             group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
                         }
@@ -937,7 +938,7 @@ public class MessageViewFragment extends ListFragment {
                         adapter.addItem(currentCollapsedEid - 1, heading);
                     }
                 } else {
-                    msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage();
+                    msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage(showChan);
                 }
 
 				if(msg == null && type.equalsIgnoreCase("nickchange")) {
