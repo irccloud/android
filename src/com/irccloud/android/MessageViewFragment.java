@@ -192,11 +192,15 @@ public class MessageViewFragment extends ListFragment {
 		}
 
 		public int getBacklogMarkerPosition() {
-			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).row_type == ROW_BACKLOGMARKER) {
-					return i;
-				}
-			}
+            try {
+                for(int i = 0; data != null && i < data.size(); i++) {
+                    EventsDataSource.Event e = data.get(i);
+                    if(e != null && e.row_type == ROW_BACKLOGMARKER) {
+                        return i;
+                    }
+                }
+            } catch (Exception e) {
+            }
 			return -1;
 		}
 
@@ -421,9 +425,14 @@ public class MessageViewFragment extends ListFragment {
         public void format() {
             for(int i = 0; i < data.size(); i++) {
                 EventsDataSource.Event e = data.get(i);
-                if(e.html != null) {
-                    e.html = ColorFormatter.irc_to_html(e.html);
-                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                synchronized(e) {
+                    if(e.html != null) {
+                        try {
+                            e.html = ColorFormatter.irc_to_html(e.html);
+                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                        } catch (Exception ex) {
+                        }
+                    }
                 }
             }
         }
@@ -431,104 +440,106 @@ public class MessageViewFragment extends ListFragment {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			EventsDataSource.Event e = data.get(position);
-			View row = convertView;
-			ViewHolder holder;
+            synchronized (e) {
+                View row = convertView;
+                ViewHolder holder;
 
-			if(row != null && ((ViewHolder)row.getTag()).type != e.row_type)
-				row = null;
-			
-			if (row == null) {
-				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				if(e.row_type == ROW_BACKLOGMARKER)
-					row = inflater.inflate(R.layout.row_backlogmarker, null);
-				else if(e.row_type == ROW_TIMESTAMP)
-					row = inflater.inflate(R.layout.row_timestamp, null);
-				else if(e.row_type == ROW_SOCKETCLOSED)
-					row = inflater.inflate(R.layout.row_socketclosed, null);
-				else if(e.row_type == ROW_LASTSEENEID)
-					row = inflater.inflate(R.layout.row_lastseeneid, null);
-				else
-					row = inflater.inflate(R.layout.row_message, null);
+                if(row != null && ((ViewHolder)row.getTag()).type != e.row_type)
+                    row = null;
 
-				holder = new ViewHolder();
-				holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
-				holder.message = (TextView) row.findViewById(R.id.message);
-                holder.expandable = (ImageView) row.findViewById(R.id.expandable);
-                holder.failed = (ImageView) row.findViewById(R.id.failed);
-				holder.type = e.row_type;
+                if (row == null) {
+                    LayoutInflater inflater = ctx.getLayoutInflater(null);
+                    if(e.row_type == ROW_BACKLOGMARKER)
+                        row = inflater.inflate(R.layout.row_backlogmarker, null);
+                    else if(e.row_type == ROW_TIMESTAMP)
+                        row = inflater.inflate(R.layout.row_timestamp, null);
+                    else if(e.row_type == ROW_SOCKETCLOSED)
+                        row = inflater.inflate(R.layout.row_socketclosed, null);
+                    else if(e.row_type == ROW_LASTSEENEID)
+                        row = inflater.inflate(R.layout.row_lastseeneid, null);
+                    else
+                        row = inflater.inflate(R.layout.row_message, null);
 
-				row.setTag(holder);
-			} else {
-				holder = (ViewHolder) row.getTag();
-			}
+                    holder = new ViewHolder();
+                    holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
+                    holder.message = (TextView) row.findViewById(R.id.message);
+                    holder.expandable = (ImageView) row.findViewById(R.id.expandable);
+                    holder.failed = (ImageView) row.findViewById(R.id.failed);
+                    holder.type = e.row_type;
 
-			row.setOnClickListener(new OnItemClickListener(position));
-			
-			if(e.row_type == ROW_MESSAGE) {
-				if(e.bg_color == R.color.message_bg)
-					row.setBackgroundDrawable(null);
-				else
-					row.setBackgroundResource(e.bg_color);
-			}
-
-			if(holder.timestamp != null) {
-				holder.timestamp.setText(e.timestamp);
-				holder.timestamp.setMinWidth(timestamp_width);
-			}
-			if(e.row_type == ROW_SOCKETCLOSED) {
-				if(e.msg.length() > 0) {
-					holder.timestamp.setVisibility(View.VISIBLE);
-					holder.message.setVisibility(View.VISIBLE);
-				} else {
-					holder.timestamp.setVisibility(View.GONE);
-					holder.message.setVisibility(View.GONE);
-				}
-			}
-
-            if(e.html != null && e.formatted == null) {
-                e.html = ColorFormatter.irc_to_html(e.html);
-                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
-            }
-
-			if(holder.message != null && e.html != null) {
-				holder.message.setMovementMethod(linkMovementMethodNoLongPress);
-				holder.message.setOnClickListener(new OnItemClickListener(position));
-				if(e.msg != null && e.msg.startsWith("<pre>"))
-					holder.message.setTypeface(Typeface.MONOSPACE);
-				else
-					holder.message.setTypeface(Typeface.DEFAULT);
-                try {
-    				holder.message.setTextColor(getResources().getColorStateList(e.color));
-                } catch (Exception e1) {
-
-                }
-				holder.message.setText(e.formatted);
-			}
-
-            if(holder.expandable != null) {
-                if(e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
-                    if(expandedSectionEids.contains(e.group_eid)) {
-                        if(e.group_eid == e.eid + 1) {
-                            holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
-                            row.setBackgroundResource(R.color.status_bg);
-                        } else {
-                            holder.expandable.setImageResource(R.drawable.tiny_plus);
-                            row.setBackgroundResource(R.color.expanded_row_bg);
-                        }
-                    } else {
-                        holder.expandable.setImageResource(R.drawable.bullet_toggle_plus);
-                    }
-                    holder.expandable.setVisibility(View.VISIBLE);
+                    row.setTag(holder);
                 } else {
-                    holder.expandable.setVisibility(View.GONE);
+                    holder = (ViewHolder) row.getTag();
                 }
+
+                row.setOnClickListener(new OnItemClickListener(position));
+
+                if(e.row_type == ROW_MESSAGE) {
+                    if(e.bg_color == R.color.message_bg)
+                        row.setBackgroundDrawable(null);
+                    else
+                        row.setBackgroundResource(e.bg_color);
+                }
+
+                if(holder.timestamp != null) {
+                    holder.timestamp.setText(e.timestamp);
+                    holder.timestamp.setMinWidth(timestamp_width);
+                }
+                if(e.row_type == ROW_SOCKETCLOSED) {
+                    if(e.msg.length() > 0) {
+                        holder.timestamp.setVisibility(View.VISIBLE);
+                        holder.message.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.timestamp.setVisibility(View.GONE);
+                        holder.message.setVisibility(View.GONE);
+                    }
+                }
+
+                if(e.html != null && e.formatted == null) {
+                    e.html = ColorFormatter.irc_to_html(e.html);
+                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                }
+
+                if(holder.message != null && e.html != null) {
+                    holder.message.setMovementMethod(linkMovementMethodNoLongPress);
+                    holder.message.setOnClickListener(new OnItemClickListener(position));
+                    if(e.msg != null && e.msg.startsWith("<pre>"))
+                        holder.message.setTypeface(Typeface.MONOSPACE);
+                    else
+                        holder.message.setTypeface(Typeface.DEFAULT);
+                    try {
+                        holder.message.setTextColor(getResources().getColorStateList(e.color));
+                    } catch (Exception e1) {
+
+                    }
+                    holder.message.setText(e.formatted);
+                }
+
+                if(holder.expandable != null) {
+                    if(e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
+                        if(expandedSectionEids.contains(e.group_eid)) {
+                            if(e.group_eid == e.eid + 1) {
+                                holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
+                                row.setBackgroundResource(R.color.status_bg);
+                            } else {
+                                holder.expandable.setImageResource(R.drawable.tiny_plus);
+                                row.setBackgroundResource(R.color.expanded_row_bg);
+                            }
+                        } else {
+                            holder.expandable.setImageResource(R.drawable.bullet_toggle_plus);
+                        }
+                        holder.expandable.setVisibility(View.VISIBLE);
+                    } else {
+                        holder.expandable.setVisibility(View.GONE);
+                    }
+                }
+
+                if(holder.failed != null)
+                    holder.failed.setVisibility(e.failed?View.VISIBLE:View.GONE);
+
+                return row;
             }
-
-            if(holder.failed != null)
-                holder.failed.setVisibility(e.failed?View.VISIBLE:View.GONE);
-
-			return row;
-		}
+        }
 	}
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -832,231 +843,237 @@ public class MessageViewFragment extends ListFragment {
     }
     
     private synchronized void insertEvent(EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
-		try {
-    		long start = System.currentTimeMillis();
-    		if(min_eid == 0)
-    			min_eid = event.eid;
-	    	if(event.eid <= min_eid) {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        headerView.setVisibility(View.GONE);
-                        backlogFailed.setVisibility(View.GONE);
-                        loadBacklogButton.setVisibility(View.GONE);
-                    }
-                });
-	    	}
-	    	if(event.eid < earliest_eid)
-	    		earliest_eid = event.eid;
-	    	
-	    	String type = event.type;
-	    	long eid = event.eid;
-	    	
-	    	if(type.startsWith("you_"))
-	    		type = type.substring(4);
-	    	
-			if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")) {
-                boolean shouldExpand = false;
-                boolean showChan = !this.type.equalsIgnoreCase("channel");
-				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-					JSONObject hiddenMap = null;
-					if(this.type.equalsIgnoreCase("channel")) {
-						if(conn.getUserInfo().prefs.has("channel-hideJoinPart"))
-							hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
-					} else {
-						if(conn.getUserInfo().prefs.has("buffer-hideJoinPart"))
-							hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
-					}
-					
-					if(hiddenMap != null && hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
-			    		adapter.removeItem(event.eid);
-				    	if(!backlog)
-				    		adapter.notifyDataSetChanged();
-				    	return;
-					}
+        synchronized(event) {
+            try {
+                long start = System.currentTimeMillis();
+                if(min_eid == 0)
+                    min_eid = event.eid;
+                if(event.eid <= min_eid) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerView.setVisibility(View.GONE);
+                            backlogFailed.setVisibility(View.GONE);
+                            loadBacklogButton.setVisibility(View.GONE);
+                        }
+                    });
+                }
+                if(event.eid < earliest_eid)
+                    earliest_eid = event.eid;
 
-                    JSONObject expandMap = null;
-                    if(this.type.equalsIgnoreCase("channel")) {
-                        if(conn.getUserInfo().prefs.has("channel-expandJoinPart"))
-                            expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
+                String type = event.type;
+                long eid = event.eid;
+
+                if(type.startsWith("you_"))
+                    type = type.substring(4);
+
+                if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")) {
+                    boolean shouldExpand = false;
+                    boolean showChan = !this.type.equalsIgnoreCase("channel");
+                    if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                        JSONObject hiddenMap = null;
+                        if(this.type.equalsIgnoreCase("channel")) {
+                            if(conn.getUserInfo().prefs.has("channel-hideJoinPart"))
+                                hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
+                        } else {
+                            if(conn.getUserInfo().prefs.has("buffer-hideJoinPart"))
+                                hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
+                        }
+
+                        if(hiddenMap != null && hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
+                            adapter.removeItem(event.eid);
+                            if(!backlog)
+                                adapter.notifyDataSetChanged();
+                            return;
+                        }
+
+                        JSONObject expandMap = null;
+                        if(this.type.equalsIgnoreCase("channel")) {
+                            if(conn.getUserInfo().prefs.has("channel-expandJoinPart"))
+                                expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
+                        } else {
+                            if(conn.getUserInfo().prefs.has("buffer-expandJoinPart"))
+                                expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
+                        }
+
+                        if(expandMap != null && expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid))) {
+                            shouldExpand = true;
+                        }
+                    }
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(eid / 1000);
+
+                    if(shouldExpand)
+                        expandedSectionEids.clear();
+
+                    if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
+                        collapsedEvents.clear();
+                        currentCollapsedEid = eid;
+                        lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
+                    }
+
+                    if(type.equalsIgnoreCase("user_channel_mode")) {
+                        event.color = R.color.row_message_label;
+                        event.bg_color = R.color.status_bg;
                     } else {
-                        if(conn.getUserInfo().prefs.has("buffer-expandJoinPart"))
-                            expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
+                        event.color = R.color.timestamp;
+                        event.bg_color = R.color.message_bg;
                     }
 
-                    if(expandMap != null && expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid))) {
-                        shouldExpand = true;
+                    if(!collapsedEvents.addEvent(event))
+                        collapsedEvents.clear();
+
+                    String msg;
+                    if(expandedSectionEids.contains(currentCollapsedEid)) {
+                        CollapsedEventsList c = new CollapsedEventsList();
+                        c.addEvent(event);
+                        msg = c.getCollapsedMessage(showChan);
+                        if(!nextIsGrouped) {
+                            String group_msg = collapsedEvents.getCollapsedMessage(showChan);
+                            if(group_msg == null && type.equalsIgnoreCase("nickchange")) {
+                                group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
+                            }
+                            if(group_msg == null && type.equalsIgnoreCase("user_channel_mode")) {
+                                group_msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                                currentCollapsedEid = eid;
+                            }
+                            EventsDataSource.Event heading = EventsDataSource.getInstance().new Event();
+                            heading.type = "__expanded_group_heading__";
+                            heading.cid = event.cid;
+                            heading.bid = event.bid;
+                            heading.eid = currentCollapsedEid - 1;
+                            heading.group_msg = group_msg;
+                            heading.color = R.color.timestamp;
+                            heading.bg_color = R.color.message_bg;
+                            heading.linkify = false;
+                            adapter.addItem(currentCollapsedEid - 1, heading);
+                        }
+                    } else {
+                        msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage(showChan);
                     }
-				}
 
-				Calendar calendar = Calendar.getInstance();
-				calendar.setTimeInMillis(eid / 1000);
-
-                if(shouldExpand)
-                    expandedSectionEids.clear();
-
-				if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
-					collapsedEvents.clear();
-					currentCollapsedEid = eid;
-					lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
-				}
-
-                if(type.equalsIgnoreCase("user_channel_mode")) {
-                    event.color = R.color.row_message_label;
-                    event.bg_color = R.color.status_bg;
+                    if(msg == null && type.equalsIgnoreCase("nickchange")) {
+                        msg = event.old_nick + " → <b>" + event.nick + "</b>";
+                    }
+                    if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
+                        msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                        currentCollapsedEid = eid;
+                    }
+                    if(!expandedSectionEids.contains(currentCollapsedEid)) {
+                        if(eid != currentCollapsedEid) {
+                            event.color = R.color.timestamp;
+                            event.bg_color = R.color.message_bg;
+                        }
+                        eid = currentCollapsedEid;
+                    }
+                    event.group_msg = msg;
+                    event.html = null;
+                    event.formatted = null;
+                    event.linkify = false;
                 } else {
-                    event.color = R.color.timestamp;
-                    event.bg_color = R.color.message_bg;
+                    currentCollapsedEid = -1;
+                    collapsedEvents.clear();
+                    if(event.html == null) {
+                        if(event.from != null)
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> " + event.msg;
+                        else
+                            event.html = event.msg;
+                    }
                 }
 
-				if(!collapsedEvents.addEvent(event))
-				    collapsedEvents.clear();
+                String from = event.from;
+                if(from == null || from.length() == 0)
+                    from = event.nick;
 
-				String msg;
-                if(expandedSectionEids.contains(currentCollapsedEid)) {
-                    CollapsedEventsList c = new CollapsedEventsList();
-                    c.addEvent(event);
-                    msg = c.getCollapsedMessage(showChan);
-                    if(!nextIsGrouped) {
-                        String group_msg = collapsedEvents.getCollapsedMessage(showChan);
-                        if(group_msg == null && type.equalsIgnoreCase("nickchange")) {
-                            group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
+                if(from != null && event.hostmask != null && !type.equalsIgnoreCase("user_channel_mode") && !type.contains("kicked")) {
+                    String usermask = from + "!" + event.hostmask;
+                    if(ignore.match(usermask)) {
+                        if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
+                            if(heartbeatTask != null)
+                                heartbeatTask.cancel(true);
+                            heartbeatTask = new HeartbeatTask();
+                            heartbeatTask.execute((Void)null);
                         }
-                        if(group_msg == null && type.equalsIgnoreCase("user_channel_mode")) {
-                            group_msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
-                            currentCollapsedEid = eid;
-                        }
-                        EventsDataSource.Event heading = EventsDataSource.getInstance().new Event();
-                        heading.type = "__expanded_group_heading__";
-                        heading.cid = event.cid;
-                        heading.bid = event.bid;
-                        heading.eid = currentCollapsedEid - 1;
-                        heading.group_msg = group_msg;
-                        heading.color = R.color.timestamp;
-                        heading.bg_color = R.color.message_bg;
-                        heading.linkify = false;
-                        adapter.addItem(currentCollapsedEid - 1, heading);
+                        return;
                     }
-                } else {
-                    msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage(showChan);
                 }
 
-				if(msg == null && type.equalsIgnoreCase("nickchange")) {
-					msg = event.old_nick + " → <b>" + event.nick + "</b>";
-				}
-				if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
-		    		msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
-		    		currentCollapsedEid = eid;
-				}
-				if(!expandedSectionEids.contains(currentCollapsedEid)) {
-					if(eid != currentCollapsedEid) {
-						event.color = R.color.timestamp;
-						event.bg_color = R.color.message_bg;
-					}
-					eid = currentCollapsedEid;
-				}
-				event.group_msg = msg;
-				event.html = null;
-                event.formatted = null;
-				event.linkify = false;
-			} else {
-				currentCollapsedEid = -1;
-				collapsedEvents.clear();
-                if(event.html == null) {
-                    if(event.from != null)
-                        event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> " + event.msg;
+                if(type.equalsIgnoreCase("channel_mode") && event.nick != null && event.nick.length() > 0) {
+                    event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
+                } else if(type.equalsIgnoreCase("buffer_me_msg")) {
+                    event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> " + event.msg + "</i>";
+                } else if(type.equalsIgnoreCase("kicked_channel")) {
+                    event.html = "← ";
+                    if(event.type.startsWith("you_"))
+                        event.html += "You";
                     else
-                        event.html = event.msg;
-                }
-			}
-
-            String from = event.from;
-            if(from == null || from.length() == 0)
-                from = event.nick;
-
-			if(from != null && event.hostmask != null && !type.equalsIgnoreCase("user_channel_mode") && !type.contains("kicked")) {
-				String usermask = from + "!" + event.hostmask;
-				if(ignore.match(usermask)) {
-                    if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
-                        if(heartbeatTask != null)
-                            heartbeatTask.cancel(true);
-                        heartbeatTask = new HeartbeatTask();
-                        heartbeatTask.execute((Void)null);
+                        event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null) + "</b>";
+                    if(event.type.startsWith("you_"))
+                        event.html += " were";
+                    else
+                        event.html += " was";
+                    event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> (" + event.hostmask + ")";
+                    if(event.msg != null && event.msg.length() > 0)
+                        event.html += ": " + event.msg;
+                } else if(type.equalsIgnoreCase("callerid")) {
+                    event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
+                } else if(type.equalsIgnoreCase("channel_mode_list_change")) {
+                    if(event.from.length() == 0) {
+                        event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
                     }
-					return;
                 }
-			}
 
-			if(type.equalsIgnoreCase("channel_mode") && event.nick != null && event.nick.length() > 0) {
-				event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
-			} else if(type.equalsIgnoreCase("buffer_me_msg")) {
-				event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> " + event.msg + "</i>";
-	    	} else if(type.equalsIgnoreCase("kicked_channel")) {
-	    		event.html = "← ";
-	    		if(event.type.startsWith("you_"))
-	    			event.html += "You";
-	    		else
-	    			event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null) + "</b>";
-	    		if(event.type.startsWith("you_"))
-	    			event.html += " were";
-	    		else
-	    			event.html += " was";
-	    		event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> (" + event.hostmask + ")";
-	    		if(event.msg != null && event.msg.length() > 0)
-	    			event.html += ": " + event.msg;
-	    	} else if(type.equalsIgnoreCase("callerid")) {
-    			event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
-			} else if(type.equalsIgnoreCase("channel_mode_list_change")) {
-				if(event.from.length() == 0) {
-					event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
-				}
-			}
+                adapter.addItem(eid, event);
 
-	    	adapter.addItem(eid, event);
+                if(!backlog)
+                    adapter.notifyDataSetChanged();
 
-	    	if(!backlog)
-	    		adapter.notifyDataSetChanged();
+                long time = (System.currentTimeMillis() - start);
+                if(avgInsertTime == 0)
+                    avgInsertTime = time;
+                avgInsertTime += time;
+                avgInsertTime /= 2.0;
+                //Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
+                if(!backlog && scrolledUp && !event.self && EventsDataSource.getInstance().isImportant(event, type)) {
+                    if(newMsgTime == 0)
+                        newMsgTime = System.currentTimeMillis();
+                    newMsgs++;
+                    if(event.highlight)
+                        newHighlights++;
+                    update_unread();
+                }
+                if(!backlog && !scrolledUp) {
+                    getListView().setSelection(adapter.getCount() - 1);
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                getListView().setSelection(adapter.getCount() - 1);
+                            } catch (Exception e) {
+                                //List view isn't ready yet
+                            }
+                        }
+                    }, 200);
+                }
 
-        	long time = (System.currentTimeMillis() - start);
-	    	if(avgInsertTime == 0)
-	    		avgInsertTime = time;
-	    	avgInsertTime += time;
-	    	avgInsertTime /= 2.0;
-	    	//Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-	    	if(!backlog && scrolledUp && !event.self && EventsDataSource.getInstance().isImportant(event, type)) {
-	    		if(newMsgTime == 0)
-	    			newMsgTime = System.currentTimeMillis();
-				newMsgs++;
-				if(event.highlight)
-					newHighlights++;
-	    		update_unread();
-	    	}
-	    	if(!backlog && !scrolledUp) {
-                getListView().setSelection(adapter.getCount() - 1);
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        getListView().setSelection(adapter.getCount() - 1);
+                if(!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
+                    Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
+                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
+                    editor.putBoolean("mentionTip", true);
+                    editor.commit();
+                }
+                if(!backlog) {
+                    int markerPos = adapter.getLastSeenEIDPosition();
+                    if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+                        unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
                     }
-                }, 200);
+                }
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
-
-	    	if(!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
-	    		Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
-	    		SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
-	    		editor.putBoolean("mentionTip", true);
-	    		editor.commit();
-	    	}
-	    	if(!backlog) {
-				int markerPos = adapter.getLastSeenEIDPosition();
-	    		if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
-	    			unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
-	    		}
-	    	}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        }
     }
     
     private class OnItemClickListener implements OnClickListener {
@@ -1314,13 +1331,13 @@ public class MessageViewFragment extends ListFragment {
         protected void onPreExecute() {
             //Debug.startMethodTracing("refresh");
             try {
-            oldPosition = getListView().getFirstVisiblePosition();
+                oldPosition = getListView().getFirstVisiblePosition();
+                View v = getListView().getChildAt(0);
+                topOffset = (v == null) ? 0 : v.getTop();
             } catch (IllegalStateException e) {
                 //The list view isn't on screen anymore
                 cancel(true);
             }
-            View v = getListView().getChildAt(0);
-            topOffset = (v == null) ? 0 : v.getTop();
         }
 
         @SuppressWarnings("unchecked")
@@ -1376,20 +1393,20 @@ public class MessageViewFragment extends ListFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
-            if(adapter.getLastSeenEIDPosition() == 0)
-                lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
-            else
-                lp.topMargin = 0;
-            headerView.setLayoutParams(lp);
-            lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
-            if(adapter.getLastSeenEIDPosition() == 0)
-                lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
-            else
-                lp.topMargin = 0;
-            backlogFailed.setLayoutParams(lp);
-            setListAdapter(adapter);
             try {
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
+                if(adapter.getLastSeenEIDPosition() == 0)
+                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                else
+                    lp.topMargin = 0;
+                headerView.setLayoutParams(lp);
+                lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+                if(adapter.getLastSeenEIDPosition() == 0)
+                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                else
+                    lp.topMargin = 0;
+                backlogFailed.setLayoutParams(lp);
+                setListAdapter(adapter);
                 if(events != null && events.size() > 0) {
                     int markerPos = adapter.getBacklogMarkerPosition();
                     if(markerPos != -1 && requestingBacklog)

@@ -99,7 +99,7 @@ public class MessageActivityPager extends HorizontalScrollView {
 	protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
         try {
     		super.onLayout(changed, left, top, right, bottom);
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
         }
 		if(changed)
 			scrollTo(buffersDisplayWidth, 0);

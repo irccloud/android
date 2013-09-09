@@ -370,6 +370,14 @@ public class NetworkConnection {
         String host = null;
         int port = -1;
 
+        try {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+            IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
+            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
+        } catch (Exception e) {
+        }
+
         ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
 
@@ -385,7 +393,11 @@ public class NetworkConnection {
             Log.w(TAG, "Ignoring duplicate connect request");
             return;
         }
+        state = STATE_CONNECTING;
 
+        if(oobTasks.size() > 0) {
+            Log.d("IRCCloud", "Clearing OOB tasks before connecting");
+        }
         for(Integer bid : oobTasks.keySet()) {
             try {
                 oobTasks.get(bid).cancel(true);
@@ -393,19 +405,18 @@ public class NetworkConnection {
             }
         }
         oobTasks.clear();
-        state = STATE_CONNECTING;
 
         if(Build.VERSION.SDK_INT <11) {
             host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
             port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
         } else {
             host = System.getProperty("http.proxyHost", null);
-            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+            try {
+                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+            } catch (NumberFormatException e) {
+                port = 8080;
+            }
         }
-
-        IntentFilter intentFilter = new IntentFilter();
-		intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-		IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
 
 		if(!wifiLock.isHeld())
 			wifiLock.acquire();
@@ -511,7 +522,8 @@ public class NetworkConnection {
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
 		}, extraHeaders);
-		
+
+        Log.d("IRCCloud", "Creating websocket");
 		reconnect_timestamp = 0;
         idle_interval = 0;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
@@ -1644,14 +1656,22 @@ public class NetworkConnection {
                             int currentBid = -1;
                             long firstEid = 0;
                             while(reader.hasNext()) {
-                                if(isCancelled())
+                                if(isCancelled()) {
+                                    Log.d("IRCCloud", "Backlog parsing cancelled");
                                     return false;
+                                }
                                 long time = System.currentTimeMillis();
                                 JsonElement e = parser.parse(reader);
                                 totalJSONTime += (System.currentTimeMillis() - time);
                                 time = System.currentTimeMillis();
                                 IRCCloudJSONObject o = new IRCCloudJSONObject(e.getAsJsonObject());
-                                parse_object(o, true);
+                                try {
+                                    parse_object(o, true);
+                                } catch (Exception ex) {
+                                    TestFlight.log("Unable to parse message type: " + o.type() + ": " + ex.toString());
+                                    Log.e(TAG, "Unable to parse message type: " + o.type());
+                                    ex.printStackTrace();
+                                }
                                 if(totalbuffers > 1 && (!reader.hasNext() || (o.bid() > -1 && !o.type().equalsIgnoreCase("makebuffer") && !o.type().equalsIgnoreCase("channel_init")))) {
                                     if(o.bid() != currentBid) {
                                         //Debug.stopMethodTracing();
@@ -1760,7 +1780,10 @@ public class NetworkConnection {
                     TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
                     Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
 					client.disconnect();
-				}
+				} else {
+                    Log.e(TAG, "An error occured while parsing backlog");
+                    e.printStackTrace();
+                }
 			}
 			if(Build.VERSION.SDK_INT >= 14)
 				TrafficStats.clearThreadStatsTag();
