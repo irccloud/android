@@ -414,7 +414,7 @@ public class NetworkConnection {
             try {
                 port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
             } catch (NumberFormatException e) {
-                port = 8080;
+                port = -1;
             }
         }
 
@@ -430,7 +430,7 @@ public class NetworkConnection {
 		if(EventsDataSource.getInstance().highest_eid > 0)
 			url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
 
-        if(host != null && host.length() > 0) {
+        if(host != null && host.length() > 0 && port > 0) {
             TestFlight.log("Connecting: " + url + " via proxy: " + host);
             Log.d(TAG, "Connecting: " + url + " via proxy: " + host);
         } else {
@@ -528,7 +528,10 @@ public class NetworkConnection {
         idle_interval = 0;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
 		client.setSocketTag(WEBSOCKET_TAG);
-        client.setProxy(host, port);
+        if(host != null && host.length() > 0 && port > 0)
+            client.setProxy(host, port);
+        else
+            client.setProxy(null, -1);
 		client.connect();
 	}
 
@@ -1387,10 +1390,14 @@ public class NetworkConnection {
             port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
         } else {
             host = System.getProperty("http.proxyHost", null);
-            port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+            try {
+                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+            } catch (NumberFormatException e) {
+                port = -1;
+            }
         }
 
-        if(host != null && host.length() > 0) {
+        if(host != null && host.length() > 0 && port > 0) {
             InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
             proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
         }
