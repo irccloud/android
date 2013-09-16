@@ -826,7 +826,7 @@ public class MessageViewFragment extends ListFragment {
 						refreshTask = new RefreshTask();
 						refreshTask.execute((Void)null);
 					} else {
-						if(bid == -1 || min_eid == 0 || earliest_eid == min_eid ||!conn.ready) {
+						if(bid == -1 || min_eid == 0 || earliest_eid == min_eid || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
@@ -1377,7 +1377,7 @@ public class MessageViewFragment extends ListFragment {
                         //The list view doesn't exist yet
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
                     }
-                } else if(bid != -1 && min_eid > 0 && conn.ready) {
+                } else if(bid != -1 && min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1453,7 +1453,7 @@ public class MessageViewFragment extends ListFragment {
 		}
 
 		if(events == null || (events.size() == 0 && min_eid > 0)) {
-			if(bid != -1) {
+			if(bid != -1 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 				requestingBacklog = true;
                 mHandler.post(new Runnable() {
                     @Override
@@ -1478,7 +1478,7 @@ public class MessageViewFragment extends ListFragment {
 	    	else
 	    		ignore.setIgnores(null);
 			earliest_eid = events.firstKey();
-            if(events.firstKey() > min_eid && min_eid > 0) {
+            if(events.firstKey() > min_eid && min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
