@@ -1525,7 +1525,7 @@ public class MessageViewFragment extends ListFragment {
 		}
 		mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
 		mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
-		if(conn.getReconnectTimestamp() == 0)
+		if(conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
 			conn.schedule_idle_timer();
 	}
 

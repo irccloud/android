@@ -199,13 +199,14 @@ public class NetworkConnection {
 				connect(session);
 			} else if(ni == null || !ni.isConnected()) {
                 TestFlight.log("Network is offline");
+                cancel_idle_timer();
+                reconnect_timestamp = 0;
 				if(client != null) {
 					state = STATE_DISCONNECTING;
 					client.disconnect();
 				}
-				cancel_idle_timer();
-				reconnect_timestamp = 0;
-				state = STATE_DISCONNECTED;
+                state = STATE_DISCONNECTED;
+                notifyHandlers(EVENT_CONNECTIVITY, null);
 			}
 		}
 	};
@@ -373,7 +374,6 @@ public class NetworkConnection {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
             IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
         } catch (Exception e) {
         }
@@ -386,6 +386,7 @@ public class NetworkConnection {
             cancel_idle_timer();
             state = STATE_DISCONNECTED;
             reconnect_timestamp = 0;
+            notifyHandlers(EVENT_CONNECTIVITY, null);
             return;
         }
 
@@ -471,7 +472,9 @@ public class NetworkConnection {
 		    public void onDisconnect(int code, String reason) {
                 TestFlight.log("WebSocket disconnected");
                 Log.d(TAG, "WebSocket disconnected");
-                if(state == STATE_DISCONNECTING)
+                ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo ni = cm.getActiveNetworkInfo();
+                if(state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
 		        	cancel_idle_timer();
 		        else {
                     failCount++;
@@ -920,7 +923,7 @@ public class NetworkConnection {
                     if (handlers.size() > 0) {
                         TestFlight.log("Websocket idle time exceeded, reconnecting...");
                         Log.i(TAG, "Websocket idle time exceeded, reconnecting...");
-                        state = STATE_CONNECTING;
+                        state = STATE_DISCONNECTING;
                         notifyHandlers(EVENT_CONNECTIVITY, null);
                         client.disconnect();
                         connect(session);
