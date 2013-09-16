@@ -33,7 +33,8 @@
             android:id="@+id/BuffersList"
             android:name="com.irccloud.android.BuffersListFragment"
             android:layout_width="@dimen/drawer_width"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            tools:layout="@layout/bufferslist" />
         
         <LinearLayout
             android:id="@+id/messageContainer"
@@ -51,7 +52,8 @@
 	                android:name="com.irccloud.android.MessageViewFragment"
 	                android:layout_width="match_parent"
 	                android:layout_height="wrap_content"
-	                android:layout_weight="1" />
+	                android:layout_weight="1"
+                    tools:layout="@layout/messageview" />
 	
 	            <LinearLayout
 	                android:layout_width="match_parent"
@@ -68,7 +70,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:hint="Message"
-                    android:imeOptions="actionSend"
+                    android:imeOptions="flagNoExtractUi|actionSend"
                     android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage" />
 	
 	            <include
@@ -84,7 +86,8 @@
 	            android:name="com.irccloud.android.UsersListFragment"
 	            android:layout_width="@dimen/userlist_width"
 	            android:layout_height="match_parent"
-	            android:layout_gravity="right" />
+	            android:layout_gravity="right"
+                 tools:layout="@layout/userslist" />
 		</LinearLayout>
     </LinearLayout>
 </com.irccloud.android.MessageActivityPager>
