@@ -44,7 +44,7 @@ public class AddChannelFragment extends DialogFragment {
     class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-			int cid = servers.get(spinner.getSelectedItemPosition()).cid;
+			int cid = servers.valueAt(spinner.getSelectedItemPosition()).cid;
 			String[] splitchannels = channels.getText().toString().split(",");
 			for(int i = 0; i < splitchannels.length; i++) {
 				String[] channelandkey = splitchannels[i].split(" ");
