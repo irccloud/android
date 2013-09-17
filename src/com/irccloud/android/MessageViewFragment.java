@@ -1337,6 +1337,7 @@ public class MessageViewFragment extends ListFragment {
             } catch (IllegalStateException e) {
                 //The list view isn't on screen anymore
                 cancel(true);
+                refreshTask = null;
             }
         }
 
@@ -1561,7 +1562,7 @@ public class MessageViewFragment extends ListFragment {
                                     int minutes = (int)Math.ceil(seconds / 60.0);
                                     int hours = (int)Math.ceil(seconds / 60.0 / 60.0);
                                     int days = (int)Math.ceil(seconds / 60.0 / 60.0 / 24.0);
-                                    if(days > 0) {
+                                    if(hours >= 24) {
                                         if(days == 1)
                                             txt += days + " day of unread messages";
                                         else
