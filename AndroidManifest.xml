@@ -102,6 +102,7 @@
             <meta-data android:name="protocolVersion" android:value="1" />
             <meta-data android:name="description"
                        android:value="Displays your unread IRC highlights" />
+            <meta-data android:name="worldReadable" android:value="true" />
         </service>
 	</application>
 
