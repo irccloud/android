@@ -1557,7 +1557,15 @@ public class MessageViewFragment extends ListFragment {
 		    				if(markerPos == 0) {
 		    			        long seconds = (long)Math.ceil((earliest_eid - last_seen_eid) / 1000000.0);
                                 if(seconds < 0) {
-                                    unreadTopView.setVisibility(View.GONE);
+                                    if(count < 0) {
+                                        unreadTopView.setVisibility(View.GONE);
+                                        return;
+                                    } else {
+                                        if(count == 1)
+                                            txt += count + " unread message";
+                                        else if(count > 0)
+                                            txt += count + " unread messages";
+                                    }
                                 } else {
                                     int minutes = (int)Math.ceil(seconds / 60.0);
                                     int hours = (int)Math.ceil(seconds / 60.0 / 60.0);
