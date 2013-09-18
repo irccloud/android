@@ -10,6 +10,8 @@ Chat on IRC from anywhere, and never miss a message.
 Join our #feedback channel on irc.irccloud.com for feedback and suggestions so we can improve the app.
 You can also email us on team@irccloud.com or find us on Twitter @irccloud
 
+IRCCloud for Android is available on [Google Play](https://play.google.com/store/apps/details?id=com.irccloud.android).
+
 Screenshots
 ------
 ![Phone](https://lh4.ggpht.com/hCrIAI8tJAYdbrU3ScOmUIwR6FkuR9_Hl_i9v7g1GEkkiyCxOjyYz9LH1xl1iwaEseM=h900-rw)
