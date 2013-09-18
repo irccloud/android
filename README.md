@@ -14,9 +14,10 @@ IRCCloud for Android is available on [Google Play](https://play.google.com/store
 
 Screenshots
 ------
-![Phone](https://blog.irccloud.com/static/android-announce/keyboard.png)
+<img src="https://blog.irccloud.com/static/android-announce/sidebar.png" height="640">
+&nbsp;
+<img src="https://blog.irccloud.com/static/android-announce/keyboard.png" height="640">
 
-![Tablet](https://blog.irccloud.com/static/android-announce/tablet.png)
 
 Requirements
 ------
