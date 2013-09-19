@@ -949,6 +949,7 @@ public class MessageViewFragment extends ListFragment {
                             heading.linkify = false;
                             adapter.addItem(currentCollapsedEid - 1, heading);
                         }
+                        event.timestamp = null;
                     } else {
                         msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage(showChan);
                     }
