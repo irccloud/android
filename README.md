@@ -14,9 +14,10 @@ IRCCloud for Android is available on [Google Play](https://play.google.com/store
 
 Screenshots
 ------
-![Phone](https://blog.irccloud.com/static/android-announce/keyboard.png)
+<img src="https://blog.irccloud.com/static/android-announce/sidebar.png" height="640">
+&nbsp;
+<img src="https://blog.irccloud.com/static/android-announce/keyboard.png" height="640">
 
-![Tablet](https://blog.irccloud.com/static/android-announce/tablet.png)
 
 Requirements
 ------
@@ -28,11 +29,13 @@ Requirements
 
 Building
 ------
+* Make sure you've installed the Android 4.3 SDK and upgraded to the latest version of Android Studio
 * Check out android-websockets and the IRCCloud Android project from github
-* Launch Android Studio and select File > Import Project…
-* Select the irccloud-android.iml file in the IRCCloud Android project
+* Mac/Linux: Launch Android Studio and open the irccloud android folder as a project
+* Windows: Import the build.gradle files from both the android and android-websocket projects into a new project
 * Android Studio will warn you that "android-websockets" is unrecognized, you can ignore this warning
-* Click Build > Make Project, or Run > Run 'irccloud-android' to automatically deploy the apk to your device
+* Android Studio will notify you that the Android framework has been detected, click on the "Configure" button and then click OK
+* Click Build > Make Project, or Run > Run 'android' to automatically deploy the apk to your device
 
 The app can also be built using Gradle from the command-line using the build.gradle file located in the IRCCloud Android project.
 
