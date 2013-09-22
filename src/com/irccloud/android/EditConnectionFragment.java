@@ -82,7 +82,7 @@ public class EditConnectionFragment extends DialogFragment {
 			data.add(new PresetServer("DALNet", "dalnet.blacklotus.net", 6667));
 			data.add(new PresetServer("OFTC", "irc.oftc.net", 6667));
 			data.add(new PresetServer("GameSurge", "irc.gamesurge.net", 6667));
-			data.add(new PresetServer("Efnet", "efnet.xs4all.nl", 6667));
+			data.add(new PresetServer("Efnet", "efnet.port80.se", 6667));
 			data.add(new PresetServer("Mozilla", "irc.mozilla.org", 6697));
 			data.add(new PresetServer("Rizon", "irc6.rizon.net", 6697));
 			data.add(new PresetServer("Espernet", "irc.esper.net", 6667));
