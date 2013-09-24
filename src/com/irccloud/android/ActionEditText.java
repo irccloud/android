@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,7 +32,7 @@ import android.widget.ImageView;
 // From: http://stackoverflow.com/a/12570003/1406639
 public class ActionEditText extends EditText
 {
-	private HorizontalScrollView mScrollView = null;
+	private DrawerLayout mDrawerLayout = null;
 	private ImageView upView = null;
 	
     public ActionEditText(Context context)
@@ -64,15 +65,15 @@ public class ActionEditText extends EditText
     
     @Override
     public boolean onKeyPreIme(int keyCode, KeyEvent event) {
-        if(mScrollView != null && event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
-        	mScrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+        if(mDrawerLayout != null && event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+        	mDrawerLayout.closeDrawers();
         	upView.setVisibility(View.VISIBLE);
         }
         return super.onKeyPreIme(keyCode, event);
     }
     
-    public void setScrollView(HorizontalScrollView view, ImageView upView) {
-    	mScrollView = view;
+    public void setDrawerLayout(DrawerLayout view, ImageView upView) {
+    	mDrawerLayout = view;
     	this.upView = upView;
     }
 }

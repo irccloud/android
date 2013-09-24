@@ -19,8 +19,7 @@ package com.irccloud.android;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import android.graphics.drawable.Drawable;
-import android.os.Debug;
+import android.support.v4.widget.DrawerLayout;
 import android.util.SparseArray;
 import android.view.*;
 import org.json.JSONException;
@@ -28,7 +27,6 @@ import org.json.JSONObject;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.testflightapp.lib.TestFlight;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -63,7 +61,6 @@ import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -87,7 +84,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	TextView subtitle;
 	ImageView key;
 	LinearLayout messageContainer;
-	HorizontalScrollView scrollView;
+    DrawerLayout drawerLayout;
 	NetworkConnection conn;
 	private boolean shouldFadeIn = false;
 	ImageView upView;
@@ -112,13 +109,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         setContentView(R.layout.activity_message);
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout)findViewById(R.id.messageContainer);
-        scrollView = (HorizontalScrollView)findViewById(R.id.scroll);
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawerLayout);
         
-        if(scrollView != null) {
-	        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)messageContainer.getLayoutParams();
-	        params.width = getWindowManager().getDefaultDisplay().getWidth();
-	        messageContainer.setLayoutParams(params);
-        }
         messageTxt = (ActionEditText)findViewById(R.id.messageTxt);
 		messageTxt.setOnKeyListener(new OnKeyListener() {
 			@Override
@@ -132,8 +124,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		messageTxt.setOnFocusChangeListener(new OnFocusChangeListener() {
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
-				if(scrollView != null && v == messageTxt && hasFocus) {
-					scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+				if(drawerLayout != null && v == messageTxt && hasFocus) {
+                    drawerLayout.closeDrawers();
 		        	upView.setVisibility(View.VISIBLE);
 				}
 			}
@@ -141,8 +133,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		messageTxt.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(scrollView != null) {
-					scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+				if(drawerLayout != null) {
+                    drawerLayout.closeDrawers();
 		        	upView.setVisibility(View.VISIBLE);
 				}
 			}
@@ -270,7 +262,30 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         });
 
         upView = (ImageView)v.findViewById(R.id.upIndicator);
-        if(scrollView != null) {
+        if(drawerLayout != null) {
+            drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+                @Override
+                public void onDrawerSlide(View view, float v) {
+
+                }
+
+                @Override
+                public void onDrawerOpened(View view) {
+                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT)
+                        upView.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onDrawerClosed(View view) {
+                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT)
+                        upView.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onDrawerStateChanged(int i) {
+
+                }
+            });
         	upView.setVisibility(View.VISIBLE);
         	upView.setOnClickListener(upClickListener);
 	        ImageView icon = (ImageView)v.findViewById(R.id.upIcon);
@@ -282,7 +297,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         } else {
         	upView.setVisibility(View.INVISIBLE);
         }
-		messageTxt.setScrollView(scrollView, upView);
+		messageTxt.setDrawerLayout(drawerLayout, upView);
 
         title = (TextView)v.findViewById(R.id.title);
         subtitle = (TextView)v.findViewById(R.id.subtitle);
@@ -326,8 +341,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
-        	if(scrollView != null && (scrollView.getScrollX() > getResources().getDimension(R.dimen.drawer_width) || scrollView.getScrollX() == 0)) {
-    			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+        	if(drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
+                drawerLayout.closeDrawers();
 	        	upView.setVisibility(View.VISIBLE);
 	        	return true;
         	}
@@ -650,17 +665,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	}
     	
     	if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
-    		if(scrollView != null && !NetworkConnection.getInstance().ready) {
-    			scrollView.setEnabled(false);
+    		if(drawerLayout != null && !NetworkConnection.getInstance().ready) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             	upView.setVisibility(View.INVISIBLE);
     		}
     		sendBtn.setEnabled(false);
        		if(Build.VERSION.SDK_INT >= 11)
        			sendBtn.setAlpha(0.5f);
     	} else {
-    		if(scrollView != null) {
-    			scrollView.setEnabled(true);
-    			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+    		if(drawerLayout != null) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
             	upView.setVisibility(View.VISIBLE);
     		}
     		if(messageTxt.getText() != null && messageTxt.getText().length() > 0) {
@@ -677,9 +691,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		if(launchURI == null || !open_uri(launchURI)) {
 		    		if(!open_bid(conn.getUserInfo().last_selected_bid)) {
 		    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-		    				if(scrollView != null && NetworkConnection.getInstance().ready)
-		    					scrollView.scrollTo(0,0);
-		    			}
+		    				if(drawerLayout != null && NetworkConnection.getInstance().ready)
+                                drawerLayout.openDrawer(Gravity.LEFT);
+                        }
 		    		}
 	    		}
 	    	}
@@ -883,10 +897,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 			} catch (Exception e) {
 			}
-	    	if(hide || type == null || !type.equalsIgnoreCase("channel") || joined == 0)
+	    	if(hide || type == null || !type.equalsIgnoreCase("channel") || joined == 0) {
 	    		userListView.setVisibility(View.GONE);
-	    	else
+                if(drawerLayout != null)
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+            } else {
 	    		userListView.setVisibility(View.VISIBLE);
+                if(drawerLayout != null)
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+            }
 		}
     }
     
@@ -948,10 +967,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 							EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
 						}
 						pendingEvents.clear();
-			    		if(scrollView != null && NetworkConnection.getInstance().ready) {
-							scrollView.setEnabled(true);
-							if(scrollView.getScrollX() > 0)
-								upView.setVisibility(View.VISIBLE);
+			    		if(drawerLayout != null && NetworkConnection.getInstance().ready) {
+                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+							upView.setVisibility(View.VISIBLE);
 			    		}
 			    		if(cid != -1 && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 			    			sendBtn.setEnabled(true);
@@ -959,9 +977,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			           			sendBtn.setAlpha(1);
 			    		}
 					} else {
-			    		if(scrollView != null && !NetworkConnection.getInstance().ready) {
-			    			scrollView.setEnabled(false);
-			    			scrollView.smoothScrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+			    		if(drawerLayout != null && !NetworkConnection.getInstance().ready) {
+                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
 			        		upView.setVisibility(View.INVISIBLE);
 			    		}
 			    		sendBtn.setEnabled(false);
@@ -1151,18 +1168,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 				break;
             case NetworkConnection.EVENT_BACKLOG_END:
-                if(scrollView != null) {
-                    scrollView.setEnabled(true);
-                    if(scrollView.getScrollX() > 0)
-                        upView.setVisibility(View.VISIBLE);
+                if(drawerLayout != null) {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                    upView.setVisibility(View.VISIBLE);
                 }
                 if(cid == -1 || launchURI != null) {
                     if(launchURI == null || !open_uri(launchURI)) {
                         if(launchBid == -1 || !open_bid(launchBid)) {
                             if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
                                 if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-                                    if(scrollView != null && NetworkConnection.getInstance().ready) {
-                                        scrollView.scrollTo(0, 0);
+                                    if(drawerLayout != null && NetworkConnection.getInstance().ready) {
+                                        drawerLayout.openDrawer(Gravity.LEFT);
                                     }
                                 }
                             }
@@ -1419,16 +1435,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
 		@Override
 		public void onClick(View arg0) {
-        	if(scrollView != null) {
-	        	if(scrollView.getScrollX() < buffersListView.getWidth() / 4) {
-	        		scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+        	if(drawerLayout != null) {
+	        	if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                    drawerLayout.closeDrawers();
 	        		upView.setVisibility(View.VISIBLE);
 	        	} else {
-        			scrollView.smoothScrollTo(0, 0);
+                    drawerLayout.openDrawer(Gravity.LEFT);
 	        		upView.setVisibility(View.INVISIBLE);
 	        	}
 		    	if(!getSharedPreferences("prefs", 0).getBoolean("bufferSwipeTip", false)) {
-		    		Toast.makeText(MessageActivity.this, "Swipe right and left to quickly open and close channels and conversations list", Toast.LENGTH_LONG).show();
+		    		Toast.makeText(MessageActivity.this, "Drag from the edge of the screen to quickly open and close channels and conversations list", Toast.LENGTH_LONG).show();
 		    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 		    		editor.putBoolean("bufferSwipeTip", true);
 		    		editor.commit();
@@ -1470,15 +1486,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        	bufferFragment.show(getSupportFragmentManager(), "bufferoptions");
 	        	break;
             case R.id.menu_userlist:
-            	if(scrollView != null) {
-		        	if(scrollView.getScrollX() > buffersListView.getWidth()) {
-	        			scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+            	if(drawerLayout != null) {
+		        	if(drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
+	        			drawerLayout.closeDrawers();
 		        	} else {
-		        		scrollView.smoothScrollTo(buffersListView.getWidth() + userListView.getWidth(), 0);
+                        drawerLayout.openDrawer(Gravity.RIGHT);
 		        	}
 		        	upView.setVisibility(View.VISIBLE);
 			    	if(!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
-			    		Toast.makeText(this, "Swipe left and right to quickly open and close the user list", Toast.LENGTH_LONG).show();
+			    		Toast.makeText(this, "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
 			    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 			    		editor.putBoolean("userSwipeTip", true);
 			    		editor.commit();
@@ -1620,8 +1636,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		editor.commit();
     	}
 		
-		if(scrollView != null)
-			scrollView.scrollTo((int)getResources().getDimension(R.dimen.drawer_width), 0);
+		if(drawerLayout != null)
+			drawerLayout.closeDrawers();
 		
 		if(messageTxt.getText().length() == 0) {
 			messageTxt.append(from + ": ");
@@ -2085,9 +2101,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	public void onBufferSelected(int cid, int bid, String name,
 			long last_seen_eid, long min_eid, String type, int joined,
 			int archived, String status) {
-		if(scrollView != null) {
-			if(buffersListView.getWidth() > 0)
-				scrollView.smoothScrollTo(buffersListView.getWidth(), 0);
+		if(drawerLayout != null) {
+            drawerLayout.closeDrawers();
 			upView.setVisibility(View.VISIBLE);
 		}
 		if(bid != this.bid || this.cid == -1) {
@@ -2173,8 +2188,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    		new RefreshUpIndicatorTask().execute((Void)null);
 		}
 		if(cid != -1) {
-			if(scrollView != null)
-				scrollView.setEnabled(true);
+			if(drawerLayout != null)
+				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 		}
 	}
 
@@ -2208,8 +2223,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
 	@Override
 	public void addButtonPressed(int cid) {
-		if(scrollView != null)
-			scrollView.scrollTo(0,0);
+		if(drawerLayout != null)
+			drawerLayout.openDrawer(Gravity.LEFT);
 	}
 
 
