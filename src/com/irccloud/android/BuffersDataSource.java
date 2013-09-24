@@ -35,6 +35,7 @@ public class BuffersDataSource {
 		int deferred;
 		int timeout;
 		String away_msg;
+        String draft;
         int valid;
 	}
 
@@ -140,8 +141,22 @@ public class BuffersDataSource {
 			b.away_msg = away_msg;
 		}
 	}
-	
-	public synchronized void deleteBuffer(int bid) {
+
+    public synchronized void updateDraft(int bid, String draft) {
+        Buffer b = getBuffer(bid);
+        if(b != null) {
+            b.draft = draft;
+        }
+    }
+
+    public synchronized String draftForBuffer(int bid) {
+        Buffer b = getBuffer(bid);
+        if(b != null)
+            return b.draft;
+        return null;
+    }
+
+    public synchronized void deleteBuffer(int bid) {
 		Buffer b = getBuffer(bid);
 		if(b != null) {
 			buffers.remove(b);

@@ -450,6 +450,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		protected void onPostExecute(Void result) {
 			if(e != null && e.reqid != -1) {
 				messageTxt.setText("");
+                BuffersDataSource.getInstance().updateDraft(e.bid, null);
 			} else {
                 sendBtn.setEnabled(true);
                 if(Build.VERSION.SDK_INT >= 11)
@@ -2106,14 +2107,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			upView.setVisibility(View.VISIBLE);
 		}
 		if(bid != this.bid || this.cid == -1) {
-			if(bid != -1 && conn != null && conn.getUserInfo() != null)
+			if(bid != -1 && conn != null && conn.getUserInfo() != null) {
 				conn.getUserInfo().last_selected_bid = bid;
+            }
 	    	for(int i = 0; i < backStack.size(); i++) {
 	    		if(backStack.get(i) == this.bid)
 	    			backStack.remove(i);
 	    	}
-	    	if(this.bid >= 0)
+	    	if(this.bid >= 0) {
 	    		backStack.add(0, this.bid);
+                BuffersDataSource.getInstance().updateDraft(this.bid, messageTxt.getText().toString());
+            }
             if(this.bid == -1 || this.cid == -1)
                 shouldFadeIn = false;
             else
@@ -2159,6 +2163,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     public void onAnimationEnd(Animation animation) {
                         if(mvf != null)
                             mvf.setArguments(b);
+                        messageTxt.setText("");
+                        String draft = BuffersDataSource.getInstance().draftForBuffer(MessageActivity.this.bid);
+                        if(draft != null)
+                            messageTxt.append(draft);
                     }
 
                     @Override
@@ -2176,6 +2184,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             } else {
                 if(mvf != null)
                     mvf.setArguments(b);
+                messageTxt.setText("");
+                String draft = BuffersDataSource.getInstance().draftForBuffer(MessageActivity.this.bid);
+                if(draft != null)
+                    messageTxt.append(draft);
             }
 
 	    	updateUsersListFragmentVisibility();
