@@ -19,7 +19,14 @@ package com.irccloud.android;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.graphics.Canvas;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
+import android.graphics.Region;
+import android.graphics.drawable.Drawable;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.ScrollerCompat;
 import android.util.SparseArray;
 import android.view.*;
 import org.json.JSONException;
@@ -263,38 +270,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
         upView = (ImageView)v.findViewById(R.id.upIndicator);
         if(drawerLayout != null) {
-            drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
-                @Override
-                public void onDrawerSlide(View view, float v) {
-
-                }
-
-                @Override
-                public void onDrawerOpened(View view) {
-                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
-                        upView.setVisibility(View.INVISIBLE);
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
-                    } else {
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
-                    }
-                }
-
-                @Override
-                public void onDrawerClosed(View view) {
-                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
-                        upView.setVisibility(View.VISIBLE);
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                        updateUsersListFragmentVisibility();
-                    } else {
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-                    }
-                }
-
-                @Override
-                public void onDrawerStateChanged(int i) {
-
-                }
-            });
+            drawerLayout.setDrawerListener(mDrawerListener);
         	upView.setVisibility(View.VISIBLE);
         	upView.setOnClickListener(upClickListener);
 	        ImageView icon = (ImageView)v.findViewById(R.id.upIcon);
@@ -526,11 +502,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		protected void onPostExecute(Void result) {
 			if(!isCancelled()) {
 				if(highlights > 0) {
-					upView.setImageResource(R.drawable.up_highlight);
+                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
 				} else if(unread > 0) {
-					upView.setImageResource(R.drawable.up_unread);
+                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
 				} else {
-					upView.setImageResource(R.drawable.up);
+                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer));
 				}
 				refreshUpIndicatorTask = null;
 			}
@@ -1442,7 +1418,236 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	}
     	return super.onPrepareOptionsMenu(menu);
     }
-    
+
+    private class ToggleListener implements DrawerLayout.DrawerListener  {
+        private SlideDrawable mSlider = null;
+
+        @Override
+        public void onDrawerSlide(View view, float slideOffset) {
+            if(view != null && ((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
+                float glyphOffset = mSlider.getOffset();
+                if (slideOffset > 0.5f) {
+                    glyphOffset = Math.max(glyphOffset, Math.max(0.f, slideOffset - 0.5f) * 2);
+                } else {
+                    glyphOffset = Math.min(glyphOffset, slideOffset * 2);
+                }
+                mSlider.setOffset(glyphOffset);
+            }
+        }
+
+        public void setUpDrawable(Drawable d) {
+            mSlider = new SlideDrawable(d);
+            mSlider.setOffsetBy(1.f / 3);
+            upView.setImageDrawable(mSlider);
+            if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                mSlider.setOffset(1.f);
+            } else {
+                mSlider.setOffset(0.f);
+            }
+        }
+
+        @Override
+        public void onDrawerOpened(View view) {
+            if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+                mSlider.setOffset(1.f);
+            } else {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+            }
+        }
+
+        @Override
+        public void onDrawerClosed(View view) {
+            if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                mSlider.setOffset(0.f);
+                updateUsersListFragmentVisibility();
+            } else {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+            }
+        }
+
+        @Override
+        public void onDrawerStateChanged(int i) {
+
+        }
+
+        class SlideDrawable extends Drawable implements Drawable.Callback {
+            private Drawable mWrapped;
+            private float mOffset;
+            private float mOffsetBy;
+
+            private final Rect mTmpRect = new Rect();
+
+            public SlideDrawable(Drawable wrapped) {
+                mWrapped = wrapped;
+            }
+
+            public void setOffset(float offset) {
+                mOffset = offset;
+                invalidateSelf();
+            }
+
+            public float getOffset() {
+                return mOffset;
+            }
+
+            public void setOffsetBy(float offsetBy) {
+                mOffsetBy = offsetBy;
+                invalidateSelf();
+            }
+
+            @Override
+            public void draw(Canvas canvas) {
+                mWrapped.copyBounds(mTmpRect);
+                canvas.save();
+                canvas.translate(mOffsetBy * mTmpRect.width() * -mOffset, 0);
+                mWrapped.draw(canvas);
+                canvas.restore();
+            }
+
+            @Override
+            public void setChangingConfigurations(int configs) {
+                mWrapped.setChangingConfigurations(configs);
+            }
+
+            @Override
+            public int getChangingConfigurations() {
+                return mWrapped.getChangingConfigurations();
+            }
+
+            @Override
+            public void setDither(boolean dither) {
+                mWrapped.setDither(dither);
+            }
+
+            @Override
+            public void setFilterBitmap(boolean filter) {
+                mWrapped.setFilterBitmap(filter);
+            }
+
+            @Override
+            public void setAlpha(int alpha) {
+                mWrapped.setAlpha(alpha);
+            }
+
+            @Override
+            public void setColorFilter(ColorFilter cf) {
+                mWrapped.setColorFilter(cf);
+            }
+
+            @Override
+            public void setColorFilter(int color, PorterDuff.Mode mode) {
+                mWrapped.setColorFilter(color, mode);
+            }
+
+            @Override
+            public void clearColorFilter() {
+                mWrapped.clearColorFilter();
+            }
+
+            @Override
+            public boolean isStateful() {
+                return mWrapped.isStateful();
+            }
+
+            @Override
+            public boolean setState(int[] stateSet) {
+                return mWrapped.setState(stateSet);
+            }
+
+            @Override
+            public int[] getState() {
+                return mWrapped.getState();
+            }
+
+            @Override
+            public Drawable getCurrent() {
+                return mWrapped.getCurrent();
+            }
+
+            @Override
+            public boolean setVisible(boolean visible, boolean restart) {
+                return super.setVisible(visible, restart);
+            }
+
+            @Override
+            public int getOpacity() {
+                return mWrapped.getOpacity();
+            }
+
+            @Override
+            public Region getTransparentRegion() {
+                return mWrapped.getTransparentRegion();
+            }
+
+            @Override
+            protected boolean onStateChange(int[] state) {
+                mWrapped.setState(state);
+                return super.onStateChange(state);
+            }
+
+            @Override
+            protected void onBoundsChange(Rect bounds) {
+                super.onBoundsChange(bounds);
+                mWrapped.setBounds(bounds);
+            }
+
+            @Override
+            public int getIntrinsicWidth() {
+                return mWrapped.getIntrinsicWidth();
+            }
+
+            @Override
+            public int getIntrinsicHeight() {
+                return mWrapped.getIntrinsicHeight();
+            }
+
+            @Override
+            public int getMinimumWidth() {
+                return mWrapped.getMinimumWidth();
+            }
+
+            @Override
+            public int getMinimumHeight() {
+                return mWrapped.getMinimumHeight();
+            }
+
+            @Override
+            public boolean getPadding(Rect padding) {
+                return mWrapped.getPadding(padding);
+            }
+
+            @Override
+            public ConstantState getConstantState() {
+                return super.getConstantState();
+            }
+
+            @Override
+            public void invalidateDrawable(Drawable who) {
+                if (who == mWrapped) {
+                    invalidateSelf();
+                }
+            }
+
+            @Override
+            public void scheduleDrawable(Drawable who, Runnable what, long when) {
+                if (who == mWrapped) {
+                    scheduleSelf(what, when);
+                }
+            }
+
+            @Override
+            public void unscheduleDrawable(Drawable who, Runnable what) {
+                if (who == mWrapped) {
+                    unscheduleSelf(what);
+                }
+            }
+        }
+    };
+
+    private ToggleListener mDrawerListener = new ToggleListener();
+
     private OnClickListener upClickListener = new OnClickListener() {
 
 		@Override
@@ -1450,12 +1655,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	if(drawerLayout != null) {
 	        	if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
                     drawerLayout.closeDrawers();
-	        		upView.setVisibility(View.VISIBLE);
 	        	} else if(upView.getVisibility() == View.VISIBLE) {
                     drawerLayout.closeDrawers();
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
                     drawerLayout.openDrawer(Gravity.LEFT);
-	        		upView.setVisibility(View.INVISIBLE);
 	        	}
 		    	if(!getSharedPreferences("prefs", 0).getBoolean("bufferSwipeTip", false)) {
 		    		Toast.makeText(MessageActivity.this, "Drag from the edge of the screen to quickly open and close channels and conversations list", Toast.LENGTH_LONG).show();
@@ -2220,16 +2423,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		}
 	}
 
-	public void showUpButton(boolean show) {
-		if(upView != null) {
-			if(show) {
-				upView.setVisibility(View.VISIBLE);
-			} else {
-				upView.setVisibility(View.INVISIBLE);
-			}
-		}
-	}
-	
 	@Override
 	public void onMessageViewReady() {
 		if(shouldFadeIn) {
