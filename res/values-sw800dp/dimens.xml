@@ -15,10 +15,7 @@
   -->
 
 <resources>
-
-    <dimen name="drawer_width">250dp</dimen>
     <dimen name="unread_top_txt_size">16sp</dimen>
     <dimen name="unread_bottom_txt_size">16sp</dimen>
     <dimen name="unread_bubble_size">28dp</dimen>
-    
 </resources>

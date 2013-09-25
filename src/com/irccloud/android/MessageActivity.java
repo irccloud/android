@@ -450,57 +450,59 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+            if(drawerLayout != null) {
+                SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
 
-			JSONObject channelDisabledMap = null;
-			JSONObject bufferDisabledMap = null;
-			if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
-				try {
-					if(NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableTrackUnread"))
-						channelDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-					if(NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-disableTrackUnread"))
-						bufferDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+                JSONObject channelDisabledMap = null;
+                JSONObject bufferDisabledMap = null;
+                if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
+                    try {
+                        if(NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableTrackUnread"))
+                            channelDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+                        if(NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-disableTrackUnread"))
+                            bufferDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
 
-			for(int i = 0; i < servers.size(); i++) {
-				ServersDataSource.Server s = servers.valueAt(i);
-				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
-				for(int j = 0; j < buffers.size(); j++) {
-					BuffersDataSource.Buffer b = buffers.get(j);
-					if(b.bid != bid) {
-						if(unread == 0) {
-							int u = 0;
-							try {
-								u = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-								if(b.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid)))
-									u = 0;
-								else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
-									u = 0;
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
-							unread += u;
-						}
-						if(highlights == 0) {
-							try {
-								if(!b.type.equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.bid)) || !bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
-									highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
-							} catch (JSONException e) {
-							}
-						}
-					}
-				}
-			}
+                for(int i = 0; i < servers.size(); i++) {
+                    ServersDataSource.Server s = servers.valueAt(i);
+                    ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
+                    for(int j = 0; j < buffers.size(); j++) {
+                        BuffersDataSource.Buffer b = buffers.get(j);
+                        if(b.bid != bid) {
+                            if(unread == 0) {
+                                int u = 0;
+                                try {
+                                    u = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                                    if(b.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                        u = 0;
+                                    else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                        u = 0;
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                unread += u;
+                            }
+                            if(highlights == 0) {
+                                try {
+                                    if(!b.type.equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.bid)) || !bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                        highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                                } catch (JSONException e) {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 			return null;
 		}
     	
 		@Override
 		protected void onPostExecute(Void result) {
-			if(!isCancelled()) {
+			if(!isCancelled() && drawerLayout != null) {
 				if(highlights > 0) {
                     mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
 				} else if(unread > 0) {
