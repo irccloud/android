@@ -34,8 +34,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginLeft="-4dp"
         android:layout_marginBottom="@dimen/abc_action_bar_icon_vertical_padding"
-        android:layout_marginRight="8dip"
         android:layout_marginTop="@dimen/abc_action_bar_icon_vertical_padding"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
@@ -47,7 +47,7 @@
         android:layout_height="fill_parent"
         android:gravity="center_vertical|left"
         android:orientation="vertical"
-        android:paddingLeft="4dp" >
+        android:paddingLeft="6dp" >
 
         <LinearLayout
             android:layout_width="wrap_content"
