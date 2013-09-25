@@ -271,14 +271,23 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
                 @Override
                 public void onDrawerOpened(View view) {
-                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT)
+                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                         upView.setVisibility(View.INVISIBLE);
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+                    } else {
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+                    }
                 }
 
                 @Override
                 public void onDrawerClosed(View view) {
-                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT)
+                    if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                         upView.setVisibility(View.VISIBLE);
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                        updateUsersListFragmentVisibility();
+                    } else {
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+                    }
                 }
 
                 @Override
@@ -971,6 +980,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			    		if(drawerLayout != null && NetworkConnection.getInstance().ready) {
                             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 							upView.setVisibility(View.VISIBLE);
+                            updateUsersListFragmentVisibility();
 			    		}
 			    		if(cid != -1 && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 			    			sendBtn.setEnabled(true);
@@ -1172,6 +1182,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 if(drawerLayout != null) {
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                     upView.setVisibility(View.VISIBLE);
+                    updateUsersListFragmentVisibility();
                 }
                 if(cid == -1 || launchURI != null) {
                     if(launchURI == null || !open_uri(launchURI)) {
@@ -1440,7 +1451,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        	if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
                     drawerLayout.closeDrawers();
 	        		upView.setVisibility(View.VISIBLE);
-	        	} else {
+	        	} else if(upView.getVisibility() == View.VISIBLE) {
+                    drawerLayout.closeDrawers();
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
                     drawerLayout.openDrawer(Gravity.LEFT);
 	        		upView.setVisibility(View.INVISIBLE);
 	        	}
@@ -1491,6 +1504,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	if(drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
 	        			drawerLayout.closeDrawers();
 		        	} else {
+                        drawerLayout.closeDrawer(Gravity.LEFT);
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                         drawerLayout.openDrawer(Gravity.RIGHT);
 		        	}
 		        	upView.setVisibility(View.VISIBLE);
@@ -2201,7 +2216,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		}
 		if(cid != -1) {
 			if(drawerLayout != null)
-				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
 		}
 	}
 
