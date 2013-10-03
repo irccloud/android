@@ -106,6 +106,7 @@ public class NetworkConnection {
     private int failCount = 0;
 	private long reconnect_timestamp = 0;
 	private String useragent = null;
+    private String streamId = null;
 	
 	public static final int BACKLOG_BUFFER_MAX = 100;
 	
@@ -440,8 +441,11 @@ public class NetworkConnection {
 		);
 
 		String url = "wss://" + IRCCLOUD_HOST;
-		if(EventsDataSource.getInstance().highest_eid > 0)
-			url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
+		if(EventsDataSource.getInstance().highest_eid > 0) {
+			url += "/?since_id=" + EventsDataSource.getInstance().highest_eid;
+            if(streamId != null && streamId.length() > 0)
+                url += "&stream_id=" + streamId;
+        }
 
         if(host != null && host.length() > 0 && port > 0) {
             TestFlight.log("Connecting: " + url + " via proxy: " + host);
@@ -553,6 +557,7 @@ public class NetworkConnection {
     public void logout() {
         disconnect();
         ready = false;
+        streamId = null;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         try {
             String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
@@ -976,6 +981,7 @@ public class NetworkConnection {
 				idle_interval = object.getLong("idle_interval") + 10000;
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
                 failCount = 0;
+                streamId = object.getString("streamid");
 				TestFlight.log("Clock offset: " + clockOffset + "s");
 			} else if(type.equalsIgnoreCase("global_system_message")) {
 				String msgType = object.getString("system_message_type");
