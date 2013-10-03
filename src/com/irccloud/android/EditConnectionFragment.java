@@ -16,9 +16,11 @@
 
 package com.irccloud.android;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
@@ -42,9 +44,16 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.gson.JsonArray;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class EditConnectionFragment extends DialogFragment {
 	private class PresetServersAdapter extends BaseAdapter {
@@ -69,8 +78,23 @@ public class EditConnectionFragment extends DialogFragment {
 		}
 		
 		private ArrayList<PresetServer> data;
-		
-		public PresetServersAdapter(Activity context) {
+
+        public PresetServersAdapter(Activity context, JSONArray networks) {
+            ctx = context;
+            data = new ArrayList<PresetServer>();
+            data.add(new PresetServer(null, null, 0));
+            for(int i = 0; i < networks.length(); i++) {
+                try {
+                    JSONObject o = networks.getJSONObject(i);
+                    String name = o.getString("name");
+                    JSONObject server = o.getJSONArray("servers").getJSONObject(0);
+                    data.add(new PresetServer(name, server.getString("hostname"), server.getInt("port")));
+                } catch (JSONException e) {
+                }
+            }
+        }
+
+        public PresetServersAdapter(Activity context) {
 			ctx = context;
 			data = new ArrayList<PresetServer>();
 			data.add(new PresetServer(null, null, 0));
@@ -183,6 +207,7 @@ public class EditConnectionFragment extends DialogFragment {
 	ServersDataSource.Server server;
 
 	LinearLayout channelsWrapper;
+    ProgressBar progress;
 	Spinner presets;
 	EditText hostname;
 	EditText port;
@@ -202,6 +227,7 @@ public class EditConnectionFragment extends DialogFragment {
 	
 	private void init(View v) {
     	channelsWrapper = (LinearLayout)v.findViewById(R.id.channels_wrapper);
+        progress = (ProgressBar)v.findViewById(R.id.progress);
 		presets = (Spinner)v.findViewById(R.id.presets);
 		hostname = (EditText)v.findViewById(R.id.hostname);
 		port = (EditText)v.findViewById(R.id.port);
@@ -213,8 +239,6 @@ public class EditConnectionFragment extends DialogFragment {
 		join_commands = (EditText)v.findViewById(R.id.commands);
 		server_pass = (EditText)v.findViewById(R.id.serverpassword);
 
-		adapter = new PresetServersAdapter(getActivity());
-		presets.setAdapter(adapter);
 		presets.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
@@ -308,6 +332,7 @@ public class EditConnectionFragment extends DialogFragment {
 		if(server != null) {
 			presets.setSelection(0);
 			presets.setVisibility(View.GONE);
+            progress.setVisibility(View.GONE);
 			channelsWrapper.setVisibility(View.GONE);
 			hostname.setText(server.hostname);
 			port.setText(String.valueOf(server.port));
@@ -318,7 +343,10 @@ public class EditConnectionFragment extends DialogFragment {
 			nickserv_pass.setText(server.nickserv_pass);
 			server_pass.setText(server.server_pass);
 		} else {
-			if(default_hostname != null)
+            if(adapter == null)
+                new LoadNetworkPresets().execute((Void)null);
+
+            if(default_hostname != null)
 				hostname.setText(default_hostname);
 			port.setText(String.valueOf(default_port));
 			ssl.setChecked(default_port == 6697);
@@ -398,4 +426,34 @@ public class EditConnectionFragment extends DialogFragment {
             }
         }
     };
+
+    private class LoadNetworkPresets extends AsyncTaskEx<Void, Void, JSONArray> {
+
+        @Override
+        protected void onPreExecute() {
+            presets.setVisibility(View.GONE);
+            progress.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected JSONArray doInBackground(Void... params) {
+            try {
+                return NetworkConnection.getInstance().networkPresets();
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(JSONArray networks) {
+            if(networks != null && networks.length() > 0) {
+                adapter = new PresetServersAdapter(getActivity(), networks);
+            } else {
+                adapter = new PresetServersAdapter(getActivity());
+            }
+            presets.setAdapter(adapter);
+            presets.setVisibility(View.VISIBLE);
+            progress.setVisibility(View.GONE);
+        }
+    }
 }

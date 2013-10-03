@@ -920,7 +920,7 @@ public class MessageViewFragment extends ListFragment {
                         event.color = R.color.timestamp;
                         event.bg_color = R.color.message_bg;
                     }
-                    
+
                     if(!showChan)
                         event.chan = name;
 

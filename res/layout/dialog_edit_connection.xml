@@ -32,10 +32,20 @@
             android:text="Server Settings"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress"
+            android:indeterminate="true"
+            android:indeterminateOnly="true"
+            android:layout_gravity="center"
+            android:padding="6dp" />
+
         <Spinner
             android:id="@+id/presets"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
 
         <include layout="@layout/dialog_edit_connection_hostname"  android:layout_width="match_parent" android:layout_height="wrap_content"/>
 

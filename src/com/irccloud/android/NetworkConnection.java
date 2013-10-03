@@ -50,6 +50,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,7 +66,6 @@ import android.net.TrafficStats;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -322,7 +322,7 @@ public class NetworkConnection {
 	public JSONObject login(String email, String password) {
 		try {
             String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
-            String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
 			JSONObject o = new JSONObject(response);
 			return o;
         } catch (UnknownHostException e) {
@@ -343,7 +343,7 @@ public class NetworkConnection {
 	public JSONObject registerGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
 		try {
-            String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk);
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk);
 			JSONObject o = new JSONObject(response);
 			return o;
 		} catch (Exception e) {
@@ -356,7 +356,7 @@ public class NetworkConnection {
 	public JSONObject unregisterGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
 		try {
-            String response = doPost(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk);
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk);
 			JSONObject o = new JSONObject(response);
 			return o;
 		} catch (Exception e) {
@@ -365,8 +365,20 @@ public class NetworkConnection {
 		}
 		return null;
 	}
-	
-	public synchronized void connect(String sk) {
+
+    public JSONArray networkPresets() throws IOException {
+        try {
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/static/networks.json"), null, null);
+            JSONObject o = new JSONObject(response);
+            return o.getJSONArray("networks");
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public synchronized void connect(String sk) {
 		session = sk;
         String host = null;
         int port = -1;
@@ -1381,7 +1393,7 @@ public class NetworkConnection {
 			schedule_idle_timer();
 	}
 	
-	private String doPost(URL url, String postdata, String sk) throws Exception {
+	private String doFetch(URL url, String postdata, String sk) throws Exception {
 		HttpURLConnection conn = null;
 
         Proxy proxy = null;
@@ -1411,22 +1423,24 @@ public class NetworkConnection {
         } else {
         	conn = (HttpURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection());
         }
-		conn.setRequestMethod("POST");
-		conn.setDoOutput(true);
+
 		conn.setRequestProperty("Connection", "close");
-		conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
 		conn.setRequestProperty("User-Agent", useragent);
         if(sk != null)
             conn.setRequestProperty("Cookie", "session="+sk);
-		OutputStream ostr = null;
-		try {
-			ostr = conn.getOutputStream();
-			ostr.write(postdata.getBytes());
-		} finally {
-			if (ostr != null)
-				ostr.close();
-		}
-
+        if(postdata != null) {
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+            OutputStream ostr = null;
+            try {
+                ostr = conn.getOutputStream();
+                ostr.write(postdata.getBytes());
+            } finally {
+                if (ostr != null)
+                    ostr.close();
+            }
+        }
 		BufferedReader reader = null;
 		String response = "";
 		conn.connect();
