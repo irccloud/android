@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -207,7 +208,6 @@ public class EditConnectionFragment extends DialogFragment {
 	ServersDataSource.Server server;
 
 	LinearLayout channelsWrapper;
-    ProgressBar progress;
 	Spinner presets;
 	EditText hostname;
 	EditText port;
@@ -227,7 +227,6 @@ public class EditConnectionFragment extends DialogFragment {
 	
 	private void init(View v) {
     	channelsWrapper = (LinearLayout)v.findViewById(R.id.channels_wrapper);
-        progress = (ProgressBar)v.findViewById(R.id.progress);
 		presets = (Spinner)v.findViewById(R.id.presets);
 		hostname = (EditText)v.findViewById(R.id.hostname);
 		port = (EditText)v.findViewById(R.id.port);
@@ -332,7 +331,6 @@ public class EditConnectionFragment extends DialogFragment {
 		if(server != null) {
 			presets.setSelection(0);
 			presets.setVisibility(View.GONE);
-            progress.setVisibility(View.GONE);
 			channelsWrapper.setVisibility(View.GONE);
 			hostname.setText(server.hostname);
 			port.setText(String.valueOf(server.port));
@@ -431,8 +429,8 @@ public class EditConnectionFragment extends DialogFragment {
 
         @Override
         protected void onPreExecute() {
-            presets.setVisibility(View.GONE);
-            progress.setVisibility(View.VISIBLE);
+            presets.setEnabled(false);
+            presets.setAdapter(new ArrayAdapter<String>(getActivity(), R.layout.loading_spinner_item, R.id.text, new String[] {"Loading networks"}));
         }
 
         @Override
@@ -452,8 +450,7 @@ public class EditConnectionFragment extends DialogFragment {
                 adapter = new PresetServersAdapter(getActivity());
             }
             presets.setAdapter(adapter);
-            presets.setVisibility(View.VISIBLE);
-            progress.setVisibility(View.GONE);
+            presets.setEnabled(true);
         }
     }
 }
