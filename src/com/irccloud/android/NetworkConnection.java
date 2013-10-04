@@ -981,6 +981,8 @@ public class NetworkConnection {
 				idle_interval = object.getLong("idle_interval") + 10000;
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
                 failCount = 0;
+                if(streamId != null && streamId.equalsIgnoreCase(object.getString("streamid")))
+                    notifyHandlers(EVENT_BACKLOG_END, object);
                 streamId = object.getString("streamid");
 				TestFlight.log("Clock offset: " + clockOffset + "s");
 			} else if(type.equalsIgnoreCase("global_system_message")) {
