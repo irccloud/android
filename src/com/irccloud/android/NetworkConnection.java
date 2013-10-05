@@ -107,6 +107,7 @@ public class NetworkConnection {
 	private long reconnect_timestamp = 0;
 	private String useragent = null;
     private String streamId = null;
+    private int accrued = 0;
 	
 	public static final int BACKLOG_BUFFER_MAX = 100;
 	
@@ -545,6 +546,7 @@ public class NetworkConnection {
         Log.d("IRCCloud", "Creating websocket");
 		reconnect_timestamp = 0;
         idle_interval = 0;
+        accrued = 0;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
 		client.setSocketTag(WEBSOCKET_TAG);
         if(host != null && host.length() > 0 && port > 0)
@@ -558,6 +560,7 @@ public class NetworkConnection {
         disconnect();
         ready = false;
         streamId = null;
+        accrued = 0;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         try {
             String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
@@ -973,6 +976,8 @@ public class NetworkConnection {
 			}
 			return;
 		}
+        if(accrued > 0)
+            notifyHandlers(EVENT_PROGRESS, ((float)currentcount++ / (float)accrued) * 1000.0f);
 		String type = object.type();
 		if(type != null && type.length() > 0) {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
@@ -981,9 +986,10 @@ public class NetworkConnection {
 				idle_interval = object.getLong("idle_interval") + 10000;
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
                 failCount = 0;
-                if(streamId != null && streamId.equalsIgnoreCase(object.getString("streamid")))
-                    notifyHandlers(EVENT_BACKLOG_END, object);
+                currentcount = 0;
                 streamId = object.getString("streamid");
+                if(object.has("accrued"))
+                    accrued = object.getInt("accrued");
 				TestFlight.log("Clock offset: " + clockOffset + "s");
 			} else if(type.equalsIgnoreCase("global_system_message")) {
 				String msgType = object.getString("system_message_type");
@@ -991,7 +997,11 @@ public class NetworkConnection {
 					globalMsg = object.getString("msg");
 					notifyHandlers(EVENT_GLOBALMSG, object);
 				}
-			} else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog") || type.equalsIgnoreCase("backlog_complete")) {
+            } else if(type.equalsIgnoreCase("backlog_complete")) {
+                accrued = 0;
+                if(object.getBoolean("resumed"))
+                    notifyHandlers(EVENT_BACKLOG_END, object);
+            } else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog")) {
 			} else if(type.equalsIgnoreCase("num_invites")) {
 				if(userInfo != null)
 					userInfo.num_invites = object.getInt("num_invites");
@@ -1102,8 +1112,6 @@ public class NetworkConnection {
 				numbuffers = object.getInt("numbuffers");
 				totalbuffers = 0;
 			} else if(type.equalsIgnoreCase("makebuffer")) {
-                //Log.d("IRCCloud", "MakeBuffer (" + (int)(totalbuffers + 1) + "/" + (int)numbuffers + ")");
-                //Debug.startMethodTracing("oob-" + object.bid(), 16*1024*1024);
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.bid(), object.cid(),
 						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
@@ -1525,7 +1533,7 @@ public class NetworkConnection {
 	}
 	
 	public synchronized void notifyHandlers(int message, Object object, Handler exclude) {
-		if(handlers != null) {
+		if(handlers != null && accrued == 0) {
 			for(int i = 0; i < handlers.size(); i++) {
 				Handler handler = handlers.get(i);
 				if(handler != exclude) {
