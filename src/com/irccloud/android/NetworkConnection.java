@@ -1533,7 +1533,7 @@ public class NetworkConnection {
 	}
 	
 	public synchronized void notifyHandlers(int message, Object object, Handler exclude) {
-		if(handlers != null && accrued == 0) {
+		if(handlers != null && (message == EVENT_PROGRESS || accrued == 0)) {
 			for(int i = 0; i < handlers.size(); i++) {
 				Handler handler = handlers.get(i);
 				if(handler != exclude) {
