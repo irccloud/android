@@ -415,13 +415,6 @@ public class MessageViewFragment extends ListFragment {
 			return data.get(position).eid;
 		}
 		
-		public long getGroupForPosition(int position) {
-			if(position < data.size())
-				return data.get(position).group_eid;
-			else
-				return -1;
-		}
-
         public void format() {
             for(int i = 0; i < data.size(); i++) {
                 EventsDataSource.Event e = data.get(i);
@@ -1116,30 +1109,32 @@ public class MessageViewFragment extends ListFragment {
 								public void run() {
 									if(adapter != null && adapter.data != null && position < adapter.data.size()) {
 								    	EventsDataSource.Event e = adapter.data.get(position);
-								    	if(e != null && e.type.equals("channel_invite")) {
-								    		conn.join(cid, e.old_nick, null);
-								    	} else if(e != null && e.type.equals("callerid")) {
-								    		conn.say(cid, null, "/accept " + e.from);
-								    		BuffersDataSource b = BuffersDataSource.getInstance();
-								    		BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
-								    		if(buffer != null) {
-								    			mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid, 
-								    					buffer.type, 1, buffer.archived, "connected_ready");
-								    		} else {
-								    			mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
-								    		}
-								    	} else {
-									    	long group = adapter.getGroupForPosition(position);
-									    	if(expandedSectionEids.contains(group))
-									    		expandedSectionEids.remove(group);
-									    	else
-									    		expandedSectionEids.add(group);
-									        if(refreshTask != null)
-									        	refreshTask.cancel(true);
-											refreshTask = new RefreshTask();
-											refreshTask.execute((Void)null);
-								    	}
-									}
+                                        if(e != null) {
+                                            if(e.type.equals("channel_invite")) {
+                                                conn.join(cid, e.old_nick, null);
+                                            } else if(e.type.equals("callerid")) {
+                                                conn.say(cid, null, "/accept " + e.from);
+                                                BuffersDataSource b = BuffersDataSource.getInstance();
+                                                BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
+                                                if(buffer != null) {
+                                                    mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid,
+                                                            buffer.type, 1, buffer.archived, "connected_ready");
+                                                } else {
+                                                    mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
+                                                }
+                                            } else {
+                                                long group = e.group_eid;
+                                                if(expandedSectionEids.contains(group))
+                                                    expandedSectionEids.remove(group);
+                                                else if(e.eid != group)
+                                                    expandedSectionEids.add(group);
+                                                if(refreshTask != null)
+                                                    refreshTask.cancel(true);
+                                                refreshTask = new RefreshTask();
+                                                refreshTask.execute((Void)null);
+                                            }
+                                        }
+                                    }
 								}
 				    		});
 			    			tapTimer = null;
@@ -1368,7 +1363,11 @@ public class MessageViewFragment extends ListFragment {
                         if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
                             if(oldPosition > 0 && oldPosition == adapter.data.size())
                                 oldPosition--;
-                            backlog_eid = adapter.getGroupForPosition(oldPosition) - 1;
+                            EventsDataSource.Event e = adapter.data.get(oldPosition);
+                            if(e != null)
+                                backlog_eid = e.group_eid - 1;
+                            else
+                                backlog_eid = -1;
                             if(backlog_eid < 0) {
                                 backlog_eid = adapter.getItemId(oldPosition) - 1;
                             }
