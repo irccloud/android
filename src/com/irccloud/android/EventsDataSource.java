@@ -336,7 +336,7 @@ public class EventsDataSource {
 	    				if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
 	    					e.nick = e.from;
 	    					e.from = "";
-	    					e.msg = "Channel ban set for <b>" + op.get("param").getAsString() + "</b> (+b) by ";
+	    					e.msg = "Channel ban set for <b>" + op.get("param").getAsString() + "</b> (+b)";
 	    					unknown = false;
 	    				}
 	    			}
@@ -346,7 +346,7 @@ public class EventsDataSource {
 	    				if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
 	    					e.nick = e.from;
 	    					e.from = "";
-	    					e.msg = "Channel ban removed for <b>" + op.get("param").getAsString() + "</b> (-b) by ";
+	    					e.msg = "Channel ban removed for <b>" + op.get("param").getAsString() + "</b> (-b)";
 	    					unknown = false;
 	    				}
 	    			}
@@ -354,7 +354,7 @@ public class EventsDataSource {
 	    		if(unknown) {
 	    			e.nick = e.from;
 	    			e.from = "";
-	    			e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b> by ";
+	    			e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
 	    		}
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;

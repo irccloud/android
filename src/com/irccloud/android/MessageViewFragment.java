@@ -1003,8 +1003,11 @@ public class MessageViewFragment extends ListFragment {
                     }
                 }
 
-                if(type.equalsIgnoreCase("channel_mode") && event.nick != null && event.nick.length() > 0) {
-                    event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
+                if(type.equalsIgnoreCase("channel_mode")) {
+                    if(event.nick != null && event.nick.length() > 0)
+                        event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
+                    else if(event.server != null && event.server.length() > 0)
+                        event.html = event.msg + " by the server <b>" + event.server + "</b>";
                 } else if(type.equalsIgnoreCase("buffer_me_msg")) {
                     event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> " + event.msg + "</i>";
                 } else if(type.equalsIgnoreCase("kicked_channel")) {
@@ -1024,7 +1027,10 @@ public class MessageViewFragment extends ListFragment {
                     event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
                 } else if(type.equalsIgnoreCase("channel_mode_list_change")) {
                     if(event.from.length() == 0) {
-                        event.html = event.msg + "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
+                        if(event.nick != null && event.nick.length() > 0)
+                            event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
+                        else if(event.server != null && event.server.length() > 0)
+                            event.html = event.msg + " by the server <b>" + event.server + "</b>";
                     }
                 }
 
