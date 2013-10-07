@@ -1169,7 +1169,8 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns") || type.equalsIgnoreCase("myinfo") || type.equalsIgnoreCase("hidden_host_set") || type.equalsIgnoreCase("unhandled_line") || type.equalsIgnoreCase("unparsed_line")
 					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local") || type.equalsIgnoreCase("server_luserchannels") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("nickname_in_use") || type.equalsIgnoreCase("channel_invite") || type.startsWith("stats")
 					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown") || type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("channel_mode_list_change") || type.equalsIgnoreCase("msg_services") || type.equalsIgnoreCase("endofstats")
-					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")) {
+					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")
+                     || type.equalsIgnoreCase("logged_in_as") || type.equalsIgnoreCase("btn_metadata_set")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				EventsDataSource.Event event = e.addEvent(object);
 				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());
@@ -1339,6 +1340,13 @@ public class NetworkConnection {
 				b.updateAway(object.bid(), object.getString("msg"));
 				if(!backlog)
 					notifyHandlers(EVENT_AWAY, object);
+            } else if(type.equalsIgnoreCase("user_back")) {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                UsersDataSource u = UsersDataSource.getInstance();
+                u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
+                b.updateAway(object.bid(), "");
+                if(!backlog)
+                    notifyHandlers(EVENT_AWAY, object);
 			} else if(type.equalsIgnoreCase("self_away")) {
 				ServersDataSource s = ServersDataSource.getInstance();
 				UsersDataSource u = UsersDataSource.getInstance();
