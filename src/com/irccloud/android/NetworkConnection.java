@@ -108,7 +108,10 @@ public class NetworkConnection {
 	private String useragent = null;
     private String streamId = null;
     private int accrued = 0;
-	
+    private boolean backlog = false;
+    int currentBid = -1;
+    long firstEid = -1;
+
 	public static final int BACKLOG_BUFFER_MAX = 100;
 	
 	public static final int EVENT_CONNECTIVITY = 0;
@@ -470,7 +473,7 @@ public class NetworkConnection {
 		    	if(message.length() > 0) {
 					try {
 						synchronized(parserLock) {
-							parse_object(new IRCCloudJSONObject(message), false);
+							parse_object(new IRCCloudJSONObject(message));
 						}
 					} catch (Exception e) {
                         TestFlight.log("Unable to parse: " + message);
@@ -963,9 +966,9 @@ public class NetworkConnection {
 		return reconnect_timestamp;
 	}
 	
-	private void parse_object(IRCCloudJSONObject object, boolean backlog) throws JSONException {
+	private void parse_object(IRCCloudJSONObject object) throws JSONException {
 		cancel_idle_timer();
-		//Log.d(TAG, "New event: " + object);
+		//Log.d(TAG, "Backlog: " + backlog + " New event: " + object);
 		if(!object.has("type")) {
 			//Log.d(TAG, "Response: " + object);
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
@@ -976,8 +979,6 @@ public class NetworkConnection {
 			}
 			return;
 		}
-        if(accrued > 0)
-            notifyHandlers(EVENT_PROGRESS, ((float)currentcount++ / (float)accrued) * 1000.0f);
 		String type = object.type();
 		if(type != null && type.length() > 0) {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
@@ -987,9 +988,16 @@ public class NetworkConnection {
 				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
                 failCount = 0;
                 currentcount = 0;
+                currentBid = -1;
+                firstEid = -1;
                 streamId = object.getString("streamid");
                 if(object.has("accrued"))
                     accrued = object.getInt("accrued");
+                if(!(object.has("resumed") && object.getBoolean("resumed"))) {
+                    Log.d("IRCCloud", "Socket was not resumed, invalidating buffers");
+                    BuffersDataSource.getInstance().invalidate();
+                    ChannelsDataSource.getInstance().invalidate();
+                }
 				TestFlight.log("Clock offset: " + clockOffset + "s");
 			} else if(type.equalsIgnoreCase("global_system_message")) {
 				String msgType = object.getString("system_message_type");
@@ -999,8 +1007,12 @@ public class NetworkConnection {
 				}
             } else if(type.equalsIgnoreCase("backlog_complete")) {
                 accrued = 0;
-                if(object.getBoolean("resumed"))
-                    notifyHandlers(EVENT_BACKLOG_END, object);
+                backlog = false;
+                ready = true;
+                Log.d("IRCCloud", "Cleaning up invalid BIDs");
+                BuffersDataSource.getInstance().purgeInvalidBIDs();
+                ChannelsDataSource.getInstance().purgeInvalidChannels();
+                notifyHandlers(EVENT_BACKLOG_END, null);
             } else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog")) {
 			} else if(type.equalsIgnoreCase("num_invites")) {
 				if(userInfo != null)
@@ -1111,6 +1123,9 @@ public class NetworkConnection {
 			} else if(type.equalsIgnoreCase("backlog_starts")) {
 				numbuffers = object.getInt("numbuffers");
 				totalbuffers = 0;
+                currentBid = -1;
+                notifyHandlers(EVENT_BACKLOG_START, null);
+                backlog = true;
 			} else if(type.equalsIgnoreCase("makebuffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				BuffersDataSource.Buffer buffer = b.createBuffer(object.bid(), object.cid(),
@@ -1122,7 +1137,6 @@ public class NetworkConnection {
 				if(!backlog)
 					notifyHandlers(EVENT_MAKEBUFFER, buffer);
                 totalbuffers++;
-                currentcount = 0;
 			} else if(type.equalsIgnoreCase("delete_buffer")) {
 				BuffersDataSource b = BuffersDataSource.getInstance();
 				b.deleteAllDataForBuffer(object.bid());
@@ -1402,10 +1416,26 @@ public class NetworkConnection {
 				//Log.w(TAG, "Unhandled type: " + object);
 			}
 		}
-        if(numbuffers > 0 && currentcount < BACKLOG_BUFFER_MAX) {
-            notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float)currentcount / (float)BACKLOG_BUFFER_MAX))/ numbuffers) * 1000.0f);
+        if(backlog || type.equalsIgnoreCase("backlog_complete")) {
+            if((object.bid() > -1 || type.equalsIgnoreCase("backlog_complete")) && !type.equalsIgnoreCase("makebuffer") && !type.equalsIgnoreCase("channel_init")) {
+                currentcount++;
+                if(object.bid() != currentBid) {
+                    if(currentBid != -1 && currentcount >= BACKLOG_BUFFER_MAX) {
+                        EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
+                    }
+                    currentBid = object.bid();
+                    firstEid = object.eid();
+                    currentcount = 0;
+                }
+            }
+            if(numbuffers > 0 && currentcount < BACKLOG_BUFFER_MAX) {
+                notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float)currentcount / (float)BACKLOG_BUFFER_MAX))/ numbuffers) * 1000.0f);
+            }
+        } else if(accrued > 0) {
+            notifyHandlers(EVENT_PROGRESS, ((float)currentcount++ / (float)accrued) * 1000.0f);
         }
-		if(!backlog && idle_interval > 0)
+
+        if(!backlog && idle_interval > 0 && accrued < 1)
 			schedule_idle_timer();
 	}
 	
@@ -1684,17 +1714,14 @@ public class NetworkConnection {
                             TestFlight.log("Beginning backlog...");
                             Log.d(TAG, "Beginning backlog...");
                             notifyHandlers(EVENT_BACKLOG_START, null);
-                            if(bid == -1) {
-                                BuffersDataSource.getInstance().invalidate();
-                                ChannelsDataSource.getInstance().invalidate();
-                            }
                             numbuffers = 0;
                             totalbuffers = 0;
+                            currentBid = -1;
+                            firstEid = -1;
+                            backlog = true;
                             JsonParser parser = new JsonParser();
                             reader.beginArray();
                             int count = 0;
-                            int currentBid = -1;
-                            long firstEid = 0;
                             while(reader.hasNext()) {
                                 if(isCancelled()) {
                                     Log.d("IRCCloud", "Backlog parsing cancelled");
@@ -1706,25 +1733,11 @@ public class NetworkConnection {
                                 time = System.currentTimeMillis();
                                 IRCCloudJSONObject o = new IRCCloudJSONObject(e.getAsJsonObject());
                                 try {
-                                    parse_object(o, true);
+                                    parse_object(o);
                                 } catch (Exception ex) {
                                     TestFlight.log("Unable to parse message type: " + o.type() + ": " + ex.toString());
                                     Log.e(TAG, "Unable to parse message type: " + o.type());
                                     ex.printStackTrace();
-                                }
-                                if(totalbuffers > 1 && (!reader.hasNext() || (o.bid() > -1 && !o.type().equalsIgnoreCase("makebuffer") && !o.type().equalsIgnoreCase("channel_init")))) {
-                                    if(o.bid() != currentBid) {
-                                        //Debug.stopMethodTracing();
-                                        if(currentBid != -1) {
-                                            if(currentcount >= BACKLOG_BUFFER_MAX) {
-                                                EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
-                                            }
-                                        }
-                                        currentBid = o.bid();
-                                        currentcount = 0;
-                                        firstEid = o.eid();
-                                    }
-                                    currentcount++;
                                 }
                                 long t = (System.currentTimeMillis() - time);
                                 if(t > longestEventTime) {
@@ -1737,6 +1750,7 @@ public class NetworkConnection {
                                     TrafficStats.incrementOperationCount(1);
                             }
                             reader.endArray();
+                            backlog = false;
                             //Debug.stopMethodTracing();
                             totalTime = (System.currentTimeMillis() - totalTime);
                             TestFlight.log("Backlog complete: " + count + " events");
@@ -1754,11 +1768,6 @@ public class NetworkConnection {
                             TestFlight.log("Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
                             Log.d(TAG, "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 
-                            if(bid == -1) {
-                                BuffersDataSource.getInstance().purgeInvalidBIDs();
-                                ChannelsDataSource.getInstance().purgeInvalidChannels();
-                            }
-
                             ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
                             for(BuffersDataSource.Buffer b : buffers) {
                                 Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
@@ -1772,6 +1781,7 @@ public class NetworkConnection {
                             schedule_idle_timer();
                         }
                         ready = true;
+                        notifyHandlers(EVENT_BACKLOG_END, null);
                     } else if(ServersDataSource.getInstance().count() < 1) {
                         TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
                         Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
@@ -1790,7 +1800,6 @@ public class NetworkConnection {
                     if(Build.VERSION.SDK_INT >= 14)
                         TrafficStats.clearThreadStatsTag();
                     numbuffers = 0;
-                    notifyHandlers(EVENT_BACKLOG_END, null);
                     return true;
                 } else {
                     Log.e(TAG, "Invalid response code: " + conn.getResponseCode());
