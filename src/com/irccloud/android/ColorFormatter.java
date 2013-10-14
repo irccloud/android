@@ -116,7 +116,7 @@ public class ColorFormatter {
 		});
 		
 		if(linkify) {
-			Linkify.addLinks(output, Patterns.WEB_URL, "http://", new MatchFilter() {
+			Linkify.addLinks(output, Patterns.WEB_URL, null, new MatchFilter() {
 		        public final boolean acceptMatch(CharSequence s, int start, int end) {
 		        	if(start > 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
 		        		return false;
@@ -128,12 +128,33 @@ public class ColorFormatter {
 		        		return false;
 		        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
 		        }
-		    }, null);
+		    }, new TransformFilter() {
+                        @Override
+                        public String transformUrl(Matcher match, String url) {
+                            String lower = url.toLowerCase();
+                            if(lower.endsWith("png")||lower.endsWith("gif")||lower.endsWith("jpg")||lower.endsWith("jpeg")) {
+                                return "irccloud-image://" + url;
+                            }
+                            return "http://" + url;
+                        }
+                    });
 			//based on http://daringfireball.net/2010/07/improved_regex_for_matching_urls
 			Linkify.addLinks(output, Pattern.compile("https?://(" +
                     "(?:|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)" +
                     "(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))" +
-                    "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))"), null, null, null);
+                    "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))"), null, null, new TransformFilter() {
+                @Override
+                public String transformUrl(Matcher match, String url) {
+                    String lower = url.toLowerCase();
+                    if(lower.endsWith("png")||lower.endsWith("gif")||lower.endsWith("jpg")||lower.endsWith("jpeg")) {
+                        if(lower.startsWith("http://"))
+                            return "irccloud-image://" + url.substring(7);
+                        else if(lower.startsWith("https://"))
+                            return "irccloud-images://" + url.substring(8);
+                    }
+                    return url;
+                }
+            });
 			Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:");
 			Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\"()\\[\\],\\s]+"), null, null, new TransformFilter() {
 		        public final String transformUrl(final Matcher match, String url) {

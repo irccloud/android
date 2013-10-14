@@ -52,6 +52,16 @@
             android:name=".EditConnectionActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
+        <activity
+            android:name=".ImageViewerActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="irccloud-image" />
+                <data android:scheme="irccloud-images" />
+            </intent-filter>
+        </activity>
         <activity android:name=".PreferencesActivity" android:theme="@style/PrefsTheme" android:label="@string/menu_settings">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />

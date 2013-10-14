@@ -167,6 +167,7 @@ public class EventsDataSource {
 				e.from = "";
 				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
 				e.color = R.color.timestamp;
+                e.linkify = false;
 				if(event.has("pool_lost"))
 					e.msg = "Connection pool lost";
 				else if(event.has("server_ping_timeout"))
@@ -214,6 +215,7 @@ public class EventsDataSource {
 				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
 				e.color = R.color.timestamp;
 	    		e.from = "";
+                e.linkify = false;
                 String reason = event.getString("reason");
                 if(reason != null) {
                     if(reason.equalsIgnoreCase("pool_lost")) {
@@ -311,6 +313,7 @@ public class EventsDataSource {
 	    		e.from = "";
 	    		e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
 	    		e.bg_color = R.color.status_bg;
+                e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("channel_mode_is")) {
 	    		e.from = "";
 	    		if(event.getString("diff") != null && event.getString("diff").length() > 0)
@@ -318,6 +321,7 @@ public class EventsDataSource {
 	    		else
 	    			e.msg = "No channel mode";
 	    		e.bg_color = R.color.status_bg;
+                e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("kicked_channel") || e.type.equalsIgnoreCase("you_kicked_channel")) {
 	    		e.from = "";
 	    		e.from_mode = null;
