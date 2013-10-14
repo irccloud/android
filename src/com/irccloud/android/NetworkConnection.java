@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -45,6 +48,9 @@ import java.util.zip.GZIPInputStream;
 
 import java.net.Proxy;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -74,6 +80,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
+import com.google.android.gms.internal.au;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -182,7 +189,102 @@ public class NetworkConnection {
 	public String globalMsg = null;
 
 	private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
-	
+
+    TrustManager tms[];
+
+    private SSLSocketFactory IRCCloudSocketFactory = new SSLSocketFactory() {
+        final String CIPHERS[] = {
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_DHE_DSS_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+                "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_RSA_WITH_AES_256_CBC_SHA",
+                "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+                "SSL_RSA_WITH_RC4_128_SHA",
+                "SSL_RSA_WITH_RC4_128_MD5",
+        };
+        final String PROTOCOLS[] = {
+                "TLSv1.2", "TLSv1.1", "TLSv1"
+        };
+        SSLSocketFactory internalSocketFactory;
+
+        private void init() {
+            try {
+                SSLContext c = SSLContext.getInstance("TLS");
+                c.init(null, tms, null);
+                internalSocketFactory = c.getSocketFactory();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public String[] getDefaultCipherSuites() {
+            return CIPHERS;
+        }
+
+        @Override
+        public String[] getSupportedCipherSuites() {
+            return CIPHERS;
+        }
+
+        @Override
+        public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+            if(internalSocketFactory == null)
+                init();
+            SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(s, host, port, autoClose);
+            socket.setEnabledProtocols(PROTOCOLS);
+            socket.setEnabledCipherSuites(CIPHERS);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+            if(internalSocketFactory == null)
+                init();
+            SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(host, port);
+            socket.setEnabledProtocols(PROTOCOLS);
+            socket.setEnabledCipherSuites(CIPHERS);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException {
+            if(internalSocketFactory == null)
+                init();
+            SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(host, port, localHost, localPort);
+            socket.setEnabledProtocols(PROTOCOLS);
+            socket.setEnabledCipherSuites(CIPHERS);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(InetAddress host, int port) throws IOException {
+            if(internalSocketFactory == null)
+                init();
+            SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(host, port);
+            socket.setEnabledProtocols(PROTOCOLS);
+            socket.setEnabledCipherSuites(CIPHERS);
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+            if(internalSocketFactory == null)
+                init();
+            SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(address, port, localAddress, localPort);
+            socket.setEnabledProtocols(PROTOCOLS);
+            socket.setEnabledCipherSuites(CIPHERS);
+            return socket;
+        }
+    };
+
 	public static NetworkConnection getInstance() {
 		if(instance == null) {
 			instance = new NetworkConnection();
@@ -248,7 +350,7 @@ public class NetworkConnection {
 		WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		wifiLock = wfm.createWifiLock(TAG);
 		
-		TrustManager tms[] = new TrustManager[1];
+		tms = new TrustManager[1];
 		tms[0] = new X509TrustManager() {
 			@Override
 			public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
@@ -1473,6 +1575,7 @@ public class NetworkConnection {
 
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection());
+            https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
         	conn = (HttpURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection());
@@ -1682,6 +1785,7 @@ public class NetworkConnection {
 
                 if (url[0].getProtocol().toLowerCase().equals("https")) {
 		            HttpsURLConnection https = (proxy != null)?(HttpsURLConnection) url[0].openConnection(proxy):(HttpsURLConnection) url[0].openConnection();
+                    https.setSSLSocketFactory(IRCCloudSocketFactory);
 		            conn = https;
 		        } else {
 		        	conn = (HttpURLConnection)((proxy != null)?url[0].openConnection(proxy):url[0].openConnection());
@@ -1814,6 +1918,7 @@ public class NetworkConnection {
                     throw new Exception("Invalid response code: " + conn.getResponseCode());
                 }
 			} catch (Exception e) {
+                e.printStackTrace();
 				if(bid != -1) {
 					if(!isCancelled()) {
                         BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
