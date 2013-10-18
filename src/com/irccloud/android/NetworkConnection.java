@@ -1699,11 +1699,7 @@ public class NetworkConnection {
 		long join_date;
 		boolean auto_away;
 		String limits_name;
-		long limit_networks;
-		boolean limit_passworded_servers;
-		long limit_zombiehours;
-		boolean limit_download_logs;
-		long limit_maxhistorydays;
+        JsonObject limits;
 		int num_invites;
 		JSONObject prefs;
 		String highlights;
@@ -1723,12 +1719,8 @@ public class NetworkConnection {
 				prefs = null;
 			
 			limits_name = object.getString("limits_name");
-			JsonObject limits = object.getJsonObject("limits");
-			limit_networks = limits.get("networks").getAsLong();
-			limit_passworded_servers = limits.get("passworded_servers").getAsBoolean();
-			limit_zombiehours = limits.get("zombiehours").getAsLong();
-			limit_download_logs = limits.get("download_logs").getAsBoolean();
-			limit_maxhistorydays = limits.get("maxhistorydays").getAsLong();
+			limits = object.getJsonObject("limits");
+
 			if(object.has("highlights")) {
 				JsonArray h = object.getJsonArray("highlights");
 				highlights = "";

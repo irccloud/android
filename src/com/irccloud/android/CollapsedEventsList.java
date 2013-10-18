@@ -375,7 +375,7 @@ public class CollapsedEventsList {
 						break;
 				}
 				if(e.old_nick != null) {
-                    if(e.from_mode.equalsIgnoreCase("__the_server__"))
+                    if(e.from_mode != null && e.from_mode.equalsIgnoreCase("__the_server__"))
     					message.append(" by the server <b>").append(e.old_nick).append("</b>");
                     else
                         message.append(" by ").append(formatNick(e.old_nick, e.from_mode));
