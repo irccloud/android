@@ -27,6 +27,15 @@ dependencies {
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
 }
 
+def getRevision = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
 android {
     compileSdkVersion 18
     buildToolsVersion "17"
@@ -36,6 +45,15 @@ android {
         targetSdkVersion 18
         testPackageName "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
+    }
+
+    buildTypes {
+        debug {
+            buildConfig "public final static String REVISION = \"" +  getRevision() +"\";"
+        }
+        release {
+            buildConfig "public final static String REVISION = \"\";"
+        }
     }
 
     sourceSets {

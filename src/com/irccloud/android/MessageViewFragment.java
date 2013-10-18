@@ -1367,37 +1367,39 @@ public class MessageViewFragment extends ListFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
-            try {
-                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
-                if(adapter.getLastSeenEIDPosition() == 0)
-                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
-                else
-                    lp.topMargin = 0;
-                headerView.setLayoutParams(lp);
-                lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
-                if(adapter.getLastSeenEIDPosition() == 0)
-                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
-                else
-                    lp.topMargin = 0;
-                backlogFailed.setLayoutParams(lp);
-                setListAdapter(adapter);
-                if(events != null && events.size() > 0) {
-                    int markerPos = adapter.getBacklogMarkerPosition();
-                    if(markerPos != -1 && requestingBacklog)
-                        getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
-                    else if(!scrolledUp)
-                        getListView().setSelection(adapter.getCount() - 1);
+            if(!isCancelled()) {
+                try {
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
+                    if(adapter.getLastSeenEIDPosition() == 0)
+                        lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
                     else
-                        getListView().setSelectionFromTop(oldPosition, topOffset);
+                        lp.topMargin = 0;
+                    headerView.setLayoutParams(lp);
+                    lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+                    if(adapter.getLastSeenEIDPosition() == 0)
+                        lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                    else
+                        lp.topMargin = 0;
+                    backlogFailed.setLayoutParams(lp);
+                    setListAdapter(adapter);
+                    if(events != null && events.size() > 0) {
+                        int markerPos = adapter.getBacklogMarkerPosition();
+                        if(markerPos != -1 && requestingBacklog)
+                            getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
+                        else if(!scrolledUp)
+                            getListView().setSelection(adapter.getCount() - 1);
+                        else
+                            getListView().setSelectionFromTop(oldPosition, topOffset);
+                    }
+                    new FormatTask().execute((Void)null);
+                } catch (IllegalStateException e) {
+                    //The list view isn't on screen anymore
                 }
-                new FormatTask().execute((Void)null);
-            } catch (IllegalStateException e) {
-                //The list view isn't on screen anymore
+                refreshTask = null;
+                requestingBacklog = false;
+                //Debug.stopMethodTracing();
             }
-			refreshTask = null;
-            requestingBacklog = false;
-            //Debug.stopMethodTracing();
-		}
+        }
 	}
 
 	private void refresh(TreeMap<Long,EventsDataSource.Event> events, BuffersDataSource.Buffer buffer) {
