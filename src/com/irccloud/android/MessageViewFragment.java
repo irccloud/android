@@ -1214,11 +1214,49 @@ public class MessageViewFragment extends ListFragment {
     		}
     	}
     	if(bid != -1) {
-            if(refreshTask != null)
-                refreshTask.cancel(true);
-            refreshTask = new RefreshTask();
-            refreshTask.execute((Void)null);
-    	} else {
+            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+            if(events != null && events.size() > 0) {
+                adapter.clearLastSeenEIDMarker();
+                events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
+                BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
+                if(backlog_eid > 0) {
+                    EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
+                    backlogMarker.eid = backlog_eid;
+                    backlogMarker.type = TYPE_BACKLOGMARKER;
+                    backlogMarker.row_type = ROW_BACKLOGMARKER;
+                    backlogMarker.bg_color = R.color.message_bg;
+                    events.put(backlog_eid, backlogMarker);
+                }
+                refresh(events, buffer);
+                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
+                if(adapter.getLastSeenEIDPosition() == 0)
+                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                else
+                    lp.topMargin = 0;
+                headerView.setLayoutParams(lp);
+                lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+                if(adapter.getLastSeenEIDPosition() == 0)
+                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                else
+                    lp.topMargin = 0;
+                backlogFailed.setLayoutParams(lp);
+                adapter.notifyDataSetChanged();
+                if(savedScrollPos > 0)
+                    getListView().setSelection(savedScrollPos);
+                else
+                    getListView().setSelection(adapter.getCount() - 1);
+                savedScrollPos = -1;
+            } else if(conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
+                headerView.setVisibility(View.GONE);
+                backlogFailed.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
+            } else {
+                headerView.setVisibility(View.VISIBLE);
+                backlogFailed.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
+                ready = true;
+            }
+        } else {
     		if(cid == -1) {
     			headerView.setVisibility(View.GONE);
                 backlogFailed.setVisibility(View.GONE);
@@ -1402,7 +1440,7 @@ public class MessageViewFragment extends ListFragment {
         }
 	}
 
-	private void refresh(TreeMap<Long,EventsDataSource.Event> events, BuffersDataSource.Buffer buffer) {
+	private synchronized void refresh(TreeMap<Long,EventsDataSource.Event> events, BuffersDataSource.Buffer buffer) {
 		if(conn.getReconnectTimestamp() == 0)
 			conn.cancel_idle_timer(); //This may take a while...
         if(dirty) {
