@@ -384,7 +384,7 @@ public class EventsDataSource {
 	    		e.linkify = false;
 	    		e.from = "";
 	    		e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
-	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equalsIgnoreCase("logged_in_as") || e.type.equalsIgnoreCase("btn_metadata_set")) {
+	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equalsIgnoreCase("logged_in_as") || e.type.equalsIgnoreCase("btn_metadata_set") || e.type.equalsIgnoreCase("sasl_success")) {
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
 	    	} else if(e.type.equalsIgnoreCase("inviting_to_channel")) {
