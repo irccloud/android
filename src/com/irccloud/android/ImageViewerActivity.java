@@ -16,8 +16,11 @@
 
 package com.irccloud.android;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
@@ -25,36 +28,57 @@ import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.ConsoleMessage;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
-public class ImageViewerActivity extends ActionBarActivity {
+public class ImageViewerActivity extends BaseActivity {
 
     WebView mImage;
     ProgressBar mProgress;
 
+    public class JSInterface {
+        @JavascriptInterface
+        public void imageFailed() {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_imageviewer);
-
+        if(Integer.parseInt(Build.VERSION.SDK) >= 11)
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mImage = (WebView)findViewById(R.id.image);
+        mImage.addJavascriptInterface(new JSInterface(), "Android");
         mImage.getSettings().setBuiltInZoomControls(true);
+        mImage.getSettings().setJavaScriptEnabled(true);
         mImage.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 mProgress.setVisibility(View.GONE);
+                mImage.setVisibility(View.VISIBLE);
             }
         });
         mProgress = (ProgressBar)findViewById(R.id.progress);
 
         if(getIntent() != null && getIntent().getDataString() != null) {
-            mImage.loadData("<img src=\"" + getIntent().getDataString().replace("irccloud-image", "http") + "\" style=\"position: absolute; margin: auto; top: 0; left: 0; right: 0; bottom: 0;\"/>", "text/html", "UTF-8");
+            mImage.loadData("<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "<body bgcolor='#000'>\n" +
+                    "<img src='" + getIntent().getDataString().replace("irccloud-image", "http") + "' style='position: absolute; margin: auto; top: 0; left: 0; right: 0; bottom: 0' onerror='Android.imageFailed()'/>\n" +
+                    "</body>\n" +
+                    "</html>", "text/html", "UTF-8");
         } else {
             finish();
         }
@@ -74,7 +98,7 @@ public class ImageViewerActivity extends ActionBarActivity {
             ShareActionProvider share = (ShareActionProvider)MenuItemCompat.getActionProvider(shareItem);
             share.setShareIntent(intent);
         }
-        return super.onCreateOptionsMenu(menu);
+        return true;
     }
 
     @Override
