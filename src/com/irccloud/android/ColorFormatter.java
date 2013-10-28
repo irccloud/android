@@ -174,7 +174,7 @@ public class ColorFormatter {
                     chanTypes = types.getAsString();
             }
             pattern += chanTypes;
-            pattern += "][^<>!?\"()\\[\\],\\s]+)";
+            pattern += "][^<>!?\"()\\[\\],\\s\ufe55]+)";
 
             Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {
                         public final boolean acceptMatch(CharSequence s, int start, int end) {

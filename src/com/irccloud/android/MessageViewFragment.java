@@ -1008,9 +1008,9 @@ public class MessageViewFragment extends ListFragment {
                 } else if(type.equalsIgnoreCase("notice")) {
                     event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ";
                     if(this.type.equalsIgnoreCase("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
-                        event.html += "<pre>" + event.chan + ": " + event.msg.replace("  ", " &nbsp;") + "</pre>";
+                        event.html += event.chan + "&#xfe55; " + event.msg;
                     } else {
-                        event.html += "<pre>" + event.msg.replace("  ", " &nbsp;") + "</pre>";
+                        event.html += event.msg;
                     }
                 } else if(type.equalsIgnoreCase("kicked_channel")) {
                     event.html = "← ";
