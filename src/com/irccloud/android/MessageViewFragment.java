@@ -1005,6 +1005,13 @@ public class MessageViewFragment extends ListFragment {
                         event.html = event.msg + " by the server <b>" + event.server + "</b>";
                 } else if(type.equalsIgnoreCase("buffer_me_msg")) {
                     event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> " + event.msg + "</i>";
+                } else if(type.equalsIgnoreCase("notice")) {
+                    event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ";
+                    if(this.type.equalsIgnoreCase("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
+                        event.html += "<pre>" + event.chan + ": " + event.msg.replace("  ", " &nbsp;") + "</pre>";
+                    } else {
+                        event.html += "<pre>" + event.msg.replace("  ", " &nbsp;") + "</pre>";
+                    }
                 } else if(type.equalsIgnoreCase("kicked_channel")) {
                     event.html = "← ";
                     if(event.type.startsWith("you_"))

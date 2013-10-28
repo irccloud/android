@@ -377,7 +377,7 @@ public class EventsDataSource {
 	    		}
 	    		e.bg_color = R.color.self;
 	    	} else if(e.type.equalsIgnoreCase("notice")) {
-	    		e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
+                e.chan = event.getString("target");
 	    		e.bg_color = R.color.notice;
 	    	} else if(e.type.toLowerCase().startsWith("hidden_host_set")) {
 	    		e.bg_color = R.color.status_bg;
