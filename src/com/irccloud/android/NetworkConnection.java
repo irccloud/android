@@ -1272,7 +1272,7 @@ public class NetworkConnection {
 					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local") || type.equalsIgnoreCase("server_luserchannels") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("nickname_in_use") || type.equalsIgnoreCase("channel_invite") || type.startsWith("stats")
 					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown") || type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("channel_mode_list_change") || type.equalsIgnoreCase("msg_services") || type.equalsIgnoreCase("endofstats")
 					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")
-                     || type.equalsIgnoreCase("logged_in_as") || type.equalsIgnoreCase("btn_metadata_set") || type.equalsIgnoreCase("sasl_success")) {
+                     || type.equalsIgnoreCase("logged_in_as") || type.equalsIgnoreCase("btn_metadata_set") || type.equalsIgnoreCase("sasl_success") || type.equalsIgnoreCase("cap_ls") || type.equalsIgnoreCase("cap_req") || type.equalsIgnoreCase("cap_ack")) {
 				EventsDataSource e = EventsDataSource.getInstance();
 				EventsDataSource.Event event = e.addEvent(object);
 				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());

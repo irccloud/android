@@ -390,6 +390,21 @@ public class EventsDataSource {
 	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equalsIgnoreCase("logged_in_as") || e.type.equalsIgnoreCase("btn_metadata_set") || e.type.equalsIgnoreCase("sasl_success")) {
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
+            } else if(e.type.startsWith("cap_")) {
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+                if(e.type.equals("cap_ls"))
+                    e.msg = "Server supports: ";
+                else if(e.type.equals("cap_req"))
+                    e.msg = "Requesting: ";
+                else if(e.type.equals("cap_ack"))
+                    e.msg = "Acknowledged: ";
+                JsonArray caps = event.getJsonArray("caps");
+                for(int i = 0; i < caps.size(); i++) {
+                    if(i > 0)
+                        e.msg += " | ";
+                    e.msg += caps.get(i).getAsString();
+                }
 	    	} else if(e.type.equalsIgnoreCase("inviting_to_channel")) {
 	    		e.from = "";
 	    		e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
@@ -418,7 +433,7 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.error;
 	    	}
 	    	
-	    	if(event.has("value")) {
+	    	if(event.has("value") && !event.type.startsWith("cap_")) {
 	    		e.msg = event.getString("value") + " " + e.msg;
 	    	}
 
