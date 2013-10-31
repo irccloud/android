@@ -2084,7 +2084,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			return false;
 		
 		if(event.html != null)
-			showUserPopup(user, ColorFormatter.html_to_spanned(event.html));
+			showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + event.html));
 		else
 			showUserPopup(user, null);
 		return true;

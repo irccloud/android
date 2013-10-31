@@ -391,6 +391,7 @@ public class EventsDataSource {
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
             } else if(e.type.startsWith("cap_")) {
+                e.from = "CAP";
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
                 if(e.type.equals("cap_ls"))
