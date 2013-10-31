@@ -711,6 +711,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
    		sendBtn.setEnabled(messageTxt.getText().length() > 0);
    		if(Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
    			sendBtn.setAlpha(0.5f);
+
+        if(drawerLayout != null)
+            drawerLayout.closeDrawers();
     }
 
     @Override
@@ -1658,7 +1661,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        	if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
                     drawerLayout.closeDrawers();
 	        	} else if(upView.getVisibility() == View.VISIBLE) {
-                    drawerLayout.closeDrawers();
+                    if(drawerLayout.isDrawerOpen(Gravity.RIGHT))
+                        drawerLayout.closeDrawers();
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
                     drawerLayout.openDrawer(Gravity.LEFT);
 	        	}
