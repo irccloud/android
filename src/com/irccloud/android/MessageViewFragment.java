@@ -1006,7 +1006,10 @@ public class MessageViewFragment extends ListFragment {
                 } else if(type.equalsIgnoreCase("buffer_me_msg")) {
                     event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> " + event.msg + "</i>";
                 } else if(type.equalsIgnoreCase("notice")) {
-                    event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ";
+                    if(event.from != null && event.from.length() > 0)
+                        event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ";
+                    else
+                        event.html = "";
                     if(this.type.equalsIgnoreCase("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
                         event.html += event.chan + "&#xfe55; " + event.msg;
                     } else {
