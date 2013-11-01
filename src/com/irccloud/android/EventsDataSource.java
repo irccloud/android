@@ -186,7 +186,7 @@ public class EventsDataSource {
 			} else if(e.type.equalsIgnoreCase("buffer_me_msg")) {
 				e.nick = e.from;
 	    		e.from = "";
-	    	} else if(e.type.equalsIgnoreCase("too_fast")) {
+	    	} else if(e.type.equalsIgnoreCase("too_fast") || e.type.equalsIgnoreCase("sasl_fail") || e.type.equalsIgnoreCase("sasl_too_long") || e.type.equalsIgnoreCase("sasl_aborted") || e.type.equalsIgnoreCase("sasl_already")) {
 	    		e.from = "";
 	    		e.bg_color = R.color.error;
 	    	} else if(e.type.equalsIgnoreCase("no_bots")) {
@@ -387,7 +387,7 @@ public class EventsDataSource {
 	    		e.linkify = false;
 	    		e.from = "";
 	    		e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
-	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equalsIgnoreCase("logged_in_as") || e.type.equalsIgnoreCase("btn_metadata_set") || e.type.equalsIgnoreCase("sasl_success")) {
+	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equalsIgnoreCase("logged_in_as") || e.type.equalsIgnoreCase("btn_metadata_set") || e.type.equalsIgnoreCase("sasl_success") || e.type.equalsIgnoreCase("you_are_operator")) {
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
             } else if(e.type.startsWith("cap_")) {
