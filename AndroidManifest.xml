@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.irccloud.android"
     android:installLocation="auto"
-    android:versionCode="9"
-    android:versionName="1.0.8" >
+    android:versionCode="10"
+    android:versionName="1.1.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -53,7 +53,8 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".ImageViewerActivity">
+            android:name=".ImageViewerActivity"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
