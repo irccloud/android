@@ -108,6 +108,11 @@ public class ImageViewerActivity extends BaseActivity {
         if(item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if(item.getItemId() == R.id.action_browser) {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
+            startActivity(intent);
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
