@@ -63,6 +63,8 @@ public class ImageViewerActivity extends BaseActivity {
         mImage.addJavascriptInterface(new JSInterface(), "Android");
         mImage.getSettings().setBuiltInZoomControls(true);
         mImage.getSettings().setJavaScriptEnabled(true);
+        mImage.getSettings().setLoadWithOverviewMode(true);
+        mImage.getSettings().setUseWideViewPort(true);
         mImage.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -76,7 +78,7 @@ public class ImageViewerActivity extends BaseActivity {
             mImage.loadData("<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<body bgcolor='#000'>\n" +
-                    "<img src='" + getIntent().getDataString().replace("irccloud-image", "http") + "' style='position: absolute; margin: auto; top: 0; left: 0; right: 0; bottom: 0' onerror='Android.imageFailed()'/>\n" +
+                    "<img src='" + getIntent().getDataString().replace("irccloud-image", "http") + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()'/>\n" +
                     "</body>\n" +
                     "</html>", "text/html", "UTF-8");
         } else {
