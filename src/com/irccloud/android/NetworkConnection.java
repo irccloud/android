@@ -598,7 +598,7 @@ public class NetworkConnection {
                 url += "&stream_id=" + streamId;
         }
 
-        if(host != null && host.length() > 0 && port > 0) {
+        if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
             TestFlight.log("Connecting: " + url + " via proxy: " + host);
             Log.d(TAG, "Connecting: " + url + " via proxy: " + host);
         } else {
@@ -699,7 +699,7 @@ public class NetworkConnection {
         accrued = 0;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
 		client.setSocketTag(WEBSOCKET_TAG);
-        if(host != null && host.length() > 0 && port > 0)
+        if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0)
             client.setProxy(host, port);
         else
             client.setProxy(null, -1);
@@ -1614,7 +1614,7 @@ public class NetworkConnection {
             }
         }
 
-        if(host != null && host.length() > 0 && port > 0) {
+        if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
             InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
             proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
         }
