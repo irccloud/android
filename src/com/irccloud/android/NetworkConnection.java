@@ -1620,7 +1620,7 @@ public class NetworkConnection {
         }
 
         if (url.getProtocol().toLowerCase().equals("https")) {
-            HttpsURLConnection https = (HttpsURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection());
+            HttpsURLConnection https = (HttpsURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection(Proxy.NO_PROXY));
             https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
@@ -1822,11 +1822,11 @@ public class NetworkConnection {
                 }
 
                 if (url[0].getProtocol().toLowerCase().equals("https")) {
-		            HttpsURLConnection https = (proxy != null)?(HttpsURLConnection) url[0].openConnection(proxy):(HttpsURLConnection) url[0].openConnection();
+		            HttpsURLConnection https = (proxy != null)?(HttpsURLConnection) url[0].openConnection(proxy):(HttpsURLConnection) url[0].openConnection(Proxy.NO_PROXY);
                     https.setSSLSocketFactory(IRCCloudSocketFactory);
 		            conn = https;
 		        } else {
-		        	conn = (HttpURLConnection)((proxy != null)?url[0].openConnection(proxy):url[0].openConnection());
+		        	conn = (HttpURLConnection)((proxy != null)?url[0].openConnection(proxy):url[0].openConnection(Proxy.NO_PROXY));
 		        }
 				conn.setRequestMethod("GET");
 				conn.setRequestProperty("Connection", "close");
