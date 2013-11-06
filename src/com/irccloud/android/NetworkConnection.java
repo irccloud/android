@@ -239,8 +239,17 @@ public class NetworkConnection {
             if(internalSocketFactory == null)
                 init();
             SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(s, host, port, autoClose);
-            socket.setEnabledProtocols(PROTOCOLS);
-            socket.setEnabledCipherSuites(CIPHERS);
+            try {
+                socket.setEnabledProtocols(PROTOCOLS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
+
+            try {
+                socket.setEnabledCipherSuites(CIPHERS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
             return socket;
         }
 
@@ -249,8 +258,17 @@ public class NetworkConnection {
             if(internalSocketFactory == null)
                 init();
             SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(host, port);
-            socket.setEnabledProtocols(PROTOCOLS);
-            socket.setEnabledCipherSuites(CIPHERS);
+            try {
+                socket.setEnabledProtocols(PROTOCOLS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
+
+            try {
+                socket.setEnabledCipherSuites(CIPHERS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
             return socket;
         }
 
@@ -259,8 +277,17 @@ public class NetworkConnection {
             if(internalSocketFactory == null)
                 init();
             SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(host, port, localHost, localPort);
-            socket.setEnabledProtocols(PROTOCOLS);
-            socket.setEnabledCipherSuites(CIPHERS);
+            try {
+                socket.setEnabledProtocols(PROTOCOLS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
+
+            try {
+                socket.setEnabledCipherSuites(CIPHERS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
             return socket;
         }
 
@@ -269,8 +296,17 @@ public class NetworkConnection {
             if(internalSocketFactory == null)
                 init();
             SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(host, port);
-            socket.setEnabledProtocols(PROTOCOLS);
-            socket.setEnabledCipherSuites(CIPHERS);
+            try {
+                socket.setEnabledProtocols(PROTOCOLS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
+
+            try {
+                socket.setEnabledCipherSuites(CIPHERS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
             return socket;
         }
 
@@ -279,8 +315,17 @@ public class NetworkConnection {
             if(internalSocketFactory == null)
                 init();
             SSLSocket socket = (SSLSocket)internalSocketFactory.createSocket(address, port, localAddress, localPort);
-            socket.setEnabledProtocols(PROTOCOLS);
-            socket.setEnabledCipherSuites(CIPHERS);
+            try {
+                socket.setEnabledProtocols(PROTOCOLS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
+
+            try {
+                socket.setEnabledCipherSuites(CIPHERS);
+            } catch (IllegalArgumentException e) {
+                //Not supported on older Android versions
+            }
             return socket;
         }
     };
