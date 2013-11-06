@@ -60,6 +60,7 @@ public class ImageViewerActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mImage = (WebView)findViewById(R.id.image);
+        mImage.setBackgroundColor(0);
         mImage.addJavascriptInterface(new JSInterface(), "Android");
         mImage.getSettings().setBuiltInZoomControls(true);
         mImage.getSettings().setJavaScriptEnabled(true);
