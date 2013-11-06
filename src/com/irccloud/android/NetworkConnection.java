@@ -1815,7 +1815,7 @@ public class NetworkConnection {
                     port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
                 }
 
-                if(host != null && host.length() > 0) {
+                if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1")) {
                     TestFlight.log("Connecting via proxy: " + host);
                     InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
                     proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
