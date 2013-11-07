@@ -110,7 +110,7 @@ public class NetworkConnection {
 	private Timer shutdownTimer = null;
 	private Timer idleTimer = null;
 	public long idle_interval = 1000;
-    private int failCount = 0;
+    private volatile int failCount = 0;
 	private long reconnect_timestamp = 0;
 	private String useragent = null;
     private String streamId = null;
@@ -605,6 +605,9 @@ public class NetworkConnection {
             TestFlight.log("Connecting: " + url);
             Log.d(TAG, "Connecting: " + url);
         }
+
+        TestFlight.log("Attempt: " + failCount);
+        Log.d(TAG, "Attempt: " + failCount);
 
 		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 		    @Override
@@ -1703,6 +1706,10 @@ public class NetworkConnection {
 			if(idleTimer != null && state != STATE_CONNECTED) {
 				idleTimer.cancel();
 				idleTimer = null;
+                failCount = 0;
+                if(wifiLock.isHeld())
+                    wifiLock.release();
+                reconnect_timestamp = 0;
 				state = STATE_DISCONNECTED;
 			}
 		}
