@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import org.xml.sax.XMLReader;
 
 import android.graphics.Color;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
@@ -145,12 +146,14 @@ public class ColorFormatter {
                     "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))"), null, null, new TransformFilter() {
                 @Override
                 public String transformUrl(Matcher match, String url) {
-                    String lower = url.toLowerCase();
-                    if(lower.endsWith("png")||lower.endsWith("gif")||lower.endsWith("jpg")||lower.endsWith("jpeg")) {
-                        if(lower.startsWith("http://"))
-                            return "irccloud-image://" + url.substring(7);
-                        else if(lower.startsWith("https://"))
-                            return "irccloud-images://" + url.substring(8);
+                    if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                        String lower = url.toLowerCase();
+                        if(lower.endsWith("png")||lower.endsWith("gif")||lower.endsWith("jpg")||lower.endsWith("jpeg")) {
+                            if(lower.startsWith("http://"))
+                                return "irccloud-image://" + url.substring(7);
+                            else if(lower.startsWith("https://"))
+                                return "irccloud-images://" + url.substring(8);
+                        }
                     }
                     return url;
                 }
