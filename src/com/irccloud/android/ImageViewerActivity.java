@@ -80,12 +80,12 @@ public class ImageViewerActivity extends BaseActivity {
         mProgress = (ProgressBar)findViewById(R.id.progress);
 
         if(getIntent() != null && getIntent().getDataString() != null) {
-            mImage.loadData("<!DOCTYPE html>\n" +
+            mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<body bgcolor='#000'>\n" +
                     "<img src='" + getIntent().getDataString().replace("irccloud-image", "http") + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()'/>\n" +
                     "</body>\n" +
-                    "</html>", "text/html", "UTF-8");
+                    "</html>", "text/html", "UTF-8",null);
         } else {
             finish();
         }
