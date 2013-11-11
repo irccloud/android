@@ -1847,14 +1847,14 @@ public class NetworkConnection {
                     JsonReader reader = null;
                     try {
                         if(conn.getInputStream() != null) {
-                            if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
+                            if(conn.getContentEncoding() != null && conn.getContentEncoding().equalsIgnoreCase("gzip"))
                                 reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())));
                             else if(conn.getInputStream() != null)
                                 reader = new JsonReader(new InputStreamReader(conn.getInputStream()));
                         }
                     } catch (IOException e) {
                         if(conn.getErrorStream() != null) {
-                            if(conn.getContentEncoding().equalsIgnoreCase("gzip"))
+                            if(conn.getContentEncoding() != null && conn.getContentEncoding().equalsIgnoreCase("gzip"))
                                 reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())));
                             else if(conn.getErrorStream() != null)
                                 reader = new JsonReader(new InputStreamReader(conn.getErrorStream()));

@@ -399,8 +399,11 @@ public class Notifications {
 		}
         if(changed) {
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-            if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(),com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[] {String.valueOf(bid)});
+            try {
+                if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+                    NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(),com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[] {String.valueOf(bid)});
+            } catch (Exception e) {
+            }
         }
 	}
 	
