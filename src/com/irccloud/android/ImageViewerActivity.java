@@ -17,20 +17,16 @@
 package com.irccloud.android;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
@@ -72,7 +68,15 @@ public class ImageViewerActivity extends BaseActivity {
                 mProgress.setVisibility(View.GONE);
                 mImage.setVisibility(View.VISIBLE);
             }
-        });
+
+            @Override
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
+                startActivity(intent);
+                finish();
+            }
+        }
+        );
         mProgress = (ProgressBar)findViewById(R.id.progress);
 
         if(getIntent() != null && getIntent().getDataString() != null) {
