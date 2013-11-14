@@ -244,9 +244,14 @@ public class MainActivity extends FragmentActivity {
                 break;
 			case NetworkConnection.EVENT_PROGRESS:
 				float progress = (Float)msg.obj;
-				progressBar.setIndeterminate(false);
-				progressBar.setProgress((int)progress);
+                if(progressBar.getProgress() < progress) {
+                    progressBar.setIndeterminate(false);
+                    progressBar.setProgress((int)progress);
+                }
 				break;
+            case NetworkConnection.EVENT_BACKLOG_START:
+                progressBar.setProgress(0);
+                break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				if(conn.ready) {
                     if(ServersDataSource.getInstance().count() > 0) {

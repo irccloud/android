@@ -1939,6 +1939,7 @@ public class MessageViewFragment extends ListFragment {
 		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 			connectingMsg.setText("Loading");
 		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
+            progressBar.setProgress(0);
 			progressBar.setIndeterminate(true);
 			if(connecting.getVisibility() == View.GONE) {
 				TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
@@ -2006,9 +2007,14 @@ public class MessageViewFragment extends ListFragment {
                 break;
 			case NetworkConnection.EVENT_PROGRESS:
 				float progress = (Float)msg.obj;
-				progressBar.setIndeterminate(false);
-				progressBar.setProgress((int)progress);
+                if(progressBar.getProgress() < progress) {
+                    progressBar.setIndeterminate(false);
+                    progressBar.setProgress((int)progress);
+                }
 				break;
+            case NetworkConnection.EVENT_BACKLOG_START:
+                progressBar.setProgress(0);
+                break;
             case NetworkConnection.EVENT_BACKLOG_FAILED:
                 headerView.setVisibility(View.GONE);
                 backlogFailed.setVisibility(View.VISIBLE);
