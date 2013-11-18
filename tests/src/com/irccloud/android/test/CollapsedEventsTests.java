@@ -1,36 +1,88 @@
 package com.irccloud.android.test;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.irccloud.android.CollapsedEventsList;
+import com.irccloud.android.EventsDataSource;
 
 import junit.framework.TestCase;
 
 public class CollapsedEventsTests extends TestCase {
 
-	public void testOp() {
+    private void addMode(CollapsedEventsList list, String mode, String nick, String from) {
+        JsonArray add = new JsonArray();
+        JsonObject op = new JsonObject();
+        op.addProperty("param", nick);
+        op.addProperty("mode", mode);
+        add.add(op);
+
+        EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
+        e.type = "user_channel_mode";
+        e.from = from;
+        e.nick = nick;
+        e.server = "irc.example.net";
+        e.chan = null;
+        e.ops = new JsonObject();
+        e.ops.add("add", add);
+        e.ops.add("remove", new JsonArray());
+
+        list.addEvent(e);
+    }
+
+    private void removeMode(CollapsedEventsList list, String mode, String nick, String from) {
+        JsonArray remove = new JsonArray();
+        JsonObject op = new JsonObject();
+        op.addProperty("param", nick);
+        op.addProperty("mode", mode);
+        remove.add(op);
+
+        EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
+        e.type = "user_channel_mode";
+        e.from = from;
+        e.nick = nick;
+        e.server = "irc.example.net";
+        e.chan = null;
+        e.ops = new JsonObject();
+        e.ops.add("add", new JsonArray());
+        e.ops.add("remove", remove);
+
+        list.addEvent(e);
+    }
+
+    public void testOp() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, null, CollapsedEventsList.MODE_OP, null, null);
+        addMode(list, "o", "sam", "ChanServ");
+
 		assertEquals("<b>sam</b> was opped (\u0004BA1719+o\u000f) by ChanServ", list.getCollapsedMessage(false));
 	}
 	
 	public void testDeop() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, null, CollapsedEventsList.MODE_DEOP, null, null);
+        removeMode(list, "o", "sam", "ChanServ");
 		assertEquals("<b>sam</b> was de-opped (\u0004BA1719-o\u000f) by ChanServ", list.getCollapsedMessage(false));
 	}
 	
 	public void testVoice() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, null, CollapsedEventsList.MODE_VOICE, null, null);
+        addMode(list, "v", "sam", "ChanServ");
 		assertEquals("<b>sam</b> was voiced (\u000425B100+v\u000f) by ChanServ", list.getCollapsedMessage(false));
 	}
 	
 	public void testDevoice() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, null, CollapsedEventsList.MODE_DEVOICE, null, null);
+        removeMode(list, "v", "sam", "ChanServ");
 		assertEquals("<b>sam</b> was de-voiced (\u000425B100-v\u000f) by ChanServ", list.getCollapsedMessage(false));
 	}
-	
-	public void testJoin() {
+
+    public void testOpByServer() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        addMode(list, "o", "sam", null);
+
+        assertEquals("<b>sam</b> was opped (\u0004BA1719+o\u000f) by the server <b>irc.example.net</b>", list.getCollapsedMessage(false));
+    }
+
+    public void testJoin() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
 		assertEquals("→ <b>sam</b> joined (sam@example.net)", list.getCollapsedMessage(false));
@@ -130,7 +182,7 @@ public class CollapsedEventsTests extends TestCase {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, null, CollapsedEventsList.MODE_OP, null, null);
+        addMode(list, "o", "sam", "ChanServ");
 		assertEquals("↔ <b>sam</b> (opped) nipped out", list.getCollapsedMessage(false));
 	}
 
@@ -138,7 +190,7 @@ public class CollapsedEventsTests extends TestCase {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam_", null, "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam_", "ChanServ", "sam@example.net", null, null, CollapsedEventsList.MODE_OP, null, null);
+        addMode(list, "o", "sam_", "ChanServ");
 		list.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
 		assertEquals("← <b>sam</b> (was sam_; opped) left (sam@example.net)", list.getCollapsedMessage(false));
@@ -161,14 +213,21 @@ public class CollapsedEventsTests extends TestCase {
 
 	public void testModeMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "james", "ChanServ", "james@example.net", null, null, CollapsedEventsList.MODE_OP, null, null);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "james", "sam@example.net", null, null, CollapsedEventsList.MODE_VOICE, null, null);
+        addMode(list, "o", "james", "ChanServ");
+        addMode(list, "v", "sam", "ChanServ");
 		assertEquals("mode: <b>james</b> (opped) and <b>sam</b> (voiced)", list.getCollapsedMessage(false));
 	}
 
-	public void testModeNickchange() {
+    public void testModeMode2() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        addMode(list, "o", "sam", "ChanServ");
+        addMode(list, "v", "sam", "ChanServ");
+        assertEquals("mode: <b>sam</b> (opped, voiced)", list.getCollapsedMessage(false));
+    }
+
+    public void testModeNickchange() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "james", "ChanServ", "james@example.net", null, null, CollapsedEventsList.MODE_OP, null, null);
+        addMode(list, "o", "james", "ChanServ");
 		list.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
 		assertEquals("mode: <b>james</b> (opped) • sam_ → <b>sam</b>", list.getCollapsedMessage(false));
 	}
@@ -176,13 +235,21 @@ public class CollapsedEventsTests extends TestCase {
 	public void testJoinMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "sam", "ChanServ", "sam@example.net", null, null, CollapsedEventsList.MODE_OP, null, null);
+        addMode(list, "o", "sam", "ChanServ");
 		assertEquals("→ <b>sam</b> (opped) joined (sam@example.net)", list.getCollapsedMessage(false));
 	}
-	
-	public void testModeJoinPart() {
+
+    public void testJoinModeMode() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+        addMode(list, "q", "sam", "ChanServ");
+        addMode(list, "o", "sam", "ChanServ");
+        assertEquals("→ <b>sam</b> (promoted to owner, opped) joined", list.getCollapsedMessage(false));
+    }
+
+    public void testModeJoinPart() {
 		CollapsedEventsList list = new CollapsedEventsList();
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "james", "ChanServ", "james@example.net", null, null, CollapsedEventsList.MODE_OP, null, null);
+        addMode(list, "o", "james", "ChanServ");
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
 		assertEquals("mode: <b>james</b> (opped) ↔ <b>sam</b> popped in", list.getCollapsedMessage(false));
@@ -192,10 +259,10 @@ public class CollapsedEventsTests extends TestCase {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, "james", "james_old", "james@example.net", null, null, null);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "james", "ChanServ", "james@example.net", null, null, CollapsedEventsList.MODE_DEOP, null, null);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "RJ", "ChanServ", "RJ@example.net", null, null, CollapsedEventsList.MODE_VOICE, null, null);
-		list.addEvent(CollapsedEventsList.TYPE_MODE, "james", "ChanServ", "james@example.net", null, null, CollapsedEventsList.MODE_VOICE, null, null);
-		assertEquals("→ <b>sam</b> joined • mode: <b>RJ</b> (voiced) • james_old → <b>james</b> (voiced)", list.getCollapsedMessage(false));
+        removeMode(list, "o", "james", "ChanServ");
+        addMode(list, "v", "RJ", "ChanServ");
+        addMode(list, "v", "james", "ChanServ");
+		assertEquals("→ <b>sam</b> joined • mode: <b>RJ</b> (voiced) • james_old → <b>james</b> (voiced, de-opped)", list.getCollapsedMessage(false));
 	}
 
     public void testMultiChannelJoin() {

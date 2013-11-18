@@ -34,32 +34,156 @@ public class CollapsedEventsList {
 	public static final int TYPE_POPOUT = 5;
 	public static final int TYPE_NICKCHANGE = 6;
 
-	public static final int MODE_OWNER = 1;
-	public static final int MODE_DEOWNER = 2;
-	public static final int MODE_ADMIN = 3;
-	public static final int MODE_DEADMIN = 4;
-	public static final int MODE_OP = 5;
-	public static final int MODE_DEOP = 6;
-	public static final int MODE_HALFOP = 7;
-	public static final int MODE_DEHALFOP = 8;
-	public static final int MODE_VOICE = 9;
-	public static final int MODE_DEVOICE = 10;
-	
+	public static final int MODE_OWNER = 0;
+	public static final int MODE_ADMIN = 1;
+	public static final int MODE_OP = 2;
+	public static final int MODE_HALFOP = 3;
+	public static final int MODE_VOICE = 4;
+
+    public static final int MODE_DEOWNER = 5;
+    public static final int MODE_DEADMIN = 6;
+    public static final int MODE_DEOP = 7;
+    public static final int MODE_DEHALFOP = 8;
+    public static final int MODE_DEVOICE = 9;
+
+    public static final int MODE_COUNT = 10;
+
 	public class CollapsedEvent {
 		int type;
-		int mode = 0;
+        boolean modes[] = new boolean[MODE_COUNT];
 		String nick;
 		String old_nick;
 		String hostmask;
 		String msg;
 		String from_mode;
+        String from_nick;
 		String target_mode;
         String chan;
 		
 		public String toString() {
 			return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + "}";
 		}
-	}
+
+        public int modeCount() {
+            int count = 0;
+            for(int i = 0; i < MODE_COUNT; i++) {
+                if(modes[i])
+                    count++;
+            }
+            return count;
+        }
+
+        public boolean addMode(String mode) {
+            if(mode.equalsIgnoreCase("q")) {
+                if(modes[MODE_DEOWNER])
+                    modes[MODE_DEOWNER] = false;
+                else
+                    modes[MODE_OWNER] = true;
+            } else if(mode.equalsIgnoreCase("a")) {
+                if(modes[MODE_DEADMIN])
+                    modes[MODE_DEADMIN] = false;
+                else
+                    modes[MODE_ADMIN] = true;
+            } else if(mode.equalsIgnoreCase("o")) {
+                if(modes[MODE_DEOP])
+                    modes[MODE_DEOP] = false;
+                else
+                    modes[MODE_OP] = true;
+            } else if(mode.equalsIgnoreCase("h")) {
+                if(modes[MODE_DEHALFOP])
+                    modes[MODE_DEHALFOP] = false;
+                else
+                    modes[MODE_HALFOP] = true;
+            } else if(mode.equalsIgnoreCase("v")) {
+                if(modes[MODE_DEVOICE])
+                    modes[MODE_DEVOICE] = false;
+                else
+                    modes[MODE_VOICE] = true;
+            } else {
+                return false;
+            }
+            if(modeCount() == 0)
+                return addMode(mode);
+            return true;
+        }
+
+        public boolean removeMode(String mode) {
+            if(mode.equalsIgnoreCase("q")) {
+                if(modes[MODE_OWNER])
+                    modes[MODE_OWNER] = false;
+                else
+                    modes[MODE_DEOWNER] = true;
+            } else if(mode.equalsIgnoreCase("a")) {
+                if(modes[MODE_ADMIN])
+                    modes[MODE_ADMIN] = false;
+                else
+                    modes[MODE_DEADMIN] = true;
+            } else if(mode.equalsIgnoreCase("o")) {
+                if(modes[MODE_OP])
+                    modes[MODE_OP] = false;
+                else
+                    modes[MODE_DEOP] = true;
+            } else if(mode.equalsIgnoreCase("h")) {
+                if(modes[MODE_HALFOP])
+                    modes[MODE_HALFOP] = false;
+                else
+                    modes[MODE_DEHALFOP] = true;
+            } else if(mode.equalsIgnoreCase("v")) {
+                if(modes[MODE_VOICE])
+                    modes[MODE_VOICE] = false;
+                else
+                    modes[MODE_DEVOICE] = true;
+            } else {
+                return false;
+            }
+            if(modeCount() == 0)
+                return addMode(mode);
+            return true;
+        }
+
+        public String getModes(boolean showSymbol) {
+            final String[] mode_msgs = {
+                "promoted to owner",
+                "promoted to admin",
+                "opped",
+                "halfopped",
+                "voiced",
+                "demoted from owner",
+                "demoted from admin",
+                "de-opped",
+                "de-halfopped",
+                "de-voiced",
+            };
+            final String[] mode_modes = {
+                "+q", "+a", "+o", "+h", "+v", "-q", "-a", "-o", "-h", "-v"
+            };
+            final String[] mode_colors = {
+                "E7AA00",
+                "6500A5",
+                "BA1719",
+                "B55900",
+                "25B100"
+            };
+
+            String output = null;
+            if(modeCount() > 0) {
+                output = "";
+
+                for(int i = 0; i < MODE_COUNT; i++) {
+                    if(modes[i]) {
+                        if(output.length() > 0)
+                            output += ", ";
+                        output += mode_msgs[i];
+                        if(showSymbol) {
+                            output += " (\u0004" + mode_colors[i%5] + mode_modes[i] + "\u000f)";
+                        }
+                    }
+                }
+            }
+
+            return output;
+        }
+    }
 	
 	public class comparator implements Comparator<CollapsedEvent> {
 		public int compare(CollapsedEvent e1, CollapsedEvent e2) {
@@ -73,6 +197,15 @@ public class CollapsedEventsList {
 	}
 	
 	private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
+
+    public String toString() {
+        String out = "CollapsedEventsList {\n";
+        for(int i = 0; i < data.size(); i++) {
+            out += "\t" + data.get(i).toString() + "\n";
+        }
+        out += "}";
+        return out;
+    }
 
     public boolean addEvent(EventsDataSource.Event event) {
         String type = event.type;
@@ -88,45 +221,43 @@ public class CollapsedEventsList {
         } else if(type.equalsIgnoreCase("nickchange")) {
             addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan);
         } else if(type.equalsIgnoreCase("user_channel_mode")) {
-            String from = event.from;
-            String from_mode = event.from_mode;
-            if(from == null || from.length() == 0) {
-                from = event.server;
-                if(from != null && from.length() > 0)
-                    from_mode = "__the_server__";
-            }
             JsonObject ops = event.ops;
             if(ops != null) {
+                CollapsedEvent e = findEvent(event.nick, event.chan);
+                if(e == null) {
+                    e = new CollapsedEvent();
+                    e.type = TYPE_MODE;
+                    e.hostmask = event.hostmask;
+                    e.target_mode = event.target_mode;
+                    e.nick = event.nick;
+                    e.chan = event.chan;
+                    data.add(e);
+                }
+                e.target_mode = event.target_mode;
                 JsonArray add = ops.getAsJsonArray("add");
                 for(int i = 0; i < add.size(); i++) {
                     JsonObject op = add.get(i).getAsJsonObject();
-                    if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_OWNER, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_ADMIN, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_OP, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_HALFOP, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_VOICE, event.target_mode, event.chan);
-                    else
+                    if(event.from != null && event.from.length() > 0) {
+                        e.from_nick = event.from;
+                        e.from_mode = event.from_mode;
+                    } else {
+                        e.from_nick = event.server;
+                        e.from_mode = "__the_server__";
+                    }
+                    if(!e.addMode(op.get("mode").getAsString()))
                         return false;
                 }
                 JsonArray remove = ops.getAsJsonArray("remove");
                 for(int i = 0; i < remove.size(); i++) {
                     JsonObject op = remove.get(i).getAsJsonObject();
-                    if(op.get("mode").getAsString().equalsIgnoreCase("q"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_DEOWNER, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("a"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_DEADMIN, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("o"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_DEOP, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("h"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_DEHALFOP, event.target_mode, event.chan);
-                    else if(op.get("mode").getAsString().equalsIgnoreCase("v"))
-                        addEvent(CollapsedEventsList.TYPE_MODE, op.get("param").getAsString(), from, event.hostmask, from_mode, null, CollapsedEventsList.MODE_DEVOICE, event.target_mode, event.chan);
-                    else
+                    if(event.from != null && event.from.length() > 0) {
+                        e.from_nick = event.from;
+                        e.from_mode = event.from_mode;
+                    } else {
+                        e.from_nick = event.server;
+                        e.from_mode = "__the_server__";
+                    }
+                    if(!e.removeMode(op.get("mode").getAsString()))
                         return false;
                 }
             }
@@ -135,10 +266,10 @@ public class CollapsedEventsList {
     }
 
 	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String chan) {
-		addEvent(type, nick, old_nick, hostmask, from_mode, msg, 0, null, chan);
+		addEvent(type, nick, old_nick, hostmask, from_mode, msg, null, chan);
 	}
 	
-	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, int mode, String target_mode, String chan) {
+	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String target_mode, String chan) {
 		CollapsedEvent e = null;
 		
 		if(type < TYPE_NICKCHANGE) {
@@ -159,7 +290,6 @@ public class CollapsedEventsList {
 				e.hostmask = hostmask;
 				e.from_mode = from_mode;
 				e.msg = msg;
-				e.mode = mode;
 				e.target_mode = target_mode;
                 e.chan = chan;
 				data.add(e);
@@ -183,8 +313,6 @@ public class CollapsedEventsList {
 				} else {
 					e.type = TYPE_POPIN;
 				}
-				if(mode > 0)
-					e.mode = mode;
 			}
 		} else {
 			if(type == TYPE_NICKCHANGE) {
@@ -285,44 +413,14 @@ public class CollapsedEventsList {
 	
 	private String was(CollapsedEvent e) {
 		StringBuilder was = new StringBuilder();
-		
+		String modes = e.getModes(false);
+
 		if(e.old_nick != null && e.type != TYPE_MODE)
 			was.append("was ").append(e.old_nick);
-		if(e.mode > 0) {
+		if(modes != null && modes.length() > 0) {
 			if(was.length() > 0)
 				was.append("; ");
-			switch(e.mode) {
-			case MODE_OWNER:
-				was.append("promoted to owner");
-				break;
-			case MODE_DEOWNER:
-				was.append("demoted from owner");
-				break;
-			case MODE_ADMIN:
-				was.append("promoted to admin");
-				break;
-			case MODE_DEADMIN:
-				was.append("demoted from admin");
-				break;
-			case MODE_OP:
-				was.append("opped");
-				break;
-			case MODE_DEOP:
-				was.append("de-opped");
-				break;
-			case MODE_HALFOP:
-				was.append("halfopped");
-				break;
-			case MODE_DEHALFOP:
-				was.append("de-halfopped");
-				break;
-			case MODE_VOICE:
-				was.append("voiced");
-				break;
-			case MODE_DEVOICE:
-				was.append("de-voiced");
-				break;
-			}
+            was.append(modes);
 		}
 		
 		if(was.length() > 0)
@@ -337,48 +435,16 @@ public class CollapsedEventsList {
 		if(data.size() == 0)
 			return null;
 		
-		if(data.size() == 1) {
+		if(data.size() == 1 && data.get(0).modeCount() < 2) {
 			CollapsedEvent e = data.get(0);
 			switch(e.type) {
 			case TYPE_MODE:
-				message.append("<b>").append(formatNick(e.nick, e.target_mode)).append("</b> was ");
-				switch(e.mode) {
-					case MODE_OWNER:
-						message.append("promoted to owner (\u0004E7AA00+q\u000f)");
-						break;
-					case MODE_DEOWNER:
-						message.append("demoted from owner (\u0004E7AA00-q\u000f)");
-						break;
-					case MODE_ADMIN:
-						message.append("promoted to admin (\u00046500A5+a\u000f)");
-						break;
-					case MODE_DEADMIN:
-						message.append("demoted from admin (\u00046500A5-a\u000f)");
-						break;
-					case MODE_OP:
-						message.append("opped (\u0004BA1719+o\u000f)");
-						break;
-					case MODE_DEOP:
-						message.append("de-opped (\u0004BA1719-o\u000f)");
-						break;
-					case MODE_HALFOP:
-						message.append("halfopped (\u0004B55900+h\u000f)");
-						break;
-					case MODE_DEHALFOP:
-						message.append("de-halfopped (\u0004B55900-h\u000f)");
-						break;
-					case MODE_VOICE:
-						message.append("voiced (\u000425B100+v\u000f)");
-						break;
-					case MODE_DEVOICE:
-						message.append("de-voiced (\u000425B100-v\u000f)");
-						break;
-				}
-				if(e.old_nick != null) {
+				message.append("<b>").append(formatNick(e.nick, e.target_mode)).append("</b> was " + e.getModes(true));
+				if(e.from_nick != null) {
                     if(e.from_mode != null && e.from_mode.equalsIgnoreCase("__the_server__"))
-    					message.append(" by the server <b>").append(e.old_nick).append("</b>");
+    					message.append(" by the server <b>").append(e.from_nick).append("</b>");
                     else
-                        message.append(" by ").append(formatNick(e.old_nick, e.from_mode));
+                        message.append(" by ").append(formatNick(e.from_nick, e.from_mode));
                 }
 				break;
 			case TYPE_JOIN:
