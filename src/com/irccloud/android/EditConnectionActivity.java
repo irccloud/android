@@ -30,6 +30,7 @@ import android.widget.Toast;
 public class EditConnectionActivity extends ActionBarActivity {
     int reqid = -1;
     int cidToOpen = -1;
+    int cid = -1;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,8 +42,10 @@ public class EditConnectionActivity extends ActionBarActivity {
 
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final EditConnectionFragment newFragment = new EditConnectionFragment();
-        if(getIntent() != null && getIntent().hasExtra("cid"))
+        if(getIntent() != null && getIntent().hasExtra("cid")) {
         	newFragment.setCid(getIntent().getIntExtra("cid", -1));
+            cid = getIntent().getIntExtra("cid", -1);
+        }
         if(getIntent() != null && getIntent().hasExtra("hostname"))
         	newFragment.default_hostname = getIntent().getStringExtra("hostname");
         if(getIntent() != null && getIntent().hasExtra("channels"))
@@ -105,7 +108,10 @@ public class EditConnectionActivity extends ActionBarActivity {
                 case NetworkConnection.EVENT_SUCCESS:
                     obj = (IRCCloudJSONObject)msg.obj;
                     if(obj.getInt("_reqid") == reqid) {
-                        cidToOpen = obj.cid();
+                        if(cid != -1)
+                            finish();
+                        else
+                            cidToOpen = obj.cid();
                     }
                     break;
                 case NetworkConnection.EVENT_FAILURE_MSG:
