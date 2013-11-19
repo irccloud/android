@@ -272,4 +272,13 @@ public class CollapsedEventsTests extends TestCase {
         list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, "#test3");
         assertEquals("→ <b>sam</b> joined #test1, #test2, and #test3", list.getCollapsedMessage(true));
     }
+
+    public void testNetSplit() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "irc.example.net irc2.example.net", null);
+        list.addEvent(CollapsedEventsList.TYPE_QUIT, "james", null, "james@example.net", null, "irc.example.net irc2.example.net", null);
+        list.addEvent(CollapsedEventsList.TYPE_QUIT, "RJ", null, "RJ@example.net", null, "irc3.example.net irc2.example.net", null);
+        list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
+        assertEquals("irc.example.net ↮ irc2.example.net and irc3.example.net ↮ irc2.example.net", list.getCollapsedMessage(false));
+    }
 }
