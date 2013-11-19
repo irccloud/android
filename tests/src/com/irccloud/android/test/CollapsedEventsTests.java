@@ -278,7 +278,8 @@ public class CollapsedEventsTests extends TestCase {
         list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "irc.example.net irc2.example.net", null);
         list.addEvent(CollapsedEventsList.TYPE_QUIT, "james", null, "james@example.net", null, "irc.example.net irc2.example.net", null);
         list.addEvent(CollapsedEventsList.TYPE_QUIT, "RJ", null, "RJ@example.net", null, "irc3.example.net irc2.example.net", null);
+        list.addEvent(CollapsedEventsList.TYPE_QUIT, "russ", null, "russ@example.net", null, "fake.net fake.net", null);
         list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-        assertEquals("irc.example.net ↮ irc2.example.net and irc3.example.net ↮ irc2.example.net", list.getCollapsedMessage(false));
+        assertEquals("irc.example.net ↮ irc2.example.net and irc3.example.net ↮ irc2.example.net ⇐ <b>russ</b> quit", list.getCollapsedMessage(false));
     }
 }

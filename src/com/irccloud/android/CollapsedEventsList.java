@@ -368,17 +368,20 @@ public class CollapsedEventsList {
 
         if(e != null && type == TYPE_QUIT && msg != null) {
             if(msg.matches("(?:[^\\s:\\/.]+\\.)+[a-z]{2,} (?:[^\\s:\\/.]+\\.)+[a-z]{2,}")) {
-                e.netsplit = true;
-                boolean found = false;
-                for(CollapsedEvent c : data) {
-                    if(c.type == TYPE_NETSPLIT && c.msg.equalsIgnoreCase(msg))
-                        found = true;
-                }
-                if(!found) {
-                    CollapsedEvent c = new CollapsedEvent();
-                    c.type = TYPE_NETSPLIT;
-                    c.msg = msg;
-                    data.add(c);
+                String[] parts = msg.split(" ");
+                if(parts.length > 1 && !parts[0].equals(parts[1])) {
+                    e.netsplit = true;
+                    boolean found = false;
+                    for(CollapsedEvent c : data) {
+                        if(c.type == TYPE_NETSPLIT && c.msg.equalsIgnoreCase(msg))
+                            found = true;
+                    }
+                    if(!found) {
+                        CollapsedEvent c = new CollapsedEvent();
+                        c.type = TYPE_NETSPLIT;
+                        c.msg = msg;
+                        data.add(c);
+                    }
                 }
             }
         }
