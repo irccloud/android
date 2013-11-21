@@ -20,7 +20,9 @@ public class CollapsedEventsTests extends TestCase {
         EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
         e.type = "user_channel_mode";
         e.from = from;
+        e.from_mode = "q";
         e.nick = nick;
+        e.target_mode = mode;
         e.server = "irc.example.net";
         e.chan = null;
         e.ops = new JsonObject();
@@ -54,7 +56,7 @@ public class CollapsedEventsTests extends TestCase {
 		CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "o", "sam", "ChanServ");
 
-		assertEquals("<b>sam</b> was opped (\u0004BA1719+o\u000f) by ChanServ", list.getCollapsedMessage(false));
+		assertEquals("<b>\u0004BA1719\u0002•\u000F sam</b> was opped (\u0004BA1719+o\u000f) by \u0004E7AA00\u0002•\u000F ChanServ", list.getCollapsedMessage(false));
 	}
 	
 	public void testDeop() {
@@ -66,7 +68,7 @@ public class CollapsedEventsTests extends TestCase {
 	public void testVoice() {
 		CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "v", "sam", "ChanServ");
-		assertEquals("<b>sam</b> was voiced (\u000425B100+v\u000f) by ChanServ", list.getCollapsedMessage(false));
+		assertEquals("<b>\u000425B100\u0002•\u000F sam</b> was voiced (\u000425B100+v\u000f) by \u0004E7AA00\u0002•\u000F ChanServ", list.getCollapsedMessage(false));
 	}
 	
 	public void testDevoice() {
@@ -79,7 +81,7 @@ public class CollapsedEventsTests extends TestCase {
         CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "o", "sam", null);
 
-        assertEquals("<b>sam</b> was opped (\u0004BA1719+o\u000f) by the server <b>irc.example.net</b>", list.getCollapsedMessage(false));
+        assertEquals("<b>\u0004BA1719\u0002•\u000F sam</b> was opped (\u0004BA1719+o\u000f) by the server <b>irc.example.net</b>", list.getCollapsedMessage(false));
     }
 
     public void testJoin() {
@@ -183,7 +185,7 @@ public class CollapsedEventsTests extends TestCase {
 		list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
         addMode(list, "o", "sam", "ChanServ");
-		assertEquals("↔ <b>sam</b> (opped) nipped out", list.getCollapsedMessage(false));
+		assertEquals("↔ <b>\u0004BA1719\u0002•\u000F sam</b> (opped) nipped out", list.getCollapsedMessage(false));
 	}
 
 	public void testQuitJoinModeNickPart() {
@@ -193,7 +195,7 @@ public class CollapsedEventsTests extends TestCase {
         addMode(list, "o", "sam_", "ChanServ");
 		list.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
-		assertEquals("← <b>sam</b> (was sam_; opped) left (sam@example.net)", list.getCollapsedMessage(false));
+		assertEquals("← <b>\u0004BA1719\u0002•\u000F sam</b> (was sam_; opped) left (sam@example.net)", list.getCollapsedMessage(false));
 	}
 
 	public void testNickchangeNickchange() {
@@ -215,36 +217,36 @@ public class CollapsedEventsTests extends TestCase {
 		CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "o", "james", "ChanServ");
         addMode(list, "v", "sam", "ChanServ");
-		assertEquals("mode: <b>james</b> (opped) and <b>sam</b> (voiced)", list.getCollapsedMessage(false));
+		assertEquals("mode: <b>\u0004BA1719\u0002•\u000F james</b> (opped) and <b>\u000425B100\u0002•\u000F sam</b> (voiced)", list.getCollapsedMessage(false));
 	}
 
     public void testModeMode2() {
         CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "o", "sam", "ChanServ");
         addMode(list, "v", "sam", "ChanServ");
-        assertEquals("mode: <b>sam</b> (opped, voiced)", list.getCollapsedMessage(false));
+        assertEquals("mode: <b>\u0004BA1719\u0002•\u000F sam</b> (opped, voiced)", list.getCollapsedMessage(false));
     }
 
     public void testModeNickchange() {
 		CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "o", "james", "ChanServ");
 		list.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
-		assertEquals("mode: <b>james</b> (opped) • sam_ → <b>sam</b>", list.getCollapsedMessage(false));
+		assertEquals("mode: <b>\u0004BA1719\u0002•\u000F james</b> (opped) • sam_ → <b>sam</b>", list.getCollapsedMessage(false));
 	}
 	
 	public void testJoinMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
         addMode(list, "o", "sam", "ChanServ");
-		assertEquals("→ <b>sam</b> (opped) joined (sam@example.net)", list.getCollapsedMessage(false));
+		assertEquals("→ <b>\u0004BA1719\u0002•\u000F sam</b> (opped) joined (sam@example.net)", list.getCollapsedMessage(false));
 	}
 
     public void testJoinModeMode() {
         CollapsedEventsList list = new CollapsedEventsList();
         list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
-        addMode(list, "q", "sam", "ChanServ");
         addMode(list, "o", "sam", "ChanServ");
-        assertEquals("→ <b>sam</b> (promoted to owner, opped) joined", list.getCollapsedMessage(false));
+        addMode(list, "q", "sam", "ChanServ");
+        assertEquals("→ <b>\u0004E7AA00\u0002•\u000F sam</b> (promoted to owner, opped) joined", list.getCollapsedMessage(false));
     }
 
     public void testModeJoinPart() {
@@ -252,7 +254,7 @@ public class CollapsedEventsTests extends TestCase {
         addMode(list, "o", "james", "ChanServ");
 		list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
 		list.addEvent(CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
-		assertEquals("mode: <b>james</b> (opped) ↔ <b>sam</b> popped in", list.getCollapsedMessage(false));
+		assertEquals("mode: <b>\u0004BA1719\u0002•\u000F james</b> (opped) ↔ <b>sam</b> popped in", list.getCollapsedMessage(false));
 	}
 	
 	public void testJoinNickchangeModeModeMode() {
@@ -262,7 +264,7 @@ public class CollapsedEventsTests extends TestCase {
         removeMode(list, "o", "james", "ChanServ");
         addMode(list, "v", "RJ", "ChanServ");
         addMode(list, "v", "james", "ChanServ");
-		assertEquals("→ <b>sam</b> joined • mode: <b>RJ</b> (voiced) • james_old → <b>james</b> (voiced, de-opped)", list.getCollapsedMessage(false));
+		assertEquals("→ <b>sam</b> joined • mode: <b>\u000425B100\u0002•\u000F RJ</b> (voiced) • james_old → <b>\u000425B100\u0002•\u000F james</b> (voiced, de-opped)", list.getCollapsedMessage(false));
 	}
 
     public void testMultiChannelJoin() {
@@ -281,5 +283,12 @@ public class CollapsedEventsTests extends TestCase {
         list.addEvent(CollapsedEventsList.TYPE_QUIT, "russ", null, "russ@example.net", null, "fake.net fake.net", null);
         list.addEvent(CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
         assertEquals("irc.example.net ↮ irc2.example.net and irc3.example.net ↮ irc2.example.net ⇐ <b>russ</b> quit", list.getCollapsedMessage(false));
+    }
+
+    public void testChanServJoin() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        list.addEvent(CollapsedEventsList.TYPE_JOIN, "ChanServ", null, "ChanServ@services.", null, null, null);
+        addMode(list, "o", "ChanServ", null);
+        assertEquals("→ <b>\u0004BA1719\u0002•\u000F ChanServ</b> (opped) joined (ChanServ@services.)", list.getCollapsedMessage(false));
     }
 }

@@ -239,32 +239,39 @@ public class CollapsedEventsList {
                     e.chan = event.chan;
                     data.add(e);
                 }
-                e.target_mode = event.target_mode;
                 JsonArray add = ops.getAsJsonArray("add");
                 for(int i = 0; i < add.size(); i++) {
                     JsonObject op = add.get(i).getAsJsonObject();
-                    if(event.from != null && event.from.length() > 0) {
-                        e.from_nick = event.from;
-                        e.from_mode = event.from_mode;
-                    } else {
-                        e.from_nick = event.server;
-                        e.from_mode = "__the_server__";
-                    }
                     if(!e.addMode(op.get("mode").getAsString()))
                         return false;
+                    if(e.type == TYPE_MODE) {
+                        if(event.from != null && event.from.length() > 0) {
+                            e.from_nick = event.from;
+                            e.from_mode = event.from_mode;
+                        } else {
+                            e.from_nick = event.server;
+                            e.from_mode = "__the_server__";
+                        }
+                    } else {
+                        e.from_mode = event.target_mode;
+                    }
                 }
                 JsonArray remove = ops.getAsJsonArray("remove");
                 for(int i = 0; i < remove.size(); i++) {
                     JsonObject op = remove.get(i).getAsJsonObject();
-                    if(event.from != null && event.from.length() > 0) {
-                        e.from_nick = event.from;
-                        e.from_mode = event.from_mode;
-                    } else {
-                        e.from_nick = event.server;
-                        e.from_mode = "__the_server__";
-                    }
                     if(!e.removeMode(op.get("mode").getAsString()))
                         return false;
+                    if(e.type == TYPE_MODE) {
+                        if(event.from != null && event.from.length() > 0) {
+                            e.from_nick = event.from;
+                            e.from_mode = event.from_mode;
+                        } else {
+                            e.from_nick = event.server;
+                            e.from_mode = "__the_server__";
+                        }
+                    } else {
+                        e.from_mode = event.target_mode;
+                    }
                 }
             }
         }
