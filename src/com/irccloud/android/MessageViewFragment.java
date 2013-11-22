@@ -505,6 +505,10 @@ public class MessageViewFragment extends ListFragment {
                     } catch (Exception e1) {
 
                     }
+                    if(e.color == R.color.timestamp || e.pending)
+                        holder.message.setLinkTextColor(getResources().getColor(R.color.lightLinkColor));
+                    else
+                        holder.message.setLinkTextColor(getResources().getColor(R.color.linkColor));
                     holder.message.setText(e.formatted);
                 }
 

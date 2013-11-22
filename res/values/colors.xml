@@ -53,4 +53,6 @@
     <color name="heading_members">#666</color>
     <color name="expanded_row_bg">#f5f5f5</color>
     <drawable name="join_bg_highlighted">#daf5aa</drawable>
+    <color name="lightLinkColor">#9CC7FF</color>
+    <color name="linkColor">#1D40FF</color>
 </resources>
