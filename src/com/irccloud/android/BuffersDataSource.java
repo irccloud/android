@@ -36,7 +36,20 @@ public class BuffersDataSource {
 		int timeout;
 		String away_msg;
         String draft;
+        String chan_types;
         int valid;
+
+        public String normalizedName() {
+            if(chan_types == null || chan_types.length() < 2) {
+                ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+                if(s != null && s.isupport != null && s.isupport.has("CHANTYPES"))
+                    chan_types = s.isupport.get("CHANTYPES").getAsString();
+                else
+                    chan_types = "#";
+            }
+            String output = name.replaceAll("^["+chan_types+"]+","");
+            return output;
+        }
 	}
 
 	public class comparator implements Comparator<Buffer> {
@@ -54,8 +67,9 @@ public class BuffersDataSource {
 	    		return -1;
 	    	else if(joined1 != joined2)
 	    		return joined2 - joined1;
-	    	else
-	    		return b1.name.compareToIgnoreCase(b2.name);
+	    	else {
+	    		return b1.normalizedName().compareToIgnoreCase(b2.normalizedName());
+            }
 	    }
 	}
 	
