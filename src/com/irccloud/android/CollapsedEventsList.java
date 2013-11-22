@@ -383,7 +383,7 @@ public class CollapsedEventsList {
                         if(c.type == TYPE_NETSPLIT && c.msg.equalsIgnoreCase(msg))
                             found = true;
                     }
-                    if(!found) {
+                    if(!found && data.size() > 1) {
                         CollapsedEvent c = new CollapsedEvent();
                         c.type = TYPE_NETSPLIT;
                         c.msg = msg;
@@ -523,6 +523,7 @@ public class CollapsedEventsList {
 	    		break;
 			}
 		} else {
+            boolean netsplit = false;
 			Collections.sort(data, new comparator());
 			Iterator<CollapsedEvent> i = data.iterator();
 			CollapsedEvent last = null;
@@ -538,7 +539,7 @@ public class CollapsedEventsList {
                         next = i.next();
                     else
                         next = null;
-                } while(next != null && next.netsplit);
+                } while(next != null && netsplit && next.netsplit);
 				
 				if(message.length() > 0 && e.type < TYPE_NICKCHANGE && ((next == null || next.type != e.type) && last != null && last.type == e.type)) {
 					if(groupcount == 1)
@@ -549,6 +550,7 @@ public class CollapsedEventsList {
 				if(last == null || last.type != e.type) {
 					switch(e.type) {
                     case TYPE_NETSPLIT:
+                        netsplit = true;
                         break;
 					case TYPE_MODE:
 						if(message.length() > 0)

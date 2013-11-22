@@ -101,8 +101,14 @@ public class CollapsedEventsTests extends TestCase {
 		list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "Quit: leaving", null);
 		assertEquals("⇐ <b>sam</b> quit (sam@example.net) Quit: leaving", list.getCollapsedMessage(false));
 	}
-	
-	public void testNickChange() {
+
+    public void testQuit2() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        list.addEvent(CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, "*.net *.split", null);
+        assertEquals("⇐ <b>sam</b> quit (sam@example.net) *.net *.split", list.getCollapsedMessage(false));
+    }
+
+    public void testNickChange() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
 		assertEquals("sam_ → <b>sam</b>", list.getCollapsedMessage(false));
