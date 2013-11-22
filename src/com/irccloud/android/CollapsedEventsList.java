@@ -356,6 +356,7 @@ public class CollapsedEventsList {
 				e = new CollapsedEvent();
 				e.type = type;
 				e.nick = nick;
+                e.from_mode = from_mode;
 				e.old_nick = old_nick;
 				e.hostmask = hostmask;
 				e.msg = msg;
@@ -365,6 +366,7 @@ public class CollapsedEventsList {
 				e = new CollapsedEvent();
 				e.type = type;
 				e.nick = nick;
+                e.from_mode = from_mode;
 				e.old_nick = old_nick;
 				e.hostmask = hostmask;
 				e.msg = msg;
