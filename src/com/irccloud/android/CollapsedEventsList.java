@@ -50,6 +50,7 @@ public class CollapsedEventsList {
     public static final int MODE_COUNT = 10;
 
 	public class CollapsedEvent {
+        long eid;
 		int type;
         boolean modes[] = new boolean[MODE_COUNT];
 		String nick;
@@ -190,10 +191,10 @@ public class CollapsedEventsList {
 	public class comparator implements Comparator<CollapsedEvent> {
 		public int compare(CollapsedEvent e1, CollapsedEvent e2) {
 			if(e1.type == e2.type) {
-                if(e1.type == TYPE_NETSPLIT)
-    				return e1.msg.compareToIgnoreCase(e2.msg);
+                if(e1.eid > e2.eid)
+    				return 1;
                 else
-                    return e1.nick.compareToIgnoreCase(e2.nick);
+                    return -1;
             } else if(e1.type > e2.type) {
 				return 1;
             } else {
@@ -219,13 +220,13 @@ public class CollapsedEventsList {
             type = type.substring(4);
 
         if(type.equalsIgnoreCase("joined_channel")) {
-            addEvent(CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_JOIN, event.nick, null, event.hostmask, event.from_mode, null, event.chan);
         } else if(type.equalsIgnoreCase("parted_channel")) {
-            addEvent(CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_PART, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
         } else if(type.equalsIgnoreCase("quit")) {
-            addEvent(CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
         } else if(type.equalsIgnoreCase("nickchange")) {
-            addEvent(CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan);
+            addEvent(event.eid, CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan);
         } else if(type.equalsIgnoreCase("user_channel_mode")) {
             JsonObject ops = event.ops;
             if(ops != null) {
@@ -278,11 +279,11 @@ public class CollapsedEventsList {
         return true;
     }
 
-	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String chan) {
-		addEvent(type, nick, old_nick, hostmask, from_mode, msg, null, chan);
+	public void addEvent(long eid, int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String chan) {
+		addEvent(eid, type, nick, old_nick, hostmask, from_mode, msg, null, chan);
 	}
 	
-	public void addEvent(int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String target_mode, String chan) {
+	public void addEvent(long eid, int type, String nick, String old_nick, String hostmask, String from_mode, String msg, String target_mode, String chan) {
 		CollapsedEvent e = null;
 		
 		if(type < TYPE_NICKCHANGE) {
@@ -297,6 +298,7 @@ public class CollapsedEventsList {
 			
 			if(e == null) {
 				e = new CollapsedEvent();
+                e.eid = eid;
 				e.type = type;
 				e.nick = nick;
 				e.old_nick = old_nick;
@@ -307,6 +309,7 @@ public class CollapsedEventsList {
                 e.chan = chan;
 				data.add(e);
 			} else {
+                e.eid = eid;
 				if(e.type == TYPE_MODE) {
 					e.type = type;
 					e.msg = msg;
@@ -354,6 +357,7 @@ public class CollapsedEventsList {
 					}
 				}
 				e = new CollapsedEvent();
+                e.eid = eid;
 				e.type = type;
 				e.nick = nick;
                 e.from_mode = from_mode;
@@ -364,6 +368,7 @@ public class CollapsedEventsList {
 				data.add(e);
 			} else {
 				e = new CollapsedEvent();
+                e.eid = eid;
 				e.type = type;
 				e.nick = nick;
                 e.from_mode = from_mode;
@@ -387,6 +392,7 @@ public class CollapsedEventsList {
                     }
                     if(!found && data.size() > 1) {
                         CollapsedEvent c = new CollapsedEvent();
+                        c.eid = eid;
                         c.type = TYPE_NETSPLIT;
                         c.msg = msg;
                         data.add(c);
