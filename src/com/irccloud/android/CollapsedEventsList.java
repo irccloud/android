@@ -453,7 +453,7 @@ public class CollapsedEventsList {
 		if(modes != null && modes.length() > 0) {
 			if(was.length() > 0)
 				was.append("; ");
-            was.append(modes);
+            was.append("\u00031"+modes+"\u000f");
 		}
 		
 		if(was.length() > 0)
@@ -555,7 +555,7 @@ public class CollapsedEventsList {
 					case TYPE_MODE:
 						if(message.length() > 0)
 							message.append("• ");
-						message.append("mode: ");
+						message.append("\u00031mode:\u000f ");
 						break;
 					case TYPE_JOIN:
 						message.append("→ ");
@@ -649,4 +649,8 @@ public class CollapsedEventsList {
 	public void clear() {
 		data.clear();
 	}
+
+    public int size() {
+        return data.size();
+    }
 }

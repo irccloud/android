@@ -908,19 +908,19 @@ public class MessageViewFragment extends ListFragment {
                         lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
                     }
 
-                    if(type.equalsIgnoreCase("user_channel_mode")) {
+                    if(!showChan)
+                        event.chan = name;
+
+                    if(!collapsedEvents.addEvent(event))
+                        collapsedEvents.clear();
+
+                    if((currentCollapsedEid == event.eid || shouldExpand) && type.equalsIgnoreCase("user_channel_mode")) {
                         event.color = R.color.row_message_label;
                         event.bg_color = R.color.status_bg;
                     } else {
                         event.color = R.color.timestamp;
                         event.bg_color = R.color.message_bg;
                     }
-
-                    if(!showChan)
-                        event.chan = name;
-
-                    if(!collapsedEvents.addEvent(event))
-                        collapsedEvents.clear();
 
                     String msg;
                     if(expandedSectionEids.contains(currentCollapsedEid)) {
