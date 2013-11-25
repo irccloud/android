@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import android.content.Intent;
 import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,6 +55,7 @@ public class BuffersListFragment extends ListFragment {
 	private static final int TYPE_CONVERSATION = 2;
 	private static final int TYPE_ARCHIVES_HEADER = 3;
     private static final int TYPE_JOIN_CHANNEL = 4;
+    private static final int TYPE_ADD_NETWORK = 5;
 	
 	NetworkConnection conn;
 	BufferListAdapter adapter;
@@ -204,7 +206,7 @@ public class BuffersListFragment extends ListFragment {
 			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				if(e.type == TYPE_SERVER)
+				if(e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK)
 					row = inflater.inflate(R.layout.row_buffergroup, null);
 				else
 					row = inflater.inflate(R.layout.row_buffer, null);
@@ -269,6 +271,8 @@ public class BuffersListFragment extends ListFragment {
 			if(holder.icon != null) {
                 if(e.type == TYPE_JOIN_CHANNEL) {
                     holder.icon.setImageResource(R.drawable.add);
+                } else if(e.type == TYPE_ADD_NETWORK) {
+                        holder.icon.setImageResource(R.drawable.world_add);
                 } else if(e.type == TYPE_SERVER) {
                     if(e.ssl > 0)
                         holder.icon.setImageResource(R.drawable.world_shield);
@@ -504,6 +508,7 @@ public class BuffersListFragment extends ListFragment {
                     entries.add(adapter.buildItem(s.cid, 0, TYPE_JOIN_CHANNEL, "Join a channel…", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0));
                 }
 			}
+            entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0));
 			return null;
 		}
 		
@@ -704,6 +709,9 @@ public class BuffersListFragment extends ListFragment {
     	BufferListEntry e = (BufferListEntry)adapter.getItem(position);
     	String type = null;
     	switch(e.type) {
+        case TYPE_ADD_NETWORK:
+            mListener.addNetwork();
+            return;
     	case TYPE_ARCHIVES_HEADER:
     		mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
             if(refreshTask != null)
@@ -736,8 +744,8 @@ public class BuffersListFragment extends ListFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-//			case NetworkConnection.EVENT_PROGRESS:
-//				break;
+			case NetworkConnection.EVENT_PROGRESS:
+				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				if(adapter != null)
 					adapter.notifyDataSetChanged();
@@ -762,5 +770,6 @@ public class BuffersListFragment extends ListFragment {
 		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status);
 		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
 		public void addButtonPressed(int cid);
+        public void addNetwork();
 	}
 }

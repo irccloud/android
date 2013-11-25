@@ -1692,13 +1692,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            nsFragment.show(getSupportFragmentManager(), "nickserv");
 	            break;
 	        case R.id.menu_add_network:
-				if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
-					Intent i = new Intent(this, EditConnectionActivity.class);
-					startActivity(i);
-				} else {
-		        	EditConnectionFragment connFragment = new EditConnectionFragment();
-		            connFragment.show(getSupportFragmentManager(), "addnetwork");
-				}
+                addNetwork();
 	            break;
 	        case R.id.menu_channel_options:
 	        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(cid, bid);
@@ -2449,10 +2443,26 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
 	@Override
 	public void addButtonPressed(int cid) {
-		if(drawerLayout != null)
-			drawerLayout.openDrawer(Gravity.LEFT);
+        if(drawerLayout != null) {
+            drawerLayout.closeDrawers();
+            upView.setVisibility(View.VISIBLE);
+        }
 	}
 
+    @Override
+    public void addNetwork() {
+        if(drawerLayout != null) {
+            drawerLayout.closeDrawers();
+            upView.setVisibility(View.VISIBLE);
+        }
+        if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+            Intent i = new Intent(this, EditConnectionActivity.class);
+            startActivity(i);
+        } else {
+            EditConnectionFragment connFragment = new EditConnectionFragment();
+            connFragment.show(getSupportFragmentManager(), "addnetwork");
+        }
+    }
 
     private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
