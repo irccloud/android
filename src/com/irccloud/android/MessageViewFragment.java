@@ -939,7 +939,10 @@ public class MessageViewFragment extends ListFragment {
                                 group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
                             }
                             if(group_msg == null && type.equalsIgnoreCase("user_channel_mode")) {
-                                group_msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                                if(event.from != null && event.from.length() > 0)
+                                    msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                                else
+                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                                 currentCollapsedEid = eid;
                             }
                             EventsDataSource.Event heading = EventsDataSource.getInstance().new Event();
@@ -962,7 +965,10 @@ public class MessageViewFragment extends ListFragment {
                         msg = event.old_nick + " → <b>" + event.nick + "</b>";
                     }
                     if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
-                        msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                        if(event.from != null && event.from.length() > 0)
+                            msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                        else
+                            msg = collapsedEvents.formatNick(event.nick, event.target_mode) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                         currentCollapsedEid = eid;
                     }
                     if(!expandedSectionEids.contains(currentCollapsedEid)) {

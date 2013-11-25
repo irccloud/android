@@ -238,7 +238,6 @@ public class CollapsedEventsList {
                     e.target_mode = event.target_mode;
                     e.nick = event.nick;
                     e.chan = event.chan;
-                    data.add(e);
                 }
                 JsonArray add = ops.getAsJsonArray("add");
                 for(int i = 0; i < add.size(); i++) {
@@ -274,6 +273,8 @@ public class CollapsedEventsList {
                         e.from_mode = event.target_mode;
                     }
                 }
+                if(!data.contains(e))
+                    data.add(e);
             }
         }
         return true;
