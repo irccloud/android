@@ -15,27 +15,30 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
-
-    <CheckBox
-        android:id="@+id/unread"
+    android:layout_height="wrap_content" >
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Track unread messages" />
+        android:orientation="vertical">
+        <CheckBox
+            android:id="@+id/unread"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Track unread messages" />
 
-    <CheckBox
-        android:id="@+id/joinpart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Show nick changes, joins, and parts" />
+        <CheckBox
+            android:id="@+id/joinpart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show nick changes, joins, and parts" />
 
-    <CheckBox
-        android:id="@+id/collapse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Collapse nick changes, joins, and parts" />
+        <CheckBox
+            android:id="@+id/collapse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Collapse nick changes, joins, and parts" />
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>
