@@ -66,6 +66,22 @@ public class EventsDataSource {
         public String command;
         public int day;
         public Spanned formatted;
+
+        public String toString() {
+            return "{"+
+                    "cid: " + cid +
+                    " bid: " + bid +
+                    " eid: " + eid +
+                    " type: " + type +
+                    " timestamp: " + timestamp +
+                    " from: " + from +
+                    " msg: " + msg +
+                    " html: " + html +
+                    " group_eid: " + group_eid +
+                    " group_msg: " + group_msg +
+                    " pending: " + pending +
+                    "}";
+        }
 	}
 	
 	public class comparator implements Comparator<Event> {

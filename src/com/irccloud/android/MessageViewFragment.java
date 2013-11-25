@@ -331,7 +331,7 @@ public class MessageViewFragment extends ListFragment {
 			} else {
 				int i = 0;
 				for(EventsDataSource.Event e1 : data) {
-					if(e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid) { //Insert the message
+                    if(e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid && e1.group_eid != eid) { //Insert the message
 						if(i > 0 && data.get(i-1).row_type != ROW_TIMESTAMP) {
 							lastDay = data.get(i-1).day;
 							data.add(i, e);
@@ -765,6 +765,8 @@ public class MessageViewFragment extends ListFragment {
     
     @Override
     public void setArguments(Bundle args) {
+        if(args.containsKey("cid") && args.getInt("cid",-2) == cid && args.containsKey("bid") && args.getInt("bid",-2) == bid)
+            return;
         ready = false;
         if(heartbeatTask != null)
             heartbeatTask.cancel(true);
