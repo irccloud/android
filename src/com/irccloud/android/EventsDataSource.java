@@ -394,6 +394,14 @@ public class EventsDataSource {
 	    			e.msg = builder.toString();
 	    		}
 	    		e.bg_color = R.color.self;
+            } else if(e.type.equalsIgnoreCase("server_nomotd")) {
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+                e.from = "";
+            } else if(e.type.equalsIgnoreCase("helptlr")) {
+                e.bg_color = R.color.status_bg;
+                e.msg = "<pre>" + e.msg + "</pre>";
+                e.from = "";
 	    	} else if(e.type.equalsIgnoreCase("notice")) {
                 e.chan = event.getString("target");
    	    		e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
