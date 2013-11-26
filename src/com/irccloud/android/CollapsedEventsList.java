@@ -319,6 +319,12 @@ public class CollapsedEventsList {
 						e.from_mode = from_mode;
 					if(target_mode != null)
 						e.target_mode = target_mode;
+                } else if(type != e.type && e.type == TYPE_NICKCHANGE) {
+                    e.type = type;
+                    e.from_mode = from_mode;
+                    e.hostmask = hostmask;
+                    e.nick = nick;
+                    e.msg = msg;
 				} else if(type == TYPE_MODE) {
 					e.from_mode = target_mode;
 				} else if(e.type == type) {
