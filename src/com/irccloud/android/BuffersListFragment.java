@@ -19,8 +19,8 @@ package com.irccloud.android;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
-import android.content.Intent;
 import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +48,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 public class BuffersListFragment extends ListFragment {
 	private static final int TYPE_SERVER = 0;
@@ -135,7 +138,105 @@ public class BuffersListFragment extends ListFragment {
 		public void setItems(ArrayList<BufferListEntry> items) {
 			data = items;
 		}
-		
+
+        public void updateBuffer(BuffersDataSource.Buffer b) {
+            int pos = positionForBid(b.bid);
+            BufferListEntry e = data.get(pos);
+
+            JSONObject channelDisabledMap = null;
+            JSONObject bufferDisabledMap = null;
+            if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                try {
+                    if(conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
+                        channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+                    if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
+                        bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                } catch (JSONException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+
+            int unread = 0;
+            int highlights = 0;
+            if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+                unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+            }
+            try {
+                if(b.type.equalsIgnoreCase("channel")) {
+                    if(b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
+                        unread = 0;
+                } else {
+                    if(b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                        unread = 0;
+                    if(b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                        highlights = 0;
+                }
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+
+            e.unread = unread;
+            e.highlights = highlights;
+
+            if(unread > 0) {
+                if(firstUnreadPosition == -1 || firstUnreadPosition > pos)
+                    firstUnreadPosition = pos;
+                if(lastUnreadPosition == -1 || lastUnreadPosition < pos)
+                    lastUnreadPosition = pos;
+            } else {
+                if(firstUnreadPosition == pos) {
+                    firstUnreadPosition = -1;
+                    for(int i = 0; i < data.size(); i++) {
+                        if(data.get(i).unread > 0) {
+                            firstUnreadPosition = i;
+                            break;
+                        }
+                    }
+                }
+                if(lastUnreadPosition == pos) {
+                    lastUnreadPosition = -1;
+                    for(int i = pos; i >= 0; i--) {
+                        if(data.get(i).unread > 0) {
+                            lastUnreadPosition = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(highlights > 0) {
+                if(firstHighlightPosition == -1 || firstHighlightPosition > pos)
+                    firstHighlightPosition = pos;
+                if(lastHighlightPosition == -1 || lastHighlightPosition < pos)
+                    lastHighlightPosition = pos;
+            } else {
+                if(firstHighlightPosition == pos) {
+                    firstHighlightPosition = -1;
+                    for(int i = 0; i < data.size(); i++) {
+                        if(data.get(i).highlights > 0) {
+                            firstHighlightPosition = i;
+                            break;
+                        }
+                    }
+                }
+                if(lastHighlightPosition == pos) {
+                    lastHighlightPosition = -1;
+                    for(int i = pos; i >= 0; i--) {
+                        if(data.get(i).highlights > 0) {
+                            lastHighlightPosition = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            notifyDataSetChanged();
+            if(listView != null)
+                updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
+        }
+
 		int unreadPositionAbove(int pos) {
             if(pos > 0) {
                 for(int i = pos-1; i >= 0; i--) {
@@ -359,12 +460,12 @@ public class BuffersListFragment extends ListFragment {
 	
 	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
 		ArrayList<BufferListEntry> entries = new ArrayList<BufferListEntry>();
-		
-		@Override
+
+        @Override
 		protected Void doInBackground(Void... params) {
 			if(!ready || isCancelled())
 				return null;
-			
+
 			SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
 			if(adapter == null) {
 				adapter = new BufferListAdapter(BuffersListFragment.this);
@@ -430,78 +531,75 @@ public class BuffersListFragment extends ListFragment {
 						break;
 					}
 				}
-				for(int j = 0; j < buffers.size(); j++) {
-					if(isCancelled())
-						return null;
+                for (BuffersDataSource.Buffer b : buffers) {
+                    if (isCancelled())
+                        return null;
 
-					BuffersDataSource.Buffer b = buffers.get(j);
-					int type = -1;
-					int key = 0;
-					int joined = 1;
-					if(b.type.equalsIgnoreCase("channel")) {
-						type = TYPE_CHANNEL;
-						ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
-						if(c == null)
-							joined = 0;
-						if(c != null && c.key)
-							key = 1;
-					}
-					else if(b.type.equalsIgnoreCase("conversation"))
-						type = TYPE_CONVERSATION;
-					if(type > 0 && b.archived == 0) {
-						int unread = 0;
-						int highlights = 0;
-						if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-							unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-							highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
-						}
-						try {
-							if(b.type.equalsIgnoreCase("channel")) {
-								if(b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
-									unread = 0;
-							} else {
-								if(b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-									unread = 0;
-								if(b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-									highlights = 0;
-							}
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-						entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl, 0));
-						if(unread > 0 && firstUnreadPosition == -1)
-							firstUnreadPosition = position;
-						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
-							lastUnreadPosition = position;
-						if(highlights > 0 && firstHighlightPosition == -1)
-							firstHighlightPosition = position;
-						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
-							lastHighlightPosition = position;
-						position++;
-					}
-					if(type > 0 && b.archived > 0) {
-						archiveCount++;
-					}
-				}
+                    int type = -1;
+                    int key = 0;
+                    int joined = 1;
+                    if (b.type.equalsIgnoreCase("channel")) {
+                        type = TYPE_CHANNEL;
+                        ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+                        if (c == null)
+                            joined = 0;
+                        if (c != null && c.key)
+                            key = 1;
+                    } else if (b.type.equalsIgnoreCase("conversation"))
+                        type = TYPE_CONVERSATION;
+                    if (type > 0 && b.archived == 0) {
+                        int unread = 0;
+                        int highlights = 0;
+                        if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+                            unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                            highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                        }
+                        try {
+                            if (b.type.equalsIgnoreCase("channel")) {
+                                if (b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
+                                    unread = 0;
+                            } else {
+                                if (b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                                    unread = 0;
+                                if (b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                                    highlights = 0;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl, 0));
+                        if (unread > 0 && firstUnreadPosition == -1)
+                            firstUnreadPosition = position;
+                        if (unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+                            lastUnreadPosition = position;
+                        if (highlights > 0 && firstHighlightPosition == -1)
+                            firstHighlightPosition = position;
+                        if (highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+                            lastHighlightPosition = position;
+                        position++;
+                    }
+                    if (type > 0 && b.archived > 0) {
+                        archiveCount++;
+                    }
+                }
 				if(archiveCount > 0) {
 					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0));
 					position++;
 					if(mExpandArchives.get(s.cid, false)) {
-						for(int j = 0; j < buffers.size(); j++) {
-							BuffersDataSource.Buffer b = buffers.get(j);
-							int type = -1;
-							if(b.archived == 1) {
-								if(b.type.equalsIgnoreCase("channel"))
-									type = TYPE_CHANNEL;
-								else if(b.type.equalsIgnoreCase("conversation"))
-									type = TYPE_CONVERSATION;
-								
-								if(type > 0) {
-									entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl, 0));
-									position++;
-								}
-							}
-						}
+                        for (BuffersDataSource.Buffer b : buffers) {
+                            int type = -1;
+                            if (b.archived == 1) {
+                                if (b.type.equalsIgnoreCase("channel"))
+                                    type = TYPE_CHANNEL;
+                                else if (b.type.equalsIgnoreCase("conversation"))
+                                    type = TYPE_CONVERSATION;
+
+                                if (type > 0) {
+                                    entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl, 0));
+                                    position++;
+                                }
+                            }
+                        }
 					}
 				}
                 if(buffers.size() == 1) {
@@ -743,8 +841,78 @@ public class BuffersListFragment extends ListFragment {
     @SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
+            IRCCloudJSONObject object = null;
+            try {
+                object = (IRCCloudJSONObject)msg.obj;
+            } catch (ClassCastException e) {
+            }
+            EventsDataSource.Event event = null;
+            try {
+                event = (EventsDataSource.Event)msg.obj;
+            } catch (ClassCastException e) {
+            }
 			switch (msg.what) {
-			case NetworkConnection.EVENT_PROGRESS:
+            case NetworkConnection.EVENT_BUFFERMSG:
+                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid);
+                if(EventsDataSource.getInstance().isImportant(event, b.type))
+                    adapter.updateBuffer(b);
+                break;
+            case NetworkConnection.EVENT_HEARTBEATECHO:
+                JsonObject seenEids = object.getJsonObject("seenEids");
+                Iterator<Map.Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
+                while(i.hasNext()) {
+                    Map.Entry<String, JsonElement> entry = i.next();
+                    JsonObject eids = entry.getValue().getAsJsonObject();
+                    Iterator<Map.Entry<String, JsonElement>> j = eids.entrySet().iterator();
+                    while(j.hasNext()) {
+                        Map.Entry<String, JsonElement> eidentry = j.next();
+                        Integer bid = Integer.valueOf(eidentry.getKey());
+                        adapter.updateBuffer(BuffersDataSource.getInstance().getBuffer(bid));
+                    }
+                }
+                break;
+            case NetworkConnection.EVENT_JOIN:
+            case NetworkConnection.EVENT_PART:
+            case NetworkConnection.EVENT_QUIT:
+            case NetworkConnection.EVENT_KICK:
+                if(object.type().startsWith("you_")) {
+                    if(refreshTask != null)
+                        refreshTask.cancel(true);
+                    refreshTask = new RefreshTask();
+                    refreshTask.execute((Void)null);
+                }
+                break;
+            case NetworkConnection.EVENT_USERINFO:
+            case NetworkConnection.EVENT_CHANNELTOPIC:
+            case NetworkConnection.EVENT_NICKCHANGE:
+            case NetworkConnection.EVENT_MEMBERUPDATES:
+            case NetworkConnection.EVENT_USERCHANNELMODE:
+            case NetworkConnection.EVENT_AWAY:
+            case NetworkConnection.EVENT_SELFBACK:
+            case NetworkConnection.EVENT_CHANNELTIMESTAMP:
+            case NetworkConnection.EVENT_SELFDETAILS:
+            case NetworkConnection.EVENT_USERMODE:
+            case NetworkConnection.EVENT_SETIGNORES:
+            case NetworkConnection.EVENT_BADCHANNELKEY:
+            case NetworkConnection.EVENT_OPENBUFFER:
+            case NetworkConnection.EVENT_INVALIDNICK:
+            case NetworkConnection.EVENT_BANLIST:
+            case NetworkConnection.EVENT_WHOLIST:
+            case NetworkConnection.EVENT_WHOIS:
+            case NetworkConnection.EVENT_LINKCHANNEL:
+            case NetworkConnection.EVENT_LISTRESPONSEFETCHING:
+            case NetworkConnection.EVENT_LISTRESPONSE:
+            case NetworkConnection.EVENT_LISTRESPONSETOOMANY:
+            case NetworkConnection.EVENT_CONNECTIONLAG:
+            case NetworkConnection.EVENT_GLOBALMSG:
+            case NetworkConnection.EVENT_ACCEPTLIST:
+            case NetworkConnection.EVENT_NAMESLIST:
+            case NetworkConnection.EVENT_BACKLOG_FAILED:
+            case NetworkConnection.EVENT_FAILURE_MSG:
+            case NetworkConnection.EVENT_SUCCESS:
+            case NetworkConnection.EVENT_PROGRESS:
+            case NetworkConnection.EVENT_ALERT:
+            case NetworkConnection.EVENT_DEBUG:
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				if(adapter != null)
