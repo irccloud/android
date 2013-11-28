@@ -275,7 +275,7 @@ public class ColorFormatter {
 							(builder.charAt(pos+count) >= '0' && builder.charAt(pos+count) <= '9') ||
 							rgb && ((builder.charAt(pos+count) >= 'a' && builder.charAt(pos+count) <= 'f') ||
 							(builder.charAt(pos+count) >= 'A' && builder.charAt(pos+count) <= 'F')))) {
-						if(++count == 2 && !rgb)
+						if((++count == 2 && !rgb) || count == 6)
 							break;
 					}
 					if(count > 0) {
@@ -304,7 +304,7 @@ public class ColorFormatter {
 								(builder.charAt(pos+count) >= '0' && builder.charAt(pos+count) <= '9') ||
 								rgb && ((builder.charAt(pos+count) >= 'a' && builder.charAt(pos+count) <= 'f') ||
 								(builder.charAt(pos+count) >= 'A' && builder.charAt(pos+count) <= 'F')))) {
-							if(++count == 2 && !rgb)
+                            if((++count == 2 && !rgb) || count == 6)
 								break;
 						}
 						if(count > 0) {
