@@ -35,10 +35,11 @@
     <color name="timestamp">#AAA</color>
     <color name="message_bg">#FFF</color>
     <color name="status_bg">#EEE</color>
-    <color name="highlight">#D9E7FF</color>
-    <color name="self">#EDF4FF</color>
+    <color name="highlight">#C0DBFF</color>
+    <color name="highlight_timestamp">#600000</color>
+    <color name="self">#e2edff</color>
     <color name="error">#FFEE97</color>
-    <color name="notice">#C0DBFF</color>
+    <color name="notice">#d9e7ff</color>
     <drawable name="archived_bg">#F4F4F4</drawable>
     <drawable name="archived_bg_selected">#666</drawable>
     <drawable name="archived_bg_highlighted">#eee</drawable>
