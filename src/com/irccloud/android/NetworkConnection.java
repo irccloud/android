@@ -1175,13 +1175,15 @@ public class NetworkConnection {
 				prefs.putString("highlights", userInfo.highlights);
 				prefs.putBoolean("autoaway", userInfo.auto_away);
 				if(userInfo.prefs != null) {
-					prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr")?userInfo.prefs.getBoolean("time-24hr"):false);
-					prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds")?userInfo.prefs.getBoolean("time-seconds"):false);
-					prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol")?userInfo.prefs.getBoolean("mode-showsymbol"):false);
+					prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.getBoolean("time-24hr"));
+					prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.getBoolean("time-seconds"));
+					prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.getBoolean("mode-showsymbol"));
+                    prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.getBoolean("nick-colors"));
 				} else {
 					prefs.putBoolean("time-24hr", false);
 					prefs.putBoolean("time-seconds", false);
 					prefs.putBoolean("mode-showsymbol", false);
+                    prefs.putBoolean("nick-colors", false);
 				}
 				prefs.commit();
 				notifyHandlers(EVENT_USERINFO, userInfo);

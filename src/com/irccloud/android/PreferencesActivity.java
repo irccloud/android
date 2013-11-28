@@ -110,6 +110,7 @@ public class PreferencesActivity extends PreferenceActivity {
 		findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("faq").setOnPreferenceClickListener(urlClick);
 		findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
@@ -270,15 +271,7 @@ public class PreferencesActivity extends PreferenceActivity {
 					conn.getUserInfo().prefs = prefs;
 				}
 	
-				if(preference.getKey().equals("time-24hr")) {
-					prefs.put("time-24hr", (Boolean)newValue);
-				}
-				if(preference.getKey().equals("time-seconds")) {
-					prefs.put("time-seconds", (Boolean)newValue);
-				}
-				if(preference.getKey().equals("mode-showsymbol")) {
-					prefs.put("mode-showsymbol", (Boolean)newValue);
-				}
+                prefs.put(preference.getKey(), (Boolean)newValue);
 			} catch (JSONException e) {
 				prefs = null;
 			}

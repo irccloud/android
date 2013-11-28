@@ -417,7 +417,26 @@ public class CollapsedEventsList {
 		return null;
 	}
 	
-	public String formatNick(String nick, String from_mode) {
+	public String formatNick(String nick, String from_mode, boolean colorize) {
+        String[] colors = {"fc009a", "ff1f1a", "d20004", "fd6508", "880019", "c7009c", "804fc4", "5200b7", "123e92", "1d40ff", "108374", "2e980d", "207607", "196d61"};
+        String color = null;
+
+        if(colorize) {
+            // Normalise a bit
+            // typically ` and _ are used on the end alone
+            String normalizedNick = nick.toLowerCase().replaceAll("[`_]+$","");
+            //remove |<anything> from the end
+            normalizedNick = normalizedNick.replaceAll("|.*$","");
+
+            Double hash = 0.0;
+
+            for(int i = 0; i < normalizedNick.length(); i++) {
+                hash = ((int)normalizedNick.charAt(i)) + (double)((int)(hash.longValue()) << 6) + (double)((int)(hash.longValue()) << 16) - hash;
+            }
+
+            color = colors[(int)Math.abs(hash.longValue() % 14)];
+        }
+
 		StringBuilder output = new StringBuilder();
 		boolean showSymbol = false;
 		try {
@@ -454,8 +473,12 @@ public class CollapsedEventsList {
 					output.append("\u000425B100\u0002•\u000f ");
 			}
 		}
-		
+
+        if(color != null)
+            output.append("\u0004" + color);
 		output.append(nick);
+        if(color != null)
+            output.append("\u0004");
 		return output.toString();
 	}
 	
@@ -490,23 +513,23 @@ public class CollapsedEventsList {
                 message.append(e.msg.replace(" ", " ↮ "));
                 break;
 			case TYPE_MODE:
-				message.append("<b>").append(formatNick(e.nick, e.target_mode)).append("</b> was " + e.getModes(true));
+				message.append("<b>").append(formatNick(e.nick, e.target_mode, false)).append("</b> was " + e.getModes(true));
 				if(e.from_nick != null) {
                     if(e.from_mode != null && e.from_mode.equalsIgnoreCase("__the_server__"))
     					message.append(" by the server <b>").append(e.from_nick).append("</b>");
                     else
-                        message.append(" by ").append(formatNick(e.from_nick, e.from_mode));
+                        message.append(" by ").append(formatNick(e.from_nick, e.from_mode, false));
                 }
 				break;
 			case TYPE_JOIN:
-	    		message.append("→ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append("→ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
 	    		message.append(" joined");
                 if(showChan)
                     message.append(" " + e.chan);
                 message.append(" (").append(e.hostmask + ")");
 				break;
 			case TYPE_PART:
-	    		message.append("← <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append("← <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
 	    		message.append(" left");
                 if(showChan)
                     message.append(" " + e.chan);
@@ -515,23 +538,23 @@ public class CollapsedEventsList {
 	    			message.append(": ").append(e.msg);
 				break;
 			case TYPE_QUIT:
-	    		message.append("⇐ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append("⇐ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
 	    		if(e.hostmask != null)
 	    			message.append(" quit (").append(e.hostmask).append(") ").append(e.msg);
 	    		else
 	    			message.append(" quit: ").append(e.msg);
 				break;
 			case TYPE_NICKCHANGE:
-	    		message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode)).append("</b>");
+	    		message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>");
 				break;
 			case TYPE_POPIN:
-	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
 	    		message.append(" popped in");
                 if(showChan)
                     message.append(" " + e.chan);
 	    		break;
 			case TYPE_POPOUT:
-	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode)).append("</b>").append(was(e));
+	    		message.append("↔ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
 	    		message.append(" nipped out");
                 if(showChan)
                     message.append(" " + e.chan);
@@ -593,7 +616,7 @@ public class CollapsedEventsList {
 				}
 
 				if(e.type == TYPE_NICKCHANGE) {
-					message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode)).append("</b>");
+					message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>");
 					String old_nick = e.old_nick;
 					e.old_nick = null;
 					message.append(was(e));
@@ -601,7 +624,7 @@ public class CollapsedEventsList {
                 } else if(e.type == TYPE_NETSPLIT) {
                     message.append(e.msg.replace(" ", " ↮ "));
 				} else if(!showChan) {
-					message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode)).append("</b>").append(was(e));
+					message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode, false)).append("</b>").append(was(e));
 				}
 				
 				if((next == null || next.type != e.type) && !showChan) {
@@ -624,7 +647,7 @@ public class CollapsedEventsList {
 					}
 				} else if(showChan && e.type != TYPE_NETSPLIT) {
                     if(groupcount == 0) {
-                        message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode)).append("</b>").append(was(e));
+                        message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode, false)).append("</b>").append(was(e));
                         switch(e.type) {
                             case TYPE_JOIN:
                                 message.append(" joined ");

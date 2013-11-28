@@ -846,6 +846,10 @@ public class MessageViewFragment extends ListFragment {
     private synchronized void insertEvent(EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized(event) {
             try {
+                boolean colors = false;
+                if(!event.self && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("nick-colors") && conn.getUserInfo().prefs.getBoolean("nick-colors"))
+                    colors = true;
+
                 long start = System.currentTimeMillis();
                 if(min_eid == 0)
                     min_eid = event.eid;
@@ -940,9 +944,9 @@ public class MessageViewFragment extends ListFragment {
                             }
                             if(group_msg == null && type.equalsIgnoreCase("user_channel_mode")) {
                                 if(event.from != null && event.from.length() > 0)
-                                    msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                                    msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
                                 else
-                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
+                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                                 currentCollapsedEid = eid;
                             }
                             EventsDataSource.Event heading = EventsDataSource.getInstance().new Event();
@@ -966,9 +970,9 @@ public class MessageViewFragment extends ListFragment {
                     }
                     if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
                         if(event.from != null && event.from.length() > 0)
-                            msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                            msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
                         else
-                            msg = collapsedEvents.formatNick(event.nick, event.target_mode) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
+                            msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                         currentCollapsedEid = eid;
                     }
                     if(!expandedSectionEids.contains(currentCollapsedEid)) {
@@ -987,7 +991,7 @@ public class MessageViewFragment extends ListFragment {
                     collapsedEvents.clear();
                     if(event.html == null) {
                         if(event.from != null)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> " + event.msg;
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, colors) + "</b> " + event.msg;
                         else
                             event.html = event.msg;
                     }
@@ -1012,14 +1016,14 @@ public class MessageViewFragment extends ListFragment {
 
                 if(type.equalsIgnoreCase("channel_mode")) {
                     if(event.nick != null && event.nick.length() > 0)
-                        event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
+                        event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
                     else if(event.server != null && event.server.length() > 0)
                         event.html = event.msg + " by the server <b>" + event.server + "</b>";
                 } else if(type.equalsIgnoreCase("buffer_me_msg")) {
-                    event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> " + event.msg + "</i>";
+                    event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, colors) + "</b> " + event.msg + "</i>";
                 } else if(type.equalsIgnoreCase("notice")) {
                     if(event.from != null && event.from.length() > 0)
-                        event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ";
+                        event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
                     else
                         event.html = "";
                     if(this.type.equalsIgnoreCase("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
@@ -1032,20 +1036,20 @@ public class MessageViewFragment extends ListFragment {
                     if(event.type.startsWith("you_"))
                         event.html += "You";
                     else
-                        event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null) + "</b>";
+                        event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b>";
                     if(event.type.startsWith("you_"))
                         event.html += " were";
                     else
                         event.html += " was";
-                    event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b> (" + event.hostmask + ")";
+                    event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> (" + event.hostmask + ")";
                     if(event.msg != null && event.msg.length() > 0)
                         event.html += ": " + event.msg;
                 } else if(type.equalsIgnoreCase("callerid")) {
-                    event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
+                    event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
                 } else if(type.equalsIgnoreCase("channel_mode_list_change")) {
                     if(event.from.length() == 0) {
                         if(event.nick != null && event.nick.length() > 0)
-                            event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode) + "</b>";
+                            event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
                         else if(event.server != null && event.server.length() > 0)
                             event.html = event.msg + " by the server <b>" + event.server + "</b>";
                     }

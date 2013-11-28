@@ -32,11 +32,9 @@
 			android:defaultValue="false"
 			android:summary="\@, +, etc." android:title="Show usermode symbols"/>
         <CheckBoxPreference
-            android:key="imageviewer"
-            android:defaultValue="true"
-            android:summaryOn="Images will be displayed using the image viewer"
-            android:summaryOff="Images will be displayed in your browser"
-            android:title="Image viewer"/>
+            android:key="nick-colors"
+            android:defaultValue="false"
+            android:title="Colorize nicknames"/>
 	</PreferenceCategory>
 
 </PreferenceScreen>
