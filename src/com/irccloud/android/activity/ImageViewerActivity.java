@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.activity;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -30,6 +30,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+
+import com.irccloud.android.R;
 
 public class ImageViewerActivity extends BaseActivity {
 

@@ -24,14 +24,12 @@ import java.util.Map.Entry;
 
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -40,6 +38,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.irccloud.android.data.BuffersDataSource;
 
 public class GCMIntentService extends IntentService {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -32,6 +32,10 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.google.gson.JsonArray;
+import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
 public class WhoisFragment extends DialogFragment {
 	IRCCloudJSONObject event;

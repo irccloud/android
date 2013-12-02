@@ -1,10 +1,9 @@
 package com.irccloud.android.test;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.irccloud.android.CollapsedEventsList;
-import com.irccloud.android.EventsDataSource;
+import com.irccloud.android.data.EventsDataSource;
 
 import junit.framework.TestCase;
 

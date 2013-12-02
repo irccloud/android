@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import java.util.ArrayList;
 
@@ -36,6 +36,11 @@ import android.widget.TextView;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
 public class ChannelListFragment extends ListFragment {
 	ArrayList<ChannelsAdapter.Channel> channels;

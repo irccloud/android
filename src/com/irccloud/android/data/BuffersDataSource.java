@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.data;
 
 import android.util.SparseArray;
 
@@ -25,19 +25,19 @@ import java.util.Iterator;
 
 public class BuffersDataSource {
 	public class Buffer {
-		int bid;
-		int cid;
-		long min_eid;
-		long last_seen_eid;
-		String name;
-		String type;
-		int archived;
-		int deferred;
-		int timeout;
-		String away_msg;
-        String draft;
-        String chan_types;
-        int valid;
+        public int bid;
+        public int cid;
+        public long min_eid;
+        public long last_seen_eid;
+        public String name;
+        public String type;
+        public int archived;
+        public int deferred;
+        public int timeout;
+        public String away_msg;
+        public String draft;
+        public String chan_types;
+        public int valid;
 
         public String normalizedName() {
             if(chan_types == null || chan_types.length() < 2) {

@@ -32,25 +32,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.irccloud.android;
 
 import android.net.Uri;
+
+import com.irccloud.android.activity.MessageActivity;
 import com.sonyericsson.extras.liveware.aef.notification.Notification;
 import com.sonyericsson.extras.liveware.extension.util.ExtensionService;
-import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;
-import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 import com.sonyericsson.extras.liveware.extension.util.registration.RegistrationInformation;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
-
-import java.util.Random;
 
 /**
  * The sample extension service handles extension registration and inserts

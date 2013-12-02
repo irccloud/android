@@ -23,6 +23,8 @@ import java.util.Iterator;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.irccloud.android.data.EventsDataSource;
+
 import org.json.JSONException;
 
 public class CollapsedEventsList {

@@ -3,7 +3,7 @@ package com.irccloud.android.test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 import com.irccloud.android.Ignore;
-import com.irccloud.android.ServersDataSource;
+import com.irccloud.android.data.ServersDataSource;
 
 import junit.framework.TestCase;
 

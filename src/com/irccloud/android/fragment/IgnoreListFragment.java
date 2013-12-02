@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,8 +25,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
-import android.text.Html;
-import android.text.format.DateUtils;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -40,40 +38,40 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.JsonArray;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
-public class BanListFragment extends DialogFragment {
-	JsonArray bans;
+public class IgnoreListFragment extends DialogFragment {
+	JsonArray ignores;
 	int cid;
-	int bid;
-	IRCCloudJSONObject event;
-	BansAdapter adapter;
+	IgnoresAdapter adapter;
 	NetworkConnection conn;
 	ListView listView;
-	boolean canUnBan = false;
 	
-	private class BansAdapter extends BaseAdapter {
+	private class IgnoresAdapter extends BaseAdapter {
 		private DialogFragment ctx;
 		
 		private class ViewHolder {
 			int position;
-			TextView mask;
-			TextView setBy;
+			TextView label;
 			Button removeBtn;
 		}
 	
-		public BansAdapter(DialogFragment context) {
+		public IgnoresAdapter(DialogFragment context) {
 			ctx = context;
 		}
 		
 		@Override
 		public int getCount() {
-			return bans.size();
+			return ignores.size();
 		}
 
 		@Override
 		public Object getItem(int pos) {
 			try {
-				return bans.get(pos);
+				return ignores.get(pos);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -90,7 +88,7 @@ public class BanListFragment extends DialogFragment {
 			public void onClick(View v) {
 				Integer position = (Integer)v.getTag();
 				try {
-					conn.mode(cid, event.getString("channel"), "-b " + bans.get(position).getAsJsonObject().get("mask").getAsString());
+					conn.unignore(cid, ignores.get(position).getAsString());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -108,12 +106,11 @@ public class BanListFragment extends DialogFragment {
 			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				row = inflater.inflate(R.layout.row_banlist, null);
+				row = inflater.inflate(R.layout.row_hostmask, null);
 
 				holder = new ViewHolder();
 				holder.position = position;
-				holder.mask = (TextView) row.findViewById(R.id.mask);
-				holder.setBy = (TextView) row.findViewById(R.id.setBy);
+				holder.label = (TextView) row.findViewById(R.id.label);
 				holder.removeBtn = (Button) row.findViewById(R.id.removeBtn);
 
 				row.setTag(holder);
@@ -122,16 +119,9 @@ public class BanListFragment extends DialogFragment {
 			}
 			
 			try {
-				holder.mask.setText(Html.fromHtml(bans.get(position).getAsJsonObject().get("mask").getAsString()));
-				holder.setBy.setText("Set " + DateUtils.getRelativeTimeSpanString(bans.get(position).getAsJsonObject().get("time").getAsLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
-						+ " by " + bans.get(position).getAsJsonObject().get("usermask").getAsString());
-				if(canUnBan) {
-					holder.removeBtn.setVisibility(View.VISIBLE);
-					holder.removeBtn.setOnClickListener(removeClickListener);
-					holder.removeBtn.setTag(position);
-				} else {
-					holder.removeBtn.setVisibility(View.GONE);
-				}
+				holder.label.setText(ignores.get(position).toString());
+				holder.removeBtn.setOnClickListener(removeClickListener);
+				holder.removeBtn.setTag(position);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -151,35 +141,25 @@ public class BanListFragment extends DialogFragment {
     	View v = inflater.inflate(R.layout.ignorelist, null);
     	listView = (ListView)v.findViewById(android.R.id.list);
     	TextView empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("No bans in effect.  You can ban someone by tapping their nickname in the user list, long-pressing a message, or by using /ban.");
+    	empty.setText("You're not ignoring anyone at the moment.  You can ignore someone by tapping their nickname in the user list, long-pressing a message, or by using /ignore.");
     	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
-        	bid = savedInstanceState.getInt("bid");
-        	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-        	bans = event.getJsonArray("bans");
-        	adapter = new BansAdapter(this);
+        	ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+        	adapter = new IgnoresAdapter(this);
         	listView.setAdapter(adapter);
         }
-    	AlertDialog.Builder b = new AlertDialog.Builder(ctx)
-        .setTitle("Ban list for " + event.getString("channel"))
+    	Dialog d = new AlertDialog.Builder(ctx)
+        .setTitle("Ignore list for " + ServersDataSource.getInstance().getServer(cid).name)
         .setView(v)
+        .setPositiveButton("Add Ignore Mask", new AddClickListener())
         .setNegativeButton("Close", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 			}
-        });
-        try {
-            UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
-            if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
-                b.setPositiveButton("Add Ban Mask", new AddClickListener());
-            }
-        } catch (Exception e) {
-
-        }
-
-        AlertDialog d = b.create();
+        })
+        .create();
 	    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     	return d;
     }
@@ -199,13 +179,13 @@ public class BanListFragment extends DialogFragment {
         	TextView prompt = (TextView)view.findViewById(R.id.prompt);
         	final EditText input = (EditText)view.findViewById(R.id.textInput);
         	input.setHint("nickname!user@host.name");
-        	prompt.setText("Ban this hostmask");
+        	prompt.setText("Ignore messages from this hostmask");
         	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
     		builder.setView(view);
-    		builder.setPositiveButton("Ban", new DialogInterface.OnClickListener() {
+    		builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					conn.mode(cid, event.getString("channel"), "+b " + input.getText().toString());
+					conn.ignore(cid, input.getText().toString());
 					dialog.dismiss();
 				}
     		});
@@ -226,23 +206,15 @@ public class BanListFragment extends DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle state) {
     	state.putInt("cid", cid);
-    	state.putInt("bid", bid);
-    	state.putString("event", event.toString());
     }
 	
     @Override
     public void setArguments(Bundle args) {
     	cid = args.getInt("cid", 0);
-    	bid = args.getInt("bid", 0);
-    	event = new IRCCloudJSONObject(args.getString("event"));
-    	bans = event.getJsonArray("bans");
     	if(cid > 0 && listView != null) {
-    		if(adapter == null) {
-	        	adapter = new BansAdapter(this);
-	        	listView.setAdapter(adapter);
-    		} else {
-    			adapter.notifyDataSetChanged();
-    		}
+        	ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+        	adapter = new IgnoresAdapter(this);
+        	listView.setAdapter(adapter);
     	}
     }
     
@@ -251,15 +223,11 @@ public class BanListFragment extends DialogFragment {
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	
-    	if(cid > 0) {
-        	adapter = new BansAdapter(this);
+    	if(ignores == null && cid > 0) {
+            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+        	adapter = new IgnoresAdapter(this);
         	listView.setAdapter(adapter);
     	}
-		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
-		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
-			canUnBan = true;
-		else
-			canUnBan = false;
     }
     
     @Override
@@ -272,19 +240,19 @@ public class BanListFragment extends DialogFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case NetworkConnection.EVENT_USERCHANNELMODE:
-				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
-				if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
-					canUnBan = true;
-				else
-					canUnBan = false;
-				if(adapter != null)
-					adapter.notifyDataSetChanged();
+			case NetworkConnection.EVENT_MAKESERVER:
+				ServersDataSource.Server s = (ServersDataSource.Server)msg.obj;
+				if(s.cid == cid) {
+                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+		        	adapter.notifyDataSetChanged();
+				}
 				break;
-			case NetworkConnection.EVENT_BUFFERMSG:
-				EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
-				if(e.bid == bid && e.type.equals("channel_mode_list_change"))
-					conn.mode(cid, event.getString("channel"), "b");
+			case NetworkConnection.EVENT_SETIGNORES:
+				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+				if(o.cid() == cid) {
+                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+		        	adapter.notifyDataSetChanged();
+				}
 				break;
 			default:
 				break;

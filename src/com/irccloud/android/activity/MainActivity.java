@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.activity;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -33,11 +32,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -58,7 +55,11 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.testflightapp.lib.TestFlight;
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
 public class MainActivity extends FragmentActivity {
 	private View login = null;

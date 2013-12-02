@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
@@ -45,12 +43,16 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.JsonArray;
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -17,10 +17,10 @@
 package com.irccloud.android;
 
 import android.content.*;
-import android.net.Uri;
-import android.preference.PreferenceManager;
+
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
+import com.irccloud.android.activity.MainActivity;
 
 public class DashClock extends DashClockExtension {
     public final static String REFRESH_INTENT = "com.irccloud.android.dashclock.REFRESH";

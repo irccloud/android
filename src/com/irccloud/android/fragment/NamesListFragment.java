@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -35,6 +35,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.JsonArray;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
 
 public class NamesListFragment extends DialogFragment {
 	JsonArray users;

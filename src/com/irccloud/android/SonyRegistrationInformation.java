@@ -31,6 +31,7 @@
 
 package com.irccloud.android;
 
+import com.irccloud.android.activity.PreferencesActivity;
 import com.sonyericsson.extras.liveware.aef.notification.Notification;
 import com.sonyericsson.extras.liveware.aef.registration.Registration;
 import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;

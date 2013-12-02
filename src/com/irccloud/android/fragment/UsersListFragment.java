@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -37,6 +37,12 @@ import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.data.ChannelsDataSource;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.UsersDataSource;
 
 public class UsersListFragment extends ListFragment {
 	private static final int TYPE_HEADING = 0;

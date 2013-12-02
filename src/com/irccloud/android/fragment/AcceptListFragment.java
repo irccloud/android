@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,8 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -38,36 +36,41 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.JsonArray;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
-public class IgnoreListFragment extends DialogFragment {
-	JsonArray ignores;
+public class AcceptListFragment extends DialogFragment {
+	JsonArray acceptList;
 	int cid;
-	IgnoresAdapter adapter;
+	IRCCloudJSONObject event;
+	AcceptListAdapter adapter;
 	NetworkConnection conn;
 	ListView listView;
 	
-	private class IgnoresAdapter extends BaseAdapter {
+	private class AcceptListAdapter extends BaseAdapter {
 		private DialogFragment ctx;
 		
 		private class ViewHolder {
 			int position;
-			TextView label;
+			TextView user;
 			Button removeBtn;
 		}
 	
-		public IgnoresAdapter(DialogFragment context) {
+		public AcceptListAdapter(DialogFragment context) {
 			ctx = context;
 		}
 		
 		@Override
 		public int getCount() {
-			return ignores.size();
+			return acceptList.size();
 		}
 
 		@Override
 		public Object getItem(int pos) {
 			try {
-				return ignores.get(pos);
+				return acceptList.get(pos);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -84,7 +87,8 @@ public class IgnoreListFragment extends DialogFragment {
 			public void onClick(View v) {
 				Integer position = (Integer)v.getTag();
 				try {
-					conn.unignore(cid, ignores.get(position).getAsString());
+					conn.say(cid, null, "/accept -" + acceptList.get(position).getAsString());
+					conn.say(cid, null, "/accept *");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -102,11 +106,11 @@ public class IgnoreListFragment extends DialogFragment {
 			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				row = inflater.inflate(R.layout.row_hostmask, null);
+				row = inflater.inflate(R.layout.row_acceptlist, null);
 
 				holder = new ViewHolder();
 				holder.position = position;
-				holder.label = (TextView) row.findViewById(R.id.label);
+				holder.user = (TextView) row.findViewById(R.id.nick);
 				holder.removeBtn = (Button) row.findViewById(R.id.removeBtn);
 
 				row.setTag(holder);
@@ -115,7 +119,7 @@ public class IgnoreListFragment extends DialogFragment {
 			}
 			
 			try {
-				holder.label.setText(ignores.get(position).toString());
+				holder.user.setText(acceptList.get(position).getAsString());
 				holder.removeBtn.setOnClickListener(removeClickListener);
 				holder.removeBtn.setTag(position);
 			} catch (Exception e) {
@@ -137,25 +141,30 @@ public class IgnoreListFragment extends DialogFragment {
     	View v = inflater.inflate(R.layout.ignorelist, null);
     	listView = (ListView)v.findViewById(android.R.id.list);
     	TextView empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("You're not ignoring anyone at the moment.  You can ignore someone by tapping their nickname in the user list, long-pressing a message, or by using /ignore.");
+    	empty.setText("No accepted nicks.  You can accept someone by tapping their message request or by using /accept.");
     	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
-        	ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-        	adapter = new IgnoresAdapter(this);
+        	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
+        	acceptList = event.getJsonArray("nicks");
+        	adapter = new AcceptListAdapter(this);
         	listView.setAdapter(adapter);
         }
-    	Dialog d = new AlertDialog.Builder(ctx)
-        .setTitle("Ignore list for " + ServersDataSource.getInstance().getServer(cid).name)
+        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        String network = s.name;
+        if(network == null || network.length() == 0)
+        	network = s.hostname;
+    	AlertDialog d = new AlertDialog.Builder(ctx)
+        .setTitle("Accept list for " + network)
         .setView(v)
-        .setPositiveButton("Add Ignore Mask", new AddClickListener())
-        .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+		.setPositiveButton("Add Nickname", new AddClickListener())
+		.setNegativeButton("Close", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 			}
-        })
-        .create();
+        }).create();
+
 	    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     	return d;
     }
@@ -174,14 +183,15 @@ public class IgnoreListFragment extends DialogFragment {
         	View view = inflater.inflate(R.layout.dialog_textprompt,null);
         	TextView prompt = (TextView)view.findViewById(R.id.prompt);
         	final EditText input = (EditText)view.findViewById(R.id.textInput);
-        	input.setHint("nickname!user@host.name");
-        	prompt.setText("Ignore messages from this hostmask");
+        	input.setHint("nickname");
+        	prompt.setText("Accept messages from this nickname");
         	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
     		builder.setView(view);
-    		builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
+    		builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					conn.ignore(cid, input.getText().toString());
+					conn.say(cid, null, "/accept " + input.getText().toString());
+					conn.say(cid, null, "/accept *");
 					dialog.dismiss();
 				}
     		});
@@ -202,57 +212,32 @@ public class IgnoreListFragment extends DialogFragment {
     @Override
     public void onSaveInstanceState(Bundle state) {
     	state.putInt("cid", cid);
+    	state.putString("event", event.toString());
     }
 	
     @Override
     public void setArguments(Bundle args) {
     	cid = args.getInt("cid", 0);
+    	event = new IRCCloudJSONObject(args.getString("event"));
+    	acceptList = event.getJsonArray("nicks");
     	if(cid > 0 && listView != null) {
-        	ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-        	adapter = new IgnoresAdapter(this);
-        	listView.setAdapter(adapter);
+    		if(adapter == null) {
+	        	adapter = new AcceptListAdapter(this);
+	        	listView.setAdapter(adapter);
+    		} else {
+    			adapter.notifyDataSetChanged();
+    		}
     	}
     }
     
     public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
     	
-    	if(ignores == null && cid > 0) {
-            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-        	adapter = new IgnoresAdapter(this);
+    	if(cid > 0) {
+        	adapter = new AcceptListAdapter(this);
         	listView.setAdapter(adapter);
     	}
     }
     
-    @Override
-    public void onPause() {
-    	super.onPause();
-    	if(conn != null)
-    		conn.removeHandler(mHandler);
-    }
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case NetworkConnection.EVENT_MAKESERVER:
-				ServersDataSource.Server s = (ServersDataSource.Server)msg.obj;
-				if(s.cid == cid) {
-                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-		        	adapter.notifyDataSetChanged();
-				}
-				break;
-			case NetworkConnection.EVENT_SETIGNORES:
-				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-				if(o.cid() == cid) {
-                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-		        	adapter.notifyDataSetChanged();
-				}
-				break;
-			default:
-				break;
-			}
-		}
-	};
 }

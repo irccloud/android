@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,18 +31,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 
-public class BufferOptionsFragment extends DialogFragment {
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+
+public class ChannelOptionsFragment extends DialogFragment {
+	CheckBox members;
 	CheckBox unread;
 	CheckBox joinpart;
     CheckBox collapse;
 	int cid;
 	int bid;
-	String type;
 	
-	public BufferOptionsFragment(int cid, int bid, String type) {
+	public ChannelOptionsFragment() {
+		cid = -1;
+		bid = -1;
+	}
+	
+	public ChannelOptionsFragment(int cid, int bid) {
 		this.cid = cid;
 		this.bid = bid;
-		this.type = type;
 	}
 	
 	public JSONObject updatePref(JSONObject prefs, CheckBox control, String key) throws JSONException {
@@ -74,11 +81,11 @@ public class BufferOptionsFragment extends DialogFragment {
 				if(prefs == null)
 					prefs = new JSONObject();
 				
-				prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");
-		    	if(!type.equalsIgnoreCase("console")) {
-		    		prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
-                    prefs = updatePref(prefs, collapse, "buffer-expandJoinPart");
-                }
+				prefs = updatePref(prefs, members, "channel-hiddenMembers");
+				prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
+				prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
+                prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
+
 				NetworkConnection.getInstance().set_prefs(prefs.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -94,8 +101,8 @@ public class BufferOptionsFragment extends DialogFragment {
 	    	if(NetworkConnection.getInstance().getUserInfo() != null) {
 		    	JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
 		    	if(prefs != null) {
-		    		if(prefs.has("buffer-hideJoinPart")) {
-				    	JSONObject hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
+		    		if(prefs.has("channel-hideJoinPart")) {
+				    	JSONObject hiddenMap = prefs.getJSONObject("channel-hideJoinPart");
 						if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
 							joinpart.setChecked(false);
 						else
@@ -103,17 +110,26 @@ public class BufferOptionsFragment extends DialogFragment {
 		    		} else {
 						joinpart.setChecked(true);
 		    		}
-		    		if(prefs.has("buffer-disableTrackUnread")) {
-				    	JSONObject unreadMap = prefs.getJSONObject("buffer-disableTrackUnread");
+		    		if(prefs.has("channel-disableTrackUnread")) {
+				    	JSONObject unreadMap = prefs.getJSONObject("channel-disableTrackUnread");
 						if(unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
 							unread.setChecked(false);
 						else
 							unread.setChecked(true);
 		    		} else {
-						unread.setChecked(true);
+		    			unread.setChecked(true);
 		    		}
-                    if(prefs.has("buffer-expandJoinPart")) {
-                        JSONObject expandMap = prefs.getJSONObject("buffer-expandJoinPart");
+		    		if(prefs.has("channel-hiddenMembers")) {
+				    	JSONObject membersMap = prefs.getJSONObject("channel-hiddenMembers");
+						if(membersMap.has(String.valueOf(bid)) && membersMap.getBoolean(String.valueOf(bid)))
+							members.setChecked(false);
+						else
+							members.setChecked(true);
+		    		} else {
+		    			members.setChecked(true);
+		    		}
+                    if(prefs.has("channel-expandJoinPart")) {
+                        JSONObject expandMap = prefs.getJSONObject("channel-expandJoinPart");
                         if(expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
                             collapse.setChecked(false);
                         else
@@ -122,10 +138,16 @@ public class BufferOptionsFragment extends DialogFragment {
                         collapse.setChecked(true);
                     }
 		    	} else {
-                    joinpart.setChecked(true);
-                    unread.setChecked(true);
+					joinpart.setChecked(true);
+	    			unread.setChecked(true);
+	    			members.setChecked(true);
                     collapse.setChecked(true);
-                }
+		    	}
+	    	} else {
+				joinpart.setChecked(true);
+    			unread.setChecked(true);
+    			members.setChecked(true);
+                collapse.setChecked(true);
 	    	}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -134,18 +156,19 @@ public class BufferOptionsFragment extends DialogFragment {
     
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+    	if(savedInstanceState != null && savedInstanceState.containsKey("cid") && cid == -1) {
+    		cid = savedInstanceState.getInt("cid");
+    		bid = savedInstanceState.getInt("bid");
+    	}
 		Context ctx = getActivity();
 		if(Build.VERSION.SDK_INT < 11)
 			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View v = inflater.inflate(R.layout.dialog_buffer_options,null);
+    	View v = inflater.inflate(R.layout.dialog_channel_options,null);
+    	members = (CheckBox)v.findViewById(R.id.members);
     	unread = (CheckBox)v.findViewById(R.id.unread);
     	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
         collapse = (CheckBox)v.findViewById(R.id.collapse);
-    	if(type.equalsIgnoreCase("console")) {
-    		joinpart.setVisibility(View.GONE);
-            collapse.setVisibility(View.GONE);
-        }
     	
     	return new AlertDialog.Builder(ctx)
                 .setTitle("Display Options")
@@ -158,5 +181,12 @@ public class BufferOptionsFragment extends DialogFragment {
 					}
                 })
                 .create();
+    }
+    
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+    	super.onSaveInstanceState(state);
+    	state.putInt("cid", cid);
+    	state.putInt("bid", bid);
     }
 }

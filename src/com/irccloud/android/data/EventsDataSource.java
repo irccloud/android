@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.data;
 
 import android.annotation.SuppressLint;
 import android.text.Spanned;
@@ -28,6 +28,10 @@ import java.util.TreeMap;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.Ignore;
+import com.irccloud.android.R;
+import com.irccloud.android.fragment.MessageViewFragment;
 
 @SuppressLint("UseSparseArrays")
 public class EventsDataSource {
@@ -181,7 +185,7 @@ public class EventsDataSource {
 			if(e.msg != null)
 				e.msg = TextUtils.htmlEncode(e.msg);
 			
-			if(e.type.equalsIgnoreCase("socket_closed")) {
+			if(e.type.equals("socket_closed")) {
 				e.from = "";
 				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
 				e.color = R.color.timestamp;
@@ -196,23 +200,23 @@ public class EventsDataSource {
 					e.msg = "Connection closed unexpectedly";
 				else
 					e.msg = "";
-			} else if(e.type.equalsIgnoreCase("user_channel_mode")) {
+			} else if(e.type.equals("user_channel_mode")) {
 				e.target_mode = event.getString("newmode");
                 e.chan = event.getString("channel");
-			} else if(e.type.equalsIgnoreCase("buffer_me_msg")) {
+			} else if(e.type.equals("buffer_me_msg")) {
 				e.nick = e.from;
 	    		e.from = "";
-	    	} else if(e.type.equalsIgnoreCase("too_fast") || e.type.equalsIgnoreCase("sasl_fail") || e.type.equalsIgnoreCase("sasl_too_long") || e.type.equalsIgnoreCase("sasl_aborted") || e.type.equalsIgnoreCase("sasl_already")) {
+	    	} else if(e.type.equals("too_fast") || e.type.equals("sasl_fail") || e.type.equals("sasl_too_long") || e.type.equals("sasl_aborted") || e.type.equals("sasl_already")) {
 	    		e.from = "";
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("no_bots")) {
+	    	} else if(e.type.equals("no_bots")) {
 	    		e.from = "";
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("nickname_in_use")) {
+	    	} else if(e.type.equals("nickname_in_use")) {
 	    		e.from = event.getString("nick");
 	    		e.msg = "is already in use";
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("unhandled_line") || e.type.equalsIgnoreCase("unparsed_line")) {
+	    	} else if(e.type.equals("unhandled_line") || e.type.equals("unparsed_line")) {
 	    		e.from = "";
 	    		e.msg = "";
 	    		if(event.has("command"))
@@ -222,14 +226,14 @@ public class EventsDataSource {
 	    		else
 	    			e.msg += event.getString("msg");
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("connecting_cancelled")) {
+	    	} else if(e.type.equals("connecting_cancelled")) {
 	    		e.from = "";
 	    		e.msg = "Cancelled";
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("msg_services")) {
+	    	} else if(e.type.equals("msg_services")) {
 	    		e.from = "";
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("connecting_failed")) {
+	    	} else if(e.type.equals("connecting_failed")) {
 				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
 				e.color = R.color.timestamp;
 	    		e.from = "";
@@ -263,16 +267,16 @@ public class EventsDataSource {
                 } else {
                     e.msg = "Failed to connect.";
                 }
-	    	} else if(e.type.equalsIgnoreCase("quit_server")) {
+	    	} else if(e.type.equals("quit_server")) {
 	    		e.from = "";
 	    		e.msg = "⇐ You disconnected";
 	    		e.color = R.color.timestamp;
-	    	} else if(e.type.equalsIgnoreCase("self_details")) {
+	    	} else if(e.type.equals("self_details")) {
 	    		e.from = "";
 	    		e.msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("myinfo")) {
+	    	} else if(e.type.equals("myinfo")) {
 	    		e.from = "";
 	    		e.msg = "Host: " + event.getString("server") + "\n";
 	    		e.msg += "IRCd: " + event.getString("version") + "\n";
@@ -281,14 +285,14 @@ public class EventsDataSource {
 	    		e.msg = TextUtils.htmlEncode(e.msg);
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("wait")) {
+	    	} else if(e.type.equals("wait")) {
 	    		e.from = "";
 	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equalsIgnoreCase("user_mode")) {
+	    	} else if(e.type.equals("user_mode")) {
 	    		e.from = "";
 	    		e.msg = "Your user mode is: <b>+" + event.getString("newmode") + "</b>";
 	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equalsIgnoreCase("your_unique_id")) {
+	    	} else if(e.type.equals("your_unique_id")) {
 	    		e.from = "";
 	    		e.msg = "Your unique ID is: <b>" + event.getString("unique_id") + "</b>";
 	    		e.bg_color = R.color.status_bg;
@@ -298,11 +302,11 @@ public class EventsDataSource {
 	    			e.msg = event.getString("parts") + ": " + e.msg;
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("endofstats")) {
+	    	} else if(e.type.equals("endofstats")) {
 	    		e.from = "";
 	    		e.msg = event.getString("parts") + ": " + e.msg;
 	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equalsIgnoreCase("kill")) {
+	    	} else if(e.type.equals("kill")) {
 	    		e.from = "";
 	    		e.msg = "You were killed";
 	    		if(event.has("from"))
@@ -313,7 +317,7 @@ public class EventsDataSource {
 	    			e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("banned")) {
+	    	} else if(e.type.equals("banned")) {
 	    		e.from = "";
 	    		e.msg = "You were banned";
 	    		if(event.has("server"))
@@ -322,17 +326,17 @@ public class EventsDataSource {
 	    			e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("channel_topic")) {
+	    	} else if(e.type.equals("channel_topic")) {
 	    		e.from = event.getString("author");
 	    		e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
 	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equalsIgnoreCase("channel_mode")) {
+	    	} else if(e.type.equals("channel_mode")) {
 	    		e.nick = e.from;
 	    		e.from = "";
 	    		e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
 	    		e.bg_color = R.color.status_bg;
                 e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("channel_mode_is")) {
+	    	} else if(e.type.equals("channel_mode_is")) {
 	    		e.from = "";
 	    		if(event.getString("diff") != null && event.getString("diff").length() > 0)
 	    			e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
@@ -340,7 +344,7 @@ public class EventsDataSource {
 	    			e.msg = "No channel mode";
 	    		e.bg_color = R.color.status_bg;
                 e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("kicked_channel") || e.type.equalsIgnoreCase("you_kicked_channel")) {
+	    	} else if(e.type.equals("kicked_channel") || e.type.equals("you_kicked_channel")) {
 	    		e.from = "";
 	    		e.from_mode = null;
 	    		e.old_nick = event.getString("nick");
@@ -348,7 +352,7 @@ public class EventsDataSource {
 	    		e.hostmask = event.getString("kicker_hostmask");
 	    		e.color = R.color.timestamp;
 	    		e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("channel_mode_list_change")) {
+	    	} else if(e.type.equals("channel_mode_list_change")) {
 	    		boolean unknown = true;
 	    		JsonObject ops = event.getJsonObject("ops");
 	    		if(ops != null) {
@@ -380,7 +384,7 @@ public class EventsDataSource {
 	    		}
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
-	    	} else if(e.type.equalsIgnoreCase("motd_response") || e.type.equalsIgnoreCase("server_motd")) {
+	    	} else if(e.type.equals("motd_response") || e.type.equals("server_motd")) {
 	    		JsonArray lines = event.getJsonArray("lines");
     			e.from = "";
 	    		if(lines != null) {
@@ -394,15 +398,15 @@ public class EventsDataSource {
 	    			e.msg = builder.toString();
 	    		}
 	    		e.bg_color = R.color.self;
-            } else if(e.type.equalsIgnoreCase("server_nomotd")) {
+            } else if(e.type.equals("server_nomotd")) {
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
                 e.from = "";
-            } else if(e.type.equalsIgnoreCase("helptlr")) {
+            } else if(e.type.equals("helptlr")) {
                 e.bg_color = R.color.status_bg;
                 e.msg = "<pre>" + e.msg + "</pre>";
                 e.from = "";
-	    	} else if(e.type.equalsIgnoreCase("notice")) {
+	    	} else if(e.type.equals("notice")) {
                 e.chan = event.getString("target");
    	    		e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
 	    		e.bg_color = R.color.notice;
@@ -411,7 +415,7 @@ public class EventsDataSource {
 	    		e.linkify = false;
 	    		e.from = "";
 	    		e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
-	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equalsIgnoreCase("logged_in_as") || e.type.equalsIgnoreCase("btn_metadata_set") || e.type.equalsIgnoreCase("sasl_success") || e.type.equalsIgnoreCase("you_are_operator")) {
+	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equals("logged_in_as") || e.type.equals("btn_metadata_set") || e.type.equals("sasl_success") || e.type.equals("you_are_operator")) {
 	    		e.bg_color = R.color.status_bg;
 	    		e.linkify = false;
             } else if(e.type.startsWith("cap_")) {
@@ -430,35 +434,35 @@ public class EventsDataSource {
                         e.msg += " | ";
                     e.msg += caps.get(i).getAsString();
                 }
-	    	} else if(e.type.equalsIgnoreCase("inviting_to_channel")) {
+	    	} else if(e.type.equals("inviting_to_channel")) {
 	    		e.from = "";
 	    		e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
 	    		e.bg_color = R.color.notice;
-	    	} else if(e.type.equalsIgnoreCase("channel_invite")) {
+	    	} else if(e.type.equals("channel_invite")) {
 	    		e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
 	    		e.old_nick = event.getString("channel");
                 e.bg_color = R.color.notice;
-	    	} else if(e.type.equalsIgnoreCase("callerid")) {
+	    	} else if(e.type.equals("callerid")) {
 	    		e.from = e.nick;
 	    		e.msg = "<pre>" + e.msg + "</pre>";
 	    		e.highlight = true;
 	    		e.linkify = false;
 	    		e.hostmask = event.getString("usermask");
-	    	} else if(e.type.equalsIgnoreCase("target_callerid")) {
+	    	} else if(e.type.equals("target_callerid")) {
 	    		e.from = event.getString("target_nick");
 	    		e.msg = "<pre>" + e.msg + "</pre>";
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("target_notified")) {
+	    	} else if(e.type.equals("target_notified")) {
 	    		e.from = event.getString("target_nick");
 	    		e.msg = "<pre>" + e.msg + "</pre>";
 	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equalsIgnoreCase("link_channel")) {
+	    	} else if(e.type.equals("link_channel")) {
 	    		e.from = "";
 	    		e.msg = "<pre>You tried to join " + event.getString("invalid_chan") + " but were forwarded to " + event.getString("valid_chan") + "</pre>";
 	    		e.bg_color = R.color.error;
 	    	}
 	    	
-	    	if(event.has("value") && !event.type.startsWith("cap_")) {
+	    	if(event.has("value") && !event.type().startsWith("cap_")) {
 	    		e.msg = event.getString("value") + " " + e.msg;
 	    	}
 

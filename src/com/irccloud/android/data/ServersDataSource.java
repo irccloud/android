@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.data;
 
 import android.util.SparseArray;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.irccloud.android.Notifications;
 
 public class ServersDataSource {
 	public class Server {
@@ -101,7 +101,7 @@ public class ServersDataSource {
 		return s;
 	}
 	
-	int count() {
+	public int count() {
 		return servers.size();
 	}
 	

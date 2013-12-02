@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.data;
 
 import android.util.SparseArray;
 
@@ -26,29 +26,29 @@ import java.util.Iterator;
 
 public class ChannelsDataSource {
     public class Mode {
-        String mode;
-        String param;
+        public String mode;
+        public String param;
     }
 
 	public class Channel {
-		int cid;
-		int bid;
-		String name;
-		String topic_text;
-		long topic_time;
-		String topic_author;
-		String type;
-		String mode;
-        ArrayList<Mode> modes;
-		long timestamp;
-		String url;
-        int valid;
-        boolean key;
+        public int cid;
+        public int bid;
+        public String name;
+        public String topic_text;
+        public long topic_time;
+        public String topic_author;
+        public String type;
+        public String mode;
+        public ArrayList<Mode> modes;
+        public long timestamp;
+        public String url;
+        public int valid;
+        public boolean key;
 
         public synchronized void addMode(String mode, String param, boolean init) {
             if(!init)
                 removeMode(mode);
-            if(mode.equalsIgnoreCase("k"))
+            if(mode.equals("k"))
                 key = true;
             Mode m = new Mode();
             m.mode = mode;
@@ -57,12 +57,12 @@ public class ChannelsDataSource {
         }
 
         public synchronized void removeMode(String mode) {
-            if(mode.equalsIgnoreCase("k"))
+            if(mode.equals("k"))
                 key = false;
             Iterator<Mode> i = modes.iterator();
             while(i.hasNext()) {
                 Mode m = i.next();
-                if(m.mode.equalsIgnoreCase(mode)) {
+                if(m.mode.equals(mode)) {
                     modes.remove(m);
                     return;
                 }
@@ -73,7 +73,7 @@ public class ChannelsDataSource {
             Iterator<Mode> i = modes.iterator();
             while(i.hasNext()) {
                 Mode m = i.next();
-                if(m.mode.equalsIgnoreCase(mode)) {
+                if(m.mode.equals(mode)) {
                     return true;
                 }
             }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -23,8 +23,15 @@ import android.preference.*;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.Notifications;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
-import com.testflightapp.lib.TestFlight;
 
 import org.json.JSONException;
 import org.json.JSONObject;

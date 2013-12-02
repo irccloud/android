@@ -20,8 +20,8 @@ import java.util.*;
 
 import android.content.ContentValues;
 import android.database.SQLException;
-import com.sonyericsson.extras.liveware.aef.notification.Notification;
-import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;
+
+import com.irccloud.android.activity.MessageActivity;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 import org.json.JSONArray;
 import org.json.JSONException;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -51,6 +51,14 @@ import android.widget.TextView;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.data.ChannelsDataSource;
+import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
 public class BuffersListFragment extends ListFragment {
 	private static final int TYPE_SERVER = 0;

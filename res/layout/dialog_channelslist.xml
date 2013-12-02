@@ -22,7 +22,7 @@
 
     <fragment
         android:id="@+id/channelListFragment"
-        android:name="com.irccloud.android.ChannelListFragment"
+        android:name="com.irccloud.android.fragment.ChannelListFragment"
         android:layout_width="wrap_content"
         android:layout_height="match_parent" />
 

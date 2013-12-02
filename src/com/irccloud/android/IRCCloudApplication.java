@@ -29,6 +29,11 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
+import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.data.ChannelsDataSource;
+import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.UsersDataSource;
 import com.testflightapp.lib.TestFlight;
 
 @SuppressWarnings("unused")

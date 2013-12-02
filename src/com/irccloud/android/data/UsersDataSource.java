@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,15 +23,15 @@ import java.util.Iterator;
 
 public class UsersDataSource {
 	public class User {
-		int cid;
-		int bid;
-		String nick;
-		String old_nick = null;
-		String hostmask;
-		String mode;
-		int away;
-		String away_msg;
-		int joined;
+		public int cid;
+        public int bid;
+        public String nick;
+        public String old_nick = null;
+        public String hostmask;
+        public String mode;
+        public int away;
+        public String away_msg;
+        public int joined;
 	}
 
 	public class comparator implements Comparator<User> {

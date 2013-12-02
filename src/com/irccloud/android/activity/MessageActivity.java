@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.activity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.ScrollerCompat;
 import android.util.SparseArray;
 import android.view.*;
 import org.json.JSONException;
@@ -34,6 +33,34 @@ import org.json.JSONObject;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.irccloud.android.ActionEditText;
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.data.ChannelsDataSource;
+import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.Config;
+import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.GCMIntentService;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.Notifications;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.UsersDataSource;
+import com.irccloud.android.fragment.AcceptListFragment;
+import com.irccloud.android.fragment.BanListFragment;
+import com.irccloud.android.fragment.BufferOptionsFragment;
+import com.irccloud.android.fragment.BuffersListFragment;
+import com.irccloud.android.fragment.ChannelListFragment;
+import com.irccloud.android.fragment.ChannelOptionsFragment;
+import com.irccloud.android.fragment.EditConnectionFragment;
+import com.irccloud.android.fragment.IgnoreListFragment;
+import com.irccloud.android.fragment.MessageViewFragment;
+import com.irccloud.android.fragment.NamesListFragment;
+import com.irccloud.android.fragment.NickservFragment;
+import com.irccloud.android.fragment.UsersListFragment;
+import com.irccloud.android.fragment.WhoListFragment;
+import com.irccloud.android.fragment.WhoisFragment;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -1459,7 +1486,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             }
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
 
@@ -1921,7 +1948,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			}
 		}
 		messageTxt.requestFocus();
-		InputMethodManager keyboard = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		InputMethodManager keyboard = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
         keyboard.showSoftInput(messageTxt, 0);
 	}
 	
@@ -2154,10 +2181,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
 	    		if(items[item].equals("Copy Message")) {
 	    			if(Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-						android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+						android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 	    			    clipboard.setText(text_to_copy);
 	    			} else {
-	    			    @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+	    			    @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 	    			    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message",text_to_copy);
 	    			    clipboard.setPrimaryClip(clip);
 	    			}

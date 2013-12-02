@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
+package com.irccloud.android.fragment;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,7 +27,6 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import android.os.Debug;
 import android.support.v4.app.ListFragment;
 import android.text.TextUtils;
 import android.view.animation.AlphaAnimation;
@@ -41,7 +40,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -56,9 +54,18 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.irccloud.android.BuffersListFragment.OnBufferSelectedListener;
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
+import com.irccloud.android.CollapsedEventsList;
+import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.Ignore;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 
 public class MessageViewFragment extends ListFragment {
 	private NetworkConnection conn;

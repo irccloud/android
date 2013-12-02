@@ -37,6 +37,7 @@ import android.util.Patterns;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.irccloud.android.data.ServersDataSource;
 
 public class ColorFormatter {
 	private static final String[] COLOR_MAP = {

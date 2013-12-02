@@ -29,7 +29,6 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -41,7 +40,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
@@ -80,13 +78,17 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
-import com.google.android.gms.internal.au;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.data.ChannelsDataSource;
+import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.UsersDataSource;
 import com.testflightapp.lib.TestFlight;
 
 public class NetworkConnection {
@@ -1115,7 +1117,720 @@ public class NetworkConnection {
 	public long getReconnectTimestamp() {
 		return reconnect_timestamp;
 	}
-	
+
+    public interface Parser {
+        public void parse(IRCCloudJSONObject object) throws JSONException;
+    }
+
+    private class BroadcastParser implements Parser {
+        int type;
+
+        BroadcastParser(int t) {
+            type = t;
+        }
+
+        public void parse(IRCCloudJSONObject object) {
+            if(!backlog)
+                notifyHandlers(type, object);
+        }
+    };
+
+    HashMap<String,Parser> parserMap = new HashMap<String, Parser>() {{
+        //Ignored events
+        put("idle", null);
+        put("end_of_backlog", null);
+        put("oob_skipped", null);
+
+        put("header", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                idle_interval = object.getLong("idle_interval") + 10000;
+                clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
+                failCount = 0;
+                currentcount = 0;
+                currentBid = -1;
+                firstEid = -1;
+                streamId = object.getString("streamid");
+                if(object.has("accrued"))
+                    accrued = object.getInt("accrued");
+                if(!(object.has("resumed") && object.getBoolean("resumed"))) {
+                    Log.d("IRCCloud", "Socket was not resumed, invalidating buffers");
+                    BuffersDataSource.getInstance().invalidate();
+                    ChannelsDataSource.getInstance().invalidate();
+                }
+                TestFlight.log("Clock offset: " + clockOffset + "s");
+            }
+        });
+
+        put("global_system_message", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                String msgType = object.getString("system_message_type");
+                if(msgType == null || (!msgType.equalsIgnoreCase("eval") && !msgType.equalsIgnoreCase("refresh"))) {
+                    globalMsg = object.getString("msg");
+                    notifyHandlers(EVENT_GLOBALMSG, object);
+                }
+            }
+        });
+
+        put("num_invites", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                if(userInfo != null)
+                    userInfo.num_invites = object.getInt("num_invites");
+            }
+        });
+
+        put("stat_user", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                userInfo = new UserInfo(object);
+                SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+                prefs.putString("name", userInfo.name);
+                prefs.putString("email", userInfo.email);
+                prefs.putString("highlights", userInfo.highlights);
+                prefs.putBoolean("autoaway", userInfo.auto_away);
+                if(userInfo.prefs != null) {
+                    prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.getBoolean("time-24hr"));
+                    prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.getBoolean("time-seconds"));
+                    prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.getBoolean("mode-showsymbol"));
+                    prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.getBoolean("nick-colors"));
+                } else {
+                    prefs.putBoolean("time-24hr", false);
+                    prefs.putBoolean("time-seconds", false);
+                    prefs.putBoolean("mode-showsymbol", false);
+                    prefs.putBoolean("nick-colors", false);
+                }
+                prefs.commit();
+                notifyHandlers(EVENT_USERINFO, userInfo);
+            }
+        });
+
+        put("set_ignores", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                s.updateIgnores(object.cid(), object.getJsonArray("masks"));
+                if(!backlog)
+                    notifyHandlers(EVENT_SETIGNORES, object);
+            }
+        });
+        put("ignore_list", get("set_ignores"));
+
+        put("heartbeat_echo", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                JsonObject seenEids = object.getJsonObject("seenEids");
+                Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
+                while(i.hasNext()) {
+                    Entry<String, JsonElement> entry = i.next();
+                    JsonObject eids = entry.getValue().getAsJsonObject();
+                    Iterator<Entry<String, JsonElement>> j = eids.entrySet().iterator();
+                    while(j.hasNext()) {
+                        Entry<String, JsonElement> eidentry = j.next();
+                        String bid = eidentry.getKey();
+                        long eid = eidentry.getValue().getAsLong();
+                        BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                        Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
+                        Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                    }
+                }
+                if(!backlog) {
+                    notifyHandlers(EVENT_HEARTBEATECHO, object);
+                    Notifications.getInstance().showNotifications(null);
+                }
+            }
+        });
+
+        //Backlog
+        put("oob_include", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                try {
+                    if(Looper.myLooper() == null)
+                        Looper.prepare();
+                    String url = "https://" + IRCCLOUD_HOST + object.getString("url");
+                    new OOBIncludeTask(-1).execute(new URL(url));
+                } catch (MalformedURLException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        put("backlog_starts", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                numbuffers = object.getInt("numbuffers");
+                totalbuffers = 0;
+                currentBid = -1;
+                notifyHandlers(EVENT_BACKLOG_START, null);
+                backlog = true;
+            }
+        });
+
+        put("backlog_complete", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                accrued = 0;
+                backlog = false;
+                ready = true;
+                Log.d("IRCCloud", "Cleaning up invalid BIDs");
+                BuffersDataSource.getInstance().purgeInvalidBIDs();
+                ChannelsDataSource.getInstance().purgeInvalidChannels();
+                notifyHandlers(EVENT_BACKLOG_END, null);
+            }
+        });
+
+        //Misc. popup alerts
+        put("bad_channel_key", new BroadcastParser(EVENT_BADCHANNELKEY));
+        put("invalid_nick", new BroadcastParser(EVENT_INVALIDNICK));
+        BroadcastParser alert = new BroadcastParser(EVENT_ALERT);
+        String[] alerts = {"too_many_channels",
+                "no_such_channel",
+                "no_such_nick",
+                "invalid_nick_change",
+                "chan_privs_needed",
+                "accept_exists",
+                "banned_from_channel",
+                "oper_only",
+                "no_nick_change",
+                "no_messages_from_non_registered",
+                "not_registered",
+                "already_registered",
+                "too_many_targets",
+                "no_such_server",
+                "unknown_command",
+                "help_not_found",
+                "accept_full",
+                "accept_not",
+                "nick_collision",
+                "nick_too_fast",
+                "save_nick",
+                "unknown_mode",
+                "user_not_in_channel",
+                "need_more_params",
+                "users_dont_match",
+                "users_disabled",
+                "invalid_operator_password",
+                "flood_warning",
+                "privs_needed",
+                "operator_fail",
+                "not_on_channel",
+                "ban_on_chan",
+                "cannot_send_to_chan",
+                "user_on_channel",
+                "no_nick_given",
+                "no_text_to_send",
+                "no_origin",
+                "only_servers_can_change_mode",
+                "silence",
+                "no_channel_topic",
+                "invite_only_chan",
+                "channel_full"};
+        for(String event : alerts) {
+            put(event, alert);
+        }
+
+        //Server events
+        put("makeserver", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource.Server server = s.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
+                        object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
+                        object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
+                        object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"));
+                Notifications.getInstance().deleteNetwork(object.cid());
+                if(object.getString("name") != null && object.getString("name").length() > 0)
+                    Notifications.getInstance().addNetwork(object.cid(), object.getString("name"));
+                else
+                    Notifications.getInstance().addNetwork(object.cid(), object.getString("hostname"));
+
+                if(!backlog)
+                    notifyHandlers(EVENT_MAKESERVER, server);
+            }
+        });
+        put("server_details_changed", get("makeserver"));
+        put("connection_deleted", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                s.deleteAllDataForServer(object.cid());
+                Notifications.getInstance().deleteNetwork(object.cid());
+                Notifications.getInstance().showNotifications(null);
+                if(!backlog)
+                    notifyHandlers(EVENT_CONNECTIONDELETED, object.cid());
+            }
+        });
+        put("status_changed", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                s.updateStatus(object.cid(), object.getString("new_status"), object.getJsonObject("fail_info"));
+                if(!backlog)
+                    notifyHandlers(EVENT_STATUSCHANGED, object);
+            }
+        });
+        put("connection_lag", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                s.updateLag(object.cid(), object.getLong("lag"));
+                if(!backlog)
+                    notifyHandlers(EVENT_CONNECTIONLAG, object);
+            }
+        });
+        put("isupport_params", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                s.updateIsupport(object.cid(), object.getJsonObject("params"));
+            }
+        });
+
+        //Buffer events
+        put("open_buffer", new BroadcastParser(EVENT_OPENBUFFER));
+        put("makebuffer", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                BuffersDataSource.Buffer buffer = b.createBuffer(object.bid(), object.cid(),
+                        (object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
+                        (object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"),
+                        (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0, (object.has("timeout") && object.getBoolean("timeout"))?1:0);
+                Notifications.getInstance().deleteOldNotifications(buffer.bid, buffer.last_seen_eid);
+                Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
+                if(!backlog)
+                    notifyHandlers(EVENT_MAKEBUFFER, buffer);
+                totalbuffers++;
+            }
+        });
+        put("delete_buffer", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                b.deleteAllDataForBuffer(object.bid());
+                Notifications.getInstance().deleteNotificationsForBid(object.bid());
+                Notifications.getInstance().showNotifications(null);
+                if(!backlog)
+                    notifyHandlers(EVENT_DELETEBUFFER, object.bid());
+            }
+        });
+        put("buffer_archived", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                b.updateArchived(object.bid(), 1);
+                if(!backlog)
+                    notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
+            }
+        });
+        put("buffer_unarchived", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                b.updateArchived(object.bid(), 0);
+                if(!backlog)
+                    notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
+            }
+        });
+        put("rename_conversation", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                b.updateName(object.bid(), object.getString("new_name"));
+                if(!backlog)
+                    notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
+            }
+        });
+        Parser msg = new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource.Event event = e.addEvent(object);
+                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());
+
+                if(b != null && event.eid > b.last_seen_eid && e.isImportant(event, b.type) && ((event.highlight || b.type.equals("conversation")))) {
+                    JSONObject bufferDisabledMap = null;
+                    boolean show = true;
+                    if(userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
+                        bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
+                        if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                            show = false;
+                    }
+                    if(show && Notifications.getInstance().getNotification(event.eid) == null) {
+                        String message = ColorFormatter.irc_to_html(event.msg);
+                        message = ColorFormatter.html_to_spanned(message).toString();
+                        Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, message, b.name, b.type, event.type);
+                        if(!backlog) {
+                            if(b.type.equals("conversation"))
+                                Notifications.getInstance().showNotifications(b.name + ": " + message);
+                            else if(b.type.equals("console")) {
+                                if(event.from == null || event.from.length() == 0) {
+                                    ServersDataSource.Server s = ServersDataSource.getInstance().getServer(event.cid);
+                                    if(s.name != null && s.name.length() > 0)
+                                        Notifications.getInstance().showNotifications(s.name + ": " + message);
+                                    else
+                                        Notifications.getInstance().showNotifications(s.hostname + ": " + message);
+                                } else {
+                                    Notifications.getInstance().showNotifications(event.from + ": " + message);
+                                }
+                            } else
+                                Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
+                        }
+                    }
+                }
+
+                if(!backlog)
+                    notifyHandlers(EVENT_BUFFERMSG, event);
+            }
+        };
+        String[] msgs = {
+                "buffer_msg",
+                "buffer_me_msg",
+                "server_motdstart",
+                "wait",
+                "banned",
+                "kill",
+                "connecting_cancelled",
+                "target_callerid",
+                "notice",
+                "server_welcome",
+                "server_motd",
+                "server_endofmotd",
+                "server_nomotd",
+                "services_down",
+                "your_unique_id",
+                "callerid",
+                "target_notified",
+                "server_luserclient",
+                "server_luserop",
+                "server_luserconns",
+                "myinfo",
+                "hidden_host_set",
+                "unhandled_line",
+                "unparsed_line",
+                "server_luserme",
+                "server_n_local",
+                "server_luserchannels",
+                "connecting_failed",
+                "nickname_in_use",
+                "channel_invite",
+                "server_n_global",
+                "motd_response",
+                "server_luserunknown",
+                "socket_closed",
+                "channel_mode_list_change",
+                "msg_services",
+                "stats", "statslinkinfo", "statscommands", "statscline", "statsnline", "statsiline", "statskline", "statsqline", "statsyline", "statsbline", "statsgline", "statstline", "statseline", "statsvline", "statslline", "statsuptime", "statsoline", "statshline", "statssline", "statsuline", "statsdebug", "endofstats",
+                "server_yourhost",
+                "server_created",
+                "inviting_to_channel",
+                "error",
+                "too_fast",
+                "no_bots",
+                "wallops",
+                "logged_in_as",
+                "sasl_fail",
+                "sasl_too_long",
+                "sasl_aborted",
+                "sasl_already",
+                "you_are_operator",
+                "btn_metadata_set",
+                "sasl_success",
+                "cap_ls",
+                "cap_req",
+                "cap_ack",
+                "help_topics_start","help_topics","help_topics_end", "helphdr", "helpop", "helptlr", "helphlp", "helpfwd", "helpign"
+        };
+        for(String event : msgs) {
+            put(event, msg);
+        }
+
+        //Channel events
+        put("link_channel", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog)
+                    notifyHandlers(EVENT_LINKCHANNEL, object);
+            }
+        });
+        put("channel_init", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ChannelsDataSource c = ChannelsDataSource.getInstance();
+                ChannelsDataSource.Channel channel = c.createChannel(object.cid(), object.bid(), object.getString("chan"),
+                        object.getJsonObject("topic").get("text").isJsonNull()?"":object.getJsonObject("topic").get("text").getAsString(),
+                        object.getJsonObject("topic").get("time").getAsLong(),
+                        object.getJsonObject("topic").get("nick").getAsString(), object.getString("channel_type"),
+                        object.getLong("timestamp"));
+                c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
+                UsersDataSource u = UsersDataSource.getInstance();
+                u.deleteUsersForBuffer(object.cid(), object.bid());
+                JsonArray users = object.getJsonArray("members");
+                for(int i = 0; i < users.size(); i++) {
+                    JsonObject user = users.get(i).getAsJsonObject();
+                    u.createUser(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0, false);
+                }
+                if(!backlog)
+                    notifyHandlers(EVENT_CHANNELINIT, channel);
+            }
+        });
+        put("channel_topic", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    ChannelsDataSource c = ChannelsDataSource.getInstance();
+                    c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid"), object.getString("author"));
+                    notifyHandlers(EVENT_CHANNELTOPIC, object);
+                }
+            }
+        });
+        put("channel_url", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ChannelsDataSource c = ChannelsDataSource.getInstance();
+                c.updateURL(object.bid(), object.getString("url"));
+            }
+        });
+        put("channel_mode", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    ChannelsDataSource c = ChannelsDataSource.getInstance();
+                    c.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
+                    notifyHandlers(EVENT_CHANNELMODE, object);
+                }
+            }
+        });
+        put("channel_mode_is", get("channel_mode"));
+        put("channel_timestamp", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                if(!backlog) {
+                    ChannelsDataSource c = ChannelsDataSource.getInstance();
+                    c.updateTimestamp(object.bid(), object.getLong("timestamp"));
+                    notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
+                }
+            }
+        });
+        put("joined_channel", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
+                    notifyHandlers(EVENT_JOIN, object);
+                }
+            }
+        });
+        put("you_joined_channel", get("joined_channel"));
+        put("parted_channel", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
+                    if(object.type().equals("you_parted_channel")) {
+                        ChannelsDataSource c = ChannelsDataSource.getInstance();
+                        c.deleteChannel(object.bid());
+                        u.deleteUsersForBuffer(object.cid(), object.bid());
+                    }
+                    notifyHandlers(EVENT_PART, object);
+                }
+            }
+        });
+        put("you_parted_channel", get("parted_channel"));
+        put("quit", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
+                    notifyHandlers(EVENT_QUIT, object);
+                }
+            }
+        });
+        put("quit_server", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog)
+                    notifyHandlers(EVENT_QUIT, object);
+            }
+        });
+        put("kicked_channel", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
+                    if(object.type().equals("you_kicked_channel")) {
+                        ChannelsDataSource c = ChannelsDataSource.getInstance();
+                        c.deleteChannel(object.bid());
+                        u.deleteUsersForBuffer(object.cid(), object.bid());
+                    }
+                    notifyHandlers(EVENT_KICK, object);
+                }
+            }
+        });
+        put("you_kicked_channel", get("kicked_channel"));
+
+        //Member list events
+        put("nickchange", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.updateNick(object.cid(), object.bid(), object.getString("oldnick"), object.getString("newnick"));
+                    if(object.type().equals("you_nickchange")) {
+                        ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
+                    }
+                    notifyHandlers(EVENT_NICKCHANGE, object);
+                }
+            }
+        });
+        put("you_nickchange", get("nickchange"));
+        put("user_channel_mode", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.updateMode(object.cid(), object.bid(), object.getString("nick"), object.getString("newmode"));
+                    notifyHandlers(EVENT_USERCHANNELMODE, object);
+                }
+            }
+        });
+        put("member_updates", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                JsonObject updates = object.getJsonObject("updates");
+                Iterator<Entry<String, JsonElement>> i = updates.entrySet().iterator();
+                while(i.hasNext()) {
+                    Entry<String, JsonElement> entry = i.next();
+                    JsonObject user = entry.getValue().getAsJsonObject();
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.updateAway(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
+                    u.updateHostmask(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
+                }
+                if(!backlog)
+                    notifyHandlers(EVENT_MEMBERUPDATES, null);
+            }
+        });
+        put("user_away", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                UsersDataSource u = UsersDataSource.getInstance();
+                u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
+                b.updateAway(object.bid(), object.getString("msg"));
+                if(!backlog)
+                    notifyHandlers(EVENT_AWAY, object);
+            }
+        });
+        put("away", get("user_away"));
+        put("user_back", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource b = BuffersDataSource.getInstance();
+                UsersDataSource u = UsersDataSource.getInstance();
+                u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
+                b.updateAway(object.bid(), "");
+                if(!backlog)
+                    notifyHandlers(EVENT_AWAY, object);
+            }
+        });
+        put("self_away", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                UsersDataSource u = UsersDataSource.getInstance();
+                u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("away_msg"));
+                s.updateAway(object.cid(), object.getString("away_msg"));
+                if(!backlog)
+                    notifyHandlers(EVENT_AWAY, object);
+            }
+        });
+        put("self_back", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                UsersDataSource u = UsersDataSource.getInstance();
+                u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
+                s.updateAway(object.cid(), "");
+                if(!backlog)
+                    notifyHandlers(EVENT_SELFBACK, object);
+            }
+        });
+        put("self_details", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                s.updateUsermask(object.cid(), object.getString("usermask"));
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog)
+                    notifyHandlers(EVENT_SELFDETAILS, object);
+            }
+        });
+        put("user_mode", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource e = EventsDataSource.getInstance();
+                e.addEvent(object);
+                if(!backlog) {
+                    ServersDataSource s = ServersDataSource.getInstance();
+                    s.updateMode(object.cid(), object.getString("newmode"));
+                    notifyHandlers(EVENT_USERMODE, object);
+                }
+            }
+        });
+
+        //Various lists
+        put("ban_list", new BroadcastParser(EVENT_BANLIST));
+        put("accept_list", new BroadcastParser(EVENT_ACCEPTLIST));
+        put("names_reply", new BroadcastParser(EVENT_NAMESLIST));
+        put("whois_response", new BroadcastParser(EVENT_WHOIS));
+        put("list_response_fetching", new BroadcastParser(EVENT_LISTRESPONSEFETCHING));
+        put("list_response_toomany", new BroadcastParser(EVENT_LISTRESPONSETOOMANY));
+        put("list_response", new BroadcastParser(EVENT_LISTRESPONSE));
+        put("who_response", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                if(!backlog) {
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    JsonArray users = object.getJsonArray("users");
+                    for(int i = 0; i < users.size(); i++) {
+                        JsonObject user = users.get(i).getAsJsonObject();
+                        u.updateHostmask(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
+                        u.updateAway(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
+                    }
+                    notifyHandlers(EVENT_WHOLIST, object);
+                }
+            }
+        });
+    }};
+
 	private void parse_object(IRCCloudJSONObject object) throws JSONException {
 		cancel_idle_timer();
 		//Log.d(TAG, "Backlog: " + backlog + " New event: " + object);
@@ -1133,467 +1848,32 @@ public class NetworkConnection {
 		if(type != null && type.length() > 0) {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
 			//Log.d(TAG, "New event: " + type);
-			if(type.equalsIgnoreCase("header")) {
-				idle_interval = object.getLong("idle_interval") + 10000;
-				clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
-                failCount = 0;
-                currentcount = 0;
-                currentBid = -1;
-                firstEid = -1;
-                streamId = object.getString("streamid");
-                if(object.has("accrued"))
-                    accrued = object.getInt("accrued");
-                if(!(object.has("resumed") && object.getBoolean("resumed"))) {
-                    Log.d("IRCCloud", "Socket was not resumed, invalidating buffers");
-                    BuffersDataSource.getInstance().invalidate();
-                    ChannelsDataSource.getInstance().invalidate();
-                }
-				TestFlight.log("Clock offset: " + clockOffset + "s");
-			} else if(type.equalsIgnoreCase("global_system_message")) {
-				String msgType = object.getString("system_message_type");
-				if(msgType == null || (!msgType.equalsIgnoreCase("eval") && !msgType.equalsIgnoreCase("refresh"))) {
-					globalMsg = object.getString("msg");
-					notifyHandlers(EVENT_GLOBALMSG, object);
-				}
-            } else if(type.equalsIgnoreCase("backlog_complete")) {
-                accrued = 0;
-                backlog = false;
-                ready = true;
-                Log.d("IRCCloud", "Cleaning up invalid BIDs");
-                BuffersDataSource.getInstance().purgeInvalidBIDs();
-                ChannelsDataSource.getInstance().purgeInvalidChannels();
-                notifyHandlers(EVENT_BACKLOG_END, null);
-            } else if(type.equalsIgnoreCase("idle") || type.equalsIgnoreCase("end_of_backlog") || type.equalsIgnoreCase("oob_skipped")) {
-			} else if(type.equalsIgnoreCase("num_invites")) {
-				if(userInfo != null)
-					userInfo.num_invites = object.getInt("num_invites");
-			} else if(type.equalsIgnoreCase("stat_user")) {
-				userInfo = new UserInfo(object);
-				SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-				prefs.putString("name", userInfo.name);
-				prefs.putString("email", userInfo.email);
-				prefs.putString("highlights", userInfo.highlights);
-				prefs.putBoolean("autoaway", userInfo.auto_away);
-				if(userInfo.prefs != null) {
-					prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.getBoolean("time-24hr"));
-					prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.getBoolean("time-seconds"));
-					prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.getBoolean("mode-showsymbol"));
-                    prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.getBoolean("nick-colors"));
-				} else {
-					prefs.putBoolean("time-24hr", false);
-					prefs.putBoolean("time-seconds", false);
-					prefs.putBoolean("mode-showsymbol", false);
-                    prefs.putBoolean("nick-colors", false);
-				}
-				prefs.commit();
-				notifyHandlers(EVENT_USERINFO, userInfo);
-			} else if(type.equalsIgnoreCase("bad_channel_key")) {
-				if(!backlog)
-					notifyHandlers(EVENT_BADCHANNELKEY, object);
-			} else if(type.equalsIgnoreCase("too_many_channels") || type.equalsIgnoreCase("no_such_channel") ||
-					type.equalsIgnoreCase("no_such_nick") || type.equalsIgnoreCase("invalid_nick_change") ||
-					type.equalsIgnoreCase("chan_privs_needed") || type.equalsIgnoreCase("accept_exists") ||
-					type.equalsIgnoreCase("banned_from_channel") || type.equalsIgnoreCase("oper_only") ||
-					type.equalsIgnoreCase("no_nick_change") || type.equalsIgnoreCase("no_messages_from_non_registered") ||
-					type.equalsIgnoreCase("not_registered") || type.equalsIgnoreCase("already_registered") ||
-					type.equalsIgnoreCase("too_many_targets") || type.equalsIgnoreCase("no_such_server") ||
-					type.equalsIgnoreCase("unknown_command") || type.equalsIgnoreCase("help_not_found") ||
-					type.equalsIgnoreCase("accept_full") || type.equalsIgnoreCase("accept_not") ||
-					type.equalsIgnoreCase("nick_collision") || type.equalsIgnoreCase("nick_too_fast") ||
-					type.equalsIgnoreCase("save_nick") || type.equalsIgnoreCase("unknown_mode") ||
-					type.equalsIgnoreCase("user_not_in_channel") || type.equalsIgnoreCase("need_more_params") ||
-					type.equalsIgnoreCase("users_dont_match") || type.equalsIgnoreCase("users_disabled") ||
-					type.equalsIgnoreCase("invalid_operator_password") || type.equalsIgnoreCase("flood_warning") ||
-					type.equalsIgnoreCase("privs_needed") || type.equalsIgnoreCase("operator_fail") ||
-					type.equalsIgnoreCase("not_on_channel") || type.equalsIgnoreCase("ban_on_chan") ||
-					type.equalsIgnoreCase("cannot_send_to_chan") || type.equalsIgnoreCase("user_on_channel") ||
-					type.equalsIgnoreCase("no_nick_given") || type.equalsIgnoreCase("no_text_to_send") ||
-					type.equalsIgnoreCase("no_origin") || type.equalsIgnoreCase("only_servers_can_change_mode") ||
-					type.equalsIgnoreCase("silence") || type.equalsIgnoreCase("no_channel_topic") ||
-					type.equalsIgnoreCase("invite_only_chan") || type.equalsIgnoreCase("channel_full")) {
-				if(!backlog)
-					notifyHandlers(EVENT_ALERT, object);
-			} else if(type.equalsIgnoreCase("open_buffer")) {
-				if(!backlog)
-					notifyHandlers(EVENT_OPENBUFFER, object);
-			} else if(type.equalsIgnoreCase("invalid_nick")) {
-				if(!backlog)
-					notifyHandlers(EVENT_INVALIDNICK, object);
-			} else if(type.equalsIgnoreCase("ban_list")) {
-				if(!backlog)
-					notifyHandlers(EVENT_BANLIST, object);
-			} else if(type.equalsIgnoreCase("accept_list")) {
-				if(!backlog)
-					notifyHandlers(EVENT_ACCEPTLIST, object);
-			} else if(type.equalsIgnoreCase("who_response")) {
-				if(!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
-                    JsonArray users = object.getJsonArray("users");
-                    for(int i = 0; i < users.size(); i++) {
-                        JsonObject user = users.get(i).getAsJsonObject();
-                        u.updateHostmask(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
-                        u.updateAway(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
-                    }
-					notifyHandlers(EVENT_WHOLIST, object);
-                }
-            } else if(type.equalsIgnoreCase("names_reply")) {
-                if(!backlog)
-                    notifyHandlers(EVENT_NAMESLIST, object);
-			} else if(type.equalsIgnoreCase("whois_response")) {
-				if(!backlog)
-					notifyHandlers(EVENT_WHOIS, object);
-			} else if(type.equalsIgnoreCase("list_response_fetching")) {
-				if(!backlog)
-					notifyHandlers(EVENT_LISTRESPONSEFETCHING, object);
-			} else if(type.equalsIgnoreCase("list_response_toomany")) {
-				if(!backlog)
-					notifyHandlers(EVENT_LISTRESPONSETOOMANY, object);
-			} else if(type.equalsIgnoreCase("list_response")) {
-				if(!backlog)
-					notifyHandlers(EVENT_LISTRESPONSE, object);
-			} else if(type.equalsIgnoreCase("makeserver") || type.equalsIgnoreCase("server_details_changed")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				ServersDataSource.Server server = s.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
-						object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
-								object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-								object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"));
-				Notifications.getInstance().deleteNetwork(object.cid());
-				if(object.getString("name") != null && object.getString("name").length() > 0)
-					Notifications.getInstance().addNetwork(object.cid(), object.getString("name"));
-				else
-					Notifications.getInstance().addNetwork(object.cid(), object.getString("hostname"));
-
-				if(!backlog)
-					notifyHandlers(EVENT_MAKESERVER, server);
-			} else if(type.equalsIgnoreCase("connection_deleted")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				s.deleteAllDataForServer(object.cid());
-				Notifications.getInstance().deleteNetwork(object.cid());
-				Notifications.getInstance().showNotifications(null);
-				if(!backlog)
-					notifyHandlers(EVENT_CONNECTIONDELETED, object.cid());
-			} else if(type.equalsIgnoreCase("backlog_starts")) {
-				numbuffers = object.getInt("numbuffers");
-				totalbuffers = 0;
-                currentBid = -1;
-                notifyHandlers(EVENT_BACKLOG_START, null);
-                backlog = true;
-			} else if(type.equalsIgnoreCase("makebuffer")) {
-				BuffersDataSource b = BuffersDataSource.getInstance();
-				BuffersDataSource.Buffer buffer = b.createBuffer(object.bid(), object.cid(),
-						(object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined"))?object.getLong("min_eid"):0,
-								(object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined"))?object.getLong("last_seen_eid"):-1, object.getString("name"), object.getString("buffer_type"),
-										(object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0, (object.has("timeout") && object.getBoolean("timeout"))?1:0);
-				Notifications.getInstance().deleteOldNotifications(buffer.bid, buffer.last_seen_eid);
-				Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
-				if(!backlog)
-					notifyHandlers(EVENT_MAKEBUFFER, buffer);
-                totalbuffers++;
-			} else if(type.equalsIgnoreCase("delete_buffer")) {
-				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.deleteAllDataForBuffer(object.bid());
-				Notifications.getInstance().deleteNotificationsForBid(object.bid());
-				Notifications.getInstance().showNotifications(null);
-				if(!backlog)
-					notifyHandlers(EVENT_DELETEBUFFER, object.bid());
-			} else if(type.equalsIgnoreCase("buffer_archived")) {
-				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.updateArchived(object.bid(), 1);
-				if(!backlog)
-					notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
-			} else if(type.equalsIgnoreCase("buffer_unarchived")) {
-				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.updateArchived(object.bid(), 0);
-				if(!backlog)
-					notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
-			} else if(type.equalsIgnoreCase("rename_conversation")) {
-				BuffersDataSource b = BuffersDataSource.getInstance();
-				b.updateName(object.bid(), object.getString("new_name"));
-				if(!backlog)
-					notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
-			} else if(type.equalsIgnoreCase("status_changed")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateStatus(object.cid(), object.getString("new_status"), object.getJsonObject("fail_info"));
-				if(!backlog)
-					notifyHandlers(EVENT_STATUSCHANGED, object);
-			} else if(type.equalsIgnoreCase("buffer_msg") || type.equalsIgnoreCase("buffer_me_msg") || type.equalsIgnoreCase("server_motdstart") || type.equalsIgnoreCase("wait") || type.equalsIgnoreCase("banned") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("connecting_cancelled") || type.equalsIgnoreCase("target_callerid")
-					 || type.equalsIgnoreCase("notice") || type.equalsIgnoreCase("server_welcome") || type.equalsIgnoreCase("server_motd") || type.equalsIgnoreCase("server_endofmotd") || type.equalsIgnoreCase("server_nomotd") || type.equalsIgnoreCase("services_down") || type.equalsIgnoreCase("your_unique_id") || type.equalsIgnoreCase("callerid") || type.equalsIgnoreCase("target_notified")
-					 || type.equalsIgnoreCase("server_luserclient") || type.equalsIgnoreCase("server_luserop") || type.equalsIgnoreCase("server_luserconns") || type.equalsIgnoreCase("myinfo") || type.equalsIgnoreCase("hidden_host_set") || type.equalsIgnoreCase("unhandled_line") || type.equalsIgnoreCase("unparsed_line")
-					 || type.equalsIgnoreCase("server_luserme") || type.equalsIgnoreCase("server_n_local") || type.equalsIgnoreCase("server_luserchannels") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("nickname_in_use") || type.equalsIgnoreCase("channel_invite") || type.startsWith("stats")
-					 || type.equalsIgnoreCase("server_n_global") || type.equalsIgnoreCase("motd_response") || type.equalsIgnoreCase("server_luserunknown") || type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("channel_mode_list_change") || type.equalsIgnoreCase("msg_services") || type.equalsIgnoreCase("endofstats")
-					 || type.equalsIgnoreCase("server_yourhost") || type.equalsIgnoreCase("server_created") || type.equalsIgnoreCase("inviting_to_channel") || type.equalsIgnoreCase("error") || type.equalsIgnoreCase("too_fast") || type.equalsIgnoreCase("no_bots") || type.equalsIgnoreCase("wallops")
-                     || type.equalsIgnoreCase("logged_in_as") || type.equalsIgnoreCase("sasl_fail")|| type.equalsIgnoreCase("sasl_too_long")|| type.equalsIgnoreCase("sasl_aborted")|| type.equalsIgnoreCase("sasl_already")|| type.equalsIgnoreCase("you_are_operator")
-                    || type.equalsIgnoreCase("btn_metadata_set") || type.equalsIgnoreCase("sasl_success") || type.equalsIgnoreCase("cap_ls") || type.equalsIgnoreCase("cap_req") || type.equalsIgnoreCase("cap_ack") || type.equalsIgnoreCase("helptlr")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				EventsDataSource.Event event = e.addEvent(object);
-				BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());
-				
-				if(b != null && event.eid > b.last_seen_eid && e.isImportant(event, b.type) && ((event.highlight || b.type.equals("conversation")))) {
-					JSONObject bufferDisabledMap = null;
-					boolean show = true;
-					if(userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
-						bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
-						if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
-							show = false;
-					}
-					if(show && Notifications.getInstance().getNotification(event.eid) == null) {
-						String message = ColorFormatter.irc_to_html(event.msg);
-						message = ColorFormatter.html_to_spanned(message).toString();
-						Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, message, b.name, b.type, event.type);
-						if(!backlog) {
-							if(b.type.equals("conversation"))
-								Notifications.getInstance().showNotifications(b.name + ": " + message);
-							else if(b.type.equals("console")) {
-								if(event.from == null || event.from.length() == 0) {
-									ServersDataSource.Server s = ServersDataSource.getInstance().getServer(event.cid);
-									if(s.name != null && s.name.length() > 0)
-										Notifications.getInstance().showNotifications(s.name + ": " + message);
-									else
-										Notifications.getInstance().showNotifications(s.hostname + ": " + message);
-								} else {
-									Notifications.getInstance().showNotifications(event.from + ": " + message);
-								}
-							} else
-								Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
-						}
-					}
-				}
-				
-				if(!backlog)
-					notifyHandlers(EVENT_BUFFERMSG, event);
-			} else if(type.equalsIgnoreCase("link_channel")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog)
-					notifyHandlers(EVENT_LINKCHANNEL, object);
-			} else if(type.equalsIgnoreCase("channel_init")) {
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				ChannelsDataSource.Channel channel = c.createChannel(object.cid(), object.bid(), object.getString("chan"),
-						object.getJsonObject("topic").get("text").isJsonNull()?"":object.getJsonObject("topic").get("text").getAsString(),
-								object.getJsonObject("topic").get("time").getAsLong(), 
-						object.getJsonObject("topic").get("nick").getAsString(), object.getString("channel_type"),
-						object.getLong("timestamp"));
-                c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.deleteUsersForBuffer(object.cid(), object.bid());
-				JsonArray users = object.getJsonArray("members");
-				for(int i = 0; i < users.size(); i++) {
-					JsonObject user = users.get(i).getAsJsonObject();
-					u.createUser(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0, false);
-				}
-				if(!backlog)
-					notifyHandlers(EVENT_CHANNELINIT, channel);
-			} else if(type.equalsIgnoreCase("channel_topic")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid"), object.getString("author"));
-					notifyHandlers(EVENT_CHANNELTOPIC, object);
-				}
-			} else if(type.equalsIgnoreCase("channel_url")) {
-				ChannelsDataSource c = ChannelsDataSource.getInstance();
-				c.updateURL(object.bid(), object.getString("url"));
-			} else if(type.equalsIgnoreCase("channel_mode") || type.equalsIgnoreCase("channel_mode_is")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
-					notifyHandlers(EVENT_CHANNELMODE, object);
-				}
-			} else if(type.equalsIgnoreCase("channel_timestamp")) {
-				if(!backlog) {
-					ChannelsDataSource c = ChannelsDataSource.getInstance();
-					c.updateTimestamp(object.bid(), object.getLong("timestamp"));
-					notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
-				}
-			} else if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("you_joined_channel")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
-					notifyHandlers(EVENT_JOIN, object);
-				}
-			} else if(type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("you_parted_channel")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
-					if(type.equalsIgnoreCase("you_parted_channel")) {
-						ChannelsDataSource c = ChannelsDataSource.getInstance();
-						c.deleteChannel(object.bid());
-						u.deleteUsersForBuffer(object.cid(), object.bid());
-					}
-					notifyHandlers(EVENT_PART, object);
-				}
-			} else if(type.equalsIgnoreCase("quit")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
-					notifyHandlers(EVENT_QUIT, object);
-				}
-			} else if(type.equalsIgnoreCase("quit_server")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog)
-					notifyHandlers(EVENT_QUIT, object);
-			} else if(type.equalsIgnoreCase("kicked_channel") || type.equalsIgnoreCase("you_kicked_channel")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.deleteUser(object.cid(), object.bid(), object.getString("nick"));
-					if(type.equalsIgnoreCase("you_kicked_channel")) {
-						ChannelsDataSource c = ChannelsDataSource.getInstance();
-						c.deleteChannel(object.bid());
-						u.deleteUsersForBuffer(object.cid(), object.bid());
-					}
-					notifyHandlers(EVENT_KICK, object);
-				}
-			} else if(type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("you_nickchange")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.updateNick(object.cid(), object.bid(), object.getString("oldnick"), object.getString("newnick"));
-					if(type.equalsIgnoreCase("you_nickchange")) {
-						ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
-					}
-					notifyHandlers(EVENT_NICKCHANGE, object);
-				}
-			} else if(type.equalsIgnoreCase("user_channel_mode")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.updateMode(object.cid(), object.bid(), object.getString("nick"), object.getString("newmode"));
-					notifyHandlers(EVENT_USERCHANNELMODE, object);
-				}
-			} else if(type.equalsIgnoreCase("member_updates")) {
-				JsonObject updates = object.getJsonObject("updates");
-				Iterator<Entry<String, JsonElement>> i = updates.entrySet().iterator();
-				while(i.hasNext()) {
-					Entry<String, JsonElement> entry = i.next();
-					JsonObject user = entry.getValue().getAsJsonObject();
-					UsersDataSource u = UsersDataSource.getInstance();
-					u.updateAway(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
-					u.updateHostmask(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
-				}
-				if(!backlog)
-					notifyHandlers(EVENT_MEMBERUPDATES, null);
-			} else if(type.equalsIgnoreCase("user_away") || type.equalsIgnoreCase("away")) {
-				BuffersDataSource b = BuffersDataSource.getInstance();
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
-				b.updateAway(object.bid(), object.getString("msg"));
-				if(!backlog)
-					notifyHandlers(EVENT_AWAY, object);
-            } else if(type.equalsIgnoreCase("user_back")) {
-                BuffersDataSource b = BuffersDataSource.getInstance();
-                UsersDataSource u = UsersDataSource.getInstance();
-                u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
-                b.updateAway(object.bid(), "");
-                if(!backlog)
-                    notifyHandlers(EVENT_AWAY, object);
-			} else if(type.equalsIgnoreCase("self_away")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("away_msg"));
-				s.updateAway(object.cid(), object.getString("away_msg"));
-				if(!backlog)
-					notifyHandlers(EVENT_AWAY, object);
-			} else if(type.equalsIgnoreCase("self_back")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				UsersDataSource u = UsersDataSource.getInstance();
-				u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
-				s.updateAway(object.cid(), "");
-				if(!backlog)
-					notifyHandlers(EVENT_SELFBACK, object);
-			} else if(type.equalsIgnoreCase("self_details")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateUsermask(object.cid(), object.getString("usermask"));
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog)
-					notifyHandlers(EVENT_SELFDETAILS, object);
-			} else if(type.equalsIgnoreCase("user_mode")) {
-				EventsDataSource e = EventsDataSource.getInstance();
-				e.addEvent(object);
-				if(!backlog) {
-					ServersDataSource s = ServersDataSource.getInstance();
-					s.updateMode(object.cid(), object.getString("newmode"));
-					notifyHandlers(EVENT_USERMODE, object);
-				}
-			} else if(type.equalsIgnoreCase("connection_lag")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateLag(object.cid(), object.getLong("lag"));
-				if(!backlog)
-					notifyHandlers(EVENT_CONNECTIONLAG, object);
-			} else if(type.equalsIgnoreCase("isupport_params")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateIsupport(object.cid(), object.getJsonObject("params"));
-			} else if(type.equalsIgnoreCase("set_ignores") || type.equalsIgnoreCase("ignore_list")) {
-				ServersDataSource s = ServersDataSource.getInstance();
-				s.updateIgnores(object.cid(), object.getJsonArray("masks"));
-				if(!backlog)
-					notifyHandlers(EVENT_SETIGNORES, object);
-			} else if(type.equalsIgnoreCase("heartbeat_echo")) {
-				JsonObject seenEids = object.getJsonObject("seenEids");
-				Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
-				while(i.hasNext()) {
-					Entry<String, JsonElement> entry = i.next();
-					JsonObject eids = entry.getValue().getAsJsonObject();
-					Iterator<Entry<String, JsonElement>> j = eids.entrySet().iterator();
-					while(j.hasNext()) {
-						Entry<String, JsonElement> eidentry = j.next();
-						String bid = eidentry.getKey();
-						long eid = eidentry.getValue().getAsLong();
-						BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
-						Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
-						Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
-					}
-				}
-				if(!backlog) {
-					notifyHandlers(EVENT_HEARTBEATECHO, object);
-					Notifications.getInstance().showNotifications(null);
-				}
-			} else if(type.equalsIgnoreCase("oob_include")) {
-				try {
-					if(Looper.myLooper() == null)
-						Looper.prepare();
-					String url = "https://" + IRCCLOUD_HOST + object.getString("url");
-					new OOBIncludeTask(-1).execute(new URL(url));
-				} catch (MalformedURLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} else {
+            Parser p = parserMap.get(type);
+            if(p != null) {
+                p.parse(object);
+			} else if(!parserMap.containsKey(type)) {
                 TestFlight.log("Unhandled type: " + object.type());
 				//Log.w(TAG, "Unhandled type: " + object);
 			}
-		}
-        if(backlog || type.equalsIgnoreCase("backlog_complete")) {
-            if((object.bid() > -1 || type.equalsIgnoreCase("backlog_complete")) && !type.equalsIgnoreCase("makebuffer") && !type.equalsIgnoreCase("channel_init")) {
-                currentcount++;
-                if(object.bid() != currentBid) {
-                    if(currentBid != -1 && currentcount >= BACKLOG_BUFFER_MAX) {
-                        EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
+
+            if(backlog || type.equals("backlog_complete")) {
+                if((object.bid() > -1 || type.equals("backlog_complete")) && !type.equals("makebuffer") && !type.equals("channel_init")) {
+                    currentcount++;
+                    if(object.bid() != currentBid) {
+                        if(currentBid != -1 && currentcount >= BACKLOG_BUFFER_MAX) {
+                            EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
+                        }
+                        currentBid = object.bid();
+                        firstEid = object.eid();
+                        currentcount = 0;
                     }
-                    currentBid = object.bid();
-                    firstEid = object.eid();
-                    currentcount = 0;
                 }
+                if(numbuffers > 0 && currentcount < BACKLOG_BUFFER_MAX) {
+                    notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float)currentcount / (float)BACKLOG_BUFFER_MAX))/ numbuffers) * 1000.0f);
+                }
+            } else if(accrued > 0) {
+                notifyHandlers(EVENT_PROGRESS, ((float)currentcount++ / (float)accrued) * 1000.0f);
             }
-            if(numbuffers > 0 && currentcount < BACKLOG_BUFFER_MAX) {
-                notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float)currentcount / (float)BACKLOG_BUFFER_MAX))/ numbuffers) * 1000.0f);
-            }
-        } else if(accrued > 0) {
-            notifyHandlers(EVENT_PROGRESS, ((float)currentcount++ / (float)accrued) * 1000.0f);
         }
 
         if(!backlog && idle_interval > 0 && accrued < 1)
@@ -1745,19 +2025,19 @@ public class NetworkConnection {
 	}
 	
 	public class UserInfo {
-		String name;
-		String email;
-		boolean verified;
-		int last_selected_bid;
-		long connections;
-		long active_connections;
-		long join_date;
-		boolean auto_away;
-		String limits_name;
-        JsonObject limits;
-		int num_invites;
-		JSONObject prefs;
-		String highlights;
+        public String name;
+        public String email;
+        public boolean verified;
+        public int last_selected_bid;
+        public long connections;
+        public long active_connections;
+        public long join_date;
+        public boolean auto_away;
+        public String limits_name;
+        public JsonObject limits;
+        public int num_invites;
+        public JSONObject prefs;
+        public String highlights;
 		
 		public UserInfo(IRCCloudJSONObject object) throws JSONException {
 			name = object.getString("name");
