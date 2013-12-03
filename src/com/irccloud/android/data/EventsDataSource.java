@@ -128,7 +128,488 @@ public class EventsDataSource {
 			events.get(event.bid).put(event.eid, event);
 		}
 	}
-	
+
+    public interface Formatter {
+        public void format(IRCCloudJSONObject event, Event e);
+    }
+
+    private HashMap<String, Formatter> formatterMap = new HashMap<String, Formatter>() {{
+        put("socket_closed", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
+                e.color = R.color.timestamp;
+                e.linkify = false;
+                if(event.has("pool_lost"))
+                    e.msg = "Connection pool lost";
+                else if(event.has("server_ping_timeout"))
+                    e.msg = "Server PING timed out";
+                else if(event.has("reason") && event.getString("reason").length() > 0)
+                    e.msg = "Connection lost: " + event.getString("reason");
+                else if(event.has("abnormal"))
+                    e.msg = "Connection closed unexpectedly";
+                else
+                    e.msg = "";
+            }
+        });
+
+        put("user_channel_mode", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.target_mode = event.getString("newmode");
+                e.chan = event.getString("channel");
+            }
+        });
+
+        put("buffer_me_msg", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.nick = e.from;
+                e.from = "";
+            }
+        });
+
+        put("nickname_in_use", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = event.getString("nick");
+                e.msg = "is already in use";
+                e.bg_color = R.color.error;
+            }
+        });
+
+        put("unhandled_line", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "";
+                if(event.has("command"))
+                    e.msg = event.getString("command") + " ";
+                if(event.has("raw"))
+                    e.msg += event.getString("raw");
+                else
+                    e.msg += event.getString("msg");
+                e.bg_color = R.color.error;
+            }
+        });
+        put("unparsed_line", get("unhandled_line"));
+
+        put("connecting_cancelled", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "Cancelled";
+                e.bg_color = R.color.error;
+            }
+        });
+
+        put("connecting_failed", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
+                e.color = R.color.timestamp;
+                e.from = "";
+                e.linkify = false;
+                String reason = event.getString("reason");
+                if(reason != null) {
+                    if(reason.equalsIgnoreCase("pool_lost")) {
+                        reason = "Connection pool failed";
+                    } else if(reason.equalsIgnoreCase("no_pool")) {
+                        reason = "No available connection pools";
+                    } else if(reason.equalsIgnoreCase("enetdown")) {
+                        reason = "Network down";
+                    } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
+                        reason = "Timed out";
+                    } else if(reason.equalsIgnoreCase("ehostunreach")) {
+                        reason = "Host unreachable";
+                    } else if(reason.equalsIgnoreCase("econnrefused")) {
+                        reason = "Connection refused";
+                    } else if(reason.equalsIgnoreCase("nxdomain")) {
+                        reason = "Invalid hostname";
+                    } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
+                        reason = "PING timeout";
+                    } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
+                        reason = "SSL certificate error";
+                    } else if(reason.equalsIgnoreCase("ssl_error")) {
+                        reason = "SSL error";
+                    } else if(reason.equalsIgnoreCase("crash")) {
+                        reason = "Connection crashed";
+                    }
+                    e.msg = "Failed to connect: " + reason;
+                } else {
+                    e.msg = "Failed to connect.";
+                }
+            }
+        });
+
+        put("quit_server", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "⇐ You disconnected";
+                e.color = R.color.timestamp;
+            }
+        });
+
+        put("self_details", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "<pre>Your hostmask: <b>" + event.getString("usermask") + "</b></pre>";
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
+
+        put("myinfo", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "Host: " + event.getString("server") + "\n";
+                e.msg += "IRCd: " + event.getString("version") + "\n";
+                e.msg += "User modes: " + event.getString("user_modes") + "\n";
+                e.msg += "Channel modes: " + event.getString("channel_modes") + "\n";
+                e.msg = "<pre>" + TextUtils.htmlEncode(e.msg) + "</pre>";
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
+
+        put("user_mode", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "<pre>Your user mode is: <b>+" + event.getString("newmode") + "</b></pre>";
+                e.bg_color = R.color.status_bg;
+            }
+        });
+
+        put("your_unique_id", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "<pre>Your unique ID is: <b>" + event.getString("unique_id") + "</b></pre>";
+                e.bg_color = R.color.status_bg;
+            }
+        });
+
+        put("kill", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "You were killed";
+                if(event.has("from"))
+                    e.msg += " by " + event.getString("from");
+                if(event.has("killer_hostmask"))
+                    e.msg += " (" + event.getString("killer_hostmask") + ")";
+                if(event.has("reason"))
+                    e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
+
+        put("banned", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "You were banned";
+                if(event.has("server"))
+                    e.msg += " from " + event.getString("server");
+                if(event.has("reason"))
+                    e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
+
+        put("channel_topic", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = event.getString("author");
+                e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
+                e.bg_color = R.color.status_bg;
+            }
+        });
+
+        put("channel_mode", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.nick = e.from;
+                e.from = "";
+                e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
+
+        put("channel_mode_is", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                if(event.getString("diff") != null && event.getString("diff").length() > 0)
+                    e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
+                else
+                    e.msg = "No channel mode";
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
+
+        put("kicked_channel", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.from_mode = null;
+                e.old_nick = event.getString("nick");
+                e.nick = event.getString("kicker");
+                e.hostmask = event.getString("kicker_hostmask");
+                e.color = R.color.timestamp;
+                e.linkify = false;
+            }
+        });
+        put("you_kicked_channel", get("kicked_channel"));
+
+        put("channel_mode_list_change", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                boolean unknown = true;
+                JsonObject ops = event.getJsonObject("ops");
+                if(ops != null) {
+                    JsonArray add = ops.getAsJsonArray("add");
+                    if(add != null && add.size() > 0) {
+                        JsonObject op = add.get(0).getAsJsonObject();
+                        if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "Channel ban set for <b>" + op.get("param").getAsString() + "</b> (+b)";
+                            unknown = false;
+                        }
+                    }
+                    JsonArray remove = ops.getAsJsonArray("remove");
+                    if(remove != null && remove.size() > 0) {
+                        JsonObject op = remove.get(0).getAsJsonObject();
+                        if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "Channel ban removed for <b>" + op.get("param").getAsString() + "</b> (-b)";
+                            unknown = false;
+                        }
+                    }
+                }
+                if(unknown) {
+                    e.nick = e.from;
+                    e.from = "";
+                    e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
+                }
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
+
+        put("motd_response", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                JsonArray lines = event.getJsonArray("lines");
+                e.from = "";
+                if(lines != null) {
+                    StringBuilder builder = new StringBuilder("<pre>");
+                    if(event.has("start"))
+                        builder.append(event.getString("start") + "<br/>");
+                    for(int i = 0; i < lines.size(); i++) {
+                        builder.append(TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;") + "<br/>");
+                    }
+                    builder.append("</pre>");
+                    e.msg = builder.toString();
+                }
+                e.bg_color = R.color.self;
+            }
+        });
+        put("server_motd", get("motd_response"));
+
+        put("notice", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.chan = event.getString("target");
+                e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
+                e.bg_color = R.color.notice;
+            }
+        });
+
+        put("hidden_host_set", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+                e.from = "";
+                e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
+            }
+        });
+
+        put("inviting_to_channel", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
+                e.bg_color = R.color.notice;
+            }
+        });
+
+        put("channel_invite", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
+                e.old_nick = event.getString("channel");
+                e.bg_color = R.color.notice;
+            }
+        });
+
+        put("callerid", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = e.nick;
+                e.msg = "<pre>" + e.msg + "</pre>";
+                e.highlight = true;
+                e.linkify = false;
+                e.hostmask = event.getString("usermask");
+            }
+        });
+
+        put("target_callerid", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = event.getString("target_nick");
+                e.msg = "<pre>" + e.msg + "</pre>";
+                e.bg_color = R.color.error;
+            }
+        });
+
+        put("target_notified", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = event.getString("target_nick");
+                e.msg = "<pre>" + e.msg + "</pre>";
+                e.bg_color = R.color.error;
+            }
+        });
+
+        put("link_channel", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "<pre>You tried to join " + event.getString("invalid_chan") + " but were forwarded to " + event.getString("valid_chan") + "</pre>";
+                e.bg_color = R.color.error;
+            }
+        });
+
+        String[] statuses = {
+                "server_motdstart",
+                "server_welcome",
+                "server_motd",
+                "server_endofmotd",
+                "server_nomotd",
+                "server_luserclient",
+                "server_luserop",
+                "server_luserconns",
+                "server_luserme",
+                "server_n_local",
+                "server_luserchannels",
+                "server_n_global",
+                "server_yourhost",
+                "server_created",
+                "server_luserunknown",
+                "wait",
+                "logged_in_as",
+                "btn_metadata_set",
+                "sasl_success",
+                "you_are_operator"
+        };
+        Formatter statusFormatter = new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.bg_color = R.color.status_bg;
+                e.msg = "<pre>" + e.msg + "</pre>";
+                e.from = "";
+                if(!e.type.equals("server_motd"))
+                    e.linkify = false;
+            }
+        };
+        for(String status : statuses)
+            put(status, statusFormatter);
+
+        String[] stats = {
+                "stats", "statslinkinfo", "statscommands", "statscline", "statsnline", "statsiline", "statskline", "statsqline", "statsyline", "statsbline", "statsgline", "statstline", "statseline", "statsvline", "statslline", "statsuptime", "statsoline", "statshline", "statssline", "statsuline", "statsdebug", "endofstats"
+        };
+        Formatter statsFormatter = new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                if(event.has("parts") && event.getString("parts").length() > 0)
+                    e.msg = event.getString("parts") + ": " + e.msg;
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+                e.msg = "<pre>" + e.msg + "</pre>";
+            }
+        };
+        for(String stat : stats)
+            put(stat, statsFormatter);
+
+        String[] caps = {
+                "cap_ls", "cap_req", "cap_ack"
+        };
+        Formatter capsFormatter = new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+                if(e.type.equals("cap_ls"))
+                    e.msg = "<b>CAP</b> Server supports: ";
+                else if(e.type.equals("cap_req"))
+                    e.msg = "<b>CAP</b> Requesting: ";
+                else if(e.type.equals("cap_ack"))
+                    e.msg = "<b>CAP</b> Acknowledged: ";
+                JsonArray caps = event.getJsonArray("caps");
+                for(int i = 0; i < caps.size(); i++) {
+                    if(i > 0)
+                        e.msg += " | ";
+                    e.msg += caps.get(i).getAsString();
+                }
+                e.msg = "<pre>" + e.msg + "</pre>";
+            }
+        };
+        for(String cap : caps)
+            put(cap, capsFormatter);
+
+        String[] helps = {
+                "help_topics_start", "help_topics", "help_topics_end", "helphdr", "helpop", "helptlr", "helphlp", "helpfwd", "helpign"
+        };
+        Formatter helpsFormatter = new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.bg_color = R.color.status_bg;
+                e.msg = "<pre>" + e.msg + "</pre>";
+                e.from = "";
+            }
+        };
+        for(String help : helps)
+            put(help, helpsFormatter);
+
+        String[] errors = {
+                "too_fast", "sasl_fail", "sasl_too_long", "sasl_aborted", "sasl_already", "no_bots", "msg_services"
+        };
+        Formatter errorFormatter = new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.bg_color = R.color.error;
+            }
+        };
+        for(String error : errors)
+            put(error, errorFormatter);
+    }};
+
 	public Event addEvent(IRCCloudJSONObject event) {
 		synchronized(events) {
 			if(!events.containsKey(event.bid()))
@@ -184,286 +665,13 @@ public class EventsDataSource {
 			
 			if(e.msg != null)
 				e.msg = TextUtils.htmlEncode(e.msg);
-			
-			if(e.type.equals("socket_closed")) {
-				e.from = "";
-				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
-				e.color = R.color.timestamp;
-                e.linkify = false;
-				if(event.has("pool_lost"))
-					e.msg = "Connection pool lost";
-				else if(event.has("server_ping_timeout"))
-					e.msg = "Server PING timed out";
-				else if(event.has("reason") && event.getString("reason").length() > 0)
-					e.msg = "Connection lost: " + event.getString("reason");
-				else if(event.has("abnormal"))
-					e.msg = "Connection closed unexpectedly";
-				else
-					e.msg = "";
-			} else if(e.type.equals("user_channel_mode")) {
-				e.target_mode = event.getString("newmode");
-                e.chan = event.getString("channel");
-			} else if(e.type.equals("buffer_me_msg")) {
-				e.nick = e.from;
-	    		e.from = "";
-	    	} else if(e.type.equals("too_fast") || e.type.equals("sasl_fail") || e.type.equals("sasl_too_long") || e.type.equals("sasl_aborted") || e.type.equals("sasl_already")) {
-	    		e.from = "";
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("no_bots")) {
-	    		e.from = "";
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("nickname_in_use")) {
-	    		e.from = event.getString("nick");
-	    		e.msg = "is already in use";
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("unhandled_line") || e.type.equals("unparsed_line")) {
-	    		e.from = "";
-	    		e.msg = "";
-	    		if(event.has("command"))
-	    			e.msg = event.getString("command") + " ";
-	    		if(event.has("raw"))
-	    			e.msg += event.getString("raw");
-	    		else
-	    			e.msg += event.getString("msg");
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("connecting_cancelled")) {
-	    		e.from = "";
-	    		e.msg = "Cancelled";
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("msg_services")) {
-	    		e.from = "";
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("connecting_failed")) {
-				e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
-				e.color = R.color.timestamp;
-	    		e.from = "";
-                e.linkify = false;
-                String reason = event.getString("reason");
-                if(reason != null) {
-                    if(reason.equalsIgnoreCase("pool_lost")) {
-                        reason = "Connection pool failed";
-                    } else if(reason.equalsIgnoreCase("no_pool")) {
-                        reason = "No available connection pools";
-                    } else if(reason.equalsIgnoreCase("enetdown")) {
-                        reason = "Network down";
-                    } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
-                        reason = "Timed out";
-                    } else if(reason.equalsIgnoreCase("ehostunreach")) {
-                        reason = "Host unreachable";
-                    } else if(reason.equalsIgnoreCase("econnrefused")) {
-                        reason = "Connection refused";
-                    } else if(reason.equalsIgnoreCase("nxdomain")) {
-                        reason = "Invalid hostname";
-                    } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
-                        reason = "PING timeout";
-                    } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
-                        reason = "SSL certificate error";
-                    } else if(reason.equalsIgnoreCase("ssl_error")) {
-                        reason = "SSL error";
-                    } else if(reason.equalsIgnoreCase("crash")) {
-                        reason = "Connection crashed";
-                    }
-                    e.msg = "Failed to connect: " + reason;
-                } else {
-                    e.msg = "Failed to connect.";
-                }
-	    	} else if(e.type.equals("quit_server")) {
-	    		e.from = "";
-	    		e.msg = "⇐ You disconnected";
-	    		e.color = R.color.timestamp;
-	    	} else if(e.type.equals("self_details")) {
-	    		e.from = "";
-	    		e.msg = "Your hostmask: <b>" + event.getString("usermask") + "</b>";
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-	    	} else if(e.type.equals("myinfo")) {
-	    		e.from = "";
-	    		e.msg = "Host: " + event.getString("server") + "\n";
-	    		e.msg += "IRCd: " + event.getString("version") + "\n";
-	    		e.msg += "User modes: " + event.getString("user_modes") + "\n";
-	    		e.msg += "Channel modes: " + event.getString("channel_modes") + "\n";
-	    		e.msg = TextUtils.htmlEncode(e.msg);
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-	    	} else if(e.type.equals("wait")) {
-	    		e.from = "";
-	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equals("user_mode")) {
-	    		e.from = "";
-	    		e.msg = "Your user mode is: <b>+" + event.getString("newmode") + "</b>";
-	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equals("your_unique_id")) {
-	    		e.from = "";
-	    		e.msg = "Your unique ID is: <b>" + event.getString("unique_id") + "</b>";
-	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.startsWith("stats")) {
-	    		e.from = "";
-	    		if(event.has("parts") && event.getString("parts").length() > 0)
-	    			e.msg = event.getString("parts") + ": " + e.msg;
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-	    	} else if(e.type.equals("endofstats")) {
-	    		e.from = "";
-	    		e.msg = event.getString("parts") + ": " + e.msg;
-	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equals("kill")) {
-	    		e.from = "";
-	    		e.msg = "You were killed";
-	    		if(event.has("from"))
-	    			e.msg += " by " + event.getString("from");
-	    		if(event.has("killer_hostmask"))
-	    			e.msg += " (" + event.getString("killer_hostmask") + ")";
-	    		if(event.has("reason"))
-	    			e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-	    	} else if(e.type.equals("banned")) {
-	    		e.from = "";
-	    		e.msg = "You were banned";
-	    		if(event.has("server"))
-	    			e.msg += " from " + event.getString("server");
-	    		if(event.has("reason"))
-	    			e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-	    	} else if(e.type.equals("channel_topic")) {
-	    		e.from = event.getString("author");
-	    		e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
-	    		e.bg_color = R.color.status_bg;
-	    	} else if(e.type.equals("channel_mode")) {
-	    		e.nick = e.from;
-	    		e.from = "";
-	    		e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
-	    		e.bg_color = R.color.status_bg;
-                e.linkify = false;
-	    	} else if(e.type.equals("channel_mode_is")) {
-	    		e.from = "";
-	    		if(event.getString("diff") != null && event.getString("diff").length() > 0)
-	    			e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
-	    		else
-	    			e.msg = "No channel mode";
-	    		e.bg_color = R.color.status_bg;
-                e.linkify = false;
-	    	} else if(e.type.equals("kicked_channel") || e.type.equals("you_kicked_channel")) {
-	    		e.from = "";
-	    		e.from_mode = null;
-	    		e.old_nick = event.getString("nick");
-	    		e.nick = event.getString("kicker");
-	    		e.hostmask = event.getString("kicker_hostmask");
-	    		e.color = R.color.timestamp;
-	    		e.linkify = false;
-	    	} else if(e.type.equals("channel_mode_list_change")) {
-	    		boolean unknown = true;
-	    		JsonObject ops = event.getJsonObject("ops");
-	    		if(ops != null) {
-	    			JsonArray add = ops.getAsJsonArray("add");
-	    			if(add != null && add.size() > 0) {
-	    				JsonObject op = add.get(0).getAsJsonObject();
-	    				if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
-	    					e.nick = e.from;
-	    					e.from = "";
-	    					e.msg = "Channel ban set for <b>" + op.get("param").getAsString() + "</b> (+b)";
-	    					unknown = false;
-	    				}
-	    			}
-	    			JsonArray remove = ops.getAsJsonArray("remove");
-	    			if(remove != null && remove.size() > 0) {
-	    				JsonObject op = remove.get(0).getAsJsonObject();
-	    				if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
-	    					e.nick = e.from;
-	    					e.from = "";
-	    					e.msg = "Channel ban removed for <b>" + op.get("param").getAsString() + "</b> (-b)";
-	    					unknown = false;
-	    				}
-	    			}
-	    		}
-	    		if(unknown) {
-	    			e.nick = e.from;
-	    			e.from = "";
-	    			e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
-	    		}
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-	    	} else if(e.type.equals("motd_response") || e.type.equals("server_motd")) {
-	    		JsonArray lines = event.getJsonArray("lines");
-    			e.from = "";
-	    		if(lines != null) {
-	    			StringBuilder builder = new StringBuilder("<pre>");
-	    			if(event.has("start"))
-	    				builder.append(event.getString("start") + "<br/>");
-	    			for(int i = 0; i < lines.size(); i++) {
-	    				builder.append(TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;") + "<br/>");
-	    			}
-	    			builder.append("</pre>");
-	    			e.msg = builder.toString();
-	    		}
-	    		e.bg_color = R.color.self;
-            } else if(e.type.equals("server_nomotd")) {
-                e.bg_color = R.color.status_bg;
-                e.linkify = false;
-                e.from = "";
-            } else if(e.type.equals("helptlr")) {
-                e.bg_color = R.color.status_bg;
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.from = "";
-	    	} else if(e.type.equals("notice")) {
-                e.chan = event.getString("target");
-   	    		e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
-	    		e.bg_color = R.color.notice;
-	    	} else if(e.type.toLowerCase().startsWith("hidden_host_set")) {
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-	    		e.from = "";
-	    		e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
-	    	} else if(e.type.toLowerCase().startsWith("server_") || e.type.equals("logged_in_as") || e.type.equals("btn_metadata_set") || e.type.equals("sasl_success") || e.type.equals("you_are_operator")) {
-	    		e.bg_color = R.color.status_bg;
-	    		e.linkify = false;
-            } else if(e.type.startsWith("cap_")) {
-                e.from = "CAP";
-                e.bg_color = R.color.status_bg;
-                e.linkify = false;
-                if(e.type.equals("cap_ls"))
-                    e.msg = "Server supports: ";
-                else if(e.type.equals("cap_req"))
-                    e.msg = "Requesting: ";
-                else if(e.type.equals("cap_ack"))
-                    e.msg = "Acknowledged: ";
-                JsonArray caps = event.getJsonArray("caps");
-                for(int i = 0; i < caps.size(); i++) {
-                    if(i > 0)
-                        e.msg += " | ";
-                    e.msg += caps.get(i).getAsString();
-                }
-	    	} else if(e.type.equals("inviting_to_channel")) {
-	    		e.from = "";
-	    		e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
-	    		e.bg_color = R.color.notice;
-	    	} else if(e.type.equals("channel_invite")) {
-	    		e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
-	    		e.old_nick = event.getString("channel");
-                e.bg_color = R.color.notice;
-	    	} else if(e.type.equals("callerid")) {
-	    		e.from = e.nick;
-	    		e.msg = "<pre>" + e.msg + "</pre>";
-	    		e.highlight = true;
-	    		e.linkify = false;
-	    		e.hostmask = event.getString("usermask");
-	    	} else if(e.type.equals("target_callerid")) {
-	    		e.from = event.getString("target_nick");
-	    		e.msg = "<pre>" + e.msg + "</pre>";
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("target_notified")) {
-	    		e.from = event.getString("target_nick");
-	    		e.msg = "<pre>" + e.msg + "</pre>";
-	    		e.bg_color = R.color.error;
-	    	} else if(e.type.equals("link_channel")) {
-	    		e.from = "";
-	    		e.msg = "<pre>You tried to join " + event.getString("invalid_chan") + " but were forwarded to " + event.getString("valid_chan") + "</pre>";
-	    		e.bg_color = R.color.error;
-	    	}
-	    	
+
+            Formatter f = formatterMap.get(e.type);
+            if(f != null)
+                f.format(event, e);
+
 	    	if(event.has("value") && !event.type().startsWith("cap_")) {
-	    		e.msg = event.getString("value") + " " + e.msg;
+	    		e.msg = "<pre>" + event.getString("value") + " " + e.msg + "</pre>";
 	    	}
 
 	    	if(e.highlight)
