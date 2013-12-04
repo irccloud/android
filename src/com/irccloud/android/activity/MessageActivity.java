@@ -1456,7 +1456,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
         @Override
         public void onDrawerSlide(View view, float slideOffset) {
-            if(view != null && ((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
+            if(view != null && mSlider != null && ((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                 float glyphOffset = mSlider.getOffset();
                 if (slideOffset > 0.5f) {
                     glyphOffset = Math.max(glyphOffset, Math.max(0.f, slideOffset - 0.5f) * 2);
@@ -1482,7 +1482,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         public void onDrawerOpened(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
-                mSlider.setOffset(1.f);
+                if(mSlider != null)
+                    mSlider.setOffset(1.f);
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             }

@@ -149,100 +149,107 @@ public class BuffersListFragment extends ListFragment {
 
         public void updateBuffer(BuffersDataSource.Buffer b) {
             int pos = positionForBid(b.bid);
-            BufferListEntry e = data.get(pos);
+            if(pos >= 0 && pos < data.size()) {
+                BufferListEntry e = data.get(pos);
 
-            JSONObject channelDisabledMap = null;
-            JSONObject bufferDisabledMap = null;
-            if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                JSONObject channelDisabledMap = null;
+                JSONObject bufferDisabledMap = null;
+                if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                    try {
+                        if(conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
+                            channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+                        if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
+                            bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                    } catch (JSONException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+
+                int unread = 0;
+                int highlights = 0;
+                if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+                    unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                    highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                }
                 try {
-                    if(conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
-                        channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-                    if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
-                        bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                    if(b.type.equalsIgnoreCase("channel")) {
+                        if(b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
+                            unread = 0;
+                    } else {
+                        if(b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                            unread = 0;
+                        if(b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                            highlights = 0;
+                    }
                 } catch (JSONException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
-            }
 
-            int unread = 0;
-            int highlights = 0;
-            if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-                highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
-            }
-            try {
-                if(b.type.equalsIgnoreCase("channel")) {
-                    if(b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
-                        unread = 0;
+                e.unread = unread;
+                e.highlights = highlights;
+
+                if(unread > 0) {
+                    if(firstUnreadPosition == -1 || firstUnreadPosition > pos)
+                        firstUnreadPosition = pos;
+                    if(lastUnreadPosition == -1 || lastUnreadPosition < pos)
+                        lastUnreadPosition = pos;
                 } else {
-                    if(b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-                        unread = 0;
-                    if(b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-                        highlights = 0;
+                    if(firstUnreadPosition == pos) {
+                        firstUnreadPosition = -1;
+                        for(int i = 0; i < data.size(); i++) {
+                            if(data.get(i).unread > 0) {
+                                firstUnreadPosition = i;
+                                break;
+                            }
+                        }
+                    }
+                    if(lastUnreadPosition == pos) {
+                        lastUnreadPosition = -1;
+                        for(int i = pos; i >= 0; i--) {
+                            if(data.get(i).unread > 0) {
+                                lastUnreadPosition = i;
+                                break;
+                            }
+                        }
+                    }
                 }
-            } catch (JSONException e1) {
-                e1.printStackTrace();
-            }
 
-            e.unread = unread;
-            e.highlights = highlights;
+                if(highlights > 0) {
+                    if(firstHighlightPosition == -1 || firstHighlightPosition > pos)
+                        firstHighlightPosition = pos;
+                    if(lastHighlightPosition == -1 || lastHighlightPosition < pos)
+                        lastHighlightPosition = pos;
+                } else {
+                    if(firstHighlightPosition == pos) {
+                        firstHighlightPosition = -1;
+                        for(int i = 0; i < data.size(); i++) {
+                            if(data.get(i).highlights > 0) {
+                                firstHighlightPosition = i;
+                                break;
+                            }
+                        }
+                    }
+                    if(lastHighlightPosition == pos) {
+                        lastHighlightPosition = -1;
+                        for(int i = pos; i >= 0; i--) {
+                            if(data.get(i).highlights > 0) {
+                                lastHighlightPosition = i;
+                                break;
+                            }
+                        }
+                    }
+                }
 
-            if(unread > 0) {
-                if(firstUnreadPosition == -1 || firstUnreadPosition > pos)
-                    firstUnreadPosition = pos;
-                if(lastUnreadPosition == -1 || lastUnreadPosition < pos)
-                    lastUnreadPosition = pos;
+                notifyDataSetChanged();
+                if(listView != null)
+                    updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
             } else {
-                if(firstUnreadPosition == pos) {
-                    firstUnreadPosition = -1;
-                    for(int i = 0; i < data.size(); i++) {
-                        if(data.get(i).unread > 0) {
-                            firstUnreadPosition = i;
-                            break;
-                        }
-                    }
-                }
-                if(lastUnreadPosition == pos) {
-                    lastUnreadPosition = -1;
-                    for(int i = pos; i >= 0; i--) {
-                        if(data.get(i).unread > 0) {
-                            lastUnreadPosition = i;
-                            break;
-                        }
-                    }
-                }
+                if(refreshTask != null)
+                    refreshTask.cancel(true);
+                refreshTask = new RefreshTask();
+                refreshTask.execute((Void)null);
             }
-
-            if(highlights > 0) {
-                if(firstHighlightPosition == -1 || firstHighlightPosition > pos)
-                    firstHighlightPosition = pos;
-                if(lastHighlightPosition == -1 || lastHighlightPosition < pos)
-                    lastHighlightPosition = pos;
-            } else {
-                if(firstHighlightPosition == pos) {
-                    firstHighlightPosition = -1;
-                    for(int i = 0; i < data.size(); i++) {
-                        if(data.get(i).highlights > 0) {
-                            firstHighlightPosition = i;
-                            break;
-                        }
-                    }
-                }
-                if(lastHighlightPosition == pos) {
-                    lastHighlightPosition = -1;
-                    for(int i = pos; i >= 0; i--) {
-                        if(data.get(i).highlights > 0) {
-                            lastHighlightPosition = i;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            notifyDataSetChanged();
-            if(listView != null)
-                updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
         }
 
 		int unreadPositionAbove(int pos) {
