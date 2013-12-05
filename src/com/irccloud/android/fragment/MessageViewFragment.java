@@ -657,22 +657,6 @@ public class MessageViewFragment extends ListFragment {
 			}
     	});
         spinner = (ProgressBar)v.findViewById(R.id.spinner);
-        ViewCompat.setAccessibilityDelegate(v.findViewById(android.R.id.list), new AccessibilityDelegateCompat() {
-
-            @Override
-            public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
-                super.onPopulateAccessibilityEvent(host, event);
-                Log.e("IRCCloud", "Populate Event: " + event);
-            }
-
-            @Override
-            public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child, AccessibilityEvent event) {
-                Log.e("IRCCloud", "Send Event: " + event);
-                if(event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
-                }
-                return true;
-            }
-        });
         return v;
     }
 
