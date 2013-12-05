@@ -89,7 +89,7 @@ public class BuffersListFragment extends ListFragment {
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
 	private static class BufferListEntry implements Serializable {
-		private static final long serialVersionUID = 1848168221883194027L;
+		private static final long serialVersionUID = 1848168221883194028L;
 		int cid;
 		int bid;
 		int type;
@@ -105,6 +105,7 @@ public class BuffersListFragment extends ListFragment {
 		String status;
         int ssl;
         int count;
+        String contentDescription;
 	}
 
 	private class BufferListAdapter extends BaseAdapter {
@@ -274,7 +275,7 @@ public class BuffersListFragment extends ListFragment {
 			return data.size() - 1;
 		}
 		
-		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count) {
+		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count, String contentDescription) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -291,6 +292,7 @@ public class BuffersListFragment extends ListFragment {
 			e.timeout = timeout;
             e.ssl = ssl;
             e.count = count;
+            e.contentDescription = contentDescription;
 			return e;
 		}
 		
@@ -343,6 +345,7 @@ public class BuffersListFragment extends ListFragment {
 				holder = (ViewHolder) row.getTag();
 			}
 
+            row.setContentDescription(e.contentDescription);
 			holder.label.setText(e.name);
 			if(e.type == TYPE_ARCHIVES_HEADER) {
 				holder.label.setTypeface(null);
@@ -351,9 +354,11 @@ public class BuffersListFragment extends ListFragment {
 				if(mExpandArchives.get(e.cid, false)) {
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
 					holder.bufferbg.setSelected(true);
+                    row.setContentDescription(e.contentDescription + ". Double-tap to collapse.");
 				} else {
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 					holder.bufferbg.setSelected(false);
+                    row.setContentDescription(e.contentDescription + ". Double-tap to expand.");
 				}
             } else if(e.type == TYPE_JOIN_CHANNEL) {
                 holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_join));
@@ -376,6 +381,7 @@ public class BuffersListFragment extends ListFragment {
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
 				if(holder.bufferbg != null)
 					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
+                row.setContentDescription(row.getContentDescription() + ", unread");
 			} else {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
@@ -444,6 +450,7 @@ public class BuffersListFragment extends ListFragment {
 				if(e.highlights > 0) {
 					holder.highlights.setVisibility(View.VISIBLE);
 					holder.highlights.setText(String.valueOf(e.highlights));
+                    row.setContentDescription(row.getContentDescription() + ", " + e.highlights + " highlights");
 				} else {
 					holder.highlights.setVisibility(View.GONE);
 					holder.highlights.setText("");
@@ -533,7 +540,7 @@ public class BuffersListFragment extends ListFragment {
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl, buffers.size()));
+						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl, buffers.size(), "Network " + s.name));
 						if(unread > 0 && firstUnreadPosition == -1)
 							firstUnreadPosition = position;
 						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -565,15 +572,18 @@ public class BuffersListFragment extends ListFragment {
                     if (type > 0 && b.archived == 0) {
                         int unread = 0;
                         int highlights = 0;
+                        String contentDescription = null;
                         if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
                             unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
                             highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
                         }
                         try {
                             if (b.type.equalsIgnoreCase("channel")) {
+                                contentDescription = "Channel " + b.normalizedName();
                                 if (b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
                                     unread = 0;
                             } else {
+                                contentDescription = "Conversation with " + b.normalizedName();
                                 if (b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
                                     unread = 0;
                                 if (b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
@@ -582,7 +592,7 @@ public class BuffersListFragment extends ListFragment {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl, 0));
+                        entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl, 0, contentDescription));
                         if (unread > 0 && firstUnreadPosition == -1)
                             firstUnreadPosition = position;
                         if (unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
@@ -598,19 +608,23 @@ public class BuffersListFragment extends ListFragment {
                     }
                 }
 				if(archiveCount > 0) {
-					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0));
+					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Archives"));
 					position++;
 					if(mExpandArchives.get(s.cid, false)) {
                         for (BuffersDataSource.Buffer b : buffers) {
                             int type = -1;
+                            String contentDescription = null;
                             if (b.archived == 1) {
-                                if (b.type.equalsIgnoreCase("channel"))
+                                if (b.type.equalsIgnoreCase("channel")) {
                                     type = TYPE_CHANNEL;
-                                else if (b.type.equalsIgnoreCase("conversation"))
+                                    contentDescription = "Channel: " + b.normalizedName();
+                                } else if (b.type.equalsIgnoreCase("conversation")) {
                                     type = TYPE_CONVERSATION;
+                                    contentDescription = "Conversation with " + b.normalizedName();
+                                }
 
                                 if (type > 0) {
-                                    entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl, 0));
+                                    entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl, 0, contentDescription));
                                     position++;
                                 }
                             }
@@ -618,10 +632,10 @@ public class BuffersListFragment extends ListFragment {
 					}
 				}
                 if(buffers.size() == 1) {
-                    entries.add(adapter.buildItem(s.cid, 0, TYPE_JOIN_CHANNEL, "Join a channel…", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0));
+                    entries.add(adapter.buildItem(s.cid, 0, TYPE_JOIN_CHANNEL, "Join a channel…", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Join a channel"));
                 }
 			}
-            entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0));
+            entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Add a network"));
 			return null;
 		}
 		

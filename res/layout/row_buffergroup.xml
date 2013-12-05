@@ -89,6 +89,7 @@
    			        android:layout_height="48dp"
    			        android:layout_marginLeft="8dp"
    			        android:background="@null"
+                    android:contentDescription="Join a channel"
    			        android:src="@drawable/add" />
 
 	      </LinearLayout>

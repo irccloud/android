@@ -70,6 +70,7 @@ public class EventsDataSource {
         public String command;
         public int day;
         public Spanned formatted;
+        public String contentDescription;
 
         public String toString() {
             return "{"+

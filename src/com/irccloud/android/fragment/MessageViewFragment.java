@@ -28,7 +28,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.support.v4.app.ListFragment;
+import android.support.v4.view.AccessibilityDelegateCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AlphaAnimation;
 import android.widget.*;
 import org.json.JSONException;
@@ -430,6 +433,8 @@ public class MessageViewFragment extends ListFragment {
                         try {
                             e.html = ColorFormatter.irc_to_html(e.html);
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                            if(e.msg != null && e.msg.length() > 0)
+                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, mServer).toString();
                         } catch (Exception ex) {
                         }
                     }
@@ -474,11 +479,21 @@ public class MessageViewFragment extends ListFragment {
 
                 row.setOnClickListener(new OnItemClickListener(position));
 
+                if(e.html != null && e.formatted == null) {
+                    e.html = ColorFormatter.irc_to_html(e.html);
+                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                    if(e.msg != null && e.msg.length() > 0)
+                        e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, mServer).toString();
+                }
+
                 if(e.row_type == ROW_MESSAGE) {
                     if(e.bg_color == R.color.message_bg)
                         row.setBackgroundDrawable(null);
                     else
                         row.setBackgroundResource(e.bg_color);
+                    if(e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
+                        row.setContentDescription("Message from " + e.from + " at " + e.timestamp + ": " + e.contentDescription);
+                    }
                 }
 
                 if(holder.timestamp != null) {
@@ -499,11 +514,6 @@ public class MessageViewFragment extends ListFragment {
                     }
                 }
 
-                if(e.html != null && e.formatted == null) {
-                    e.html = ColorFormatter.irc_to_html(e.html);
-                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
-                }
-
                 if(holder.message != null && e.html != null) {
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
@@ -521,6 +531,9 @@ public class MessageViewFragment extends ListFragment {
                     else
                         holder.message.setLinkTextColor(getResources().getColor(R.color.linkColor));
                     holder.message.setText(e.formatted);
+                    if(e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
+                        holder.message.setContentDescription(e.from + ": " + e.contentDescription);
+                    }
                 }
 
                 if(holder.expandable != null) {
@@ -644,7 +657,23 @@ public class MessageViewFragment extends ListFragment {
 			}
     	});
         spinner = (ProgressBar)v.findViewById(R.id.spinner);
-    	return v;
+        ViewCompat.setAccessibilityDelegate(v.findViewById(android.R.id.list), new AccessibilityDelegateCompat() {
+
+            @Override
+            public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+                super.onPopulateAccessibilityEvent(host, event);
+                Log.e("IRCCloud", "Populate Event: " + event);
+            }
+
+            @Override
+            public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child, AccessibilityEvent event) {
+                Log.e("IRCCloud", "Send Event: " + event);
+                if(event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED) {
+                }
+                return true;
+            }
+        });
+        return v;
     }
 
     public void showSpinner(boolean show) {

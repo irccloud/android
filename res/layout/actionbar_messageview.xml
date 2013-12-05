@@ -39,7 +39,8 @@
         android:layout_marginTop="@dimen/abc_action_bar_icon_vertical_padding"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/ic_launcher"
+        android:contentDescription="@string/abc_action_bar_up_description"/>
 
     <LinearLayout
         android:id="@+id/actionTitleArea"

@@ -852,10 +852,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             if(archived > 0 && !type.equalsIgnoreCase("console")) {
 	    		subtitle.setVisibility(View.VISIBLE);
 	    		subtitle.setText("(archived)");
+                if(type.equalsIgnoreCase("conversation")) {
+                    title.setContentDescription("Conversation with " + title.getText());
+                } else if(type.equalsIgnoreCase("channel")) {
+                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+                    if(b != null)
+                        title.setContentDescription("Channel " + b.normalizedName());
+                    else
+                        title.setContentDescription("Channel " + title.getText());
+                }
 	    	} else {
 	    		if(type == null) {
 	        		subtitle.setVisibility(View.GONE);
 	    		} else if(type.equalsIgnoreCase("conversation")) {
+                    title.setContentDescription("Conversation with " + title.getText());
 	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(cid, name);
 	    			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
 	    			if(user != null && user.away > 0) {
@@ -872,10 +882,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			}
 	        		key.setVisibility(View.GONE);
 	    		} else if(type.equalsIgnoreCase("channel")) {
+                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+                    if(b != null)
+                        title.setContentDescription("Channel " + b.normalizedName() + ". Double-tap to view or edit the topic.");
+                    else
+                        title.setContentDescription("Channel " + title.getText() + ". Double-tap to view or edit the topic.");
 		        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(bid);
 		        	if(c != null && c.topic_text.length() > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
 		        		subtitle.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), false, null).toString());
+                        subtitle.setContentDescription(".");
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 		        	}
@@ -890,6 +906,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			if(s != null) {
 		        		subtitle.setVisibility(View.VISIBLE);
 		        		subtitle.setText(s.hostname + ":" + s.port);
+                        title.setContentDescription("Network " + s.name);
+                        subtitle.setContentDescription(".");
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
 	    			}
@@ -1146,17 +1164,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				event_bid = (Integer)msg.obj;
 				if(event_bid == bid) {
 					archived = 1;
-					supportInvalidateOptionsMenu();
-					subtitle.setVisibility(View.VISIBLE);
-					subtitle.setText("(archived)");
+                    update_subtitle();
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERUNARCHIVED:
 				event_bid = (Integer)msg.obj;
 				if(event_bid == bid) {
 					archived = 0;
-					supportInvalidateOptionsMenu();
-					subtitle.setVisibility(View.GONE);
+                    update_subtitle();
 				}
 				break;
 			case NetworkConnection.EVENT_JOIN:

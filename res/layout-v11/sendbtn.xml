@@ -23,5 +23,6 @@
     android:paddingLeft="6dp"
     android:paddingRight="4dp"
     android:scaleType="fitEnd"
+    android:contentDescription="Send"
     android:src="@drawable/ic_action_send" />
 
