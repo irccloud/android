@@ -1242,7 +1242,6 @@ public class MessageViewFragment extends ListFragment {
         backlogFailed.setVisibility(View.GONE);
         loadBacklogButton.setVisibility(View.GONE);
     	adapter = new MessageAdapter(this);
-    	setListAdapter(adapter);
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	if(conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
@@ -1290,7 +1289,6 @@ public class MessageViewFragment extends ListFragment {
                 else
                     lp.topMargin = 0;
                 backlogFailed.setLayoutParams(lp);
-                adapter.notifyDataSetChanged();
                 if(savedScrollPos > 0)
                     getListView().setSelection(savedScrollPos);
                 else
@@ -1313,6 +1311,7 @@ public class MessageViewFragment extends ListFragment {
                 loadBacklogButton.setVisibility(View.GONE);
             }
     	}
+        setListAdapter(adapter);
 		getListView().setOnScrollListener(mOnScrollListener);
     }
     
