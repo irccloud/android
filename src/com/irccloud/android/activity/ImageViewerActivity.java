@@ -51,6 +51,8 @@ public class ImageViewerActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState == null)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
         if(Integer.parseInt(Build.VERSION.SDK) >= 11)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
@@ -93,6 +95,11 @@ public class ImageViewerActivity extends BaseActivity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -114,6 +121,7 @@ public class ImageViewerActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == android.R.id.home) {
             finish();
+            overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if(item.getItemId() == R.id.action_browser) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));

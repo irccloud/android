@@ -171,6 +171,7 @@ public class PreferencesActivity extends PreferenceActivity {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
+        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
     }
 
     @Override
@@ -180,6 +181,8 @@ public class PreferencesActivity extends PreferenceActivity {
     	if(conn != null) {
         	conn.removeHandler(mHandler);
     	}
+
+        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
     
 	@SuppressWarnings("deprecation")

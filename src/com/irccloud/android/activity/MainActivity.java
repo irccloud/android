@@ -167,6 +167,7 @@ public class MainActivity extends FragmentActivity {
             } else {
                 startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
             }
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     		finish();
     	} else {
     		conn.addHandler(mHandler);
@@ -267,6 +268,7 @@ public class MainActivity extends FragmentActivity {
                     } else {
                         startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
                     }
+                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                     finish();
 				}
 				break;
