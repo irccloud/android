@@ -499,7 +499,7 @@ public class MessageViewFragment extends ListFragment {
                 if(holder.timestamp != null) {
                     if(e.highlight)
                         holder.timestamp.setTextColor(getResources().getColor(R.color.highlight_timestamp));
-                    else
+                    else if(e.row_type != ROW_TIMESTAMP)
                         holder.timestamp.setTextColor(getResources().getColor(R.color.timestamp));
                     holder.timestamp.setText(e.timestamp);
                     holder.timestamp.setMinWidth(timestamp_width);
