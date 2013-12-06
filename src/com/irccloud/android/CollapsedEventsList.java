@@ -333,6 +333,7 @@ public class CollapsedEventsList {
 				} else if(type == TYPE_JOIN) {
 					e.type = TYPE_POPOUT;
 					e.from_mode = from_mode;
+                    e.chan = chan;
 				} else if(e.type == TYPE_POPOUT) {
 					e.type = type;
 				} else {
