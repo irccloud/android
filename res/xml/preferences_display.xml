@@ -34,7 +34,7 @@
         <CheckBoxPreference
             android:key="nick-colors"
             android:defaultValue="false"
-            android:title="Colorise nicknames"/>
+            android:title="Colourise nicknames"/>
 	</PreferenceCategory>
 
 </PreferenceScreen>
