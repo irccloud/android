@@ -252,10 +252,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	            	} else {
             			canEditTopic = true;
 	            	}
-	            	
+
 	            	if(canEditTopic) {
 		            	builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
-	
+
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
 								dialog.dismiss();
@@ -275,7 +275,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						}
 		    			
 		    		});
-            	} else if(archived == 0 && subtitle.getText().length() > 0){
+            	} else if(type != null && type.equals("channel") && archived == 0 && subtitle.getText().length() > 0){
             		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
 	            	builder.setTitle(title.getText().toString());
             		final SpannableString s = new SpannableString(subtitle.getText().toString());
@@ -286,7 +286,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						public void onClick(DialogInterface dialog, int which) {
 							dialog.dismiss();
 						}
-	            	});
+            	            	});
 		    		AlertDialog dialog = builder.create();
 		    		dialog.setOwnerActivity(MessageActivity.this);
 		    		dialog.show();
