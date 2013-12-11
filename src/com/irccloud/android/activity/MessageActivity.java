@@ -149,8 +149,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		messageTxt.setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-	         		   new SendTask().execute((Void)null);
+				if(sendBtn.isEnabled() && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+                    sendBtn.setEnabled(false);
+	         		new SendTask().execute((Void)null);
 				}
 				return false;
 			}
@@ -175,7 +176,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		});
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-         	   if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+         	   if(sendBtn.isEnabled() && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+                   sendBtn.setEnabled(false);
          		   new SendTask().execute((Void)null);
          	   }
          	   return true;
