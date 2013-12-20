@@ -871,6 +871,7 @@ public class BuffersListFragment extends ListFragment {
 	private final Handler mHandler = new Handler() {
 		public void handleMessage(Message msg) {
             IRCCloudJSONObject object = null;
+            BuffersDataSource.Buffer b = null;
             try {
                 object = (IRCCloudJSONObject)msg.obj;
             } catch (ClassCastException e) {
@@ -882,8 +883,8 @@ public class BuffersListFragment extends ListFragment {
             }
 			switch (msg.what) {
             case NetworkConnection.EVENT_BUFFERMSG:
-                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid);
-                if(EventsDataSource.getInstance().isImportant(event, b.type))
+                b = BuffersDataSource.getInstance().getBuffer(event.bid);
+                if(b != null && EventsDataSource.getInstance().isImportant(event, b.type))
                     adapter.updateBuffer(b);
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
@@ -896,7 +897,9 @@ public class BuffersListFragment extends ListFragment {
                     while(j.hasNext()) {
                         Map.Entry<String, JsonElement> eidentry = j.next();
                         Integer bid = Integer.valueOf(eidentry.getKey());
-                        adapter.updateBuffer(BuffersDataSource.getInstance().getBuffer(bid));
+                        b = BuffersDataSource.getInstance().getBuffer(bid);
+                        if(b != null)
+                            adapter.updateBuffer(b);
                     }
                 }
                 break;
