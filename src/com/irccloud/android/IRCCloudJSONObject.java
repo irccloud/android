@@ -93,10 +93,14 @@ public class IRCCloudJSONObject {
 	}
 	
 	public int getInt(String name) {
+        if(!o.has(name) || o.get(name).isJsonNull())
+            return -1;
 		return o.get(name).getAsInt();
 	}
 	
 	public long getLong(String name) {
+        if(!o.has(name) || o.get(name).isJsonNull())
+            return -1;
 		return o.get(name).getAsLong();
 	}
 	

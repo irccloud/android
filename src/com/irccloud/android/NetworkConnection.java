@@ -1970,31 +1970,33 @@ public class NetworkConnection {
 	}
 
 	public void removeHandler(Handler handler) {
-		handlers.remove(handler);
-		if(handlers.isEmpty()){
-			if(shutdownTimer == null) {
-				shutdownTimer = new Timer();
-				SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-				long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
-				shutdownTimer.schedule( new TimerTask(){
-		             public void run() {
-		            	 if(handlers.isEmpty()) {
-			                 disconnect();
-		            	 }
-		                 shutdownTimer = null;
-		              }
-		           }, timeout);
-			}
-			if(idleTimer != null && state != STATE_CONNECTED) {
-				idleTimer.cancel();
-				idleTimer = null;
-                failCount = 0;
-                if(wifiLock.isHeld())
-                    wifiLock.release();
-                reconnect_timestamp = 0;
-				state = STATE_DISCONNECTED;
-			}
-		}
+        if(handlers != null) {
+            handlers.remove(handler);
+            if(handlers.isEmpty()){
+                if(shutdownTimer == null) {
+                    shutdownTimer = new Timer();
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+                    long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
+                    shutdownTimer.schedule( new TimerTask(){
+                         public void run() {
+                             if(handlers.isEmpty()) {
+                                 disconnect();
+                             }
+                             shutdownTimer = null;
+                          }
+                       }, timeout);
+                }
+                if(idleTimer != null && state != STATE_CONNECTED) {
+                    idleTimer.cancel();
+                    idleTimer = null;
+                    failCount = 0;
+                    if(wifiLock.isHeld())
+                        wifiLock.release();
+                    reconnect_timestamp = 0;
+                    state = STATE_DISCONNECTED;
+                }
+            }
+        }
 	}
 
 	public boolean isVisible() {

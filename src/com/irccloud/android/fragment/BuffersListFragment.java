@@ -150,7 +150,7 @@ public class BuffersListFragment extends ListFragment {
 
         public void updateBuffer(BuffersDataSource.Buffer b) {
             int pos = positionForBid(b.bid);
-            if(pos >= 0 && pos < data.size()) {
+            if(pos >= 0 && data != null && pos < data.size()) {
                 BufferListEntry e = data.get(pos);
 
                 JSONObject channelDisabledMap = null;
