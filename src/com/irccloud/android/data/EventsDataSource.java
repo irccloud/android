@@ -21,6 +21,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -87,7 +88,43 @@ public class EventsDataSource {
                     " pending: " + pending +
                     "}";
         }
-	}
+
+        public boolean isImportant(String buffer_type) {
+            if(self)
+                return false;
+            if(type == null) {
+                return false;
+            }
+
+            Ignore ignore = new Ignore();
+            ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+            if(s != null) {
+                ignore.setIgnores(s.ignores);
+                String from = this.from;
+                if(from == null || from.length() == 0)
+                    from = this.nick;
+                if(ignore.match(from + "!" + hostmask))
+                    return false;
+            }
+
+            if (type.equals("notice") || type.equalsIgnoreCase("channel_invite") ) {
+                // Notices sent from the server (with no nick sender) aren't important
+                // e.g. *** Looking up your hostname...
+                if (from == null || from.length() == 0)
+                    return false;
+
+                // Notices and invites sent to a buffer shouldn't notify in the server buffer
+                if(buffer_type.equalsIgnoreCase("console") && (to_chan || to_buffer))
+                    return false;
+            }
+            return (type.equals("buffer_msg") ||
+                    type.equals("buffer_me_msg") ||
+                    type.equals("notice") ||
+                    type.equals("channel_invite") ||
+                    type.equals("callerid") ||
+                    type.equals("wallops"));
+        }
+    }
 	
 	public class comparator implements Comparator<Event> {
 		public int compare(Event e1, Event e2) {
@@ -736,16 +773,23 @@ public class EventsDataSource {
 		}
 	}
 
-	public int getUnreadCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
-		int count = 0;
+    public void pruneEvents(int bid) {
+        TreeMap<Long,Event> e = events.get(bid);
+        while(e != null && e.size() > 200) {
+            e.remove(e.firstKey());
+        }
+    }
+
+	public int getUnreadStateForBuffer(int bid, long last_seen_eid, String buffer_type) {
 		synchronized(events) {
 			if(events.containsKey(bid)) {
 				Iterator<Event> i = events.get(bid).values().iterator();
 				while(i.hasNext()) {
 					Event e = i.next();
 					try {
-						if(e.eid > last_seen_eid && isImportant(e, buffer_type))
-							count++;
+						if(e.eid > last_seen_eid && e.isImportant(buffer_type)) {
+                            return 1;
+                        }
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -753,50 +797,29 @@ public class EventsDataSource {
 				}
 			}
 		}
-		return count;
+		return 0;
 	}
 
-	public boolean isImportant(Event e, String buffer_type) {
-		if(e == null) {
-			return false;
-		}
-		if(e.self)
-			return false;
-		String type = e.type;
-		if(type == null) {
-			return false;
-		}
-
-        Ignore ignore = new Ignore();
-        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(e.cid);
-        if(s != null) {
-            ignore.setIgnores(s.ignores);
-            String from = e.from;
-            if(from == null || from.length() == 0)
-                from = e.nick;
-            if(ignore.match(from + "!" + e.hostmask))
-                return false;
+    public synchronized int getHighlightStateForBuffer(int bid, long last_seen_eid, String buffer_type) {
+        synchronized(events) {
+            if(events.containsKey(bid)) {
+                Iterator<Event> i = events.get(bid).values().iterator();
+                while(i.hasNext()) {
+                    Event e = i.next();
+                    try {
+                        if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
+                            return 1;
+                    } catch (Exception e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                }
+            }
         }
+        return 0;
+    }
 
-		if (type.equals("notice") || type.equalsIgnoreCase("channel_invite") ) {
-            // Notices sent from the server (with no nick sender) aren't important
-            // e.g. *** Looking up your hostname...
-			if (e.from == null || e.from.length() == 0)
-                return false;
-
-            // Notices and invites sent to a buffer shouldn't notify in the server buffer
-            if(buffer_type.equalsIgnoreCase("console") && (e.to_chan || e.to_buffer))
-                return false;
-		}
-		return (type.equals("buffer_msg") ||
-				type.equals("buffer_me_msg") ||
-				type.equals("notice") ||
-				type.equals("channel_invite") ||
-				type.equals("callerid") ||
-				type.equals("wallops"));
-	}
-	
-	public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
+    public synchronized int getHighlightCountForBuffer(int bid, long last_seen_eid, String buffer_type) {
 		int count = 0;
 		synchronized(events) {
 			if(events.containsKey(bid)) {
@@ -804,7 +827,7 @@ public class EventsDataSource {
 				while(i.hasNext()) {
 					Event e = i.next();
 					try {
-						if(e.eid > last_seen_eid && isImportant(e, buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
+						if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
 							count++;
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block

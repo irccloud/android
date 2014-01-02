@@ -466,6 +466,9 @@ public class NetworkConnection {
 		}
 		oobTasks.clear();
 		session = null;
+        for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+            EventsDataSource.getInstance().pruneEvents(b.bid);
+        }
 		try {
 			IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
 		} catch (IllegalArgumentException e) {
@@ -1451,7 +1454,7 @@ public class NetworkConnection {
                 EventsDataSource.Event event = e.addEvent(object);
                 BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());
 
-                if(b != null && event.eid > b.last_seen_eid && e.isImportant(event, b.type) && ((event.highlight || b.type.equals("conversation")))) {
+                if(b != null && event.eid > b.last_seen_eid && event.isImportant(b.type) && ((event.highlight || b.type.equals("conversation")))) {
                     JSONObject bufferDisabledMap = null;
                     boolean show = true;
                     if(userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {

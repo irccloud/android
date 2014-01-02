@@ -1090,7 +1090,7 @@ public class MessageViewFragment extends ListFragment {
                 avgInsertTime += time;
                 avgInsertTime /= 2.0;
                 //Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-                if(!backlog && scrolledUp && !event.self && EventsDataSource.getInstance().isImportant(event, type)) {
+                if(!backlog && scrolledUp && !event.self && event.isImportant(type)) {
                     if(newMsgTime == 0)
                         newMsgTime = System.currentTimeMillis();
                     newMsgs++;

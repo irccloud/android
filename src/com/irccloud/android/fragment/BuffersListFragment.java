@@ -170,17 +170,19 @@ public class BuffersListFragment extends ListFragment {
                 int unread = 0;
                 int highlights = 0;
                 if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                    unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                    unread = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
                     highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
                 }
                 try {
                     if(b.type.equalsIgnoreCase("channel")) {
                         if(b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
                             unread = 0;
+                        if(b.bid == selected_bid)
+                            highlights = 0;
                     } else {
                         if(b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
                             unread = 0;
-                        if(b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                        if(b.bid == selected_bid || (b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))))
                             highlights = 0;
                     }
                 } catch (JSONException e1) {
@@ -529,7 +531,7 @@ public class BuffersListFragment extends ListFragment {
 						int unread = 0;
 						int highlights = 0;
 						if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-							unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+							unread = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
 							highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
 						}
 						if(s.name.length() == 0)
@@ -574,7 +576,7 @@ public class BuffersListFragment extends ListFragment {
                         int highlights = 0;
                         String contentDescription = null;
                         if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                            unread = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                            unread = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
                             highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
                         }
                         try {
@@ -669,9 +671,15 @@ public class BuffersListFragment extends ListFragment {
 	}
 
 	public void setSelectedBid(int bid) {
+        BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(selected_bid);
+        if(b != null)
+            adapter.updateBuffer(b);
 		selected_bid = bid;
-		if(adapter != null)
+		if(adapter != null) {
+            b = BuffersDataSource.getInstance().getBuffer(bid);
+            adapter.updateBuffer(b);
 			adapter.showProgress(adapter.positionForBid(bid));
+        }
 	}
 	
 	private void updateUnreadIndicators(int first, int last) {
@@ -883,9 +891,11 @@ public class BuffersListFragment extends ListFragment {
             }
 			switch (msg.what) {
             case NetworkConnection.EVENT_BUFFERMSG:
-                b = BuffersDataSource.getInstance().getBuffer(event.bid);
-                if(b != null && EventsDataSource.getInstance().isImportant(event, b.type))
-                    adapter.updateBuffer(b);
+                if(event.bid != selected_bid) {
+                    b = BuffersDataSource.getInstance().getBuffer(event.bid);
+                    if(b != null && event.isImportant(b.type))
+                        adapter.updateBuffer(b);
+                }
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
                 JsonObject seenEids = object.getJsonObject("seenEids");
@@ -898,7 +908,7 @@ public class BuffersListFragment extends ListFragment {
                         Map.Entry<String, JsonElement> eidentry = j.next();
                         Integer bid = Integer.valueOf(eidentry.getKey());
                         b = BuffersDataSource.getInstance().getBuffer(bid);
-                        if(b != null)
+                        if(b != null && b.bid != selected_bid)
                             adapter.updateBuffer(b);
                     }
                 }

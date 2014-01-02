@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'com.android.tools.build:gradle:0.7.+'
     }
 }
 apply plugin: 'android'
@@ -49,10 +49,10 @@ android {
 
     buildTypes {
         debug {
-            buildConfig "public final static String REVISION = \"" +  getRevision() +"\";"
+            buildConfigField "String", "REVISION", "\"" + getRevision() + "\""
         }
         release {
-            buildConfig "public final static String REVISION = \"\";"
+            buildConfigField "String", "REVISION", "\"\""
         }
     }
 

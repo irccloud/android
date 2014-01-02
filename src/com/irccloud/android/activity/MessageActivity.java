@@ -480,8 +480,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		@Override
 		protected Void doInBackground(Void... arg0) {
             if(drawerLayout != null) {
-                SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
-
                 JSONObject channelDisabledMap = null;
                 JSONObject bufferDisabledMap = null;
                 if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
@@ -496,33 +494,33 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     }
                 }
 
-                for(int i = 0; i < servers.size(); i++) {
-                    ServersDataSource.Server s = servers.valueAt(i);
-                    ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
-                    for(int j = 0; j < buffers.size(); j++) {
-                        BuffersDataSource.Buffer b = buffers.get(j);
-                        if(b.bid != bid) {
-                            if(unread == 0) {
-                                int u = 0;
-                                try {
-                                    u = EventsDataSource.getInstance().getUnreadCountForBuffer(b.bid, b.last_seen_eid, b.type);
-                                    if(b.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid)))
-                                        u = 0;
-                                    else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
-                                        u = 0;
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                unread += u;
+                ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
+                for(int j = 0; j < buffers.size(); j++) {
+                    BuffersDataSource.Buffer b = buffers.get(j);
+                    if(b.bid != bid) {
+                        if(unread == 0) {
+                            int u = 0;
+                            try {
+                                u = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
+                                if(b.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                    u = 0;
+                                else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                    u = 0;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                            if(highlights == 0) {
-                                try {
-                                    if(!b.type.equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.bid)) || !bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
-                                        highlights += EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
-                                } catch (JSONException e) {
+                            unread += u;
+                        }
+                        if(highlights == 0) {
+                            try {
+                                if(!b.type.equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.bid)) || !bufferDisabledMap.getBoolean(String.valueOf(b.bid))) {
+                                    highlights += EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type);
                                 }
+                            } catch (JSONException e) {
                             }
                         }
+                        if(highlights > 0)
+                            break;
                     }
                 }
             }
@@ -2382,6 +2380,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	if(this.bid >= 0) {
 	    		backStack.add(0, this.bid);
                 BuffersDataSource.getInstance().updateDraft(this.bid, messageTxt.getText().toString());
+                EventsDataSource.getInstance().pruneEvents(this.bid);
             }
             if(this.bid == -1 || this.cid == -1)
                 shouldFadeIn = false;
