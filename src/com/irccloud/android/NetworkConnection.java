@@ -480,18 +480,21 @@ public class NetworkConnection {
 		try {
             String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
             String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
-			JSONObject o = new JSONObject(response);
-			return o;
+			return new JSONObject(response);
         } catch (UnknownHostException e) {
+            e.printStackTrace();
             return null;
 		} catch (IOException e) {
+            e.printStackTrace();
             return null;
         } catch (Exception e) {
+            e.printStackTrace();
             try {
                 JSONObject o = new JSONObject();
                 o.put("exception", e.toString());
                 return o;
             } catch (JSONException e1) {
+                e.printStackTrace();
             }
 		}
 		return null;

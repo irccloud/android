@@ -329,7 +329,10 @@ public class MainActivity extends FragmentActivity {
 		
 		@Override
 		protected JSONObject doInBackground(Void... arg0) {
-			return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
+            if(email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
+    			return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
+            else
+                return null;
 		}
 
 		@Override
@@ -383,7 +386,7 @@ public class MainActivity extends FragmentActivity {
 					try {
                         if(result.has("message")) {
                             message = result.getString("message");
-                            if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
+                            if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
                                 message = "Incorrect username or password.  Please try again.";
                             else
                                 message = "Error: " + message;
@@ -393,7 +396,9 @@ public class MainActivity extends FragmentActivity {
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-				}
+				} else if(email.getText() == null || email.getText().length() == 0 || password.getText() == null || password.getText().length() == 0) {
+                    message = "Please enter your username and password.";
+                }
 				builder.setMessage(message);
 				builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
 					@Override
