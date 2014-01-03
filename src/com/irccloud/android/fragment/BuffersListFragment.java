@@ -898,8 +898,7 @@ public class BuffersListFragment extends ListFragment {
                         Map.Entry<String, JsonElement> eidentry = j.next();
                         Integer bid = Integer.valueOf(eidentry.getKey());
                         b = BuffersDataSource.getInstance().getBuffer(bid);
-                        if(b != null && b.bid != selected_bid)
-                            adapter.updateBuffer(b);
+                        adapter.updateBuffer(b);
                     }
                 }
                 break;
