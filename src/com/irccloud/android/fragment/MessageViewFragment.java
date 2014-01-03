@@ -28,10 +28,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.support.v4.app.ListFragment;
-import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.ViewCompat;
 import android.text.TextUtils;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AlphaAnimation;
 import android.widget.*;
 import org.json.JSONException;
@@ -83,14 +80,10 @@ public class MessageViewFragment extends ListFragment {
 	private View unreadBottomView;
 	private TextView highlightsTopLabel;
 	private TextView highlightsBottomLabel;
-	private int cid = -1;
-	public int bid = -1;
-	private long last_seen_eid;
-	private long min_eid;
+    private BuffersDataSource.Buffer buffer;
+    private ServersDataSource.Server server;
 	private long earliest_eid;
 	private long backlog_eid = 0;
-	private String name;
-	private String type;
 	private boolean scrolledUp = false;
 	private boolean requestingBacklog = false;
 	private float avgInsertTime = 0;
@@ -131,7 +124,6 @@ public class MessageViewFragment extends ListFragment {
 	private HeartbeatTask heartbeatTask = null;
 	private Ignore ignore = new Ignore();
 	private Timer tapTimer = null;
-	private ServersDataSource.Server mServer = null;
 	private boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
 	public boolean ready = false;
@@ -224,11 +216,11 @@ public class MessageViewFragment extends ListFragment {
 					data.remove(i);
 				}
 			}
-			if(min_eid > 0 && last_seen_eid > 0 && min_eid >= last_seen_eid) {
+			if(min_eid > 0 && buffer.last_seen_eid > 0 && min_eid >= buffer.last_seen_eid) {
 				lastSeenEidMarkerPosition = 0;
 			} else {
 				for(int i = data.size() - 1; i >= 0; i--) {
-					if(data.get(i).eid <= last_seen_eid) {
+					if(data.get(i).eid <= buffer.last_seen_eid) {
 						lastSeenEidMarkerPosition = i;
 						break;
 					}
@@ -302,7 +294,7 @@ public class MessageViewFragment extends ListFragment {
 
 			/*if(e.html != null) {
 				e.html = ColorFormatter.irc_to_html(e.html);
-                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
 			}*/
 
             if(e.day < 1) {
@@ -380,7 +372,7 @@ public class MessageViewFragment extends ListFragment {
 				return;
 			}
 			
-			if(eid > last_seen_eid && e.highlight)
+			if(eid > buffer.last_seen_eid && e.highlight)
 				unseenHighlightPositions.add(insert_pos);
 			
 			if(eid < min_eid || min_eid == 0)
@@ -432,9 +424,9 @@ public class MessageViewFragment extends ListFragment {
                     if(e.html != null) {
                         try {
                             e.html = ColorFormatter.irc_to_html(e.html);
-                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
                             if(e.msg != null && e.msg.length() > 0)
-                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, mServer).toString();
+                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                         } catch (Exception ex) {
                         }
                     }
@@ -481,9 +473,9 @@ public class MessageViewFragment extends ListFragment {
 
                 if(e.html != null && e.formatted == null) {
                     e.html = ColorFormatter.irc_to_html(e.html);
-                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, mServer);
+                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
                     if(e.msg != null && e.msg.length() > 0)
-                        e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, mServer).toString();
+                        e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                 }
 
                 if(e.row_type == ROW_MESSAGE) {
@@ -574,8 +566,8 @@ public class MessageViewFragment extends ListFragment {
 
 			@Override
 			public void onClick(View v) {
-				if(mServer != null && mServer.status != null && mServer.status.equalsIgnoreCase("disconnected")) {
-					conn.reconnect(cid);
+				if(server != null && server.status != null && server.status.equalsIgnoreCase("disconnected")) {
+					conn.reconnect(buffer.cid);
 				}
 			}
     		
@@ -586,7 +578,7 @@ public class MessageViewFragment extends ListFragment {
 
 			@Override
 			public void onClick(View v) {
-				conn.back(cid);
+				conn.back(buffer.cid);
 			}
     		
     	});
@@ -700,10 +692,10 @@ public class MessageViewFragment extends ListFragment {
             if(connecting.getVisibility() == View.VISIBLE)
                 return;
 
-			if(headerView != null && min_eid > 0 && conn.ready) {
-				if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && bid != -1 && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+			if(headerView != null && buffer != null && buffer.min_eid > 0 && conn.ready) {
+				if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 					requestingBacklog = true;
-					conn.request_backlog(cid, bid, earliest_eid);
+					conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
 				}
 			}
 			
@@ -750,16 +742,11 @@ public class MessageViewFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
-        	cid = savedInstanceState.getInt("cid");
-        	bid = savedInstanceState.getInt("bid");
-        	name = savedInstanceState.getString("name");
-        	last_seen_eid = savedInstanceState.getLong("last_seen_eid");
-        	min_eid = savedInstanceState.getLong("min_eid");
-        	type = savedInstanceState.getString("type");
+        if(savedInstanceState != null && savedInstanceState.containsKey("bid")) {
+            buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
+            server = ServersDataSource.getInstance().getServer(buffer.cid);
         	scrolledUp = savedInstanceState.getBoolean("scrolledUp");
         	backlog_eid = savedInstanceState.getLong("backlog_eid");
-        	//TODO: serialize the adapter data
         }
     }
     
@@ -776,20 +763,14 @@ public class MessageViewFragment extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
-    	state.putInt("cid", cid);
-    	state.putInt("bid", bid);
-    	state.putLong("last_seen_eid", last_seen_eid);
-    	state.putLong("min_eid", min_eid);
-    	state.putString("name", name);
-    	state.putString("type", type);
+    	state.putInt("bid", buffer.bid);
     	state.putBoolean("scrolledUp", scrolledUp);
     	state.putLong("backlog_eid", backlog_eid);
-    	//TODO: serialize the adapter data
     }
     
     @Override
     public void setArguments(Bundle args) {
-        if(args.containsKey("cid") && args.getInt("cid",-2) == cid && args.containsKey("bid") && args.getInt("bid",-2) == bid)
+        if(buffer != null && args.containsKey("cid") && args.getInt("cid",-2) == buffer.cid && args.containsKey("bid") && args.getInt("bid",-2) == buffer.bid)
             return;
         ready = false;
         if(heartbeatTask != null)
@@ -798,16 +779,12 @@ public class MessageViewFragment extends ListFragment {
     	if(tapTimer != null)
     		tapTimer.cancel();
     	tapTimer = null;
-    	cid = args.getInt("cid", 0);
-        if(bid == -1 || (args.containsKey("bid") && args.getInt("bid", 0) != bid)) {
+        if(buffer == null || (args.containsKey("bid") && args.getInt("bid", 0) != buffer.bid)) {
             dirty = true;
         }
-    	bid = args.getInt("bid", 0);
-    	last_seen_eid = args.getLong("last_seen_eid", 0);
-    	min_eid = args.getLong("min_eid", 0);
-    	name = args.getString("name");
-    	type = args.getString("type");
-		scrolledUp = false;
+        buffer = BuffersDataSource.getInstance().getBuffer(args.getInt("bid", -1));
+        server = ServersDataSource.getInstance().getServer(buffer.cid);
+		scrolledUp = false; //TODO: restore the scroll position from the buffer object
 		requestingBacklog = false;
 		ready = false;
 		avgInsertTime = 0;
@@ -818,16 +795,15 @@ public class MessageViewFragment extends ListFragment {
 		backlog_eid = 0;
         currentCollapsedEid = -1;
         lastCollapsedDay = -1;
-		mServer = ServersDataSource.getInstance().getServer(cid);
-    	if(mServer != null) {
-    		ignore.setIgnores(mServer.ignores);
-    		if(mServer.away != null && mServer.away.length() > 0) {
-    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + mServer.away + ")"))).toString());
+    	if(server != null) {
+    		ignore.setIgnores(server.ignores);
+    		if(server.away != null && server.away.length() > 0) {
+    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
     			awayView.setVisibility(View.VISIBLE);
     		} else {
     			awayView.setVisibility(View.GONE);
     		}
-			update_status(mServer.status, mServer.fail_info);
+			update_status(server.status, server.fail_info);
     	}
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.GONE);
@@ -844,14 +820,14 @@ public class MessageViewFragment extends ListFragment {
                     lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
                     lp.topMargin = 0;
                     backlogFailed.setLayoutParams(lp);
-					if(EventsDataSource.getInstance().getEventsForBuffer(bid) != null) {
+					if(EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
 						requestingBacklog = true;
 			            if(refreshTask != null)
 			            	refreshTask.cancel(true);
 						refreshTask = new RefreshTask();
 						refreshTask.execute((Void)null);
 					} else {
-						if(bid == -1 || min_eid == 0 || earliest_eid == min_eid || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
+						if(buffer == null || buffer.min_eid == 0 || earliest_eid == buffer.min_eid || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
 							headerView.setVisibility(View.GONE);
 						} else {
 							headerView.setVisibility(View.VISIBLE);
@@ -875,9 +851,7 @@ public class MessageViewFragment extends ListFragment {
                     colors = true;
 
                 long start = System.currentTimeMillis();
-                if(min_eid == 0)
-                    min_eid = event.eid;
-                if(event.eid <= min_eid) {
+                if(event.eid <= buffer.min_eid) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -887,7 +861,7 @@ public class MessageViewFragment extends ListFragment {
                         }
                     });
                 }
-                if(event.eid < earliest_eid)
+                if(earliest_eid == 0 || event.eid < earliest_eid)
                     earliest_eid = event.eid;
 
                 String type = event.type;
@@ -896,12 +870,12 @@ public class MessageViewFragment extends ListFragment {
                 if(type.startsWith("you_"))
                     type = type.substring(4);
 
-                if(type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode")) {
+                if(type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode")) {
                     boolean shouldExpand = false;
-                    boolean showChan = !this.type.equalsIgnoreCase("channel");
+                    boolean showChan = !buffer.type.equals("channel");
                     if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                         JSONObject hiddenMap = null;
-                        if(this.type.equalsIgnoreCase("channel")) {
+                        if(buffer.type.equals("channel")) {
                             if(conn.getUserInfo().prefs.has("channel-hideJoinPart"))
                                 hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
                         } else {
@@ -909,7 +883,7 @@ public class MessageViewFragment extends ListFragment {
                                 hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
                         }
 
-                        if(hiddenMap != null && hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid))) {
+                        if(hiddenMap != null && hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid))) {
                             adapter.removeItem(event.eid);
                             if(!backlog)
                                 adapter.notifyDataSetChanged();
@@ -917,7 +891,7 @@ public class MessageViewFragment extends ListFragment {
                         }
 
                         JSONObject expandMap = null;
-                        if(this.type.equalsIgnoreCase("channel")) {
+                        if(buffer.type.equals("channel")) {
                             if(conn.getUserInfo().prefs.has("channel-expandJoinPart"))
                                 expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
                         } else {
@@ -925,7 +899,7 @@ public class MessageViewFragment extends ListFragment {
                                 expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
                         }
 
-                        if(expandMap != null && expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid))) {
+                        if(expandMap != null && expandMap.has(String.valueOf(buffer.bid)) && expandMap.getBoolean(String.valueOf(buffer.bid))) {
                             shouldExpand = true;
                         }
                     }
@@ -943,12 +917,12 @@ public class MessageViewFragment extends ListFragment {
                     }
 
                     if(!showChan)
-                        event.chan = name;
+                        event.chan = buffer.name;
 
                     if(!collapsedEvents.addEvent(event))
                         collapsedEvents.clear();
 
-                    if((currentCollapsedEid == event.eid || shouldExpand) && type.equalsIgnoreCase("user_channel_mode")) {
+                    if((currentCollapsedEid == event.eid || shouldExpand) && type.equals("user_channel_mode")) {
                         event.color = R.color.row_message_label;
                         event.bg_color = R.color.status_bg;
                     } else {
@@ -963,10 +937,10 @@ public class MessageViewFragment extends ListFragment {
                         msg = c.getCollapsedMessage(showChan);
                         if(!nextIsGrouped) {
                             String group_msg = collapsedEvents.getCollapsedMessage(showChan);
-                            if(group_msg == null && type.equalsIgnoreCase("nickchange")) {
+                            if(group_msg == null && type.equals("nickchange")) {
                                 group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
                             }
-                            if(group_msg == null && type.equalsIgnoreCase("user_channel_mode")) {
+                            if(group_msg == null && type.equals("user_channel_mode")) {
                                 if(event.from != null && event.from.length() > 0)
                                     msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
                                 else
@@ -989,10 +963,10 @@ public class MessageViewFragment extends ListFragment {
                         msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage(showChan);
                     }
 
-                    if(msg == null && type.equalsIgnoreCase("nickchange")) {
+                    if(msg == null && type.equals("nickchange")) {
                         msg = event.old_nick + " → <b>" + event.nick + "</b>";
                     }
-                    if(msg == null && type.equalsIgnoreCase("user_channel_mode")) {
+                    if(msg == null && type.equals("user_channel_mode")) {
                         if(event.from != null && event.from.length() > 0)
                             msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
                         else
@@ -1025,7 +999,7 @@ public class MessageViewFragment extends ListFragment {
                 if(from == null || from.length() == 0)
                     from = event.nick;
 
-                if(from != null && event.hostmask != null && !type.equalsIgnoreCase("user_channel_mode") && !type.contains("kicked")) {
+                if(from != null && event.hostmask != null && !type.equals("user_channel_mode") && !type.contains("kicked")) {
                     String usermask = from + "!" + event.hostmask;
                     if(ignore.match(usermask)) {
                         if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
@@ -1038,24 +1012,24 @@ public class MessageViewFragment extends ListFragment {
                     }
                 }
 
-                if(type.equalsIgnoreCase("channel_mode")) {
+                if(type.equals("channel_mode")) {
                     if(event.nick != null && event.nick.length() > 0)
                         event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
                     else if(event.server != null && event.server.length() > 0)
                         event.html = event.msg + " by the server <b>" + event.server + "</b>";
-                } else if(type.equalsIgnoreCase("buffer_me_msg")) {
+                } else if(type.equals("buffer_me_msg")) {
                     event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, colors) + "</b> " + event.msg + "</i>";
-                } else if(type.equalsIgnoreCase("notice")) {
+                } else if(type.equals("notice")) {
                     if(event.from != null && event.from.length() > 0)
                         event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
                     else
                         event.html = "";
-                    if(this.type.equalsIgnoreCase("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
+                    if(buffer.type.equals("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
                         event.html += event.chan + "&#xfe55; " + event.msg;
                     } else {
                         event.html += event.msg;
                     }
-                } else if(type.equalsIgnoreCase("kicked_channel")) {
+                } else if(type.equals("kicked_channel")) {
                     event.html = "← ";
                     if(event.type.startsWith("you_"))
                         event.html += "You";
@@ -1068,9 +1042,9 @@ public class MessageViewFragment extends ListFragment {
                     event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> (" + event.hostmask + ")";
                     if(event.msg != null && event.msg.length() > 0)
                         event.html += ": " + event.msg;
-                } else if(type.equalsIgnoreCase("callerid")) {
+                } else if(type.equals("callerid")) {
                     event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
-                } else if(type.equalsIgnoreCase("channel_mode_list_change")) {
+                } else if(type.equals("channel_mode_list_change")) {
                     if(event.from.length() == 0) {
                         if(event.nick != null && event.nick.length() > 0)
                             event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
@@ -1163,16 +1137,14 @@ public class MessageViewFragment extends ListFragment {
 								    	EventsDataSource.Event e = adapter.data.get(position);
                                         if(e != null) {
                                             if(e.type.equals("channel_invite")) {
-                                                conn.join(cid, e.old_nick, null);
+                                                conn.join(buffer.cid, e.old_nick, null);
                                             } else if(e.type.equals("callerid")) {
-                                                conn.say(cid, null, "/accept " + e.from);
-                                                BuffersDataSource b = BuffersDataSource.getInstance();
-                                                BuffersDataSource.Buffer buffer = b.getBufferByName(cid, e.from);
-                                                if(buffer != null) {
-                                                    mListener.onBufferSelected(buffer.cid, buffer.bid, buffer.name, buffer.last_seen_eid, buffer.min_eid,
-                                                            buffer.type, 1, buffer.archived, "connected_ready");
+                                                conn.say(buffer.cid, null, "/accept " + e.from);
+                                                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(buffer.cid, e.from);
+                                                if(b != null) {
+                                                    mListener.onBufferSelected(b.bid);
                                                 } else {
-                                                    mListener.onBufferSelected(cid, -1, e.from, 0, 0, "conversation", 1, 0, "connected_ready");
+                                                    conn.say(b.cid, null, "/query " + e.from);
                                                 }
                                             } else {
                                                 long group = e.group_eid;
@@ -1188,7 +1160,7 @@ public class MessageViewFragment extends ListFragment {
                                         }
                                     }
 								}
-				    		});
+                            				    		});
 			    			tapTimer = null;
 						}
 	    				
@@ -1206,22 +1178,8 @@ public class MessageViewFragment extends ListFragment {
     	ready = false;
         getListView().setStackFromBottom(true);
         getListView().requestFocus();
-    	if(bid == -1 && cid != -1) {
-    		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(cid, name);
-    		if(b != null) {
-    			bid = b.bid;
-    		}
-    	}
-    	if(cid != -1) {
-			mServer = ServersDataSource.getInstance().getServer(cid);
-			if(mServer != null)
-				update_status(mServer.status, mServer.fail_info);
-    	}
-		if(bid != -1) {
+		if(buffer != null) {
             dirty = true;
-			BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-			if(b != null)
-				last_seen_eid = b.last_seen_eid;
 		}
     	if(getListView().getHeaderViewsCount() == 0) {
     		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
@@ -1234,7 +1192,7 @@ public class MessageViewFragment extends ListFragment {
                     backlogFailed.setVisibility(View.GONE);
                     loadBacklogButton.setVisibility(View.GONE);
                     headerView.setVisibility(View.VISIBLE);
-                    conn.request_backlog(cid, bid, earliest_eid);
+                    conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
                 }
             });
     		getListView().addHeaderView(headerViewContainer);
@@ -1253,21 +1211,20 @@ public class MessageViewFragment extends ListFragment {
     	}
     	updateReconnecting();
     	update_global_msg();
-    	if(mServer != null) {
-    		ignore.setIgnores(mServer.ignores);
-    		if(mServer.away != null && mServer.away.length() > 0) {
-    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + mServer.away + ")"))).toString());
+    	if(server != null) {
+    		ignore.setIgnores(server.ignores);
+    		if(server.away != null && server.away.length() > 0) {
+    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
     			awayView.setVisibility(View.VISIBLE);
     		} else {
     			awayView.setVisibility(View.GONE);
     		}
     	}
-    	if(bid != -1) {
-            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+    	if(buffer != null) {
+            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
             if(events != null && events.size() > 0) {
                 adapter.clearLastSeenEIDMarker();
                 events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
-                BuffersDataSource.Buffer buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
                 if(backlog_eid > 0) {
                     EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
                     backlogMarker.eid = backlog_eid;
@@ -1276,7 +1233,7 @@ public class MessageViewFragment extends ListFragment {
                     backlogMarker.bg_color = R.color.message_bg;
                     events.put(backlog_eid, backlogMarker);
                 }
-                refresh(events, buffer);
+                refresh(events);
                 ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
                 if(adapter.getLastSeenEIDPosition() == 0)
                     lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
@@ -1305,11 +1262,9 @@ public class MessageViewFragment extends ListFragment {
                 ready = true;
             }
         } else {
-    		if(cid == -1) {
-    			headerView.setVisibility(View.GONE);
-                backlogFailed.setVisibility(View.GONE);
-                loadBacklogButton.setVisibility(View.GONE);
-            }
+            headerView.setVisibility(View.GONE);
+            backlogFailed.setVisibility(View.GONE);
+            loadBacklogButton.setVisibility(View.GONE);
     	}
         setListAdapter(adapter);
 		getListView().setOnScrollListener(mOnScrollListener);
@@ -1336,16 +1291,15 @@ public class MessageViewFragment extends ListFragment {
                 return null;
 
             try {
-                TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(bid);
+                TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
                 if(events != null && events.size() > 0) {
                     Long eid = events.get(events.lastKey()).eid;
 
-                    if(eid > last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    if(eid > buffer.last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         if(getActivity() != null && getActivity().getIntent() != null)
                             getActivity().getIntent().putExtra("last_seen_eid", eid);
-                        NetworkConnection.getInstance().heartbeat(bid, cid, bid, eid);
-                        last_seen_eid = eid;
-                        BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
+                        NetworkConnection.getInstance().heartbeat(buffer.cid, buffer.bid, eid);
+                        BuffersDataSource.getInstance().updateLastSeenEid(buffer.bid, eid);
                     }
                 }
             } catch (Exception e) {
@@ -1379,7 +1333,6 @@ public class MessageViewFragment extends ListFragment {
 
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
 		TreeMap<Long,EventsDataSource.Event> events;
-		BuffersDataSource.Buffer buffer;
         int oldPosition = -1;
         int topOffset = -1;
 
@@ -1400,9 +1353,9 @@ public class MessageViewFragment extends ListFragment {
         @SuppressWarnings("unchecked")
 		@Override
 		protected Void doInBackground(Void... params) {
-			buffer = BuffersDataSource.getInstance().getBuffer((int)bid);
 			long time = System.currentTimeMillis();
-			events = EventsDataSource.getInstance().getEventsForBuffer((int)bid);
+            if(buffer != null)
+    			events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			if(!isCancelled() && events != null && events.size() > 0) {
     			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
@@ -1431,14 +1384,14 @@ public class MessageViewFragment extends ListFragment {
                             events.put(backlog_eid, backlogMarker);
                         }
                         adapter = new MessageAdapter(MessageViewFragment.this);
-                        refresh(events, buffer);
+                        refresh(events);
                     } catch (IndexOutOfBoundsException e) {
                         return null;
                     } catch (IllegalStateException e) {
                         //The list view doesn't exist yet
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
                     }
-                } else if(bid != -1 && min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                } else if(buffer != null && buffer.min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
@@ -1489,12 +1442,12 @@ public class MessageViewFragment extends ListFragment {
         }
 	}
 
-	private synchronized void refresh(TreeMap<Long,EventsDataSource.Event> events, BuffersDataSource.Buffer buffer) {
+	private synchronized void refresh(TreeMap<Long,EventsDataSource.Event> events) {
 		if(conn.getReconnectTimestamp() == 0)
 			conn.cancel_idle_timer(); //This may take a while...
         if(dirty) {
             Log.i("IRCCloud", "BID changed, clearing caches");
-            EventsDataSource.getInstance().clearCacheForBuffer(bid);
+            EventsDataSource.getInstance().clearCacheForBuffer(buffer.bid);
             dirty = false;
         }
 		collapsedEvents.clear();
@@ -1516,13 +1469,13 @@ public class MessageViewFragment extends ListFragment {
 			timestamp_width = getResources().getDimensionPixelSize(R.dimen.timestamp_base) + getResources().getDimensionPixelSize(R.dimen.timestamp_ampm);
 		}
 
-		if(events == null || (events.size() == 0 && min_eid > 0)) {
-			if(bid != -1 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+		if(events == null || (events.size() == 0 && buffer.min_eid > 0)) {
+			if(buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 				requestingBacklog = true;
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        conn.request_backlog(cid, bid, 0);
+                        conn.request_backlog(buffer.cid, buffer.bid, 0);
                     }
                 });
 			} else {
@@ -1536,13 +1489,12 @@ public class MessageViewFragment extends ListFragment {
                 });
     		}
 		} else if(events.size() > 0) {
-			mServer = ServersDataSource.getInstance().getServer(cid);
-	    	if(mServer != null)
-	    		ignore.setIgnores(mServer.ignores);
+	    	if(server != null)
+	    		ignore.setIgnores(server.ignores);
 	    	else
 	    		ignore.setIgnores(null);
 			earliest_eid = events.firstKey();
-            if(events.firstKey() > min_eid && min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+            if(events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -1618,7 +1570,7 @@ public class MessageViewFragment extends ListFragment {
 		    					highlightsTopLabel.setVisibility(View.GONE);
 		    				}
 		    				if(markerPos == 0) {
-		    			        long seconds = (long)Math.ceil((earliest_eid - last_seen_eid) / 1000000.0);
+		    			        long seconds = (long)Math.ceil((earliest_eid - buffer.last_seen_eid) / 1000000.0);
                                 if(seconds < 0) {
                                     if(count < 0) {
                                         unreadTopView.setVisibility(View.GONE);
@@ -1677,8 +1629,8 @@ public class MessageViewFragment extends ListFragment {
                             }
                         }
 		    		}
-		    		if(mServer != null)
-		    			update_status(mServer.status, mServer.fail_info);
+		    		if(server != null)
+		    			update_status(server.status, server.fail_info);
 					if(mListener != null && !ready)
 						mListener.onMessageViewReady();
 					ready = true;
@@ -1693,7 +1645,7 @@ public class MessageViewFragment extends ListFragment {
 		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
 			try {
 				JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-				if(disabledMap.has(String.valueOf(bid)) && disabledMap.getBoolean(String.valueOf(bid))) {
+				if(disabledMap.has(String.valueOf(buffer.bid)) && disabledMap.getBoolean(String.valueOf(buffer.bid))) {
 					return false;
 				}
 			} catch (JSONException e) {
@@ -1795,9 +1747,9 @@ public class MessageViewFragment extends ListFragment {
 		}
 		
     	if(status.equals("connected_ready")) {
-    		if(mServer != null && mServer.lag >= 2*1000*1000) {
+    		if(server != null && server.lag >= 2*1000*1000) {
 	    		statusView.setVisibility(View.VISIBLE);
-	    		statusView.setText("Slow ping response from " + mServer.hostname + " (" + (mServer.lag / 1000 / 1000) + "s)");
+	    		statusView.setText("Slow ping response from " + server.hostname + " (" + (server.lag / 1000 / 1000) + "s)");
     		} else {
 	    		statusView.setVisibility(View.GONE);
 	    		statusView.setText("");
@@ -2083,11 +2035,6 @@ public class MessageViewFragment extends ListFragment {
 					connecting.startAnimation(anim);
 					error = null;
 				}
-				if(bid != -1) {
-					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-					if(b != null)
-						last_seen_eid = b.last_seen_eid;
-				}
 			case NetworkConnection.EVENT_CONNECTIVITY:
 				updateReconnecting();
 			case NetworkConnection.EVENT_USERINFO:
@@ -2112,8 +2059,8 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_CONNECTIONLAG:
 				try {
 					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
-					if(mServer != null && object.cid() == cid) {
-						update_status(mServer.status, mServer.fail_info);
+					if(server != null && object.cid() == buffer.cid) {
+						update_status(server.status, server.fail_info);
 					}
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -2123,7 +2070,7 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
 					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
-					if(object.cid() == cid) {
+					if(object.cid() == buffer.cid) {
 						update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
 					}
 				} catch (Exception e) {
@@ -2131,20 +2078,9 @@ public class MessageViewFragment extends ListFragment {
 					e.printStackTrace();
 				}
 				break;
-			case NetworkConnection.EVENT_MAKEBUFFER:
-				BuffersDataSource.Buffer buffer = (BuffersDataSource.Buffer)msg.obj;
-				if(bid == -1 && buffer.cid == cid && buffer.name.equalsIgnoreCase(name)) {
-					bid = buffer.bid;
-                    min_eid = buffer.min_eid;
-		            if(refreshTask != null)
-		            	refreshTask.cancel(true);
-					refreshTask = new RefreshTask();
-					refreshTask.execute((Void)null);
-				}
-				break;
 			case NetworkConnection.EVENT_SETIGNORES:
 				e = (IRCCloudJSONObject)msg.obj;
-				if(e.cid() == cid) {
+				if(e.cid() == buffer.cid) {
 		            if(refreshTask != null)
 		            	refreshTask.cancel(true);
 					refreshTask = new RefreshTask();
@@ -2153,13 +2089,9 @@ public class MessageViewFragment extends ListFragment {
 				break;
 			case NetworkConnection.EVENT_HEARTBEATECHO:
 				if(adapter != null && adapter.data.size() > 0) {
-					BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-					if(b != null && last_seen_eid != b.last_seen_eid) {
-						last_seen_eid = b.last_seen_eid;
-						if(last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
-			    			unreadTopView.setVisibility(View.GONE);
-			    		}
-					}
+                    if(buffer.last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
+                        unreadTopView.setVisibility(View.GONE);
+                    }
 				}
 				break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
@@ -2173,15 +2105,15 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_USERMODE:
 			case NetworkConnection.EVENT_USERCHANNELMODE:
 				e = (IRCCloudJSONObject)msg.obj;
-				if(e.bid() == bid) {
+				if(e.bid() == buffer.bid) {
 					EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
 					insertEvent(event, false, false);
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
-				if(event.bid == bid) {
-					if(event.from != null && event.from.equals(name) && event.reqid == -1) {
+				if(event.bid == buffer.bid) {
+					if(event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
 						adapter.clearPending();
 					} else if(event.reqid != -1) {
 						for(int i = 0; i < adapter.data.size(); i++) {
@@ -2204,9 +2136,9 @@ public class MessageViewFragment extends ListFragment {
 				break;
 			case NetworkConnection.EVENT_AWAY:
 			case NetworkConnection.EVENT_SELFBACK:
-				if(mServer != null) {
-		    		if(mServer.away != null && mServer.away.length() > 0) {
-		    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + mServer.away + ")"))).toString());
+				if(server != null) {
+		    		if(server.away != null && server.away.length() > 0) {
+		    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
 		    			awayView.setVisibility(View.VISIBLE);
 		    		} else {
 		    			awayView.setVisibility(View.GONE);

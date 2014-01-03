@@ -764,10 +764,10 @@ public class NetworkConnection {
 		}
 	}
 	
-	public int heartbeat(long selected_buffer, int cid, long bid, long last_seen_eid) {
+	public int heartbeat(int cid, int bid, long last_seen_eid) {
 		try {
 			JSONObject o = new JSONObject();
-			o.put("selectedBuffer", selected_buffer);
+			o.put("selectedBuffer", bid);
 			JSONObject eids = new JSONObject();
 			eids.put(String.valueOf(bid), last_seen_eid);
 			JSONObject cids = new JSONObject();

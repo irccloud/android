@@ -842,7 +842,6 @@ public class BuffersListFragment extends ListFragment {
     
     public void onListItemClick(ListView l, View v, int position, long id) {
     	BufferListEntry e = (BufferListEntry)adapter.getItem(position);
-    	String type = null;
     	switch(e.type) {
         case TYPE_ADD_NETWORK:
             mListener.addNetwork();
@@ -860,18 +859,9 @@ public class BuffersListFragment extends ListFragment {
             newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
             mListener.addButtonPressed(e.cid);
             return;
-    	case TYPE_SERVER:
-    		type = "console";
-    		break;
-    	case TYPE_CHANNEL:
-    		type = "channel";
-    		break;
-    	case TYPE_CONVERSATION:
-    		type = "conversation";
-    		break;
     	}
     	adapter.showProgress(position);
-    	mListener.onBufferSelected(e.cid, e.bid, e.name, e.last_seen_eid, e.min_eid, type, e.joined, e.archived, e.status);
+    	mListener.onBufferSelected(e.bid);
     }
     
     
@@ -977,7 +967,7 @@ public class BuffersListFragment extends ListFragment {
 	};
 	
 	public interface OnBufferSelectedListener {
-		public void onBufferSelected(int cid, int bid, String name, long last_seen_eid, long min_eid, String type, int joined, int archived, String status);
+		public void onBufferSelected(int bid);
 		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
 		public void addButtonPressed(int cid);
         public void addNetwork();
