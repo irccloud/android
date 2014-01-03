@@ -20,6 +20,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -178,7 +180,7 @@ public class NetworkConnection {
 
 	private static final String IRCCLOUD_HOST = "www.irccloud.com";
 	
-	private Object parserLock = new Object();
+	private final Object parserLock = new Object();
 	private WifiManager.WifiLock wifiLock = null;
 	
 	public long clockOffset = 0;
@@ -491,7 +493,9 @@ public class NetworkConnection {
             e.printStackTrace();
             try {
                 JSONObject o = new JSONObject();
-                o.put("exception", e.toString());
+                StringWriter sw = new StringWriter();
+                e.printStackTrace(new PrintWriter(sw));
+                o.put("exception", sw.toString());
                 return o;
             } catch (JSONException e1) {
                 e.printStackTrace();
@@ -539,6 +543,7 @@ public class NetworkConnection {
     }
 
     public synchronized void connect(String sk) {
+        Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
 		session = sk;
         String host = null;
         int port = -1;
@@ -546,20 +551,23 @@ public class NetworkConnection {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
+            if(ctx != null)
+                ctx.registerReceiver(connectivityListener, intentFilter);
         } catch (Exception e) {
         }
 
-        ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if(ctx != null) {
+            ConnectivityManager cm = (ConnectivityManager)ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni = cm.getActiveNetworkInfo();
 
-        if(ni == null || !ni.isConnected()) {
-            TestFlight.log("Network is not connected");
-            cancel_idle_timer();
-            state = STATE_DISCONNECTED;
-            reconnect_timestamp = 0;
-            notifyHandlers(EVENT_CONNECTIVITY, null);
-            return;
+            if(ni == null || !ni.isConnected()) {
+                TestFlight.log("Network is not connected");
+                cancel_idle_timer();
+                state = STATE_DISCONNECTED;
+                reconnect_timestamp = 0;
+                notifyHandlers(EVENT_CONNECTIVITY, null);
+                return;
+            }
         }
 
         if(state == STATE_CONNECTING || state == STATE_CONNECTED) {
@@ -580,8 +588,10 @@ public class NetworkConnection {
         oobTasks.clear();
 
         if(Build.VERSION.SDK_INT <11) {
-            host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
-            port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
+            if(ctx != null) {
+                host = android.net.Proxy.getHost(ctx);
+                port = android.net.Proxy.getPort(ctx);
+            }
         } else {
             host = System.getProperty("http.proxyHost", null);
             try {
@@ -1894,8 +1904,11 @@ public class NetworkConnection {
         int port = -1;
 
         if(Build.VERSION.SDK_INT <11) {
-            host = android.net.Proxy.getHost(IRCCloudApplication.getInstance().getApplicationContext());
-            port = android.net.Proxy.getPort(IRCCloudApplication.getInstance().getApplicationContext());
+            Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
+            if(ctx != null) {
+                host = android.net.Proxy.getHost(ctx);
+                port = android.net.Proxy.getPort(ctx);
+            }
         } else {
             host = System.getProperty("http.proxyHost", null);
             try {
@@ -1915,7 +1928,7 @@ public class NetworkConnection {
             https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
-        	conn = (HttpURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection());
+        	conn = (HttpURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection(Proxy.NO_PROXY));
         }
 
 		conn.setRequestProperty("Connection", "close");
