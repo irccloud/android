@@ -646,6 +646,16 @@ public class EventsDataSource {
         };
         for(String error : errors)
             put(error, errorFormatter);
+
+        put("version", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = "";
+                e.msg = "<pre><b>" + event.getString("server_version") + "</b> " + event.getString("comments") + "</pre>";
+                e.bg_color = R.color.status_bg;
+                e.linkify = false;
+            }
+        });
     }};
 
 	public Event addEvent(IRCCloudJSONObject event) {

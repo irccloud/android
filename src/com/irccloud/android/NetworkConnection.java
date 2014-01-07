@@ -1558,7 +1558,8 @@ public class NetworkConnection {
                 "cap_ls",
                 "cap_req",
                 "cap_ack",
-                "help_topics_start","help_topics","help_topics_end", "helphdr", "helpop", "helptlr", "helphlp", "helpfwd", "helpign"
+                "help_topics_start","help_topics","help_topics_end", "helphdr", "helpop", "helptlr", "helphlp", "helpfwd", "helpign",
+                "version"
         };
         for(String event : msgs) {
             put(event, msg);
