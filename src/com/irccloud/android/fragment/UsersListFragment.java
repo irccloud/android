@@ -57,6 +57,7 @@ public class UsersListFragment extends ListFragment {
 	private View view;
 	private RefreshTask refreshTask = null;
 	private Timer tapTimer = null;
+    private Timer refreshTimer = null;
 	
 	private class UserListAdapter extends BaseAdapter {
 		ArrayList<UserListEntry> data;
@@ -344,6 +345,8 @@ public class UsersListFragment extends ListFragment {
     	super.onPause();
     	if(conn != null)
     		conn.removeHandler(mHandler);
+        if(refreshTimer != null)
+            refreshTimer.cancel();
     }
     
     @Override
@@ -464,10 +467,19 @@ public class UsersListFragment extends ListFragment {
 			case NetworkConnection.EVENT_USERCHANNELMODE:
 			case NetworkConnection.EVENT_KICK:
 			case NetworkConnection.EVENT_BACKLOG_END:
-	            if(refreshTask != null)
-	            	refreshTask.cancel(true);
-				refreshTask = new RefreshTask();
-				refreshTask.execute((Void)null);
+                if(refreshTimer == null) {
+                    refreshTimer = new Timer();
+                    refreshTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            if(refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void)null);
+                            refreshTimer = null;
+                        }
+                    }, 250);
+                }
 				break;
 			default:
 				break;

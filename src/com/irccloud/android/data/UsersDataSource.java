@@ -19,7 +19,9 @@ package com.irccloud.android.data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 
 public class UsersDataSource {
 	public class User {
@@ -40,7 +42,7 @@ public class UsersDataSource {
 		}
 	}
 	
-	private ArrayList<User> users;
+	private HashMap<Integer,HashMap<String,User>> users;
 	
 	private static UsersDataSource instance = null;
 	
@@ -51,7 +53,7 @@ public class UsersDataSource {
 	}
 
 	public UsersDataSource() {
-		users = new ArrayList<User>();
+		users = new HashMap<Integer,HashMap<String,User>>();
 	}
 
 	public synchronized void clear() {
@@ -61,21 +63,23 @@ public class UsersDataSource {
 	public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away) {
 		return createUser(cid, bid, nick, hostmask, mode, away, true);
 	}
+
 	public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away, boolean find_old) {
 		User u = null;
 		if(find_old)
 			u = getUser(cid, bid, nick);
 		
 		if(u == null) {
-			if(find_old)
-				u = findOldNickForHostmask(cid, hostmask);
 			if(u == null)
 				u = new User();
 			else if(!u.nick.equals(nick))
 				u.old_nick = u.nick;
 			else
 				u.old_nick = null;
-			users.add(u);
+
+            if(!users.containsKey(bid))
+                users.put(bid, new HashMap<String,User>());
+			users.get(bid).put(nick,u);
 		}
 		u.cid = cid;
 		u.bid = bid;
@@ -88,26 +92,12 @@ public class UsersDataSource {
 	}
 
 	public synchronized void deleteUser(int cid, int bid, String nick) {
-		User u = getUser(cid,bid,nick);
-		if(u != null)
-			users.remove(u);
+        if(users.containsKey(bid))
+            users.get(bid).remove(nick);
 	}
 
 	public synchronized void deleteUsersForBuffer(int cid, int bid) {
-		ArrayList<User> usersToRemove = new ArrayList<User>();
-		
-		Iterator<User> i = users.iterator();
-		while(i.hasNext()) {
-			User u = i.next();
-			if(u.cid == cid && u.bid == bid)
-				usersToRemove.add(u);
-		}
-		
-		i=usersToRemove.iterator();
-		while(i.hasNext()) {
-			User u = i.next();
-			users.remove(u);
-		}
+        users.remove(bid);
 	}
 
 	public synchronized void updateNick(int cid, int bid, String old_nick, String new_nick) {
@@ -115,6 +105,8 @@ public class UsersDataSource {
 		if(u != null) {
 			u.nick = new_nick;
 			u.old_nick = old_nick;
+            users.get(bid).remove(old_nick);
+            users.get(bid).put(new_nick, u);
 		}
 	}
 	
@@ -122,17 +114,6 @@ public class UsersDataSource {
 		User u = getUser(cid,bid,nick);
 		if(u != null)
 			u.away = away;
-	}
-	
-	public synchronized void updateAwayMsg(int cid, String nick, int away, String away_msg) {
-		Iterator<User> i = users.iterator();
-		while(i.hasNext()) {
-			User u = i.next();
-			if(u.cid == cid && u.nick.equals(nick)) {
-				u.away = away;
-				u.away_msg = away_msg;
-			}
-		}
 	}
 	
 	public synchronized void updateHostmask(int cid, int bid, String nick, String hostmask) {
@@ -146,46 +127,35 @@ public class UsersDataSource {
 		if(u != null)
 			u.mode = mode;
 	}
-	
-	public synchronized ArrayList<User> getUsersForBuffer(int cid, int bid) {
+
+    public synchronized void updateAwayMsg(int cid, int bid, String nick, int away, String away_msg) {
+        User u = getUser(cid,bid,nick);
+        u.away = away;
+        u.away_msg = away_msg;
+    }
+
+    public synchronized ArrayList<User> getUsersForBuffer(int cid, int bid) {
 		ArrayList<User> list = new ArrayList<User>();
-		Iterator<User> i = users.iterator();
-		while(i.hasNext()) {
-			User u = i.next();
-			if(u.cid == cid && u.bid == bid && u.joined == 1)
-				list.add(u);
-		}
-		Collections.sort(list, new comparator());
+        if(users.containsKey(bid)) {
+            Iterator<User> i = users.get(bid).values().iterator();
+            while(i.hasNext()) {
+                User u = i.next();
+                list.add(u);
+            }
+            Collections.sort(list, new comparator());
+        }
 		return list;
 	}
 
 	public synchronized User getUser(int cid, int bid, String nick) {
-		Iterator<User> i = users.iterator();
-		while(i.hasNext()) {
-			User u = i.next();
-			if(u.cid == cid && u.bid == bid && u.nick.equals(nick) && u.joined == 1)
-				return u;
-		}
-		return null;
-	}
-
-	public synchronized User findOldNickForHostmask(int cid, String hostmask) {
-		Iterator<User> i = users.iterator();
-		while(i.hasNext()) {
-			User u = i.next();
-			if(u.cid == cid && u.hostmask.equals(hostmask) && u.joined == 0)
-				return u;
-		}
-		return null;
-	}
-
-	public synchronized User getUser(int cid, String nick) {
-		Iterator<User> i = users.iterator();
-		while(i.hasNext()) {
-			User u = i.next();
-			if(u.cid == cid && u.nick.equals(nick) && u.joined == 1)
-				return u;
-		}
+        if(users.containsKey(bid)) {
+            Iterator<User> i = users.get(bid).values().iterator();
+            while(i.hasNext()) {
+                User u = i.next();
+                if(u.cid == cid && u.bid == bid && u.nick.equals(nick) && u.joined == 1)
+                    return u;
+            }
+        }
 		return null;
 	}
 }

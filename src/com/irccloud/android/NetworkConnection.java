@@ -1759,7 +1759,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 BuffersDataSource b = BuffersDataSource.getInstance();
                 UsersDataSource u = UsersDataSource.getInstance();
-                u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("msg"));
+                u.updateAwayMsg(object.cid(), object.bid(), object.getString("nick"), 1, object.getString("msg"));
                 b.updateAway(object.bid(), object.getString("msg"));
                 if(!backlog)
                     notifyHandlers(EVENT_AWAY, object);
@@ -1771,7 +1771,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 BuffersDataSource b = BuffersDataSource.getInstance();
                 UsersDataSource u = UsersDataSource.getInstance();
-                u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
+                u.updateAwayMsg(object.cid(), object.bid(), object.getString("nick"), 0, "");
                 b.updateAway(object.bid(), "");
                 if(!backlog)
                     notifyHandlers(EVENT_AWAY, object);
@@ -1782,7 +1782,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
                 UsersDataSource u = UsersDataSource.getInstance();
-                u.updateAwayMsg(object.cid(), object.getString("nick"), 1, object.getString("away_msg"));
+                u.updateAwayMsg(object.cid(), object.bid(), object.getString("nick"), 1, object.getString("away_msg"));
                 s.updateAway(object.cid(), object.getString("away_msg"));
                 if(!backlog)
                     notifyHandlers(EVENT_AWAY, object);
@@ -1793,7 +1793,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
                 UsersDataSource u = UsersDataSource.getInstance();
-                u.updateAwayMsg(object.cid(), object.getString("nick"), 0, "");
+                u.updateAwayMsg(object.cid(), object.bid(), object.getString("nick"), 0, "");
                 s.updateAway(object.cid(), "");
                 if(!backlog)
                     notifyHandlers(EVENT_SELFBACK, object);

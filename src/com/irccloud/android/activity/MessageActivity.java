@@ -786,7 +786,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	} else {
 	    		if(buffer.type.equals("conversation")) {
                     title.setContentDescription("Conversation with " + title.getText());
-	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.name);
+	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, buffer.name);
 	    			if(user != null && user.away > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
 	    				if(user.away_msg != null && user.away_msg.length() > 0) {
@@ -1973,12 +1973,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(from == null || from.length() == 0)
 			from = event.nick;
 
-		UsersDataSource.User user;
-		
-		if(buffer.type.equals("channel"))
-			user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, from);
-		else
-			user = UsersDataSource.getInstance().getUser(buffer.cid, from);
+		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, from);
 
 		if(user == null && from != null && event.hostmask != null) {
 			user = UsersDataSource.getInstance().new User();
@@ -2000,10 +1995,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	@Override
 	public void onUserSelected(int c, String chan, String nick) {
 		UsersDataSource u = UsersDataSource.getInstance();
-		if(buffer.type.equals("channel"))
-			showUserPopup(u.getUser(buffer.cid, buffer.bid, nick), null);
-		else
-			showUserPopup(u.getUser(buffer.cid, nick), null);
+        showUserPopup(u.getUser(buffer.cid, buffer.bid, nick), null);
 	}
 	
 	@SuppressLint("NewApi")
