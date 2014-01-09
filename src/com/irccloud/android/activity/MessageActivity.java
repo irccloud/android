@@ -18,6 +18,8 @@ package com.irccloud.android.activity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -33,6 +35,8 @@ import org.json.JSONObject;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.data.BuffersDataSource;
@@ -493,10 +497,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			if(!isCancelled() && drawerLayout != null) {
 				if(highlights > 0) {
                     mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
+                    upView.setTag(R.drawable.ic_navigation_drawer_highlight);
 				} else if(unread > 0) {
                     mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
+                    upView.setTag(R.drawable.ic_navigation_drawer_unread);
 				} else {
                     mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer));
+                    upView.setTag(R.drawable.ic_navigation_drawer);
 				}
 				refreshUpIndicatorTask = null;
 			}
@@ -1196,10 +1203,28 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 				break;
 			case NetworkConnection.EVENT_HEARTBEATECHO:
-		        if(refreshUpIndicatorTask != null)
-		        	refreshUpIndicatorTask.cancel(true);
-		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-		        refreshUpIndicatorTask.execute((Void)null);
+                boolean shouldRefresh = false;
+                event = (IRCCloudJSONObject)msg.obj;
+                JsonObject seenEids = event.getJsonObject("seenEids");
+                Iterator<Map.Entry<String, JsonElement>> iterator = seenEids.entrySet().iterator();
+                while(iterator.hasNext()) {
+                    Map.Entry<String, JsonElement> entry = iterator.next();
+                    JsonObject eids = entry.getValue().getAsJsonObject();
+                    Iterator<Map.Entry<String, JsonElement>> j = eids.entrySet().iterator();
+                    while(j.hasNext()) {
+                        Map.Entry<String, JsonElement> eidentry = j.next();
+                        Integer bid = Integer.valueOf(eidentry.getKey());
+                        if(bid != buffer.bid) {
+                            shouldRefresh = true;
+                        }
+                    }
+                }
+                if(shouldRefresh) {
+                    if(refreshUpIndicatorTask != null)
+                        refreshUpIndicatorTask.cancel(true);
+                    refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                    refreshUpIndicatorTask.execute((Void)null);
+                }
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
 				event = (IRCCloudJSONObject)msg.obj;
@@ -1236,10 +1261,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
                     if(e != null && buffer != null) {
                         if(e.bid != buffer.bid && upView != null) {
-                            if(refreshUpIndicatorTask != null)
-                                refreshUpIndicatorTask.cancel(true);
-                            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                            refreshUpIndicatorTask.execute((Void)null);
+                            BuffersDataSource.Buffer buf = BuffersDataSource.getInstance().getBuffer(e.bid);
+                            if(e.isImportant(buf.type)) {
+                                if(!upView.getTag().equals(R.drawable.ic_navigation_drawer_highlight) && (e.highlight || buf.type.equals("conversation"))) {
+                                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
+                                    upView.setTag(R.drawable.ic_navigation_drawer_highlight);
+                                } else if(upView.getTag().equals(R.drawable.ic_navigation_drawer)) {
+                                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
+                                    upView.setTag(R.drawable.ic_navigation_drawer_unread);
+                                }
+                            }
                         }
                         if(e.from.equalsIgnoreCase(buffer.name)) {
                             for(EventsDataSource.Event e1 : pendingEvents.values()) {
