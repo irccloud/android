@@ -1162,7 +1162,6 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 idle_interval = object.getLong("idle_interval") + 10000;
                 clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
-                failCount = 0;
                 currentcount = 0;
                 currentBid = -1;
                 firstEid = -1;
@@ -1170,9 +1169,7 @@ public class NetworkConnection {
                 if(object.has("accrued"))
                     accrued = object.getInt("accrued");
                 if(!(object.has("resumed") && object.getBoolean("resumed"))) {
-                    Log.d("IRCCloud", "Socket was not resumed, invalidating buffers");
-                    BuffersDataSource.getInstance().invalidate();
-                    ChannelsDataSource.getInstance().invalidate();
+                    Log.d("IRCCloud", "Socket was not resumed");
                 }
                 TestFlight.log("Clock offset: " + clockOffset + "s");
             }
@@ -1290,11 +1287,19 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 accrued = 0;
                 backlog = false;
-                ready = true;
                 Log.d("IRCCloud", "Cleaning up invalid BIDs");
                 BuffersDataSource.getInstance().purgeInvalidBIDs();
                 ChannelsDataSource.getInstance().purgeInvalidChannels();
-                notifyHandlers(EVENT_BACKLOG_END, null);
+                if(userInfo.connections > 0 && (ServersDataSource.getInstance().count() == 0 || BuffersDataSource.getInstance().count() == 0)) {
+                    Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
+                    notifyHandlers(EVENT_BACKLOG_FAILED, null);
+                    streamId = null;
+                    client.disconnect();
+                } else {
+                    failCount = 0;
+                    ready = true;
+                    notifyHandlers(EVENT_BACKLOG_END, null);
+                }
             }
         });
 
@@ -2174,12 +2179,17 @@ public class NetworkConnection {
                             Log.d(TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
                             TestFlight.log("Beginning backlog...");
                             Log.d(TAG, "Beginning backlog...");
-                            notifyHandlers(EVENT_BACKLOG_START, null);
+                            if(bid > 0)
+                                notifyHandlers(EVENT_BACKLOG_START, null);
                             numbuffers = 0;
                             totalbuffers = 0;
                             currentBid = -1;
                             firstEid = -1;
                             backlog = true;
+                            if(bid == -1) {
+                                BuffersDataSource.getInstance().invalidate();
+                                ChannelsDataSource.getInstance().invalidate();
+                            }
                             JsonParser parser = new JsonParser();
                             reader.beginArray();
                             int count = 0;
@@ -2240,13 +2250,13 @@ public class NetworkConnection {
                             }
                             Notifications.getInstance().showNotifications(null);
                             schedule_idle_timer();
+                            if(bid > 0) {
+                                notifyHandlers(EVENT_BACKLOG_END, null);
+                                ready = true;
+                            }
                         }
-                        ready = true;
-                        notifyHandlers(EVENT_BACKLOG_END, null);
-                    } else if(ServersDataSource.getInstance().count() < 1) {
-                        TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
-                        Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
-                        client.disconnect();
+                    } else {
+                        throw new Exception("Unexpected JSON response");
                     }
                     if(reader != null)
                         reader.close();
@@ -2286,19 +2296,17 @@ public class NetworkConnection {
                             oobTasks.remove(bid);
                         }
 					}
-				} else if(ServersDataSource.getInstance().count() < 1) {
-					e.printStackTrace();
-                    TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
-                    Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
-					client.disconnect();
-				} else {
-                    Log.e(TAG, "An error occured while parsing backlog");
-                    e.printStackTrace();
                 }
 			}
 			if(Build.VERSION.SDK_INT >= 14)
 				TrafficStats.clearThreadStatsTag();
             notifyHandlers(EVENT_BACKLOG_FAILED, null);
+            if(bid == -1) {
+                TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
+                Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
+                streamId = null;
+                client.disconnect();
+            }
 			return false;
 		}
     }
