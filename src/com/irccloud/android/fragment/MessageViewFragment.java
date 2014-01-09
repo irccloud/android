@@ -395,8 +395,8 @@ public class MessageViewFragment extends ListFragment {
 				d.eid = eid;
 				d.timestamp = formatter.format(calendar.getTime());
 				d.bg_color = R.drawable.row_timestamp_bg;
+                d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 				data.add(insert_pos, d);
-				lastDay = calendar.get(Calendar.DAY_OF_YEAR);
 				if(currentGroupPosition > -1)
 					currentGroupPosition++;
 			}
