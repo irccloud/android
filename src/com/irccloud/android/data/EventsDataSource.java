@@ -423,6 +423,11 @@ public class EventsDataSource {
                             e.from = "";
                             e.msg = "Channel ban set for <b>" + op.get("param").getAsString() + "</b> (+b)";
                             unknown = false;
+                        } else if(op.get("mode").getAsString().equalsIgnoreCase("e")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "Channel ban exception set for <b>" + op.get("param").getAsString() + "</b> (+e)";
+                            unknown = false;
                         }
                     }
                     JsonArray remove = ops.getAsJsonArray("remove");
@@ -432,6 +437,11 @@ public class EventsDataSource {
                             e.nick = e.from;
                             e.from = "";
                             e.msg = "Channel ban removed for <b>" + op.get("param").getAsString() + "</b> (-b)";
+                            unknown = false;
+                        } else if(op.get("mode").getAsString().equalsIgnoreCase("e")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "Channel ban exception removed for <b>" + op.get("param").getAsString() + "</b> (-e)";
                             unknown = false;
                         }
                     }
