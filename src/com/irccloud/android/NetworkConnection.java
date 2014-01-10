@@ -1855,7 +1855,7 @@ public class NetworkConnection {
 
 	private void parse_object(IRCCloudJSONObject object) throws JSONException {
 		cancel_idle_timer();
-		Log.d(TAG, "Backlog: " + backlog + " New event: " + object);
+		//Log.d(TAG, "Backlog: " + backlog + " New event: " + object);
 		if(!object.has("type")) {
 			//Log.d(TAG, "Response: " + object);
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {

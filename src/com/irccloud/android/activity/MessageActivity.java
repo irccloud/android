@@ -2063,6 +2063,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					}
 				}
 			}
+            itemList.add("Copy Hostmask");
 		}
 
 		items = itemList.toArray(new String[itemList.size()]);
@@ -2094,6 +2095,17 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    			    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message",text_to_copy);
 	    			    clipboard.setPrimaryClip(clip);
 	    			}
+                    Toast.makeText(MessageActivity.this, "Message copied to clipboard", Toast.LENGTH_SHORT).show();
+                } else if(items[item].equals("Copy Hostmask")) {
+                    if(Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        clipboard.setText(selected_user.nick + "!" + selected_user.hostmask);
+                    } else {
+                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask",selected_user.nick + "!" + selected_user.hostmask);
+                        clipboard.setPrimaryClip(clip);
+                    }
+                    Toast.makeText(MessageActivity.this, "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
 	    		} else if(items[item].equals("Whois…")) {
 	    			conn.whois(buffer.cid, selected_user.nick, null);
 	    		} else if(items[item].equals("Send a message")) {
