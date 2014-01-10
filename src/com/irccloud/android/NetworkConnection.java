@@ -469,7 +469,8 @@ public class NetworkConnection {
 		oobTasks.clear();
 		session = null;
         for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-            EventsDataSource.getInstance().pruneEvents(b.bid);
+            if(!b.scrolledUp)
+                EventsDataSource.getInstance().pruneEvents(b.bid);
         }
 		try {
 			IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
