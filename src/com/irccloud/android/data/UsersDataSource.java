@@ -42,7 +42,7 @@ public class UsersDataSource {
 		}
 	}
 	
-	private HashMap<Integer,HashMap<String,User>> users;
+	private HashMap<Integer,TreeMap<String,User>> users;
 	
 	private static UsersDataSource instance = null;
 	
@@ -53,7 +53,7 @@ public class UsersDataSource {
 	}
 
 	public UsersDataSource() {
-		users = new HashMap<Integer,HashMap<String,User>>();
+		users = new HashMap<Integer,TreeMap<String,User>>();
 	}
 
 	public synchronized void clear() {
@@ -78,8 +78,8 @@ public class UsersDataSource {
 				u.old_nick = null;
 
             if(!users.containsKey(bid))
-                users.put(bid, new HashMap<String,User>());
-			users.get(bid).put(nick,u);
+                users.put(bid, new TreeMap<String,User>());
+			users.get(bid).put(nick.toLowerCase(),u);
 		}
 		u.cid = cid;
 		u.bid = bid;
@@ -93,7 +93,7 @@ public class UsersDataSource {
 
 	public synchronized void deleteUser(int cid, int bid, String nick) {
         if(users.containsKey(bid))
-            users.get(bid).remove(nick);
+            users.get(bid).remove(nick.toLowerCase());
 	}
 
 	public synchronized void deleteUsersForBuffer(int cid, int bid) {
@@ -105,8 +105,8 @@ public class UsersDataSource {
 		if(u != null) {
 			u.nick = new_nick;
 			u.old_nick = old_nick;
-            users.get(bid).remove(old_nick);
-            users.get(bid).put(new_nick, u);
+            users.get(bid).remove(old_nick.toLowerCase());
+            users.get(bid).put(new_nick.toLowerCase(), u);
 		}
 	}
 	
@@ -142,19 +142,13 @@ public class UsersDataSource {
                 User u = i.next();
                 list.add(u);
             }
-            Collections.sort(list, new comparator());
         }
 		return list;
 	}
 
 	public synchronized User getUser(int cid, int bid, String nick) {
-        if(users.containsKey(bid)) {
-            Iterator<User> i = users.get(bid).values().iterator();
-            while(i.hasNext()) {
-                User u = i.next();
-                if(u.cid == cid && u.bid == bid && u.nick.equals(nick) && u.joined == 1)
-                    return u;
-            }
+        if(users.containsKey(bid) && users.get(bid).containsKey(nick.toLowerCase())) {
+            return users.get(bid).get(nick.toLowerCase());
         }
 		return null;
 	}
