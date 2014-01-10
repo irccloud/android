@@ -1267,6 +1267,23 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                                     mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
                                     upView.setTag(R.drawable.ic_navigation_drawer_highlight);
                                 } else if(upView.getTag().equals(R.drawable.ic_navigation_drawer)) {
+                                    JSONObject channelDisabledMap = null;
+                                    JSONObject bufferDisabledMap = null;
+                                    if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
+                                        try {
+                                            if(NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableTrackUnread"))
+                                                channelDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+                                            if(NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-disableTrackUnread"))
+                                                bufferDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                                        } catch (Exception e1) {
+                                            // TODO Auto-generated catch block
+                                            e1.printStackTrace();
+                                        }
+                                    }
+                                    if(buf.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(buf.bid)) && channelDisabledMap.getBoolean(String.valueOf(buf.bid)))
+                                        break;
+                                    else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(buf.bid)) && bufferDisabledMap.getBoolean(String.valueOf(buf.bid)))
+                                        break;
                                     mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
                                     upView.setTag(R.drawable.ic_navigation_drawer_unread);
                                 }
