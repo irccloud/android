@@ -38,6 +38,9 @@ public class BuffersDataSource {
         public String draft;
         public String chan_types;
         public int valid;
+        public boolean scrolledUp;
+        public int scrollPosition;
+        public int scrollPositionOffset;
 
         public String normalizedName() {
             if(chan_types == null || chan_types.length() < 2) {

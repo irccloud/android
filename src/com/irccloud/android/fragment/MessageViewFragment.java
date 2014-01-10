@@ -84,7 +84,6 @@ public class MessageViewFragment extends ListFragment {
     private ServersDataSource.Server server;
 	private long earliest_eid;
 	private long backlog_eid = 0;
-	private boolean scrolledUp = false;
 	private boolean requestingBacklog = false;
 	private float avgInsertTime = 0;
 	private int newMsgs = 0;
@@ -99,7 +98,6 @@ public class MessageViewFragment extends ListFragment {
 	private View connecting = null;
 	private View awayView = null;
 	private TextView awayTxt = null;
-	private int savedScrollPos = -1;
 	private int timestamp_width = -1;
 	private View globalMsgView = null;
 	private TextView globalMsg = null;
@@ -263,8 +261,8 @@ public class MessageViewFragment extends ListFragment {
 			
 			return unseenHighlightPositions.size() - count;
 		}
-		
-		public synchronized void addItem(long eid, EventsDataSource.Event e) {
+
+        public synchronized void addItem(long eid, EventsDataSource.Event e) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(eid / 1000);
 			int insert_pos = -1;
@@ -714,9 +712,13 @@ public class MessageViewFragment extends ListFragment {
 				}
 			}
 			if(firstVisibleItem + visibleItemCount < totalItemCount) {
-				scrolledUp = true;
+                View v = view.getChildAt(0);
+				buffer.scrolledUp = true;
+                buffer.scrollPosition = firstVisibleItem;
+                buffer.scrollPositionOffset = (v == null)?0:v.getTop();
             } else {
-                scrolledUp = false;
+                buffer.scrolledUp = false;
+                buffer.scrollPosition = -1;
             }
 			if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
 				mUpdateTopUnreadRunnable.run();
@@ -745,7 +747,6 @@ public class MessageViewFragment extends ListFragment {
         if(savedInstanceState != null && savedInstanceState.containsKey("bid")) {
             buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
             server = ServersDataSource.getInstance().getServer(buffer.cid);
-        	scrolledUp = savedInstanceState.getBoolean("scrolledUp");
         	backlog_eid = savedInstanceState.getLong("backlog_eid");
         }
     }
@@ -764,7 +765,6 @@ public class MessageViewFragment extends ListFragment {
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
     	state.putInt("bid", buffer.bid);
-    	state.putBoolean("scrolledUp", scrolledUp);
     	state.putLong("backlog_eid", backlog_eid);
     }
     
@@ -784,7 +784,6 @@ public class MessageViewFragment extends ListFragment {
         }
         buffer = BuffersDataSource.getInstance().getBuffer(args.getInt("bid", -1));
         server = ServersDataSource.getInstance().getServer(buffer.cid);
-		scrolledUp = false; //TODO: restore the scroll position from the buffer object
 		requestingBacklog = false;
 		ready = false;
 		avgInsertTime = 0;
@@ -1064,7 +1063,7 @@ public class MessageViewFragment extends ListFragment {
                 avgInsertTime += time;
                 avgInsertTime /= 2.0;
                 //Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-                if(!backlog && scrolledUp && !event.self && event.isImportant(type)) {
+                if(!backlog && buffer.scrolledUp && !event.self && event.isImportant(type)) {
                     if(newMsgTime == 0)
                         newMsgTime = System.currentTimeMillis();
                     newMsgs++;
@@ -1072,7 +1071,7 @@ public class MessageViewFragment extends ListFragment {
                         newHighlights++;
                     update_unread();
                 }
-                if(!backlog && !scrolledUp) {
+                if(!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
                     mHandler.postDelayed(new Runnable() {
                         @Override
@@ -1246,11 +1245,6 @@ public class MessageViewFragment extends ListFragment {
                 else
                     lp.topMargin = 0;
                 backlogFailed.setLayoutParams(lp);
-                if(savedScrollPos > 0)
-                    getListView().setSelection(savedScrollPos);
-                else
-                    getListView().setSelection(adapter.getCount() - 1);
-                savedScrollPos = -1;
             } else if(conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
                 headerView.setVisibility(View.GONE);
                 backlogFailed.setVisibility(View.GONE);
@@ -1267,6 +1261,29 @@ public class MessageViewFragment extends ListFragment {
             loadBacklogButton.setVisibility(View.GONE);
     	}
         setListAdapter(adapter);
+        if(buffer != null && buffer.scrolledUp) {
+            getListView().setSelectionFromTop(buffer.scrollPosition, buffer.scrollPositionOffset);
+
+            newMsgs = 0;
+            newHighlights = 0;
+
+            for(int i = adapter.data.size() - 1; i >= 0; i--) {
+                EventsDataSource.Event e = adapter.data.get(i);
+                if(e.eid <= buffer.last_seen_eid)
+                    break;
+
+                if(e.isImportant(buffer.type)) {
+                    if(e.highlight)
+                        newHighlights++;
+                    else
+                        newMsgs++;
+                }
+            }
+
+            update_unread();
+        } else {
+            getListView().setSelection(adapter.getCount() - 1);
+        }
 		getListView().setOnScrollListener(mOnScrollListener);
     }
     
@@ -1426,10 +1443,29 @@ public class MessageViewFragment extends ListFragment {
                         int markerPos = adapter.getBacklogMarkerPosition();
                         if(markerPos != -1 && requestingBacklog)
                             getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
-                        else if(!scrolledUp)
+                        else if(!buffer.scrolledUp)
                             getListView().setSelection(adapter.getCount() - 1);
-                        else
-                            getListView().setSelectionFromTop(oldPosition, topOffset);
+                        else {
+                            getListView().setSelectionFromTop(buffer.scrollPosition, buffer.scrollPositionOffset);
+
+                            newMsgs = 0;
+                            newHighlights = 0;
+
+                            for(int i = adapter.data.size() - 1; i >= 0; i--) {
+                                EventsDataSource.Event e = adapter.data.get(i);
+                                if(e.eid <= buffer.last_seen_eid)
+                                    break;
+
+                                if(e.isImportant(buffer.type)) {
+                                    if(e.highlight)
+                                        newHighlights++;
+                                    else
+                                        newMsgs++;
+                                }
+                            }
+
+                            update_unread();
+                        }
                     }
                     new FormatTask().execute((Void)null);
                 } catch (IllegalStateException e) {
@@ -1915,14 +1951,8 @@ public class MessageViewFragment extends ListFragment {
 		connecting.startAnimation(anim);
 		error = null;
 		try {
-			if(scrolledUp) {
-				savedScrollPos = getListView().getFirstVisiblePosition();
-            } else {
-				savedScrollPos = -1;
-            }
 			getListView().setOnScrollListener(null);
 		} catch (Exception e) {
-			savedScrollPos = -1;
 		}
    	}
     
