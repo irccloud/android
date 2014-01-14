@@ -43,6 +43,7 @@ android {
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 18
+        packageName "com.irccloud.android"
         testPackageName "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
@@ -50,9 +51,17 @@ android {
     buildTypes {
         debug {
             buildConfigField "String", "REVISION", "\"" + getRevision() + "\""
+            buildConfigField "String", "BRAND_NAME", "\"\""
+            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "GCM_ID", "Config.GCM_ID"
+            buildConfigField "String", "TF_KEY", "Config.TF_KEY"
         }
         release {
             buildConfigField "String", "REVISION", "\"\""
+            buildConfigField "String", "BRAND_NAME", "\"\""
+            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "GCM_ID", "Config.GCM_ID"
+            buildConfigField "String", "TF_KEY", "Config.TF_KEY"
         }
     }
 

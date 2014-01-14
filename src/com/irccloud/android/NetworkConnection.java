@@ -178,7 +178,7 @@ public class NetworkConnection {
 
     public static final int EVENT_DEBUG = 999;
 
-	private static final String IRCCLOUD_HOST = "www.irccloud.com";
+	private static final String IRCCLOUD_HOST = BuildConfig.BRAND_HOST;
 	
 	private final Object parserLock = new Object();
 	private WifiManager.WifiLock wifiLock = null;

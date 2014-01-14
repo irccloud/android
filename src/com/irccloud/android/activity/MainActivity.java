@@ -56,6 +56,7 @@ import android.widget.TextView.OnEditorActionListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -126,7 +127,10 @@ public class MainActivity extends FragmentActivity {
         
         TextView version = (TextView)findViewById(R.id.version);
         try {
-			version.setText("Version " + getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName);
+            if(BuildConfig.BRAND_NAME.length() > 0)
+    			version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "-" + BuildConfig.BRAND_NAME);
+            else
+                version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
 		} catch (NameNotFoundException e) {
 			version.setVisibility(View.GONE);
 		}

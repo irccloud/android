@@ -22,13 +22,13 @@
     <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION"/>
 
     <application
-        android:name=".IRCCloudApplication"
+        android:name="com.irccloud.android.IRCCloudApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:allowBackup="false">
         <activity
-            android:name=".activity.MainActivity"
+            android:name="com.irccloud.android.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,17 +43,17 @@
 			</intent-filter>
         </activity>
         <activity
-            android:name=".activity.MessageActivity"
+            android:name="com.irccloud.android.activity.MessageActivity"
             android:label="@string/title_activity_message"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".activity.EditConnectionActivity"
+            android:name="com.irccloud.android.activity.EditConnectionActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".activity.ImageViewerActivity"
+            android:name="com.irccloud.android.activity.ImageViewerActivity"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -63,7 +63,7 @@
                 <data android:scheme="irccloud-images" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.PreferencesActivity" android:theme="@style/PrefsTheme" android:label="@string/menu_settings">
+        <activity android:name="com.irccloud.android.activity.PreferencesActivity" android:theme="@style/PrefsTheme" android:label="@string/menu_settings">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -73,14 +73,14 @@
 		       <category android:name="android.intent.category.DEFAULT" />
 		    </intent-filter>
    		</activity>
-        <receiver android:name=".GCMBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
+        <receiver android:name="com.irccloud.android.GCMBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
 		  <intent-filter>
 		    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 		    <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 		    <category android:name="com.irccloud.android" />
 		  </intent-filter>
 		</receiver>
-		<service android:name=".GCMIntentService" />
+		<service android:name="com.irccloud.android.GCMIntentService" />
         <receiver android:name="NotificationDismissBroadcastReceiver" android:permission="com.irccloud.android.permission.BROADCAST">
 		  <intent-filter>
 		    <action android:name="com.irccloud.android.DISMISS_NOTIFICATION" />
@@ -103,7 +103,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".DashClock"
+        <service android:name="com.irccloud.android.DashClock"
                  android:icon="@drawable/ic_stat_notify"
                  android:label="IRCCloud"
                  android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA">

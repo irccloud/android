@@ -68,8 +68,8 @@ public class IRCCloudApplication extends Application {
 		u = UsersDataSource.getInstance();
 		e = EventsDataSource.getInstance();
         try {
-            if(Config.ACRA_KEY != null && Config.ACRA_KEY.length() > 0)
-                TestFlight.takeOff(this, Config.ACRA_KEY);
+            if(BuildConfig.TF_KEY != null && BuildConfig.TF_KEY.length() > 0)
+                TestFlight.takeOff(this, BuildConfig.TF_KEY);
         } catch (Exception e) {
         }
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

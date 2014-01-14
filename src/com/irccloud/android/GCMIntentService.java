@@ -137,7 +137,7 @@ public class GCMIntentService extends IntentService {
                 if(getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() == 0) {
                     try {
                         String oldRegId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", "");
-                        String regId = GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).register(Config.GCM_ID);
+                        String regId = GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).register(BuildConfig.GCM_ID);
                         int appVersion = getAppVersion();
                         Log.i("IRCCloud", "Saving regId on app version " + appVersion);
                         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();

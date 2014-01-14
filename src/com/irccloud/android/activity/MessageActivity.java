@@ -39,6 +39,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.ColorFormatter;
@@ -318,7 +319,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         	buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
         	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
-        if(getSharedPreferences("prefs", 0).contains("session_key") && Config.GCM_ID.length() > 0 && checkPlayServices()) {
+        if(getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && checkPlayServices()) {
             final String regId = GCMIntentService.getRegistrationId(this);
             if (regId.equals("")) {
                 GCMIntentService.scheduleRegisterTimer(1000);
