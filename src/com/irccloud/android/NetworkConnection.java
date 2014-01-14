@@ -424,7 +424,7 @@ public class NetworkConnection {
 					throw new CertificateException(e);
 				}
 
-				if(!chain[0].getSubjectDN().getName().startsWith("CN=*.irccloud.com,")) {
+				if(BuildConfig.SSL_CN.length() > 0 && !chain[0].getSubjectDN().getName().startsWith(BuildConfig.SSL_CN)) {
 					throw new CertificateException("Incorrect CN in cert chain");
 				}
 			}

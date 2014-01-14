@@ -55,6 +55,7 @@ android {
             buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
             buildConfigField "String", "GCM_ID", "Config.GCM_ID"
             buildConfigField "String", "TF_KEY", "Config.TF_KEY"
+            buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
         }
         release {
             buildConfigField "String", "REVISION", "\"\""
@@ -62,6 +63,7 @@ android {
             buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
             buildConfigField "String", "GCM_ID", "Config.GCM_ID"
             buildConfigField "String", "TF_KEY", "Config.TF_KEY"
+            buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
         }
     }
 
