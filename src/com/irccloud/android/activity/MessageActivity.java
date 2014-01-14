@@ -43,7 +43,6 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.ColorFormatter;
-import com.irccloud.android.Config;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.GCMIntentService;
 import com.irccloud.android.IRCCloudJSONObject;

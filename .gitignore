@@ -18,6 +18,12 @@ build/
 
 # Local configuration file (sdk path, etc)
 local.properties
+private.properties
+keystore.properties
+irccloud.keystore
+*-res/
+build-*.*
+branded.gradle
 
 .idea/workspace.xml
 .idea/tasks.xml

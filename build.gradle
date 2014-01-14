@@ -48,22 +48,54 @@ android {
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
+    signingConfigs {
+        release {
+            if(rootProject.file('keystore.properties').exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(file('keystore.properties')))
+
+                storeFile = file(props['storeFile'])
+                storePassword = props['storePassword']
+                keyAlias = props['keyAlias']
+                keyPassword = props['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         debug {
             buildConfigField "String", "REVISION", "\"" + getRevision() + "\""
             buildConfigField "String", "BRAND_NAME", "\"\""
             buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
-            buildConfigField "String", "GCM_ID", "Config.GCM_ID"
-            buildConfigField "String", "TF_KEY", "Config.TF_KEY"
+            if(rootProject.file('private.properties').exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(file('private.properties')))
+                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
+                buildConfigField "String", "TF_KEY", "\"" + props['TF_KEY'] + "\""
+            } else {
+                buildConfigField "String", "GCM_ID", "\"\""
+                buildConfigField "String", "TF_KEY", "\"\""
+            }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
         }
         release {
             buildConfigField "String", "REVISION", "\"\""
             buildConfigField "String", "BRAND_NAME", "\"\""
             buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
-            buildConfigField "String", "GCM_ID", "Config.GCM_ID"
-            buildConfigField "String", "TF_KEY", "Config.TF_KEY"
+            if(rootProject.file('private.properties').exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(file('private.properties')))
+                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
+                buildConfigField "String", "TF_KEY", "\"" + props['TF_KEY'] + "\""
+            } else {
+                buildConfigField "String", "GCM_ID", "\"\""
+                buildConfigField "String", "TF_KEY", "\"\""
+            }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
+
+            if(rootProject.file('keystore.properties').exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 
