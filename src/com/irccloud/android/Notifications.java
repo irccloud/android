@@ -614,13 +614,13 @@ public class Notifications {
 
 		android.app.Notification notification = builder.build();
 		
-		RemoteViews contentView = new RemoteViews("com.irccloud.android", R.layout.notification);
+		RemoteViews contentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification);
 		contentView.setTextViewText(R.id.title, title);
 		contentView.setTextViewText(R.id.text, text);
 		notification.contentView = contentView;
 		
 		if(Build.VERSION.SDK_INT >= 16 && big_text != null) {
-			RemoteViews bigContentView = new RemoteViews("com.irccloud.android", R.layout.notification_expanded);
+			RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
 			bigContentView.setTextViewText(R.id.title, title);
 			bigContentView.setTextViewText(R.id.text, big_text);
 			if(count > 4) {

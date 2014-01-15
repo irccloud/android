@@ -372,7 +372,7 @@ public class NetworkConnection {
 		String version;
 		String network_type = null;
 		try {
-			version = "/" + IRCCloudApplication.getInstance().getPackageManager().getPackageInfo("com.irccloud.android", 0).versionName;
+			version = "/" + IRCCloudApplication.getInstance().getPackageManager().getPackageInfo(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), 0).versionName;
 		} catch (Exception e) {
 			version = "";
 		}
