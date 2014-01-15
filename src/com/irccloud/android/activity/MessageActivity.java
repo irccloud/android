@@ -98,7 +98,10 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -130,6 +133,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private AlertDialog channelsListDialog;
     String bufferToOpen = null;
     int cidToOpen = -1;
+    private ArrayAdapter<String> suggestionsAdapter;
+    private View suggestionsContainer;
+    private GridView suggestions;
 
 	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
@@ -140,6 +146,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         super.onCreate(savedInstanceState);
 		getWindow().setBackgroundDrawable(null);
         setContentView(R.layout.activity_message);
+        suggestionsAdapter = new ArrayAdapter<String>(this, R.layout.row_suggestion);
+        suggestionsAdapter.setNotifyOnChange(false);
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout)findViewById(R.id.messageContainer);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawerLayout);
@@ -151,7 +159,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(sendBtn.isEnabled() && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                     sendBtn.setEnabled(false);
 	         		new SendTask().execute((Void)null);
-				}
+                } else if(keyCode == KeyEvent.KEYCODE_TAB) {
+                    nextSuggestion();
+                }
 				return false;
 			}
 		});
@@ -165,22 +175,22 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			}
 		});
 		messageTxt.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(drawerLayout != null) {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout != null) {
                     drawerLayout.closeDrawers();
-		        	upView.setVisibility(View.VISIBLE);
-				}
-			}
-		});
+                    upView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
         messageTxt.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
-         	   if(sendBtn.isEnabled() && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-                   sendBtn.setEnabled(false);
-         		   new SendTask().execute((Void)null);
-         	   }
-         	   return true;
-           	}
+                if (sendBtn.isEnabled() && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && actionId == EditorInfo.IME_ACTION_SEND && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+                    sendBtn.setEnabled(false);
+                    new SendTask().execute((Void) null);
+                }
+                return true;
+            }
         });
         messageTxt.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
@@ -199,6 +209,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	           		if(Build.VERSION.SDK_INT >= 11)
 	           			sendBtn.setAlpha(0.5f);
             	}
+                update_suggestions();
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -210,11 +221,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED)
-					new SendTask().execute((Void)null);
-			}
+            @Override
+            public void onClick(View v) {
+                if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED)
+                    new SendTask().execute((Void) null);
+            }
         });
         userListView = findViewById(R.id.usersListFragment);
         
@@ -329,6 +340,47 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         }
     }
 
+    private void update_suggestions() {
+        if(suggestionsContainer != null && messageTxt != null && messageTxt.getText() != null) {
+            String text = messageTxt.getText().toString().toLowerCase();
+            if(text.lastIndexOf(' ') > 0 && text.lastIndexOf(' ') < text.length() - 1) {
+                text = text.substring(text.lastIndexOf(' ') + 1);
+            }
+            suggestionsAdapter.clear();
+            if(text.length() > 0) {
+                if(text.startsWith("#")) {
+                    ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannelsForServer(buffer.cid);
+                    for(ChannelsDataSource.Channel channel : channels) {
+                        if(channel.name.toLowerCase().startsWith(text))
+                            suggestionsAdapter.add(channel.name);
+                    }
+                } else {
+                    ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
+                    for(UsersDataSource.User user : users) {
+                        if(user.nick.toLowerCase().startsWith(text))
+                            suggestionsAdapter.add(user.nick);
+                    }
+                }
+            }
+            suggestionsAdapter.notifyDataSetChanged();
+            if(suggestionsAdapter.getCount() > 0) {
+                suggestionsContainer.setVisibility(View.VISIBLE);
+            } else {
+                suggestionsContainer.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void nextSuggestion() {
+        int s = suggestions.getSelectedItemPosition();
+        if(s < 0 || s >= suggestionsAdapter.getCount() - 1) {
+            s = 0;
+        } else {
+            s++;
+        }
+        suggestions.setSelection(s);
+    }
+
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
@@ -356,7 +408,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     return true;
         		}
         	}
-            return super.onKeyDown(keyCode, event);
+        } else if(keyCode == KeyEvent.KEYCODE_TAB) {
+            if(suggestions != null && suggestionsAdapter.getCount() > 0) {
+                nextSuggestion();
+                return false;
+            }
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -650,7 +706,30 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null && buffer != null)
     		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(buffer.bid);
-    	
+
+        suggestions = ((MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment)).suggestions;
+        suggestions.setAdapter(suggestionsAdapter);
+        suggestions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String nick = suggestionsAdapter.getItem(position);
+                String text = messageTxt.getText().toString();
+
+                if(text.lastIndexOf(' ') > 0) {
+                    messageTxt.setText("");
+                    messageTxt.append(text.substring(0,text.lastIndexOf(' ') + 1) + nick + " ");
+                } else {
+                    messageTxt.setText("");
+                    if(nick.startsWith("#"))
+                        messageTxt.append(nick + " ");
+                    else
+                        messageTxt.append(nick + ": ");
+                }
+            }
+        });
+        suggestionsContainer = ((MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment)).suggestionsContainer;
+        update_suggestions();
+
         if(refreshUpIndicatorTask != null)
         	refreshUpIndicatorTask.cancel(true);
         refreshUpIndicatorTask = new RefreshUpIndicatorTask();

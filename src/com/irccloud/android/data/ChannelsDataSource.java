@@ -169,6 +169,16 @@ public class ChannelsDataSource {
         return channels.get(bid);
 	}
 
+    public synchronized ArrayList<Channel> getChannelsForServer(int cid) {
+        ArrayList<Channel> list = new ArrayList<Channel>();
+        for(int i = 0; i < channels.size(); i++) {
+            Channel c = channels.valueAt(i);
+            if(c.cid == cid)
+                list.add(c);
+        }
+        return list;
+    }
+
     public synchronized void invalidate() {
         for(int i = 0; i < channels.size(); i++) {
             Channel c = channels.valueAt(i);

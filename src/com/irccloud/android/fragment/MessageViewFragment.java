@@ -126,6 +126,9 @@ public class MessageViewFragment extends ListFragment {
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
 	public boolean ready = false;
     private boolean dirty = true;
+
+    public View suggestionsContainer = null;
+    public GridView suggestions = null;
 	
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
 		@Override
@@ -647,6 +650,8 @@ public class MessageViewFragment extends ListFragment {
 			}
     	});
         spinner = (ProgressBar)v.findViewById(R.id.spinner);
+        suggestionsContainer = v.findViewById(R.id.suggestionsContainer);
+        suggestions = (GridView)v.findViewById(R.id.suggestions);
         return v;
     }
 

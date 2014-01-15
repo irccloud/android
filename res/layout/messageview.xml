@@ -142,6 +142,31 @@
                     android:layout_centerHorizontal="true"
                     android:indeterminate="true"
                     android:visibility="gone"/>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="140dp"
+                android:layout_alignParentBottom="true"
+                android:id="@+id/suggestionsContainer"
+                android:layout_margin="6dp"
+                android:gravity="bottom">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/border"
+                    android:padding="6dp">
+
+                    <GridView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/suggestions"
+                        android:background="@drawable/row_bg_blue"
+                        android:numColumns="auto_fit"
+                        android:columnWidth="100dp" />
+                </LinearLayout>
+            </LinearLayout>
         </RelativeLayout>
 
         <LinearLayout
