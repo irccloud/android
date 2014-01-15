@@ -34,14 +34,9 @@ public class UsersDataSource {
         public int away;
         public String away_msg;
         public int joined;
+        public long last_mention = -1;
 	}
 
-	public class comparator implements Comparator<User> {
-		public int compare(User u1, User u2) {
-			return u1.nick.compareToIgnoreCase(u2.nick);
-		}
-	}
-	
 	private HashMap<Integer,TreeMap<String,User>> users;
 	
 	private static UsersDataSource instance = null;

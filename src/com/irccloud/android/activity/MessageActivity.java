@@ -17,9 +17,12 @@
 package com.irccloud.android.activity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -227,23 +230,23 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         });
         messageTxt.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {
-            	Object[] spans = s.getSpans(0, s.length(), Object.class);
-            	for(Object o : spans) {
-            		if(((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && (o.getClass() == StyleSpan.class || o.getClass() == ForegroundColorSpan.class || o.getClass() == BackgroundColorSpan.class || o.getClass() == UnderlineSpan.class)) {
-            			s.removeSpan(o);
-            		}
-            	}
-            	if(s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
-	           		sendBtn.setEnabled(true);
-	           		if(Build.VERSION.SDK_INT >= 11)
-	           			sendBtn.setAlpha(1);
-            	} else {
-	           		sendBtn.setEnabled(false);
-	           		if(Build.VERSION.SDK_INT >= 11)
-	           			sendBtn.setAlpha(0.5f);
-            	}
+                Object[] spans = s.getSpans(0, s.length(), Object.class);
+                for (Object o : spans) {
+                    if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && (o.getClass() == StyleSpan.class || o.getClass() == ForegroundColorSpan.class || o.getClass() == BackgroundColorSpan.class || o.getClass() == UnderlineSpan.class)) {
+                        s.removeSpan(o);
+                    }
+                }
+                if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
+                    sendBtn.setEnabled(true);
+                    if (Build.VERSION.SDK_INT >= 11)
+                        sendBtn.setAlpha(1);
+                } else {
+                    sendBtn.setEnabled(false);
+                    if (Build.VERSION.SDK_INT >= 11)
+                        sendBtn.setAlpha(0.5f);
+                }
                 String text = s.toString();
-                if(text.endsWith("\t")) { //Workaround for Swype
+                if (text.endsWith("\t")) { //Workaround for Swype
                     text = text.substring(0, text.length() - 1);
                     messageTxt.setText(text);
                     nextSuggestion();
@@ -276,71 +279,71 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-            	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
-            	if(c != null) {
-            		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-	            	builder.setTitle("Channel Topic");
-	            	if(c.topic_text.length() > 0) {
-	            		builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), true, server));
-	            	} else
-	            		builder.setMessage("No topic set.");
-	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
+                if (c != null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+                    builder.setTitle("Channel Topic");
+                    if (c.topic_text.length() > 0) {
+                        builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), true, server));
+                    } else
+                        builder.setMessage("No topic set.");
+                    builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
 
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-	            	});
-	            	boolean canEditTopic;
-	            	if(c.mode.contains("t")) {
-	            		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
-	            		canEditTopic = (self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")));
-	            	} else {
-            			canEditTopic = true;
-	            	}
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    boolean canEditTopic;
+                    if (c.mode.contains("t")) {
+                        UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
+                        canEditTopic = (self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")));
+                    } else {
+                        canEditTopic = true;
+                    }
 
-	            	if(canEditTopic) {
-		            	builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
+                    if (canEditTopic) {
+                        builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
-								dialog.dismiss();
-								editTopic();
-							}
-		            	});
-	            	}
-		    		final AlertDialog dialog = builder.create();
-		    		dialog.setOwnerActivity(MessageActivity.this);
-		    		dialog.show();
-		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-		    		dialog.findViewById(android.R.id.message).setOnClickListener(new OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                editTopic();
+                            }
+                        });
+                    }
+                    final AlertDialog dialog = builder.create();
+                    dialog.setOwnerActivity(MessageActivity.this);
+                    dialog.show();
+                    ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+                    dialog.findViewById(android.R.id.message).setOnClickListener(new OnClickListener() {
 
-						@Override
-						public void onClick(View v) {
-							dialog.dismiss();
-						}
-		    			
-		    		});
-            	} else if(buffer != null && buffer.type.equals("channel") && buffer.archived == 0 && title.getText() != null && subtitle.getText() != null && subtitle.getText().length() > 0){
-            		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-	            	builder.setTitle(title.getText().toString());
-            		final SpannableString s = new SpannableString(subtitle.getText().toString());
-            		Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
-            		builder.setMessage(s);
-	            	builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-						}
-            	            	});
-		    		AlertDialog dialog = builder.create();
-		    		dialog.setOwnerActivity(MessageActivity.this);
-		    		dialog.show();
-		    		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-            	}
-			}
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+
+                    });
+                } else if (buffer != null && buffer.type.equals("channel") && buffer.archived == 0 && title.getText() != null && subtitle.getText() != null && subtitle.getText().length() > 0) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+                    builder.setTitle(title.getText().toString());
+                    final SpannableString s = new SpannableString(subtitle.getText().toString());
+                    Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+                    builder.setMessage(s);
+                    builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.setOwnerActivity(MessageActivity.this);
+                    dialog.show();
+                    ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+                }
+            }
         });
 
         upView = (ImageView)v.findViewById(R.id.upIndicator);
@@ -398,6 +401,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     }
                 } else {
                     ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
+                    Collections.sort(users, new Comparator<UsersDataSource.User>() {
+                        @Override
+                        public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
+                            if(lhs.last_mention > rhs.last_mention)
+                                return -1;
+                            if(lhs.last_mention < rhs.last_mention)
+                                return 1;
+                            return lhs.nick.compareToIgnoreCase(rhs.nick);
+                        }
+                    });
                     for(UsersDataSource.User user : users) {
                         if(user.nick.toLowerCase().startsWith(text))
                             sugs.add(user.nick);
@@ -2409,10 +2422,20 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             else
                 shouldFadeIn = true;
             buffer = BuffersDataSource.getInstance().getBuffer(bid);
-            if(buffer != null)
+            if(buffer != null) {
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
-            else
+
+                TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
+                for(EventsDataSource.Event e : events.values()) {
+                    if(e.highlight && e.from != null) {
+                        UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);
+                        if(u != null && u.last_mention < e.eid)
+                            u.last_mention = e.eid;
+                    }
+                }
+            } else {
                 server = null;
+            }
 	    	update_subtitle();
 	    	final Bundle b = new Bundle();
             if(buffer != null)
