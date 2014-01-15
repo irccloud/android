@@ -133,7 +133,36 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	private AlertDialog channelsListDialog;
     String bufferToOpen = null;
     int cidToOpen = -1;
-    private ArrayAdapter<String> suggestionsAdapter;
+
+    private class SuggestionsAdapter extends ArrayAdapter<String> {
+        public SuggestionsAdapter() {
+            super(MessageActivity.this, R.layout.row_suggestion);
+            setNotifyOnChange(false);
+        }
+        public int activePos = -1;
+
+        @Override
+        public void clear() {
+            super.clear();
+            activePos = -1;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            TextView v = (TextView)super.getView(position, convertView, parent);
+
+            if(position == activePos) {
+                v.setTextColor(0xffffffff);
+                v.setBackgroundResource(R.drawable.selected_blue);
+            } else {
+                v.setTextColor(getResources().getColor(R.color.row_label));
+                v.setBackgroundResource(R.drawable.row_bg_blue);
+            }
+
+            return v;
+        }
+    };
+    private SuggestionsAdapter suggestionsAdapter;
     private View suggestionsContainer;
     private GridView suggestions;
 
@@ -146,8 +175,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         super.onCreate(savedInstanceState);
 		getWindow().setBackgroundDrawable(null);
         setContentView(R.layout.activity_message);
-        suggestionsAdapter = new ArrayAdapter<String>(this, R.layout.row_suggestion);
-        suggestionsAdapter.setNotifyOnChange(false);
+        suggestionsAdapter = new SuggestionsAdapter();
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout)findViewById(R.id.messageContainer);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawerLayout);
@@ -160,7 +188,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     sendBtn.setEnabled(false);
 	         		new SendTask().execute((Void)null);
                 } else if(keyCode == KeyEvent.KEYCODE_TAB) {
-                    nextSuggestion();
+                    if(event.getAction() == KeyEvent.ACTION_DOWN)
+                        nextSuggestion();
+                    return true;
                 }
 				return false;
 			}
@@ -171,7 +201,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(drawerLayout != null && v == messageTxt && hasFocus) {
                     drawerLayout.closeDrawers();
 		        	upView.setVisibility(View.VISIBLE);
-				}
+				} else if(!hasFocus) {
+                    suggestionsContainer.setVisibility(View.GONE);
+                    suggestionsAdapter.clear();
+                }
 			}
 		});
 		messageTxt.setOnClickListener(new OnClickListener() {
@@ -209,7 +242,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	           		if(Build.VERSION.SDK_INT >= 11)
 	           			sendBtn.setAlpha(0.5f);
             	}
-                update_suggestions();
+                String text = s.toString();
+                if(text.endsWith("\t")) { //Workaround for Swype
+                    text = text.substring(0, text.length() - 1);
+                    messageTxt.setText(text);
+                    nextSuggestion();
+                } else {
+                    update_suggestions();
+                }
             }
 
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -346,23 +386,32 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             if(text.lastIndexOf(' ') > 0 && text.lastIndexOf(' ') < text.length() - 1) {
                 text = text.substring(text.lastIndexOf(' ') + 1);
             }
-            suggestionsAdapter.clear();
+            if(text.endsWith(":"))
+                text = text.substring(0, text.length() - 2);
+            ArrayList<String> sugs = new ArrayList<String>();
             if(text.length() > 0) {
                 if(text.startsWith("#")) {
                     ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannelsForServer(buffer.cid);
                     for(ChannelsDataSource.Channel channel : channels) {
                         if(channel.name.toLowerCase().startsWith(text))
-                            suggestionsAdapter.add(channel.name);
+                            sugs.add(channel.name);
                     }
                 } else {
                     ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
                     for(UsersDataSource.User user : users) {
                         if(user.nick.toLowerCase().startsWith(text))
-                            suggestionsAdapter.add(user.nick);
+                            sugs.add(user.nick);
                     }
                 }
             }
-            suggestionsAdapter.notifyDataSetChanged();
+            if(suggestionsAdapter.activePos == -1 || sugs.size() == 0) {
+                suggestionsAdapter.clear();
+                for(String s : sugs) {
+                    suggestionsAdapter.add(s);
+                }
+                suggestionsAdapter.notifyDataSetChanged();
+                suggestions.smoothScrollToPosition(0);
+            }
             if(suggestionsAdapter.getCount() > 0) {
                 suggestionsContainer.setVisibility(View.VISIBLE);
             } else {
@@ -372,13 +421,28 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
 
     private void nextSuggestion() {
-        int s = suggestions.getSelectedItemPosition();
-        if(s < 0 || s >= suggestionsAdapter.getCount() - 1) {
-            s = 0;
-        } else {
-            s++;
+        if(suggestionsAdapter.getCount() > 0) {
+            if(suggestionsAdapter.activePos < 0 || suggestionsAdapter.activePos >= suggestionsAdapter.getCount() - 1) {
+                suggestionsAdapter.activePos = 0;
+            } else {
+                suggestionsAdapter.activePos++;
+            }
+            suggestionsAdapter.notifyDataSetChanged();
+            suggestions.smoothScrollToPosition(suggestionsAdapter.activePos);
+
+            String nick = suggestionsAdapter.getItem(suggestionsAdapter.activePos);
+            String text = messageTxt.getText().toString();
+
+            if(text.lastIndexOf(' ') > 0) {
+                messageTxt.setText(text.substring(0,text.lastIndexOf(' ') + 1) + nick);
+            } else {
+                if(nick.startsWith("#"))
+                    messageTxt.setText(nick);
+                else
+                    messageTxt.setText(nick + ":");
+            }
+            messageTxt.setSelection(messageTxt.getText().length());
         }
-        suggestions.setSelection(s);
     }
 
     @Override
@@ -408,11 +472,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     return true;
         		}
         	}
-        } else if(keyCode == KeyEvent.KEYCODE_TAB) {
-            if(suggestions != null && suggestionsAdapter.getCount() > 0) {
-                nextSuggestion();
-                return false;
-            }
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -716,15 +775,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 String text = messageTxt.getText().toString();
 
                 if(text.lastIndexOf(' ') > 0) {
-                    messageTxt.setText("");
-                    messageTxt.append(text.substring(0,text.lastIndexOf(' ') + 1) + nick + " ");
+                    messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
                 } else {
-                    messageTxt.setText("");
                     if(nick.startsWith("#"))
-                        messageTxt.append(nick + " ");
+                        messageTxt.setText(nick + " ");
                     else
-                        messageTxt.append(nick + ": ");
+                        messageTxt.setText(nick + ": ");
                 }
+                messageTxt.setSelection(messageTxt.getText().length());
             }
         });
         suggestionsContainer = ((MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment)).suggestionsContainer;
