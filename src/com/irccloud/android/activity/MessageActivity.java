@@ -394,9 +394,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             ArrayList<String> sugs = new ArrayList<String>();
             if(text.length() > 2) {
                 if(text.startsWith("#")) {
-                    ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannelsForServer(buffer.cid);
+                    ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannels();
+
+                    if(buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
+                        sugs.add(buffer.name);
                     for(ChannelsDataSource.Channel channel : channels) {
-                        if(channel.name.toLowerCase().startsWith(text))
+                        if(channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
                             sugs.add(channel.name);
                     }
                 } else {
