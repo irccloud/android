@@ -2186,10 +2186,22 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(user == null && event.html == null)
 			return false;
 		
-		if(event.html != null)
-			showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + event.html));
-		else
+		if(event.html != null) {
+            String html = event.html;
+            if(html.startsWith("<b>")) {
+                String nick = event.html.substring(0, event.html.indexOf("</b>"));
+                if(!nick.contains(event.from) && event.html.indexOf("</b>", nick.length() + 4) > 0)
+                    nick = event.html.substring(0, event.html.indexOf("</b>", nick.length() + 4));
+                if(nick.contains(event.from + "<")) {
+                    html = html.substring(nick.length());
+                    nick = "<b>&lt;" + nick.replace(event.from + "<", event.from + "&gt;<").replace("</b> <font", "</b><font").substring(3);
+                    html = nick + html;
+                }
+            }
+			showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + html));
+        } else {
 			showUserPopup(user, null);
+        }
 		return true;
     }
     
