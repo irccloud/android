@@ -392,7 +392,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             if(text.endsWith(":"))
                 text = text.substring(0, text.length() - 2);
             ArrayList<String> sugs = new ArrayList<String>();
-            if(text.length() > 0) {
+            if(text.length() > 2) {
                 if(text.startsWith("#")) {
                     ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannelsForServer(buffer.cid);
                     for(ChannelsDataSource.Channel channel : channels) {
