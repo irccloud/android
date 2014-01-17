@@ -43,13 +43,13 @@
 
             <com.irccloud.android.ActionEditText
                 android:id="@+id/messageTxt"
+                style="@style/messageTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Message"
-                android:imeOptions="flagNoExtractUi|actionSend"
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage" />
 
             <include

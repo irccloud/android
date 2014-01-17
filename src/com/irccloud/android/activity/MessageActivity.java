@@ -430,8 +430,18 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             }
             if(suggestionsAdapter.getCount() > 0) {
                 suggestionsContainer.setVisibility(View.VISIBLE);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(suggestionsContainer.getHeight() < 48) {
+                            getSupportActionBar().hide();
+                        }
+                    }
+                });
             } else {
                 suggestionsContainer.setVisibility(View.GONE);
+                if(!getSupportActionBar().isShowing())
+                    getSupportActionBar().show();
             }
         }
     }
