@@ -639,7 +639,7 @@ public class NetworkConnection {
 
 		    @Override
 		    public void onMessage(String message) {
-		    	if(message.length() > 0) {
+		    	if(client != null && client.getListener() == this && message.length() > 0) {
 					try {
 						synchronized(parserLock) {
 							parse_object(new IRCCloudJSONObject(message));
@@ -690,6 +690,7 @@ public class NetworkConnection {
 					} catch (JSONException e) {
 					}
 		        }
+                client = null;
 		    }
 
 		    @Override
@@ -712,6 +713,7 @@ public class NetworkConnection {
 		        
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
+                client = null;
 		    }
 		}, extraHeaders);
 
@@ -1117,7 +1119,8 @@ public class NetworkConnection {
                         Log.i(TAG, "Websocket idle time exceeded, reconnecting...");
                         state = STATE_DISCONNECTING;
                         notifyHandlers(EVENT_CONNECTIVITY, null);
-                        client.disconnect();
+                        if(client != null)
+                            client.disconnect();
                         connect(session);
                     }
                     idleTimer = null;
@@ -1156,7 +1159,6 @@ public class NetworkConnection {
         //Ignored events
         put("idle", null);
         put("end_of_backlog", null);
-        put("oob_skipped", null);
 
         put("header", new Parser() {
             @Override
@@ -1303,6 +1305,8 @@ public class NetworkConnection {
                 }
             }
         });
+
+        put("oob_skipped", get("backlog_complete"));
 
         //Misc. popup alerts
         put("bad_channel_key", new BroadcastParser(EVENT_BADCHANNELKEY));
@@ -1502,6 +1506,11 @@ public class NetworkConnection {
                                 Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
                         }
                     }
+                } else if(b == null) {
+                    Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
+                    notifyHandlers(EVENT_BACKLOG_FAILED, null);
+                    streamId = null;
+                    client.disconnect();
                 }
 
                 if(!backlog)
@@ -2253,7 +2262,6 @@ public class NetworkConnection {
                             schedule_idle_timer();
                             if(bid > 0) {
                                 notifyHandlers(EVENT_BACKLOG_END, null);
-                                ready = true;
                             }
                         }
                     } else {

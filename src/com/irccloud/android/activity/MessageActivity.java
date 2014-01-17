@@ -657,11 +657,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	launchBid = -1;
     	launchURI = null;
 
-    	setIntent(null);
+        if(conn.ready)
+        	setIntent(null);
     	
     	if(intent.hasExtra("bid")) {
     		int new_bid = intent.getIntExtra("bid", 0);
-    		if(NetworkConnection.getInstance().ready && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
+    		if(NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
     			Log.w("IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
     			Notifications.getInstance().deleteNotificationsForBid(new_bid);
     			if(showNotificationsTask != null)
@@ -669,12 +670,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			showNotificationsTask = new ShowNotificationsTask();
     			showNotificationsTask.execute(new_bid);
     			return;
-    		} else {
+    		} else if(BuffersDataSource.getInstance().getBuffer(new_bid) != null) {
     	    	if(buffer != null)
     	    		backStack.add(0, buffer.bid);
                 buffer = BuffersDataSource.getInstance().getBuffer(new_bid);
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
-    		}
+    		} else {
+                Log.d("IRCCloud", "BID not found, will try after reconnecting");
+                launchBid = new_bid;
+            }
     	}
     	
     	if(intent.getData() != null && intent.getData().getScheme() != null && intent.getData().getScheme().startsWith("irc")) {
@@ -902,6 +906,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     private boolean open_bid(int bid) {
 		if(BuffersDataSource.getInstance().getBuffer(bid) != null) {
 			onBufferSelected(bid);
+            if(bid == launchBid)
+                launchBid = -1;
 			return true;
 		}
 		Log.w("IRCCloud", "Requested BID not found");
@@ -1062,7 +1068,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 					e2.printStackTrace();
 				}
 				break;
-			case NetworkConnection.EVENT_CONNECTIVITY:
+                case NetworkConnection.EVENT_CONNECTIVITY:
 				if(conn != null) {
 					if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 						for(EventsDataSource.Event e : pendingEvents.values()) {
@@ -1226,6 +1232,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(buffer != null && event_bid == buffer.bid) {
                     update_subtitle();
 				}
+                if(refreshUpIndicatorTask != null)
+                    refreshUpIndicatorTask.cancel(true);
+                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                refreshUpIndicatorTask.execute((Void)null);
 				break;
 			case NetworkConnection.EVENT_JOIN:
 				event = (IRCCloudJSONObject)msg.obj;
@@ -1256,7 +1266,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     upView.setVisibility(View.VISIBLE);
                     updateUsersListFragmentVisibility();
                 }
-                if(server == null || launchURI != null) {
+                if(server == null || launchURI != null || launchBid != -1) {
                     if(launchURI == null || !open_uri(launchURI)) {
                         if(launchBid == -1 || !open_bid(launchBid)) {
                             if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
@@ -1307,6 +1317,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                             finish();
 		        	}
 				}
+                if(refreshUpIndicatorTask != null)
+                    refreshUpIndicatorTask.cancel(true);
+                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                refreshUpIndicatorTask.execute((Void)null);
 				break;
             case NetworkConnection.EVENT_CHANNELMODE:
                 event = (IRCCloudJSONObject)msg.obj;

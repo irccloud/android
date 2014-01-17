@@ -751,7 +751,8 @@ public class MessageViewFragment extends ListFragment {
         super.onCreate(savedInstanceState);
         if(savedInstanceState != null && savedInstanceState.containsKey("bid")) {
             buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
-            server = ServersDataSource.getInstance().getServer(buffer.cid);
+            if(buffer != null)
+                server = ServersDataSource.getInstance().getServer(buffer.cid);
         	backlog_eid = savedInstanceState.getLong("backlog_eid");
         }
     }
