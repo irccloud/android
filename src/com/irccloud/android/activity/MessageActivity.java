@@ -1601,7 +1601,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         public void onDrawerClosed(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                mSlider.setOffset(0.f);
+                if(mSlider != null)
+                    mSlider.setOffset(0.f);
                 updateUsersListFragmentVisibility();
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
@@ -2455,11 +2456,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
 
                 TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
-                for(EventsDataSource.Event e : events.values()) {
-                    if(e.highlight && e.from != null) {
-                        UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);
-                        if(u != null && u.last_mention < e.eid)
-                            u.last_mention = e.eid;
+                if(events != null) {
+                    for(EventsDataSource.Event e : events.values()) {
+                        if(e.highlight && e.from != null) {
+                            UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);
+                            if(u != null && u.last_mention < e.eid)
+                                u.last_mention = e.eid;
+                        }
                     }
                 }
             } else {

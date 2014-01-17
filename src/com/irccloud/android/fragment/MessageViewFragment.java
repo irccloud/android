@@ -2095,7 +2095,7 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_CONNECTIONLAG:
 				try {
 					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
-					if(server != null && object.cid() == buffer.cid) {
+					if(server != null && buffer != null && object.cid() == buffer.cid) {
 						update_status(server.status, server.fail_info);
 					}
 				} catch (Exception e) {
@@ -2106,7 +2106,7 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
 					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
-					if(object.cid() == buffer.cid) {
+					if(buffer != null && object.cid() == buffer.cid) {
 						update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
 					}
 				} catch (Exception e) {
@@ -2116,7 +2116,7 @@ public class MessageViewFragment extends ListFragment {
 				break;
 			case NetworkConnection.EVENT_SETIGNORES:
 				e = (IRCCloudJSONObject)msg.obj;
-				if(e.cid() == buffer.cid) {
+				if(buffer != null && e.cid() == buffer.cid) {
 		            if(refreshTask != null)
 		            	refreshTask.cancel(true);
 					refreshTask = new RefreshTask();
@@ -2124,7 +2124,7 @@ public class MessageViewFragment extends ListFragment {
 				}
 				break;
 			case NetworkConnection.EVENT_HEARTBEATECHO:
-				if(adapter != null && adapter.data.size() > 0) {
+				if(buffer != null && adapter != null && adapter.data.size() > 0) {
                     if(buffer.last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
                         unreadTopView.setVisibility(View.GONE);
                     }
@@ -2141,14 +2141,14 @@ public class MessageViewFragment extends ListFragment {
 			case NetworkConnection.EVENT_USERMODE:
 			case NetworkConnection.EVENT_USERCHANNELMODE:
 				e = (IRCCloudJSONObject)msg.obj;
-				if(e.bid() == buffer.bid) {
+				if(buffer != null && e.bid() == buffer.bid) {
 					EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
 					insertEvent(event, false, false);
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
-				if(event.bid == buffer.bid) {
+				if(buffer != null && event.bid == buffer.bid) {
 					if(event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
 						adapter.clearPending();
 					} else if(event.reqid != -1) {
