@@ -251,7 +251,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     messageTxt.setText(text);
                     nextSuggestion();
                 } else {
-                    update_suggestions();
+                    update_suggestions(false);
                 }
             }
 
@@ -383,16 +383,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         }
     }
 
-    private void update_suggestions() {
+    private void update_suggestions(boolean force) {
         if(suggestionsContainer != null && messageTxt != null && messageTxt.getText() != null) {
             String text = messageTxt.getText().toString().toLowerCase();
             if(text.lastIndexOf(' ') > 0 && text.lastIndexOf(' ') < text.length() - 1) {
                 text = text.substring(text.lastIndexOf(' ') + 1);
             }
             if(text.endsWith(":"))
-                text = text.substring(0, text.length() - 2);
+                text = text.substring(0, text.length() - 1);
             ArrayList<String> sugs = new ArrayList<String>();
-            if(text.length() > 2) {
+            if(text.length() > 2 || force) {
                 if(text.startsWith("#")) {
                     ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannels();
 
@@ -447,6 +447,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     }
 
     private void nextSuggestion() {
+        if(suggestionsAdapter.getCount() == 0)
+            update_suggestions(true);
+
         if(suggestionsAdapter.getCount() > 0) {
             if(suggestionsAdapter.activePos < 0 || suggestionsAdapter.activePos >= suggestionsAdapter.getCount() - 1) {
                 suggestionsAdapter.activePos = 0;
@@ -816,7 +819,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             }
         });
         suggestionsContainer = ((MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment)).suggestionsContainer;
-        update_suggestions();
+        update_suggestions(false);
 
         if(refreshUpIndicatorTask != null)
         	refreshUpIndicatorTask.cancel(true);
