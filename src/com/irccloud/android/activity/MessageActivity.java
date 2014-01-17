@@ -670,7 +670,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	launchBid = -1;
     	launchURI = null;
 
-        if(conn.ready)
+        if(NetworkConnection.getInstance().ready)
         	setIntent(null);
     	
     	if(intent.hasExtra("bid")) {
