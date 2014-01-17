@@ -37,12 +37,12 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 18
+    compileSdkVersion 19
     buildToolsVersion "17"
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 18
+        targetSdkVersion 19
         packageName "com.irccloud.android"
         testPackageName "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"

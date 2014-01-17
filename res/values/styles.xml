@@ -21,6 +21,14 @@
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
     </style>
     <style name="PrefsTheme" parent="@android:style/Theme"/>
+    <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="windowActionBarOverlay">true</item>
+        <item name="actionBarStyle">@style/Widget.Styled.ActionBar.Translucent</item>
+        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar.Translucent</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+    </style>
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
 		<item name="android:textColor">@android:color/primary_text_light</item>
 	</style>
@@ -30,6 +38,10 @@
 	    <item name="backgroundSplit">@drawable/heading_bg_blue</item>
 	    <item name="android:backgroundSplit">@drawable/heading_bg_blue</item>
 	</style>
+    <style name="Widget.Styled.ActionBar.Translucent" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@drawable/actionbar_translucent</item>
+        <item name="android:background">@drawable/actionbar_translucent</item>
+    </style>
 	<style name="EditEventCustomActionButton" parent="Widget.AppCompat.Light.ActionButton">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">0dp</item>

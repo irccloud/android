@@ -17,14 +17,17 @@
 package com.irccloud.android.activity;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -33,10 +36,13 @@ import android.widget.ProgressBar;
 
 import com.irccloud.android.R;
 
-public class ImageViewerActivity extends BaseActivity {
+import java.util.Timer;
+import java.util.TimerTask;
 
+public class ImageViewerActivity extends BaseActivity {
     WebView mImage;
     ProgressBar mProgress;
+    Timer mHideTimer;
 
     public class JSInterface {
         @JavascriptInterface
@@ -44,6 +50,17 @@ public class ImageViewerActivity extends BaseActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
             startActivity(intent);
             finish();
+        }
+
+        @JavascriptInterface
+        public void imageClicked() {
+            ImageViewerActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    getSupportActionBar().show();
+                    hide_actionbar();
+                }
+            });
         }
     }
 
@@ -54,7 +71,7 @@ public class ImageViewerActivity extends BaseActivity {
         if(savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
-        if(Integer.parseInt(Build.VERSION.SDK) >= 11)
+        if(Integer.parseInt(Build.VERSION.SDK) >= 11 && Integer.parseInt(Build.VERSION.SDK) < 19)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -63,6 +80,8 @@ public class ImageViewerActivity extends BaseActivity {
         mImage.setBackgroundColor(0);
         mImage.addJavascriptInterface(new JSInterface(), "Android");
         mImage.getSettings().setBuiltInZoomControls(true);
+        if(Integer.parseInt(Build.VERSION.SDK) >= 19)
+            mImage.getSettings().setDisplayZoomControls(false);
         mImage.getSettings().setJavaScriptEnabled(true);
         mImage.getSettings().setLoadWithOverviewMode(true);
         mImage.getSettings().setUseWideViewPort(true);
@@ -87,12 +106,36 @@ public class ImageViewerActivity extends BaseActivity {
             mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<body bgcolor='#000'>\n" +
-                    "<img src='" + getIntent().getDataString().replace("irccloud-image", "http") + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()'/>\n" +
+                    "<img src='" + getIntent().getDataString().replace("irccloud-image", "http") + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
                     "</body>\n" +
                     "</html>", "text/html", "UTF-8",null);
         } else {
             finish();
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        hide_actionbar();
+    }
+
+    private void hide_actionbar() {
+        if(mHideTimer != null)
+            mHideTimer.cancel();
+        mHideTimer = new Timer();
+        mHideTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                ImageViewerActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getSupportActionBar().hide();
+                    }
+                });
+                mHideTimer = null;
+            }
+        }, 5000);
     }
 
     @Override

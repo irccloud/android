@@ -56,4 +56,5 @@
     <drawable name="join_bg_highlighted">#daf5aa</drawable>
     <color name="lightLinkColor">#9CC7FF</color>
     <color name="linkColor">#1D40FF</color>
+    <drawable name="actionbar_translucent">#66000000</drawable>
 </resources>
