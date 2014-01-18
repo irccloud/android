@@ -713,14 +713,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
     	if(buffer == null) {
 			launchBid = intent.getIntExtra("bid", -1);
-    	} else {
-	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
-	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-	    	Bundle b = new Bundle();
-            b.putInt("cid", buffer.cid);
-	    	b.putInt("bid", buffer.bid);
-	    	ulf.setArguments(b);
-	    	mvf.setArguments(b);
     	}
     }
     
@@ -791,7 +783,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		}
 	    		}
 	    	}
-    	}
+    	} else if(buffer != null) {
+            int bid = buffer.bid;
+            onBufferSelected(bid);
+        }
 
     	updateUsersListFragmentVisibility();
     	update_subtitle();
@@ -2446,104 +2441,102 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             drawerLayout.closeDrawers();
 			upView.setVisibility(View.VISIBLE);
 		}
-		if(buffer == null || bid != buffer.bid || buffer.cid == -1) {
-			if(bid != -1 && conn != null && conn.getUserInfo() != null) {
-				conn.getUserInfo().last_selected_bid = bid;
-            }
-	    	for(int i = 0; i < backStack.size(); i++) {
-	    		if(backStack.get(i) == buffer.bid)
-	    			backStack.remove(i);
-	    	}
-	    	if(buffer != null && buffer.bid >= 0) {
-	    		backStack.add(0, buffer.bid);
-                buffer.draft = messageTxt.getText().toString();
-                if(!buffer.scrolledUp)
-                    EventsDataSource.getInstance().pruneEvents(buffer.bid);
-            }
-            if(buffer == null || buffer.bid == -1 || buffer.cid == -1)
-                shouldFadeIn = false;
-            else
-                shouldFadeIn = true;
-            buffer = BuffersDataSource.getInstance().getBuffer(bid);
-            if(buffer != null) {
-                server = ServersDataSource.getInstance().getServer(buffer.cid);
+        if(bid != -1 && conn != null && conn.getUserInfo() != null) {
+            conn.getUserInfo().last_selected_bid = bid;
+        }
+        for(int i = 0; i < backStack.size(); i++) {
+            if(buffer != null && backStack.get(i) == buffer.bid)
+                backStack.remove(i);
+        }
+        if(buffer != null && buffer.bid >= 0) {
+            backStack.add(0, buffer.bid);
+            buffer.draft = messageTxt.getText().toString();
+            if(!buffer.scrolledUp)
+                EventsDataSource.getInstance().pruneEvents(buffer.bid);
+        }
+        if(buffer == null || buffer.bid == -1 || buffer.cid == -1 || buffer.bid == bid)
+            shouldFadeIn = false;
+        else
+            shouldFadeIn = true;
+        buffer = BuffersDataSource.getInstance().getBuffer(bid);
+        if(buffer != null) {
+            server = ServersDataSource.getInstance().getServer(buffer.cid);
 
-                TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
-                if(events != null) {
-                    for(EventsDataSource.Event e : events.values()) {
-                        if(e.highlight && e.from != null) {
-                            UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);
-                            if(u != null && u.last_mention < e.eid)
-                                u.last_mention = e.eid;
-                        }
+            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
+            if(events != null) {
+                for(EventsDataSource.Event e : events.values()) {
+                    if(e.highlight && e.from != null) {
+                        UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);
+                        if(u != null && u.last_mention < e.eid)
+                            u.last_mention = e.eid;
                     }
                 }
-            } else {
-                server = null;
             }
-	    	update_subtitle();
-	    	final Bundle b = new Bundle();
-            if(buffer != null)
-                b.putInt("cid", buffer.cid);
-	    	b.putInt("bid", bid);
-	    	BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-	    	final MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+        } else {
+            server = null;
+        }
+        update_subtitle();
+        final Bundle b = new Bundle();
+        if(buffer != null)
+            b.putInt("cid", buffer.cid);
+        b.putInt("bid", bid);
+        BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+        final MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+        UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+        if(mvf != null)
+            mvf.ready = false;
+        if(blf != null)
+            blf.setSelectedBid(bid);
+        if(ulf != null)
+            ulf.setArguments(b);
+
+        if(shouldFadeIn) {
+            AlphaAnimation anim = new AlphaAnimation(1, 0);
+            anim.setDuration(150);
+            anim.setFillAfter(true);
+            anim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if(mvf != null)
+                        mvf.setArguments(b);
+                    messageTxt.setText("");
+                    if(buffer != null && buffer.draft != null)
+                        messageTxt.append(buffer.draft);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            try {
+                mvf.showSpinner(true);
+                mvf.getListView().startAnimation(anim);
+                ulf.getListView().startAnimation(anim);
+            } catch (Exception e) {
+
+            }
+        } else {
             if(mvf != null)
-                mvf.ready = false;
-	    	if(blf != null)
-	    		blf.setSelectedBid(bid);
-	    	if(ulf != null)
-	    		ulf.setArguments(b);
+                mvf.setArguments(b);
+            messageTxt.setText("");
+            if(buffer != null && buffer.draft != null)
+                messageTxt.append(buffer.draft);
+        }
 
-            if(shouldFadeIn) {
-                AlphaAnimation anim = new AlphaAnimation(1, 0);
-                anim.setDuration(150);
-                anim.setFillAfter(true);
-                anim.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        if(mvf != null)
-                            mvf.setArguments(b);
-                        messageTxt.setText("");
-                        if(buffer != null && buffer.draft != null)
-                            messageTxt.append(buffer.draft);
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                });
-                try {
-                    mvf.showSpinner(true);
-                    mvf.getListView().startAnimation(anim);
-                    ulf.getListView().startAnimation(anim);
-                } catch (Exception e) {
-
-                }
-            } else {
-                if(mvf != null)
-                    mvf.setArguments(b);
-                messageTxt.setText("");
-                if(buffer != null && buffer.draft != null)
-                    messageTxt.append(buffer.draft);
-            }
-
-	    	updateUsersListFragmentVisibility();
-	    	supportInvalidateOptionsMenu();
-			if(showNotificationsTask != null)
-				showNotificationsTask.cancel(true);
-			showNotificationsTask = new ShowNotificationsTask();
-			showNotificationsTask.execute(bid);
-	    	if(upView != null)
-	    		new RefreshUpIndicatorTask().execute((Void)null);
-		}
+        updateUsersListFragmentVisibility();
+        supportInvalidateOptionsMenu();
+        if(showNotificationsTask != null)
+            showNotificationsTask.cancel(true);
+        showNotificationsTask = new ShowNotificationsTask();
+        showNotificationsTask.execute(bid);
+        if(upView != null)
+            new RefreshUpIndicatorTask().execute((Void)null);
 		if(buffer != null && buffer.cid != -1) {
 			if(drawerLayout != null)
 				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);

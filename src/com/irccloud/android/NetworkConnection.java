@@ -1266,7 +1266,9 @@ public class NetworkConnection {
                     if(Looper.myLooper() == null)
                         Looper.prepare();
                     String url = "https://" + IRCCLOUD_HOST + object.getString("url");
-                    new OOBIncludeTask(-1).execute(new URL(url));
+                    OOBIncludeTask t = new OOBIncludeTask(-1);
+                    oobTasks.put(-1, t);
+                    t.execute(new URL(url));
                 } catch (MalformedURLException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -1506,7 +1508,7 @@ public class NetworkConnection {
                                 Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
                         }
                     }
-                } else if(b == null) {
+                } else if(b == null && !oobTasks.containsKey(-1)) {
                     Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
                     streamId = null;
@@ -2272,8 +2274,8 @@ public class NetworkConnection {
 
                     if(bid != -1) {
                         BuffersDataSource.getInstance().updateTimeout(bid, 0);
-                        oobTasks.remove(bid);
                     }
+                    oobTasks.remove(bid);
 
                     TestFlight.log("OOB fetch complete!");
                     Log.d(TAG, "OOB fetch complete!");
@@ -2314,7 +2316,8 @@ public class NetworkConnection {
                 TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
                 Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
                 streamId = null;
-                client.disconnect();
+                if(client != null)
+                    client.disconnect();
             }
 			return false;
 		}

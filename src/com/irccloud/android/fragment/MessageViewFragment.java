@@ -652,6 +652,19 @@ public class MessageViewFragment extends ListFragment {
         spinner = (ProgressBar)v.findViewById(R.id.spinner);
         suggestionsContainer = v.findViewById(R.id.suggestionsContainer);
         suggestions = (GridView)v.findViewById(R.id.suggestions);
+        headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
+        headerView = headerViewContainer.findViewById(R.id.progress);
+        backlogFailed = (TextView)headerViewContainer.findViewById(R.id.backlogFailed);
+        loadBacklogButton = (Button)headerViewContainer.findViewById(R.id.loadBacklogButton);
+        loadBacklogButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                backlogFailed.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
+                headerView.setVisibility(View.VISIBLE);
+                conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
+            }
+        });
         return v;
     }
 
@@ -749,6 +762,7 @@ public class MessageViewFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        conn = NetworkConnection.getInstance();
         if(savedInstanceState != null && savedInstanceState.containsKey("bid")) {
             buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
             if(buffer != null)
@@ -776,8 +790,6 @@ public class MessageViewFragment extends ListFragment {
     
     @Override
     public void setArguments(Bundle args) {
-        if(buffer != null && args.containsKey("cid") && args.getInt("cid",-2) == buffer.cid && args.containsKey("bid") && args.getInt("bid",-2) == buffer.bid)
-            return;
         ready = false;
         if(heartbeatTask != null)
             heartbeatTask.cancel(true);
@@ -791,7 +803,6 @@ public class MessageViewFragment extends ListFragment {
         buffer = BuffersDataSource.getInstance().getBuffer(args.getInt("bid", -1));
         server = ServersDataSource.getInstance().getServer(buffer.cid);
 		requestingBacklog = false;
-		ready = false;
 		avgInsertTime = 0;
 		newMsgs = 0;
 		newMsgTime = 0;
@@ -812,43 +823,42 @@ public class MessageViewFragment extends ListFragment {
     	}
 		if(unreadTopView != null)
 			unreadTopView.setVisibility(View.GONE);
-		if(headerView != null) {
-			mHandler.postDelayed(new Runnable() {
-
-				@Override
-				public void run() {
-                    backlogFailed.setVisibility(View.GONE);
-                    loadBacklogButton.setVisibility(View.GONE);
-                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
-                    lp.topMargin = 0;
-                    headerView.setLayoutParams(lp);
-                    lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
-                    lp.topMargin = 0;
-                    backlogFailed.setLayoutParams(lp);
-					if(EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
-						requestingBacklog = true;
-			            if(refreshTask != null)
-			            	refreshTask.cancel(true);
-						refreshTask = new RefreshTask();
-						refreshTask.execute((Void)null);
-					} else {
-						if(buffer == null || buffer.min_eid == 0 || earliest_eid == buffer.min_eid || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
-							headerView.setVisibility(View.GONE);
-						} else {
-							headerView.setVisibility(View.VISIBLE);
-						}
-						adapter.clear();
-						adapter.notifyDataSetInvalidated();
-						mListener.onMessageViewReady();
-						ready = true;
-					}
-				}
-				
-			}, 200);
-		}
+        backlogFailed.setVisibility(View.GONE);
+        loadBacklogButton.setVisibility(View.GONE);
+        if(getListView().getHeaderViewsCount() == 0) {
+            getListView().addHeaderView(headerViewContainer);
+        }
+        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
+        lp.topMargin = 0;
+        headerView.setLayoutParams(lp);
+        lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+        lp.topMargin = 0;
+        backlogFailed.setLayoutParams(lp);
+        if(EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
+            requestingBacklog = true;
+            if(refreshTask != null)
+                refreshTask.cancel(true);
+            refreshTask = new RefreshTask();
+            if(adapter != null) {
+                refreshTask.execute((Void)null);
+            } else {
+                refreshTask.onPreExecute();
+                refreshTask.onPostExecute(refreshTask.doInBackground());
+            }
+        } else {
+            if(buffer == null || buffer.min_eid == 0 || earliest_eid == buffer.min_eid || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
+                headerView.setVisibility(View.GONE);
+            } else {
+                headerView.setVisibility(View.VISIBLE);
+            }
+            adapter.clear();
+            adapter.notifyDataSetInvalidated();
+            mListener.onMessageViewReady();
+            ready = true;
+        }
     }
     
-    private synchronized void insertEvent(EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
+    private synchronized void insertEvent(final MessageAdapter adapter, EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized(event) {
             try {
                 boolean colors = false;
@@ -947,7 +957,7 @@ public class MessageViewFragment extends ListFragment {
                             }
                             if(group_msg == null && type.equals("user_channel_mode")) {
                                 if(event.from != null && event.from.length() > 0)
-                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + event.from + "</b>";
+                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.from + "</b>";
                                 else
                                     msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                                 currentCollapsedEid = eid;
@@ -973,7 +983,7 @@ public class MessageViewFragment extends ListFragment {
                     }
                     if(msg == null && type.equals("user_channel_mode")) {
                         if(event.from != null && event.from.length() > 0)
-                            msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + event.from + "</b>";
+                            msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
                         else
                             msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                         currentCollapsedEid = eid;
@@ -1157,10 +1167,12 @@ public class MessageViewFragment extends ListFragment {
                                                     expandedSectionEids.remove(group);
                                                 else if(e.eid != group)
                                                     expandedSectionEids.add(group);
-                                                if(refreshTask != null)
-                                                    refreshTask.cancel(true);
-                                                refreshTask = new RefreshTask();
-                                                refreshTask.execute((Void)null);
+                                                if(e.eid != e.group_eid) {
+                                                    if(refreshTask != null)
+                                                        refreshTask.cancel(true);
+                                                    refreshTask = new RefreshTask();
+                                                    refreshTask.execute((Void)null);
+                                                }
                                             }
                                         }
                                     }
@@ -1179,33 +1191,6 @@ public class MessageViewFragment extends ListFragment {
     @SuppressWarnings("unchecked")
 	public void onResume() {
     	super.onResume();
-    	longPressOverride = false;
-    	ready = false;
-        getListView().setStackFromBottom(true);
-        getListView().requestFocus();
-		if(buffer != null) {
-            dirty = true;
-		}
-    	if(getListView().getHeaderViewsCount() == 0) {
-    		headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
-    		headerView = headerViewContainer.findViewById(R.id.progress);
-            backlogFailed = (TextView)headerViewContainer.findViewById(R.id.backlogFailed);
-            loadBacklogButton = (Button)headerViewContainer.findViewById(R.id.loadBacklogButton);
-            loadBacklogButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    backlogFailed.setVisibility(View.GONE);
-                    loadBacklogButton.setVisibility(View.GONE);
-                    headerView.setVisibility(View.VISIBLE);
-                    conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
-                }
-            });
-    		getListView().addHeaderView(headerViewContainer);
-    	}
-        backlogFailed.setVisibility(View.GONE);
-        loadBacklogButton.setVisibility(View.GONE);
-    	adapter = new MessageAdapter(this);
-    	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
     	if(conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
 			TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
@@ -1214,83 +1199,11 @@ public class MessageViewFragment extends ListFragment {
 			connecting.startAnimation(anim);
 			connecting.setVisibility(View.VISIBLE);
     	}
+        getListView().setStackFromBottom(true);
+        getListView().requestFocus();
+        getListView().setOnScrollListener(mOnScrollListener);
     	updateReconnecting();
     	update_global_msg();
-    	if(server != null) {
-    		ignore.setIgnores(server.ignores);
-    		if(server.away != null && server.away.length() > 0) {
-    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
-    			awayView.setVisibility(View.VISIBLE);
-    		} else {
-    			awayView.setVisibility(View.GONE);
-    		}
-    	}
-    	if(buffer != null) {
-            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
-            if(events != null && events.size() > 0) {
-                adapter.clearLastSeenEIDMarker();
-                events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
-                if(backlog_eid > 0) {
-                    EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
-                    backlogMarker.eid = backlog_eid;
-                    backlogMarker.type = TYPE_BACKLOGMARKER;
-                    backlogMarker.row_type = ROW_BACKLOGMARKER;
-                    backlogMarker.bg_color = R.color.message_bg;
-                    events.put(backlog_eid, backlogMarker);
-                }
-                refresh(events);
-                ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
-                if(adapter.getLastSeenEIDPosition() == 0)
-                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
-                else
-                    lp.topMargin = 0;
-                headerView.setLayoutParams(lp);
-                lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
-                if(adapter.getLastSeenEIDPosition() == 0)
-                    lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
-                else
-                    lp.topMargin = 0;
-                backlogFailed.setLayoutParams(lp);
-            } else if(conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
-                headerView.setVisibility(View.GONE);
-                backlogFailed.setVisibility(View.GONE);
-                loadBacklogButton.setVisibility(View.GONE);
-            } else {
-                headerView.setVisibility(View.VISIBLE);
-                backlogFailed.setVisibility(View.GONE);
-                loadBacklogButton.setVisibility(View.GONE);
-                ready = true;
-            }
-        } else {
-            headerView.setVisibility(View.GONE);
-            backlogFailed.setVisibility(View.GONE);
-            loadBacklogButton.setVisibility(View.GONE);
-    	}
-        setListAdapter(adapter);
-        if(buffer != null && buffer.scrolledUp) {
-            getListView().setSelectionFromTop(buffer.scrollPosition, buffer.scrollPositionOffset);
-
-            newMsgs = 0;
-            newHighlights = 0;
-
-            for(int i = adapter.data.size() - 1; i >= 0; i--) {
-                EventsDataSource.Event e = adapter.data.get(i);
-                if(e.eid <= buffer.last_seen_eid)
-                    break;
-
-                if(e.isImportant(buffer.type)) {
-                    if(e.highlight)
-                        newHighlights++;
-                    else
-                        newMsgs++;
-                }
-            }
-
-            update_unread();
-        } else {
-            getListView().setSelection(adapter.getCount() - 1);
-        }
-		getListView().setOnScrollListener(mOnScrollListener);
     }
     
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {
@@ -1407,7 +1320,7 @@ public class MessageViewFragment extends ListFragment {
                             events.put(backlog_eid, backlogMarker);
                         }
                         adapter = new MessageAdapter(MessageViewFragment.this);
-                        refresh(events);
+                        refresh(adapter, events);
                     } catch (IndexOutOfBoundsException e) {
                         return null;
                     } catch (IllegalStateException e) {
@@ -1484,7 +1397,7 @@ public class MessageViewFragment extends ListFragment {
         }
 	}
 
-	private synchronized void refresh(TreeMap<Long,EventsDataSource.Event> events) {
+	private synchronized void refresh(MessageAdapter adapter, TreeMap<Long,EventsDataSource.Event> events) {
 		if(conn.getReconnectTimestamp() == 0)
 			conn.cancel_idle_timer(); //This may take a while...
         if(dirty) {
@@ -1569,9 +1482,9 @@ public class MessageViewFragment extends ListFragment {
 
 	    			if(next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
 						calendar.setTimeInMillis(next.eid / 1000);
-	    				insertEvent(e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);
+	    				insertEvent(adapter, e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);
 	    			} else {
-	    				insertEvent(e, true, false);
+	    				insertEvent(adapter, e, true, false);
 	    			}
 	    		}
     			adapter.insertLastSeenEIDMarker();
@@ -2143,7 +2056,7 @@ public class MessageViewFragment extends ListFragment {
 				e = (IRCCloudJSONObject)msg.obj;
 				if(buffer != null && e.bid() == buffer.bid) {
 					EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
-					insertEvent(event, false, false);
+					insertEvent(adapter, event, false, false);
 				}
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
@@ -2167,7 +2080,7 @@ public class MessageViewFragment extends ListFragment {
 							}
 						}
 					}
-					insertEvent(event, false, false);
+					insertEvent(adapter, event, false, false);
 				}
 				break;
 			case NetworkConnection.EVENT_AWAY:
