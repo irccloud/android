@@ -104,8 +104,11 @@ public class ImageViewerActivity extends BaseActivity {
 
         if(getIntent() != null && getIntent().getDataString() != null) {
             String url = getIntent().getDataString().replace("irccloud-image", "http");
-            if(url.toLowerCase().startsWith("http://www.dropbox.com/") || url.toLowerCase().startsWith("https://www.dropbox.com/"))
+            String lower = url.toLowerCase();
+            if(lower.startsWith("http://www.dropbox.com/") || lower.startsWith("https://www.dropbox.com/"))
                 url = url + "?dl=1";
+            else if((lower.startsWith("http://imgur.com/") || lower.startsWith("https://imgur.com/") && !lower.contains("/a/")))
+                url = url.replace("://imgur.com/", "://i.imgur.com/") + ".png";
             mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<body bgcolor='#000'>\n" +
