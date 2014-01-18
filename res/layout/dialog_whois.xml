@@ -26,13 +26,6 @@
         android:padding="6dp" >
 
         <TextView
-            android:id="@+id/extra"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="6dp"
-            android:textStyle="bold" />
-        
-        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
@@ -41,6 +34,19 @@
 
         <TextView
             android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:text="Away"
+            android:id="@+id/awayTitle"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/away"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -82,6 +88,14 @@
             android:layout_height="wrap_content" />
 
         <TextView
+            android:id="@+id/extra"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            android:visibility="gone"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/ownerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -91,6 +105,7 @@
 
         <TextView
             android:id="@+id/ownerChannels"
+            android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -104,6 +119,7 @@
 
         <TextView
             android:id="@+id/adminChannels"
+            android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -117,6 +133,7 @@
 
         <TextView
             android:id="@+id/opChannels"
+            android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -130,6 +147,7 @@
 
         <TextView
             android:id="@+id/halfopChannels"
+            android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -143,6 +161,7 @@
 
         <TextView
             android:id="@+id/voicedChannels"
+            android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -156,6 +175,7 @@
 
         <TextView
             android:id="@+id/channels"
+            android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         

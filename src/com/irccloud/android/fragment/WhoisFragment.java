@@ -40,7 +40,7 @@ import com.irccloud.android.data.ServersDataSource;
 public class WhoisFragment extends DialogFragment {
 	IRCCloudJSONObject event;
 	TextView extra, name, mask, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
-		ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle;
+		ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle, awayTitle, away;
 	
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -56,6 +56,8 @@ public class WhoisFragment extends DialogFragment {
     	server = (TextView)v.findViewById(R.id.server);
     	timeTitle = (TextView)v.findViewById(R.id.timeTitle);
     	time = (TextView)v.findViewById(R.id.time);
+        awayTitle = (TextView)v.findViewById(R.id.awayTitle);
+        away = (TextView)v.findViewById(R.id.away);
     	ownerTitle = (TextView)v.findViewById(R.id.ownerTitle);
     	ownerChannels = (TextView)v.findViewById(R.id.ownerChannels);
     	ownerChannels.setMovementMethod(LinkMovementMethod.getInstance());
@@ -156,30 +158,45 @@ public class WhoisFragment extends DialogFragment {
     	if(event != null) {
     		String nick = event.getString("user_nick");
     		String extratxt = "";
+            if(event.has("op_nick")) {
+                extratxt += nick + " " + event.getString("op_msg") + "\n\n";
+            }
+            if(event.has("opername")) {
+                extratxt += nick + " " + event.getString("opername_msg") + " " + event.getString("opername") + "\n\n";
+            }
     		if(event.has("stats_dline")) {
-    			extratxt += nick + " " + event.getString("stats_dline") + "\n";
+    			extratxt += nick + " " + event.getString("stats_dline") + "\n\n";
     		}
     		if(event.has("userip")) {
-    			extratxt += nick + " " + event.getString("userip") + "\n";
+    			extratxt += nick + " " + event.getString("userip") + "\n\n";
     		}
+            if(event.has("host")) {
+                extratxt += nick + " " + event.getString("host") + "\n\n";
+            }
     		if(event.has("bot_msg")) {
-    			extratxt += nick + " " + event.getString("bot_msg") + "\n";
+    			extratxt += nick + " " + event.getString("bot_msg") + "\n\n";
     		}
     		if(event.has("cgi")) {
-    			extratxt += nick + " " + event.getString("cgi") + "\n";
+    			extratxt += nick + " " + event.getString("cgi") + "\n\n";
     		}
     		if(event.has("help")) {
-    			extratxt += nick + " " + event.getString("help") + "\n";
+    			extratxt += nick + " " + event.getString("help") + "\n\n";
     		}
     		if(event.has("vworld")) {
-    			extratxt += nick + " " + event.getString("vworld") + "\n";
+    			extratxt += nick + " " + event.getString("vworld") + "\n\n";
     		}
-    		if(event.has("secure")) {
-    			extratxt += nick + " " + event.getString("secure") + "\n";
+            if(event.has("modes")) {
+                extratxt += nick + " " + event.getString("modes") + "\n\n";
+            }
+            if(event.has("client_cert")) {
+                extratxt += nick + " " + event.getString("client_cert") + "\n\n";
+            }
+            if(event.has("secure")) {
+    			extratxt += nick + " " + event.getString("secure") + "\n\n";
     		}
     		if(extratxt.length() > 0) {
     			extra.setVisibility(View.VISIBLE);
-    			extra.setText(extratxt.substring(0, extratxt.length() - 1));
+    			extra.setText(extratxt.substring(0, extratxt.length() - 2));
     		} else {
     			extra.setVisibility(View.GONE);
     		}
@@ -204,6 +221,14 @@ public class WhoisFragment extends DialogFragment {
     			timeTitle.setVisibility(View.GONE);
     			time.setVisibility(View.GONE);
     		}
+            if(event.has("away") && event.getString("away").length() > 0) {
+                away.setText(event.getString("away"));
+                awayTitle.setVisibility(View.VISIBLE);
+                away.setVisibility(View.VISIBLE);
+            } else {
+                awayTitle.setVisibility(View.GONE);
+                away.setVisibility(View.GONE);
+            }
     		buildChannelList("channels_owner", ownerTitle, ownerChannels);
     		buildChannelList("channels_admin", adminTitle, adminChannels);
     		buildChannelList("channels_op", opTitle, opChannels);
@@ -221,9 +246,7 @@ public class WhoisFragment extends DialogFragment {
     		JsonArray c = event.getJsonArray(field);
     		for(int i = 0; i < c.size(); i++) {
     			String chan = c.get(i).getAsString();
-    			if(i > 0)
-    				channelstxt += ", ";
-    			channelstxt += chan;
+    			channelstxt += "• " + chan + "<br/>";
     		}
     		channels.setText(ColorFormatter.html_to_spanned(channelstxt, true, ServersDataSource.getInstance().getServer(event.cid())));
 		} else {
