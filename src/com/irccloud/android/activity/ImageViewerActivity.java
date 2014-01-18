@@ -103,10 +103,13 @@ public class ImageViewerActivity extends BaseActivity {
         mProgress = (ProgressBar)findViewById(R.id.progress);
 
         if(getIntent() != null && getIntent().getDataString() != null) {
+            String url = getIntent().getDataString().replace("irccloud-image", "http");
+            if(url.toLowerCase().startsWith("http://www.dropbox.com/") || url.toLowerCase().startsWith("https://www.dropbox.com/"))
+                url = url + "?dl=1";
             mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
                     "<html>\n" +
                     "<body bgcolor='#000'>\n" +
-                    "<img src='" + getIntent().getDataString().replace("irccloud-image", "http") + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
+                    "<img src='" + url + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
                     "</body>\n" +
                     "</html>", "text/html", "UTF-8",null);
         } else {
