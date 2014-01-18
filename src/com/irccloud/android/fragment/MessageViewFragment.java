@@ -947,7 +947,7 @@ public class MessageViewFragment extends ListFragment {
                             }
                             if(group_msg == null && type.equals("user_channel_mode")) {
                                 if(event.from != null && event.from.length() > 0)
-                                    msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                                    msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + event.from + "</b>";
                                 else
                                     msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                                 currentCollapsedEid = eid;
@@ -973,7 +973,7 @@ public class MessageViewFragment extends ListFragment {
                     }
                     if(msg == null && type.equals("user_channel_mode")) {
                         if(event.from != null && event.from.length() > 0)
-                            msg = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> set mode: <b>" + event.diff + " " + event.nick + "</b>";
+                            msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + event.from + "</b>";
                         else
                             msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                         currentCollapsedEid = eid;
