@@ -149,11 +149,10 @@ public class ColorFormatter {
                 public String transformUrl(Matcher match, String url) {
                     if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
                         String lower = url.toLowerCase();
-                        if(lower.endsWith("png")||lower.endsWith("gif")||lower.endsWith("jpg")||lower.endsWith("jpeg")
-                                ||((lower.startsWith("http://imgur.com/") || lower.startsWith("https://imgur.com/") && !lower.contains("/a/")))
-                                ||lower.matches("https?:\\/\\/(www\\.)?flickr\\.com\\/photos\\/.*")
-                                ||lower.matches("https?:\\/\\/(www\\.)?instagram\\.com\\/p\\/.*")
-                                ||lower.matches("https?:\\/\\/(www\\.)?instagr\\.am\\/p\\/.*")
+                        if(lower.matches("(^.*\\/.*.png$)|(^.*\\/.*.jpe?g$)|(^.*\\/.*.gif$)|" +
+                                "(^https?:\\/\\/(www\\.)?flickr\\.com\\/photos\\/.*$)|" +
+                                "(^https?:\\/\\/(www\\.)?instagram\\.com\\/p\\/.*$)|(^https?:\\/\\/(www\\.)?instagr\\.am\\/p\\/.*$)|" +
+                                "(^https?://imgur.com/(?!a/).*$)")
                                 ) {
                             if(lower.startsWith("http://"))
                                 return "irccloud-image://" + url.substring(7);

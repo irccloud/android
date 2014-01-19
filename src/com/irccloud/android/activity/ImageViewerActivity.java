@@ -17,17 +17,14 @@
 package com.irccloud.android.activity;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
@@ -40,7 +37,7 @@ import com.irccloud.android.R;
 
 import org.json.JSONObject;
 
-import java.io.IOException;
+import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -117,6 +114,7 @@ public class ImageViewerActivity extends BaseActivity {
             public void onPageFinished(WebView view, String url) {
                 mProgress.setVisibility(View.GONE);
                 mImage.setVisibility(View.VISIBLE);
+                hide_actionbar();
             }
 
             @Override
@@ -139,10 +137,10 @@ public class ImageViewerActivity extends BaseActivity {
             } else if(lower.startsWith("imgur.com/")) {
                 new OEmbedTask().execute("http://api.imgur.com/oembed.json?url=" + url);
                 return;
-            } else if(lower.startsWith("flickr.com") || lower.startsWith("www.flickr.com")) {
+            } else if(lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
                 return;
-            } else if(lower.startsWith("instagram.com") || lower.startsWith("www.instagram.com") || lower.startsWith("instagr.am")) {
+            } else if(lower.startsWith("instagram.com/") || lower.startsWith("www.instagram.com/") || lower.startsWith("instagr.am/")) {
                 new OEmbedTask().execute("http://api.instagram.com/oembed?url=" + url);
                 return;
             }
@@ -152,13 +150,18 @@ public class ImageViewerActivity extends BaseActivity {
         }
     }
 
-    private void loadImage(String url) {
-        mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "<body bgcolor='#000'>\n" +
-                "<img src='" + url + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
-                "</body>\n" +
-                "</html>", "text/html", "UTF-8",null);
+    private void loadImage(String urlStr) {
+        try {
+            URL url = new URL(urlStr);
+            mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
+                    "<html>\n" +
+                    "<body bgcolor='#000'>\n" +
+                    "<img src='" + url.toString() + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
+                    "</body>\n" +
+                    "</html>", "text/html", "UTF-8",null);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     private void fail() {
@@ -170,7 +173,8 @@ public class ImageViewerActivity extends BaseActivity {
     @Override
     public void onResume() {
         super.onResume();
-        hide_actionbar();
+        if(mProgress.getVisibility() == View.GONE)
+            hide_actionbar();
     }
 
     private void hide_actionbar() {
