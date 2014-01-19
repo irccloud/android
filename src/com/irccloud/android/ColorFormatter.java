@@ -150,9 +150,9 @@ public class ColorFormatter {
                     if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
                         String lower = url.toLowerCase();
                         if(lower.matches("(^.*\\/.*.png$)|(^.*\\/.*.jpe?g$)|(^.*\\/.*.gif$)|" +
-                                "(^https?:\\/\\/(www\\.)?flickr\\.com\\/photos\\/.*$)|" +
-                                "(^https?:\\/\\/(www\\.)?instagram\\.com\\/p\\/.*$)|(^https?:\\/\\/(www\\.)?instagr\\.am\\/p\\/.*$)|" +
-                                "(^https?://imgur.com/(?!a/).*$)")
+                                "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
+                                "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
+                                "(^https?://(www\\.)?imgur.com/(?!a/).*$)")
                                 ) {
                             if(lower.startsWith("http://"))
                                 return "irccloud-image://" + url.substring(7);

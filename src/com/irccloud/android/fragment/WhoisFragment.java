@@ -206,6 +206,8 @@ public class WhoisFragment extends DialogFragment {
     		}
     		name.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(nametxt))));
     		mask.setText(event.getString("user_username") + "@" + event.getString("user_host"));
+            if(event.has("actual_host"))
+                mask.setText(mask.getText() + "/" + event.getString("actual_host"));
     		String s = event.getString("server_addr");
     		if(event.has("server_extra") && event.getString("server_extra").length() > 0)
     			s += " (" + event.getString("server_extra") + ")";
