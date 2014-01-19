@@ -142,6 +142,9 @@ public class ImageViewerActivity extends BaseActivity {
             } else if(lower.startsWith("flickr.com") || lower.startsWith("www.flickr.com")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
                 return;
+            } else if(lower.startsWith("instagram.com") || lower.startsWith("www.instagram.com")) {
+                new OEmbedTask().execute("http://api.instagram.com/oembed?url=" + url);
+                return;
             }
             loadImage(url);
         } else {
