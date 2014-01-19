@@ -504,8 +504,20 @@ public class NetworkConnection {
 		}
 		return null;
 	}
-	
-	public JSONObject registerGCM(String regId, String sk) throws IOException {
+
+    public JSONObject fetchOembed(String url) throws IOException {
+        try {
+            String response = doFetch(new URL(url), null, null);
+            JSONObject o = new JSONObject(response);
+            return o;
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONObject registerGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
 		try {
             String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk);
@@ -1941,7 +1953,7 @@ public class NetworkConnection {
             proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
         }
 
-        if (url.getProtocol().toLowerCase().equals("https")) {
+        if (url.getProtocol().toLowerCase().equals("https") && url.getHost().equals(IRCCLOUD_HOST)) {
             HttpsURLConnection https = (HttpsURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection(Proxy.NO_PROXY));
             https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;

@@ -34,12 +34,41 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class ImageViewerActivity extends BaseActivity {
+
+    private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                JSONObject o = NetworkConnection.getInstance().fetchOembed(params[0]);
+                if(o.getString("type").equalsIgnoreCase("photo"))
+                    return o.getString("url");
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if(url != null) {
+                loadImage(url);
+            } else {
+                fail();
+            }
+        }
+    }
+
     WebView mImage;
     ProgressBar mProgress;
     Timer mHideTimer;
@@ -47,9 +76,7 @@ public class ImageViewerActivity extends BaseActivity {
     public class JSInterface {
         @JavascriptInterface
         public void imageFailed() {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
-            startActivity(intent);
-            finish();
+            fail();
         }
 
         @JavascriptInterface
@@ -94,9 +121,7 @@ public class ImageViewerActivity extends BaseActivity {
 
             @Override
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
-                startActivity(intent);
-                finish();
+                fail();
             }
         }
         );
@@ -104,20 +129,39 @@ public class ImageViewerActivity extends BaseActivity {
 
         if(getIntent() != null && getIntent().getDataString() != null) {
             String url = getIntent().getDataString().replace("irccloud-image", "http");
-            String lower = url.toLowerCase();
-            if(lower.startsWith("http://www.dropbox.com/") || lower.startsWith("https://www.dropbox.com/"))
-                url = url + "?dl=1";
-            else if((lower.startsWith("http://imgur.com/") || lower.startsWith("https://imgur.com/") && !lower.contains("/a/")))
-                url = url.replace("://imgur.com/", "://i.imgur.com/") + ".png";
-            mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<body bgcolor='#000'>\n" +
-                    "<img src='" + url + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
-                    "</body>\n" +
-                    "</html>", "text/html", "UTF-8",null);
+            String lower = url.toLowerCase().replace("https://", "").replace("http://", "");
+            if(lower.startsWith("www.dropbox.com/")) {
+                if(lower.startsWith("www.dropbox.com/s/")) {
+                    url = url.replace("://www.dropbox.com/s/", "://dl.dropboxusercontent.com/s/");
+                } else {
+                    url = url + "?dl=1";
+                }
+            } else if(lower.startsWith("imgur.com/")) {
+                new OEmbedTask().execute("http://api.imgur.com/oembed.json?url=" + url);
+                return;
+            } else if(lower.startsWith("flickr.com") || lower.startsWith("www.flickr.com")) {
+                new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
+                return;
+            }
+            loadImage(url);
         } else {
             finish();
         }
+    }
+
+    private void loadImage(String url) {
+        mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<body bgcolor='#000'>\n" +
+                "<img src='" + url + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
+                "</body>\n" +
+                "</html>", "text/html", "UTF-8",null);
+    }
+
+    private void fail() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
+        startActivity(intent);
+        finish();
     }
 
     @Override
