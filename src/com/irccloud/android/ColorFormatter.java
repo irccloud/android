@@ -153,6 +153,7 @@ public class ColorFormatter {
                                 ||((lower.startsWith("http://imgur.com/") || lower.startsWith("https://imgur.com/") && !lower.contains("/a/")))
                                 ||lower.matches("https?:\\/\\/(www\\.)?flickr\\.com\\/photos\\/.*")
                                 ||lower.matches("https?:\\/\\/(www\\.)?instagram\\.com\\/p\\/.*")
+                                ||lower.matches("https?:\\/\\/(www\\.)?instagr\\.am\\/p\\/.*")
                                 ) {
                             if(lower.startsWith("http://"))
                                 return "irccloud-image://" + url.substring(7);
