@@ -1953,9 +1953,10 @@ public class NetworkConnection {
             proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
         }
 
-        if (url.getProtocol().toLowerCase().equals("https") && url.getHost().equals(IRCCLOUD_HOST)) {
+        if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection(Proxy.NO_PROXY));
-            https.setSSLSocketFactory(IRCCloudSocketFactory);
+            if(url.getHost().equals(IRCCLOUD_HOST))
+                https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
         	conn = (HttpURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection(Proxy.NO_PROXY));
