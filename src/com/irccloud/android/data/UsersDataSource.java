@@ -142,7 +142,7 @@ public class UsersDataSource {
 	}
 
 	public synchronized User getUser(int cid, int bid, String nick) {
-        if(users.containsKey(bid) && users.get(bid).containsKey(nick.toLowerCase())) {
+        if(nick != null && users.containsKey(bid) && users.get(bid).containsKey(nick.toLowerCase())) {
             return users.get(bid).get(nick.toLowerCase());
         }
 		return null;

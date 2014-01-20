@@ -1005,6 +1005,8 @@ public class MessageViewFragment extends ListFragment {
                     if(event.html == null) {
                         if(event.from != null)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, colors) + "</b> " + event.msg;
+                        else if(event.type.equals("buffer_msg") && event.server != null)
+                            event.html = "<b>" + event.server + "</b> " + event.msg;
                         else
                             event.html = event.msg;
                     }
