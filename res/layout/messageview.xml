@@ -148,7 +148,7 @@
                 android:layout_height="140dp"
                 android:layout_alignParentBottom="true"
                 android:id="@+id/suggestionsContainer"
-                android:layout_margin="6dp"
+                android:layout_margin="2dp"
                 android:gravity="bottom">
 
                 <LinearLayout
@@ -156,7 +156,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/border"
-                    android:padding="6dp">
+                    android:padding="2dp">
 
                     <GridView
                         android:layout_width="fill_parent"
@@ -164,7 +164,7 @@
                         android:id="@+id/suggestions"
                         android:background="@drawable/row_bg_blue"
                         android:numColumns="auto_fit"
-                        android:columnWidth="100dp" />
+                        android:columnWidth="160dp" />
                 </LinearLayout>
             </LinearLayout>
         </RelativeLayout>

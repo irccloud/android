@@ -392,32 +392,30 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             if(text.endsWith(":"))
                 text = text.substring(0, text.length() - 1);
             ArrayList<String> sugs = new ArrayList<String>();
-            if(text.length() > 2 || force) {
-                if(text.startsWith("#")) {
-                    ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannels();
+            if(text.length() > 1 || force) {
+                ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannels();
 
-                    if(buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
-                        sugs.add(buffer.name);
-                    for(ChannelsDataSource.Channel channel : channels) {
-                        if(channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
-                            sugs.add(channel.name);
+                if(buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
+                    sugs.add(buffer.name);
+                for(ChannelsDataSource.Channel channel : channels) {
+                    if(channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
+                        sugs.add(channel.name);
+                }
+
+                ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
+                Collections.sort(users, new Comparator<UsersDataSource.User>() {
+                    @Override
+                    public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
+                        if(lhs.last_mention > rhs.last_mention)
+                            return -1;
+                        if(lhs.last_mention < rhs.last_mention)
+                            return 1;
+                        return lhs.nick.compareToIgnoreCase(rhs.nick);
                     }
-                } else {
-                    ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
-                    Collections.sort(users, new Comparator<UsersDataSource.User>() {
-                        @Override
-                        public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
-                            if(lhs.last_mention > rhs.last_mention)
-                                return -1;
-                            if(lhs.last_mention < rhs.last_mention)
-                                return 1;
-                            return lhs.nick.compareToIgnoreCase(rhs.nick);
-                        }
-                    });
-                    for(UsersDataSource.User user : users) {
-                        if(user.nick.toLowerCase().startsWith(text))
-                            sugs.add(user.nick);
-                    }
+                });
+                for(UsersDataSource.User user : users) {
+                    if(user.nick.toLowerCase().startsWith(text))
+                        sugs.add(user.nick);
                 }
             }
             if(suggestionsAdapter.activePos == -1 || sugs.size() == 0) {
