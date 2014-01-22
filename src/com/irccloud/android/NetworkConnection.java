@@ -167,6 +167,7 @@ public class NetworkConnection {
 	public static final int EVENT_GLOBALMSG = 39;
 	public static final int EVENT_ACCEPTLIST = 40;
     public static final int EVENT_NAMESLIST = 41;
+    public static final int EVENT_REORDERCONNECTIONS = 42;
 	
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -1380,7 +1381,7 @@ public class NetworkConnection {
                 ServersDataSource.Server server = s.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-                        object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"));
+                        object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"), object.has("order")?object.getInt("order"):0);
                 Notifications.getInstance().deleteNetwork(object.cid());
                 if(object.getString("name") != null && object.getString("name").length() > 0)
                     Notifications.getInstance().addNetwork(object.cid(), object.getString("name"));
@@ -1426,6 +1427,18 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
                 s.updateIsupport(object.cid(), object.getJsonObject("params"));
+            }
+        });
+        put("reorder_connections", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                ServersDataSource s = ServersDataSource.getInstance();
+                JsonArray order = object.getJsonArray("order");
+                for(int i = 0; i < order.size(); i++) {
+                    ServersDataSource.Server server = s.getServer(order.get(i).getAsInt());
+                    server.order = i + 1;
+                }
+                notifyHandlers(EVENT_REORDERCONNECTIONS, object);
             }
         });
 

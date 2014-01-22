@@ -27,7 +27,7 @@ import com.google.gson.JsonObject;
 import com.irccloud.android.Notifications;
 
 public class ServersDataSource {
-	public class Server {
+	public class Server implements Comparable<Server> {
 		public int cid;
         public String name;
         public String hostname;
@@ -47,13 +47,15 @@ public class ServersDataSource {
         public JsonObject isupport;
         public JsonArray raw_ignores;
 		public ArrayList<String> ignores;
-	}
+        public int order;
 
-	public class comparator implements Comparator<Server> {
-		public int compare(Server s1, Server s2) {
-			return Integer.valueOf(s1.cid).compareTo(s2.cid);
-		}
-	}
+        @Override
+        public int compareTo(Server another) {
+            if(order != another.order)
+                return Integer.valueOf(order).compareTo(another.order);
+            return Integer.valueOf(cid).compareTo(another.cid);
+        }
+    }
 
 	private SparseArray<Server> servers;
 	
@@ -73,7 +75,7 @@ public class ServersDataSource {
 		servers.clear();
 	}
 	
-	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, JsonObject fail_info, String away, JsonArray ignores) {
+	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, JsonObject fail_info, String away, JsonArray ignores, int order) {
 		Server s = getServer(cid);
 		if(s == null) {
 			s = new Server();
@@ -95,6 +97,7 @@ public class ServersDataSource {
 		s.away = away;
 		s.usermask = "";
 		s.mode = "";
+        s.order = order;
         if(s.name == null || s.name.length() == 0)
             s.name = s.hostname;
         updateIgnores(cid, ignores);

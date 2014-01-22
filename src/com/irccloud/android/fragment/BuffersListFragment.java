@@ -18,6 +18,7 @@ package com.irccloud.android.fragment;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -490,7 +491,13 @@ public class BuffersListFragment extends ListFragment {
 			if(!ready || isCancelled())
 				return null;
 
-			SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+			SparseArray<ServersDataSource.Server> serversArray = ServersDataSource.getInstance().getServers();
+            ArrayList<ServersDataSource.Server> servers = new ArrayList<ServersDataSource.Server>();
+
+            for(int i = 0; i < serversArray.size(); i++) {
+                servers.add(serversArray.valueAt(i));
+            }
+            Collections.sort(servers);
 			if(adapter == null) {
 				adapter = new BufferListAdapter(BuffersListFragment.this);
 			}
@@ -515,12 +522,11 @@ public class BuffersListFragment extends ListFragment {
 				}
 			}
 			
-			for(int i = 0; i < servers.size(); i++) {
+			for(ServersDataSource.Server s : servers) {
 				if(isCancelled())
 					return null;
 
 				int archiveCount = 0;
-				ServersDataSource.Server s = servers.valueAt(i);
 				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
 				for(int j = 0; j < buffers.size(); j++) {
 					if(isCancelled())
