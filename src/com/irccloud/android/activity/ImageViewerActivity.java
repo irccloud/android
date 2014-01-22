@@ -81,8 +81,14 @@ public class ImageViewerActivity extends BaseActivity {
             ImageViewerActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    getSupportActionBar().show();
-                    hide_actionbar();
+                    if(getSupportActionBar().isShowing()) {
+                        mHideTimer.cancel();
+                        mHideTimer = null;
+                        getSupportActionBar().hide();
+                    } else {
+                        getSupportActionBar().show();
+                        hide_actionbar();
+                    }
                 }
             });
         }
@@ -192,7 +198,7 @@ public class ImageViewerActivity extends BaseActivity {
                 });
                 mHideTimer = null;
             }
-        }, 5000);
+        }, 3000);
     }
 
     @Override
