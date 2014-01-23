@@ -851,8 +851,10 @@ public class MessageViewFragment extends ListFragment {
             } else {
                 headerView.setVisibility(View.VISIBLE);
             }
-            adapter.clear();
-            adapter.notifyDataSetInvalidated();
+            if(adapter != null) {
+                adapter.clear();
+                adapter.notifyDataSetInvalidated();
+            }
             mListener.onMessageViewReady();
             ready = true;
         }
