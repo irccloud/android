@@ -205,6 +205,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				if(drawerLayout != null && v == messageTxt && hasFocus) {
                     drawerLayout.closeDrawers();
 		        	upView.setVisibility(View.VISIBLE);
+                    update_suggestions(false);
 				} else if(!hasFocus) {
                     suggestionsContainer.setVisibility(View.GONE);
                     suggestionsAdapter.clear();
@@ -847,6 +848,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			channelsListDialog.dismiss();
     	if(conn != null)
     		conn.removeHandler(mHandler);
+        suggestionsAdapter.clear();
     	conn = null;
     }
 	
