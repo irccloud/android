@@ -58,7 +58,7 @@ public class EditConnectionActivity extends ActionBarActivity {
         if(getIntent() != null && getIntent().hasExtra("channels"))
         	newFragment.default_channels = getIntent().getStringExtra("channels");
     	newFragment.default_port = getIntent().getIntExtra("port", 6667);
-        ft.add(R.id.EditConnectionFragment, newFragment);
+        ft.replace(R.id.EditConnectionFragment, newFragment);
         ft.commit();
 
         getSupportActionBar().getCustomView().findViewById(R.id.action_cancel).setOnClickListener(new OnClickListener() {

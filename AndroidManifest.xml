@@ -49,6 +49,9 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
+            android:name="com.irccloud.android.activity.ServerReorderActivity">
+        </activity>
+        <activity
             android:name="com.irccloud.android.activity.ImageViewerActivity"
             android:theme="@style/ImageViewerTheme">
             <intent-filter>

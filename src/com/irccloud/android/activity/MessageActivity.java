@@ -65,6 +65,7 @@ import com.irccloud.android.fragment.IgnoreListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
+import com.irccloud.android.fragment.ServerReorderFragment;
 import com.irccloud.android.fragment.UsersListFragment;
 import com.irccloud.android.fragment.WhoListFragment;
 import com.irccloud.android.fragment.WhoisFragment;
@@ -2581,6 +2582,21 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         } else {
             EditConnectionFragment connFragment = new EditConnectionFragment();
             connFragment.show(getSupportFragmentManager(), "addnetwork");
+        }
+    }
+
+    @Override
+    public void reorder() {
+        if(drawerLayout != null) {
+            drawerLayout.closeDrawers();
+            upView.setVisibility(View.VISIBLE);
+        }
+        if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+            Intent i = new Intent(this, ServerReorderActivity.class);
+            startActivity(i);
+        } else {
+            ServerReorderFragment fragment = new ServerReorderFragment();
+            fragment.show(getSupportFragmentManager(), "reorder");
         }
     }
 

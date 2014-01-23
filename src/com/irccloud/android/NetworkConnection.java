@@ -1080,8 +1080,19 @@ public class NetworkConnection {
 			return -1;
 		}
 	}
-	
-	public void request_backlog(int cid, int bid, long beforeId) {
+
+    public int reorder_connections(String cids) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("cids", cids);
+            return send("reorder-connections", o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public void request_backlog(int cid, int bid, long beforeId) {
 		try {
 			if(oobTasks.containsKey(bid)) {
                 TestFlight.log("Ignoring duplicate backlog request for BID: " + bid);

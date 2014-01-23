@@ -68,7 +68,8 @@ public class BuffersListFragment extends ListFragment {
 	private static final int TYPE_ARCHIVES_HEADER = 3;
     private static final int TYPE_JOIN_CHANNEL = 4;
     private static final int TYPE_ADD_NETWORK = 5;
-	
+    private static final int TYPE_REORDER = 6;
+
 	NetworkConnection conn;
 	BufferListAdapter adapter;
 	OnBufferSelectedListener mListener;
@@ -327,7 +328,7 @@ public class BuffersListFragment extends ListFragment {
 			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				if(e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK)
+				if(e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER)
 					row = inflater.inflate(R.layout.row_buffergroup, null);
 				else
 					row = inflater.inflate(R.layout.row_buffer, null);
@@ -398,6 +399,8 @@ public class BuffersListFragment extends ListFragment {
                     holder.icon.setImageResource(R.drawable.add);
                 } else if(e.type == TYPE_ADD_NETWORK) {
                         holder.icon.setImageResource(R.drawable.world_add);
+                } else if(e.type == TYPE_REORDER) {
+                    holder.icon.setImageResource(R.drawable.transform_move);
                 } else if(e.type == TYPE_SERVER) {
                     if(e.ssl > 0)
                         holder.icon.setImageResource(R.drawable.world_shield);
@@ -644,6 +647,7 @@ public class BuffersListFragment extends ListFragment {
                 }
 			}
             entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Add a network"));
+            entries.add(adapter.buildItem(0, 0, TYPE_REORDER, "Reorder", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Reorder"));
 			return null;
 		}
 		
@@ -852,6 +856,9 @@ public class BuffersListFragment extends ListFragment {
         case TYPE_ADD_NETWORK:
             mListener.addNetwork();
             return;
+        case TYPE_REORDER:
+            mListener.reorder();
+            return;
     	case TYPE_ARCHIVES_HEADER:
     		mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
             if(refreshTask != null)
@@ -977,5 +984,6 @@ public class BuffersListFragment extends ListFragment {
 		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
 		public void addButtonPressed(int cid);
         public void addNetwork();
+        public void reorder();
 	}
 }
