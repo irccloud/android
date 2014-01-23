@@ -139,6 +139,11 @@ public class ServerReorderFragment extends DialogFragment {
             else
                 holder.icon.setImageResource(R.drawable.world);
 
+            if(getShowsDialog())
+                row.setBackgroundColor(0xfff3f3f3);
+            else
+                row.setBackgroundResource(R.drawable.bg);
+
             holder.label.setMinimumWidth(width);
 			return row;
 		}
@@ -195,6 +200,7 @@ public class ServerReorderFragment extends DialogFragment {
             final View v = inflater.inflate(R.layout.reorderservers, null);
             listView = (DragSortListView)v.findViewById(android.R.id.list);
             listView.setDropListener(dropListener);
+            listView.setCacheColorHint(0xFFD9E7FF);
             return v;
         }
     }
@@ -209,6 +215,7 @@ public class ServerReorderFragment extends DialogFragment {
         View v = inflater.inflate(R.layout.reorderservers, null);
         listView = (DragSortListView)v.findViewById(android.R.id.list);
         listView.setDropListener(dropListener);
+        listView.setCacheColorHint(0xfff3f3f3);
 
         Dialog d = new AlertDialog.Builder(ctx)
                 .setTitle("Connections")

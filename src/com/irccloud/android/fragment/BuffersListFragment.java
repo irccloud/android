@@ -400,7 +400,7 @@ public class BuffersListFragment extends ListFragment {
                 } else if(e.type == TYPE_ADD_NETWORK) {
                         holder.icon.setImageResource(R.drawable.world_add);
                 } else if(e.type == TYPE_REORDER) {
-                    holder.icon.setImageResource(R.drawable.transform_move);
+                    holder.icon.setImageResource(R.drawable.move);
                 } else if(e.type == TYPE_SERVER) {
                     if(e.ssl > 0)
                         holder.icon.setImageResource(R.drawable.world_shield);

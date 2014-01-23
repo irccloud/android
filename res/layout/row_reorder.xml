@@ -53,12 +53,14 @@
             android:textSize="16sp" />
 
         <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:layout_weight="0"
-            android:src="@drawable/transform_move"/>
+            android:id="@+id/drag_handle"
+            android:src="@drawable/move"
+            android:scaleType="center" />
 
     </LinearLayout>
 </LinearLayout>
