@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="0"
-        android:padding="4dp"
+        android:paddingTop="8dp"
         android:text="Drag and drop to reorder the network list"/>
 
 	<com.mobeta.android.dslv.DragSortListView
