@@ -1723,10 +1723,20 @@ public class MessageViewFragment extends ListFragment {
     		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("disconnected")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Disconnected. Tap to reconnect.");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
+            statusView.setVisibility(View.VISIBLE);
+            if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0) {
+                String text = "Disconnected";
+                if(fail_info.has("type") && fail_info.get("type").getAsString().equals("killed"))
+                    text += " - Killed";
+                text += ": " + fail_info.get("reason").getAsString();
+                statusView.setText(text);
+                statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
+                statusView.setBackgroundResource(R.drawable.status_fail_bg);
+            } else {
+                statusView.setText("Disconnected. Tap to reconnect.");
+                statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+                statusView.setBackgroundResource(R.drawable.background_blue);
+            }
     	} else if(status.equals("queued")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Connection queued");

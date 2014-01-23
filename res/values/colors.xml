@@ -30,6 +30,7 @@
     <drawable name="compose_bar_bg">#8F8F8F</drawable>
     <color name="dark_blue">#527DFF</color>
     <drawable name="status_fail_bg">#F8DF26</drawable>
+    <drawable name="network_fail_bg">#ffee97</drawable>
     <color name="status_fail_text">#632800</color>
     <color name="dialog_prompt">#FFF</color>
     <color name="timestamp">#AAA</color>
