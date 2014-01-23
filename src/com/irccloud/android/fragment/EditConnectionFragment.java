@@ -417,7 +417,12 @@ public class EditConnectionFragment extends DialogFragment {
                     obj = (IRCCloudJSONObject)msg.obj;
                     if(obj.getInt("_reqid") == reqid) {
                         String message = obj.getString("message");
-                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                        if(message.equals("passworded_servers"))
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                        else if(message.equals("networks"))
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
                         NetworkConnection.getInstance().removeHandler(mHandler);
                     }
                     break;

@@ -125,7 +125,12 @@ public class EditConnectionActivity extends ActionBarActivity {
                     obj = (IRCCloudJSONObject)msg.obj;
                     if(obj.getInt("_reqid") == reqid) {
                         String message = obj.getString("message");
-                        Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                        if(message.equals("passworded_servers"))
+                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                        else if(message.equals("networks"))
+                            Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
                     }
                     break;
                 default:

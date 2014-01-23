@@ -1348,7 +1348,7 @@ public class MessageViewFragment extends ListFragment {
 
 		@Override
 		protected void onPostExecute(Void result) {
-            if(!isCancelled()) {
+            if(!isCancelled() && adapter != null) {
                 try {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
                     if(adapter.getLastSeenEIDPosition() == 0)
@@ -1703,6 +1703,38 @@ public class MessageViewFragment extends ListFragment {
         }
     }
 
+    private String reason_txt(String reason) {
+        String r = reason;
+        if(reason.equalsIgnoreCase("pool_lost")) {
+            r = "Connection pool failed";
+        } else if(reason.equalsIgnoreCase("no_pool")) {
+            r = "No available connection pools";
+        } else if(reason.equalsIgnoreCase("enetdown")) {
+            r = "Network down";
+        } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
+            r = "Timed out";
+        } else if(reason.equalsIgnoreCase("ehostunreach")) {
+            r = "Host unreachable";
+        } else if(reason.equalsIgnoreCase("econnrefused")) {
+            r = "Connection refused";
+        } else if(reason.equalsIgnoreCase("nxdomain") || reason.equalsIgnoreCase("einval")) {
+            r = "Invalid hostname";
+        } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
+            r = "PING timeout";
+        } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
+            r = "SSL certificate error";
+        } else if(reason.equalsIgnoreCase("ssl_error")) {
+            r = "SSL error";
+        } else if(reason.equalsIgnoreCase("crash")) {
+            r = "Connection crashed";
+        } else if(reason.equalsIgnoreCase("networks")) {
+            r = "You've exceeded the connection limit for free accounts.";
+        } else if(reason.equalsIgnoreCase("passworded_servers")) {
+            r = "You can't connect to passworded servers with free accounts.";
+        }
+        return r;
+    }
+
 	private void update_status(String status, JsonObject fail_info) {
 		if(statusRefreshRunnable != null) {
 			mHandler.removeCallbacks(statusRefreshRunnable);
@@ -1725,10 +1757,18 @@ public class MessageViewFragment extends ListFragment {
     	} else if(status.equals("disconnected")) {
             statusView.setVisibility(View.VISIBLE);
             if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0) {
-                String text = "Disconnected";
-                if(fail_info.has("type") && fail_info.get("type").getAsString().equals("killed"))
-                    text += " - Killed";
-                text += ": " + fail_info.get("reason").getAsString();
+                String text = "Disconnected: ";
+                if(fail_info.has("type") && fail_info.get("type").getAsString().equals("connecting_restricted")) {
+                    text = reason_txt(fail_info.get("reason").getAsString());
+                    if(text.equals(fail_info.get("reason").getAsString()))
+                        text = "You can’t connect to this server with a free account.";
+                } else {
+                    if(fail_info.has("type") && fail_info.get("type").getAsString().equals("killed"))
+                        text = "Disconnected - Killed: ";
+                    else if(fail_info.has("type") && fail_info.get("type").getAsString().equals("connecting_failed"))
+                        text = "Disconnected: Failed to connect - ";
+                    text += reason_txt(fail_info.get("reason").getAsString());
+                }
                 statusView.setText(text);
                 statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
                 statusView.setBackgroundResource(R.drawable.status_fail_bg);
@@ -1770,29 +1810,7 @@ public class MessageViewFragment extends ListFragment {
 		    		String text = "Disconnected";
 		    		if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0) {
                         String reason = fail_info.get("reason").getAsString();
-                        if(reason.equalsIgnoreCase("pool_lost")) {
-                            reason = "Connection pool failed";
-                        } else if(reason.equalsIgnoreCase("no_pool")) {
-                            reason = "No available connection pools";
-                        } else if(reason.equalsIgnoreCase("enetdown")) {
-                            reason = "Network down";
-                        } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
-                            reason = "Timed out";
-                        } else if(reason.equalsIgnoreCase("ehostunreach")) {
-                            reason = "Host unreachable";
-                        } else if(reason.equalsIgnoreCase("econnrefused")) {
-                            reason = "Connection refused";
-                        } else if(reason.equalsIgnoreCase("nxdomain")) {
-                            reason = "Invalid hostname";
-                        } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
-                            reason = "PING timeout";
-                        } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
-                            reason = "SSL certificate error";
-                        } else if(reason.equalsIgnoreCase("ssl_error")) {
-                            reason = "SSL error";
-                        } else if(reason.equalsIgnoreCase("crash")) {
-                            reason = "Connection crashed";
-                        }
+                        reason = reason_txt(reason);
 		    			text += ": " + reason + ". ";
                     } else
 		    			text += "; ";

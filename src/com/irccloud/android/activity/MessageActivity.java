@@ -2140,9 +2140,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			            newFragment.show(getSupportFragmentManager(), "bufferoptions");
 	    			}
 	    		} else if(items[item].equals("Edit Connection…")) {
-		        	EditConnectionFragment editFragment = new EditConnectionFragment();
-		        	editFragment.setCid(b.cid);
-		            editFragment.show(getSupportFragmentManager(), "editconnection");
+                    if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+                        Intent i = new Intent(MessageActivity.this, EditConnectionActivity.class);
+                        i.putExtra("cid", buffer.cid);
+                        startActivity(i);
+                    } else {
+                        EditConnectionFragment editFragment = new EditConnectionFragment();
+                        editFragment.setCid(buffer.cid);
+                        editFragment.show(getSupportFragmentManager(), "editconnection");
+                    }
 	    		} else if(items[item].equals("Delete")) {
 	            	builder = new AlertDialog.Builder(MessageActivity.this);
 	            	
