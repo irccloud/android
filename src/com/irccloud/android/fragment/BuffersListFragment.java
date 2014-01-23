@@ -795,24 +795,21 @@ public class BuffersListFragment extends ListFragment {
     	});
 
     	ready = NetworkConnection.getInstance().ready;
-    	
-    	if(ready && savedInstanceState != null && savedInstanceState.containsKey("data")) {
-    		ArrayList<Integer> expandedArchives = savedInstanceState.getIntegerArrayList("expandedArchives");
-    		Iterator<Integer> i = expandedArchives.iterator();
-    		while(i.hasNext()) {
-    			Integer cid = i.next();
-    			mExpandArchives.put(cid, true);
-    		}
-        	adapter = new BufferListAdapter(this);
-        	adapter.setItems((ArrayList<BufferListEntry>) savedInstanceState.getSerializable("data"));
-        	setListAdapter(adapter);
-        	listView.setSelection(savedInstanceState.getInt("scrollPosition"));
-        	if(selected_bid > 0)
-        		adapter.showProgress(adapter.positionForBid(selected_bid));
-        } else if(ready) {
+
+        if(ready) {
+            if(savedInstanceState != null && savedInstanceState.containsKey("expandedArchives")) {
+                ArrayList<Integer> expandedArchives = savedInstanceState.getIntegerArrayList("expandedArchives");
+                Iterator<Integer> i = expandedArchives.iterator();
+                while(i.hasNext()) {
+                    Integer cid = i.next();
+                    mExpandArchives.put(cid, true);
+                }
+            }
             refreshTask = new RefreshTask();
             refreshTask.doInBackground((Void)null);
-            refreshTask.onPostExecute((Void)null);
+            refreshTask.onPostExecute(null);
+            if(savedInstanceState != null && savedInstanceState.containsKey("scrollPosition"))
+                listView.setSelection(savedInstanceState.getInt("scrollPosition"));
         }
 		return view;
 	}
@@ -827,7 +824,6 @@ public class BuffersListFragment extends ListFragment {
     			if(mExpandArchives.get(s.cid, false))
     				expandedArchives.add(s.cid);
     		}
-    		state.putSerializable("data", adapter.data);
     		state.putIntegerArrayList("expandedArchives", expandedArchives);
     		if(listView != null)
     			state.putInt("scrollPosition", listView.getFirstVisiblePosition());
