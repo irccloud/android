@@ -126,6 +126,7 @@ public class MessageViewFragment extends ListFragment {
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
 	public boolean ready = false;
     private boolean dirty = true;
+    private final Object adapterLock = new Object();
 
     public View suggestionsContainer = null;
     public GridView suggestions = null;
@@ -1402,106 +1403,108 @@ public class MessageViewFragment extends ListFragment {
 	}
 
 	private synchronized void refresh(MessageAdapter adapter, TreeMap<Long,EventsDataSource.Event> events) {
-		if(conn.getReconnectTimestamp() == 0)
-			conn.cancel_idle_timer(); //This may take a while...
-        if(dirty) {
-            Log.i("IRCCloud", "BID changed, clearing caches");
-            EventsDataSource.getInstance().clearCacheForBuffer(buffer.bid);
-            dirty = false;
-        }
-		collapsedEvents.clear();
-		currentCollapsedEid = -1;
-        lastCollapsedDay = -1;
-
-		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-			try {
-				JSONObject prefs = conn.getUserInfo().prefs;
-				timestamp_width = (int)getResources().getDimension(R.dimen.timestamp_base);
-				if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
-					timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_seconds);
-				if(!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
-					timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_ampm);
-			} catch (Exception e) {
-				
-			}
-		} else {
-			timestamp_width = getResources().getDimensionPixelSize(R.dimen.timestamp_base) + getResources().getDimensionPixelSize(R.dimen.timestamp_ampm);
-		}
-
-		if(events == null || (events.size() == 0 && buffer.min_eid > 0)) {
-			if(buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-				requestingBacklog = true;
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        conn.request_backlog(buffer.cid, buffer.bid, 0);
-                    }
-                });
-			} else {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-        	    		headerView.setVisibility(View.GONE);
-                        backlogFailed.setVisibility(View.GONE);
-                        loadBacklogButton.setVisibility(View.GONE);
-                    }
-                });
-    		}
-		} else if(events.size() > 0) {
-	    	if(server != null)
-	    		ignore.setIgnores(server.ignores);
-	    	else
-	    		ignore.setIgnores(null);
-			earliest_eid = events.firstKey();
-            if(events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        headerView.setVisibility(View.VISIBLE);
-                        backlogFailed.setVisibility(View.GONE);
-                        loadBacklogButton.setVisibility(View.GONE);
-                    }
-                });
-            } else {
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        headerView.setVisibility(View.GONE);
-                        backlogFailed.setVisibility(View.GONE);
-                        loadBacklogButton.setVisibility(View.GONE);
-                    }
-                });
+        synchronized (adapterLock) {
+            if(conn.getReconnectTimestamp() == 0)
+                conn.cancel_idle_timer(); //This may take a while...
+            if(dirty) {
+                Log.i("IRCCloud", "BID changed, clearing caches");
+                EventsDataSource.getInstance().clearCacheForBuffer(buffer.bid);
+                dirty = false;
             }
-	    	if(events.size() > 0) {
-	    		avgInsertTime = 0;
-	    		//Debug.startMethodTracing("refresh");
-	    		long start = System.currentTimeMillis();
-	    		Iterator<EventsDataSource.Event> i = events.values().iterator();
-	    		EventsDataSource.Event next = i.next();
-				Calendar calendar = Calendar.getInstance();
-	    		while(next != null) {
-	    			EventsDataSource.Event e = next;
-	    			next = i.hasNext()?i.next():null;
-	    			String type = (next == null)?"":next.type;
+            collapsedEvents.clear();
+            currentCollapsedEid = -1;
+            lastCollapsedDay = -1;
 
-	    			if(next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
-						calendar.setTimeInMillis(next.eid / 1000);
-	    				insertEvent(adapter, e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);
-	    			} else {
-	    				insertEvent(adapter, e, true, false);
-	    			}
-	    		}
-    			adapter.insertLastSeenEIDMarker();
-	    		Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
-	    		//Debug.stopMethodTracing();
-	    		avgInsertTime = 0;
-				//adapter.notifyDataSetChanged();
-	    	}
-		}
-		mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
-		mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
-		if(conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
-			conn.schedule_idle_timer();
+            if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                try {
+                    JSONObject prefs = conn.getUserInfo().prefs;
+                    timestamp_width = (int)getResources().getDimension(R.dimen.timestamp_base);
+                    if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+                        timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_seconds);
+                    if(!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
+                        timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_ampm);
+                } catch (Exception e) {
+
+                }
+            } else {
+                timestamp_width = getResources().getDimensionPixelSize(R.dimen.timestamp_base) + getResources().getDimensionPixelSize(R.dimen.timestamp_ampm);
+            }
+
+            if(events == null || (events.size() == 0 && buffer.min_eid > 0)) {
+                if(buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    requestingBacklog = true;
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            conn.request_backlog(buffer.cid, buffer.bid, 0);
+                        }
+                    });
+                } else {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerView.setVisibility(View.GONE);
+                            backlogFailed.setVisibility(View.GONE);
+                            loadBacklogButton.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            } else if(events.size() > 0) {
+                if(server != null)
+                    ignore.setIgnores(server.ignores);
+                else
+                    ignore.setIgnores(null);
+                earliest_eid = events.firstKey();
+                if(events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerView.setVisibility(View.VISIBLE);
+                            backlogFailed.setVisibility(View.GONE);
+                            loadBacklogButton.setVisibility(View.GONE);
+                        }
+                    });
+                } else {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            headerView.setVisibility(View.GONE);
+                            backlogFailed.setVisibility(View.GONE);
+                            loadBacklogButton.setVisibility(View.GONE);
+                        }
+                    });
+                }
+                if(events.size() > 0) {
+                    avgInsertTime = 0;
+                    //Debug.startMethodTracing("refresh");
+                    long start = System.currentTimeMillis();
+                    Iterator<EventsDataSource.Event> i = events.values().iterator();
+                    EventsDataSource.Event next = i.next();
+                    Calendar calendar = Calendar.getInstance();
+                    while(next != null) {
+                        EventsDataSource.Event e = next;
+                        next = i.hasNext()?i.next():null;
+                        String type = (next == null)?"":next.type;
+
+                        if(next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
+                            calendar.setTimeInMillis(next.eid / 1000);
+                            insertEvent(adapter, e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);
+                        } else {
+                            insertEvent(adapter, e, true, false);
+                        }
+                    }
+                    adapter.insertLastSeenEIDMarker();
+                    Log.i("IRCCloud", "Backlog rendering took: " + (System.currentTimeMillis() - start) + "ms");
+                    //Debug.stopMethodTracing();
+                    avgInsertTime = 0;
+                    //adapter.notifyDataSetChanged();
+                }
+            }
+            mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
+            mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
+            if(conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
+                conn.schedule_idle_timer();
+        }
 	}
 
 	private Runnable mUpdateTopUnreadRunnable = new Runnable() {
@@ -1944,167 +1947,169 @@ public class MessageViewFragment extends ListFragment {
 		IRCCloudJSONObject e;
 		
 		public void handleMessage(Message msg) {
-			switch (msg.what) {
-            case NetworkConnection.EVENT_DEBUG:
-                errorMsg.setVisibility(View.VISIBLE);
-                errorMsg.setText(msg.obj.toString());
-                break;
-			case NetworkConnection.EVENT_PROGRESS:
-				float progress = (Float)msg.obj;
-                if(progressBar.getProgress() < progress) {
-                    progressBar.setIndeterminate(false);
-                    progressBar.setProgress((int)progress);
-                }
-				break;
-            case NetworkConnection.EVENT_BACKLOG_START:
-                progressBar.setProgress(0);
-                break;
-            case NetworkConnection.EVENT_BACKLOG_FAILED:
-                headerView.setVisibility(View.GONE);
-                backlogFailed.setVisibility(View.VISIBLE);
-                loadBacklogButton.setVisibility(View.VISIBLE);
-                break;
-			case NetworkConnection.EVENT_BACKLOG_END:
-				if(connecting.getVisibility() == View.VISIBLE) {
-					TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
-					anim.setDuration(200);
-					anim.setFillAfter(true);
-					anim.setAnimationListener(new AnimationListener() {
-
-						@Override
-						public void onAnimationEnd(Animation arg0) {
-							connecting.setVisibility(View.GONE);
-						}
-
-						@Override
-						public void onAnimationRepeat(Animation animation) {
-						}
-
-						@Override
-						public void onAnimationStart(Animation animation) {
-						}
-						
-					});
-					connecting.startAnimation(anim);
-					error = null;
-				}
-			case NetworkConnection.EVENT_CONNECTIVITY:
-				updateReconnecting();
-			case NetworkConnection.EVENT_USERINFO:
-                dirty = true;
-	            if(refreshTask != null)
-	            	refreshTask.cancel(true);
-				refreshTask = new RefreshTask();
-				refreshTask.execute((Void)null);
-				break;
-			case NetworkConnection.EVENT_FAILURE_MSG:
-				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-				try {
-					error = o.getString("message");
-					if(error.equals("temp_unavailable"))
-						error = "Your account is temporarily unavailable";
-					updateReconnecting();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
-			case NetworkConnection.EVENT_CONNECTIONLAG:
-				try {
-					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
-					if(server != null && buffer != null && object.cid() == buffer.cid) {
-						update_status(server.status, server.fail_info);
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
-			case NetworkConnection.EVENT_STATUSCHANGED:
-				try {
-					IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
-					if(buffer != null && object.cid() == buffer.cid) {
-						update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
-			case NetworkConnection.EVENT_SETIGNORES:
-				e = (IRCCloudJSONObject)msg.obj;
-				if(buffer != null && e.cid() == buffer.cid) {
-		            if(refreshTask != null)
-		            	refreshTask.cancel(true);
-					refreshTask = new RefreshTask();
-					refreshTask.execute((Void)null);
-				}
-				break;
-			case NetworkConnection.EVENT_HEARTBEATECHO:
-				if(buffer != null && adapter != null && adapter.data.size() > 0) {
-                    if(buffer.last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
-                        unreadTopView.setVisibility(View.GONE);
+            synchronized (adapterLock) {
+                switch (msg.what) {
+                case NetworkConnection.EVENT_DEBUG:
+                    errorMsg.setVisibility(View.VISIBLE);
+                    errorMsg.setText(msg.obj.toString());
+                    break;
+                case NetworkConnection.EVENT_PROGRESS:
+                    float progress = (Float)msg.obj;
+                    if(progressBar.getProgress() < progress) {
+                        progressBar.setIndeterminate(false);
+                        progressBar.setProgress((int)progress);
                     }
-				}
-				break;
-			case NetworkConnection.EVENT_CHANNELTOPIC:
-			case NetworkConnection.EVENT_JOIN:
-			case NetworkConnection.EVENT_PART:
-			case NetworkConnection.EVENT_NICKCHANGE:
-			case NetworkConnection.EVENT_QUIT:
-			case NetworkConnection.EVENT_KICK:
-			case NetworkConnection.EVENT_CHANNELMODE:
-			case NetworkConnection.EVENT_SELFDETAILS:
-			case NetworkConnection.EVENT_USERMODE:
-			case NetworkConnection.EVENT_USERCHANNELMODE:
-				e = (IRCCloudJSONObject)msg.obj;
-				if(buffer != null && e.bid() == buffer.bid) {
-					EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
-					insertEvent(adapter, event, false, false);
-				}
-				break;
-			case NetworkConnection.EVENT_BUFFERMSG:
-				EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
-				if(buffer != null && event.bid == buffer.bid) {
-					if(event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
-						adapter.clearPending();
-					} else if(event.reqid != -1) {
-						for(int i = 0; i < adapter.data.size(); i++) {
-							EventsDataSource.Event e = adapter.data.get(i);
-							if(e.reqid == event.reqid && e.pending) {
-								if(i > 1) {
-									EventsDataSource.Event p = adapter.data.get(i-1);
-									if(p.row_type == ROW_TIMESTAMP) {
-										adapter.data.remove(p);
-										i--;
-									}
-								}
-								adapter.data.remove(e);
-								i--;
-							}
-						}
-					}
-					insertEvent(adapter, event, false, false);
-				}
-				break;
-			case NetworkConnection.EVENT_AWAY:
-			case NetworkConnection.EVENT_SELFBACK:
-				if(server != null) {
-		    		if(server.away != null && server.away.length() > 0) {
-		    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
-		    			awayView.setVisibility(View.VISIBLE);
-		    		} else {
-		    			awayView.setVisibility(View.GONE);
-		    		}
-				}
-	    		break;
-			case NetworkConnection.EVENT_GLOBALMSG:
-				update_global_msg();
-				break;
-			default:
-				break;
-			}
-		}
+                    break;
+                case NetworkConnection.EVENT_BACKLOG_START:
+                    progressBar.setProgress(0);
+                    break;
+                case NetworkConnection.EVENT_BACKLOG_FAILED:
+                    headerView.setVisibility(View.GONE);
+                    backlogFailed.setVisibility(View.VISIBLE);
+                    loadBacklogButton.setVisibility(View.VISIBLE);
+                    break;
+                case NetworkConnection.EVENT_BACKLOG_END:
+                    if(connecting.getVisibility() == View.VISIBLE) {
+                        TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
+                        anim.setDuration(200);
+                        anim.setFillAfter(true);
+                        anim.setAnimationListener(new AnimationListener() {
+
+                            @Override
+                            public void onAnimationEnd(Animation arg0) {
+                                connecting.setVisibility(View.GONE);
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+                            }
+
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+                            }
+
+                        });
+                        connecting.startAnimation(anim);
+                        error = null;
+                    }
+                case NetworkConnection.EVENT_CONNECTIVITY:
+                    updateReconnecting();
+                case NetworkConnection.EVENT_USERINFO:
+                    dirty = true;
+                    if(refreshTask != null)
+                        refreshTask.cancel(true);
+                    refreshTask = new RefreshTask();
+                    refreshTask.execute((Void)null);
+                    break;
+                case NetworkConnection.EVENT_FAILURE_MSG:
+                    IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+                    try {
+                        error = o.getString("message");
+                        if(error.equals("temp_unavailable"))
+                            error = "Your account is temporarily unavailable";
+                        updateReconnecting();
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    break;
+                case NetworkConnection.EVENT_CONNECTIONLAG:
+                    try {
+                        IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
+                        if(server != null && buffer != null && object.cid() == buffer.cid) {
+                            update_status(server.status, server.fail_info);
+                        }
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    break;
+                case NetworkConnection.EVENT_STATUSCHANGED:
+                    try {
+                        IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
+                        if(buffer != null && object.cid() == buffer.cid) {
+                            update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
+                        }
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    break;
+                case NetworkConnection.EVENT_SETIGNORES:
+                    e = (IRCCloudJSONObject)msg.obj;
+                    if(buffer != null && e.cid() == buffer.cid) {
+                        if(refreshTask != null)
+                            refreshTask.cancel(true);
+                        refreshTask = new RefreshTask();
+                        refreshTask.execute((Void)null);
+                    }
+                    break;
+                case NetworkConnection.EVENT_HEARTBEATECHO:
+                    if(buffer != null && adapter != null && adapter.data.size() > 0) {
+                        if(buffer.last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
+                            unreadTopView.setVisibility(View.GONE);
+                        }
+                    }
+                    break;
+                case NetworkConnection.EVENT_CHANNELTOPIC:
+                case NetworkConnection.EVENT_JOIN:
+                case NetworkConnection.EVENT_PART:
+                case NetworkConnection.EVENT_NICKCHANGE:
+                case NetworkConnection.EVENT_QUIT:
+                case NetworkConnection.EVENT_KICK:
+                case NetworkConnection.EVENT_CHANNELMODE:
+                case NetworkConnection.EVENT_SELFDETAILS:
+                case NetworkConnection.EVENT_USERMODE:
+                case NetworkConnection.EVENT_USERCHANNELMODE:
+                    e = (IRCCloudJSONObject)msg.obj;
+                    if(buffer != null && e.bid() == buffer.bid) {
+                        EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
+                        insertEvent(adapter, event, false, false);
+                    }
+                    break;
+                case NetworkConnection.EVENT_BUFFERMSG:
+                    EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
+                    if(buffer != null && event.bid == buffer.bid) {
+                        if(event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
+                            adapter.clearPending();
+                        } else if(event.reqid != -1) {
+                            for(int i = 0; i < adapter.data.size(); i++) {
+                                EventsDataSource.Event e = adapter.data.get(i);
+                                if(e.reqid == event.reqid && e.pending) {
+                                    if(i > 1) {
+                                        EventsDataSource.Event p = adapter.data.get(i-1);
+                                        if(p.row_type == ROW_TIMESTAMP) {
+                                            adapter.data.remove(p);
+                                            i--;
+                                        }
+                                    }
+                                    adapter.data.remove(e);
+                                    i--;
+                                }
+                            }
+                        }
+                        insertEvent(adapter, event, false, false);
+                    }
+                    break;
+                case NetworkConnection.EVENT_AWAY:
+                case NetworkConnection.EVENT_SELFBACK:
+                    if(server != null) {
+                        if(server.away != null && server.away.length() > 0) {
+                            awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
+                            awayView.setVisibility(View.VISIBLE);
+                        } else {
+                            awayView.setVisibility(View.GONE);
+                        }
+                    }
+                    break;
+                case NetworkConnection.EVENT_GLOBALMSG:
+                    update_global_msg();
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
 	};
 	
 	public interface MessageViewListener extends OnBufferSelectedListener {

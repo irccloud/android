@@ -1183,6 +1183,7 @@ public class NetworkConnection {
         //Ignored events
         put("idle", null);
         put("end_of_backlog", null);
+        put("oob_skipped", null);
 
         put("header", new Parser() {
             @Override
@@ -1331,8 +1332,6 @@ public class NetworkConnection {
                 }
             }
         });
-
-        put("oob_skipped", get("backlog_complete"));
 
         //Misc. popup alerts
         put("bad_channel_key", new BroadcastParser(EVENT_BADCHANNELKEY));
