@@ -1074,9 +1074,7 @@ public class MessageViewFragment extends ListFragment {
                 }
 
                 adapter.addItem(eid, event);
-
-                if(!backlog)
-                    adapter.notifyDataSetChanged();
+                adapter.notifyDataSetChanged();
 
                 long time = (System.currentTimeMillis() - start);
                 if(avgInsertTime == 0)
@@ -1273,7 +1271,9 @@ public class MessageViewFragment extends ListFragment {
     }
 
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-		TreeMap<Long,EventsDataSource.Event> events;
+        private MessageAdapter adapter;
+
+        TreeMap<Long,EventsDataSource.Event> events;
         int oldPosition = -1;
         int topOffset = -1;
 
@@ -1305,16 +1305,16 @@ public class MessageViewFragment extends ListFragment {
 
                 if(events != null && events.size() > 0) {
                     try {
-                        if(adapter != null && adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
-                            if(oldPosition > 0 && oldPosition == adapter.data.size())
+                        if(MessageViewFragment.this.adapter != null && MessageViewFragment.this.adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
+                            if(oldPosition > 0 && oldPosition == MessageViewFragment.this.adapter.data.size())
                                 oldPosition--;
-                            EventsDataSource.Event e = adapter.data.get(oldPosition);
+                            EventsDataSource.Event e = MessageViewFragment.this.adapter.data.get(oldPosition);
                             if(e != null)
                                 backlog_eid = e.group_eid - 1;
                             else
                                 backlog_eid = -1;
                             if(backlog_eid < 0) {
-                                backlog_eid = adapter.getItemId(oldPosition) - 1;
+                                backlog_eid = MessageViewFragment.this.adapter.getItemId(oldPosition) - 1;
                             }
                             EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
                             backlogMarker.eid = backlog_eid;
@@ -1363,6 +1363,7 @@ public class MessageViewFragment extends ListFragment {
                         lp.topMargin = 0;
                     backlogFailed.setLayoutParams(lp);
                     setListAdapter(adapter);
+                    MessageViewFragment.this.adapter = adapter;
                     if(events != null && events.size() > 0) {
                         int markerPos = adapter.getBacklogMarkerPosition();
                         if(markerPos != -1 && requestingBacklog)
