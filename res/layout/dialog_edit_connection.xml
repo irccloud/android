@@ -45,7 +45,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
             android:layout_marginTop="12dp"
-            android:text="Your Identitiy"
+            android:text="Your Identity"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <LinearLayout
