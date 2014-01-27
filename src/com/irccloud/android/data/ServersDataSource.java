@@ -21,8 +21,10 @@ import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Map;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.irccloud.android.Notifications;
 
@@ -48,6 +50,8 @@ public class ServersDataSource {
         public JsonArray raw_ignores;
 		public ArrayList<String> ignores;
         public int order;
+        public String CHANTYPES;
+        public JsonObject PREFIX;
 
         @Override
         public int compareTo(Server another) {
@@ -98,6 +102,7 @@ public class ServersDataSource {
 		s.usermask = "";
 		s.mode = "";
         s.order = order;
+        s.isupport = new JsonObject();
         if(s.name == null || s.name.length() == 0)
             s.name = s.hostname;
         updateIgnores(cid, ignores);
@@ -154,7 +159,19 @@ public class ServersDataSource {
 	public void updateIsupport(int cid, JsonObject params) {
 		Server s = getServer(cid);
 		if(s != null) {
-			s.isupport = params;
+            Iterator<Map.Entry<String, JsonElement>> i = params.entrySet().iterator();
+            while(i.hasNext()) {
+                Map.Entry<String, JsonElement> e = i.next();
+                s.isupport.add(e.getKey(), e.getValue());
+            }
+            if(s.isupport.has("PREFIX"))
+                s.PREFIX = s.isupport.getAsJsonObject("PREFIX");
+            else
+                s.PREFIX = null;
+            if(s.isupport.has("CHANTYPES"))
+                s.CHANTYPES = s.isupport.get("CHANTYPES").getAsString();
+            else
+                s.CHANTYPES = null;
 		}
 	}
 

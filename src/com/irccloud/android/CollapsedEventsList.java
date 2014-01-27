@@ -16,9 +16,13 @@
 
 package com.irccloud.android;
 
+import android.text.Html;
+import android.text.TextUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import com.google.gson.JsonArray;
@@ -28,6 +32,15 @@ import com.irccloud.android.data.EventsDataSource;
 import org.json.JSONException;
 
 public class CollapsedEventsList {
+    public JsonObject PREFIX = null;
+    public HashMap<String, String> mode_colors = new HashMap<String,String>() {{
+        put("q","E7AA00");
+        put("a","6500A5");
+        put("o","BA1719");
+        put("h","B55900");
+        put("v","25B100");
+    }};
+
     public static final int TYPE_NETSPLIT = -1;
 	public static final int TYPE_JOIN = 0;
 	public static final int TYPE_PART = 1;
@@ -162,13 +175,6 @@ public class CollapsedEventsList {
             final String[] mode_modes = {
                 "+q", "+a", "+o", "+h", "+v", "-q", "-a", "-o", "-h", "-v"
             };
-            final String[] mode_colors = {
-                "E7AA00",
-                "6500A5",
-                "BA1719",
-                "B55900",
-                "25B100"
-            };
 
             String output = null;
             if(modeCount() > 0) {
@@ -180,7 +186,7 @@ public class CollapsedEventsList {
                             output += ", ";
                         output += mode_msgs[i];
                         if(showSymbol) {
-                            output += " (\u0004" + mode_colors[i%5] + mode_modes[i] + "\u000f)";
+                            output += " (\u0004" + mode_colors.get(mode_modes[i].substring(1)) + mode_modes[i] + "\u000f)";
                         }
                     }
                 }
@@ -421,6 +427,15 @@ public class CollapsedEventsList {
 	}
 	
 	public String formatNick(String nick, String from_mode, boolean colorize) {
+        if(PREFIX == null) {
+            PREFIX = new JsonObject();
+            PREFIX.addProperty("q", "~");
+            PREFIX.addProperty("a", "&");
+            PREFIX.addProperty("o", "@");
+            PREFIX.addProperty("h", "%");
+            PREFIX.addProperty("v", "+");
+        }
+
         String[] colors = {"fc009a", "ff1f1a", "d20004", "fd6508", "880019", "c7009c", "804fc4", "5200b7", "123e92", "1d40ff", "108374", "2e980d", "207607", "196d61"};
         String color = null;
 
@@ -452,29 +467,13 @@ public class CollapsedEventsList {
 			mode = from_mode;
 		}
 		if(mode != null && mode.length() > 0) {
+            output.append("\u0004" + mode_colors.get(mode) + "\u0002");
 			if(showSymbol) {
-				if(mode.contains("q"))
-					output.append("\u0004E7AA00\u0002~\u000f ");
-				else if(mode.contains("a"))
-					output.append("\u00046500A5\u0002&amp;\u000f ");
-				else if(mode.contains("o"))
-					output.append("\u0004BA1719\u0002@\u000f ");
-				else if(mode.contains("h"))
-					output.append("\u0004B55900\u0002%\u000f ");
-				else if(mode.contains("v"))
-					output.append("\u000425B100\u0002+\u000f ");
+                output.append(TextUtils.htmlEncode(PREFIX.get(mode).getAsString()));
 			} else {
-				if(mode.contains("q"))
-					output.append("\u0004E7AA00\u0002•\u000f ");
-				else if(mode.contains("a"))
-					output.append("\u00046500A5\u0002•\u000f ");
-				else if(mode.contains("o"))
-					output.append("\u0004BA1719\u0002•\u000f ");
-				else if(mode.contains("h"))
-					output.append("\u0004B55900\u0002•\u000f ");
-				else if(mode.contains("v"))
-					output.append("\u000425B100\u0002•\u000f ");
+                output.append("•");
 			}
+            output.append("\u000f ");
 		}
 
         if(color != null)

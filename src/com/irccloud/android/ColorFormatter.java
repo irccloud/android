@@ -174,12 +174,9 @@ public class ColorFormatter {
 		}
         if(server != null) {
             String pattern = "\\B([";
-            String chanTypes = "#";
-            JsonObject isupport = server.isupport;
-            if(isupport != null) {
-                JsonElement types = isupport.get("CHANTYPES");
-                if(types != null)
-                    chanTypes = types.getAsString();
+            String chanTypes = server.CHANTYPES;
+            if(chanTypes == null) {
+                chanTypes = "#";
             }
             pattern += chanTypes;
             pattern += "][^<>!?\"()\\[\\],\\s\ufe55]+)";
