@@ -164,10 +164,16 @@ public class ServersDataSource {
                 Map.Entry<String, JsonElement> e = i.next();
                 s.isupport.add(e.getKey(), e.getValue());
             }
-            if(s.isupport.has("PREFIX"))
+            if(s.isupport.has("PREFIX")) {
                 s.PREFIX = s.isupport.getAsJsonObject("PREFIX");
-            else
-                s.PREFIX = null;
+            } else {
+                s.PREFIX = new JsonObject();
+                s.PREFIX.addProperty("q", "~");
+                s.PREFIX.addProperty("a", "&");
+                s.PREFIX.addProperty("o", "@");
+                s.PREFIX.addProperty("h", "%");
+                s.PREFIX.addProperty("v", "+");
+            }
             if(s.isupport.has("CHANTYPES"))
                 s.CHANTYPES = s.isupport.get("CHANTYPES").getAsString();
             else

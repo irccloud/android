@@ -38,10 +38,12 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
 public class UsersListFragment extends ListFragment {
@@ -218,8 +220,23 @@ public class UsersListFragment extends ListFragment {
 			showSymbol = conn.getUserInfo().prefs.getBoolean("mode-showsymbol");
 		} catch (JSONException e) {
 		}
-		
-		if(adapter == null) {
+
+        JsonObject PREFIX = null;
+        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        if(s != null)
+            PREFIX = s.PREFIX;
+
+        if(PREFIX == null) {
+            PREFIX = new JsonObject();
+            PREFIX.addProperty("q", "~");
+            PREFIX.addProperty("a", "&");
+            PREFIX.addProperty("o", "@");
+            PREFIX.addProperty("h", "%");
+            PREFIX.addProperty("v", "+");
+        }
+
+
+        if(adapter == null) {
 			adapter = new UserListAdapter(UsersListFragment.this);
 		}
 
@@ -241,23 +258,23 @@ public class UsersListFragment extends ListFragment {
 		}
 		
 		if(owners.size() > 0) {
-			addUsersFromList(entries, owners, "OWNER", (showSymbol?"~ ":"• "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+			addUsersFromList(entries, owners, "OWNER", (showSymbol?(PREFIX.get("q").getAsString() + " "):"• "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
 		}
 		
 		if(admins.size() > 0) {
-			addUsersFromList(entries, admins, "ADMINS", (showSymbol?"& ":"• "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+			addUsersFromList(entries, admins, "ADMINS", (showSymbol?(PREFIX.get("a").getAsString() + " "):"• "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
 		}
 		
 		if(ops.size() > 0) {
-			addUsersFromList(entries, ops, "OPS", (showSymbol?"@ ":"• "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+			addUsersFromList(entries, ops, "OPS", (showSymbol?(PREFIX.get("o").getAsString() + " "):"• "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
 		}
 		
 		if(halfops.size() > 0) {
-			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?"% ":"• "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?(PREFIX.get("h").getAsString() + " "):"• "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
 		}
 		
 		if(voiced.size() > 0) {
-			addUsersFromList(entries, voiced, "VOICED", (showSymbol?"+ ":"• "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+			addUsersFromList(entries, voiced, "VOICED", (showSymbol?(PREFIX.get("v").getAsString() + " "):"• "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
 		}
 		
 		if(members.size() > 0) {
