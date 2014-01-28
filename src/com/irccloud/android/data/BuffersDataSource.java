@@ -45,8 +45,8 @@ public class BuffersDataSource {
         public String normalizedName() {
             if(chan_types == null || chan_types.length() < 2) {
                 ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-                if(s != null && s.isupport != null && s.isupport.has("CHANTYPES"))
-                    chan_types = s.isupport.get("CHANTYPES").getAsString();
+                if(s != null && s.CHANTYPES != null && s.CHANTYPES.length() > 0)
+                    chan_types = s.CHANTYPES;
                 else
                     chan_types = "#";
             }

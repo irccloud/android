@@ -463,13 +463,28 @@ public class CollapsedEventsList {
 		} catch (JSONException e) {
 		}
 		String mode = "";
-		if(from_mode != null) {
-			mode = from_mode;
+		if(from_mode != null && from_mode.length() > 0) {
+            if(from_mode.indexOf('q') != -1)
+                mode = "q";
+            else if(from_mode.indexOf('a') != -1)
+                mode = "a";
+            else if(from_mode.indexOf('o') != -1)
+                mode = "o";
+            else if(from_mode.indexOf('h') != -1)
+                mode = "h";
+            else if(from_mode.indexOf('v') != -1)
+                mode = "v";
+            else
+    			mode = from_mode.substring(0,1);
 		}
 		if(mode != null && mode.length() > 0) {
-            output.append("\u0004" + mode_colors.get(mode) + "\u0002");
+            if(mode_colors.containsKey(mode))
+                output.append("\u0004" + mode_colors.get(mode) + "\u0002");
+            else
+                output.append("\u0002");
 			if(showSymbol) {
-                output.append(TextUtils.htmlEncode(PREFIX.get(mode).getAsString()));
+                if(PREFIX.has(mode))
+                    output.append(TextUtils.htmlEncode(PREFIX.get(mode).getAsString()));
 			} else {
                 output.append("•");
 			}
