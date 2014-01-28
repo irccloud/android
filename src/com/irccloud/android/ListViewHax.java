@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ListView;
 
 /**
@@ -25,6 +26,7 @@ import android.widget.ListView;
  */
 public class ListViewHax extends ListView {
     private int bottomPos = -1;
+    private int bottomOffset = 0;
 
     public ListViewHax(Context context)
     {
@@ -44,14 +46,18 @@ public class ListViewHax extends ListView {
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
-        bottomPos = getLastVisiblePosition();
+        View v = getChildAt(getLastVisiblePosition() - getFirstVisiblePosition());
+        if(v != null) {
+            bottomPos = getLastVisiblePosition();
+            bottomOffset = getHeight() - v.getTop();
+        }
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if(bottomPos != -1)
-            setSelectionFromTop(bottomPos, h);
+        if(bottomPos != -1 && bottomOffset > 0)
+            setSelectionFromTop(bottomPos, h - bottomOffset);
         else
             setSelection(getCount() - 1);
     }
