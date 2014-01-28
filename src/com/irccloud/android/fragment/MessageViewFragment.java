@@ -1203,7 +1203,6 @@ public class MessageViewFragment extends ListFragment {
 			connecting.startAnimation(anim);
 			connecting.setVisibility(View.VISIBLE);
     	}
-        getListView().setStackFromBottom(true);
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
     	updateReconnecting();
