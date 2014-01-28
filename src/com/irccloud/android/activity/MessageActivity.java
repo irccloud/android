@@ -791,9 +791,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	updateUsersListFragmentVisibility();
     	update_subtitle();
 
-    	if(getSupportFragmentManager().findFragmentById(R.id.BuffersList) != null && buffer != null)
-    		((BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList)).setSelectedBid(buffer.bid);
-
         suggestions = ((MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment)).suggestions;
         suggestions.setAdapter(suggestionsAdapter);
         suggestions.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -56,9 +56,11 @@ public class ListViewHax extends ListView {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if(bottomPos != -1 && bottomOffset > 0)
-            setSelectionFromTop(bottomPos, h - bottomOffset);
-        else
-            setSelection(getCount() - 1);
+        if(oldw > 0 && oldh > 0) {
+            if(bottomPos != -1 && bottomOffset > 0)
+                setSelectionFromTop(bottomPos, h - bottomOffset);
+            else
+                setSelection(getCount() - 1);
+        }
     }
 }
