@@ -470,7 +470,7 @@ public class NetworkConnection {
 		oobTasks.clear();
 		session = null;
         for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-            if(!b.scrolledUp)
+            if(!b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
                 EventsDataSource.getInstance().pruneEvents(b.bid);
         }
 		try {
