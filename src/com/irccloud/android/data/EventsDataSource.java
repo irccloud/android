@@ -666,6 +666,14 @@ public class EventsDataSource {
                 e.linkify = false;
             }
         });
+
+        put("services_down", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = event.getString("services_name");
+                e.bg_color = R.color.error;
+            }
+        });
     }};
 
 	public Event addEvent(IRCCloudJSONObject event) {
