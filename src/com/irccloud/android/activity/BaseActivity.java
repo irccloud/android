@@ -268,6 +268,13 @@ public class BaseActivity extends ActionBarActivity {
 						showAlert(o.cid(), message);
 	        		} else if(type.equalsIgnoreCase("no_channel_topic"))
 						showAlert(o.cid(), o.getString("channel") + ": " + o.getString("msg"));
+                    else if(type.equalsIgnoreCase("time")) {
+                        message = o.getString("time_string");
+                        if(o.has("time_stamp") && o.getString("time_stamp").length() > 0)
+                            message += " (" + o.getString("time_stamp") + ")";
+                        message += " — " + o.getString("time_server");
+                        showAlert(o.cid(), message);
+                    }
 	        		else
 	        			showAlert(o.cid(), o.getString("msg"));
 				} catch (Exception e1) {

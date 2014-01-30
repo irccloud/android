@@ -1060,7 +1060,10 @@ public class MessageViewFragment extends ListFragment {
                         event.html += " were";
                     else
                         event.html += " was";
-                    event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> (" + event.hostmask + ")";
+                    if(event.hostmask != null && event.hostmask.length() > 0)
+                        event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> (" + event.hostmask + ")";
+                    else
+                        event.html += " kicked by the server <b>" + event.nick + "</b>";
                     if(event.msg != null && event.msg.length() > 0)
                         event.html += ": " + event.msg;
                 } else if(type.equals("callerid")) {

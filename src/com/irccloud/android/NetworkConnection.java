@@ -168,7 +168,7 @@ public class NetworkConnection {
 	public static final int EVENT_ACCEPTLIST = 40;
     public static final int EVENT_NAMESLIST = 41;
     public static final int EVENT_REORDERCONNECTIONS = 42;
-	
+
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
     public static final int EVENT_BACKLOG_FAILED = 102;
@@ -1554,6 +1554,7 @@ public class NetworkConnection {
                     notifyHandlers(EVENT_BUFFERMSG, event);
             }
         };
+
         String[] msgs = {
                 "buffer_msg",
                 "buffer_me_msg",
@@ -1578,6 +1579,7 @@ public class NetworkConnection {
                 "server_yourhost",
                 "server_created",
                 "server_luserunknown",
+                "server_snomask",
                 "services_down",
                 "your_unique_id",
                 "callerid",
@@ -1610,8 +1612,35 @@ public class NetworkConnection {
                 "cap_ls",
                 "cap_req",
                 "cap_ack",
+                "cap_raw",
                 "help_topics_start","help_topics","help_topics_end", "helphdr", "helpop", "helptlr", "helphlp", "helpfwd", "helpign",
-                "version"
+                "version",
+                "newsflash",
+                "invited",
+                "codepage",
+                "logged_out",
+                "nick_locked",
+                "info_response",
+                "generic_server_info",
+                "unknown_umode",
+                "bad_ping",
+                "rehashed_config",
+                "knock",
+                "bad_channel_mask",
+                "kill_deny",
+                "chan_own_priv_needed",
+                "not_for_halfops",
+                "chan_forbidden",
+                "starircd_welcome",
+                "zurna_motd",
+                "ambiguous_error_message",
+                "list_usage",
+                "list_syntax",
+                "who_syntax",
+                "text",
+                "admin_info",
+                "watch_status",
+                "sqline_nick"
         };
         for(String event : msgs) {
             put(event, msg);
@@ -1895,6 +1924,15 @@ public class NetworkConnection {
                         u.updateAway(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
                     }
                     notifyHandlers(EVENT_WHOLIST, object);
+                }
+            }
+        });
+        put("time", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                EventsDataSource.getInstance().addEvent(object);
+                if(!backlog) {
+                    notifyHandlers(EVENT_ALERT, object);
                 }
             }
         });
