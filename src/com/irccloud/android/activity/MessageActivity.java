@@ -177,8 +177,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             update_suggestions(false);
         }
     };
+    private ArrayList<UsersDataSource.User> sortedUsers = null;
+    private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
 
-	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
+    private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
     @SuppressLint("NewApi")
 	@SuppressWarnings({ "deprecation", "unchecked" })
@@ -264,7 +266,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     update_suggestions(false);
                 } else {
                     mHandler.removeCallbacks(suggestionsRunnable);
-                    mHandler.postDelayed(suggestionsRunnable, 250);
+                    mHandler.postDelayed(suggestionsRunnable, 500);
                 }
             }
 
@@ -406,27 +408,37 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 text = text.substring(0, text.length() - 1);
             ArrayList<String> sugs = new ArrayList<String>();
             if(text.length() > 1 || force) {
-                ArrayList<ChannelsDataSource.Channel> channels = ChannelsDataSource.getInstance().getChannels();
+                if(sortedChannels == null) {
+                    sortedChannels = ChannelsDataSource.getInstance().getChannels();
+                    Collections.sort(sortedChannels, new Comparator<ChannelsDataSource.Channel>() {
+                        @Override
+                        public int compare(ChannelsDataSource.Channel lhs, ChannelsDataSource.Channel rhs) {
+                            return lhs.name.compareTo(rhs.name);
+                        }
+                    });
+                }
 
                 if(buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
                     sugs.add(buffer.name);
-                for(ChannelsDataSource.Channel channel : channels) {
-                    if(channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
+                for(ChannelsDataSource.Channel channel : sortedChannels) {
+                    if(text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
                         sugs.add(channel.name);
                 }
 
-                ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
-                Collections.sort(users, new Comparator<UsersDataSource.User>() {
-                    @Override
-                    public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
-                        if(lhs.last_mention > rhs.last_mention)
-                            return -1;
-                        if(lhs.last_mention < rhs.last_mention)
-                            return 1;
-                        return lhs.nick.compareToIgnoreCase(rhs.nick);
-                    }
-                });
-                for(UsersDataSource.User user : users) {
+                if(sortedUsers == null) {
+                    sortedUsers = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
+                    Collections.sort(sortedUsers, new Comparator<UsersDataSource.User>() {
+                        @Override
+                        public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
+                            if(lhs.last_mention > rhs.last_mention)
+                                return -1;
+                            if(lhs.last_mention < rhs.last_mention)
+                                return 1;
+                            return lhs.nick.compareToIgnoreCase(rhs.nick);
+                        }
+                    });
+                }
+                for(UsersDataSource.User user : sortedUsers) {
                     if(user.nick.toLowerCase().startsWith(text))
                         sugs.add(user.nick);
                 }
@@ -451,6 +463,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 });
             } else {
                 suggestionsContainer.setVisibility(View.GONE);
+                sortedUsers = null;
+                sortedChannels = null;
                 if(!getSupportActionBar().isShowing())
                     getSupportActionBar().show();
             }
@@ -2558,6 +2572,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			if(drawerLayout != null)
 				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
 		}
+        update_suggestions(false);
 	}
 
 	@Override
