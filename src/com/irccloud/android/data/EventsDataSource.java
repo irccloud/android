@@ -632,8 +632,7 @@ public class EventsDataSource {
                 "logged_out",
                 "nick_locked",
                 "text",
-                "admin_info",
-                "codepage"
+                "admin_info"
         };
         Formatter statusFormatter = new Formatter() {
             @Override
@@ -709,7 +708,7 @@ public class EventsDataSource {
             put(help, helpsFormatter);
 
         String[] errors = {
-                "too_fast", "sasl_fail", "sasl_too_long", "sasl_aborted", "sasl_already", "no_bots", "msg_services", "bad_ping"
+                "too_fast", "sasl_fail", "sasl_too_long", "sasl_aborted", "sasl_already", "no_bots", "msg_services", "bad_ping", "not_for_halfops", "ambiguous_error_message", "list_syntax", "who_syntax"
         };
         Formatter errorFormatter = new Formatter() {
             @Override
@@ -765,24 +764,10 @@ public class EventsDataSource {
             }
         });
 
-        put("not_for_halfops", new Formatter() {
-            @Override
-            public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.error;
-            }
-        });
-
         put("chan_forbidden", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("channel");
-                e.bg_color = R.color.error;
-            }
-        });
-
-        put("ambiguous_error_message", new Formatter() {
-            @Override
-            public void format(IRCCloudJSONObject event, Event e) {
                 e.bg_color = R.color.error;
             }
         });
@@ -792,20 +777,6 @@ public class EventsDataSource {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.msg = "<pre>" + e.msg + "</pre>";
                 e.bg_color = R.color.notice;
-            }
-        });
-
-        put("list_syntax", new Formatter() {
-            @Override
-            public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.error;
-            }
-        });
-
-        put("who_syntax", new Formatter() {
-            @Override
-            public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.error;
             }
         });
 

@@ -1930,9 +1930,10 @@ public class NetworkConnection {
         put("time", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource.getInstance().addEvent(object);
+                EventsDataSource.Event e = EventsDataSource.getInstance().addEvent(object);
                 if(!backlog) {
                     notifyHandlers(EVENT_ALERT, object);
+                    notifyHandlers(EVENT_BUFFERMSG, e);
                 }
             }
         });
