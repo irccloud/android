@@ -22,6 +22,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 import android.graphics.Canvas;
@@ -169,6 +171,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     private SuggestionsAdapter suggestionsAdapter;
     private View suggestionsContainer;
     private GridView suggestions;
+    private Runnable suggestionsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            update_suggestions(false);
+        }
+    };
 
 	private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
@@ -252,8 +260,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     text = text.substring(0, text.length() - 1);
                     messageTxt.setText(text);
                     nextSuggestion();
-                } else {
+                } else if(suggestionsContainer != null && suggestionsContainer.getVisibility() == View.VISIBLE) {
                     update_suggestions(false);
+                } else {
+                    mHandler.removeCallbacks(suggestionsRunnable);
+                    mHandler.postDelayed(suggestionsRunnable, 250);
                 }
             }
 
@@ -2457,7 +2468,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         if(buffer != null && buffer.bid >= 0) {
             backStack.add(0, buffer.bid);
             buffer.draft = messageTxt.getText().toString();
-            if(!buffer.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(buffer.bid, buffer.last_seen_eid, buffer.type) == 0)
+            if(Build.VERSION.SDK_INT > 8 && !buffer.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(buffer.bid, buffer.last_seen_eid, buffer.type) == 0)
                 EventsDataSource.getInstance().pruneEvents(buffer.bid);
         }
         if(buffer == null || buffer.bid == -1 || buffer.cid == -1 || buffer.bid == bid)

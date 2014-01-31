@@ -17,6 +17,7 @@
 package com.irccloud.android.data;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.text.Spanned;
 import android.text.TextUtils;
 
@@ -496,6 +497,15 @@ public class EventsDataSource {
             }
         });
 
+        put("invited", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.from = event.getString("inviter");
+                e.msg = "<pre>invited " + event.getString("invitee") + " to join " + event.getString("channel") + "</pre>";
+                e.bg_color = R.color.notice;
+            }
+        });
+
         put("generic_server_info", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
@@ -967,18 +977,33 @@ public class EventsDataSource {
 	public int getUnreadStateForBuffer(int bid, long last_seen_eid, String buffer_type) {
 		synchronized(events) {
 			if(events.containsKey(bid)) {
-				Iterator<Event> i = events.get(bid).values().iterator();
-				while(i.hasNext()) {
-					Event e = i.next();
-					try {
-						if(e.eid > last_seen_eid && e.isImportant(buffer_type)) {
-                            return 1;
+                if(Build.VERSION.SDK_INT > 8) {
+                    Iterator<Event> i = events.get(bid).descendingMap().values().iterator();
+                    while(i.hasNext()) {
+                        Event e = i.next();
+                        try {
+                            if(e.eid <= last_seen_eid)
+                                break;
+                            else if(e.isImportant(buffer_type))
+                                return 1;
+                        } catch (Exception e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
                         }
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
+                    }
+                } else {
+                    Iterator<Event> i = events.get(bid).values().iterator();
+                    while(i.hasNext()) {
+                        Event e = i.next();
+                        try {
+                            if(e.eid > last_seen_eid && e.isImportant(buffer_type))
+                                return 1;
+                        } catch (Exception e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+                    }
+                }
 			}
 		}
 		return 0;
@@ -987,15 +1012,31 @@ public class EventsDataSource {
     public synchronized int getHighlightStateForBuffer(int bid, long last_seen_eid, String buffer_type) {
         synchronized(events) {
             if(events.containsKey(bid)) {
-                Iterator<Event> i = events.get(bid).values().iterator();
-                while(i.hasNext()) {
-                    Event e = i.next();
-                    try {
-                        if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
-                            return 1;
-                    } catch (Exception e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                if(Build.VERSION.SDK_INT > 8) {
+                    Iterator<Event> i = events.get(bid).descendingMap().values().iterator();
+                    while(i.hasNext()) {
+                        Event e = i.next();
+                        try {
+                            if(e.eid <= last_seen_eid)
+                                break;
+                            else if(e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
+                                return 1;
+                        } catch (Exception e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+                    }
+                } else {
+                    Iterator<Event> i = events.get(bid).values().iterator();
+                    while(i.hasNext()) {
+                        Event e = i.next();
+                        try {
+                            if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
+                                return 1;
+                        } catch (Exception e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
                     }
                 }
             }
@@ -1007,17 +1048,33 @@ public class EventsDataSource {
 		int count = 0;
 		synchronized(events) {
 			if(events.containsKey(bid)) {
-				Iterator<Event> i = events.get(bid).values().iterator();
-				while(i.hasNext()) {
-					Event e = i.next();
-					try {
-						if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
-							count++;
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
+                if(Build.VERSION.SDK_INT > 8) {
+                    Iterator<Event> i = events.get(bid).descendingMap().values().iterator();
+                    while(i.hasNext()) {
+                        Event e = i.next();
+                        try {
+                            if(e.eid <= last_seen_eid)
+                                break;
+                            else if(e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
+                                count++;
+                        } catch (Exception e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+                    }
+                } else {
+                    Iterator<Event> i = events.get(bid).values().iterator();
+                    while(i.hasNext()) {
+                        Event e = i.next();
+                        try {
+                            if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
+                                count++;
+                        } catch (Exception e1) {
+                            // TODO Auto-generated catch block
+                            e1.printStackTrace();
+                        }
+                    }
+                }
 			}
 		}
 		return count;
