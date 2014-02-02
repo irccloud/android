@@ -288,7 +288,7 @@ public class BaseActivity extends ActionBarActivity {
 		}
 	};
     
-	private void showAlert(int cid, String msg) {
+	protected void showAlert(int cid, String msg) {
 		ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
 		AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
     	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
