@@ -125,15 +125,9 @@ public class UsersListFragment extends ListFragment {
 			View row = convertView;
 			ViewHolder holder;
 
-			if(row != null && ((ViewHolder)row.getTag()).type != e.type)
-				row = null;
-			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				if(e.type == TYPE_HEADING)
-					row = inflater.inflate(R.layout.row_usergroup, null);
-				else
-					row = inflater.inflate(R.layout.row_user, null);
+                row = inflater.inflate(R.layout.row_user, null);
 
 				holder = new ViewHolder();
 				holder.label = (TextView) row.findViewById(R.id.label);
@@ -157,14 +151,9 @@ public class UsersListFragment extends ListFragment {
 			if(e.last || e.type == TYPE_HEADING)
 				row.setBackgroundResource(e.static_bg_color);
 			else
-				row.setBackgroundDrawable(null);
+				row.setBackgroundResource(e.bg_color);
 			
-			if(e.type != TYPE_HEADING)
-				holder.label.setBackgroundResource(e.bg_color);
-			else
-				holder.label.setBackgroundDrawable(null);
-				
-			if(holder.count != null) {
+			if(e.type == TYPE_HEADING) {
 				if(e.count != null) {
 					holder.count.setVisibility(View.VISIBLE);
 					holder.count.setText(e.count);
@@ -175,13 +164,18 @@ public class UsersListFragment extends ListFragment {
 				}
 				row.setFocusable(false);
 				row.setEnabled(false);
+                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 36, getResources().getDisplayMetrics()));
+                row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getResources().getDisplayMetrics()), 0);
 			} else {
+                holder.count.setVisibility(View.GONE);
+                holder.count.setText("");
 				row.setFocusable(true);
 				row.setEnabled(true);
+                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()));
 				if(e.last)
-					row.setPadding(row.getPaddingLeft(), row.getPaddingTop(), row.getPaddingRight(), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
+					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
 				else
-					row.setPadding(row.getPaddingLeft(), row.getPaddingTop(), row.getPaddingRight(), 0);
+					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), 0);
 			}
 			
 			return row;

@@ -20,6 +20,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:minHeight="32dp"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
     android:orientation="horizontal" >
     
     <TextView
@@ -31,11 +33,14 @@
         android:gravity="center_vertical"
         android:lines="1"
         android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:paddingTop="4dp"
         android:text="TextView"
         android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/count"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:padding="4dp" />
 
 </LinearLayout>
