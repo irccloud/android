@@ -498,8 +498,10 @@ public class BuffersListFragment extends ListFragment {
             if(lp != null) {
                 if(e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
                     lp.setMargins(0, eightdp, eightdp,0);
+                    row.setMinimumHeight(eightdp * 7);
                 } else {
                     lp.setMargins(0,0, eightdp,0);
+                    row.setMinimumHeight(eightdp * 6);
                 }
                 holder.unread.setLayoutParams(lp);
             }
