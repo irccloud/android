@@ -19,6 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg"
+    android:descendantFocusability="blocksDescendants"
     android:minHeight="48dp"
     android:orientation="horizontal" >
 
@@ -80,6 +81,15 @@
    			        android:padding="4dp"
    			        style="@android:style/Widget.ProgressBar.Small"
    			        android:visibility="gone" />
+
+                <ImageButton
+                    android:id="@+id/addBtn"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="8dp"
+                    android:background="@null"
+                    android:contentDescription="Join a channel"
+                    android:src="@drawable/add" />
 	   		</LinearLayout>
 	</LinearLayout>
 </LinearLayout>

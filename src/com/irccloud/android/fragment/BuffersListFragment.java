@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -121,7 +122,6 @@ public class BuffersListFragment extends ListFragment {
 			TextView label;
 			TextView highlights;
 			LinearLayout unread;
-			LinearLayout groupbg;
 			LinearLayout bufferbg;
 			ImageView icon;
 			ProgressBar progress;
@@ -141,10 +141,13 @@ public class BuffersListFragment extends ListFragment {
 			}
 			return -1;
 		}
-		
+
+        private int eightdp = 0;
+
 		public BufferListAdapter(ListFragment context) {
 			ctx = context;
 			data = new ArrayList<BufferListEntry>();
+            eightdp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
 		}
 		
 		public void setItems(ArrayList<BufferListEntry> items) {
@@ -325,21 +328,14 @@ public class BuffersListFragment extends ListFragment {
 			View row = convertView;
 			ViewHolder holder;
 
-			if(row != null && ((ViewHolder)row.getTag()).type != e.type)
-				row = null;
-			
 			if (row == null) {
 				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				if(e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER)
-					row = inflater.inflate(R.layout.row_buffergroup, null);
-				else
-					row = inflater.inflate(R.layout.row_buffer, null);
+                row = inflater.inflate(R.layout.row_buffer, null);
 
 				holder = new ViewHolder();
 				holder.label = (TextView) row.findViewById(R.id.label);
 				holder.highlights = (TextView) row.findViewById(R.id.highlights);
 				holder.unread = (LinearLayout) row.findViewById(R.id.unread);
-				holder.groupbg = (LinearLayout) row.findViewById(R.id.groupbg);
 				holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
 				holder.icon = (ImageView) row.findViewById(R.id.icon);
 				holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
@@ -357,23 +353,12 @@ public class BuffersListFragment extends ListFragment {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archives_heading));
 				holder.unread.setBackgroundDrawable(null);
-				if(mExpandArchives.get(e.cid, false)) {
-					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
-					holder.bufferbg.setSelected(true);
-                    row.setContentDescription(e.contentDescription + ". Double-tap to collapse.");
-				} else {
-					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
-					holder.bufferbg.setSelected(false);
-                    row.setContentDescription(e.contentDescription + ". Double-tap to expand.");
-				}
             } else if(e.type == TYPE_JOIN_CHANNEL) {
                 holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_join));
                 holder.unread.setBackgroundDrawable(null);
-                holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_join);
 			} else if(e.archived == 1 && holder.bufferbg != null) {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archived));
-				holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
 				holder.unread.setBackgroundDrawable(null);
 			} else if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
                 if(selected_bid == e.bid) {
@@ -384,37 +369,36 @@ public class BuffersListFragment extends ListFragment {
                     holder.unread.setBackgroundDrawable(null);
                 }
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
-				if(holder.bufferbg != null)
-					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			} else if(e.unread > 0 || selected_bid == e.bid) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
-				if(holder.bufferbg != null)
-					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
                 row.setContentDescription(row.getContentDescription() + ", unread");
 			} else {
 				holder.label.setTypeface(null);
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
 				holder.unread.setBackgroundDrawable(null);
-				if(holder.bufferbg != null)
-					holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
 			}
 
 			if(holder.icon != null) {
                 if(e.type == TYPE_JOIN_CHANNEL) {
                     holder.icon.setImageResource(R.drawable.add);
+                    holder.icon.setVisibility(View.VISIBLE);
                 } else if(e.type == TYPE_ADD_NETWORK) {
                         holder.icon.setImageResource(R.drawable.world_add);
+                    holder.icon.setVisibility(View.VISIBLE);
                 } else if(e.type == TYPE_REORDER) {
                     holder.icon.setImageResource(R.drawable.move);
+                    holder.icon.setVisibility(View.VISIBLE);
                 } else if(e.type == TYPE_SERVER) {
                     if(e.ssl > 0)
                         holder.icon.setImageResource(R.drawable.world_shield);
                     else
                         holder.icon.setImageResource(R.drawable.world);
+                    holder.icon.setVisibility(View.VISIBLE);
                 } else {
                     if(e.key > 0) {
+                        holder.icon.setImageResource(R.drawable.lock);
                         holder.icon.setVisibility(View.VISIBLE);
                     } else {
                         holder.icon.setVisibility(View.INVISIBLE);
@@ -428,42 +412,56 @@ public class BuffersListFragment extends ListFragment {
 						holder.progress.setVisibility(View.VISIBLE);
 						if(holder.bufferbg != null)
 							holder.bufferbg.setSelected(false);
-						if(holder.groupbg != null)
-							holder.groupbg.setSelected(false);
 					} else {
 						if(holder.bufferbg != null)
 							holder.bufferbg.setSelected(true);
-						if(holder.groupbg != null)
-							holder.groupbg.setSelected(true);
 						holder.progress.setVisibility(View.GONE);
 					}
 				} else if(e.type != TYPE_ARCHIVES_HEADER) {
 					holder.progress.setVisibility(View.GONE);
 					if(holder.bufferbg != null)
 						holder.bufferbg.setSelected(false);
-					if(holder.groupbg != null)
-						holder.groupbg.setSelected(false);
 				}
 			}
 			
-			if(holder.groupbg != null) {
-				if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable")) {
-					holder.groupbg.setBackgroundResource(R.drawable.row_connecting_bg);
-                    if(e.bid == selected_bid)
-                        holder.unread.setBackgroundResource(R.drawable.highlight_red);
-					holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_disconnected));
-                } else if(e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("reason")) {
-                    holder.groupbg.setBackgroundResource(R.drawable.row_failed_bg);
-                    holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_failed));
-                    if(e.bid == selected_bid)
-                        holder.unread.setBackgroundResource(R.drawable.status_fail_bg);
-				} else {
-					holder.groupbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
-                    if(e.status.equals("connected_ready"))
-    					holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
-                    else
-                        holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
-				}
+			if(holder.bufferbg != null) {
+                if(e.type == TYPE_ARCHIVES_HEADER) {
+                    if(mExpandArchives.get(e.cid, false)) {
+                        holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
+                        holder.bufferbg.setSelected(true);
+                        row.setContentDescription(e.contentDescription + ". Double-tap to collapse.");
+                    } else {
+                        holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
+                        holder.bufferbg.setSelected(false);
+                        row.setContentDescription(e.contentDescription + ". Double-tap to expand.");
+                    }
+                } else if(e.type == TYPE_SERVER) {
+                    if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable")) {
+                        holder.bufferbg.setBackgroundResource(R.drawable.row_connecting_bg);
+                        if(e.bid == selected_bid)
+                            holder.unread.setBackgroundResource(R.drawable.highlight_red);
+                        holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_disconnected));
+                    } else if(e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("reason")) {
+                        holder.bufferbg.setBackgroundResource(R.drawable.row_failed_bg);
+                        holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_failed));
+                        if(e.bid == selected_bid)
+                            holder.unread.setBackgroundResource(R.drawable.status_fail_bg);
+                    } else {
+                        holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
+                        if(e.status.equals("connected_ready"))
+                            holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+                        else
+                            holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
+                    }
+                } else if(e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
+                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
+                } else if(e.type == TYPE_JOIN_CHANNEL) {
+                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_join);
+                } else if(e.archived == 1) {
+                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
+                } else {
+                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
+                }
 			}
 			
 			if(holder.highlights != null) {
@@ -495,7 +493,17 @@ public class BuffersListFragment extends ListFragment {
                     holder.addBtn.setVisibility(View.GONE);
                 }
 			}
-			
+
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)holder.unread.getLayoutParams();
+            if(lp != null) {
+                if(e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
+                    lp.setMargins(0, eightdp, eightdp,0);
+                } else {
+                    lp.setMargins(0,0, eightdp,0);
+                }
+                holder.unread.setLayoutParams(lp);
+            }
+
 			return row;
 		}
 	}
