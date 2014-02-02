@@ -785,7 +785,8 @@ public class MessageViewFragment extends ListFragment {
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
-    	state.putInt("bid", buffer.bid);
+        if(buffer != null)
+        	state.putInt("bid", buffer.bid);
     	state.putLong("backlog_eid", backlog_eid);
     }
     

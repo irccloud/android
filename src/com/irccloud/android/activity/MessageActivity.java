@@ -2482,8 +2482,6 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         if(buffer != null && buffer.bid >= 0) {
             backStack.add(0, buffer.bid);
             buffer.draft = messageTxt.getText().toString();
-            if(Build.VERSION.SDK_INT > 8 && !buffer.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(buffer.bid, buffer.last_seen_eid, buffer.type) == 0)
-                EventsDataSource.getInstance().pruneEvents(buffer.bid);
         }
         if(buffer == null || buffer.bid == -1 || buffer.cid == -1 || buffer.bid == bid)
             shouldFadeIn = false;
