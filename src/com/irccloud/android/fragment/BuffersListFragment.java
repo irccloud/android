@@ -198,6 +198,10 @@ public class BuffersListFragment extends ListFragment {
                 e.unread = unread;
                 e.highlights = highlights;
 
+                ServersDataSource.Server s = ServersDataSource.getInstance().getServer(e.cid);
+                e.status = s.status;
+                e.fail_info = s.fail_info;
+
                 if(unread > 0) {
                     if(firstUnreadPosition == -1 || firstUnreadPosition > pos)
                         firstUnreadPosition = pos;
@@ -913,6 +917,21 @@ public class BuffersListFragment extends ListFragment {
             } catch (ClassCastException e) {
             }
 			switch (msg.what) {
+            case NetworkConnection.EVENT_CHANNELINIT:
+                b = BuffersDataSource.getInstance().getBuffer(((ChannelsDataSource.Channel)msg.obj).bid);
+                if(b != null)
+                    adapter.updateBuffer(b);
+                break;
+            case NetworkConnection.EVENT_CHANNELMODE:
+                b = BuffersDataSource.getInstance().getBuffer(object.bid());
+                if(b != null)
+                    adapter.updateBuffer(b);
+                break;
+            case NetworkConnection.EVENT_STATUSCHANGED:
+                b = BuffersDataSource.getInstance().getBufferByName(object.cid(), "*");
+                if(b != null)
+                    adapter.updateBuffer(b);
+                break;
             case NetworkConnection.EVENT_BUFFERMSG:
                 if(event.bid != selected_bid) {
                     b = BuffersDataSource.getInstance().getBuffer(event.bid);
