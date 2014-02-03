@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.support.v4.app.ListFragment;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.animation.AlphaAnimation;
 import android.widget.*;
@@ -1875,7 +1876,7 @@ public class MessageViewFragment extends ListFragment {
 	private void update_global_msg() {
 		if(globalMsgView != null) {
 			if(conn != null && conn.globalMsg != null) {
-				globalMsg.setText(conn.globalMsg);
+				globalMsg.setText(Html.fromHtml(conn.globalMsg));
 				globalMsgView.setVisibility(View.VISIBLE);
 			} else {
 				globalMsgView.setVisibility(View.GONE);
