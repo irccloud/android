@@ -297,68 +297,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
-                if (c != null) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-                    builder.setTitle("Channel Topic");
-                    if (c.topic_text.length() > 0) {
-                        builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), true, server));
-                    } else
-                        builder.setMessage("No topic set.");
-                    builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    boolean canEditTopic;
-                    if (c.mode.contains("t")) {
-                        UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
-                        canEditTopic = (self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")));
-                    } else {
-                        canEditTopic = true;
-                    }
-
-                    if (canEditTopic) {
-                        builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                editTopic();
-                            }
-                        });
-                    }
-                    final AlertDialog dialog = builder.create();
-                    dialog.setOwnerActivity(MessageActivity.this);
-                    dialog.show();
-                    ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-                    dialog.findViewById(android.R.id.message).setOnClickListener(new OnClickListener() {
-
-                        @Override
-                        public void onClick(View v) {
-                            dialog.dismiss();
-                        }
-
-                    });
-                } else if (buffer != null && buffer.type.equals("channel") && buffer.archived == 0 && title.getText() != null && subtitle.getText() != null && subtitle.getText().length() > 0) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-                    builder.setTitle(title.getText().toString());
-                    final SpannableString s = new SpannableString(subtitle.getText().toString());
-                    Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
-                    builder.setMessage(s);
-                    builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.setOwnerActivity(MessageActivity.this);
-                    dialog.show();
-                    ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-                }
+                show_topic_popup();
             }
         });
 
@@ -396,6 +335,71 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
                     GCMIntentService.scheduleRegisterTimer(30000);
             }
+        }
+    }
+
+    private void show_topic_popup() {
+        ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
+        if (c != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+            builder.setTitle("Channel Topic");
+            if (c.topic_text.length() > 0) {
+                builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), true, server));
+            } else
+                builder.setMessage("No topic set.");
+            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            boolean canEditTopic;
+            if (c.mode.contains("t")) {
+                UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
+                canEditTopic = (self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")));
+            } else {
+                canEditTopic = true;
+            }
+
+            if (canEditTopic) {
+                builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        editTopic();
+                    }
+                });
+            }
+            final AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(MessageActivity.this);
+            dialog.show();
+            ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+            dialog.findViewById(android.R.id.message).setOnClickListener(new OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+
+            });
+        } else if (buffer != null && buffer.type.equals("channel") && buffer.archived == 0 && title.getText() != null && subtitle.getText() != null && subtitle.getText().length() > 0) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
+            builder.setTitle(title.getText().toString());
+            final SpannableString s = new SpannableString(subtitle.getText().toString());
+            Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
+            builder.setMessage(s);
+            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(MessageActivity.this);
+            dialog.show();
+            ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
@@ -1077,6 +1081,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			IRCCloudJSONObject event = null;
 			Bundle args = null;
 			switch (msg.what) {
+            case NetworkConnection.EVENT_CHANNELTOPICIS:
+                event = (IRCCloudJSONObject)msg.obj;
+                if(buffer != null && buffer.cid == event.cid() && buffer.name.equalsIgnoreCase(event.getString("chan"))) {
+                    update_subtitle();
+                    show_topic_popup();
+                }
+                break;
 			case NetworkConnection.EVENT_LINKCHANNEL:
 				event = (IRCCloudJSONObject)msg.obj;
 				if(event != null && cidToOpen == event.cid() && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {

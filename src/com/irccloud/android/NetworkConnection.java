@@ -168,6 +168,7 @@ public class NetworkConnection {
 	public static final int EVENT_ACCEPTLIST = 40;
     public static final int EVENT_NAMESLIST = 41;
     public static final int EVENT_REORDERCONNECTIONS = 42;
+    public static final int EVENT_CHANNELTOPICIS = 43;
 
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -1935,6 +1936,20 @@ public class NetworkConnection {
                     notifyHandlers(EVENT_ALERT, object);
                     notifyHandlers(EVENT_BUFFERMSG, e);
                 }
+            }
+        });
+        put("channel_topic_is", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(object.cid(), object.getString("chan"));
+                ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+                if(c != null) {
+                    c.topic_author = object.getString("author");
+                    c.topic_time = object.getLong("time");
+                    c.topic_text = object.getString("text");
+                }
+                if(!backlog)
+                    notifyHandlers(EVENT_CHANNELTOPICIS, object);
             }
         });
     }};

@@ -991,6 +991,7 @@ public class BuffersListFragment extends ListFragment {
             case NetworkConnection.EVENT_GLOBALMSG:
             case NetworkConnection.EVENT_ACCEPTLIST:
             case NetworkConnection.EVENT_NAMESLIST:
+            case NetworkConnection.EVENT_CHANNELTOPICIS:
             case NetworkConnection.EVENT_BACKLOG_FAILED:
             case NetworkConnection.EVENT_FAILURE_MSG:
             case NetworkConnection.EVENT_SUCCESS:
