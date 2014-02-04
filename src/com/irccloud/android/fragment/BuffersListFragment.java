@@ -202,6 +202,19 @@ public class BuffersListFragment extends ListFragment {
                 e.status = s.status;
                 e.fail_info = s.fail_info;
 
+                if (b.type.equalsIgnoreCase("channel")) {
+                    ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+                    if (c == null) {
+                        e.joined = 0;
+                        e.key = 0;
+                    } else if (c.key) {
+                        e.key = 1;
+                    } else {
+                        e.key = 0;
+                    }
+                }
+
+
                 if(unread > 0) {
                     if(firstUnreadPosition == -1 || firstUnreadPosition > pos)
                         firstUnreadPosition = pos;
@@ -928,9 +941,10 @@ public class BuffersListFragment extends ListFragment {
                     adapter.updateBuffer(b);
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
-                b = BuffersDataSource.getInstance().getBufferByName(object.cid(), "*");
-                if(b != null)
-                    adapter.updateBuffer(b);
+                ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(object.cid());
+                for(BuffersDataSource.Buffer buffer : buffers) {
+                    adapter.updateBuffer(buffer);
+                }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
                 if(event.bid != selected_bid) {

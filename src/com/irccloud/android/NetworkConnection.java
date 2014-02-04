@@ -1420,8 +1420,15 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
                 s.updateStatus(object.cid(), object.getString("new_status"), object.getJsonObject("fail_info"));
-                if(!backlog)
+                if(!backlog) {
+                    if(object.getString("new_status").equals("disconnected")) {
+                        ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(object.cid());
+                        for(BuffersDataSource.Buffer b : buffers) {
+                            ChannelsDataSource.getInstance().deleteChannel(b.bid);
+                        }
+                    }
                     notifyHandlers(EVENT_STATUSCHANGED, object);
+                }
             }
         });
         put("connection_lag", new Parser() {
