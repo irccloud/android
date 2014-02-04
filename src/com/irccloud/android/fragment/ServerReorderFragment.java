@@ -26,6 +26,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.util.SparseArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -192,14 +195,22 @@ public class ServerReorderFragment extends DialogFragment {
 		}
 	}
 
+    private void init(View v) {
+        listView = (DragSortListView)v.findViewById(android.R.id.list);
+        listView.setDropListener(dropListener);
+        TextView tv = (TextView)v.findViewById(R.id.hint);
+        Spannable s = new SpannableString(tv.getText());
+        s.setSpan(new ImageSpan(getActivity(), R.drawable.move), 5, 6, 0);
+        tv.setText(s);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(getShowsDialog()) {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
             final View v = inflater.inflate(R.layout.reorderservers, null);
-            listView = (DragSortListView)v.findViewById(android.R.id.list);
-            listView.setDropListener(dropListener);
+            init(v);
             listView.setCacheColorHint(0xFFD9E7FF);
             return v;
         }
@@ -213,8 +224,7 @@ public class ServerReorderFragment extends DialogFragment {
 
         LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.reorderservers, null);
-        listView = (DragSortListView)v.findViewById(android.R.id.list);
-        listView.setDropListener(dropListener);
+        init(v);
         listView.setCacheColorHint(0xfff3f3f3);
 
         Dialog d = new AlertDialog.Builder(ctx)

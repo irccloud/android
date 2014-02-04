@@ -22,12 +22,13 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_weight="0"
         android:paddingTop="8dp"
-        android:text="Drag and drop to reorder the network list"/>
+        android:text="Drag + to reorder the network list"/>
 
 	<com.mobeta.android.dslv.DragSortListView
 	    android:id="@android:id/list"
