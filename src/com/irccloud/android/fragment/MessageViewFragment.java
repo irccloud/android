@@ -2126,6 +2126,8 @@ public class MessageViewFragment extends ListFragment {
                         }
                     }
                     insertEvent(adapter, event, false, false);
+                    if(event.pending && event.self)
+                        getListView().setSelection(adapter.getCount() - 1);
                 }
                 break;
             case NetworkConnection.EVENT_AWAY:
