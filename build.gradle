@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.8.+'
     }
 }
 apply plugin: 'android'
@@ -40,7 +40,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "17"
+    buildToolsVersion "19.0.1"
 
     defaultConfig {
         minSdkVersion 8
@@ -79,6 +79,9 @@ android {
                 buildConfigField "String", "TF_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
+            resValue "string", "IMAGE_SCHEME", "irccloud-image"
+            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-image"
+            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
         }
         release {
             buildConfigField "String", "REVISION", "\"\""
@@ -94,6 +97,9 @@ android {
                 buildConfigField "String", "TF_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
+            resValue "string", "IMAGE_SCHEME", "irccloud-image"
+            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
+            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
 
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release

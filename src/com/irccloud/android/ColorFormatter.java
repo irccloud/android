@@ -135,7 +135,7 @@ public class ColorFormatter {
                         public String transformUrl(Matcher match, String url) {
                             String lower = url.toLowerCase();
                             if(lower.endsWith("png")||lower.endsWith("gif")||lower.endsWith("jpg")||lower.endsWith("jpeg")) {
-                                return "irccloud-image://" + url;
+                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
                             }
                             return "http://" + url;
                         }
@@ -155,9 +155,9 @@ public class ColorFormatter {
                                 "(^https?://(www\\.)?imgur.com/(?!a/).*$)")
                                 ) {
                             if(lower.startsWith("http://"))
-                                return "irccloud-image://" + url.substring(7);
+                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
                             else if(lower.startsWith("https://"))
-                                return "irccloud-images://" + url.substring(8);
+                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
                         }
                     }
                     return url;

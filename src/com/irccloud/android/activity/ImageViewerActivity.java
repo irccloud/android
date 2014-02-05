@@ -132,7 +132,7 @@ public class ImageViewerActivity extends BaseActivity {
         mProgress = (ProgressBar)findViewById(R.id.progress);
 
         if(getIntent() != null && getIntent().getDataString() != null) {
-            String url = getIntent().getDataString().replace("irccloud-image", "http");
+            String url = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
             String lower = url.toLowerCase().replace("https://", "").replace("http://", "");
             if(lower.startsWith("www.dropbox.com/")) {
                 if(lower.startsWith("www.dropbox.com/s/")) {
@@ -171,7 +171,7 @@ public class ImageViewerActivity extends BaseActivity {
     }
 
     private void fail() {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
         startActivity(intent);
         finish();
     }
@@ -212,9 +212,9 @@ public class ImageViewerActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.activity_imageviewer, menu);
 
         if(getIntent() != null && getIntent().getDataString() != null) {
-            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
+            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace("irccloud-image", "http"));
+            intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http"));
 
             MenuItem shareItem = menu.findItem(R.id.action_share);
             ShareActionProvider share = (ShareActionProvider)MenuItemCompat.getActionProvider(shareItem);
@@ -230,7 +230,7 @@ public class ImageViewerActivity extends BaseActivity {
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if(item.getItemId() == R.id.action_browser) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace("irccloud-image", "http")));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             startActivity(intent);
             finish();
             return true;

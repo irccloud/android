@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import java.util.*;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.database.SQLException;
 
@@ -602,10 +603,11 @@ public class Notifications {
 		if(count == 1)
 			builder.setOnlyAlertOnce(true);
 		
-		Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
+		Intent i = new Intent();
+        i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + ".MainActivity"));
 		i.putExtra("bid", bid);
 		i.setData(Uri.parse("bid://" + bid));
-    	Intent dismiss = new Intent("com.irccloud.android.DISMISS_NOTIFICATION");
+    	Intent dismiss = new Intent(IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.DISMISS_NOTIFICATION));
 		dismiss.setData(Uri.parse("irccloud-dismiss://" + bid));
     	dismiss.putExtra("bid", bid);
 		dismiss.putExtra("eids", eids);

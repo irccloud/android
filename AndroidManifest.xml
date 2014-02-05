@@ -38,6 +38,9 @@
 				<data android:scheme="ircs" />
 			</intent-filter>
         </activity>
+        <activity-alias
+            android:name=".MainActivity"
+            android:targetActivity="com.irccloud.android.activity.MainActivity"/>
         <activity
             android:name="com.irccloud.android.activity.MessageActivity"
             android:label="@string/title_activity_message"
@@ -58,8 +61,8 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="irccloud-image" />
-                <data android:scheme="irccloud-images" />
+                <data android:scheme="@string/IMAGE_SCHEME" />
+                <data android:scheme="@string/IMAGE_SCHEME_SECURE" />
             </intent-filter>
         </activity>
         <activity android:name="com.irccloud.android.activity.PreferencesActivity" android:theme="@style/PrefsTheme" android:label="@string/menu_settings">
@@ -82,7 +85,7 @@
 		<service android:name="com.irccloud.android.GCMIntentService" />
         <receiver android:name="NotificationDismissBroadcastReceiver" android:permission="com.irccloud.android.permission.BROADCAST">
 		  <intent-filter>
-		    <action android:name="com.irccloud.android.DISMISS_NOTIFICATION" />
+		    <action android:name="@string/DISMISS_NOTIFICATION" />
 			<data android:scheme="irccloud-dismiss" />
 		  </intent-filter>
 		</receiver>
