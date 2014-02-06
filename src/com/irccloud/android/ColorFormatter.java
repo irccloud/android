@@ -133,9 +133,16 @@ public class ColorFormatter {
 		    }, new TransformFilter() {
                         @Override
                         public String transformUrl(Matcher match, String url) {
-                            String lower = url.toLowerCase();
-                            if(lower.endsWith("png")||lower.endsWith("gif")||lower.endsWith("jpg")||lower.endsWith("jpeg")) {
-                                return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
+                            if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                                String lower = url.toLowerCase();
+                                if(lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
+                                        "(^(www\\.)?flickr\\.com/photos/.*$)|" +
+                                        "(^(www\\.)?instagram\\.com/p/.*$)|(^(www\\.)?instagr\\.am/p/.*$)|" +
+                                        "(^(www\\.)?imgur\\.com/(?!a/).*$)|" +
+                                        "(^cl\\.ly/.*)"
+                                        ) && !lower.matches("(^cl\\.ly/robots\\.txt$)|(^cl\\.ly/image/?$)")) {
+                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
+                                }
                             }
                             return "http://" + url;
                         }
@@ -149,11 +156,12 @@ public class ColorFormatter {
                 public String transformUrl(Matcher match, String url) {
                     if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
                         String lower = url.toLowerCase();
-                        if(lower.matches("(^.*\\/.*.png$)|(^.*\\/.*.jpe?g$)|(^.*\\/.*.gif$)|" +
+                        if(lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
                                 "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
                                 "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
-                                "(^https?://(www\\.)?imgur.com/(?!a/).*$)")
-                                ) {
+                                "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
+                                "(^https?://cl\\.ly/.*)"
+                        ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)")) {
                             if(lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
                             else if(lower.startsWith("https://"))

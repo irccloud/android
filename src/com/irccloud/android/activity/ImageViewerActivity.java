@@ -48,9 +48,32 @@ public class ImageViewerActivity extends BaseActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-                JSONObject o = NetworkConnection.getInstance().fetchOembed(params[0]);
+                JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
                 if(o.getString("type").equalsIgnoreCase("photo"))
                     return o.getString("url");
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if(url != null) {
+                loadImage(url);
+            } else {
+                fail();
+            }
+        }
+    }
+
+    private class ClLyTask extends AsyncTaskEx<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
+                if(o.getString("item_type").equalsIgnoreCase("image"))
+                    return o.getString("content_url");
             } catch (Exception e) {
             }
             return null;
@@ -148,6 +171,9 @@ public class ImageViewerActivity extends BaseActivity {
                 return;
             } else if(lower.startsWith("instagram.com/") || lower.startsWith("www.instagram.com/") || lower.startsWith("instagr.am/")) {
                 new OEmbedTask().execute("http://api.instagram.com/oembed?url=" + url);
+                return;
+            } else if(lower.startsWith("cl.ly")) {
+                new ClLyTask().execute(url);
                 return;
             }
             loadImage(url);

@@ -507,7 +507,7 @@ public class NetworkConnection {
 		return null;
 	}
 
-    public JSONObject fetchOembed(String url) throws IOException {
+    public JSONObject fetchJSON(String url) throws IOException {
         try {
             String response = doFetch(new URL(url), null, null);
             JSONObject o = new JSONObject(response);
@@ -2048,6 +2048,7 @@ public class NetworkConnection {
 
 		conn.setRequestProperty("Connection", "close");
 		conn.setRequestProperty("User-Agent", useragent);
+        conn.setRequestProperty("Accept", "application/json");
         if(sk != null)
             conn.setRequestProperty("Cookie", "session="+sk);
         if(postdata != null) {
