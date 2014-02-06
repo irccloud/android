@@ -172,12 +172,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     private SuggestionsAdapter suggestionsAdapter;
     private View suggestionsContainer;
     private GridView suggestions;
-    private Runnable suggestionsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            update_suggestions(false);
-        }
-    };
+    private Timer suggestionsTimer;
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
 
@@ -266,8 +261,21 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 } else if(suggestionsContainer != null && suggestionsContainer.getVisibility() == View.VISIBLE) {
                     update_suggestions(false);
                 } else {
-                    mHandler.removeCallbacks(suggestionsRunnable);
-                    mHandler.postDelayed(suggestionsRunnable, 500);
+                    if(suggestionsTimer != null)
+                        suggestionsTimer.cancel();
+                    suggestionsTimer = new Timer();
+                    suggestionsTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            suggestionsTimer = null;
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    update_suggestions(false);
+                                }
+                            });
+                        }
+                    }, 500);
                 }
             }
 
@@ -412,7 +420,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             if(text.endsWith(":"))
                 text = text.substring(0, text.length() - 1);
             ArrayList<String> sugs = new ArrayList<String>();
-            if(text.length() > 1 || force) {
+            if(text.length() > 1 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
                 if(sortedChannels == null) {
                     sortedChannels = ChannelsDataSource.getInstance().getChannels();
                     Collections.sort(sortedChannels, new Comparator<ChannelsDataSource.Channel>() {
@@ -423,10 +431,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     });
                 }
 
-                if(buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
+                if(messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
                     sugs.add(buffer.name);
                 for(ChannelsDataSource.Channel channel : sortedChannels) {
-                    if(text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
+                    if(text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
                         sugs.add(channel.name);
                 }
 
@@ -448,30 +456,59 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                         sugs.add(user.nick);
                 }
             }
-            if(suggestionsAdapter.activePos == -1 || sugs.size() == 0) {
-                suggestionsAdapter.clear();
-                for(String s : sugs) {
-                    suggestionsAdapter.add(s);
-                }
-                suggestionsAdapter.notifyDataSetChanged();
-                suggestions.smoothScrollToPosition(0);
-            }
-            if(suggestionsAdapter.getCount() > 0) {
-                suggestionsContainer.setVisibility(View.VISIBLE);
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(suggestionsContainer.getHeight() < 48) {
-                            getSupportActionBar().hide();
-                        }
+            if(sugs.size() > 0) {
+                if(suggestionsAdapter.activePos == -1) {
+                    suggestionsAdapter.clear();
+                    for(String s : sugs) {
+                        suggestionsAdapter.add(s);
                     }
-                });
+                    suggestionsAdapter.notifyDataSetChanged();
+                    suggestions.smoothScrollToPosition(0);
+                }
+                if(suggestionsContainer.getVisibility() == View.GONE) {
+                    AlphaAnimation anim = new AlphaAnimation(0, 1);
+                    anim.setDuration(200);
+                    anim.setFillAfter(true);
+                    suggestionsContainer.startAnimation(anim);
+                    suggestionsContainer.setVisibility(View.VISIBLE);
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(suggestionsContainer.getHeight() < 48) {
+                                getSupportActionBar().hide();
+                            }
+                        }
+                    });
+                }
             } else {
-                suggestionsContainer.setVisibility(View.GONE);
-                sortedUsers = null;
-                sortedChannels = null;
-                if(!getSupportActionBar().isShowing())
-                    getSupportActionBar().show();
+                if(suggestionsContainer.getVisibility() == View.VISIBLE) {
+                    AlphaAnimation anim = new AlphaAnimation(1, 0);
+                    anim.setDuration(200);
+                    anim.setFillAfter(true);
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            suggestionsContainer.setVisibility(View.GONE);
+                            suggestionsAdapter.clear();
+                            suggestionsAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+                    suggestionsContainer.startAnimation(anim);
+                    sortedUsers = null;
+                    sortedChannels = null;
+                    if(!getSupportActionBar().isShowing())
+                        getSupportActionBar().show();
+                }
             }
         }
     }
@@ -2491,6 +2528,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
 	@Override
 	public void onBufferSelected(int bid) {
+        if(suggestionsTimer != null)
+            suggestionsTimer.cancel();
+        suggestionsTimer = null;
+        sortedChannels = null;
+        sortedUsers = null;
+
 		if(drawerLayout != null) {
             drawerLayout.closeDrawers();
 			upView.setVisibility(View.VISIBLE);
