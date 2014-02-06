@@ -598,8 +598,13 @@ public class EventsDataSource {
         put("link_channel", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "<pre>You tried to join " + event.getString("invalid_chan") + " but were forwarded to " + event.getString("valid_chan") + "</pre>";
+                if(event.has("invalid_chan")) {
+                    if(event.has("valid_chan")) {
+                        e.msg = event.getString("invalid_chan") + " → " + event.getString("valid_chan") + ": " + e.msg;
+                    } else {
+                        e.msg = event.getString("invalid_chan") + ": " + e.msg;
+                    }
+                }
                 e.bg_color = R.color.error;
             }
         });

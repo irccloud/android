@@ -1127,20 +1127,24 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 break;
 			case NetworkConnection.EVENT_LINKCHANNEL:
 				event = (IRCCloudJSONObject)msg.obj;
-				if(event != null && cidToOpen == event.cid() && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
+                if(event != null && event.eid() != -1) {
+                    showAlert(event.cid(), event.getString("msg"));
+                }
+				if(event != null && cidToOpen == event.cid() && event.has("invalid_chan") && event.has("valid_chan") && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
 					bufferToOpen = event.getString("valid_chan");
 					msg.obj = BuffersDataSource.getInstance().getBuffer(event.bid());
 				} else {
+                    bufferToOpen = null;
 					return;
 				}
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)msg.obj;
-				if(cidToOpen == b.cid && b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(buffer.name)) {
+				if(cidToOpen == b.cid && (bufferToOpen == null || (b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(buffer.name)))) {
                     server = null;
 					onBufferSelected(b.bid);
 		    		bufferToOpen = null;
 		    		cidToOpen = -1;
-				}
+                }
 				break;
 			case NetworkConnection.EVENT_OPENBUFFER:
 				event = (IRCCloudJSONObject)msg.obj;
