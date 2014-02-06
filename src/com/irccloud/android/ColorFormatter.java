@@ -205,10 +205,7 @@ public class ColorFormatter {
                                 channel = URLEncoder.encode(channel, "UTF-8");
                             } catch (UnsupportedEncodingException e) {
                             }
-                            if(server.ssl > 0)
-                                return "ircs://" + server.hostname + ":" + server.port + "/" + channel;
-                            else
-                                return "irc://" + server.hostname + ":" + server.port + "/" + channel;
+                            return "irc://" + server.cid + "/" + channel;
                         }
                     });
         }

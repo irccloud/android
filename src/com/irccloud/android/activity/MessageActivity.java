@@ -931,12 +931,21 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(uri != null && conn != null && conn.ready) {
 			launchURI = null;
     		ServersDataSource.Server s = null;
-    		if(uri.getPort() > 0)
-    			s = ServersDataSource.getInstance().getServer(uri.getHost(), uri.getPort());
-			else if(uri.getScheme() != null && uri.getScheme().equalsIgnoreCase("ircs"))
-    			s = ServersDataSource.getInstance().getServer(uri.getHost(), true);
-    		else
-    			s = ServersDataSource.getInstance().getServer(uri.getHost());
+            try {
+                if(Integer.parseInt(uri.getHost()) > 0) {
+                    s = ServersDataSource.getInstance().getServer(Integer.parseInt(uri.getHost()));
+                }
+            } catch (NumberFormatException e) {
+
+            }
+            if(s == null) {
+                if(uri.getPort() > 0)
+                    s = ServersDataSource.getInstance().getServer(uri.getHost(), uri.getPort());
+                else if(uri.getScheme() != null && uri.getScheme().equalsIgnoreCase("ircs"))
+                    s = ServersDataSource.getInstance().getServer(uri.getHost(), true);
+                else
+                    s = ServersDataSource.getInstance().getServer(uri.getHost());
+            }
 
     		if(s != null) {
     			if(uri.getPath() != null && uri.getPath().length() > 1) {
