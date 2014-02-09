@@ -275,7 +275,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                                 }
                             });
                         }
-                    }, 500);
+                    }, 250);
                 }
             }
 
@@ -467,7 +467,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 }
                 if(suggestionsContainer.getVisibility() == View.GONE) {
                     AlphaAnimation anim = new AlphaAnimation(0, 1);
-                    anim.setDuration(200);
+                    anim.setDuration(250);
                     anim.setFillAfter(true);
                     suggestionsContainer.startAnimation(anim);
                     suggestionsContainer.setVisibility(View.VISIBLE);
@@ -483,7 +483,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             } else {
                 if(suggestionsContainer.getVisibility() == View.VISIBLE) {
                     AlphaAnimation anim = new AlphaAnimation(1, 0);
-                    anim.setDuration(200);
+                    anim.setDuration(250);
                     anim.setFillAfter(true);
                     anim.setAnimationListener(new Animation.AnimationListener() {
                         @Override
