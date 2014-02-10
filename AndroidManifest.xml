@@ -17,6 +17,13 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION"/>
 
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:anyDensity="true"/>
+
     <application
         android:name="com.irccloud.android.IRCCloudApplication"
         android:icon="@drawable/ic_launcher"
@@ -85,7 +92,7 @@
 		<service android:name="com.irccloud.android.GCMIntentService" />
         <receiver android:name="NotificationDismissBroadcastReceiver" android:permission="com.irccloud.android.permission.BROADCAST">
 		  <intent-filter>
-		    <action android:name="@string/DISMISS_NOTIFICATION" />
+		    <action android:name="com.irccloud.android.DISMISS_NOTIFICATION" />
 			<data android:scheme="irccloud-dismiss" />
 		  </intent-filter>
 		</receiver>
