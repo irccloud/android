@@ -82,7 +82,7 @@ public class SonyRegistrationInformation extends RegistrationInformation {
     @Override
     public ContentValues getExtensionRegistrationConfiguration() {
         String configurationText = "IRCCloud Settings";
-        String extensionName = "IRCCloud";
+        String extensionName = IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.app_name);
 
         ContentValues values = new ContentValues();
         values.put(Registration.ExtensionColumns.CONFIGURATION_ACTIVITY,
@@ -129,7 +129,7 @@ public class SonyRegistrationInformation extends RegistrationInformation {
         sourceValues.put(Notification.SourceColumns.ICON_URI_BLACK_WHITE, ExtensionUtils.getUriString(mContext,
                 R.drawable.ic_sony_bw));
         sourceValues.put(Notification.SourceColumns.UPDATE_TIME, System.currentTimeMillis());
-        sourceValues.put(Notification.SourceColumns.NAME, "IRCCloud");
+        sourceValues.put(Notification.SourceColumns.NAME, IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.app_name));
         sourceValues.put(Notification.SourceColumns.EXTENSION_SPECIFIC_ID, extensionSpecificId);
         sourceValues.put(Notification.SourceColumns.PACKAGE_NAME, mContext.getPackageName());
 

@@ -111,7 +111,7 @@
 
         <service android:name="com.irccloud.android.DashClock"
                  android:icon="@drawable/ic_stat_notify"
-                 android:label="IRCCloud"
+                 android:label="@string/app_name"
                  android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA">
             <intent-filter>
                 <action android:name="com.google.android.apps.dashclock.Extension" />
