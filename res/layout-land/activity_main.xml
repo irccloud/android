@@ -78,6 +78,15 @@
                         android:hint="@string/password"
                         android:inputType="textPassword" />
 
+                    <EditText
+                        android:id="@+id/host"
+                        android:layout_width="280dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:ems="10"
+                        android:hint="@string/host"
+                        android:inputType="textUri" />
+
                     <Button
                         android:id="@+id/loginBtn"
                         android:layout_width="wrap_content"

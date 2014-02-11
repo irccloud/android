@@ -66,6 +66,7 @@ public class MainActivity extends FragmentActivity {
 	private View login = null;
 	private AutoCompleteTextView email;
 	private EditText password;
+    private EditText host;
 	private Button loginBtn;
 	private NetworkConnection conn;
 	private TextView errorMsg = null;
@@ -115,6 +116,14 @@ public class MainActivity extends FragmentActivity {
         if(savedInstanceState != null && savedInstanceState.containsKey("password"))
         	password.setText(savedInstanceState.getString("password"));
 
+        host = (EditText)findViewById(R.id.host);
+        if(BuildConfig.ENTERPRISE)
+            host.setText(NetworkConnection.IRCCLOUD_HOST);
+        else
+            host.setVisibility(View.GONE);
+        if(savedInstanceState != null && savedInstanceState.containsKey("host"))
+            host.setText(savedInstanceState.getString("host"));
+
         loginBtn = (Button)findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
 			@Override
@@ -144,6 +153,8 @@ public class MainActivity extends FragmentActivity {
 	    		state.putString("email", email.getText().toString());
 	    	if(password != null)
 	    		state.putString("password", password.getText().toString());
+            if(host != null)
+                state.putString("host", host.getText().toString());
     	}
     }
 
@@ -317,6 +328,9 @@ public class MainActivity extends FragmentActivity {
 		public void onPreExecute() {
 			email.setEnabled(false);
 			password.setEnabled(false);
+            host.setEnabled(false);
+            if(BuildConfig.ENTERPRISE)
+                NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
 			loginBtn.setEnabled(false);
 			connectingMsg.setText("Signing in");
 			progressBar.setIndeterminate(true);
@@ -345,6 +359,7 @@ public class MainActivity extends FragmentActivity {
 				try {
 					SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 					editor.putString("session_key", result.getString("session"));
+                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
 					login.setVisibility(View.GONE);
 					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 					imm.hideSoftInputFromWindow(password.getWindowToken(), 0);
@@ -358,6 +373,7 @@ public class MainActivity extends FragmentActivity {
 			} else {
 				email.setEnabled(true);
 				password.setEnabled(true);
+                host.setEnabled(true);
 				loginBtn.setEnabled(true);
 		    	AlphaAnimation anim = new AlphaAnimation(0, 1);
 				anim.setDuration(250);

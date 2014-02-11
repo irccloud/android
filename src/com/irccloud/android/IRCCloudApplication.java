@@ -73,6 +73,8 @@ public class IRCCloudApplication extends Application {
         } catch (Exception e) {
         }
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.BRAND_HOST);
+
 		if(prefs.contains("notify")) {
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString("notify_type", prefs.getBoolean("notify", true)?"1":"0");

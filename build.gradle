@@ -73,6 +73,7 @@ android {
             buildConfigField "String", "REVISION", "\"" + getRevision() + "\""
             buildConfigField "String", "BRAND_NAME", "\"\""
             buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
@@ -86,11 +87,13 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-image"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "app_name", "IRCCloud"
         }
         release {
             buildConfigField "String", "REVISION", "\"\""
             buildConfigField "String", "BRAND_NAME", "\"\""
             buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
@@ -104,6 +107,55 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "app_name", "IRCCloud"
+
+            if(rootProject.file('keystore.properties').exists()) {
+                signingConfig signingConfigs.release
+            }
+        }
+        enterprisedebug {
+            packageNameSuffix ".enterprise"
+            buildConfigField "String", "REVISION", "\"" + getRevision() + "\""
+            buildConfigField "String", "BRAND_NAME", "\"\""
+            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "boolean", "ENTERPRISE", "true"
+            if(rootProject.file('enterprise.properties').exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(file('enterprise.properties')))
+                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
+                buildConfigField "String", "TF_KEY", "\"" + props['TF_KEY'] + "\""
+            } else {
+                buildConfigField "String", "GCM_ID", "\"\""
+                buildConfigField "String", "TF_KEY", "\"\""
+            }
+            buildConfigField "String", "SSL_CN", "\"\""
+            resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
+            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-image"
+            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "app_name", "IRCCloud Enterprise"
+
+            signingConfig signingConfigs.debug
+        }
+        enterpriserelease {
+            packageNameSuffix ".enterprise"
+            buildConfigField "String", "REVISION", "\"\""
+            buildConfigField "String", "BRAND_NAME", "\"\""
+            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "boolean", "ENTERPRISE", "true"
+            if(rootProject.file('enterprise.properties').exists()) {
+                def props = new Properties()
+                props.load(new FileInputStream(file('enterprise.properties')))
+                buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
+                buildConfigField "String", "TF_KEY", "\"" + props['TF_KEY'] + "\""
+            } else {
+                buildConfigField "String", "GCM_ID", "\"\""
+                buildConfigField "String", "TF_KEY", "\"\""
+            }
+            buildConfigField "String", "SSL_CN", "\"\""
+            resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
+            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
+            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "app_name", "IRCCloud Enterprise"
 
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release

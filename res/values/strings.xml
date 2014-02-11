@@ -15,9 +15,6 @@
   -->
 
 <resources>
-
-    <string name="app_name">IRCCloud</string>
-    
     <string name="menu_settings">Settings</string>
     <string name="menu_logout">Logout</string>
     <string name="menu_leave">Leave</string>
@@ -41,6 +38,7 @@
     <string name="email">Email Address</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
+    <string name="host">Host</string>
 
     <string name="imeOptions">flagNoExtractUi|actionSend</string>
     
