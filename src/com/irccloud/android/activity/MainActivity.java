@@ -121,6 +121,15 @@ public class MainActivity extends FragmentActivity {
             host.setText(NetworkConnection.IRCCLOUD_HOST);
         else
             host.setVisibility(View.GONE);
+        host.setOnEditorActionListener(new OnEditorActionListener() {
+            public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    new LoginTask().execute((Void)null);
+                    return true;
+                }
+                return false;
+            }
+        });
         if(savedInstanceState != null && savedInstanceState.containsKey("host"))
             host.setText(savedInstanceState.getString("host"));
 

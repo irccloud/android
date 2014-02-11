@@ -604,7 +604,7 @@ public class Notifications {
 			builder.setOnlyAlertOnce(true);
 		
 		Intent i = new Intent();
-        i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + ".MainActivity"));
+        i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
 		i.putExtra("bid", bid);
 		i.setData(Uri.parse("bid://" + bid));
     	Intent dismiss = new Intent(IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.DISMISS_NOTIFICATION));

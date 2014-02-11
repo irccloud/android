@@ -45,9 +45,6 @@
 				<data android:scheme="ircs" />
 			</intent-filter>
         </activity>
-        <activity-alias
-            android:name=".MainActivity"
-            android:targetActivity="com.irccloud.android.activity.MainActivity"/>
         <activity
             android:name="com.irccloud.android.activity.MessageActivity"
             android:label="@string/title_activity_message"
