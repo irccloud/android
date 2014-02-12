@@ -150,6 +150,7 @@
                 android:layout_alignParentBottom="true"
                 android:id="@+id/suggestionsContainer"
                 android:layout_margin="2dp"
+                android:visibility="invisible"
                 android:gravity="bottom">
 
                 <LinearLayout
@@ -159,7 +160,7 @@
                     android:background="@color/border"
                     android:padding="2dp">
 
-                    <GridView
+                    <com.irccloud.android.GridViewHax
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/suggestions"

@@ -213,8 +213,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	upView.setVisibility(View.VISIBLE);
                     update_suggestions(false);
 				} else if(!hasFocus) {
-                    suggestionsContainer.setVisibility(View.GONE);
-                    suggestionsAdapter.clear();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            suggestionsContainer.setVisibility(View.INVISIBLE);
+                        }
+                    });
                 }
 			}
 		});
@@ -259,7 +263,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     messageTxt.setText(text);
                     nextSuggestion();
                 } else if(suggestionsContainer != null && suggestionsContainer.getVisibility() == View.VISIBLE) {
-                    update_suggestions(false);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            update_suggestions(false);
+                        }
+                    });
                 } else {
                     if(suggestionsTimer != null)
                         suggestionsTimer.cancel();
@@ -465,7 +474,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     suggestionsAdapter.notifyDataSetChanged();
                     suggestions.smoothScrollToPosition(0);
                 }
-                if(suggestionsContainer.getVisibility() == View.GONE) {
+                if(suggestionsContainer.getVisibility() == View.INVISIBLE) {
                     AlphaAnimation anim = new AlphaAnimation(0, 1);
                     anim.setDuration(250);
                     anim.setFillAfter(true);
@@ -493,7 +502,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
                         @Override
                         public void onAnimationEnd(Animation animation) {
-                            suggestionsContainer.setVisibility(View.GONE);
+                            suggestionsContainer.setVisibility(View.INVISIBLE);
                             suggestionsAdapter.clear();
                             suggestionsAdapter.notifyDataSetChanged();
                         }
@@ -544,8 +553,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
-    	state.putInt("cid", server.cid);
-    	state.putInt("bid", buffer.bid);
+        if(server != null)
+        	state.putInt("cid", server.cid);
+        if(buffer != null)
+        	state.putInt("bid", buffer.bid);
     	state.putSerializable("backStack", backStack);
     }
     

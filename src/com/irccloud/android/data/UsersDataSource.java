@@ -125,8 +125,10 @@ public class UsersDataSource {
 
     public synchronized void updateAwayMsg(int cid, int bid, String nick, int away, String away_msg) {
         User u = getUser(cid,bid,nick);
-        u.away = away;
-        u.away_msg = away_msg;
+        if(u != null) {
+            u.away = away;
+            u.away_msg = away_msg;
+        }
     }
 
     public synchronized ArrayList<User> getUsersForBuffer(int cid, int bid) {

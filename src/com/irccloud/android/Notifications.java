@@ -231,7 +231,13 @@ public class Notifications {
 					else
 						editor.commit();
                 } catch (ConcurrentModificationException e) {
-				} catch (JSONException e) {
+                } catch (OutOfMemoryError e) {
+                    editor.remove("notifications_json");
+                    editor.remove("networks_json");
+                    editor.remove("lastseeneids_json");
+                    editor.remove("dismissedeids_json");
+                    editor.commit();
+                } catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
