@@ -22,7 +22,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.widget.ShareActionProvider;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +33,7 @@ import android.widget.ProgressBar;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.ShareActionProviderHax;
 
 import org.json.JSONObject;
 
@@ -41,7 +41,7 @@ import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class ImageViewerActivity extends BaseActivity {
+public class ImageViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener{
 
     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
 
@@ -124,10 +124,11 @@ public class ImageViewerActivity extends BaseActivity {
         if(savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
-        if(Integer.parseInt(Build.VERSION.SDK) >= 11 && Integer.parseInt(Build.VERSION.SDK) < 19)
+        if(Integer.parseInt(Build.VERSION.SDK) >= 14 && Integer.parseInt(Build.VERSION.SDK) < 19)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_translucent));
 
         mImage = (WebView)findViewById(R.id.image);
         mImage.setBackgroundColor(0);
@@ -243,7 +244,8 @@ public class ImageViewerActivity extends BaseActivity {
             intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http"));
 
             MenuItem shareItem = menu.findItem(R.id.action_share);
-            ShareActionProvider share = (ShareActionProvider)MenuItemCompat.getActionProvider(shareItem);
+            ShareActionProviderHax share = (ShareActionProviderHax)MenuItemCompat.getActionProvider(shareItem);
+            share.onShareActionProviderSubVisibilityChangedListener = this;
             share.setShareIntent(intent);
         }
         return true;
@@ -262,5 +264,15 @@ public class ImageViewerActivity extends BaseActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onShareActionProviderSubVisibilityChanged(boolean visible) {
+        if(visible) {
+            if(mHideTimer != null)
+                mHideTimer.cancel();
+        } else {
+            hide_actionbar();
+        }
     }
 }

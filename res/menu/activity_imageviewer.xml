@@ -21,7 +21,7 @@
     <item android:id="@+id/action_share"
         android:title="Share"
         app:showAsAction="ifRoom"
-        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
+        app:actionProviderClass="com.irccloud.android.ShareActionProviderHax"
         />
     <item android:id="@+id/action_browser"
         android:title="Open in Browser"
