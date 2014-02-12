@@ -166,6 +166,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 v.setBackgroundResource(R.drawable.row_bg_blue);
             }
 
+            //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
+            v.setSelected(true);
             return v;
         }
     };
@@ -1708,8 +1710,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             }
-            InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            if(getCurrentFocus() != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            }
         }
 
         @Override

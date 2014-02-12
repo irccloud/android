@@ -160,7 +160,7 @@
                     android:background="@color/border"
                     android:padding="2dp">
 
-                    <com.irccloud.android.GridViewHax
+                    <GridView
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:id="@+id/suggestions"
