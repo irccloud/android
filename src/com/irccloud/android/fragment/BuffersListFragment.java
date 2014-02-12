@@ -371,6 +371,7 @@ public class BuffersListFragment extends ListFragment {
 				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archives_heading));
 				holder.unread.setBackgroundDrawable(null);
             } else if(e.type == TYPE_JOIN_CHANNEL) {
+                holder.label.setTypeface(null);
                 holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_join));
                 holder.unread.setBackgroundDrawable(null);
 			} else if(e.archived == 1 && holder.bufferbg != null) {
@@ -434,9 +435,9 @@ public class BuffersListFragment extends ListFragment {
 							holder.bufferbg.setSelected(true);
 						holder.progress.setVisibility(View.GONE);
 					}
-				} else if(e.type != TYPE_ARCHIVES_HEADER) {
+				} else {
 					holder.progress.setVisibility(View.GONE);
-					if(holder.bufferbg != null)
+					if(e.type != TYPE_ARCHIVES_HEADER && holder.bufferbg != null)
 						holder.bufferbg.setSelected(false);
 				}
 			}
