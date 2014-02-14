@@ -800,7 +800,7 @@ public class Notifications {
 						title = last.network;
 					}
 		        	if(last.message_type.equals("buffer_me_msg"))
-		        		text = "… " + last.message;
+		        		text = "— " + last.message;
 		        	else
 		        		text = last.message;
 					nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));

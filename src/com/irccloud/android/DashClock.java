@@ -70,7 +70,10 @@ public class DashClock extends DashClockExtension {
                 String msg = "";
                 ArrayList<Notifications.Notification> msgs = Notifications.getInstance().getMessageNotifications();
                 for(Notifications.Notification n : msgs) {
-                    msg += "<" + n.nick + "> " + n.message + "\n";
+                    if(n.message_type.equals("buffer_me_msg"))
+                        msg += "— " + n.nick + " " + n.message + "\n";
+                    else
+                        msg += "<" + n.nick + "> " + n.message + "\n";
                 }
                 publishUpdate(new ExtensionData()
                         .visible(true)
