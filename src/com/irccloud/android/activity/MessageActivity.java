@@ -644,10 +644,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-            /*if(messageTxt.getText().toString().equals("/starttrace") || messageTxt.getText().toString().equals("/stoptrace")) {
-                e.reqid = -2;
-                return null;
-            }*/
+            if(BuildConfig.DEBUG) {
+                if(messageTxt.getText().toString().equals("/starttrace") || messageTxt.getText().toString().equals("/stoptrace")) {
+                    e.reqid = -2;
+                    return null;
+                }
+            }
              if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
 				e.reqid = conn.say(e.cid, e.chan, messageTxt.getText().toString());
 				if(e.msg != null)
@@ -658,13 +660,15 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected void onPostExecute(Void result) {
-            /*if(messageTxt.getText().toString().equals("/starttrace")) {
-                Debug.startMethodTracing("irccloud");
-                showAlert(e.cid, "Method tracing started");
-            } else if(messageTxt.getText().toString().equals("/stoptrace")) {
-                Debug.stopMethodTracing();
-                showAlert(e.cid, "Method tracing finished");
-            }*/
+            if(BuildConfig.DEBUG) {
+                if(messageTxt.getText().toString().equals("/starttrace")) {
+                    Debug.startMethodTracing("irccloud");
+                    showAlert(e.cid, "Method tracing started");
+                } else if(messageTxt.getText().toString().equals("/stoptrace")) {
+                    Debug.stopMethodTracing();
+                    showAlert(e.cid, "Method tracing finished");
+                }
+            }
             if(e != null && e.reqid != -1) {
 				messageTxt.setText("");
                 BuffersDataSource.getInstance().updateDraft(e.bid, null);

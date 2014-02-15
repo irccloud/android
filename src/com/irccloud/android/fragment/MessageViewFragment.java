@@ -767,8 +767,10 @@ public class MessageViewFragment extends ListFragment {
         conn = NetworkConnection.getInstance();
         if(savedInstanceState != null && savedInstanceState.containsKey("bid")) {
             buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
-            if(buffer != null)
+            if(buffer != null) {
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
+                dirty = false;
+            }
         	backlog_eid = savedInstanceState.getLong("backlog_eid");
         }
     }
