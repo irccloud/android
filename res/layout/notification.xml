@@ -20,6 +20,7 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:paddingLeft="12dp"
+    android:paddingRight="4dp"
     android:paddingTop="4dp" >
 
     <LinearLayout
@@ -57,6 +58,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="2"
+            android:layout_marginTop="-2dp"
             android:layout_marginBottom="4dp"
             android:textSize="14sp" />
     </LinearLayout>
@@ -66,5 +68,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
+        android:layout_marginBottom="4dp"
         android:textSize="14sp" />
 </LinearLayout>
