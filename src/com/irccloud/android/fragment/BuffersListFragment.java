@@ -729,7 +729,8 @@ public class BuffersListFragment extends ListFragment {
 		selected_bid = bid;
 		if(adapter != null) {
             b = BuffersDataSource.getInstance().getBuffer(bid);
-            adapter.updateBuffer(b);
+            if(b != null)
+                adapter.updateBuffer(b);
 			adapter.showProgress(adapter.positionForBid(bid));
         }
 	}

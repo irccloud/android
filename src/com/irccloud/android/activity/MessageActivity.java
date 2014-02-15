@@ -272,8 +272,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                         }
                     });
                 } else {
-                    if(suggestionsTimer != null)
-                        suggestionsTimer.cancel();
+                    try {
+                        if(suggestionsTimer != null)
+                            suggestionsTimer.cancel();
+                    } catch (Exception e) {
+                    }
                     suggestionsTimer = new Timer();
                     suggestionsTimer.schedule(new TimerTask() {
                         @Override
@@ -2585,7 +2588,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         if(buffer != null) {
             server = ServersDataSource.getInstance().getServer(buffer.cid);
 
-            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
+            TreeMap<Long,EventsDataSource.Event> events = (TreeMap<Long,EventsDataSource.Event>)EventsDataSource.getInstance().getEventsForBuffer(buffer.bid).clone();
             if(events != null) {
                 for(EventsDataSource.Event e : events.values()) {
                     if(e.highlight && e.from != null) {
