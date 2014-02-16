@@ -2592,8 +2592,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         if(buffer != null) {
             server = ServersDataSource.getInstance().getServer(buffer.cid);
 
-            TreeMap<Long,EventsDataSource.Event> events = (TreeMap<Long,EventsDataSource.Event>)EventsDataSource.getInstance().getEventsForBuffer(buffer.bid).clone();
+            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
             if(events != null) {
+                events = (TreeMap<Long,EventsDataSource.Event>)events.clone();
                 for(EventsDataSource.Event e : events.values()) {
                     if(e.highlight && e.from != null) {
                         UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);
