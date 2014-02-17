@@ -2128,7 +2128,7 @@ public class MessageViewFragment extends ListFragment {
                         }
                     }
                     insertEvent(adapter, event, false, false);
-                    if(event.pending && event.self)
+                    if(event.pending && event.self && adapter != null && getListView() != null)
                         getListView().setSelection(adapter.getCount() - 1);
                 }
                 break;

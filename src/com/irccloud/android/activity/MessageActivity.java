@@ -445,7 +445,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     });
                 }
 
-                if(messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
+                if(buffer != null && messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
                     sugs.add(buffer.name);
                 for(ChannelsDataSource.Channel channel : sortedChannels) {
                     if(text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
