@@ -41,7 +41,7 @@ public class UsersDataSource {
 	
 	private static UsersDataSource instance = null;
 	
-	public static UsersDataSource getInstance() {
+	public synchronized static UsersDataSource getInstance() {
 		if(instance == null)
 			instance = new UsersDataSource();
 		return instance;

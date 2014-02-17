@@ -1282,6 +1282,7 @@ public class MessageViewFragment extends ListFragment {
         private MessageAdapter adapter;
 
         TreeMap<Long,EventsDataSource.Event> events;
+        BuffersDataSource.Buffer buffer;
         int oldPosition = -1;
         int topOffset = -1;
 
@@ -1292,6 +1293,7 @@ public class MessageViewFragment extends ListFragment {
                 oldPosition = getListView().getFirstVisiblePosition();
                 View v = getListView().getChildAt(0);
                 topOffset = (v == null) ? 0 : v.getTop();
+                buffer = MessageViewFragment.this.buffer;
             } catch (IllegalStateException e) {
                 //The list view isn't on screen anymore
                 cancel(true);

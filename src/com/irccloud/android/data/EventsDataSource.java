@@ -142,7 +142,7 @@ public class EventsDataSource {
 	private static EventsDataSource instance = null;
 	public long highest_eid = -1;
 	
-	public static EventsDataSource getInstance() {
+	public synchronized static EventsDataSource getInstance() {
 		if(instance == null)
 			instance = new EventsDataSource();
 		return instance;

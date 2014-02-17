@@ -82,7 +82,7 @@ public class BuffersDataSource {
 	private static BuffersDataSource instance = null;
     private boolean dirty = true;
 	
-	public static BuffersDataSource getInstance() {
+	public synchronized static BuffersDataSource getInstance() {
 		if(instance == null)
 			instance = new BuffersDataSource();
 		return instance;

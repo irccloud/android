@@ -85,7 +85,7 @@ public class ChannelsDataSource {
 
 	private static ChannelsDataSource instance = null;
 	
-	public static ChannelsDataSource getInstance() {
+	public synchronized static ChannelsDataSource getInstance() {
 		if(instance == null)
 			instance = new ChannelsDataSource();
 		return instance;

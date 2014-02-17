@@ -599,6 +599,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     sendBtn.setAlpha(0.5f);
                 UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
                 e = EventsDataSource.getInstance().new Event();
+                e.command = messageTxt.getText().toString();
                 e.cid = buffer.cid;
                 e.bid = buffer.bid;
                 e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
@@ -644,14 +645,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-            if(BuildConfig.DEBUG) {
-                if(messageTxt.getText().toString().equals("/starttrace") || messageTxt.getText().toString().equals("/stoptrace")) {
+            if(BuildConfig.DEBUG && e != null && e.command != null) {
+                if(e.command.equals("/starttrace") || e.command.equals("/stoptrace")) {
                     e.reqid = -2;
                     return null;
                 }
             }
              if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-				e.reqid = conn.say(e.cid, e.chan, messageTxt.getText().toString());
+				e.reqid = conn.say(e.cid, e.chan, e.command);
 				if(e.msg != null)
 					pendingEvents.put(e.reqid, e);
 			}

@@ -70,7 +70,7 @@ public class ServersDataSource {
 	
 	private static ServersDataSource instance = null;
 	
-	public static ServersDataSource getInstance() {
+	public synchronized static ServersDataSource getInstance() {
 		if(instance == null)
 			instance = new ServersDataSource();
 		return instance;
