@@ -2581,7 +2581,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             if(buffer != null && backStack.get(i) == buffer.bid)
                 backStack.remove(i);
         }
-        if(buffer != null && buffer.bid >= 0) {
+        if(buffer != null && buffer.bid >= 0 && bid != buffer.bid) {
             backStack.add(0, buffer.bid);
             buffer.draft = messageTxt.getText().toString();
         }
