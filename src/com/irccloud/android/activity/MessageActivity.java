@@ -379,7 +379,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             boolean canEditTopic;
             if (c.mode.contains("t")) {
                 UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
-                canEditTopic = (self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")));
+                canEditTopic = (self_user != null && (self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o")));
             } else {
                 canEditTopic = true;
             }
@@ -2382,13 +2382,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			if(buffer.type.equalsIgnoreCase("channel")) {
 				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
 				if(self_user != null && self_user.mode != null) {
-					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")) {
-						if(selected_user.mode.contains("o"))
+					if(self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o")) {
+						if(selected_user.mode.contains(server!=null?server.MODE_OP:"o"))
 							itemList.add("Deop");
 						else
 							itemList.add("Op");
 					}
-					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o") || self_user.mode.contains("h")) {
+					if(self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o") || self_user.mode.contains(server!=null?server.MODE_HALFOP:"h")) {
 						itemList.add("Kick…");
 						itemList.add("Ban…");
 					}
@@ -2499,9 +2499,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 	    		} else if(items[item].equals("Op")) {
-	    			conn.mode(buffer.cid, buffer.name, "+o " + selected_user.nick);
+	    			conn.mode(buffer.cid, buffer.name, "+" + (server!=null?server.MODE_OP:"o") + " " + selected_user.nick);
 	    		} else if(items[item].equals("Deop")) {
-	    			conn.mode(buffer.cid, buffer.name, "-o " + selected_user.nick);
+                    conn.mode(buffer.cid, buffer.name, "-" + (server!=null?server.MODE_OP:"o") + " " + selected_user.nick);
 	    		} else if(items[item].equals("Kick…")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);

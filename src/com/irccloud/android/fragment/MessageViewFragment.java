@@ -955,7 +955,7 @@ public class MessageViewFragment extends ListFragment {
                     String msg;
                     if(expandedSectionEids.contains(currentCollapsedEid)) {
                         CollapsedEventsList c = new CollapsedEventsList();
-                        c.PREFIX = collapsedEvents.PREFIX;
+                        c.setServer(server);
                         c.addEvent(event);
                         msg = c.getCollapsedMessage(showChan);
                         if(!nextIsGrouped) {
@@ -1461,11 +1461,10 @@ public class MessageViewFragment extends ListFragment {
             } else if(events.size() > 0) {
                 if(server != null) {
                     ignore.setIgnores(server.ignores);
-                    collapsedEvents.PREFIX = server.PREFIX;
                 } else {
                     ignore.setIgnores(null);
-                    collapsedEvents.PREFIX = null;
                 }
+                collapsedEvents.setServer(server);
                 earliest_eid = events.firstKey();
                 if(events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     mHandler.post(new Runnable() {

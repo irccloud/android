@@ -28,19 +28,11 @@ import java.util.Iterator;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.data.ServersDataSource;
 
 import org.json.JSONException;
 
 public class CollapsedEventsList {
-    public JsonObject PREFIX = null;
-    public HashMap<String, String> mode_colors = new HashMap<String,String>() {{
-        put("q","E7AA00");
-        put("a","6500A5");
-        put("o","BA1719");
-        put("h","B55900");
-        put("v","25B100");
-    }};
-
     public static final int TYPE_NETSPLIT = -1;
 	public static final int TYPE_JOIN = 0;
 	public static final int TYPE_PART = 1;
@@ -92,27 +84,27 @@ public class CollapsedEventsList {
         }
 
         public boolean addMode(String mode) {
-            if(mode.equalsIgnoreCase("q")) {
+            if(mode.equalsIgnoreCase(server!=null?server.MODE_OWNER:"q")) {
                 if(modes[MODE_DEOWNER])
                     modes[MODE_DEOWNER] = false;
                 else
                     modes[MODE_OWNER] = true;
-            } else if(mode.equalsIgnoreCase("a")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_ADMIN:"a")) {
                 if(modes[MODE_DEADMIN])
                     modes[MODE_DEADMIN] = false;
                 else
                     modes[MODE_ADMIN] = true;
-            } else if(mode.equalsIgnoreCase("o")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_OP:"o")) {
                 if(modes[MODE_DEOP])
                     modes[MODE_DEOP] = false;
                 else
                     modes[MODE_OP] = true;
-            } else if(mode.equalsIgnoreCase("h")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_HALFOP:"h")) {
                 if(modes[MODE_DEHALFOP])
                     modes[MODE_DEHALFOP] = false;
                 else
                     modes[MODE_HALFOP] = true;
-            } else if(mode.equalsIgnoreCase("v")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_VOICED:"v")) {
                 if(modes[MODE_DEVOICE])
                     modes[MODE_DEVOICE] = false;
                 else
@@ -126,27 +118,27 @@ public class CollapsedEventsList {
         }
 
         public boolean removeMode(String mode) {
-            if(mode.equalsIgnoreCase("q")) {
+            if(mode.equalsIgnoreCase(server!=null?server.MODE_OWNER:"q")) {
                 if(modes[MODE_OWNER])
                     modes[MODE_OWNER] = false;
                 else
                     modes[MODE_DEOWNER] = true;
-            } else if(mode.equalsIgnoreCase("a")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_ADMIN:"a")) {
                 if(modes[MODE_ADMIN])
                     modes[MODE_ADMIN] = false;
                 else
                     modes[MODE_DEADMIN] = true;
-            } else if(mode.equalsIgnoreCase("o")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_OP:"o")) {
                 if(modes[MODE_OP])
                     modes[MODE_OP] = false;
                 else
                     modes[MODE_DEOP] = true;
-            } else if(mode.equalsIgnoreCase("h")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_HALFOP:"h")) {
                 if(modes[MODE_HALFOP])
                     modes[MODE_HALFOP] = false;
                 else
                     modes[MODE_DEHALFOP] = true;
-            } else if(mode.equalsIgnoreCase("v")) {
+            } else if(mode.equalsIgnoreCase(server!=null?server.MODE_VOICED:"v")) {
                 if(modes[MODE_VOICE])
                     modes[MODE_VOICE] = false;
                 else
@@ -171,9 +163,6 @@ public class CollapsedEventsList {
                 "de-opped",
                 "de-halfopped",
                 "de-voiced",
-            };
-            final String[] mode_modes = {
-                "+q", "+a", "+o", "+h", "+v", "-q", "-a", "-o", "-h", "-v"
             };
 
             String output = null;
@@ -212,6 +201,49 @@ public class CollapsedEventsList {
 	}
 	
 	private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
+    private ServersDataSource.Server server;
+    private HashMap<String, String> mode_colors;
+    private String mode_modes[];
+
+    public CollapsedEventsList() {
+        setServer(null);
+    }
+
+    public void setServer(ServersDataSource.Server s) {
+        server = s;
+        if(server != null) {
+            mode_colors = new HashMap<String,String>() {{
+                put(server.MODE_OWNER,"E7AA00");
+                put(server.MODE_ADMIN,"6500A5");
+                put(server.MODE_OP,"BA1719");
+                put(server.MODE_HALFOP,"B55900");
+                put(server.MODE_VOICED,"25B100");
+            }};
+            mode_modes = new String[] {
+                    "+" + server.MODE_OWNER,
+                    "+" + server.MODE_ADMIN,
+                    "+" + server.MODE_OP,
+                    "+" + server.MODE_HALFOP,
+                    "+" + server.MODE_VOICED,
+                    "-" + server.MODE_OWNER,
+                    "-" + server.MODE_ADMIN,
+                    "-" + server.MODE_OP,
+                    "-" + server.MODE_HALFOP,
+                    "-" + server.MODE_VOICED
+            };
+        } else {
+            mode_colors = new HashMap<String,String>() {{
+                put("q","E7AA00");
+                put("a","6500A5");
+                put("o","BA1719");
+                put("h","B55900");
+                put("v","25B100");
+            }};
+            mode_modes = new String[] {
+                    "+q", "+a", "+o", "+h", "+v", "-q", "-a", "-o", "-h", "-v"
+            };
+        }
+    }
 
     public String toString() {
         String out = "CollapsedEventsList {\n";
@@ -427,13 +459,17 @@ public class CollapsedEventsList {
 	}
 	
 	public String formatNick(String nick, String from_mode, boolean colorize) {
+        JsonObject PREFIX = null;
+        if(server != null)
+            PREFIX = server.PREFIX;
+
         if(PREFIX == null) {
             PREFIX = new JsonObject();
-            PREFIX.addProperty("q", "~");
-            PREFIX.addProperty("a", "&");
-            PREFIX.addProperty("o", "@");
-            PREFIX.addProperty("h", "%");
-            PREFIX.addProperty("v", "+");
+            PREFIX.addProperty(server!=null?server.MODE_OWNER:"q", "~");
+            PREFIX.addProperty(server!=null?server.MODE_ADMIN:"a", "&");
+            PREFIX.addProperty(server!=null?server.MODE_OP:"o", "@");
+            PREFIX.addProperty(server!=null?server.MODE_HALFOP:"h", "%");
+            PREFIX.addProperty(server!=null?server.MODE_VOICED:"v", "+");
         }
 
         String[] colors = {"fc009a", "ff1f1a", "d20004", "fd6508", "880019", "c7009c", "804fc4", "5200b7", "123e92", "1d40ff", "108374", "2e980d", "207607", "196d61"};
@@ -464,16 +500,16 @@ public class CollapsedEventsList {
 		}
 		String mode = "";
 		if(from_mode != null && from_mode.length() > 0) {
-            if(from_mode.indexOf('q') != -1)
-                mode = "q";
-            else if(from_mode.indexOf('a') != -1)
-                mode = "a";
-            else if(from_mode.indexOf('o') != -1)
-                mode = "o";
-            else if(from_mode.indexOf('h') != -1)
-                mode = "h";
-            else if(from_mode.indexOf('v') != -1)
-                mode = "v";
+            if(from_mode.contains(server!=null?server.MODE_OWNER:"q"))
+                mode = server!=null?server.MODE_OWNER:"q";
+            else if(from_mode.contains(server!=null?server.MODE_ADMIN:"a"))
+                mode = server!=null?server.MODE_ADMIN:"a";
+            else if(from_mode.contains(server!=null?server.MODE_OP:"o"))
+                mode = server!=null?server.MODE_OP:"o";
+            else if(from_mode.contains(server!=null?server.MODE_HALFOP:"h"))
+                mode = server!=null?server.MODE_HALFOP:"h";
+            else if(from_mode.contains(server!=null?server.MODE_VOICED:"v"))
+                mode = server!=null?server.MODE_VOICED:"v";
             else
     			mode = from_mode.substring(0,1);
 		}

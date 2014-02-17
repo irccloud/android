@@ -1444,6 +1444,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
+                s.updateUserModes(object.cid(), object.getString("usermodes"));
                 s.updateIsupport(object.cid(), object.getJsonObject("params"));
             }
         });

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.data.ServersDataSource;
 
 import junit.framework.TestCase;
 
@@ -52,6 +53,23 @@ public class CollapsedEventsTests extends TestCase {
         e.ops.add("remove", remove);
 
         list.addEvent(e);
+    }
+
+    public void testOwner1() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        addMode(list, "q", "sam", "ChanServ");
+
+        assertEquals("<b>\u0004E7AA00\u0002•\u000F sam</b> was promoted to owner (\u0004E7AA00+q\u000F) by \u0004E7AA00\u0002•\u000F ChanServ", list.getCollapsedMessage(false));
+    }
+
+    public void testOwner2() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        ServersDataSource.Server s = ServersDataSource.getInstance().new Server();
+        s.MODE_OWNER = "y";
+        list.setServer(s);
+        addMode(list, "y", "sam", "ChanServ");
+
+        assertEquals("<b>\u0004E7AA00\u0002•\u000F sam</b> was promoted to owner (\u0004E7AA00+y\u000F) by \u0002•\u000F ChanServ", list.getCollapsedMessage(false));
     }
 
     public void testOp() {
