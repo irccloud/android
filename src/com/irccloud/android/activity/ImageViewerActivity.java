@@ -164,6 +164,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 } else {
                     url = url + "?dl=1";
                 }
+            } else if((lower.startsWith("d.pr/i/") || lower.startsWith("droplr.com/i/")) && !lower.endsWith("+")) {
+                url += "+";
             } else if(lower.startsWith("imgur.com/")) {
                 new OEmbedTask().execute("http://api.imgur.com/oembed.json?url=" + url);
                 return;
