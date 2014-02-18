@@ -58,7 +58,12 @@ public class ActionEditText extends EditText
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
         if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_send", true)) {
-            outAttrs.inputType = EditorInfo.TYPE_CLASS_TEXT|EditorInfo.TYPE_TEXT_VARIATION_NORMAL|EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES|EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT;
+            outAttrs.inputType = EditorInfo.TYPE_CLASS_TEXT|EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT;
+        }
+        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_caps", true)) {
+            outAttrs.inputType |= EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
+        } else {
+            outAttrs.inputType &= ~EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
         }
         return conn;
     }

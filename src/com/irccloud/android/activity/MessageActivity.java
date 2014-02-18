@@ -783,7 +783,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			showNotificationsTask.execute(new_bid);
     			return;
     		} else if(BuffersDataSource.getInstance().getBuffer(new_bid) != null) {
-    	    	if(buffer != null)
+    	    	if(buffer != null && buffer.bid != new_bid)
     	    		backStack.add(0, buffer.bid);
                 buffer = BuffersDataSource.getInstance().getBuffer(new_bid);
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
