@@ -116,18 +116,26 @@ public class ColorFormatter {
 		        }
 		    }
 		});
-		
+
+        String chanTypes = "#";
+        if(server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
+            chanTypes = server.CHANTYPES;
+
+        final String pattern = "\\B([" + chanTypes + "][^<>!?\"()\\[\\],\\s\ufe55]+)";
+
 		if(linkify) {
-			Linkify.addLinks(output, Patterns.WEB_URL, null, new MatchFilter() {
+            Linkify.addLinks(output, Patterns.WEB_URL, null, new MatchFilter() {
 		        public final boolean acceptMatch(CharSequence s, int start, int end) {
-		        	if(start > 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
+		        	if(start >= 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
 		        		return false;
-		        	if(start > 7 && s.subSequence(start - 7, end).toString().startsWith("ircs://"))
+		        	if(start >= 7 && s.subSequence(start - 7, end).toString().startsWith("ircs://"))
 		        		return false;
 		        	if(s.subSequence(start, end).toString().startsWith("https://"))
 		        		return false;
 		        	if(s.subSequence(start, end).toString().startsWith("http://"))
 		        		return false;
+                    if(start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
+                        return false;
 		        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
 		        }
 		    }, new TransformFilter() {
@@ -183,14 +191,6 @@ public class ColorFormatter {
 			
 		}
         if(server != null) {
-            String pattern = "\\B([";
-            String chanTypes = server.CHANTYPES;
-            if(chanTypes == null) {
-                chanTypes = "#";
-            }
-            pattern += chanTypes;
-            pattern += "][^<>!?\"()\\[\\],\\s\ufe55]+)";
-
             Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {
                         public final boolean acceptMatch(CharSequence s, int start, int end) {
                             try {
