@@ -88,6 +88,8 @@ public class BuffersListFragment extends ListFragment {
 	int lastUnreadPosition= -1;
 	int firstHighlightPosition = -1;
 	int lastHighlightPosition= -1;
+    int firstFailurePosition = -1;
+    int lastFailurePosition = -1;
 	
 	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 	
@@ -267,6 +269,36 @@ public class BuffersListFragment extends ListFragment {
                     }
                 }
 
+                if(e.type == TYPE_SERVER) {
+                    if(e.fail_info != null && e.fail_info.has("reason")) {
+                        if(firstFailurePosition == -1 || firstFailurePosition > pos)
+                            firstFailurePosition = pos;
+                        if(lastFailurePosition == -1 || lastFailurePosition < pos)
+                            lastFailurePosition = pos;
+                    } else {
+                        if(firstFailurePosition == pos) {
+                            firstFailurePosition = -1;
+                            for(int i = 0; i < data.size(); i++) {
+                                BufferListEntry j = data.get(i);
+                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("reason")) {
+                                    firstFailurePosition = i;
+                                    break;
+                                }
+                            }
+                        }
+                        if(lastFailurePosition == pos) {
+                            lastFailurePosition = -1;
+                            for(int i = pos; i >= 0; i--) {
+                                BufferListEntry j = data.get(i);
+                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("reason")) {
+                                    lastFailurePosition = i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 notifyDataSetChanged();
                 if(listView != null)
                     updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
@@ -282,7 +314,7 @@ public class BuffersListFragment extends ListFragment {
             if(pos > 0) {
                 for(int i = pos-1; i >= 0; i--) {
                     BufferListEntry e = data.get(i);
-                    if(e.unread > 0)
+                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("reason")))
                         return i;
                 }
             }
@@ -293,7 +325,7 @@ public class BuffersListFragment extends ListFragment {
             if(pos >= 0) {
                 for(int i = pos; i < data.size(); i++) {
                     BufferListEntry e = data.get(i);
-                    if(e.unread > 0)
+                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("reason")))
                         return i;
                 }
             }
@@ -454,12 +486,8 @@ public class BuffersListFragment extends ListFragment {
                         row.setContentDescription(e.contentDescription + ". Double-tap to expand.");
                     }
                 } else if(e.type == TYPE_SERVER) {
-                    if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable")) {
-                        holder.bufferbg.setBackgroundResource(R.drawable.row_connecting_bg);
-                        if(e.bid == selected_bid)
-                            holder.unread.setBackgroundResource(R.drawable.highlight_red);
-                        holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_disconnected));
-                    } else if(e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("reason")) {
+                    if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable") ||
+                            ((e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("reason")))) {
                         holder.bufferbg.setBackgroundResource(R.drawable.row_failed_bg);
                         holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_failed));
                         if(e.bid == selected_bid)
@@ -551,6 +579,8 @@ public class BuffersListFragment extends ListFragment {
 			lastUnreadPosition = -1;
 			firstHighlightPosition = -1;
 			lastHighlightPosition = -1;
+            firstFailurePosition = -1;
+            lastFailurePosition = -1;
 			int position = 0;
 			
 			JSONObject channelDisabledMap = null;
@@ -602,6 +632,12 @@ public class BuffersListFragment extends ListFragment {
 							firstHighlightPosition = position;
 						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
 							lastHighlightPosition = position;
+                        if(s.fail_info != null && s.fail_info.has("reason")) {
+                            if(firstFailurePosition == -1)
+                                firstFailurePosition = position;
+                            if(lastFailurePosition == -1 || lastFailurePosition < position)
+                                lastFailurePosition = position;
+                        }
 						position++;
 						break;
 					}
@@ -737,11 +773,15 @@ public class BuffersListFragment extends ListFragment {
 	
 	private void updateUnreadIndicators(int first, int last) {
 		if(topUnreadIndicator != null) {
+            if(firstFailurePosition != -1 && first > firstFailurePosition) {
+                topUnreadIndicator.setVisibility(View.VISIBLE);
+                topUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
+            } else {
+                topUnreadIndicator.setVisibility(View.GONE);
+            }
 			if(firstUnreadPosition != -1 && first > firstUnreadPosition) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
 				topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
-			} else {
-				topUnreadIndicator.setVisibility(View.GONE);
 			}
 			if((lastHighlightPosition != -1 && first > lastHighlightPosition) ||
 					(firstHighlightPosition != -1 && first > firstHighlightPosition)) {
@@ -750,11 +790,15 @@ public class BuffersListFragment extends ListFragment {
 			}
 		}
 		if(bottomUnreadIndicator != null) {
+            if(lastFailurePosition != -1 && last < lastFailurePosition) {
+                bottomUnreadIndicator.setVisibility(View.VISIBLE);
+                bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
+            } else {
+                bottomUnreadIndicator.setVisibility(View.GONE);
+            }
 			if(lastUnreadPosition != -1 && last < lastUnreadPosition) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
 				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
-			} else {
-				bottomUnreadIndicator.setVisibility(View.GONE);
 			}
 			if((firstHighlightPosition != -1 && last < firstHighlightPosition) ||
 					(lastHighlightPosition != -1 && last < lastHighlightPosition)) {
