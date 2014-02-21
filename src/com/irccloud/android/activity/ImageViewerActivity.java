@@ -38,6 +38,7 @@ import com.irccloud.android.ShareActionProviderHax;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,6 +75,31 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
                 if(o.getString("item_type").equalsIgnoreCase("image"))
                     return o.getString("content_url");
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if(url != null) {
+                loadImage(url);
+            } else {
+                fail();
+            }
+        }
+    }
+
+    private class WikiTask extends AsyncTaskEx<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
+                JSONObject pages = o.getJSONObject("query").getJSONObject("pages");
+                Iterator<String> i = pages.keys();
+                String pageid = i.next();
+                return pages.getJSONObject(pageid).getJSONArray("imageinfo").getJSONObject(0).getString("url");
             } catch (Exception e) {
             }
             return null;
@@ -178,6 +204,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             } else if(lower.startsWith("cl.ly")) {
                 new ClLyTask().execute(url);
                 return;
+            } else if(url.contains("/wiki/File:")) {
+                new WikiTask().execute(url.replace("/wiki/", "/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles="));
             }
             loadImage(url);
         } else {
