@@ -226,17 +226,7 @@ public class BuffersListFragment extends ListFragment {
                     if(firstUnreadPosition == pos) {
                         firstUnreadPosition = -1;
                         for(int i = 0; i < data.size(); i++) {
-                            BufferListEntry entry = data.get(i);
-                            unread = entry.unread;
-                            try {
-                                if(entry.type == TYPE_CHANNEL && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(entry.bid)) && channelDisabledMap.getBoolean(String.valueOf(entry.bid)))
-                                    unread = 0;
-                                else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(entry.bid)) && bufferDisabledMap.getBoolean(String.valueOf(entry.bid)))
-                                    unread = 0;
-                            } catch (JSONException ex) {
-
-                            }
-                            if(unread > 0) {
+                            if(data.get(i).unread > 0) {
                                 firstUnreadPosition = i;
                                 break;
                             }
@@ -245,17 +235,7 @@ public class BuffersListFragment extends ListFragment {
                     if(lastUnreadPosition == pos) {
                         lastUnreadPosition = -1;
                         for(int i = pos; i >= 0; i--) {
-                            BufferListEntry entry = data.get(i);
-                            unread = entry.unread;
-                            try {
-                                if(entry.type == TYPE_CHANNEL && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(entry.bid)) && channelDisabledMap.getBoolean(String.valueOf(entry.bid)))
-                                    unread = 0;
-                                else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(entry.bid)) && bufferDisabledMap.getBoolean(String.valueOf(entry.bid)))
-                                    unread = 0;
-                            } catch (JSONException ex) {
-
-                            }
-                            if(unread > 0) {
+                            if(data.get(i).unread > 0) {
                                 lastUnreadPosition = i;
                                 break;
                             }
@@ -272,15 +252,7 @@ public class BuffersListFragment extends ListFragment {
                     if(firstHighlightPosition == pos) {
                         firstHighlightPosition = -1;
                         for(int i = 0; i < data.size(); i++) {
-                            BufferListEntry entry = data.get(i);
-                            highlights = entry.highlights;
-                            try {
-                                if(entry.type == TYPE_CONVERSATION && bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(entry.bid)) && bufferDisabledMap.getBoolean(String.valueOf(entry.bid)))
-                                    highlights = 0;
-                            } catch (JSONException ex) {
-
-                            }
-                            if(highlights > 0) {
+                            if(data.get(i).highlights > 0) {
                                 firstHighlightPosition = i;
                                 break;
                             }
@@ -289,15 +261,7 @@ public class BuffersListFragment extends ListFragment {
                     if(lastHighlightPosition == pos) {
                         lastHighlightPosition = -1;
                         for(int i = pos; i >= 0; i--) {
-                            BufferListEntry entry = data.get(i);
-                            highlights = entry.highlights;
-                            try {
-                                if(entry.type == TYPE_CONVERSATION && bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(entry.bid)) && bufferDisabledMap.getBoolean(String.valueOf(entry.bid)))
-                                    highlights = 0;
-                            } catch (JSONException ex) {
-
-                            }
-                            if(highlights > 0) {
+                            if(data.get(i).highlights > 0) {
                                 lastHighlightPosition = i;
                                 break;
                             }
