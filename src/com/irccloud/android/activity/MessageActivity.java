@@ -651,16 +651,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     return null;
                 }
             }
-            if(e.command.equals("/crash")) {
-                e = null;
-                e.reqid = -1;
-                return null;
+            if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+                e.reqid = conn.say(e.cid, e.chan, e.command);
+                if(e.msg != null)
+                    pendingEvents.put(e.reqid, e);
             }
-             if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-				e.reqid = conn.say(e.cid, e.chan, e.command);
-				if(e.msg != null)
-					pendingEvents.put(e.reqid, e);
-			}
 			return null;
 		}
     	
