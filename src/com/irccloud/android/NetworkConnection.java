@@ -80,6 +80,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -91,7 +92,6 @@ import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
-import com.testflightapp.lib.TestFlight;
 
 public class NetworkConnection {
 	private static final String TAG = "IRCCloud";
@@ -350,13 +350,11 @@ public class NetworkConnection {
 			ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo ni = cm.getActiveNetworkInfo();
 			if(ni != null && ni.isConnected() && state == STATE_DISCONNECTED && session != null && handlers.size() > 0) {
-                TestFlight.log("Network is online");
 				if(idleTimer != null)
 					idleTimer.cancel();
 				idleTimer = null;
 				connect(session);
 			} else if(ni == null || !ni.isConnected()) {
-                TestFlight.log("Network is offline");
                 cancel_idle_timer();
                 reconnect_timestamp = 0;
 				if(client != null) {
@@ -444,7 +442,6 @@ public class NetworkConnection {
 	}
 	
 	public void disconnect() {
-        TestFlight.log("Disconnecting WebSocket");
 		if(client!=null) {
 			state = STATE_DISCONNECTING;
 			client.disconnect();
@@ -576,7 +573,6 @@ public class NetworkConnection {
             NetworkInfo ni = cm.getActiveNetworkInfo();
 
             if(ni == null || !ni.isConnected()) {
-                TestFlight.log("Network is not connected");
                 cancel_idle_timer();
                 state = STATE_DISCONNECTED;
                 reconnect_timestamp = 0;
@@ -632,21 +628,17 @@ public class NetworkConnection {
         }
 
         if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
-            TestFlight.log("Connecting: " + url + " via proxy: " + host);
-            Log.d(TAG, "Connecting: " + url + " via proxy: " + host);
+            Crashlytics.log(Log.DEBUG, TAG, "Connecting: " + url + " via proxy: " + host);
         } else {
-            TestFlight.log("Connecting: " + url);
-            Log.d(TAG, "Connecting: " + url);
+            Crashlytics.log(Log.DEBUG, TAG, "Connecting: " + url);
         }
 
-        TestFlight.log("Attempt: " + failCount);
-        Log.d(TAG, "Attempt: " + failCount);
+        Crashlytics.log(Log.DEBUG, TAG, "Attempt: " + failCount);
 
 		client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
 		    @Override
 		    public void onConnect() {
-                TestFlight.log("WebSocket connected");
-                Log.d(TAG, "WebSocket connected");
+                Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
 		        state = STATE_CONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		    }
@@ -659,7 +651,7 @@ public class NetworkConnection {
 							parse_object(new IRCCloudJSONObject(message));
 						}
 					} catch (Exception e) {
-                        TestFlight.log("Unable to parse: " + message);
+                        Crashlytics.log(Log.ERROR, TAG, "Unable to parse: " + message);
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -673,8 +665,7 @@ public class NetworkConnection {
 
 		    @Override
 		    public void onDisconnect(int code, String reason) {
-                TestFlight.log("WebSocket disconnected");
-                Log.d(TAG, "WebSocket disconnected");
+                Crashlytics.log(Log.DEBUG, TAG, "WebSocket disconnected");
                 ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo ni = cm.getActiveNetworkInfo();
                 if(state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
@@ -688,15 +679,14 @@ public class NetworkConnection {
                     else
                         idle_interval = 30000;
 		        	schedule_idle_timer();
-                    TestFlight.log("Reconnecting in " + idle_interval/1000 + " seconds");
-                    Log.d(TAG, "Reconnecting in " + idle_interval/1000 + " seconds");
+                    Crashlytics.log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval/1000 + " seconds");
                 }
 
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
 		        
 		        if(reason != null && reason.equals("SSL")) {
-                    TestFlight.log("The socket was disconnected due to an SSL error");
+                    Crashlytics.log(Log.ERROR, TAG, "The socket was disconnected due to an SSL error");
 		        	try {
 			        	JSONObject o = new JSONObject();
 						o.put("message", "Unable to establish a secure connection to the IRCCloud servers.");
@@ -709,8 +699,7 @@ public class NetworkConnection {
 
 		    @Override
 		    public void onError(Exception error) {
-                TestFlight.log("The WebSocket encountered an error: " + error.toString());
-                Log.d(TAG, "The WebSocket encountered an error: " + error.toString());
+                Crashlytics.log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
 		        if(state == STATE_DISCONNECTING)
 		        	cancel_idle_timer();
 		        else {
@@ -722,7 +711,7 @@ public class NetworkConnection {
                     else
                         idle_interval = 30000;
 		        	schedule_idle_timer();
-                    TestFlight.log("Reconnecting in " + idle_interval/1000 + " seconds");
+                    Crashlytics.log(Log.DEBUG, TAG, "Reconnecting in " + idle_interval/1000 + " seconds");
                 }
 		        
 		        state = STATE_DISCONNECTED;
@@ -1096,8 +1085,7 @@ public class NetworkConnection {
     public void request_backlog(int cid, int bid, long beforeId) {
 		try {
 			if(oobTasks.containsKey(bid)) {
-                TestFlight.log("Ignoring duplicate backlog request for BID: " + bid);
-                Log.w("IRCCloud", "Ignoring duplicate backlog request for BID: " + bid);
+                Crashlytics.log(Log.WARN, TAG, "Ignoring duplicate backlog request for BID: " + bid);
 				return;
 			}
 			if(Looper.myLooper() == null)
@@ -1140,8 +1128,7 @@ public class NetworkConnection {
 			idleTimer.schedule(new TimerTask() {
                 public void run() {
                     if (handlers.size() > 0) {
-                        TestFlight.log("Websocket idle time exceeded, reconnecting...");
-                        Log.i(TAG, "Websocket idle time exceeded, reconnecting...");
+                        Crashlytics.log(Log.INFO, TAG, "Websocket idle time exceeded, reconnecting...");
                         state = STATE_DISCONNECTING;
                         notifyHandlers(EVENT_CONNECTIVITY, null);
                         if(client != null)
@@ -1200,7 +1187,6 @@ public class NetworkConnection {
                 if(!(object.has("resumed") && object.getBoolean("resumed"))) {
                     Log.d("IRCCloud", "Socket was not resumed");
                 }
-                TestFlight.log("Clock offset: " + clockOffset + "s");
             }
         });
 
@@ -1968,7 +1954,7 @@ public class NetworkConnection {
 		if(!object.has("type")) {
 			//Log.d(TAG, "Response: " + object);
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
-                TestFlight.log("Error: " + object);
+                Crashlytics.log(Log.ERROR, TAG, "Error: " + object);
 				notifyHandlers(EVENT_FAILURE_MSG, object);
 			} else if(object.has("success")) {
 				notifyHandlers(EVENT_SUCCESS, object);
@@ -1983,7 +1969,7 @@ public class NetworkConnection {
             if(p != null) {
                 p.parse(object);
 			} else if(!parserMap.containsKey(type)) {
-                TestFlight.log("Unhandled type: " + object.type());
+                Crashlytics.log(Log.WARN, TAG, "Unhandled type: " + object.type());
 				//Log.w(TAG, "Unhandled type: " + object);
 			}
 
@@ -2226,8 +2212,7 @@ public class NetworkConnection {
                 String longestEventType = "";
 				if(Build.VERSION.SDK_INT >= 14)
 					TrafficStats.setThreadStatsTag(BACKLOG_TAG);
-				Log.d(TAG, "Requesting: " + url[0]);
-                TestFlight.log("Requesting: " + url[0]);
+                Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url[0]);
 				mUrl = url[0];
 				HttpURLConnection conn = null;
                 Proxy proxy = null;
@@ -2243,7 +2228,7 @@ public class NetworkConnection {
                 }
 
                 if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1")) {
-                    TestFlight.log("Connecting via proxy: " + host);
+                    Crashlytics.log(Log.DEBUG, TAG, "Connecting via proxy: " + host);
                     InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
                     proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
                 }
@@ -2286,10 +2271,8 @@ public class NetworkConnection {
                             cancel_idle_timer();
                             //if(ready)
                             //Debug.startMethodTracing("oob", 16*1024*1024);
-                            TestFlight.log("Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
-                            Log.d(TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
-                            TestFlight.log("Beginning backlog...");
-                            Log.d(TAG, "Beginning backlog...");
+                            Crashlytics.log(Log.DEBUG, TAG, "Connection time: " + (System.currentTimeMillis() - totalTime) + "ms");
+                            Crashlytics.log(Log.DEBUG, TAG, "Beginning backlog...");
                             if(bid > 0)
                                 notifyHandlers(EVENT_BACKLOG_START, null);
                             numbuffers = 0;
@@ -2306,7 +2289,7 @@ public class NetworkConnection {
                             int count = 0;
                             while(reader.hasNext()) {
                                 if(isCancelled()) {
-                                    Log.d("IRCCloud", "Backlog parsing cancelled");
+                                    Crashlytics.log(Log.DEBUG, TAG, "Backlog parsing cancelled");
                                     return false;
                                 }
                                 long time = System.currentTimeMillis();
@@ -2317,9 +2300,8 @@ public class NetworkConnection {
                                 try {
                                     parse_object(o);
                                 } catch (Exception ex) {
-                                    TestFlight.log("Unable to parse message type: " + o.type() + ": " + ex.toString());
-                                    Log.e(TAG, "Unable to parse message type: " + o.type());
-                                    ex.printStackTrace();
+                                    Crashlytics.log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
+                                    Crashlytics.logException(ex);
                                 }
                                 long t = (System.currentTimeMillis() - time);
                                 if(t > longestEventTime) {
@@ -2335,27 +2317,20 @@ public class NetworkConnection {
                             backlog = false;
                             //Debug.stopMethodTracing();
                             totalTime = (System.currentTimeMillis() - totalTime);
-                            TestFlight.log("Backlog complete: " + count + " events");
-                            TestFlight.log("JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
-                            TestFlight.log("Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
-                            TestFlight.log("Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
-                            TestFlight.log("Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
-                            Log.d(TAG, "Backlog complete: " + count + " events");
-                            Log.d(TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
-                            Log.d(TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
-                            Log.d(TAG, "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
-                            Log.d(TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
+                            Crashlytics.log(Log.DEBUG, TAG, "Backlog complete: " + count + " events");
+                            Crashlytics.log(Log.DEBUG, TAG, "JSON parsing took: " + totalJSONTime + "ms (" + (totalJSONTime/(float)count) + "ms / object)");
+                            Crashlytics.log(Log.DEBUG, TAG, "Backlog processing took: " + totalParseTime + "ms (" + (totalParseTime/(float)count) + "ms / object)");
+                            Crashlytics.log(Log.DEBUG, TAG, "Total OOB load time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                            Crashlytics.log(Log.DEBUG, TAG, "Longest event: " + longestEventType + " (" + longestEventTime + "ms)");
                             totalTime -= totalJSONTime;
                             totalTime -= totalParseTime;
-                            TestFlight.log("Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
-                            Log.d(TAG, "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
+                            Crashlytics.log(Log.DEBUG, TAG, "Total non-processing time: " +  totalTime + "ms (" + (totalTime/(float)count) +"ms / object)");
 
                             ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
                             for(BuffersDataSource.Buffer b : buffers) {
                                 Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
                                 if(b.timeout > 0 && bid == -1) {
-                                    TestFlight.log("Requesting backlog for timed-out buffer: " + b.name);
-                                    Log.d(TAG, "Requesting backlog for timed-out buffer: " + b.name);
+                                    Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.name);
                                     request_backlog(b.cid, b.bid, 0);
                                 }
                             }
@@ -2376,8 +2351,7 @@ public class NetworkConnection {
                     }
                     oobTasks.remove(bid);
 
-                    TestFlight.log("OOB fetch complete!");
-                    Log.d(TAG, "OOB fetch complete!");
+                    Crashlytics.log(Log.DEBUG, TAG, "OOB fetch complete!");
                     if(Build.VERSION.SDK_INT >= 14)
                         TrafficStats.clearThreadStatsTag();
                     numbuffers = 0;
@@ -2392,8 +2366,7 @@ public class NetworkConnection {
 					if(!isCancelled()) {
                         BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
                         if(b != null && b.timeout == 1) {
-                            TestFlight.log("Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
-                            Log.w(TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
+                            Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
                             new Timer().schedule(new TimerTask() {
                                  public void run() {
                                      doInBackground(mUrl);
@@ -2401,8 +2374,7 @@ public class NetworkConnection {
                             }, retryDelay);
                             retryDelay *= 2;
                         } else {
-                            TestFlight.log("Failed to fetch backlog");
-                            Log.w(TAG, "Failed to fetch backlog");
+                            Crashlytics.log(Log.ERROR, TAG, "Failed to fetch backlog");
                             oobTasks.remove(bid);
                         }
 					}
@@ -2412,8 +2384,7 @@ public class NetworkConnection {
 				TrafficStats.clearThreadStatsTag();
             notifyHandlers(EVENT_BACKLOG_FAILED, null);
             if(bid == -1) {
-                TestFlight.log("Failed to fetch the initial backlog, reconnecting!");
-                Log.e(TAG, "Failed to fetch the initial backlog, reconnecting!");
+                Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
                 streamId = null;
                 if(client != null)
                     client.disconnect();

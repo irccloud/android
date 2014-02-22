@@ -62,6 +62,9 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
+
 public class MainActivity extends FragmentActivity {
 	private View login = null;
 	private AutoCompleteTextView email;
@@ -78,6 +81,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 		getWindow().setBackgroundDrawable(null);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
@@ -157,6 +161,8 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onResume() {
     	super.onResume();
+        if(BuildConfig.HOCKEYAPP_KEY.length() > 0)
+            UpdateManager.register(this, BuildConfig.HOCKEYAPP_KEY);
     	conn = NetworkConnection.getInstance();
     	if(conn.ready) {
             if(ServersDataSource.getInstance().count() > 0) {

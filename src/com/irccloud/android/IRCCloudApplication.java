@@ -29,12 +29,12 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
+import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
-import com.testflightapp.lib.TestFlight;
 
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends Application {
@@ -59,6 +59,8 @@ public class IRCCloudApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+        if(getResources().getString(R.string.CRASHLYTICS_KEY).length() > 0)
+            Crashlytics.start(this);
 		instance = this;
 		//Allocate all the shared objects at launch
 		conn = NetworkConnection.getInstance();
@@ -67,11 +69,6 @@ public class IRCCloudApplication extends Application {
 		c = ChannelsDataSource.getInstance();
 		u = UsersDataSource.getInstance();
 		e = EventsDataSource.getInstance();
-        try {
-            if(BuildConfig.TF_KEY != null && BuildConfig.TF_KEY.length() > 0)
-                TestFlight.takeOff(this, BuildConfig.TF_KEY);
-        } catch (Exception e) {
-        }
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		if(prefs.contains("notify")) {
 			SharedPreferences.Editor editor = prefs.edit();

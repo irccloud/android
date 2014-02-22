@@ -27,3 +27,4 @@ branded.gradle
 .idea/tasks.xml
 .idea/libraries
 .gradle/
+res/values/com_crashlytics_export_strings.xml

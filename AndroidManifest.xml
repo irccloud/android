@@ -124,6 +124,8 @@
                        android:value="Displays your unread IRC highlights" />
             <meta-data android:name="worldReadable" android:value="true" />
         </service>
+        <meta-data android:name="com.crashlytics.ApiKey" android:value="@string/CRASHLYTICS_KEY"/>
+        <activity android:name="net.hockeyapp.android.UpdateActivity" />
 	</application>
 
 </manifest>
