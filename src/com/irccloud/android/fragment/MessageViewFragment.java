@@ -1383,19 +1383,21 @@ public class MessageViewFragment extends ListFragment {
                         else {
                             getListView().setSelectionFromTop(buffer.scrollPosition, buffer.scrollPositionOffset);
 
-                            newMsgs = 0;
-                            newHighlights = 0;
+                            if(adapter.getLastSeenEIDPosition() > buffer.scrollPosition) {
+                                newMsgs = 0;
+                                newHighlights = 0;
 
-                            for(int i = adapter.data.size() - 1; i >= 0; i--) {
-                                EventsDataSource.Event e = adapter.data.get(i);
-                                if(e.eid <= buffer.last_seen_eid)
-                                    break;
+                                for(int i = adapter.data.size() - 1; i >= 0; i--) {
+                                    EventsDataSource.Event e = adapter.data.get(i);
+                                    if(e.eid <= buffer.last_seen_eid)
+                                        break;
 
-                                if(e.isImportant(buffer.type)) {
-                                    if(e.highlight)
-                                        newHighlights++;
-                                    else
-                                        newMsgs++;
+                                    if(e.isImportant(buffer.type)) {
+                                        if(e.highlight)
+                                            newHighlights++;
+                                        else
+                                            newMsgs++;
+                                    }
                                 }
                             }
 
