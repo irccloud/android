@@ -126,13 +126,13 @@ public class ColorFormatter {
 		if(linkify) {
             Linkify.addLinks(output, Patterns.WEB_URL, null, new MatchFilter() {
 		        public final boolean acceptMatch(CharSequence s, int start, int end) {
-		        	if(start >= 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
+		        	if(start >= 6 && s.subSequence(start - 6, end).toString().toLowerCase().startsWith("irc://"))
 		        		return false;
-		        	if(start >= 7 && s.subSequence(start - 7, end).toString().startsWith("ircs://"))
+		        	if(start >= 7 && s.subSequence(start - 7, end).toString().toLowerCase().startsWith("ircs://"))
 		        		return false;
-		        	if(s.subSequence(start, end).toString().startsWith("https://"))
+		        	if(s.subSequence(start, end).toString().toLowerCase().startsWith("https://"))
 		        		return false;
-		        	if(s.subSequence(start, end).toString().startsWith("http://"))
+		        	if(s.subSequence(start, end).toString().toLowerCase().startsWith("http://"))
 		        		return false;
                     if(start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
                         return false;
@@ -160,7 +160,7 @@ public class ColorFormatter {
 			Linkify.addLinks(output, Pattern.compile("https?://(" +
                     "(?:|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)" +
                     "(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))" +
-                    "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))"), null, null, new TransformFilter() {
+                    "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))", Pattern.CASE_INSENSITIVE), null, null, new TransformFilter() {
                 @Override
                 public String transformUrl(Matcher match, String url) {
                     if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
@@ -178,6 +178,10 @@ public class ColorFormatter {
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
                         }
                     }
+                    if(url.toLowerCase().startsWith("https:"))
+                        url = "https" + url.substring(5);
+                    else
+                        url = "http" + url.substring(4);
                     return url;
                 }
             });
