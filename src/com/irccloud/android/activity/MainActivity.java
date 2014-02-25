@@ -95,6 +95,8 @@ public class MainActivity extends FragmentActivity {
 
         login = findViewById(R.id.login);
         email = (AutoCompleteTextView)findViewById(R.id.email);
+        if(BuildConfig.ENTERPRISE)
+            email.setHint(R.string.email_enterprise);
         ArrayList<String> accounts = new ArrayList<String>();
         AccountManager am = (AccountManager)getSystemService(Context.ACCOUNT_SERVICE);
         for(Account a : am.getAccounts()) {
@@ -136,6 +138,8 @@ public class MainActivity extends FragmentActivity {
         });
         if(savedInstanceState != null && savedInstanceState.containsKey("host"))
             host.setText(savedInstanceState.getString("host"));
+        else
+            host.setText(getSharedPreferences("prefs", 0).getString("host", "www.irccloud.com"));
 
         loginBtn = (Button)findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
@@ -346,6 +350,9 @@ public class MainActivity extends FragmentActivity {
             host.setEnabled(false);
             if(BuildConfig.ENTERPRISE)
                 NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
+            SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+            editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+            editor.commit();
 			loginBtn.setEnabled(false);
 			connectingMsg.setText("Signing in");
 			progressBar.setIndeterminate(true);
@@ -374,7 +381,6 @@ public class MainActivity extends FragmentActivity {
 				try {
 					SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 					editor.putString("session_key", result.getString("session"));
-                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
 					login.setVisibility(View.GONE);
 					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 					imm.hideSoftInputFromWindow(password.getWindowToken(), 0);
