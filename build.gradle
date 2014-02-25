@@ -136,10 +136,12 @@ android {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "TF_KEY", "\"" + props['TF_KEY'] + "\""
+                buildConfigField "String", "HOCKEYAPP_KEY", "\"" + props['HOCKEYAPP_KEY'] + "\""
+                resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "TF_KEY", "\"\""
+                buildConfigField "String", "HOCKEYAPP_KEY", "\"\""
+                resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
@@ -159,10 +161,12 @@ android {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "TF_KEY", "\"" + props['TF_KEY'] + "\""
+                buildConfigField "String", "HOCKEYAPP_KEY", "\"" + props['HOCKEYAPP_KEY'] + "\""
+                resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "TF_KEY", "\"\""
+                buildConfigField "String", "HOCKEYAPP_KEY", "\"\""
+                resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
