@@ -150,6 +150,7 @@
                 android:layout_alignParentBottom="true"
                 android:id="@+id/suggestionsContainer"
                 android:layout_margin="2dp"
+                android:visibility="invisible"
                 android:gravity="bottom">
 
                 <LinearLayout

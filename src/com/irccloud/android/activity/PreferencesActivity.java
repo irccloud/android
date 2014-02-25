@@ -26,6 +26,8 @@ import android.widget.TextView;
 
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.DashClock;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.Notifications;
@@ -65,6 +67,8 @@ public class PreferencesActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences_display);
 		addPreferencesFromResource(R.xml.preferences_device);
 		addPreferencesFromResource(R.xml.preferences_notifications);
+        addPreferencesFromResource(R.xml.preferences_dashclock);
+        findPreference("dashclock_showmsgs").setOnPreferenceChangeListener(dashclocktoggle);
         try {
             getPackageManager().getPackageInfo("com.getpebble.android", 0);
             addPreferencesFromResource(R.xml.preferences_pebble);
@@ -262,6 +266,13 @@ public class PreferencesActivity extends PreferenceActivity {
 			return true;
 		}
 	};
+
+    Preference.OnPreferenceChangeListener dashclocktoggle = new Preference.OnPreferenceChangeListener() {
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+            return true;
+        }
+    };
 
     Preference.OnPreferenceChangeListener sonytoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {

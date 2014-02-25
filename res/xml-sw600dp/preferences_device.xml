@@ -35,5 +35,11 @@
 		    android:summaryOn="Crash reports will be sent to IRCCloud"
 		    android:summaryOff="Crash reports will not be sent to IRCCloud"
 		    android:defaultValue="true"/>
+        <CheckBoxPreference
+            android:key="kb_caps"
+            android:defaultValue="true"
+            android:summaryOn="Messages will automatically start with a capital letter"
+            android:summaryOff="Messages will not automatically start with a capital letter"
+            android:title="Auto-capitalize messages"/>
 	</PreferenceCategory>
 </PreferenceScreen>

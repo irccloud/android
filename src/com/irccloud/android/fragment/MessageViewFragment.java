@@ -767,8 +767,10 @@ public class MessageViewFragment extends ListFragment {
         conn = NetworkConnection.getInstance();
         if(savedInstanceState != null && savedInstanceState.containsKey("bid")) {
             buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
-            if(buffer != null)
+            if(buffer != null) {
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
+                dirty = false;
+            }
         	backlog_eid = savedInstanceState.getLong("backlog_eid");
         }
     }
@@ -953,7 +955,7 @@ public class MessageViewFragment extends ListFragment {
                     String msg;
                     if(expandedSectionEids.contains(currentCollapsedEid)) {
                         CollapsedEventsList c = new CollapsedEventsList();
-                        c.PREFIX = collapsedEvents.PREFIX;
+                        c.setServer(server);
                         c.addEvent(event);
                         msg = c.getCollapsedMessage(showChan);
                         if(!nextIsGrouped) {
@@ -1280,6 +1282,7 @@ public class MessageViewFragment extends ListFragment {
         private MessageAdapter adapter;
 
         TreeMap<Long,EventsDataSource.Event> events;
+        BuffersDataSource.Buffer buffer;
         int oldPosition = -1;
         int topOffset = -1;
 
@@ -1290,6 +1293,7 @@ public class MessageViewFragment extends ListFragment {
                 oldPosition = getListView().getFirstVisiblePosition();
                 View v = getListView().getChildAt(0);
                 topOffset = (v == null) ? 0 : v.getTop();
+                buffer = MessageViewFragment.this.buffer;
             } catch (IllegalStateException e) {
                 //The list view isn't on screen anymore
                 cancel(true);
@@ -1379,19 +1383,21 @@ public class MessageViewFragment extends ListFragment {
                         else {
                             getListView().setSelectionFromTop(buffer.scrollPosition, buffer.scrollPositionOffset);
 
-                            newMsgs = 0;
-                            newHighlights = 0;
+                            if(adapter.getLastSeenEIDPosition() > buffer.scrollPosition) {
+                                newMsgs = 0;
+                                newHighlights = 0;
 
-                            for(int i = adapter.data.size() - 1; i >= 0; i--) {
-                                EventsDataSource.Event e = adapter.data.get(i);
-                                if(e.eid <= buffer.last_seen_eid)
-                                    break;
+                                for(int i = adapter.data.size() - 1; i >= 0; i--) {
+                                    EventsDataSource.Event e = adapter.data.get(i);
+                                    if(e.eid <= buffer.last_seen_eid)
+                                        break;
 
-                                if(e.isImportant(buffer.type)) {
-                                    if(e.highlight)
-                                        newHighlights++;
-                                    else
-                                        newMsgs++;
+                                    if(e.isImportant(buffer.type)) {
+                                        if(e.highlight)
+                                            newHighlights++;
+                                        else
+                                            newMsgs++;
+                                    }
                                 }
                             }
 
@@ -1459,11 +1465,10 @@ public class MessageViewFragment extends ListFragment {
             } else if(events.size() > 0) {
                 if(server != null) {
                     ignore.setIgnores(server.ignores);
-                    collapsedEvents.PREFIX = server.PREFIX;
                 } else {
                     ignore.setIgnores(null);
-                    collapsedEvents.PREFIX = null;
                 }
+                collapsedEvents.setServer(server);
                 earliest_eid = events.firstKey();
                 if(events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     mHandler.post(new Runnable() {
@@ -2126,7 +2131,7 @@ public class MessageViewFragment extends ListFragment {
                         }
                     }
                     insertEvent(adapter, event, false, false);
-                    if(event.pending && event.self)
+                    if(event.pending && event.self && adapter != null && getListView() != null)
                         getListView().setSelection(adapter.getCount() - 1);
                 }
                 break;

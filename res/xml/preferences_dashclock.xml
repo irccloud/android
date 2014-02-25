@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
-  ~ Copyright (c) 2013 IRCCloud, Ltd.
+  ~ Copyright (c) 2014 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,15 +15,15 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_share"
-        android:title="Share"
-        app:showAsAction="ifRoom"
-        app:actionProviderClass="com.irccloud.android.ShareActionProviderHax"
-        />
-    <item android:id="@+id/action_browser"
-        android:title="Open in Browser"
-        app:showAsAction="never"
-        />
-</menu>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:title="DashClock Extension">
+        <CheckBoxPreference
+                android:key="dashclock_showmsgs"
+                android:defaultValue="false"
+                android:summaryOn="Message content will be displayed in DashClock"
+                android:summaryOff="Message content will not be displayed in DashClock"
+                android:title="Display message content"/>
+	</PreferenceCategory>
+</PreferenceScreen>

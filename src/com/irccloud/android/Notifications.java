@@ -22,7 +22,6 @@ import android.content.ComponentName;
 import android.content.ContentValues;
 import android.database.SQLException;
 
-import com.irccloud.android.activity.MessageActivity;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -231,7 +230,13 @@ public class Notifications {
 					else
 						editor.commit();
                 } catch (ConcurrentModificationException e) {
-				} catch (JSONException e) {
+                } catch (OutOfMemoryError e) {
+                    editor.remove("notifications_json");
+                    editor.remove("networks_json");
+                    editor.remove("lastseeneids_json");
+                    editor.remove("dismissedeids_json");
+                    editor.commit();
+                } catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -583,6 +588,7 @@ public class Notifications {
 		.setContentTitle(title)
 		.setContentText(text)
         .setTicker(ticker)
+        .setWhen(eids[0] / 1000)
         .setSmallIcon(R.drawable.ic_stat_notify);
 
 		if(ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
@@ -619,12 +625,14 @@ public class Notifications {
 		RemoteViews contentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification);
 		contentView.setTextViewText(R.id.title, title);
 		contentView.setTextViewText(R.id.text, text);
+        contentView.setLong(R.id.time, "setTime", eids[0]/1000);
 		notification.contentView = contentView;
 		
 		if(Build.VERSION.SDK_INT >= 16 && big_text != null) {
 			RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
 			bigContentView.setTextViewText(R.id.title, title);
 			bigContentView.setTextViewText(R.id.text, big_text);
+            bigContentView.setLong(R.id.time, "setTime", eids[0]/1000);
 			if(count > 4) {
 				bigContentView.setViewVisibility(R.id.divider, View.VISIBLE);
 				bigContentView.setViewVisibility(R.id.more, View.VISIBLE);
@@ -650,7 +658,6 @@ public class Notifications {
             i.putExtra("messageType", "PEBBLE_ALERT");
             i.putExtra("sender", "IRCCloud");
             i.putExtra("notificationData", notificationData);
-            Log.d("IRCCloud", "About to send a modal alert to Pebble: " + notificationData);
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(i);
         } catch (Exception e) {
             e.printStackTrace();
@@ -695,7 +702,7 @@ public class Notifications {
 				        		text = last.message;
 							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
 						} else {
-							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
+							nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight" + ((count == 1)?".":"s."), Html.fromHtml(text), count));
 						}
 	        		}
 	        		lastbid = n.bid;
@@ -793,12 +800,12 @@ public class Notifications {
 						title = last.network;
 					}
 		        	if(last.message_type.equals("buffer_me_msg"))
-		        		text = "… " + last.message;
+		        		text = "— " + last.message;
 		        	else
 		        		text = last.message;
 					nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, Html.fromHtml(text).toString(), Html.fromHtml(text), count));
 				} else {
-					nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight(s)", Html.fromHtml(text), count));
+					nm.notify(lastbid, buildNotification(ticker, lastbid, eids, title, count + " unread highlight" + ((count == 1)?".":"s."), Html.fromHtml(text), count));
 				}
 	        }
 		}

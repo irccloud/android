@@ -166,6 +166,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 v.setBackgroundResource(R.drawable.row_bg_blue);
             }
 
+            //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
+            v.setSelected(true);
             return v;
         }
     };
@@ -213,8 +215,12 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		        	upView.setVisibility(View.VISIBLE);
                     update_suggestions(false);
 				} else if(!hasFocus) {
-                    suggestionsContainer.setVisibility(View.GONE);
-                    suggestionsAdapter.clear();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            suggestionsContainer.setVisibility(View.INVISIBLE);
+                        }
+                    });
                 }
 			}
 		});
@@ -259,10 +265,18 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     messageTxt.setText(text);
                     nextSuggestion();
                 } else if(suggestionsContainer != null && suggestionsContainer.getVisibility() == View.VISIBLE) {
-                    update_suggestions(false);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            update_suggestions(false);
+                        }
+                    });
                 } else {
-                    if(suggestionsTimer != null)
-                        suggestionsTimer.cancel();
+                    try {
+                        if(suggestionsTimer != null)
+                            suggestionsTimer.cancel();
+                    } catch (Exception e) {
+                    }
                     suggestionsTimer = new Timer();
                     suggestionsTimer.schedule(new TimerTask() {
                         @Override
@@ -365,7 +379,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             boolean canEditTopic;
             if (c.mode.contains("t")) {
                 UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
-                canEditTopic = (self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")));
+                canEditTopic = (self_user != null && (self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o")));
             } else {
                 canEditTopic = true;
             }
@@ -431,7 +445,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     });
                 }
 
-                if(messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
+                if(buffer != null && messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
                     sugs.add(buffer.name);
                 for(ChannelsDataSource.Channel channel : sortedChannels) {
                     if(text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
@@ -465,7 +479,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     suggestionsAdapter.notifyDataSetChanged();
                     suggestions.smoothScrollToPosition(0);
                 }
-                if(suggestionsContainer.getVisibility() == View.GONE) {
+                if(suggestionsContainer.getVisibility() == View.INVISIBLE) {
                     AlphaAnimation anim = new AlphaAnimation(0, 1);
                     anim.setDuration(250);
                     anim.setFillAfter(true);
@@ -493,7 +507,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
                         @Override
                         public void onAnimationEnd(Animation animation) {
-                            suggestionsContainer.setVisibility(View.GONE);
+                            suggestionsContainer.setVisibility(View.INVISIBLE);
                             suggestionsAdapter.clear();
                             suggestionsAdapter.notifyDataSetChanged();
                         }
@@ -544,8 +558,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
-    	state.putInt("cid", server.cid);
-    	state.putInt("bid", buffer.bid);
+        if(server != null)
+        	state.putInt("cid", server.cid);
+        if(buffer != null)
+        	state.putInt("bid", buffer.bid);
     	state.putSerializable("backStack", backStack);
     }
     
@@ -583,6 +599,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     sendBtn.setAlpha(0.5f);
                 UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
                 e = EventsDataSource.getInstance().new Event();
+                e.command = messageTxt.getText().toString();
                 e.cid = buffer.cid;
                 e.bid = buffer.bid;
                 e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
@@ -628,27 +645,31 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     	
 		@Override
 		protected Void doInBackground(Void... arg0) {
-            /*if(messageTxt.getText().toString().equals("/starttrace") || messageTxt.getText().toString().equals("/stoptrace")) {
-                e.reqid = -2;
-                return null;
-            }*/
-             if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-				e.reqid = conn.say(e.cid, e.chan, messageTxt.getText().toString());
-				if(e.msg != null)
-					pendingEvents.put(e.reqid, e);
-			}
+            if(BuildConfig.DEBUG && e != null && e.command != null) {
+                if(e.command.equals("/starttrace") || e.command.equals("/stoptrace")) {
+                    e.reqid = -2;
+                    return null;
+                }
+            }
+            if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+                e.reqid = conn.say(e.cid, e.chan, e.command);
+                if(e.msg != null)
+                    pendingEvents.put(e.reqid, e);
+            }
 			return null;
 		}
     	
 		@Override
 		protected void onPostExecute(Void result) {
-            /*if(messageTxt.getText().toString().equals("/starttrace")) {
-                Debug.startMethodTracing("irccloud");
-                showAlert(e.cid, "Method tracing started");
-            } else if(messageTxt.getText().toString().equals("/stoptrace")) {
-                Debug.stopMethodTracing();
-                showAlert(e.cid, "Method tracing finished");
-            }*/
+            if(BuildConfig.DEBUG) {
+                if(messageTxt.getText().toString().equals("/starttrace")) {
+                    Debug.startMethodTracing("irccloud");
+                    showAlert(e.cid, "Method tracing started");
+                } else if(messageTxt.getText().toString().equals("/stoptrace")) {
+                    Debug.stopMethodTracing();
+                    showAlert(e.cid, "Method tracing finished");
+                }
+            }
             if(e != null && e.reqid != -1) {
 				messageTxt.setText("");
                 BuffersDataSource.getInstance().updateDraft(e.bid, null);
@@ -762,7 +783,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     			showNotificationsTask.execute(new_bid);
     			return;
     		} else if(BuffersDataSource.getInstance().getBuffer(new_bid) != null) {
-    	    	if(buffer != null)
+    	    	if(buffer != null && buffer.bid != new_bid)
     	    		backStack.add(0, buffer.bid);
                 buffer = BuffersDataSource.getInstance().getBuffer(new_bid);
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
@@ -1697,8 +1718,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             }
-            InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            if(getCurrentFocus() != null) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            }
         }
 
         @Override
@@ -2360,13 +2383,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			if(buffer.type.equalsIgnoreCase("channel")) {
 				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
 				if(self_user != null && self_user.mode != null) {
-					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")) {
-						if(selected_user.mode.contains("o"))
+					if(self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o")) {
+						if(selected_user.mode.contains(server!=null?server.MODE_OP:"o"))
 							itemList.add("Deop");
 						else
 							itemList.add("Op");
 					}
-					if(self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o") || self_user.mode.contains("h")) {
+					if(self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o") || self_user.mode.contains(server!=null?server.MODE_HALFOP:"h")) {
 						itemList.add("Kick…");
 						itemList.add("Ban…");
 					}
@@ -2477,9 +2500,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 	    		} else if(items[item].equals("Op")) {
-	    			conn.mode(buffer.cid, buffer.name, "+o " + selected_user.nick);
+	    			conn.mode(buffer.cid, buffer.name, "+" + (server!=null?server.MODE_OP:"o") + " " + selected_user.nick);
 	    		} else if(items[item].equals("Deop")) {
-	    			conn.mode(buffer.cid, buffer.name, "-o " + selected_user.nick);
+                    conn.mode(buffer.cid, buffer.name, "-" + (server!=null?server.MODE_OP:"o") + " " + selected_user.nick);
 	    		} else if(items[item].equals("Kick…")) {
 		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
@@ -2558,7 +2581,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             if(buffer != null && backStack.get(i) == buffer.bid)
                 backStack.remove(i);
         }
-        if(buffer != null && buffer.bid >= 0) {
+        if(buffer != null && buffer.bid >= 0 && bid != buffer.bid) {
             backStack.add(0, buffer.bid);
             buffer.draft = messageTxt.getText().toString();
         }
@@ -2572,6 +2595,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 
             TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
             if(events != null) {
+                events = (TreeMap<Long,EventsDataSource.Event>)events.clone();
                 for(EventsDataSource.Event e : events.values()) {
                     if(e.highlight && e.from != null) {
                         UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);

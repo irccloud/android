@@ -56,7 +56,6 @@ public class UsersListFragment extends ListFragment {
 	private int cid = -1;
 	private int bid = -1;
 	private String channel;
-	private View view;
 	private RefreshTask refreshTask = null;
 	private Timer tapTimer = null;
     private Timer refreshTimer = null;
@@ -222,11 +221,11 @@ public class UsersListFragment extends ListFragment {
 
         if(PREFIX == null) {
             PREFIX = new JsonObject();
-            PREFIX.addProperty("q", "~");
-            PREFIX.addProperty("a", "&");
-            PREFIX.addProperty("o", "@");
-            PREFIX.addProperty("h", "%");
-            PREFIX.addProperty("v", "+");
+            PREFIX.addProperty(s!=null?s.MODE_OWNER:"q", "~");
+            PREFIX.addProperty(s!=null?s.MODE_ADMIN:"a", "&");
+            PREFIX.addProperty(s!=null?s.MODE_OP:"o", "@");
+            PREFIX.addProperty(s!=null?s.MODE_HALFOP:"h", "%");
+            PREFIX.addProperty(s!=null?s.MODE_VOICED:"v", "+");
         }
 
 
@@ -236,15 +235,15 @@ public class UsersListFragment extends ListFragment {
 
 		for(int i = 0; i < users.size(); i++) {
 			UsersDataSource.User user = users.get(i);
-			if(user.mode.contains("q")) {
+			if(user.mode.contains(s!=null?s.MODE_OWNER:"q")) {
 				owners.add(user);
-			} else if(user.mode.contains("a")) {
+			} else if(user.mode.contains(s!=null?s.MODE_ADMIN:"a")) {
 				admins.add(user);
-			} else if(user.mode.contains("o")) {
+			} else if(user.mode.contains(s!=null?s.MODE_OP:"o")) {
 				ops.add(user);
-			} else if(user.mode.contains("h")) {
+			} else if(user.mode.contains(s!=null?s.MODE_HALFOP:"h")) {
 				halfops.add(user);
-			} else if(user.mode.contains("v")) {
+			} else if(user.mode.contains(s!=null?s.MODE_VOICED:"v")) {
 				voiced.add(user);
 			} else {
 				members.add(user);
@@ -252,23 +251,23 @@ public class UsersListFragment extends ListFragment {
 		}
 		
 		if(owners.size() > 0) {
-			addUsersFromList(entries, owners, "OWNER", (showSymbol?(PREFIX.get("q").getAsString() + " "):"• "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+			addUsersFromList(entries, owners, "OWNER", (showSymbol?(PREFIX.get(s!=null?s.MODE_OWNER:"q").getAsString() + " "):"• "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
 		}
 		
 		if(admins.size() > 0) {
-			addUsersFromList(entries, admins, "ADMINS", (showSymbol?(PREFIX.get("a").getAsString() + " "):"• "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+			addUsersFromList(entries, admins, "ADMINS", (showSymbol?(PREFIX.get(s!=null?s.MODE_ADMIN:"a").getAsString() + " "):"• "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
 		}
 		
 		if(ops.size() > 0) {
-			addUsersFromList(entries, ops, "OPS", (showSymbol?(PREFIX.get("o").getAsString() + " "):"• "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+			addUsersFromList(entries, ops, "OPS", (showSymbol?(PREFIX.get(s!=null?s.MODE_OP:"o").getAsString() + " "):"• "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
 		}
 		
 		if(halfops.size() > 0) {
-			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?(PREFIX.get("h").getAsString() + " "):"• "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?(PREFIX.get(s!=null?s.MODE_HALFOP:"h").getAsString() + " "):"• "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
 		}
 		
 		if(voiced.size() > 0) {
-			addUsersFromList(entries, voiced, "VOICED", (showSymbol?(PREFIX.get("v").getAsString() + " "):"• "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+			addUsersFromList(entries, voiced, "VOICED", (showSymbol?(PREFIX.get(s!=null?s.MODE_VOICED:"v").getAsString() + " "):"• "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
 		}
 		
 		if(members.size() > 0) {
@@ -316,8 +315,7 @@ public class UsersListFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
 	        Bundle savedInstanceState) {
-		view = inflater.inflate(R.layout.userslist, null);
-		return view;
+		return inflater.inflate(R.layout.userslist, null);
 	}
 
 	public void onResume() {

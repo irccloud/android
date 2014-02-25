@@ -17,10 +17,13 @@
 package com.irccloud.android;
 
 import android.content.*;
+import android.preference.PreferenceManager;
 
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
 import com.irccloud.android.activity.MainActivity;
+
+import java.util.ArrayList;
 
 public class DashClock extends DashClockExtension {
     public final static String REFRESH_INTENT = "com.irccloud.android.dashclock.REFRESH";
@@ -63,12 +66,30 @@ public class DashClock extends DashClockExtension {
     protected void onUpdateData(int reason) {
         int count = Notifications.getInstance().count();
         if(count > 0) {
-            publishUpdate(new ExtensionData()
-                    .visible(true)
-                    .icon(R.drawable.ic_stat_notify)
-                    .status(String.valueOf(count))
-                    .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1)?"s":""))
-                    .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
+            if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("dashclock_showmsgs", false)) {
+                String msg = "";
+                ArrayList<Notifications.Notification> msgs = Notifications.getInstance().getMessageNotifications();
+                for(Notifications.Notification n : msgs) {
+                    if(n.message_type.equals("buffer_me_msg"))
+                        msg += "— " + n.nick + " " + n.message + "\n";
+                    else
+                        msg += "<" + n.nick + "> " + n.message + "\n";
+                }
+                publishUpdate(new ExtensionData()
+                        .visible(true)
+                        .icon(R.drawable.ic_stat_notify)
+                        .status(String.valueOf(count))
+                        .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1) ? "s" : ""))
+                        .expandedBody(msg)
+                        .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
+            } else {
+                publishUpdate(new ExtensionData()
+                        .visible(true)
+                        .icon(R.drawable.ic_stat_notify)
+                        .status(String.valueOf(count))
+                        .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1)?"s":""))
+                        .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
+            }
         } else {
             publishUpdate(null);
         }

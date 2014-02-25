@@ -188,6 +188,17 @@ public class GCMIntentService extends IntentService {
 			@Override
 			public void run() {
 				boolean success = false;
+                try {
+                    GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).unregister();
+                } catch (IOException e) {
+                    Log.w("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+                    scheduleUnregisterTimer(retrydelay * 2, regId);
+                    return;
+                }
+                SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                editor.remove("gcm_registered");
+                editor.remove("gcm_reg_id");
+                editor.remove("gcm_app_version");
 				try {
 					String session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString(regId, "");
 					if(session.length() == 0)
@@ -200,23 +211,12 @@ public class GCMIntentService extends IntentService {
 					e.printStackTrace();
 				}
 				if(success) {
-                    try {
-                        GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).unregister();
-                    } catch (IOException e) {
-                        Log.w("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
-                        scheduleUnregisterTimer(retrydelay * 2, regId);
-                        return;
-                    }
-                    SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-					editor.remove("gcm_registered");
-                    editor.remove("gcm_reg_id");
-                    editor.remove("gcm_app_version");
 					editor.remove(regId);
-					editor.commit();
 				} else {
 					Log.w("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
 					scheduleUnregisterTimer(retrydelay * 2, regId);
 				}
+                editor.commit();
 			}
 		}, delay);
 	}

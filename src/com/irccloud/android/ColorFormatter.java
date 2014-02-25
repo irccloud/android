@@ -116,18 +116,26 @@ public class ColorFormatter {
 		        }
 		    }
 		});
-		
+
+        String chanTypes = "#";
+        if(server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
+            chanTypes = server.CHANTYPES;
+
+        final String pattern = "\\B([" + chanTypes + "][^<>!?\"()\\[\\],\\s\ufe55]+)";
+
 		if(linkify) {
-			Linkify.addLinks(output, Patterns.WEB_URL, null, new MatchFilter() {
+            Linkify.addLinks(output, Patterns.WEB_URL, null, new MatchFilter() {
 		        public final boolean acceptMatch(CharSequence s, int start, int end) {
-		        	if(start > 6 && s.subSequence(start - 6, end).toString().startsWith("irc://"))
+		        	if(start >= 6 && s.subSequence(start - 6, end).toString().toLowerCase().startsWith("irc://"))
 		        		return false;
-		        	if(start > 7 && s.subSequence(start - 7, end).toString().startsWith("ircs://"))
+		        	if(start >= 7 && s.subSequence(start - 7, end).toString().toLowerCase().startsWith("ircs://"))
 		        		return false;
-		        	if(s.subSequence(start, end).toString().startsWith("https://"))
+		        	if(s.subSequence(start, end).toString().toLowerCase().startsWith("https://"))
 		        		return false;
-		        	if(s.subSequence(start, end).toString().startsWith("http://"))
+		        	if(s.subSequence(start, end).toString().toLowerCase().startsWith("http://"))
 		        		return false;
+                    if(start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
+                        return false;
 		        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
 		        }
 		    }, new TransformFilter() {
@@ -139,6 +147,7 @@ public class ColorFormatter {
                                         "(^(www\\.)?flickr\\.com/photos/.*$)|" +
                                         "(^(www\\.)?instagram\\.com/p/.*$)|(^(www\\.)?instagr\\.am/p/.*$)|" +
                                         "(^(www\\.)?imgur\\.com/(?!a/).*$)|" +
+                                        "(^d\\.pr/i/.*)|(^droplr\\.com/i/.*)|"+
                                         "(^cl\\.ly/.*)"
                                         ) && !lower.matches("(^cl\\.ly/robots\\.txt$)|(^cl\\.ly/image/?$)")) {
                                     return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
@@ -151,7 +160,7 @@ public class ColorFormatter {
 			Linkify.addLinks(output, Pattern.compile("https?://(" +
                     "(?:|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)" +
                     "(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))" +
-                    "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))"), null, null, new TransformFilter() {
+                    "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))", Pattern.CASE_INSENSITIVE), null, null, new TransformFilter() {
                 @Override
                 public String transformUrl(Matcher match, String url) {
                     if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
@@ -160,6 +169,7 @@ public class ColorFormatter {
                                 "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
                                 "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
                                 "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
+                                "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|"+
                                 "(^https?://cl\\.ly/.*)"
                         ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)")) {
                             if(lower.startsWith("http://"))
@@ -168,6 +178,10 @@ public class ColorFormatter {
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
                         }
                     }
+                    if(url.toLowerCase().startsWith("https:"))
+                        url = "https" + url.substring(5);
+                    else
+                        url = "http" + url.substring(4);
                     return url;
                 }
             });
@@ -181,14 +195,6 @@ public class ColorFormatter {
 			
 		}
         if(server != null) {
-            String pattern = "\\B([";
-            String chanTypes = server.CHANTYPES;
-            if(chanTypes == null) {
-                chanTypes = "#";
-            }
-            pattern += chanTypes;
-            pattern += "][^<>!?\"()\\[\\],\\s\ufe55]+)";
-
             Linkify.addLinks(output, Pattern.compile(pattern), null, new MatchFilter() {
                         public final boolean acceptMatch(CharSequence s, int start, int end) {
                             try {

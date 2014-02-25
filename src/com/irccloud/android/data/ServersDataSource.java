@@ -52,6 +52,11 @@ public class ServersDataSource {
         public int order;
         public String CHANTYPES;
         public JsonObject PREFIX;
+        public String MODE_OWNER = "q";
+        public String MODE_ADMIN = "a";
+        public String MODE_OP = "o";
+        public String MODE_HALFOP = "h";
+        public String MODE_VOICED = "v";
 
         @Override
         public int compareTo(Server another) {
@@ -65,7 +70,7 @@ public class ServersDataSource {
 	
 	private static ServersDataSource instance = null;
 	
-	public static ServersDataSource getInstance() {
+	public synchronized static ServersDataSource getInstance() {
 		if(instance == null)
 			instance = new ServersDataSource();
 		return instance;
@@ -156,6 +161,15 @@ public class ServersDataSource {
 		}
 	}
 
+    public void updateUserModes(int cid, String modes) {
+        if(modes != null && modes.length() == 5 && modes.charAt(0) != 'q') {
+            Server s = getServer(cid);
+            if(s != null) {
+                s.MODE_OWNER = modes.substring(0, 1);
+            }
+        }
+    }
+
 	public void updateIsupport(int cid, JsonObject params) {
 		Server s = getServer(cid);
 		if(s != null) {
@@ -168,11 +182,11 @@ public class ServersDataSource {
                 s.PREFIX = s.isupport.getAsJsonObject("PREFIX");
             } else {
                 s.PREFIX = new JsonObject();
-                s.PREFIX.addProperty("q", "~");
-                s.PREFIX.addProperty("a", "&");
-                s.PREFIX.addProperty("o", "@");
-                s.PREFIX.addProperty("h", "%");
-                s.PREFIX.addProperty("v", "+");
+                s.PREFIX.addProperty(s.MODE_OWNER, "~");
+                s.PREFIX.addProperty(s.MODE_ADMIN, "&");
+                s.PREFIX.addProperty(s.MODE_OP, "@");
+                s.PREFIX.addProperty(s.MODE_HALFOP, "%");
+                s.PREFIX.addProperty(s.MODE_VOICED, "+");
             }
             if(s.isupport.has("CHANTYPES"))
                 s.CHANTYPES = s.isupport.get("CHANTYPES").getAsString();

@@ -80,8 +80,9 @@ public class BuffersDataSource {
 	private SparseArray<Buffer> buffers_indexed;
 
 	private static BuffersDataSource instance = null;
+    private boolean dirty = true;
 	
-	public static BuffersDataSource getInstance() {
+	public synchronized static BuffersDataSource getInstance() {
 		if(instance == null)
 			instance = new BuffersDataSource();
 		return instance;
@@ -125,6 +126,7 @@ public class BuffersDataSource {
 		b.deferred = deferred;
 		b.timeout = timeout;
         b.valid = 1;
+        dirty = true;
 		return b;
 	}
 
@@ -138,6 +140,7 @@ public class BuffersDataSource {
 		Buffer b = getBuffer(bid);
 		if(b != null)
 			b.archived = archived;
+        dirty = true;
 	}
 	
 	public synchronized void updateTimeout(int bid, int timeout) {
@@ -150,6 +153,7 @@ public class BuffersDataSource {
 		Buffer b = getBuffer(bid);
 		if(b != null)
 			b.name = name;
+        dirty = true;
 	}
 	
 	public synchronized void updateAway(int bid, String away_msg) {
@@ -192,6 +196,7 @@ public class BuffersDataSource {
 		}
 		buffers.remove(b);
         buffers_indexed.remove(bid);
+        dirty = true;
 	}
 
 	public synchronized Buffer getBuffer(int bid) {
@@ -210,13 +215,16 @@ public class BuffersDataSource {
 	
 	public synchronized ArrayList<Buffer> getBuffersForServer(int cid) {
 		ArrayList<Buffer> list = new ArrayList<Buffer>();
+        if(dirty) {
+            Collections.sort(buffers, new comparator());
+            dirty = false;
+        }
 		Iterator<Buffer> i = buffers.iterator();
 		while(i.hasNext()) {
 			Buffer b = i.next();
 			if(b.cid == cid)
 				list.add(b);
 		}
-		Collections.sort(list, new comparator());
 		return list;
 	}
 	
@@ -257,5 +265,6 @@ public class BuffersDataSource {
                 ServersDataSource.getInstance().deleteServer(b.cid);
             }
         }
+        dirty = true;
     }
 }

@@ -180,8 +180,9 @@ public class BanListFragment extends DialogFragment {
 			}
         });
         try {
+            ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
             UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(cid, bid, ServersDataSource.getInstance().getServer(cid).nick);
-            if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o"))) {
+            if(self_user != null && (self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o"))) {
                 b.setPositiveButton("Add Ban Mask", new AddClickListener());
             }
         } catch (Exception e) {

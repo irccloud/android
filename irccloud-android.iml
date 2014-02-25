@@ -65,14 +65,15 @@
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="play-services-3.1.59" level="project" />
+    <orderEntry type="library" exported="" name="HockeySDK-3.0.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-18.0.0" level="project" />
-    <orderEntry type="module" module-name="android-websockets" exported="" />
     <orderEntry type="library" exported="" name="gson-2.2.4" level="project" />
-    <orderEntry type="library" exported="" name="TestFlightLib" level="project" />
     <orderEntry type="library" exported="" name="dslv-0.6.3" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-18.0.0" level="project" />
     <orderEntry type="library" exported="" name="notificationcompat2-1.1.2" level="project" />
     <orderEntry type="library" exported="" name="dashclock-api-2.0.0" level="project" />
+    <orderEntry type="library" exported="" name="crashlytics-1.1.10" level="project" />
+    <orderEntry type="module" module-name="android-websockets" exported="" />
   </component>
 </module>
 
