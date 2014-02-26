@@ -228,7 +228,7 @@ public class CollapsedEventsTests extends TestCase {
         addMode(list, "o", "sam_", "ChanServ");
 		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
 		list.addEvent(eid++, CollapsedEventsList.TYPE_PART, "sam", null, "sam@example.net", null, null, null);
-		assertEquals("← <b>\u0004BA1719\u0002•\u000F sam</b> (was sam_; \u00031opped\u000F) left (sam@example.net)", list.getCollapsedMessage(false));
+		assertEquals("← <b>\u0004BA1719\u0002•\u000F sam</b> (was sam_; \u00031opped\u000F) left", list.getCollapsedMessage(false));
 	}
 
 	public void testNickchangeNickchange() {
@@ -271,7 +271,7 @@ public class CollapsedEventsTests extends TestCase {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);
         addMode(list, "o", "sam", "ChanServ");
-		assertEquals("→ <b>\u0004BA1719\u0002•\u000F sam</b> (\u00031opped\u000F) joined (sam@example.net)", list.getCollapsedMessage(false));
+		assertEquals("→ <b>\u0004BA1719\u0002•\u000F sam</b> (\u00031opped\u000F) joined", list.getCollapsedMessage(false));
 	}
 
     public void testJoinModeMode() {
@@ -322,6 +322,6 @@ public class CollapsedEventsTests extends TestCase {
         CollapsedEventsList list = new CollapsedEventsList();
         list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "ChanServ", null, "ChanServ@services.", null, null, null);
         addMode(list, "o", "ChanServ", null);
-        assertEquals("→ <b>\u0004BA1719\u0002•\u000F ChanServ</b> (\u00031opped\u000F) joined (ChanServ@services.)", list.getCollapsedMessage(false));
+        assertEquals("→ <b>\u0004BA1719\u0002•\u000F ChanServ</b> (\u00031opped\u000F) joined", list.getCollapsedMessage(false));
     }
 }

@@ -58,10 +58,13 @@ public class IRCCloudApplication extends Application {
 
 	@Override
 	public void onCreate() {
+        instance = this;
 		super.onCreate();
-        if(getResources().getString(R.string.CRASHLYTICS_KEY).length() > 0)
-            Crashlytics.start(this);
-		instance = this;
+        try {
+            if(getResources().getString(R.string.CRASHLYTICS_KEY).length() > 0)
+                Crashlytics.start(this);
+        } catch (Exception e) {
+        }
 		//Allocate all the shared objects at launch
 		conn = NetworkConnection.getInstance();
 		s = ServersDataSource.getInstance();
@@ -69,6 +72,7 @@ public class IRCCloudApplication extends Application {
 		c = ChannelsDataSource.getInstance();
 		u = UsersDataSource.getInstance();
 		e = EventsDataSource.getInstance();
+
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.BRAND_HOST);
 

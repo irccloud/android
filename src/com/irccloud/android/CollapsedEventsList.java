@@ -355,6 +355,7 @@ public class CollapsedEventsList {
 					e.type = type;
 					e.msg = msg;
 					e.old_nick = old_nick;
+                    e.hostmask = hostmask;
 					if(from_mode != null)
 						e.from_mode = from_mode;
 					if(target_mode != null)
@@ -495,8 +496,8 @@ public class CollapsedEventsList {
 		boolean showSymbol = false;
 		try {
 			if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null)
-			showSymbol = NetworkConnection.getInstance().getUserInfo().prefs.getBoolean("mode-showsymbol");
-		} catch (JSONException e) {
+			    showSymbol = NetworkConnection.getInstance().getUserInfo().prefs.getBoolean("mode-showsymbol");
+		} catch (Exception e) {
 		}
 		String mode = "";
 		if(from_mode != null && from_mode.length() > 0) {
@@ -559,7 +560,7 @@ public class CollapsedEventsList {
 		if(data.size() == 0)
 			return null;
 		
-		if(data.size() == 1 && data.get(0).modeCount() < 2) {
+		if(data.size() == 1 && data.get(0).modeCount() < ((data.get(0).type == TYPE_MODE)?2:1)) {
 			CollapsedEvent e = data.get(0);
 			switch(e.type) {
             case TYPE_NETSPLIT:

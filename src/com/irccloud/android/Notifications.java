@@ -92,7 +92,10 @@ public class Notifications {
 	}
 	
 	public Notifications() {
-		load();
+        try {
+    		load();
+        } catch (Exception e) {
+        }
 	}
 
 	private void load() {
@@ -272,6 +275,9 @@ public class Notifications {
                 NotificationUtil.deleteAllEvents(IRCCloudApplication.getInstance().getApplicationContext());
         } catch (Exception e) {
 			e.printStackTrace();
+            mNotifications.clear();
+            mNetworks.clear();
+            mLastSeenEIDs.clear();
 		}
 	}
 	
@@ -308,7 +314,8 @@ public class Notifications {
 				mNotifications.remove(n);
 		}
 		save();
-        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+        if(IRCCloudApplication.getInstance() != null)
+            IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
 	}
 	
 	public synchronized void addNetwork(int cid, String network) {
@@ -369,28 +376,32 @@ public class Notifications {
 			mNotificationTimer.cancel();
 			mNotificationTimer = null;
 		}
-		
-		NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationManager nm = null;
+        if(IRCCloudApplication.getInstance().getApplicationContext() != null)
+            nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
 		ArrayList<Notification> notifications = getOtherNotifications();
-		
+
 		if(notifications.size() > 0) {
 	        for(Notification n : notifications) {
 	        	if(n.bid == bid && n.eid <= last_seen_eid) {
-	        		nm.cancel((int)(n.eid/1000));
+                    if(nm != null)
+    	        		nm.cancel((int)(n.eid/1000));
                     changed = true;
 	        	}
 	        }
 		}
-		
+
 		synchronized(mNotifications) {
 			for(int i = 0; i < mNotifications.size(); i++) {
 				Notification n = mNotifications.get(i);
 				if(n.bid == bid && n.eid <= last_seen_eid) {
 					mNotifications.remove(n);
 					i--;
-					nm.cancel(bid);
+                    if(nm != null)
+    					nm.cancel(bid);
                     changed = true;
-					continue;
 				}
 			}
 		}
@@ -403,7 +414,7 @@ public class Notifications {
 				}
 			}
 		}
-        if(changed) {
+        if(changed && nm != null) {
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             try {
                 if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
