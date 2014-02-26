@@ -58,13 +58,8 @@ public class IRCCloudApplication extends Application {
 
 	@Override
 	public void onCreate() {
-        instance = this;
 		super.onCreate();
-        try {
-            if(getResources().getString(R.string.CRASHLYTICS_KEY).length() > 0)
-                Crashlytics.start(this);
-        } catch (Exception e) {
-        }
+        instance = this;
 		//Allocate all the shared objects at launch
 		conn = NetworkConnection.getInstance();
 		s = ServersDataSource.getInstance();
@@ -76,7 +71,15 @@ public class IRCCloudApplication extends Application {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.BRAND_HOST);
 
-		if(prefs.contains("notify")) {
+        if(prefs.getBoolean("acra.enable", true)) {
+            try {
+                if(getResources().getString(R.string.CRASHLYTICS_KEY).length() > 0)
+                    Crashlytics.start(this);
+            } catch (Exception e) {
+            }
+        }
+
+        if(prefs.contains("notify")) {
 			SharedPreferences.Editor editor = prefs.edit();
 			editor.putString("notify_type", prefs.getBoolean("notify", true)?"1":"0");
 			editor.remove("notify");

@@ -185,7 +185,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onResume() {
     	super.onResume();
-        if(BuildConfig.HOCKEYAPP_KEY.length() > 0)
+        if(BuildConfig.DEBUG && BuildConfig.HOCKEYAPP_KEY.length() > 0)
             UpdateManager.register(this, BuildConfig.HOCKEYAPP_KEY);
     	conn = NetworkConnection.getInstance();
     	if(conn.ready) {
