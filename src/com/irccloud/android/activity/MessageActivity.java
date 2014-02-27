@@ -115,6 +115,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
+import net.hockeyapp.android.UpdateManager;
+
 public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener {
     BuffersDataSource.Buffer buffer;
     ServersDataSource.Server server;
@@ -378,7 +380,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             });
             boolean canEditTopic;
             if (c.mode.contains("t")) {
-                UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
+                UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
                 canEditTopic = (self_user != null && (self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o")));
             } else {
                 canEditTopic = true;
@@ -453,7 +455,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 }
 
                 if(sortedUsers == null) {
-                    sortedUsers = UsersDataSource.getInstance().getUsersForBuffer(buffer.cid, buffer.bid);
+                    sortedUsers = UsersDataSource.getInstance().getUsersForBuffer(buffer.bid);
                     Collections.sort(sortedUsers, new Comparator<UsersDataSource.User>() {
                         @Override
                         public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
@@ -597,7 +599,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 sendBtn.setEnabled(false);
                 if(Build.VERSION.SDK_INT >= 11)
                     sendBtn.setAlpha(0.5f);
-                UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
+                UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
                 e = EventsDataSource.getInstance().new Event();
                 e.command = messageTxt.getText().toString();
                 e.cid = buffer.cid;
@@ -825,6 +827,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     @SuppressLint("NewApi")
 	@Override
     public void onResume() {
+        if(BuildConfig.DEBUG && BuildConfig.HOCKEYAPP_KEY.length() > 0)
+            UpdateManager.register(this, BuildConfig.HOCKEYAPP_KEY);
     	conn = NetworkConnection.getInstance();
     	if(!conn.ready) {
         	super.onResume();
@@ -1066,7 +1070,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	    	} else {
 	    		if(buffer.type.equals("conversation")) {
                     title.setContentDescription("Conversation with " + title.getText());
-	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, buffer.name);
+	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.bid, buffer.name);
 	    			if(user != null && user.away > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
 	    				if(user.away_msg != null && user.away_msg.length() > 0) {
@@ -2322,7 +2326,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(from == null || from.length() == 0)
 			from = event.nick;
 
-		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, from);
+		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.bid, from);
 
 		if(user == null && from != null && event.hostmask != null) {
 			user = UsersDataSource.getInstance().new User();
@@ -2358,7 +2362,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	@Override
 	public void onUserSelected(int c, String chan, String nick) {
 		UsersDataSource u = UsersDataSource.getInstance();
-        showUserPopup(u.getUser(buffer.cid, buffer.bid, nick), null);
+        showUserPopup(u.getUser(buffer.bid, nick), null);
 	}
 	
 	@SuppressLint("NewApi")
@@ -2381,7 +2385,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 			itemList.add("Invite to a channel…");
 			itemList.add("Ignore");
 			if(buffer.type.equalsIgnoreCase("channel")) {
-				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, server.nick);
+				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
 				if(self_user != null && self_user.mode != null) {
 					if(self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o")) {
 						if(selected_user.mode.contains(server!=null?server.MODE_OP:"o"))
@@ -2598,7 +2602,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 events = (TreeMap<Long,EventsDataSource.Event>)events.clone();
                 for(EventsDataSource.Event e : events.values()) {
                     if(e.highlight && e.from != null) {
-                        UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.cid, buffer.bid, e.from);
+                        UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.bid, e.from);
                         if(u != null && u.last_mention < e.eid)
                             u.last_mention = e.eid;
                     }

@@ -16,13 +16,13 @@
 
 package com.irccloud.android.data;
 
+import android.annotation.SuppressLint;
+
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.TreeMap;
 
+@SuppressLint("UseSparseArrays")
 public class UsersDataSource {
 	public class User {
 		public int cid;
@@ -62,15 +62,10 @@ public class UsersDataSource {
 	public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away, boolean find_old) {
 		User u = null;
 		if(find_old)
-			u = getUser(cid, bid, nick);
+			u = getUser(bid, nick);
 		
 		if(u == null) {
-			if(u == null)
-				u = new User();
-			else if(!u.nick.equals(nick))
-				u.old_nick = u.nick;
-			else
-				u.old_nick = null;
+            u = new User();
 
             if(!users.containsKey(bid))
                 users.put(bid, new TreeMap<String,User>());
@@ -86,17 +81,17 @@ public class UsersDataSource {
 		return u;
 	}
 
-	public synchronized void deleteUser(int cid, int bid, String nick) {
+	public synchronized void deleteUser(int bid, String nick) {
         if(users.containsKey(bid))
             users.get(bid).remove(nick.toLowerCase());
 	}
 
-	public synchronized void deleteUsersForBuffer(int cid, int bid) {
+	public synchronized void deleteUsersForBuffer(int bid) {
         users.remove(bid);
 	}
 
-	public synchronized void updateNick(int cid, int bid, String old_nick, String new_nick) {
-		User u = getUser(cid,bid,old_nick);
+	public synchronized void updateNick(int bid, String old_nick, String new_nick) {
+		User u = getUser(bid,old_nick);
 		if(u != null) {
 			u.nick = new_nick;
 			u.old_nick = old_nick;
@@ -105,45 +100,43 @@ public class UsersDataSource {
 		}
 	}
 	
-	public synchronized void updateAway(int cid, int bid, String nick, int away) {
-		User u = getUser(cid,bid,nick);
+	public synchronized void updateAway(int bid, String nick, int away) {
+		User u = getUser(bid,nick);
 		if(u != null)
 			u.away = away;
 	}
 	
-	public synchronized void updateHostmask(int cid, int bid, String nick, String hostmask) {
-		User u = getUser(cid,bid,nick);
+	public synchronized void updateHostmask(int bid, String nick, String hostmask) {
+		User u = getUser(bid,nick);
 		if(u != null)
 			u.hostmask = hostmask;
 	}
 	
-	public synchronized void updateMode(int cid, int bid, String nick, String mode) {
-		User u = getUser(cid,bid,nick);
+	public synchronized void updateMode(int bid, String nick, String mode) {
+		User u = getUser(bid,nick);
 		if(u != null)
 			u.mode = mode;
 	}
 
-    public synchronized void updateAwayMsg(int cid, int bid, String nick, int away, String away_msg) {
-        User u = getUser(cid,bid,nick);
+    public synchronized void updateAwayMsg(int bid, String nick, int away, String away_msg) {
+        User u = getUser(bid,nick);
         if(u != null) {
             u.away = away;
             u.away_msg = away_msg;
         }
     }
 
-    public synchronized ArrayList<User> getUsersForBuffer(int cid, int bid) {
+    public synchronized ArrayList<User> getUsersForBuffer(int bid) {
 		ArrayList<User> list = new ArrayList<User>();
         if(users.containsKey(bid)) {
-            Iterator<User> i = users.get(bid).values().iterator();
-            while(i.hasNext()) {
-                User u = i.next();
+            for(User u : users.get(bid).values()) {
                 list.add(u);
             }
         }
 		return list;
 	}
 
-	public synchronized User getUser(int cid, int bid, String nick) {
+	public synchronized User getUser(int bid, String nick) {
         if(nick != null && users.containsKey(bid) && users.get(bid).containsKey(nick.toLowerCase())) {
             return users.get(bid).get(nick.toLowerCase());
         }

@@ -50,8 +50,7 @@ public class BuffersDataSource {
                 else
                     chan_types = "#";
             }
-            String output = name.replaceAll("^["+chan_types+"]+","");
-            return output;
+            return name.replaceAll("^["+chan_types+"]+","");
         }
 	}
 
@@ -170,27 +169,12 @@ public class BuffersDataSource {
         }
     }
 
-    public synchronized String draftForBuffer(int bid) {
-        Buffer b = getBuffer(bid);
-        if(b != null)
-            return b.draft;
-        return null;
-    }
-
-    public synchronized void deleteBuffer(int bid) {
-		Buffer b = getBuffer(bid);
-		if(b != null) {
-			buffers.remove(b);
-            buffers_indexed.remove(bid);
-        }
-	}
-
 	public synchronized void deleteAllDataForBuffer(int bid) {
 		Buffer b = getBuffer(bid);
 		if(b != null) {
 			if(b.type.equalsIgnoreCase("channel")) {
 				ChannelsDataSource.getInstance().deleteChannel(bid);
-				UsersDataSource.getInstance().deleteUsersForBuffer(b.cid, b.bid);
+				UsersDataSource.getInstance().deleteUsersForBuffer(b.bid);
 			}
 			EventsDataSource.getInstance().deleteEventsForBuffer(bid);
 		}
@@ -204,9 +188,7 @@ public class BuffersDataSource {
 	}
 	
 	public synchronized Buffer getBufferByName(int cid, String name) {
-		Iterator<Buffer> i = buffers.iterator();
-		while(i.hasNext()) {
-			Buffer b = i.next();
+        for(Buffer b : buffers) {
 			if(b.cid == cid && b.name.equalsIgnoreCase(name))
 				return b;
 		}
@@ -219,9 +201,7 @@ public class BuffersDataSource {
             Collections.sort(buffers, new comparator());
             dirty = false;
         }
-		Iterator<Buffer> i = buffers.iterator();
-		while(i.hasNext()) {
-			Buffer b = i.next();
+        for(Buffer b : buffers) {
 			if(b.cid == cid)
 				list.add(b);
 		}
@@ -230,17 +210,14 @@ public class BuffersDataSource {
 	
 	public synchronized ArrayList<Buffer> getBuffers() {
 		ArrayList<Buffer> list = new ArrayList<Buffer>();
-		Iterator<Buffer> i = buffers.iterator();
-		while(i.hasNext()) {
-			list.add(i.next());
+        for(Buffer b : buffers) {
+            list.add(b);
 		}
 		return list;
 	}
 
     public synchronized void invalidate() {
-        Iterator<Buffer> i = buffers.iterator();
-        while(i.hasNext()) {
-            Buffer b = i.next();
+        for(Buffer b : buffers) {
             b.valid = 0;
         }
     }
@@ -258,7 +235,7 @@ public class BuffersDataSource {
             Buffer b = i.next();
             EventsDataSource.getInstance().deleteEventsForBuffer(b.bid);
             ChannelsDataSource.getInstance().deleteChannel(b.bid);
-            UsersDataSource.getInstance().deleteUsersForBuffer(b.cid, b.bid);
+            UsersDataSource.getInstance().deleteUsersForBuffer(b.bid);
             buffers.remove(b);
             buffers_indexed.remove(b.bid);
             if(b.type.equalsIgnoreCase("console")) {

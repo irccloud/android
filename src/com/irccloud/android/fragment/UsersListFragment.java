@@ -251,23 +251,58 @@ public class UsersListFragment extends ListFragment {
 		}
 		
 		if(owners.size() > 0) {
-			addUsersFromList(entries, owners, "OWNER", (showSymbol?(PREFIX.get(s!=null?s.MODE_OWNER:"q").getAsString() + " "):"• "), R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+            if(showSymbol) {
+                if(PREFIX.has(s != null ? s.MODE_OWNER : "q"))
+                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s!=null?s.MODE_OWNER:"q").getAsString() + " ", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+                else
+                    addUsersFromList(entries, owners, "OWNER", "", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+            } else {
+                addUsersFromList(entries, owners, "OWNER", "• ", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+            }
 		}
 		
 		if(admins.size() > 0) {
-			addUsersFromList(entries, admins, "ADMINS", (showSymbol?(PREFIX.get(s!=null?s.MODE_ADMIN:"a").getAsString() + " "):"• "), R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+            if(showSymbol) {
+                if(PREFIX.has(s!=null?s.MODE_ADMIN : "a"))
+                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s!=null?s.MODE_ADMIN:"a").getAsString() + " ", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+                else
+                    addUsersFromList(entries, admins, "ADMINS", "", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+            } else {
+                addUsersFromList(entries, admins, "ADMINS", "• ", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+            }
 		}
 		
 		if(ops.size() > 0) {
-			addUsersFromList(entries, ops, "OPS", (showSymbol?(PREFIX.get(s!=null?s.MODE_OP:"o").getAsString() + " "):"• "), R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+            if(showSymbol) {
+                if(PREFIX.has(s!=null?s.MODE_OP:"o"))
+                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s!=null?s.MODE_OP:"o").getAsString() + " ", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+                else
+                    addUsersFromList(entries, ops, "OPS", "", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+            } else {
+                addUsersFromList(entries, ops, "OPS", "• ", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+            }
 		}
 		
 		if(halfops.size() > 0) {
-			addUsersFromList(entries, halfops, "HALF OPS", (showSymbol?(PREFIX.get(s!=null?s.MODE_HALFOP:"h").getAsString() + " "):"• "), R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+            if(showSymbol) {
+                if(PREFIX.has(s!=null?s.MODE_HALFOP:"h"))
+                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s!=null?s.MODE_HALFOP:"h").getAsString() + " ", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+                else
+                    addUsersFromList(entries, halfops, "HALF OPS", "", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+            } else {
+                addUsersFromList(entries, halfops, "HALF OPS", "• ", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+            }
 		}
 		
 		if(voiced.size() > 0) {
-			addUsersFromList(entries, voiced, "VOICED", (showSymbol?(PREFIX.get(s!=null?s.MODE_VOICED:"v").getAsString() + " "):"• "), R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+            if(showSymbol) {
+                if(PREFIX.has(s!=null?s.MODE_VOICED:"v"))
+                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s!=null?s.MODE_VOICED:"v").getAsString() + " ", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+                else
+                    addUsersFromList(entries, voiced, "VOICED", "", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+            } else {
+                addUsersFromList(entries, voiced, "VOICED", "• ", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+            }
 		}
 		
 		if(members.size() > 0) {
@@ -288,7 +323,7 @@ public class UsersListFragment extends ListFragment {
 		@Override
 		protected Void doInBackground(Void... params) {
 	    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
-	    		users = UsersDataSource.getInstance().getUsersForBuffer(cid, bid);
+	    		users = UsersDataSource.getInstance().getUsersForBuffer(bid);
 			return null;
 		}
 		
@@ -322,7 +357,7 @@ public class UsersListFragment extends ListFragment {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(mHandler);
-    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(cid, bid);
+    	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(bid);
     	refresh(users);
     }
     
@@ -338,7 +373,7 @@ public class UsersListFragment extends ListFragment {
 			public void run() {
 		    	ArrayList<UsersDataSource.User> users = null;
 		    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
-		    		users = UsersDataSource.getInstance().getUsersForBuffer(cid, bid);
+		    		users = UsersDataSource.getInstance().getUsersForBuffer(bid);
 		    	refresh(users);
 		    	try {
 			    	if(getListView() != null)

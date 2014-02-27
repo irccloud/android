@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class ChannelsDataSource {
     public class Mode {
@@ -59,25 +58,12 @@ public class ChannelsDataSource {
         public synchronized void removeMode(String mode) {
             if(mode.equals("k"))
                 key = false;
-            Iterator<Mode> i = modes.iterator();
-            while(i.hasNext()) {
-                Mode m = i.next();
+            for(Mode m : modes) {
                 if(m.mode.equals(mode)) {
                     modes.remove(m);
                     return;
                 }
             }
-        }
-
-        public synchronized boolean hasMode(String mode) {
-            Iterator<Mode> i = modes.iterator();
-            while(i.hasNext()) {
-                Mode m = i.next();
-                if(m.mode.equals(mode)) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 	
@@ -192,10 +178,8 @@ public class ChannelsDataSource {
             if(c.valid == 0)
                 channelsToRemove.add(c);
         }
-        Iterator<Channel> i = channelsToRemove.iterator();
-        while(i.hasNext()) {
-            Channel c = i.next();
-            UsersDataSource.getInstance().deleteUsersForBuffer(c.cid, c.bid);
+        for(Channel c : channelsToRemove) {
+            UsersDataSource.getInstance().deleteUsersForBuffer(c.bid);
             channels.remove(c.bid);
         }
     }

@@ -19,7 +19,6 @@ package com.irccloud.android.data;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -173,9 +172,7 @@ public class ServersDataSource {
 	public void updateIsupport(int cid, JsonObject params) {
 		Server s = getServer(cid);
 		if(s != null) {
-            Iterator<Map.Entry<String, JsonElement>> i = params.entrySet().iterator();
-            while(i.hasNext()) {
-                Map.Entry<String, JsonElement> e = i.next();
+            for(Map.Entry<String, JsonElement> e : params.entrySet()) {
                 s.isupport.add(e.getKey(), e.getValue());
             }
             if(s.isupport.has("PREFIX")) {

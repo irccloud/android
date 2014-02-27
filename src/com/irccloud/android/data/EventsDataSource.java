@@ -22,10 +22,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 import com.google.gson.JsonArray;
@@ -90,7 +87,7 @@ public class EventsDataSource {
                     "}";
         }
 
-        public boolean isImportant(String buffer_type) {
+        public synchronized boolean isImportant(String buffer_type) {
             if(self)
                 return false;
             if(type == null) {
@@ -127,18 +124,7 @@ public class EventsDataSource {
         }
     }
 	
-	public class comparator implements Comparator<Event> {
-		public int compare(Event e1, Event e2) {
-			long l1 = e1.eid, l2 = e2.eid;
-			if(l1 == l2)
-				return 0;
-			else if(l1 > l2)
-				return 1;
-			else return -1;
-		}
-	}
-	
-	private HashMap<Integer,TreeMap<Long, Event>> events;
+	private final HashMap<Integer,TreeMap<Long, Event>> events;
 	private static EventsDataSource instance = null;
 	public long highest_eid = -1;
 	
@@ -467,9 +453,9 @@ public class EventsDataSource {
                 if(lines != null) {
                     StringBuilder builder = new StringBuilder("<pre>");
                     if(event.has("start"))
-                        builder.append(event.getString("start") + "<br/>");
+                        builder.append(event.getString("start")).append("<br/>");
                     for(int i = 0; i < lines.size(); i++) {
-                        builder.append(TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;") + "<br/>");
+                        builder.append(TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;")).append("<br/>");
                     }
                     builder.append("</pre>");
                     e.msg = builder.toString();
@@ -954,28 +940,22 @@ public class EventsDataSource {
 		synchronized(events) {
 			if(events.containsKey(bid)) {
                 if(Build.VERSION.SDK_INT > 8) {
-                    Iterator<Event> i = events.get(bid).descendingMap().values().iterator();
-                    while(i.hasNext()) {
-                        Event e = i.next();
+                    for(Event e : events.get(bid).descendingMap().values()) {
                         try {
                             if(e.eid <= last_seen_eid)
                                 break;
                             else if(e.isImportant(buffer_type))
                                 return 1;
                         } catch (Exception e1) {
-                            // TODO Auto-generated catch block
                             e1.printStackTrace();
                         }
                     }
                 } else {
-                    Iterator<Event> i = events.get(bid).values().iterator();
-                    while(i.hasNext()) {
-                        Event e = i.next();
+                    for(Event e : events.get(bid).values()) {
                         try {
                             if(e.eid > last_seen_eid && e.isImportant(buffer_type))
                                 return 1;
                         } catch (Exception e1) {
-                            // TODO Auto-generated catch block
                             e1.printStackTrace();
                         }
                     }
@@ -989,28 +969,22 @@ public class EventsDataSource {
         synchronized(events) {
             if(events.containsKey(bid)) {
                 if(Build.VERSION.SDK_INT > 8) {
-                    Iterator<Event> i = events.get(bid).descendingMap().values().iterator();
-                    while(i.hasNext()) {
-                        Event e = i.next();
+                    for(Event e : events.get(bid).descendingMap().values()) {
                         try {
                             if(e.eid <= last_seen_eid)
                                 break;
                             else if(e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
                                 return 1;
                         } catch (Exception e1) {
-                            // TODO Auto-generated catch block
                             e1.printStackTrace();
                         }
                     }
                 } else {
-                    Iterator<Event> i = events.get(bid).values().iterator();
-                    while(i.hasNext()) {
-                        Event e = i.next();
+                    for(Event e : events.get(bid).values()) {
                         try {
                             if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
                                 return 1;
                         } catch (Exception e1) {
-                            // TODO Auto-generated catch block
                             e1.printStackTrace();
                         }
                     }
@@ -1025,28 +999,22 @@ public class EventsDataSource {
 		synchronized(events) {
 			if(events.containsKey(bid)) {
                 if(Build.VERSION.SDK_INT > 8) {
-                    Iterator<Event> i = events.get(bid).descendingMap().values().iterator();
-                    while(i.hasNext()) {
-                        Event e = i.next();
+                    for(Event e : events.get(bid).descendingMap().values()) {
                         try {
                             if(e.eid <= last_seen_eid)
                                 break;
                             else if(e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
                                 count++;
                         } catch (Exception e1) {
-                            // TODO Auto-generated catch block
                             e1.printStackTrace();
                         }
                     }
                 } else {
-                    Iterator<Event> i = events.get(bid).values().iterator();
-                    while(i.hasNext()) {
-                        Event e = i.next();
+                    for(Event e : events.get(bid).values()) {
                         try {
                             if(e.eid > last_seen_eid && e.isImportant(buffer_type) && (e.highlight || buffer_type.equalsIgnoreCase("conversation")))
                                 count++;
                         } catch (Exception e1) {
-                            // TODO Auto-generated catch block
                             e1.printStackTrace();
                         }
                     }
@@ -1059,9 +1027,7 @@ public class EventsDataSource {
     public synchronized void clearCacheForBuffer(int bid) {
         synchronized(events) {
             if(events.containsKey(bid)) {
-                Iterator<Event> i = events.get(bid).values().iterator();
-                while(i.hasNext()) {
-                    Event e = i.next();
+                for(Event e : events.get(bid).values()) {
                     e.timestamp = null;
                     e.html = null;
                     e.formatted = null;
