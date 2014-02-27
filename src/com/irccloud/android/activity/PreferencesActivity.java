@@ -48,7 +48,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-public class PreferencesActivity extends PreferenceActivity {
+public class PreferencesActivity extends PreferenceActivity implements NetworkConnection.IRCEventHandler {
 	NetworkConnection conn;
 	SaveSettingsTask saveSettingsTask = null;
 	SavePreferencesTask savePreferencesTask = null;
@@ -174,7 +174,7 @@ public class PreferencesActivity extends PreferenceActivity {
     public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
         overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
     }
 
@@ -183,21 +183,19 @@ public class PreferencesActivity extends PreferenceActivity {
     	super.onPause();
 
     	if(conn != null) {
-        	conn.removeHandler(mHandler);
+        	conn.removeHandler(this);
     	}
 
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
-    
-	@SuppressWarnings("deprecation")
-    @SuppressLint("HandlerLeak")
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			IRCCloudJSONObject o;
-			
-			switch(msg.what) {
+
+    @SuppressWarnings("deprecation")
+    public void onIRCEvent(int what, Object obj) {
+        IRCCloudJSONObject o;
+
+        switch(what) {
 			case NetworkConnection.EVENT_SUCCESS:
-				o = (IRCCloudJSONObject)msg.obj;
+				o = (IRCCloudJSONObject)obj;
 				if(o.has("_reqid")) {
 					if(o.getInt("_reqid") == save_settings_reqid) {
 						save_settings_reqid = -1;
@@ -207,7 +205,7 @@ public class PreferencesActivity extends PreferenceActivity {
 				}
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
-				o = (IRCCloudJSONObject)msg.obj;
+				o = (IRCCloudJSONObject)obj;
 				if(o.has("_reqid")) {
 					if(o.getInt("_reqid") == save_settings_reqid) {
 						save_settings_reqid = -1;
@@ -216,35 +214,44 @@ public class PreferencesActivity extends PreferenceActivity {
 						save_prefs_reqid = -1;
 						Log.e("IRCCloud", "Prefs not updated: " + o.getString("message"));
 					}
-					Toast.makeText(PreferencesActivity.this, "An error occured while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(PreferencesActivity.this, "An error occured while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 				}
 				break;
 			case NetworkConnection.EVENT_USERINFO:
-				NetworkConnection.UserInfo userInfo = conn.getUserInfo();
+				final NetworkConnection.UserInfo userInfo = conn.getUserInfo();
 				if(userInfo != null) {
-					JSONObject prefs = userInfo.prefs;
-					((EditTextPreference)findPreference("name")).setText(userInfo.name);
-					findPreference("name").setSummary(userInfo.name);
-					((EditTextPreference)findPreference("email")).setText(userInfo.email);
-					findPreference("email").setSummary(userInfo.email);
-					((EditTextPreference)findPreference("highlights")).setText(userInfo.highlights);
-					findPreference("highlights").setSummary(userInfo.highlights);
-					((CheckBoxPreference)findPreference("autoaway")).setChecked(userInfo.auto_away);
-					if(prefs != null) {
-						try {
-							((CheckBoxPreference)findPreference("time-24hr")).setChecked(prefs.has("time-24hr")?prefs.getBoolean("time-24hr"):false);
-							((CheckBoxPreference)findPreference("time-seconds")).setChecked(prefs.has("time-seconds")?prefs.getBoolean("time-seconds"):false);
-							((CheckBoxPreference)findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol")?prefs.getBoolean("mode-showsymbol"):false);
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-					}
+					final JSONObject prefs = userInfo.prefs;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((EditTextPreference)findPreference("name")).setText(userInfo.name);
+                            findPreference("name").setSummary(userInfo.name);
+                            ((EditTextPreference)findPreference("email")).setText(userInfo.email);
+                            findPreference("email").setSummary(userInfo.email);
+                            ((EditTextPreference)findPreference("highlights")).setText(userInfo.highlights);
+                            findPreference("highlights").setSummary(userInfo.highlights);
+                            ((CheckBoxPreference)findPreference("autoaway")).setChecked(userInfo.auto_away);
+                            if(prefs != null) {
+                                try {
+                                    ((CheckBoxPreference)findPreference("time-24hr")).setChecked(prefs.has("time-24hr")?prefs.getBoolean("time-24hr"):false);
+                                    ((CheckBoxPreference)findPreference("time-seconds")).setChecked(prefs.has("time-seconds")?prefs.getBoolean("time-seconds"):false);
+                                    ((CheckBoxPreference)findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol")?prefs.getBoolean("mode-showsymbol"):false);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
 				}
 				break;
-			}
-		}
-    };
-    
+        }
+    }
+
 	Preference.OnPreferenceChangeListener settingstoggle = new Preference.OnPreferenceChangeListener() {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			if(preference.getKey().equals("name")) {

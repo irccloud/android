@@ -68,7 +68,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
-public class MessageViewFragment extends ListFragment {
+public class MessageViewFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
 	private NetworkConnection conn;
 	private TextView statusView;
 	private View headerViewContainer;
@@ -103,7 +103,8 @@ public class MessageViewFragment extends ListFragment {
 	private View globalMsgView = null;
 	private TextView globalMsg = null;
     private ProgressBar spinner = null;
-	
+	private final Handler mHandler = new Handler();
+
 	public static final int ROW_MESSAGE = 0;
 	public static final int ROW_TIMESTAMP = 1;
 	public static final int ROW_BACKLOGMARKER = 2;
@@ -864,7 +865,12 @@ public class MessageViewFragment extends ListFragment {
             ready = true;
         }
     }
-    
+
+    private void runOnUiThread(Runnable r) {
+        if(getActivity() != null)
+            getActivity().runOnUiThread(r);
+    }
+
     private synchronized void insertEvent(final MessageAdapter adapter, EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized(adapterLock) {
             try {
@@ -874,7 +880,7 @@ public class MessageViewFragment extends ListFragment {
 
                 long start = System.currentTimeMillis();
                 if(event.eid <= buffer.min_eid) {
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             headerView.setVisibility(View.GONE);
@@ -1101,14 +1107,19 @@ public class MessageViewFragment extends ListFragment {
                 }
                 if(!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
-                    mHandler.postDelayed(new Runnable() {
+                    new Timer().schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            try {
-                                getListView().setSelection(adapter.getCount() - 1);
-                            } catch (Exception e) {
-                                //List view isn't ready yet
-                            }
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        getListView().setSelection(adapter.getCount() - 1);
+                                    } catch (Exception e) {
+                                        //List view isn't ready yet
+                                    }
+                                }
+                            });
                         }
                     }, 200);
                 }
@@ -1157,39 +1168,39 @@ public class MessageViewFragment extends ListFragment {
 	    				
 						@Override
 						public void run() {
-				    		mHandler.post(new Runnable() {
-								@Override
-								public void run() {
-									if(adapter != null && adapter.data != null && position < adapter.data.size()) {
-								    	EventsDataSource.Event e = adapter.data.get(position);
-                                        if(e != null) {
-                                            if(e.type.equals("channel_invite")) {
+				    		runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (adapter != null && adapter.data != null && position < adapter.data.size()) {
+                                        EventsDataSource.Event e = adapter.data.get(position);
+                                        if (e != null) {
+                                            if (e.type.equals("channel_invite")) {
                                                 conn.join(buffer.cid, e.old_nick, null);
-                                            } else if(e.type.equals("callerid")) {
+                                            } else if (e.type.equals("callerid")) {
                                                 conn.say(buffer.cid, null, "/accept " + e.from);
                                                 BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(buffer.cid, e.from);
-                                                if(b != null) {
+                                                if (b != null) {
                                                     mListener.onBufferSelected(b.bid);
                                                 } else {
                                                     conn.say(b.cid, null, "/query " + e.from);
                                                 }
                                             } else {
                                                 long group = e.group_eid;
-                                                if(expandedSectionEids.contains(group))
+                                                if (expandedSectionEids.contains(group))
                                                     expandedSectionEids.remove(group);
-                                                else if(e.eid != group)
+                                                else if (e.eid != group)
                                                     expandedSectionEids.add(group);
-                                                if(e.eid != e.group_eid) {
-                                                    if(refreshTask != null)
+                                                if (e.eid != e.group_eid) {
+                                                    if (refreshTask != null)
                                                         refreshTask.cancel(true);
                                                     refreshTask = new RefreshTask();
-                                                    refreshTask.execute((Void)null);
+                                                    refreshTask.execute((Void) null);
                                                 }
                                             }
                                         }
                                     }
-								}
-                            				    		});
+                                }
+                            });
 			    			tapTimer = null;
 						}
 	    				
@@ -1203,7 +1214,7 @@ public class MessageViewFragment extends ListFragment {
     @SuppressWarnings("unchecked")
 	public void onResume() {
     	super.onResume();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
     	if(conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
 			TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
 			anim.setDuration(200);
@@ -1343,7 +1354,7 @@ public class MessageViewFragment extends ListFragment {
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
                     }
                 } else if(buffer != null && buffer.min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             headerView.setVisibility(View.VISIBLE);
@@ -1446,14 +1457,14 @@ public class MessageViewFragment extends ListFragment {
             if(events == null || (events.size() == 0 && buffer.min_eid > 0)) {
                 if(buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     requestingBacklog = true;
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             conn.request_backlog(buffer.cid, buffer.bid, 0);
                         }
                     });
                 } else {
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             headerView.setVisibility(View.GONE);
@@ -1471,7 +1482,7 @@ public class MessageViewFragment extends ListFragment {
                 collapsedEvents.setServer(server);
                 earliest_eid = events.firstKey();
                 if(events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             headerView.setVisibility(View.VISIBLE);
@@ -1480,7 +1491,7 @@ public class MessageViewFragment extends ListFragment {
                         }
                     });
                 } else {
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             headerView.setVisibility(View.GONE);
@@ -1897,7 +1908,7 @@ public class MessageViewFragment extends ListFragment {
 			statusRefreshRunnable = null;
 		}
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
 		TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, -1);
 		anim.setDuration(10);
 		anim.setFillAfter(true);
@@ -1924,8 +1935,8 @@ public class MessageViewFragment extends ListFragment {
 		} catch (Exception e) {
 		}
    	}
-    
-	private void updateReconnecting() {
+
+    private void updateReconnecting() {
 		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 			connectingMsg.setText("Loading");
 		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
@@ -1962,12 +1973,12 @@ public class MessageViewFragment extends ListFragment {
 					countdownTimer.schedule( new TimerTask(){
 			             public void run() {
 			    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-			    				 mHandler.post(new Runnable() {
-									@Override
-									public void run() {
-					 					updateReconnecting();
-									}
-			    				 });
+			    				 runOnUiThread(new Runnable() {
+                                     @Override
+                                     public void run() {
+                                         updateReconnecting();
+                                     }
+                                 });
 			    			 }
 			    			 countdownTimer = null;
 			             }
@@ -1985,111 +1996,166 @@ public class MessageViewFragment extends ListFragment {
 			progressBar.setProgress(0);
     	}
     }
-    
-	private final Handler mHandler = new Handler() {
+
+    public void onIRCEvent(int what, final Object obj) {
 		IRCCloudJSONObject e;
-		
-		public void handleMessage(Message msg) {
-            switch (msg.what) {
+        switch (what) {
             case NetworkConnection.EVENT_DEBUG:
-                errorMsg.setVisibility(View.VISIBLE);
-                errorMsg.setText(msg.obj.toString());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        errorMsg.setVisibility(View.VISIBLE);
+                        errorMsg.setText(obj.toString());
+                    }
+                });
                 break;
             case NetworkConnection.EVENT_PROGRESS:
-                float progress = (Float)msg.obj;
+                final float progress = (Float)obj;
                 if(progressBar.getProgress() < progress) {
-                    progressBar.setIndeterminate(false);
-                    progressBar.setProgress((int)progress);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setIndeterminate(false);
+                            progressBar.setProgress((int) progress);
+                        }
+                    });
                 }
                 break;
             case NetworkConnection.EVENT_BACKLOG_START:
-                progressBar.setProgress(0);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setProgress(0);
+                    }
+                });
                 break;
             case NetworkConnection.EVENT_BACKLOG_FAILED:
-                headerView.setVisibility(View.GONE);
-                backlogFailed.setVisibility(View.VISIBLE);
-                loadBacklogButton.setVisibility(View.VISIBLE);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.VISIBLE);
+                        loadBacklogButton.setVisibility(View.VISIBLE);
+                    }
+                });
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
-                if(connecting.getVisibility() == View.VISIBLE) {
-                    TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
-                    anim.setDuration(200);
-                    anim.setFillAfter(true);
-                    anim.setAnimationListener(new AnimationListener() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(connecting.getVisibility() == View.VISIBLE) {
+                            TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
+                            anim.setDuration(200);
+                            anim.setFillAfter(true);
+                            anim.setAnimationListener(new AnimationListener() {
 
-                        @Override
-                        public void onAnimationEnd(Animation arg0) {
-                            connecting.setVisibility(View.GONE);
+                                @Override
+                                public void onAnimationEnd(Animation arg0) {
+                                    connecting.setVisibility(View.GONE);
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
+                                }
+
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+                                }
+
+                            });
+                            connecting.startAnimation(anim);
+                            error = null;
                         }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-                        }
-
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                        }
-
-                    });
-                    connecting.startAnimation(anim);
-                    error = null;
-                }
+                    }
+                });
             case NetworkConnection.EVENT_CONNECTIVITY:
-                updateReconnecting();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateReconnecting();
+                    }
+                });
             case NetworkConnection.EVENT_USERINFO:
                 dirty = true;
-                if(refreshTask != null)
-                    refreshTask.cancel(true);
-                refreshTask = new RefreshTask();
-                refreshTask.execute((Void)null);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(refreshTask != null)
+                            refreshTask.cancel(true);
+                        refreshTask = new RefreshTask();
+                        refreshTask.execute((Void)null);
+                    }
+                });
                 break;
             case NetworkConnection.EVENT_FAILURE_MSG:
-                IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
+                IRCCloudJSONObject o = (IRCCloudJSONObject)obj;
                 try {
                     error = o.getString("message");
                     if(error.equals("temp_unavailable"))
                         error = "Your account is temporarily unavailable";
-                    updateReconnecting();
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateReconnecting();
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
                 break;
             case NetworkConnection.EVENT_CONNECTIONLAG:
                 try {
-                    IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
+                    IRCCloudJSONObject object = (IRCCloudJSONObject)obj;
                     if(server != null && buffer != null && object.cid() == buffer.cid) {
-                        update_status(server.status, server.fail_info);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                update_status(server.status, server.fail_info);
+                            }
+                        });
                     }
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
                 try {
-                    IRCCloudJSONObject object = (IRCCloudJSONObject)msg.obj;
+                    final IRCCloudJSONObject object = (IRCCloudJSONObject)obj;
                     if(buffer != null && object.cid() == buffer.cid) {
-                        update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                update_status(object.getString("new_status"), object.getJsonObject("fail_info"));
+                            }
+                        });
                     }
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
                 break;
             case NetworkConnection.EVENT_SETIGNORES:
-                e = (IRCCloudJSONObject)msg.obj;
+                e = (IRCCloudJSONObject)obj;
                 if(buffer != null && e.cid() == buffer.cid) {
-                    if(refreshTask != null)
-                        refreshTask.cancel(true);
-                    refreshTask = new RefreshTask();
-                    refreshTask.execute((Void)null);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void)null);
+                        }
+                    });
                 }
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
                 if(buffer != null && adapter != null && adapter.data.size() > 0) {
                     if(buffer.last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
-                        unreadTopView.setVisibility(View.GONE);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                unreadTopView.setVisibility(View.GONE);
+                            }
+                        });
                     }
                 }
                 break;
@@ -2103,58 +2169,88 @@ public class MessageViewFragment extends ListFragment {
             case NetworkConnection.EVENT_SELFDETAILS:
             case NetworkConnection.EVENT_USERMODE:
             case NetworkConnection.EVENT_USERCHANNELMODE:
-                e = (IRCCloudJSONObject)msg.obj;
+                e = (IRCCloudJSONObject)obj;
                 if(buffer != null && e.bid() == buffer.bid) {
-                    EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
-                    insertEvent(adapter, event, false, false);
+                    final EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            insertEvent(adapter, event, false, false);
+                        }
+                    });
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
-                EventsDataSource.Event event = (EventsDataSource.Event)msg.obj;
+                final EventsDataSource.Event event = (EventsDataSource.Event)obj;
                 if(buffer != null && event.bid == buffer.bid) {
                     if(event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
                         adapter.clearPending();
                     } else if(event.reqid != -1) {
-                        for(int i = 0; i < adapter.data.size(); i++) {
-                            EventsDataSource.Event e = adapter.data.get(i);
-                            if(e.reqid == event.reqid && e.pending) {
-                                if(i > 1) {
-                                    EventsDataSource.Event p = adapter.data.get(i-1);
-                                    if(p.row_type == ROW_TIMESTAMP) {
-                                        adapter.data.remove(p);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for(int i = 0; i < adapter.data.size(); i++) {
+                                    EventsDataSource.Event e = adapter.data.get(i);
+                                    if(e.reqid == event.reqid && e.pending) {
+                                        if(i > 1) {
+                                            EventsDataSource.Event p = adapter.data.get(i-1);
+                                            if(p.row_type == ROW_TIMESTAMP) {
+                                                adapter.data.remove(p);
+                                                i--;
+                                            }
+                                        }
+                                        adapter.data.remove(e);
                                         i--;
                                     }
                                 }
-                                adapter.data.remove(e);
-                                i--;
                             }
-                        }
+                        });
                     }
-                    insertEvent(adapter, event, false, false);
-                    if(event.pending && event.self && adapter != null && getListView() != null)
-                        getListView().setSelection(adapter.getCount() - 1);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            insertEvent(adapter, event, false, false);
+                        }
+                    });
+                    if(event.pending && event.self && adapter != null && getListView() != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                getListView().setSelection(adapter.getCount() - 1);
+                            }
+                        });
+                    }
                 }
                 break;
             case NetworkConnection.EVENT_AWAY:
             case NetworkConnection.EVENT_SELFBACK:
                 if(server != null) {
-                    if(server.away != null && server.away.length() > 0) {
-                        awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
-                        awayView.setVisibility(View.VISIBLE);
-                    } else {
-                        awayView.setVisibility(View.GONE);
-                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(server.away != null && server.away.length() > 0) {
+                                awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
+                                awayView.setVisibility(View.VISIBLE);
+                            } else {
+                                awayView.setVisibility(View.GONE);
+                            }
+                        }
+                    });
                 }
                 break;
             case NetworkConnection.EVENT_GLOBALMSG:
-                update_global_msg();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        update_global_msg();
+                    }
+                });
                 break;
             default:
                 break;
-            }
         }
-	};
-	
+    }
+
 	public interface MessageViewListener extends OnBufferSelectedListener {
 		public void onMessageViewReady();
 		public boolean onMessageLongClicked(EventsDataSource.Event event);

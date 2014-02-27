@@ -32,6 +32,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.TypedValue;
@@ -51,6 +52,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.irccloud.android.AsyncTaskEx;
@@ -62,7 +64,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
-public class BuffersListFragment extends ListFragment {
+public class BuffersListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
 	private static final int TYPE_SERVER = 0;
 	private static final int TYPE_CHANNEL = 1;
 	private static final int TYPE_CONVERSATION = 2;
@@ -299,14 +301,28 @@ public class BuffersListFragment extends ListFragment {
                     }
                 }
 
-                notifyDataSetChanged();
-                if(listView != null)
-                    updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
+                if(BuffersListFragment.this.getActivity() != null) {
+                    BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyDataSetChanged();
+                            if(listView != null)
+                                updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
+                        }
+                    });
+                }
             } else {
-                if(refreshTask != null)
-                    refreshTask.cancel(true);
-                refreshTask = new RefreshTask();
-                refreshTask.execute((Void)null);
+                if(BuffersListFragment.this.getActivity() != null) {
+                    BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void)null);
+                        }
+                    });
+                }
             }
         }
 
@@ -905,7 +921,7 @@ public class BuffersListFragment extends ListFragment {
 	
     public void onResume() {
     	super.onResume();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
     	ready = conn.ready;
 		if(adapter != null)
 			adapter.showProgress(-1);
@@ -920,9 +936,9 @@ public class BuffersListFragment extends ListFragment {
     public void onPause() {
     	super.onPause();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
     }
-    
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -959,25 +975,22 @@ public class BuffersListFragment extends ListFragment {
     	adapter.showProgress(position);
     	mListener.onBufferSelected(e.bid);
     }
-    
-    
-    @SuppressLint("HandlerLeak")
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-            IRCCloudJSONObject object = null;
-            BuffersDataSource.Buffer b = null;
-            try {
-                object = (IRCCloudJSONObject)msg.obj;
-            } catch (ClassCastException e) {
-            }
-            EventsDataSource.Event event = null;
-            try {
-                event = (EventsDataSource.Event)msg.obj;
-            } catch (ClassCastException e) {
-            }
-			switch (msg.what) {
+
+    public void onIRCEvent(int what, Object obj) {
+        BuffersDataSource.Buffer b;
+        IRCCloudJSONObject object = null;
+        try {
+            object = (IRCCloudJSONObject)obj;
+        } catch (ClassCastException e) {
+        }
+        EventsDataSource.Event event = null;
+        try {
+            event = (EventsDataSource.Event)obj;
+        } catch (ClassCastException e) {
+        }
+        switch (what) {
             case NetworkConnection.EVENT_CHANNELINIT:
-                b = BuffersDataSource.getInstance().getBuffer(((ChannelsDataSource.Channel)msg.obj).bid);
+                b = BuffersDataSource.getInstance().getBuffer(((ChannelsDataSource.Channel)obj).bid);
                 if(b != null)
                     adapter.updateBuffer(b);
                 break;
@@ -1019,11 +1032,16 @@ public class BuffersListFragment extends ListFragment {
             case NetworkConnection.EVENT_PART:
             case NetworkConnection.EVENT_QUIT:
             case NetworkConnection.EVENT_KICK:
-                if(object.type().startsWith("you_")) {
-                    if(refreshTask != null)
-                        refreshTask.cancel(true);
-                    refreshTask = new RefreshTask();
-                    refreshTask.execute((Void)null);
+                if(object.type().startsWith("you_") && getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void)null);
+                        }
+                    });
                 }
                 break;
             case NetworkConnection.EVENT_USERINFO:
@@ -1060,8 +1078,15 @@ public class BuffersListFragment extends ListFragment {
             case NetworkConnection.EVENT_DEBUG:
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(adapter != null)
-					adapter.notifyDataSetChanged();
+                if(adapter != null && getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(adapter != null)
+                                adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
 				break;
 			case NetworkConnection.EVENT_BACKLOG_START:
 	            if(refreshTask != null)
@@ -1069,16 +1094,31 @@ public class BuffersListFragment extends ListFragment {
 	            break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				ready = true;
+                if(obj != null) {
+                    Integer bid = (Integer)obj;
+                    b = BuffersDataSource.getInstance().getBuffer(bid);
+                    if(b != null) {
+                        adapter.updateBuffer(b);
+                        break;
+                    }
+                }
 			default:
-	            if(refreshTask != null)
-	            	refreshTask.cancel(true);
-				refreshTask = new RefreshTask();
-				refreshTask.execute((Void)null);
+                Crashlytics.log(Log.WARN, "IRCCloud", "Slow event: " + what);
+                if(getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void)null);
+                        }
+                    });
+                }
 				break;
-			}
-		}
-	};
-	
+        }
+    }
+
 	public interface OnBufferSelectedListener {
 		public void onBufferSelected(int bid);
 		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);

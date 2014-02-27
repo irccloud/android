@@ -34,7 +34,7 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.fragment.EditConnectionFragment;
 
-public class EditConnectionActivity extends ActionBarActivity {
+public class EditConnectionActivity extends ActionBarActivity implements NetworkConnection.IRCEventHandler {
     int reqid = -1;
     int cidToOpen = -1;
     int cid = -1;
@@ -89,53 +89,56 @@ public class EditConnectionActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        NetworkConnection.getInstance().addHandler(mHandler);
+        NetworkConnection.getInstance().addHandler(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        NetworkConnection.getInstance().removeHandler(mHandler);
+        NetworkConnection.getInstance().removeHandler(this);
     }
 
-    private final Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            IRCCloudJSONObject obj;
-            BuffersDataSource.Buffer buffer;
-            switch (msg.what) {
-                case NetworkConnection.EVENT_MAKEBUFFER:
-                    buffer = (BuffersDataSource.Buffer)msg.obj;
-                    if(buffer.cid == cidToOpen) {
-                        Intent i = new Intent(EditConnectionActivity.this, MessageActivity.class);
-                        i.putExtra("bid", buffer.bid);
-                        startActivity(i);
+    public void onIRCEvent(int what, Object o) {
+        IRCCloudJSONObject obj;
+        BuffersDataSource.Buffer buffer;
+        switch (what) {
+            case NetworkConnection.EVENT_MAKEBUFFER:
+                buffer = (BuffersDataSource.Buffer)o;
+                if(buffer.cid == cidToOpen) {
+                    Intent i = new Intent(EditConnectionActivity.this, MessageActivity.class);
+                    i.putExtra("bid", buffer.bid);
+                    startActivity(i);
+                    finish();
+                }
+                break;
+            case NetworkConnection.EVENT_SUCCESS:
+                obj = (IRCCloudJSONObject)o;
+                if(obj.getInt("_reqid") == reqid) {
+                    if(cid != -1)
                         finish();
-                    }
-                    break;
-                case NetworkConnection.EVENT_SUCCESS:
-                    obj = (IRCCloudJSONObject)msg.obj;
-                    if(obj.getInt("_reqid") == reqid) {
-                        if(cid != -1)
-                            finish();
-                        else
-                            cidToOpen = obj.cid();
-                    }
-                    break;
-                case NetworkConnection.EVENT_FAILURE_MSG:
-                    obj = (IRCCloudJSONObject)msg.obj;
-                    if(obj.getInt("_reqid") == reqid) {
-                        String message = obj.getString("message");
-                        if(message.equals("passworded_servers"))
-                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
-                        else if(message.equals("networks"))
-                            Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                default:
-                    break;
-            }
+                    else
+                        cidToOpen = obj.cid();
+                }
+                break;
+            case NetworkConnection.EVENT_FAILURE_MSG:
+                obj = (IRCCloudJSONObject)o;
+                if(obj.getInt("_reqid") == reqid) {
+                    final String message = obj.getString("message");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(message.equals("passworded_servers"))
+                                Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                            else if(message.equals("networks"))
+                                Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                            else
+                                Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                break;
+            default:
+                break;
         }
-    };
+    }
 }

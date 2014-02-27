@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ListFragment;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -42,7 +40,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
-public class ChannelListFragment extends ListFragment {
+public class ChannelListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
 	ArrayList<ChannelsAdapter.Channel> channels;
 	ChannelsAdapter adapter;
 	NetworkConnection conn;
@@ -155,7 +153,7 @@ public class ChannelListFragment extends ListFragment {
 	@Override
     public View onCreateView(LayoutInflater i, ViewGroup container, Bundle savedInstanceState) {
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
 
     	Context ctx = getActivity();
 		if(Build.VERSION.SDK_INT < 11)
@@ -188,7 +186,7 @@ public class ChannelListFragment extends ListFragment {
     	super.onResume();
     	if(conn == null) {
 	    	conn = NetworkConnection.getInstance();
-	    	conn.addHandler(mHandler);
+	    	conn.addHandler(this);
     	}
     	
     	if(adapter == null) {
@@ -201,25 +199,35 @@ public class ChannelListFragment extends ListFragment {
     public void onPause() {
     	super.onPause();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
     	conn = null;
     }
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			IRCCloudJSONObject o;
-			switch (msg.what) {
+
+    public void onIRCEvent(int what, Object obj) {
+        final IRCCloudJSONObject o;
+        switch (what) {
 			case NetworkConnection.EVENT_LISTRESPONSE:
-				o = (IRCCloudJSONObject)msg.obj;
-				adapter.set(o.getJsonArray("channels"));
-				adapter.notifyDataSetChanged();
+				o = (IRCCloudJSONObject)obj;
+                if(getActivity() != null)
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.set(o.getJsonArray("channels"));
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
 				break;
 			case NetworkConnection.EVENT_LISTRESPONSETOOMANY:
-				empty.setText("Too many channels to list");
+                if(getActivity() != null)
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+            				empty.setText("Too many channels to list");
+                        }
+                    });
 				break;
 			default:
 				break;
-			}
-		}
-	};
+        }
+    }
 }

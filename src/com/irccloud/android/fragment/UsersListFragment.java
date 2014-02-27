@@ -40,13 +40,14 @@ import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
-public class UsersListFragment extends ListFragment {
+public class UsersListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
 	private static final int TYPE_HEADING = 0;
 	private static final int TYPE_USER = 1;
 	
@@ -56,7 +57,6 @@ public class UsersListFragment extends ListFragment {
 	private int cid = -1;
 	private int bid = -1;
 	private String channel;
-	private RefreshTask refreshTask = null;
 	private Timer tapTimer = null;
     private Timer refreshTimer = null;
 	
@@ -209,7 +209,7 @@ public class UsersListFragment extends ListFragment {
 		ArrayList<UsersDataSource.User> members = new ArrayList<UsersDataSource.User>();
 		boolean showSymbol = false;
 		try {
-			if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
+			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
 			showSymbol = conn.getUserInfo().prefs.getBoolean("mode-showsymbol");
 		} catch (JSONException e) {
 		}
@@ -317,25 +317,6 @@ public class UsersListFragment extends ListFragment {
 			adapter.notifyDataSetChanged();
 	}
 	
-	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-		ArrayList<UsersDataSource.User> users = null;
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-	    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
-	    		users = UsersDataSource.getInstance().getUsersForBuffer(bid);
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			if(!isCancelled()) {
-				refresh(users);
-				refreshTask = null;
-			}
-		}
-	}
-	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -356,7 +337,7 @@ public class UsersListFragment extends ListFragment {
 	public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
     	ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(bid);
     	refresh(users);
     }
@@ -366,33 +347,39 @@ public class UsersListFragment extends ListFragment {
     	cid = args.getInt("cid", 0);
     	bid = args.getInt("bid", 0);
     	channel = args.getString("name");
-    	
-    	mHandler.postDelayed(new Runnable() {
 
-			@Override
-			public void run() {
-		    	ArrayList<UsersDataSource.User> users = null;
-		    	if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
-		    		users = UsersDataSource.getInstance().getUsersForBuffer(bid);
-		    	refresh(users);
-		    	try {
-			    	if(getListView() != null)
-			    		getListView().setSelection(0);
-		    	} catch (Exception e) { //Sometimes the list view isn't available yet
-		    	}
-			}
-    		
-    	}, 100);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(getActivity() != null)
+                    getActivity().runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            ArrayList<UsersDataSource.User> users = null;
+                            if (ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
+                                users = UsersDataSource.getInstance().getUsersForBuffer(bid);
+                            refresh(users);
+                            try {
+                                if (getListView() != null)
+                                    getListView().setSelection(0);
+                            } catch (Exception e) { //Sometimes the list view isn't available yet
+                            }
+                        }
+
+                    });
+            }
+        }, 100);
     }
 	
     public void onPause() {
     	super.onPause();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
         if(refreshTimer != null)
             refreshTimer.cancel();
     }
-    
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -464,26 +451,27 @@ public class UsersListFragment extends ListFragment {
 	    				
 						@Override
 						public void run() {
-				    		mHandler.post(new Runnable() {
-								@Override
-								public void run() {
-                                    try {
-                                        UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(position);
-                                        if(e.type == TYPE_USER) {
-                                            mListener.onUserSelected(cid, channel, e.text);
+                            if(getActivity() != null)
+    				    		getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(position);
+                                            if(e.type == TYPE_USER) {
+                                                mListener.onUserSelected(cid, channel, e.text);
 
-                                            if(!getActivity().getSharedPreferences("prefs", 0).getBoolean("longPressTip", false)) {
-                                                Toast.makeText(getActivity(), "Long-press a message to quickly interact with the sender", Toast.LENGTH_LONG).show();
-                                                SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
-                                                editor.putBoolean("longPressTip", true);
-                                                editor.commit();
+                                                if(!getActivity().getSharedPreferences("prefs", 0).getBoolean("longPressTip", false)) {
+                                                    Toast.makeText(getActivity(), "Long-press a message to quickly interact with the sender", Toast.LENGTH_LONG).show();
+                                                    SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
+                                                    editor.putBoolean("longPressTip", true);
+                                                    editor.commit();
+                                                }
                                             }
-                                        }
-                                    } catch (Exception e) {
+                                        } catch (Exception e) {
 
+                                        }
                                     }
-								}
-				    		});
+                                });
 			    			tapTimer = null;
 						}
 	    				
@@ -493,44 +481,49 @@ public class UsersListFragment extends ListFragment {
     	}
     }
 
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case NetworkConnection.EVENT_CONNECTIVITY:
-				if(adapter != null)
-					adapter.notifyDataSetChanged();
+    public void onIRCEvent(int what, Object obj) {
+        switch (what) {
+            case NetworkConnection.EVENT_CONNECTIVITY:
+				if(adapter != null && getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (adapter != null)
+                                adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
 				break;
-			case NetworkConnection.EVENT_USERINFO:
-			case NetworkConnection.EVENT_CHANNELINIT:
 			case NetworkConnection.EVENT_JOIN:
 			case NetworkConnection.EVENT_PART:
 			case NetworkConnection.EVENT_QUIT:
-			case NetworkConnection.EVENT_NICKCHANGE:
+            case NetworkConnection.EVENT_USERCHANNELMODE:
+            case NetworkConnection.EVENT_KICK:
+            case NetworkConnection.EVENT_NICKCHANGE:
+                if(((IRCCloudJSONObject)obj).bid() != bid)
+                    break;
+            case NetworkConnection.EVENT_CHANNELINIT:
+            case NetworkConnection.EVENT_USERINFO:
 			case NetworkConnection.EVENT_MEMBERUPDATES:
-			case NetworkConnection.EVENT_USERCHANNELMODE:
-			case NetworkConnection.EVENT_KICK:
 			case NetworkConnection.EVENT_BACKLOG_END:
-                if(refreshTimer == null) {
-                    refreshTimer = new Timer();
-                    refreshTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if(refreshTask != null)
-                                refreshTask.cancel(true);
-                            refreshTask = new RefreshTask();
-                            refreshTask.execute((Void)null);
-                            refreshTimer = null;
-                        }
-                    }, 250);
+                if(getActivity() != null) {
+                    final ArrayList<UsersDataSource.User> users;
+                    if(ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null) {
+                        users = UsersDataSource.getInstance().getUsersForBuffer(bid);
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refresh(users);
+                            }
+                        });
+                    }
                 }
 				break;
 			default:
 				break;
-			}
-		}
-	};
-	
+        }
+    }
+
 	public interface OnUserSelectedListener {
 		public void onUserSelected(int cid, String channel, String name);
 		public void onUserDoubleClicked(String name);

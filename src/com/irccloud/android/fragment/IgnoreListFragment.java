@@ -43,7 +43,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
-public class IgnoreListFragment extends DialogFragment {
+public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
 	JsonArray ignores;
 	int cid;
 	IgnoresAdapter adapter;
@@ -221,7 +221,7 @@ public class IgnoreListFragment extends DialogFragment {
     public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
     	
     	if(ignores == null && cid > 0) {
             ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
@@ -234,29 +234,37 @@ public class IgnoreListFragment extends DialogFragment {
     public void onPause() {
     	super.onPause();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
     }
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
+
+    public void onIRCEvent(int what, Object obj) {
+        switch (what) {
 			case NetworkConnection.EVENT_MAKESERVER:
-				ServersDataSource.Server s = (ServersDataSource.Server)msg.obj;
-				if(s.cid == cid) {
-                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-		        	adapter.notifyDataSetChanged();
+				ServersDataSource.Server s = (ServersDataSource.Server)obj;
+				if(s.cid == cid && getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
 				}
 				break;
 			case NetworkConnection.EVENT_SETIGNORES:
-				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-				if(o.cid() == cid) {
-                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-		        	adapter.notifyDataSetChanged();
+				IRCCloudJSONObject o = (IRCCloudJSONObject)obj;
+				if(o.cid() == cid && getActivity() != null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
 				}
 				break;
 			default:
 				break;
-			}
-		}
-	};
+        }
+    }
 }

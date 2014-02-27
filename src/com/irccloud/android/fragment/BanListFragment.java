@@ -47,7 +47,7 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
-public class BanListFragment extends DialogFragment {
+public class BanListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
 	JsonArray bans;
 	int cid;
 	int bid;
@@ -259,46 +259,45 @@ public class BanListFragment extends DialogFragment {
     public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
     	
     	if(cid > 0) {
         	adapter = new BansAdapter(this);
         	listView.setAdapter(adapter);
     	}
-		UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, ServersDataSource.getInstance().getServer(cid).nick);
-		if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
-			canUnBan = true;
-		else
-			canUnBan = false;
+        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+        canUnBan = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
     }
-    
+
     @Override
     public void onPause() {
     	super.onPause();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
     }
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
+
+    public void onIRCEvent(int what, Object obj) {
+        switch (what) {
 			case NetworkConnection.EVENT_USERCHANNELMODE:
-				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, ServersDataSource.getInstance().getServer(cid).nick);
-				if(self_user != null && (self_user.mode.contains("q") || self_user.mode.contains("a") || self_user.mode.contains("o")))
-					canUnBan = true;
-				else
-					canUnBan = false;
-				if(adapter != null)
-					adapter.notifyDataSetChanged();
+                ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+				canUnBan = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(adapter != null)
+                            adapter.notifyDataSetChanged();
+                    }
+                });
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
-				EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
+				EventsDataSource.Event e = (EventsDataSource.Event)obj;
 				if(e.bid == bid && e.type.equals("channel_mode_list_change"))
 					conn.mode(cid, event.getString("channel"), "b");
 				break;
 			default:
 				break;
-			}
-		}
-	};
+        }
+    }
 }

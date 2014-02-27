@@ -175,8 +175,7 @@ public class NamesListFragment extends DialogFragment {
     public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
-    	
+
     	if(users != null) {
         	adapter = new UsersAdapter(this);
         	listView.setAdapter(adapter);
@@ -186,16 +185,5 @@ public class NamesListFragment extends DialogFragment {
     @Override
     public void onPause() {
     	super.onPause();
-    	if(conn != null)
-    		conn.removeHandler(mHandler);
     }
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			default:
-				break;
-			}
-		}
-	};
 }

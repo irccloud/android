@@ -49,7 +49,7 @@ import com.mobeta.android.dslv.DragSortListView;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class ServerReorderFragment extends DialogFragment {
+public class ServerReorderFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
 	private NetworkConnection conn;
 	private ServerListAdapter adapter;
 	private RefreshTask refreshTask = null;
@@ -233,7 +233,7 @@ public class ServerReorderFragment extends DialogFragment {
                 .setNegativeButton("Done", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        NetworkConnection.getInstance().removeHandler(mHandler);
+                        NetworkConnection.getInstance().removeHandler(ServerReorderFragment.this);
                     }
                 })
                 .create();
@@ -243,7 +243,7 @@ public class ServerReorderFragment extends DialogFragment {
 	public void onResume() {
     	super.onResume();
     	conn = NetworkConnection.getInstance();
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
         ArrayList<ServersDataSource.Server> servers = new ArrayList<ServersDataSource.Server>();
         SparseArray<ServersDataSource.Server> s = ServersDataSource.getInstance().getServers();
         for(int i = 0; i < s.size(); i++) {
@@ -256,28 +256,31 @@ public class ServerReorderFragment extends DialogFragment {
     public void onPause() {
     	super.onPause();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
     }
     
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
     }
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-            case NetworkConnection.EVENT_MAKESERVER:
-            case NetworkConnection.EVENT_REORDERCONNECTIONS:
-            case NetworkConnection.EVENT_CONNECTIONDELETED:
-                if(refreshTask != null)
-                    refreshTask.cancel(true);
-                refreshTask = new RefreshTask();
-                refreshTask.execute((Void)null);
-                break;
-			default:
-                break;
-			}
-		}
-	};
+
+    public void onIRCEvent(int what, Object obj) {
+        switch (what) {
+        case NetworkConnection.EVENT_MAKESERVER:
+        case NetworkConnection.EVENT_REORDERCONNECTIONS:
+        case NetworkConnection.EVENT_CONNECTIONDELETED:
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(refreshTask != null)
+                        refreshTask.cancel(true);
+                    refreshTask = new RefreshTask();
+                    refreshTask.execute((Void)null);
+                }
+            });
+            break;
+        default:
+            break;
+        }
+    }
 }

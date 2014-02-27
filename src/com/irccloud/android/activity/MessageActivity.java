@@ -34,7 +34,6 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Debug;
 import android.support.v4.widget.DrawerLayout;
-import android.util.SparseArray;
 import android.view.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -82,8 +81,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.Editable;
@@ -117,7 +114,7 @@ import android.widget.TextView.OnEditorActionListener;
 
 import net.hockeyapp.android.UpdateManager;
 
-public class MessageActivity extends BaseActivity  implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener {
+public class MessageActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
     BuffersDataSource.Buffer buffer;
     ServersDataSource.Server server;
 	ActionEditText messageTxt;
@@ -487,10 +484,10 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     anim.setFillAfter(true);
                     suggestionsContainer.startAnimation(anim);
                     suggestionsContainer.setVisibility(View.VISIBLE);
-                    mHandler.post(new Runnable() {
+                    runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(suggestionsContainer.getHeight() < 48) {
+                            if (suggestionsContainer.getHeight() < 48) {
                                 getSupportActionBar().hide();
                             }
                         }
@@ -640,7 +637,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 if(e.msg != null) {
                     e.msg = TextUtils.htmlEncode(e.msg);
                     EventsDataSource.getInstance().addEvent(e);
-                    conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, mHandler);
+                    conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MessageActivity.this);
                 }
 			}
     	}
@@ -843,7 +840,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
     		finish();
     		return;
     	}
-    	conn.addHandler(mHandler);
+    	conn.addHandler(this);
 
     	super.onResume();
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -947,11 +944,11 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 		if(channelsListDialog != null)
 			channelsListDialog.dismiss();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
         suggestionsAdapter.clear();
     	conn = null;
     }
-	
+
     private boolean open_uri(Uri uri) {
 		if(uri != null && conn != null && conn.ready) {
 			launchURI = null;
@@ -1143,61 +1140,75 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             }
 		}
     }
-    
-	@SuppressLint("HandlerLeak")
-	private final Handler mHandler = new Handler() {
 
-		public void handleMessage(Message msg) {
-			Integer event_bid = 0;
-			IRCCloudJSONObject event = null;
-			Bundle args = null;
-			switch (msg.what) {
+    public void onIRCEvent(int what, Object obj) {
+        super.onIRCEvent(what, obj);
+        Integer event_bid = 0;
+        IRCCloudJSONObject event = null;
+        Bundle args = null;
+        switch (what) {
             case NetworkConnection.EVENT_CHANNELTOPICIS:
-                event = (IRCCloudJSONObject)msg.obj;
+                event = (IRCCloudJSONObject)obj;
                 if(buffer != null && buffer.cid == event.cid() && buffer.name.equalsIgnoreCase(event.getString("chan"))) {
-                    update_subtitle();
-                    show_topic_popup();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            update_subtitle();
+                            show_topic_popup();
+                        }
+                    });
                 }
                 break;
 			case NetworkConnection.EVENT_LINKCHANNEL:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
                 if(event != null && event.eid() != -1) {
                     showAlert(event.cid(), event.getString("msg"));
                 }
 				if(event != null && cidToOpen == event.cid() && event.has("invalid_chan") && event.has("valid_chan") && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
 					bufferToOpen = event.getString("valid_chan");
-					msg.obj = BuffersDataSource.getInstance().getBuffer(event.bid());
+					obj = BuffersDataSource.getInstance().getBuffer(event.bid());
 				} else {
                     bufferToOpen = null;
 					return;
 				}
 			case NetworkConnection.EVENT_MAKEBUFFER:
-				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)msg.obj;
+				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)obj;
 				if(cidToOpen == b.cid && (bufferToOpen == null || (b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(buffer.name)))) {
                     server = null;
-					onBufferSelected(b.bid);
+                    final int bid = b.bid;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            onBufferSelected(bid);
+                        }
+                    });
 		    		bufferToOpen = null;
 		    		cidToOpen = -1;
                 }
 				break;
 			case NetworkConnection.EVENT_OPENBUFFER:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
 				try {
 					bufferToOpen = event.getString("name");
 					cidToOpen = event.cid();
 					b = BuffersDataSource.getInstance().getBufferByName(cidToOpen, bufferToOpen);
 					if(b != null && !bufferToOpen.equalsIgnoreCase(buffer.name)) {
                         server = null;
-						onBufferSelected(b.bid);
-			    		bufferToOpen = null;
-			    		cidToOpen = -1;
+                        bufferToOpen = null;
+                        cidToOpen = -1;
+                        final int bid = b.bid;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                onBufferSelected(bid);
+                            }
+                        });
 					}
 				} catch (Exception e2) {
-					// TODO Auto-generated catch block
 					e2.printStackTrace();
 				}
 				break;
-                case NetworkConnection.EVENT_CONNECTIVITY:
+            case NetworkConnection.EVENT_CONNECTIVITY:
 				if(conn != null) {
 					if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 						for(EventsDataSource.Event e : pendingEvents.values()) {
@@ -1205,28 +1216,43 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 						}
 						pendingEvents.clear();
 			    		if(drawerLayout != null && NetworkConnection.getInstance().ready) {
-                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-							upView.setVisibility(View.VISIBLE);
-                            updateUsersListFragmentVisibility();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                                    upView.setVisibility(View.VISIBLE);
+                                    updateUsersListFragmentVisibility();
+                                }
+                            });
 			    		}
 			    		if(server != null && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
-			    			sendBtn.setEnabled(true);
-			           		if(Build.VERSION.SDK_INT >= 11)
-			           			sendBtn.setAlpha(1);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    sendBtn.setEnabled(true);
+                                    if(Build.VERSION.SDK_INT >= 11)
+                                        sendBtn.setAlpha(1);
+                                }
+                            });
 			    		}
 					} else {
-			    		if(drawerLayout != null && !NetworkConnection.getInstance().ready) {
-                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-			        		upView.setVisibility(View.INVISIBLE);
-			    		}
-			    		sendBtn.setEnabled(false);
-		           		if(Build.VERSION.SDK_INT >= 11)
-		           			sendBtn.setAlpha(0.5f);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(drawerLayout != null && !NetworkConnection.getInstance().ready) {
+                                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                                    upView.setVisibility(View.INVISIBLE);
+                                }
+                                sendBtn.setEnabled(false);
+                                if(Build.VERSION.SDK_INT >= 11)
+                                    sendBtn.setAlpha(0.5f);
+                            }
+                        });
 					}
 				}
 				break;
 			case NetworkConnection.EVENT_BANLIST:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
 				if(event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
 	            	args = new Bundle();
 	            	args.putInt("cid", buffer.cid);
@@ -1243,7 +1269,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 	            break;
 			case NetworkConnection.EVENT_ACCEPTLIST:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
 				if(event != null && event.cid() == buffer.cid) {
 	            	args = new Bundle();
 	            	args.putInt("cid", buffer.cid);
@@ -1259,7 +1285,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				}
 	            break;
 			case NetworkConnection.EVENT_WHOLIST:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
             	args = new Bundle();
             	args.putString("event", event.toString());
             	WhoListFragment whoList = (WhoListFragment)getSupportFragmentManager().findFragmentByTag("wholist");
@@ -1272,7 +1298,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	}
 	            break;
             case NetworkConnection.EVENT_NAMESLIST:
-                    event = (IRCCloudJSONObject)msg.obj;
+                    event = (IRCCloudJSONObject)obj;
                     args = new Bundle();
                     args.putString("event", event.toString());
                     NamesListFragment namesList = (NamesListFragment)getSupportFragmentManager().findFragmentByTag("nameslist");
@@ -1285,7 +1311,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     }
                     break;
 			case NetworkConnection.EVENT_WHOIS:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
             	args = new Bundle();
             	args.putString("event", event.toString());
             	WhoisFragment whois = (WhoisFragment)getSupportFragmentManager().findFragmentByTag("whois");
@@ -1298,13 +1324,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             	}
 	            break;
 			case NetworkConnection.EVENT_LISTRESPONSEFETCHING:
-				event = (IRCCloudJSONObject)msg.obj;
-				String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
+				event = (IRCCloudJSONObject)obj;
+				final String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
 				if(channelsListDialog == null) {
 	            	Context ctx = MessageActivity.this;
 	        		if(Build.VERSION.SDK_INT < 11)
 	        			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
-	        		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+	        		final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
 	            	builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
 	            	builder.setTitle(dialogtitle);
 	        		builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
@@ -1313,43 +1339,72 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 	        				dialog.dismiss();
 	        			}
 	        		});
-	        		channelsListDialog = builder.create();
-	        		channelsListDialog.setOwnerActivity(MessageActivity.this);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            channelsListDialog = builder.create();
+                            channelsListDialog.setOwnerActivity(MessageActivity.this);
+                        }
+                    });
 				} else {
-					channelsListDialog.setTitle(dialogtitle);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            channelsListDialog.setTitle(dialogtitle);
+                        }
+                    });
 				}
-        		channelsListDialog.show();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        channelsListDialog.show();
+                    }
+                });
 				ChannelListFragment channels = (ChannelListFragment)getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
             	args = new Bundle();
             	args.putInt("cid", event.cid());
         		channels.setArguments(args);
 	            break;
 			case NetworkConnection.EVENT_USERINFO:
-		    	updateUsersListFragmentVisibility();
-				supportInvalidateOptionsMenu();
-		        if(refreshUpIndicatorTask != null)
-		        	refreshUpIndicatorTask.cancel(true);
-		        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-		        refreshUpIndicatorTask.execute((Void)null);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateUsersListFragmentVisibility();
+                        supportInvalidateOptionsMenu();
+                        if (refreshUpIndicatorTask != null)
+                            refreshUpIndicatorTask.cancel(true);
+                        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                        refreshUpIndicatorTask.execute((Void) null);
+                    }
+                });
 		        if(launchBid == -1 && server == null && conn != null && conn.getUserInfo() != null)
 		        	launchBid = conn.getUserInfo().last_selected_bid;
 				break;
 			case NetworkConnection.EVENT_STATUSCHANGED:
 				try {
-					event = (IRCCloudJSONObject)msg.obj;
+					event = (IRCCloudJSONObject)obj;
 					if(event != null && server != null && event.cid() == server.cid) {
-						supportInvalidateOptionsMenu();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                supportInvalidateOptionsMenu();
+                            }
+                        });
 					}
 				} catch (Exception e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				break;
 			case NetworkConnection.EVENT_MAKESERVER:
-				ServersDataSource.Server s = (ServersDataSource.Server)msg.obj;
+				ServersDataSource.Server s = (ServersDataSource.Server)obj;
 				if(server != null && s != null && s.cid == server.cid) {
-                    supportInvalidateOptionsMenu();
-                    update_subtitle();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            supportInvalidateOptionsMenu();
+                            update_subtitle();
+                        }
+                    });
 				} else {
                     cidToOpen = s.cid;
                     bufferToOpen = "*";
@@ -1357,9 +1412,14 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				break;
 			case NetworkConnection.EVENT_BUFFERARCHIVED:
             case NetworkConnection.EVENT_BUFFERUNARCHIVED:
-				event_bid = (Integer)msg.obj;
+				event_bid = (Integer)obj;
 				if(buffer != null && event_bid == buffer.bid) {
-                    update_subtitle();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            update_subtitle();
+                        }
+                    });
 				}
                 if(refreshUpIndicatorTask != null)
                     refreshUpIndicatorTask.cancel(true);
@@ -1367,75 +1427,104 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                 refreshUpIndicatorTask.execute((Void)null);
 				break;
 			case NetworkConnection.EVENT_JOIN:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
 				if(event != null && buffer != null && event.bid() == buffer.bid && event.type().equals("you_joined_channel")) {
-					supportInvalidateOptionsMenu();
-					updateUsersListFragmentVisibility();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            supportInvalidateOptionsMenu();
+                            updateUsersListFragmentVisibility();
+                        }
+                    });
 				}
 				break;
 			case NetworkConnection.EVENT_PART:
             case NetworkConnection.EVENT_KICK:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
 				if(event != null && buffer != null && event.bid() == buffer.bid && event.type().toLowerCase().startsWith("you_")) {
-					supportInvalidateOptionsMenu();
-					updateUsersListFragmentVisibility();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            supportInvalidateOptionsMenu();
+                            updateUsersListFragmentVisibility();
+                        }
+                    });
 				}
 				break;
 			case NetworkConnection.EVENT_CHANNELINIT:
-				ChannelsDataSource.Channel channel = (ChannelsDataSource.Channel)msg.obj;
+				ChannelsDataSource.Channel channel = (ChannelsDataSource.Channel)obj;
 				if(channel != null && buffer != null && channel.bid == buffer.bid) {
-			    	update_subtitle();
-					supportInvalidateOptionsMenu();
-					updateUsersListFragmentVisibility();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            update_subtitle();
+                            supportInvalidateOptionsMenu();
+                            updateUsersListFragmentVisibility();
+                        }
+                    });
 				}
 				break;
             case NetworkConnection.EVENT_BACKLOG_END:
-                if(drawerLayout != null) {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                    upView.setVisibility(View.VISIBLE);
-                    updateUsersListFragmentVisibility();
-                }
-                if(server == null || launchURI != null || launchBid != -1) {
-                    if(launchURI == null || !open_uri(launchURI)) {
-                        if(launchBid == -1 || !open_bid(launchBid)) {
-                            if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-                                if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-                                    if(drawerLayout != null && NetworkConnection.getInstance().ready) {
-                                        drawerLayout.openDrawer(Gravity.LEFT);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(drawerLayout != null) {
+                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                            upView.setVisibility(View.VISIBLE);
+                            updateUsersListFragmentVisibility();
+                        }
+                        if(server == null || launchURI != null || launchBid != -1) {
+                            if(launchURI == null || !open_uri(launchURI)) {
+                                if(launchBid == -1 || !open_bid(launchBid)) {
+                                    if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+                                        if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
+                                            if(drawerLayout != null && NetworkConnection.getInstance().ready) {
+                                                drawerLayout.openDrawer(Gravity.LEFT);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+                        update_subtitle();
+                        if(refreshUpIndicatorTask != null)
+                            refreshUpIndicatorTask.cancel(true);
+                        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                        refreshUpIndicatorTask.execute((Void)null);
                     }
-                }
-                update_subtitle();
-                if(refreshUpIndicatorTask != null)
-                    refreshUpIndicatorTask.cancel(true);
-                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                refreshUpIndicatorTask.execute((Void)null);
+                });
                 //TODO: prune and pop the back stack if the current BID has disappeared
                 break;
 			case NetworkConnection.EVENT_CONNECTIONDELETED:
 			case NetworkConnection.EVENT_DELETEBUFFER:
-				Integer id = (Integer)msg.obj;
-				if(msg.what==NetworkConnection.EVENT_DELETEBUFFER) {
-					for(int i = 0; i < backStack.size(); i++) {
-						if(backStack.get(i).equals(id)) {
-							backStack.remove(i);
-							i--;
-						}
-					}
+				Integer id = (Integer)obj;
+				if(what==NetworkConnection.EVENT_DELETEBUFFER) {
+                    synchronized (backStack) {
+                        for(int i = 0; i < backStack.size(); i++) {
+                            if(backStack.get(i).equals(id)) {
+                                backStack.remove(i);
+                                i--;
+                            }
+                        }
+                    }
 				}
-				if(buffer != null && id == ((msg.what==NetworkConnection.EVENT_CONNECTIONDELETED)?buffer.cid:buffer.bid)) {
-                    while(backStack != null && backStack.size() > 0) {
-                        Integer bid = backStack.get(0);
-                        backStack.remove(0);
-                        b = BuffersDataSource.getInstance().getBuffer(bid);
-                        if(b != null) {
-                            onBufferSelected(bid);
-                            if(backStack.size() > 0)
-                                backStack.remove(0);
-                            return;
+				if(buffer != null && id == ((what==NetworkConnection.EVENT_CONNECTIONDELETED)?buffer.cid:buffer.bid)) {
+                    synchronized (backStack) {
+                        while(backStack != null && backStack.size() > 0) {
+                            final Integer bid = backStack.get(0);
+                            backStack.remove(0);
+                            b = BuffersDataSource.getInstance().getBuffer(bid);
+                            if(b != null) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        onBufferSelected(bid);
+                                        if(backStack.size() > 0)
+                                            backStack.remove(0);
+                                    }
+                                });
+                                return;
+                            }
                         }
                     }
 		        	if(BuffersDataSource.getInstance().count() == 0) {
@@ -1446,39 +1535,60 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                             finish();
 		        	}
 				}
-                if(refreshUpIndicatorTask != null)
-                    refreshUpIndicatorTask.cancel(true);
-                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                refreshUpIndicatorTask.execute((Void)null);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (refreshUpIndicatorTask != null)
+                            refreshUpIndicatorTask.cancel(true);
+                        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                        refreshUpIndicatorTask.execute((Void) null);
+                    }
+                });
 				break;
             case NetworkConnection.EVENT_CHANNELMODE:
-                event = (IRCCloudJSONObject)msg.obj;
+                event = (IRCCloudJSONObject)obj;
                 if(event != null && buffer != null && event.bid() == buffer.bid) {
-                    update_subtitle();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            update_subtitle();
+                        }
+                    });
                 }
                 break;
 			case NetworkConnection.EVENT_CHANNELTOPIC:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
                 if(event != null && buffer != null && event.bid() == buffer.bid) {
-		        	try {
-						if(event.getString("topic").length() > 0) {
-							subtitle.setVisibility(View.VISIBLE);
-							subtitle.setText(event.getString("topic"));
-						} else {
-							subtitle.setVisibility(View.GONE);
-						}
-					} catch (Exception e1) {
-						subtitle.setVisibility(View.GONE);
-						e1.printStackTrace();
-					}
+                    final String topic = event.getString("topic");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if(topic.length() > 0) {
+                                    subtitle.setVisibility(View.VISIBLE);
+                                    subtitle.setText(topic);
+                                } else {
+                                    subtitle.setVisibility(View.GONE);
+                                }
+                            } catch (Exception e1) {
+                                subtitle.setVisibility(View.GONE);
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
 				}
 				break;
 			case NetworkConnection.EVENT_SELFBACK:
 		    	try {
-					event = (IRCCloudJSONObject)msg.obj;
+					event = (IRCCloudJSONObject)obj;
 					if(event != null && buffer != null && event.cid() == buffer.cid && event.getString("nick").equalsIgnoreCase(buffer.name)) {
-			    		subtitle.setVisibility(View.GONE);
-						subtitle.setText("");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                subtitle.setVisibility(View.GONE);
+                                subtitle.setText("");
+                            }
+                        });
 					}
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -1486,13 +1596,16 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				break;
 			case NetworkConnection.EVENT_AWAY:
 		    	try {
-					event = (IRCCloudJSONObject)msg.obj;
+					event = (IRCCloudJSONObject)obj;
 					if(event != null && buffer != null && (event.bid() == buffer.bid || (event.type().equalsIgnoreCase("self_away") && event.cid() == buffer.cid)) && event.getString("nick").equalsIgnoreCase(buffer.name)) {
 			    		subtitle.setVisibility(View.VISIBLE);
-			    		if(event.has("away_msg"))
-			    			subtitle.setText("Away: " + event.getString("away_msg"));
-			    		else
-			    			subtitle.setText("Away: " + event.getString("msg"));
+                        final String away = "Away: " + (event.has("away_msg")?event.getString("away_msg"):event.getString("msg"));
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                subtitle.setText(away);
+                            }
+                        });
 					}
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -1500,7 +1613,7 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				break;
 			case NetworkConnection.EVENT_HEARTBEATECHO:
                 boolean shouldRefresh = false;
-                event = (IRCCloudJSONObject)msg.obj;
+                event = (IRCCloudJSONObject)obj;
                 JsonObject seenEids = event.getJsonObject("seenEids");
                 Iterator<Map.Entry<String, JsonElement>> iterator = seenEids.entrySet().iterator();
                 while(iterator.hasNext()) {
@@ -1516,14 +1629,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                     }
                 }
                 if(shouldRefresh) {
-                    if(refreshUpIndicatorTask != null)
-                        refreshUpIndicatorTask.cancel(true);
-                    refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                    refreshUpIndicatorTask.execute((Void)null);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (refreshUpIndicatorTask != null)
+                                refreshUpIndicatorTask.cancel(true);
+                            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                            refreshUpIndicatorTask.execute((Void) null);
+                        }
+                    });
                 }
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
-				event = (IRCCloudJSONObject)msg.obj;
+				event = (IRCCloudJSONObject)obj;
 				if(event != null && event.has("_reqid")) {
 					int reqid = event.getInt("_reqid");
 					if(pendingEvents.containsKey(reqid)) {
@@ -1554,14 +1672,19 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				try {
-					EventsDataSource.Event e = (EventsDataSource.Event)msg.obj;
+					EventsDataSource.Event e = (EventsDataSource.Event)obj;
                     if(e != null && buffer != null) {
                         if(e.bid != buffer.bid && upView != null) {
                             BuffersDataSource.Buffer buf = BuffersDataSource.getInstance().getBuffer(e.bid);
                             if(e.isImportant(buf.type)) {
                                 if(!upView.getTag().equals(R.drawable.ic_navigation_drawer_highlight) && (e.highlight || buf.type.equals("conversation"))) {
-                                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
-                                    upView.setTag(R.drawable.ic_navigation_drawer_highlight);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
+                                            upView.setTag(R.drawable.ic_navigation_drawer_highlight);
+                                        }
+                                    });
                                 } else if(upView.getTag().equals(R.drawable.ic_navigation_drawer)) {
                                     JSONObject channelDisabledMap = null;
                                     JSONObject bufferDisabledMap = null;
@@ -1580,8 +1703,13 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
                                         break;
                                     else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(buf.bid)) && bufferDisabledMap.getBoolean(String.valueOf(buf.bid)))
                                         break;
-                                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
-                                    upView.setTag(R.drawable.ic_navigation_drawer_unread);
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
+                                            upView.setTag(R.drawable.ic_navigation_drawer_unread);
+                                        }
+                                    });
                                 }
                             }
                         }
@@ -1599,10 +1727,9 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
 				} catch (Exception e1) {
 				}
 				break;
-			}
-		}
-	};
-    
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	if(buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
@@ -2588,6 +2715,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
         if(buffer != null && buffer.bid >= 0 && bid != buffer.bid) {
             backStack.add(0, buffer.bid);
             buffer.draft = messageTxt.getText().toString();
+            if(EventsDataSource.getInstance().getHighlightStateForBuffer(buffer.bid, buffer.last_seen_eid, buffer.type) == 0)
+                EventsDataSource.getInstance().pruneEvents(buffer.bid);
         }
         if(buffer == null || buffer.bid == -1 || buffer.cid == -1 || buffer.bid == bid)
             shouldFadeIn = false;
@@ -2595,6 +2724,8 @@ public class MessageActivity extends BaseActivity  implements UsersListFragment.
             shouldFadeIn = true;
         buffer = BuffersDataSource.getInstance().getBuffer(bid);
         if(buffer != null) {
+            if(EventsDataSource.getInstance().getHighlightStateForBuffer(buffer.bid, buffer.last_seen_eid, buffer.type) == 0)
+                EventsDataSource.getInstance().pruneEvents(buffer.bid);
             server = ServersDataSource.getInstance().getServer(buffer.cid);
 
             TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);

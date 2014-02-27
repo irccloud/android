@@ -58,7 +58,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class EditConnectionFragment extends DialogFragment {
+public class EditConnectionFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
 	private class PresetServersAdapter extends BaseAdapter {
 		private Activity ctx;
 		
@@ -314,7 +314,7 @@ public class EditConnectionFragment extends DialogFragment {
         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-                NetworkConnection.getInstance().removeHandler(mHandler);
+                NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
 			}
         })
         .create();
@@ -397,40 +397,44 @@ public class EditConnectionFragment extends DialogFragment {
     class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-            NetworkConnection.getInstance().removeHandler(mHandler);
-            NetworkConnection.getInstance().addHandler(mHandler);
+            NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
+            NetworkConnection.getInstance().addHandler(EditConnectionFragment.this);
             reqid = save();
 		}
     }
 
-    private final Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            IRCCloudJSONObject obj;
-            switch (msg.what) {
-                case NetworkConnection.EVENT_SUCCESS:
-                    obj = (IRCCloudJSONObject)msg.obj;
-                    if(obj.getInt("_reqid") == reqid) {
-                        NetworkConnection.getInstance().removeHandler(mHandler);
-                    }
-                    break;
-                case NetworkConnection.EVENT_FAILURE_MSG:
-                    obj = (IRCCloudJSONObject)msg.obj;
-                    if(obj.getInt("_reqid") == reqid) {
-                        String message = obj.getString("message");
-                        if(message.equals("passworded_servers"))
-                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
-                        else if(message.equals("networks"))
-                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
-                        NetworkConnection.getInstance().removeHandler(mHandler);
-                    }
-                    break;
-                default:
-                    break;
-            }
+    public void onIRCEvent(int what, Object o) {
+        IRCCloudJSONObject obj;
+        switch (what) {
+            case NetworkConnection.EVENT_SUCCESS:
+                obj = (IRCCloudJSONObject)o;
+                if(obj.getInt("_reqid") == reqid) {
+                    NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
+                }
+                break;
+            case NetworkConnection.EVENT_FAILURE_MSG:
+                obj = (IRCCloudJSONObject)o;
+                if(obj.getInt("_reqid") == reqid) {
+                    final String message = obj.getString("message");
+                    if(getActivity() != null)
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(message.equals("passworded_servers"))
+                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                                else if(message.equals("networks"))
+                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                                else
+                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
+                }
+                break;
+            default:
+                break;
         }
-    };
+    }
 
     private class LoadNetworkPresets extends AsyncTaskEx<Void, Void, JSONArray> {
 

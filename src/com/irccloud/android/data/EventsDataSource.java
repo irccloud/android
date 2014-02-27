@@ -931,7 +931,7 @@ public class EventsDataSource {
 
     public void pruneEvents(int bid) {
         TreeMap<Long,Event> e = events.get(bid);
-        while(e != null && e.size() > 200) {
+        while(e != null && e.size() > 50) {
             e.remove(e.firstKey());
         }
     }

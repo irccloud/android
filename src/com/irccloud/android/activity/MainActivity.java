@@ -65,7 +65,7 @@ import com.irccloud.android.data.ServersDataSource;
 import net.hockeyapp.android.CrashManager;
 import net.hockeyapp.android.UpdateManager;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements NetworkConnection.IRCEventHandler {
 	private View login = null;
 	private AutoCompleteTextView email;
 	private EditText password;
@@ -179,7 +179,7 @@ public class MainActivity extends FragmentActivity {
     public void onPause() {
     	super.onPause();
     	if(conn != null)
-    		conn.removeHandler(mHandler);
+    		conn.removeHandler(this);
     }
     
     @Override
@@ -204,7 +204,7 @@ public class MainActivity extends FragmentActivity {
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
     		finish();
     	} else {
-    		conn.addHandler(mHandler);
+    		conn.addHandler(this);
     		if(getSharedPreferences("prefs", 0).contains("session_key")) {
     			connecting.setVisibility(View.VISIBLE);
     			login.setVisibility(View.GONE);
@@ -217,8 +217,8 @@ public class MainActivity extends FragmentActivity {
     		}
     	}
     }
-    
-	private void updateReconnecting() {
+
+    private void updateReconnecting() {
 		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 			connectingMsg.setText("Loading");
 		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
@@ -248,17 +248,17 @@ public class MainActivity extends FragmentActivity {
 				countdownTimer = new Timer();
 				countdownTimer.schedule( new TimerTask(){
 		             public void run() {
-		    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-		    				 mHandler.post(new Runnable() {
-								@Override
-								public void run() {
-				 					updateReconnecting();
-								}
-		    				 });
-		    			 }
-		    			 countdownTimer = null;
-		             }
-				}, 1000);
+                    if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateReconnecting();
+                            }
+                        });
+                    }
+                    countdownTimer = null;
+                }
+                }, 1000);
 			} else {
 				connectingMsg.setText("Connecting");
 				error = null;
@@ -270,23 +270,37 @@ public class MainActivity extends FragmentActivity {
 			progressBar.setProgress(0);
     	}
     }
-    
-	private final Handler mHandler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
+
+    public void onIRCEvent(int what, final Object obj) {
+        switch (what) {
             case NetworkConnection.EVENT_DEBUG:
-                errorMsg.setVisibility(View.VISIBLE);
-                errorMsg.setText(msg.obj.toString());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        errorMsg.setVisibility(View.VISIBLE);
+                        errorMsg.setText(obj.toString());
+                    }
+                });
                 break;
 			case NetworkConnection.EVENT_PROGRESS:
-				float progress = (Float)msg.obj;
-                if(progressBar.getProgress() < progress) {
-                    progressBar.setIndeterminate(false);
-                    progressBar.setProgress((int)progress);
-                }
+				final float progress = (Float)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(progressBar.getProgress() < progress) {
+                            progressBar.setIndeterminate(false);
+                            progressBar.setProgress((int)progress);
+                        }
+                    }
+                });
 				break;
             case NetworkConnection.EVENT_BACKLOG_START:
-                progressBar.setProgress(0);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setProgress(0);
+                    }
+                });
                 break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				if(conn.ready) {
@@ -307,40 +321,48 @@ public class MainActivity extends FragmentActivity {
 				}
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
-				updateReconnecting();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateReconnecting();
+                    }
+                });
 				break;
 			case NetworkConnection.EVENT_FAILURE_MSG:
-				IRCCloudJSONObject o = (IRCCloudJSONObject)msg.obj;
-				try {
-					error = o.getString("message");
-                    if(error.equals("auth")) {
-                        conn.logout();
-                        connecting.setVisibility(View.GONE);
-                        login.setVisibility(View.VISIBLE);
-                        return;
-                    }
+				final IRCCloudJSONObject o = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            error = o.getString("message");
+                            if(error.equals("auth")) {
+                                conn.logout();
+                                connecting.setVisibility(View.GONE);
+                                login.setVisibility(View.VISIBLE);
+                                return;
+                            }
 
-                    if(error.equals("set_shard")) {
-                        conn.disconnect();
-                        conn.ready = false;
-                        SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                        editor.putString("session_key", o.getString("cookie"));
-                        conn.connect(o.getString("cookie"));
-                        editor.commit();
-                        return;
-                    }
+                            if(error.equals("set_shard")) {
+                                conn.disconnect();
+                                conn.ready = false;
+                                SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                                editor.putString("session_key", o.getString("cookie"));
+                                conn.connect(o.getString("cookie"));
+                                editor.commit();
+                                return;
+                            }
 
-					if(error.equals("temp_unavailable"))
-						error = "Your account is temporarily unavailable";
-					updateReconnecting();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
-			}
+                            if(error.equals("temp_unavailable"))
+                                error = "Your account is temporarily unavailable";
+                            updateReconnecting();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                break;
 		}
-	};
+    }
     
     private class LoginTask extends AsyncTaskEx<Void, Void, JSONObject> {
 		@Override
@@ -384,11 +406,10 @@ public class MainActivity extends FragmentActivity {
 					login.setVisibility(View.GONE);
 					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 					imm.hideSoftInputFromWindow(password.getWindowToken(), 0);
-					conn.addHandler(mHandler);
+					conn.addHandler(MainActivity.this);
 					conn.connect(result.getString("session"));
 					editor.commit();
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} else {

@@ -106,9 +106,13 @@ public class NetworkConnection {
 	public static final int STATE_DISCONNECTING = 3;
 	private int state = STATE_DISCONNECTED;
 
-	private WebSocketClient client = null;
+    public interface IRCEventHandler {
+        public void onIRCEvent(int message, Object object);
+    }
+
+    private WebSocketClient client = null;
 	private UserInfo userInfo = null;
-	private ArrayList<Handler> handlers = null;
+	private final ArrayList<IRCEventHandler> handlers = new ArrayList<IRCEventHandler>();
 	private String session = null;
 	private volatile int last_reqid = 0;
 	private Timer shutdownTimer = null;
@@ -395,7 +399,7 @@ public class NetworkConnection {
 			useragent += "; " + network_type;
 		
 		useragent += ")";
-		
+
 		WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		wifiLock = wfm.createWifiLock(TAG);
 		
@@ -646,7 +650,7 @@ public class NetworkConnection {
 							parse_object(new IRCCloudJSONObject(message));
 						}
 					} catch (Exception e) {
-                        Crashlytics.log(Log.ERROR, TAG, "Unable to parse: " + message);
+                        Log.e(TAG, "Unable to parse: " + message);
                         Crashlytics.logException(e);
 						e.printStackTrace();
 					}
@@ -1941,7 +1945,7 @@ public class NetworkConnection {
         });
     }};
 
-	private void parse_object(IRCCloudJSONObject object) throws JSONException {
+	private synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {
 		cancel_idle_timer();
 		//Log.d(TAG, "Backlog: " + backlog + " New event: " + object);
 		if(!object.has("type")) {
@@ -2073,19 +2077,19 @@ public class NetworkConnection {
 		return sb.toString();
 	}
 
-	public void addHandler(Handler handler) {
-		if(handlers == null)
-			handlers = new ArrayList<Handler>();
-		if(!handlers.contains(handler))
-			handlers.add(handler);
-		if(shutdownTimer != null) {
-			shutdownTimer.cancel();
-			shutdownTimer = null;
-		}
+	public synchronized void addHandler(IRCEventHandler handler) {
+        synchronized (handlers) {
+            if(!handlers.contains(handler))
+                handlers.add(handler);
+            if(shutdownTimer != null) {
+                shutdownTimer.cancel();
+                shutdownTimer = null;
+            }
+        }
 	}
 
-	public void removeHandler(Handler handler) {
-        if(handlers != null) {
+	public synchronized void removeHandler(IRCEventHandler handler) {
+        synchronized (handlers) {
             handlers.remove(handler);
             if(handlers.isEmpty()){
                 if(shutdownTimer == null) {
@@ -2117,20 +2121,22 @@ public class NetworkConnection {
 	public boolean isVisible() {
 		return (handlers != null && handlers.size() > 0);
 	}
-	
+
 	public void notifyHandlers(int message, Object object) {
 		notifyHandlers(message,object,null);
 	}
 	
-	public synchronized void notifyHandlers(int message, Object object, Handler exclude) {
-		if(handlers != null && (message == EVENT_PROGRESS || accrued == 0)) {
-			for(Handler handler : handlers) {
-				if(handler != exclude) {
-					Message msg = handler.obtainMessage(message, object);
-					handler.sendMessage(msg);
-				}
-			}
-		}
+	public synchronized void notifyHandlers(int message, Object object, IRCEventHandler exclude) {
+        synchronized (handlers) {
+            if(handlers != null && (message == EVENT_PROGRESS || accrued == 0)) {
+                for(int i = 0; i < handlers.size(); i++) {
+                    IRCEventHandler handler = handlers.get(i);
+                    if(handler != exclude) {
+                        handler.onIRCEvent(message, object);
+                    }
+                }
+            }
+        }
 	}
 	
 	public UserInfo getUserInfo() {
@@ -2326,7 +2332,7 @@ public class NetworkConnection {
                             Notifications.getInstance().showNotifications(null);
                             schedule_idle_timer();
                             if(bid > 0) {
-                                notifyHandlers(EVENT_BACKLOG_END, null);
+                                notifyHandlers(EVENT_BACKLOG_END, bid);
                             }
                         }
                     } else {
