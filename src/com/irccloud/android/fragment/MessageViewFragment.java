@@ -1783,18 +1783,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("disconnected")) {
             statusView.setVisibility(View.VISIBLE);
-            if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0) {
+            if(fail_info.has("type") && fail_info.get("type").getAsString().length() > 0) {
                 String text = "Disconnected: ";
-                if(fail_info.has("type") && fail_info.get("type").getAsString().equals("connecting_restricted")) {
+                if(fail_info.get("type").getAsString().equals("connecting_restricted")) {
                     text = reason_txt(fail_info.get("reason").getAsString());
                     if(text.equals(fail_info.get("reason").getAsString()))
                         text = "You can’t connect to this server with a free account.";
+                } else if(fail_info.get("type").getAsString().equals("connection_blocked")) {
+                    text = "Disconnected - Connections to this server have been blocked";
                 } else {
                     if(fail_info.has("type") && fail_info.get("type").getAsString().equals("killed"))
                         text = "Disconnected - Killed: ";
                     else if(fail_info.has("type") && fail_info.get("type").getAsString().equals("connecting_failed"))
                         text = "Disconnected: Failed to connect - ";
-                    text += reason_txt(fail_info.get("reason").getAsString());
+                    if(fail_info.has("reason"))
+                        text += reason_txt(fail_info.get("reason").getAsString());
                 }
                 statusView.setText(text);
                 statusView.setTextColor(getResources().getColor(R.color.status_fail_text));

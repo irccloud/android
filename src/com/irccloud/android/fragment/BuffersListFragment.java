@@ -272,7 +272,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if(e.type == TYPE_SERVER) {
-                    if(e.fail_info != null && e.fail_info.has("reason")) {
+                    if(e.fail_info != null && e.fail_info.has("type")) {
                         if(firstFailurePosition == -1 || firstFailurePosition > pos)
                             firstFailurePosition = pos;
                         if(lastFailurePosition == -1 || lastFailurePosition < pos)
@@ -282,7 +282,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                             firstFailurePosition = -1;
                             for(int i = 0; i < data.size(); i++) {
                                 BufferListEntry j = data.get(i);
-                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("reason")) {
+                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("type")) {
                                     firstFailurePosition = i;
                                     break;
                                 }
@@ -292,7 +292,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                             lastFailurePosition = -1;
                             for(int i = pos; i >= 0; i--) {
                                 BufferListEntry j = data.get(i);
-                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("reason")) {
+                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("type")) {
                                     lastFailurePosition = i;
                                     break;
                                 }
@@ -330,7 +330,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             if(pos > 0) {
                 for(int i = pos-1; i >= 0; i--) {
                     BufferListEntry e = data.get(i);
-                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("reason")))
+                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
                         return i;
                 }
             }
@@ -341,7 +341,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             if(pos >= 0) {
                 for(int i = pos; i < data.size(); i++) {
                     BufferListEntry e = data.get(i);
-                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("reason")))
+                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
                         return i;
                 }
             }
@@ -503,7 +503,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     }
                 } else if(e.type == TYPE_SERVER) {
                     if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable") ||
-                            ((e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("reason")))) {
+                            ((e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("type")))) {
                         holder.bufferbg.setBackgroundResource(R.drawable.row_failed_bg);
                         holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_failed));
                         if(e.bid == selected_bid)
@@ -648,7 +648,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 							firstHighlightPosition = position;
 						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
 							lastHighlightPosition = position;
-                        if(s.fail_info != null && s.fail_info.has("reason")) {
+                        if(s.fail_info != null && s.fail_info.has("type")) {
                             if(firstFailurePosition == -1)
                                 firstFailurePosition = position;
                             if(lastFailurePosition == -1 || lastFailurePosition < position)
