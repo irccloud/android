@@ -238,6 +238,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 					lastSeenEidMarkerPosition = -1;
 				}
 			}
+            if(lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition <= currentGroupPosition)
+                currentGroupPosition++;
 			return lastSeenEidMarkerPosition;
 		}
 		
@@ -2184,7 +2186,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 final EventsDataSource.Event event = (EventsDataSource.Event)obj;
                 if(buffer != null && event.bid == buffer.bid) {
                     if(event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
-                        adapter.clearPending();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter.clearPending();
+                            }
+                        });
                     } else if(event.reqid != -1) {
                         runOnUiThread(new Runnable() {
                             @Override

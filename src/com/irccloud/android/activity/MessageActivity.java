@@ -2715,8 +2715,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         if(buffer != null && buffer.bid >= 0 && bid != buffer.bid) {
             backStack.add(0, buffer.bid);
             buffer.draft = messageTxt.getText().toString();
-            if(EventsDataSource.getInstance().getHighlightStateForBuffer(buffer.bid, buffer.last_seen_eid, buffer.type) == 0)
-                EventsDataSource.getInstance().pruneEvents(buffer.bid);
         }
         if(buffer == null || buffer.bid == -1 || buffer.cid == -1 || buffer.bid == bid)
             shouldFadeIn = false;
@@ -2724,8 +2722,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             shouldFadeIn = true;
         buffer = BuffersDataSource.getInstance().getBuffer(bid);
         if(buffer != null) {
-            if(EventsDataSource.getInstance().getHighlightStateForBuffer(buffer.bid, buffer.last_seen_eid, buffer.type) == 0)
-                EventsDataSource.getInstance().pruneEvents(buffer.bid);
             server = ServersDataSource.getInstance().getServer(buffer.cid);
 
             TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
