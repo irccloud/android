@@ -350,11 +350,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         }
         if(getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && checkPlayServices()) {
             final String regId = GCMIntentService.getRegistrationId(this);
-            if (regId.equals("")) {
-                GCMIntentService.scheduleRegisterTimer(1000);
-            } else {
-                if(!getSharedPreferences("prefs", 0).contains("gcm_registered"))
-                    GCMIntentService.scheduleRegisterTimer(30000);
+            if (regId.equals("") || !getSharedPreferences("prefs", 0).contains("gcm_registered")) {
+                GCMIntentService.scheduleRegisterTimer(100);
             }
         }
     }

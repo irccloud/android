@@ -734,7 +734,18 @@ public class NetworkConnection {
 	}
 
     public void logout() {
+        final String sk = session;
         disconnect();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session="+sk, sk);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        },50);
         ready = false;
         streamId = null;
         accrued = 0;
@@ -744,7 +755,7 @@ public class NetworkConnection {
             if(regId.length() > 0) {
                 //Store the old session key so GCM can unregister later
                 editor.putString(regId, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
-                GCMIntentService.scheduleUnregisterTimer(1000, regId);
+                GCMIntentService.scheduleUnregisterTimer(100, regId);
             }
         } catch (Exception e) {
             //GCM might not be available on the device

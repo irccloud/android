@@ -58,7 +58,12 @@ public class GCMIntentService extends IntentService {
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
                 //Log.d("IRCCloud", "Deleted messages on server: " + extras.toString());
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                if(intent != null && intent.getExtras() != null) {
+                if(!IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getBoolean("gcm_registered", false)) {
+                    String regId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", "");
+                    if(regId.length() > 0) {
+                        scheduleUnregisterTimer(100, regId);
+                    }
+                } else if(intent != null && intent.getExtras() != null) {
                     //Log.d("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
                     try {
                         String type = intent.getStringExtra("type");
@@ -125,7 +130,7 @@ public class GCMIntentService extends IntentService {
 	}
 
 	public static void scheduleRegisterTimer(int delay) {
-		final int retrydelay = delay;
+        final int retrydelay = (delay<500)?500:delay;
 		
 		new Timer().schedule(new TimerTask() {
 			@Override
@@ -182,7 +187,7 @@ public class GCMIntentService extends IntentService {
 	}
 	
 	public static void scheduleUnregisterTimer(int delay, final String regId) {
-		final int retrydelay = delay;
+		final int retrydelay = (delay<500)?500:delay;
 		
 		new Timer().schedule(new TimerTask() {
 			@Override
@@ -191,29 +196,38 @@ public class GCMIntentService extends IntentService {
                 try {
                     GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).unregister();
                 } catch (IOException e) {
-                    Log.w("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+                    Log.w("IRCCloud", "Failed to unregister device ID from GCM, will retry in " + ((retrydelay*2)/1000) + " seconds");
                     scheduleUnregisterTimer(retrydelay * 2, regId);
                     return;
                 }
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-                editor.remove("gcm_registered");
-                editor.remove("gcm_reg_id");
-                editor.remove("gcm_app_version");
 				try {
 					String session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString(regId, "");
 					if(session.length() == 0)
 						session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", "");
-					JSONObject result = NetworkConnection.getInstance().unregisterGCM(regId, session);
-					if(result.has("success"))
-						success = result.getBoolean("success");
+                    if(session.length() > 0) {
+                        JSONObject result = NetworkConnection.getInstance().unregisterGCM(regId, session);
+                        if(result.has("message") && result.getString("message").equals("auth"))
+                            success = true;
+                        else if(result.has("success"))
+                            success = result.getBoolean("success");
+                    } else {
+                        success = true;
+                    }
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if(success) {
 					editor.remove(regId);
+                    if(regId.equals(IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", ""))) {
+                        editor.remove("gcm_registered");
+                        editor.remove("gcm_reg_id");
+                        editor.remove("gcm_app_version");
+                        Log.d("IRCCloud", "Device successfully unregistered");
+                    }
 				} else {
-					Log.w("IRCCloud", "Failed to unregister device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+					Log.w("IRCCloud", "Failed to unregister device ID from IRCCloud, will retry in " + ((retrydelay*2)/1000) + " seconds");
 					scheduleUnregisterTimer(retrydelay * 2, regId);
 				}
                 editor.commit();
