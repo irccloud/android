@@ -1833,7 +1833,7 @@ public class NetworkConnection {
                 BuffersDataSource b = BuffersDataSource.getInstance();
                 UsersDataSource u = UsersDataSource.getInstance();
                 u.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("msg"));
-                b.updateAway(object.bid(), object.getString("msg"));
+                b.updateAway(object.cid(), object.getString("nick"), object.getString("msg"));
                 if(!backlog)
                     notifyHandlers(EVENT_AWAY, object);
             }
@@ -1845,7 +1845,7 @@ public class NetworkConnection {
                 BuffersDataSource b = BuffersDataSource.getInstance();
                 UsersDataSource u = UsersDataSource.getInstance();
                 u.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
-                b.updateAway(object.bid(), "");
+                b.updateAway(object.cid(), object.getString("nick"), "");
                 if(!backlog)
                     notifyHandlers(EVENT_AWAY, object);
             }

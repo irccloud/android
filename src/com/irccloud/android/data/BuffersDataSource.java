@@ -155,8 +155,8 @@ public class BuffersDataSource {
         dirty = true;
 	}
 	
-	public synchronized void updateAway(int bid, String away_msg) {
-		Buffer b = getBuffer(bid);
+	public synchronized void updateAway(int cid, String nick, String away_msg) {
+		Buffer b = getBufferByName(cid, nick);
 		if(b != null) {
 			b.away_msg = away_msg;
 		}

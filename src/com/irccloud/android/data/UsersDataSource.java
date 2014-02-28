@@ -142,4 +142,12 @@ public class UsersDataSource {
         }
 		return null;
 	}
+
+    public synchronized User findUserOnConnection(int cid, String nick) {
+        for(Integer bid : users.keySet()) {
+            if(users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid).get(nick.toLowerCase()).cid == cid)
+                return users.get(bid).get(nick.toLowerCase());
+        }
+        return null;
+    }
 }

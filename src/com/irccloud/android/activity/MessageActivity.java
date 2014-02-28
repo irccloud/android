@@ -1067,18 +1067,25 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	    	} else {
 	    		if(buffer.type.equals("conversation")) {
                     title.setContentDescription("Conversation with " + title.getText());
-	        		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.bid, buffer.name);
-	    			if(user != null && user.away > 0) {
+	    			if(buffer.away_msg != null && buffer.away_msg.length() > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
-	    				if(user.away_msg != null && user.away_msg.length() > 0) {
-	    					subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(user.away_msg))).toString());
-	    				} else if(buffer.away_msg != null && buffer.away_msg.length() > 0) {
-	    	        		subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(buffer.away_msg))).toString());
+	    				if(buffer.away_msg != null && buffer.away_msg.length() > 0) {
+	    					subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(buffer.away_msg))).toString());
 	    				} else {
 	    					subtitle.setText("Away");
 	    				}
 	    			} else {
-		        		subtitle.setVisibility(View.GONE);
+                        UsersDataSource.User u = UsersDataSource.getInstance().findUserOnConnection(buffer.cid, buffer.name);
+                        if(u != null && u.away > 0) {
+                            subtitle.setVisibility(View.VISIBLE);
+                            if(u.away_msg != null && u.away_msg.length() > 0) {
+                                subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(u.away_msg))).toString());
+                            } else {
+                                subtitle.setText("Away");
+                            }
+                        } else {
+    		        		subtitle.setVisibility(View.GONE);
+                        }
 	    			}
 	        		key.setVisibility(View.GONE);
 	    		} else if(buffer.type.equals("channel")) {
@@ -1147,6 +1154,16 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         IRCCloudJSONObject event = null;
         Bundle args = null;
         switch (what) {
+            case NetworkConnection.EVENT_RENAMECONVERSATION:
+                if(buffer != null && (Integer)obj == buffer.bid) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            update_subtitle();
+                        }
+                    });
+                }
+                break;
             case NetworkConnection.EVENT_CHANNELTOPICIS:
                 event = (IRCCloudJSONObject)obj;
                 if(buffer != null && buffer.cid == event.cid() && buffer.name.equalsIgnoreCase(event.getString("chan"))) {
@@ -1597,12 +1614,12 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 			case NetworkConnection.EVENT_AWAY:
 		    	try {
 					event = (IRCCloudJSONObject)obj;
-					if(event != null && buffer != null && (event.bid() == buffer.bid || (event.type().equalsIgnoreCase("self_away") && event.cid() == buffer.cid)) && event.getString("nick").equalsIgnoreCase(buffer.name)) {
-			    		subtitle.setVisibility(View.VISIBLE);
-                        final String away = "Away: " + (event.has("away_msg")?event.getString("away_msg"):event.getString("msg"));
+					if(event != null && buffer != null && event.cid() == buffer.cid && event.getString("nick").equalsIgnoreCase(buffer.name)) {
+                        final String away = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html("Away: " + (event.has("away_msg")?event.getString("away_msg"):event.getString("msg")))).toString();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                subtitle.setVisibility(View.VISIBLE);
                                 subtitle.setText(away);
                             }
                         });
