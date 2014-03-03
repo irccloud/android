@@ -930,13 +930,15 @@ public class EventsDataSource {
 	}
 
     public void pruneEvents(int bid) {
-        TreeMap<Long,Event> e = events.get(bid);
-        while(e != null && e.size() > 50) {
-            e.remove(e.firstKey());
+        synchronized(events) {
+            TreeMap<Long,Event> e = events.get(bid);
+            while(e != null && e.size() > 50) {
+                e.remove(e.firstKey());
+            }
         }
     }
 
-	public int getUnreadStateForBuffer(int bid, long last_seen_eid, String buffer_type) {
+	public synchronized int getUnreadStateForBuffer(int bid, long last_seen_eid, String buffer_type) {
 		synchronized(events) {
 			if(events.containsKey(bid)) {
                 if(Build.VERSION.SDK_INT > 8) {

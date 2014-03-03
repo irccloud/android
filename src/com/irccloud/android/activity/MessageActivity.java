@@ -38,6 +38,7 @@ import android.view.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.gson.JsonElement;
@@ -642,7 +643,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 		@Override
 		protected Void doInBackground(Void... arg0) {
             if(BuildConfig.DEBUG && e != null && e.command != null) {
-                if(e.command.equals("/starttrace") || e.command.equals("/stoptrace")) {
+                if(e.command.equals("/starttrace") || e.command.equals("/stoptrace") || e.command.equals("/crash")) {
                     e.reqid = -2;
                     return null;
                 }
@@ -664,6 +665,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 } else if(messageTxt.getText().toString().equals("/stoptrace")) {
                     Debug.stopMethodTracing();
                     showAlert(e.cid, "Method tracing finished");
+                } else if(messageTxt.getText().toString().equals("/crash")) {
+                    Crashlytics.getInstance().crash();
                 }
             }
             if(e != null && e.reqid != -1) {
@@ -771,7 +774,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     	if(intent.hasExtra("bid")) {
     		int new_bid = intent.getIntExtra("bid", 0);
     		if(NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
-    			Log.w("IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
+    			Crashlytics.log(Log.WARN, "IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
     			Notifications.getInstance().deleteNotificationsForBid(new_bid);
     			if(showNotificationsTask != null)
     				showNotificationsTask.cancel(true);
@@ -779,12 +782,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     			showNotificationsTask.execute(new_bid);
     			return;
     		} else if(BuffersDataSource.getInstance().getBuffer(new_bid) != null) {
+                Crashlytics.log(Log.DEBUG, "IRCCloud", "Found BID, switching buffers");
     	    	if(buffer != null && buffer.bid != new_bid)
     	    		backStack.add(0, buffer.bid);
                 buffer = BuffersDataSource.getInstance().getBuffer(new_bid);
                 server = ServersDataSource.getInstance().getServer(buffer.cid);
     		} else {
-                Log.d("IRCCloud", "BID not found, will try after reconnecting");
+                Crashlytics.log(Log.DEBUG, "IRCCloud", "BID not found, will try after reconnecting");
                 launchBid = new_bid;
             }
     	}
@@ -808,12 +812,15 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
     	if(buffer == null) {
 			launchBid = intent.getIntExtra("bid", -1);
-    	}
+    	} else {
+            onBufferSelected(buffer.bid);
+        }
     }
     
     @Override
     protected void onNewIntent(Intent intent) {
     	if(intent != null) {
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Got new launch intent");
     		setFromIntent(intent);
     	}
     }
@@ -821,11 +828,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     @SuppressLint("NewApi")
 	@Override
     public void onResume() {
+        Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
         if(BuildConfig.DEBUG && BuildConfig.HOCKEYAPP_KEY.length() > 0)
             UpdateManager.register(this, BuildConfig.HOCKEYAPP_KEY);
     	conn = NetworkConnection.getInstance();
     	if(!conn.ready) {
         	super.onResume();
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "App was resumed but data has been lost, returning to splash screen");
     		Intent i = new Intent(this, MainActivity.class);
     		if(getIntent() != null) {
     			if(getIntent().getData() != null)
@@ -867,8 +876,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     		}
     	}
 
-    	if(server == null || launchURI != null) {
+    	if(server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
     		if(getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
+                Crashlytics.log(Log.DEBUG, "IRCCloud", "Launch intent contains a BID or URL");
 	    		setFromIntent(getIntent());
 	    	} else if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && conn.ready) {
 	    		if(launchURI == null || !open_uri(launchURI)) {
@@ -1488,6 +1498,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                             updateUsersListFragmentVisibility();
                         }
                         if(server == null || launchURI != null || launchBid != -1) {
+                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
                             if(launchURI == null || !open_uri(launchURI)) {
                                 if(launchBid == -1 || !open_bid(launchBid)) {
                                     if(conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
@@ -2734,6 +2745,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             shouldFadeIn = false;
         else
             shouldFadeIn = true;
+        Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: " + bid + " shouldFadeIn: " + shouldFadeIn);
         buffer = BuffersDataSource.getInstance().getBuffer(bid);
         if(buffer != null) {
             server = ServersDataSource.getInstance().getServer(buffer.cid);
@@ -2757,6 +2769,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         if(buffer != null)
             b.putInt("cid", buffer.cid);
         b.putInt("bid", bid);
+        b.putBoolean("fade", shouldFadeIn);
         BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
         final MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
         UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
@@ -2768,6 +2781,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             ulf.setArguments(b);
 
         if(shouldFadeIn) {
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade Out");
             AlphaAnimation anim = new AlphaAnimation(1, 0);
             anim.setDuration(150);
             anim.setFillAfter(true);
@@ -2824,7 +2838,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	@Override
 	public void onMessageViewReady() {
 		if(shouldFadeIn) {
-	    	MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade In");
+            MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
 	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
 			anim.setDuration(150);

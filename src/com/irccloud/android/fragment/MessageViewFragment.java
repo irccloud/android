@@ -55,6 +55,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonObject;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.data.BuffersDataSource;
@@ -809,7 +810,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             dirty = true;
         }
         buffer = BuffersDataSource.getInstance().getBuffer(args.getInt("bid", -1));
-        server = ServersDataSource.getInstance().getServer(buffer.cid);
+        if(buffer != null) {
+            server = ServersDataSource.getInstance().getServer(buffer.cid);
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: switched to bid: " + buffer.bid);
+        } else {
+            Crashlytics.log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
+        }
 		requestingBacklog = false;
 		avgInsertTime = 0;
 		newMsgs = 0;
@@ -847,9 +853,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if(refreshTask != null)
                 refreshTask.cancel(true);
             refreshTask = new RefreshTask();
-            if(adapter != null) {
+            if(args.getBoolean("fade")) {
+                Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents in the background");
                 refreshTask.execute((Void)null);
             } else {
+                Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents");
                 refreshTask.onPreExecute();
                 refreshTask.onPostExecute(refreshTask.doInBackground());
             }
