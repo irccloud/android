@@ -212,7 +212,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 			public void onFocusChange(View v, boolean hasFocus) {
 				if(drawerLayout != null && v == messageTxt && hasFocus) {
                     drawerLayout.closeDrawers();
-		        	upView.setVisibility(View.VISIBLE);
+                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+    		        	upView.setVisibility(View.VISIBLE);
                     update_suggestions(false);
 				} else if(!hasFocus) {
                     runOnUiThread(new Runnable() {
@@ -229,7 +230,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             public void onClick(View v) {
                 if (drawerLayout != null) {
                     drawerLayout.closeDrawers();
-                    upView.setVisibility(View.VISIBLE);
+                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                        upView.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -324,7 +326,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         });
 
         upView = (ImageView)v.findViewById(R.id.upIndicator);
-        if(drawerLayout != null) {
+        if(drawerLayout != null && getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null) {
             drawerLayout.setDrawerListener(mDrawerListener);
         	upView.setVisibility(View.VISIBLE);
         	upView.setOnClickListener(upClickListener);
@@ -567,7 +569,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
         	if(drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
                 drawerLayout.closeDrawers();
-	        	upView.setVisibility(View.VISIBLE);
+                if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+    	        	upView.setVisibility(View.VISIBLE);
 	        	return true;
         	}
             while(backStack != null && backStack.size() > 0) {
@@ -867,7 +870,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     	} else {
     		if(drawerLayout != null) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            	upView.setVisibility(View.VISIBLE);
+                if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                	upView.setVisibility(View.VISIBLE);
     		}
     		if(messageTxt.getText() != null && messageTxt.getText().length() > 0) {
     			sendBtn.setEnabled(true);
@@ -1130,27 +1134,34 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     private void updateUsersListFragmentVisibility() {
     	boolean hide = true;
 		if(userListView != null) {
+            ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
+            if(buffer != null && buffer.type.equals("channel")) {
+                if(c != null)
+                    hide = false;
+            }
 			try {
-				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null) {
 					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
 					if(hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid)))
 						hide = true;
 				}
 			} catch (Exception e) {
 			}
-            if(buffer != null && buffer.type.equals("channel")) {
-                ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
-                if(c != null)
-                    hide = false;
-            }
 	    	if(hide) {
 	    		userListView.setVisibility(View.GONE);
-                if(drawerLayout != null)
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+                if(drawerLayout != null) {
+                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null && c != null)
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                    else
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+                }
             } else {
 	    		userListView.setVisibility(View.VISIBLE);
                 if(drawerLayout != null)
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null && c != null)
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+                    else
+                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
             }
 		}
     }
@@ -1244,7 +1255,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                                 @Override
                                 public void run() {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                    upView.setVisibility(View.VISIBLE);
+                                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                                        upView.setVisibility(View.VISIBLE);
                                     updateUsersListFragmentVisibility();
                                 }
                             });
@@ -1265,7 +1277,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                             public void run() {
                                 if(drawerLayout != null && !NetworkConnection.getInstance().ready) {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                                    upView.setVisibility(View.INVISIBLE);
+                                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                                        upView.setVisibility(View.INVISIBLE);
                                 }
                                 sendBtn.setEnabled(false);
                                 if(Build.VERSION.SDK_INT >= 11)
@@ -1494,7 +1507,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     public void run() {
                         if(drawerLayout != null) {
                             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                            upView.setVisibility(View.VISIBLE);
+                            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                                upView.setVisibility(View.VISIBLE);
                             updateUsersListFragmentVisibility();
                         }
                         if(server == null || launchURI != null || launchBid != -1) {
@@ -1802,13 +1816,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	        		menu.findItem(R.id.menu_delete).setEnabled(false);
 	        		menu.findItem(R.id.menu_ban_list).setVisible(true);
 	        		menu.findItem(R.id.menu_ban_list).setEnabled(true);
-	        		if(menu.findItem(R.id.menu_userlist) != null) {
-		        		boolean hide = false;
+	        		if(menu.findItem(R.id.menu_userlist) != null && getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null) {
+		        		boolean hide = true;
 		        		try {
 		        			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
 								JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
 								if(hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid)))
-									hide = true;
+									hide = false;
 		        			}
 						} catch (JSONException e) {
 						}
@@ -2127,11 +2141,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 		        	if(drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
 	        			drawerLayout.closeDrawers();
 		        	} else {
-                        drawerLayout.closeDrawer(Gravity.LEFT);
+                        if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                            drawerLayout.closeDrawer(Gravity.LEFT);
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                         drawerLayout.openDrawer(Gravity.RIGHT);
 		        	}
-		        	upView.setVisibility(View.VISIBLE);
+                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+    		        	upView.setVisibility(View.VISIBLE);
 			    	if(!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
 			    		Toast.makeText(this, "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
 			    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
@@ -2728,7 +2744,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
 		if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-			upView.setVisibility(View.VISIBLE);
+            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                upView.setVisibility(View.VISIBLE);
 		}
         if(bid != -1 && conn != null && conn.getUserInfo() != null) {
             conn.getUserInfo().last_selected_bid = bid;
@@ -2773,12 +2790,15 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
         final MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
         UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
+        UsersListFragment ulf2 = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment2);
         if(mvf != null)
             mvf.ready = false;
         if(blf != null)
             blf.setSelectedBid(bid);
         if(ulf != null)
             ulf.setArguments(b);
+        if(ulf2 != null)
+            ulf2.setArguments(b);
 
         if(shouldFadeIn) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade Out");
@@ -2858,7 +2878,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	public void addButtonPressed(int cid) {
         if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-            upView.setVisibility(View.VISIBLE);
+            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                upView.setVisibility(View.VISIBLE);
         }
 	}
 
@@ -2866,7 +2887,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     public void addNetwork() {
         if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-            upView.setVisibility(View.VISIBLE);
+            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                upView.setVisibility(View.VISIBLE);
         }
         if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
             Intent i = new Intent(this, EditConnectionActivity.class);
@@ -2881,7 +2903,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     public void reorder() {
         if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-            upView.setVisibility(View.VISIBLE);
+            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                upView.setVisibility(View.VISIBLE);
         }
         if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
             Intent i = new Intent(this, ServerReorderActivity.class);
