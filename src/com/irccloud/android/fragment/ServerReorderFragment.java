@@ -142,6 +142,12 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
             else
                 holder.icon.setImageResource(R.drawable.world);
 
+            if(s.status != null && s.status.equals("connected_ready")) {
+                holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+            } else {
+                holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
+            }
+
             if(getShowsDialog())
                 row.setBackgroundColor(0xfff3f3f3);
             else
