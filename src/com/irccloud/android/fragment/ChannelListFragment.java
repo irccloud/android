@@ -175,10 +175,15 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
     public void setArguments(Bundle args) {
     	server = ServersDataSource.getInstance().getServer(args.getInt("cid", -1));
     	channels = null;
-    	if(listView != null) {
-        	empty.setText("Loading channel list…");
-        	adapter = new ChannelsAdapter(this);
-        	listView.setAdapter(adapter);
+    	if(listView != null && getActivity() != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    empty.setText("Loading channel list…");
+                    adapter = new ChannelsAdapter(ChannelListFragment.this);
+                    listView.setAdapter(adapter);
+                }
+            });
     	}
     }
     

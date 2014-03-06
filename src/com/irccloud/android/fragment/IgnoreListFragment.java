@@ -211,10 +211,15 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
     @Override
     public void setArguments(Bundle args) {
     	cid = args.getInt("cid", 0);
-    	if(cid > 0 && listView != null) {
-        	ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
-        	adapter = new IgnoresAdapter(this);
-        	listView.setAdapter(adapter);
+    	if(getActivity() != null && cid > 0 && listView != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+                    adapter = new IgnoresAdapter(IgnoreListFragment.this);
+                    listView.setAdapter(adapter);
+                }
+            });
     	}
     }
     

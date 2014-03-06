@@ -246,13 +246,18 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
     	bid = args.getInt("bid", 0);
     	event = new IRCCloudJSONObject(args.getString("event"));
     	bans = event.getJsonArray("bans");
-    	if(cid > 0 && listView != null) {
-    		if(adapter == null) {
-	        	adapter = new BansAdapter(this);
-	        	listView.setAdapter(adapter);
-    		} else {
-    			adapter.notifyDataSetChanged();
-    		}
+    	if(getActivity() != null && cid > 0 && listView != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(adapter == null) {
+                        adapter = new BansAdapter(BanListFragment.this);
+                        listView.setAdapter(adapter);
+                    } else {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
     	}
     }
     

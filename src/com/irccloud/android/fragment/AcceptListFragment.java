@@ -220,13 +220,18 @@ public class AcceptListFragment extends DialogFragment {
     	cid = args.getInt("cid", 0);
     	event = new IRCCloudJSONObject(args.getString("event"));
     	acceptList = event.getJsonArray("nicks");
-    	if(cid > 0 && listView != null) {
-    		if(adapter == null) {
-	        	adapter = new AcceptListAdapter(this);
-	        	listView.setAdapter(adapter);
-    		} else {
-    			adapter.notifyDataSetChanged();
-    		}
+    	if(getActivity() != null && cid > 0 && listView != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(adapter == null) {
+                        adapter = new AcceptListAdapter(AcceptListFragment.this);
+                        listView.setAdapter(adapter);
+                    } else {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
     	}
     }
     

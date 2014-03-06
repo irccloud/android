@@ -162,13 +162,18 @@ public class NamesListFragment extends DialogFragment {
     public void setArguments(Bundle args) {
     	event = new IRCCloudJSONObject(args.getString("event"));
     	users = event.getJsonArray("members");
-    	if(listView != null) {
-    		if(adapter == null) {
-	        	adapter = new UsersAdapter(this);
-	        	listView.setAdapter(adapter);
-    		} else {
-    			adapter.notifyDataSetChanged();
-    		}
+    	if(getActivity() != null && listView != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(adapter == null) {
+                        adapter = new UsersAdapter(NamesListFragment.this);
+                        listView.setAdapter(adapter);
+                    } else {
+                        adapter.notifyDataSetChanged();
+                    }
+                }
+            });
     	}
     }
     
