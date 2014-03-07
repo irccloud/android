@@ -1134,8 +1134,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     private void updateUsersListFragmentVisibility() {
     	boolean hide = true;
 		if(userListView != null) {
-            ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
+            ChannelsDataSource.Channel c = null;
             if(buffer != null && buffer.type.equals("channel")) {
+                c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
                 if(c != null)
                     hide = false;
             }
@@ -1158,7 +1159,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             } else {
 	    		userListView.setVisibility(View.VISIBLE);
                 if(drawerLayout != null)
-                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null && c != null)
+                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null)
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                     else
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
