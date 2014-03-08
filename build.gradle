@@ -5,7 +5,7 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.8.+'
+        classpath 'com.android.tools.build:gradle:0.9.+'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
 
     }
@@ -26,10 +26,10 @@ repositories {
 dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.jakewharton:notificationcompat2:1.1.2'
-    compile 'com.android.support:support-v4:13.0.+'
-    compile 'com.android.support:appcompat-v7:18.0.+'
+    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:appcompat-v7:19.0.+'
 
-    compile 'com.google.android.gms:play-services:3.1.+'
+    compile 'com.google.android.gms:play-services:4.1.+'
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile project(':android-websockets')
@@ -49,7 +49,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 8
@@ -181,17 +181,15 @@ android {
     }
 
     sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
+        main.manifest.srcFile 'AndroidManifest.xml'
+        main.java.srcDirs = ['src']
+        main.resources.srcDirs = ['src']
+        main.aidl.srcDirs = ['src']
+        main.renderscript.srcDirs = ['src']
+        main.res.srcDirs = ['res']
+        main.assets.srcDirs = ['assets']
 
-        instrumentTest {
+        androidTest {
             java.srcDirs = ['tests/src']
             res.srcDirs = ['tests/res']
             assets.srcDirs = ['tests/assets']

@@ -45,6 +45,9 @@
 				<data android:scheme="ircs" />
 			</intent-filter>
         </activity>
+        <activity-alias
+            android:name=".MainActivity"
+            android:targetActivity="com.irccloud.android.activity.MainActivity"/>
         <activity
             android:name="com.irccloud.android.activity.MessageActivity"
             android:label="@string/title_activity_message"
@@ -122,6 +125,7 @@
             <meta-data android:name="worldReadable" android:value="true" />
         </service>
         <meta-data android:name="com.crashlytics.ApiKey" android:value="@string/CRASHLYTICS_KEY"/>
+        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
         <activity android:name="net.hockeyapp.android.UpdateActivity" />
 	</application>
 
