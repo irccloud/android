@@ -36,6 +36,12 @@
             android:text="Track unread messages" />
 
         <CheckBox
+            android:id="@+id/notifyAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notify on all messages" />
+
+        <CheckBox
             android:id="@+id/joinpart"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

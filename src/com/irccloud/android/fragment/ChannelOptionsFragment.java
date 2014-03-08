@@ -39,6 +39,7 @@ public class ChannelOptionsFragment extends DialogFragment {
 	CheckBox unread;
 	CheckBox joinpart;
     CheckBox collapse;
+    CheckBox notifyAll;
 	int cid;
 	int bid;
 	
@@ -53,7 +54,10 @@ public class ChannelOptionsFragment extends DialogFragment {
 	}
 	
 	public JSONObject updatePref(JSONObject prefs, CheckBox control, String key) throws JSONException {
-		if(!control.isChecked()) {
+        boolean checked = control.isChecked();
+        if(control == notifyAll)
+            checked = !checked;
+		if(!checked) {
 			JSONObject map;
 			if(prefs.has(key))
 				map = prefs.getJSONObject(key);
@@ -85,6 +89,7 @@ public class ChannelOptionsFragment extends DialogFragment {
 				prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
 				prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
                 prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
+                prefs = updatePref(prefs, notifyAll, "channel-notifications-all");
 
 				NetworkConnection.getInstance().set_prefs(prefs.toString());
 			} catch (Exception e) {
@@ -137,13 +142,24 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         collapse.setChecked(true);
                     }
+                    if(prefs.has("channel-notifications-all")) {
+                        JSONObject notifyAllMap = prefs.getJSONObject("channel-notifications-all");
+                        if(notifyAllMap.has(String.valueOf(bid)) && notifyAllMap.getBoolean(String.valueOf(bid)))
+                            notifyAll.setChecked(true);
+                        else
+                            notifyAll.setChecked(false);
+                    } else {
+                        notifyAll.setChecked(false);
+                    }
 		    	} else {
+                    notifyAll.setChecked(false);
 					joinpart.setChecked(true);
 	    			unread.setChecked(true);
 	    			members.setChecked(true);
                     collapse.setChecked(true);
 		    	}
 	    	} else {
+                notifyAll.setChecked(false);
 				joinpart.setChecked(true);
     			unread.setChecked(true);
     			members.setChecked(true);
@@ -167,6 +183,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     	View v = inflater.inflate(R.layout.dialog_channel_options,null);
     	members = (CheckBox)v.findViewById(R.id.members);
     	unread = (CheckBox)v.findViewById(R.id.unread);
+        notifyAll = (CheckBox)v.findViewById(R.id.notifyAll);
     	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
         collapse = (CheckBox)v.findViewById(R.id.collapse);
     	
