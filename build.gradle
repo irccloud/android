@@ -186,6 +186,7 @@ android {
         main.resources.srcDirs = ['src']
         main.aidl.srcDirs = ['src']
         main.renderscript.srcDirs = ['src']
+        enterprisedebug.res.srcDirs = ['enterprise-res']
         main.res.srcDirs = ['res']
         main.assets.srcDirs = ['assets']
 
@@ -195,5 +196,24 @@ android {
             assets.srcDirs = ['tests/assets']
             resources.srcDirs = ['tests/src']
         }
+    }
+}
+
+task __filteredResources(type:Copy) {
+    from('res/') {
+        exclude 'drawable-xhdpi/splashlogo.png'
+        exclude 'drawable-mdpi/ic_launcher.png'
+        exclude 'drawable-hdpi/ic_launcher.png'
+        exclude 'drawable-xhdpi/ic_launcher.png'
+        exclude 'drawable-xxhdpi/ic_launcher.png'
+        exclude 'drawable-xxxhdpi/ic_launcher.png'
+    }
+    into 'build/filtered_resources'
+    includeEmptyDirs = true
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'mergeEnterprisedebugResources' || task.name == 'mergeEnterprisereleaseResources') {
+        task.dependsOn __filteredResources
     }
 }
