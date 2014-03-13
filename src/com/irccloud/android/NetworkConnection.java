@@ -1182,6 +1182,7 @@ public class NetworkConnection {
         put("idle", null);
         put("end_of_backlog", null);
         put("oob_skipped", null);
+        put("user_account", null);
 
         put("header", new Parser() {
             @Override
