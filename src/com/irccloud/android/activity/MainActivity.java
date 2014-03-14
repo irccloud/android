@@ -153,10 +153,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         
         TextView version = (TextView)findViewById(R.id.version);
         try {
-            if(BuildConfig.BRAND_NAME.length() > 0)
-    			version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "-" + BuildConfig.BRAND_NAME);
-            else
-                version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+            version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
 		} catch (NameNotFoundException e) {
 			version.setVisibility(View.GONE);
 		}

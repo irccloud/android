@@ -20,7 +20,6 @@ tasks.withType(Compile) {
 repositories {
     mavenCentral()
     maven { url 'http://download.crashlytics.com/maven' }
-
 }
 
 dependencies {
@@ -79,9 +78,8 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "REVISION", "\"" + getRevision() + "\""
-            buildConfigField "String", "BRAND_NAME", "\"\""
-            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            versionNameSuffix "-" + getRevision()
             buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
                 def props = new Properties()
@@ -101,9 +99,7 @@ android {
             resValue "string", "app_name", "IRCCloud"
         }
         release {
-            buildConfigField "String", "REVISION", "\"\""
-            buildConfigField "String", "BRAND_NAME", "\"\""
-            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"www.irccloud.com\""
             buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
                 def props = new Properties()
@@ -128,9 +124,8 @@ android {
         }
         enterprisedebug {
             packageNameSuffix ".enterprise"
-            buildConfigField "String", "REVISION", "\"" + getRevision() + "\""
-            buildConfigField "String", "BRAND_NAME", "\"\""
-            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            versionNameSuffix "-" + getRevision()
+            buildConfigField "String", "HOST", "\"www.irccloud.com\""
             buildConfigField "boolean", "ENTERPRISE", "true"
             if(rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
@@ -147,15 +142,13 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-image"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
-            resValue "string", "app_name", "IRCCloud Enterprise"
+            resValue "string", "app_name", "IRCEnterprise"
 
             signingConfig signingConfigs.debug
         }
         enterpriserelease {
             packageNameSuffix ".enterprise"
-            buildConfigField "String", "REVISION", "\"\""
-            buildConfigField "String", "BRAND_NAME", "\"\""
-            buildConfigField "String", "BRAND_HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"www.irccloud.com\""
             buildConfigField "boolean", "ENTERPRISE", "true"
             if(rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
@@ -172,7 +165,7 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
-            resValue "string", "app_name", "IRCCloud Enterprise"
+            resValue "string", "app_name", "IRCEnterprise"
 
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
@@ -187,6 +180,7 @@ android {
         main.aidl.srcDirs = ['src']
         main.renderscript.srcDirs = ['src']
         enterprisedebug.res.srcDirs = ['enterprise-res']
+        enterpriserelease.res.srcDirs = ['enterprise-res']
         main.res.srcDirs = ['res']
         main.assets.srcDirs = ['assets']
 

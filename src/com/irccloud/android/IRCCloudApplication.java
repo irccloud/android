@@ -69,7 +69,7 @@ public class IRCCloudApplication extends Application {
 		e = EventsDataSource.getInstance();
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.BRAND_HOST);
+        NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
 
         if(prefs.getBoolean("acra.enable", true)) {
             try {

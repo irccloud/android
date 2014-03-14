@@ -150,10 +150,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		}
 
 		try {
-            if(BuildConfig.REVISION.length() > 0)
-    			findPreference("version").setSummary(getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "-" + BuildConfig.REVISION);
-            else
-                findPreference("version").setSummary(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+            findPreference("version").setSummary(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
