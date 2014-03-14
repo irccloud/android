@@ -1040,7 +1040,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(from == null || from.length() == 0)
                     from = event.nick;
 
-                if(from != null && event.hostmask != null && !type.equals("user_channel_mode") && !type.contains("kicked") && buffer.type != null && !buffer.type.equals("conversation")) {
+                if(from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer.type != null && !buffer.type.equals("conversation")) {
                     String usermask = from + "!" + event.hostmask;
                     if(ignore.match(usermask)) {
                         if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
