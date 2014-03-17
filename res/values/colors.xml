@@ -44,7 +44,7 @@
     <drawable name="archived_bg">#F4F4F4</drawable>
     <drawable name="archived_bg_selected">#666</drawable>
     <drawable name="archived_bg_highlighted">#eee</drawable>
-    <drawable name="highlight_red">#BA1719</drawable>
+    <drawable name="highlight_red">#ff1f1a</drawable>
     <color name="markAsReadColor">#000</color>
     <color name="border">#C0D2FF</color>
     <color name="heading_owner">#E7AA00</color>
@@ -58,4 +58,7 @@
     <color name="lightLinkColor">#9CC7FF</color>
     <color name="linkColor">#1D40FF</color>
     <drawable name="actionbar_translucent">#66000000</drawable>
+    <drawable name="unreadBorder">#123e92</drawable>
+    <drawable name="networkErrorBorder">#dbb300</drawable>
+    <drawable name="highlightBorder">#d20004</drawable>
 </resources>

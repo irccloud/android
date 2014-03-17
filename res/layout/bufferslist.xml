@@ -40,10 +40,16 @@
         android:layout_alignParentTop="true"
         android:visibility="gone">
 	    <LinearLayout
-	        android:id="@+id/topUnreadIndicatorColor"
+	        android:id="@+id/topUnreadIndicatorBorder"
 	        android:layout_width="match_parent"
 	        android:layout_height="12dip"
-	        android:background="@color/dark_blue"/>
+	        android:background="@drawable/unreadBorder">
+            <LinearLayout
+                android:id="@+id/topUnreadIndicatorColor"
+                android:layout_width="match_parent"
+                android:layout_height="11dip"
+                android:background="@drawable/selected_blue"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -55,10 +61,18 @@
         android:visibility="gone" >
 
 	    <LinearLayout
-	        android:id="@+id/bottomUnreadIndicatorColor"
+	        android:id="@+id/bottomUnreadIndicatorBorder"
 	        android:layout_width="match_parent"
 	        android:layout_height="12dip"
-	        android:background="@color/dark_blue"/>
+            android:gravity="bottom"
+	        android:background="@drawable/unreadBorder">
+            <LinearLayout
+                android:id="@+id/bottomUnreadIndicatorColor"
+                android:layout_width="match_parent"
+                android:layout_height="11dip"
+                android:gravity="bottom"
+                android:background="@drawable/selected_blue"/>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

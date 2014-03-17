@@ -80,8 +80,10 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 	ListView listView = null;
 	LinearLayout topUnreadIndicator = null;
 	LinearLayout topUnreadIndicatorColor = null;
+    LinearLayout topUnreadIndicatorBorder = null;
 	LinearLayout bottomUnreadIndicator = null;
 	LinearLayout bottomUnreadIndicatorColor = null;
+    LinearLayout bottomUnreadIndicatorBorder = null;
 	int selected_bid = -1;
 	RefreshTask refreshTask = null;
 	private boolean ready = false;
@@ -792,34 +794,40 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             if(firstFailurePosition != -1 && first > firstFailurePosition) {
                 topUnreadIndicator.setVisibility(View.VISIBLE);
                 topUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
+                topUnreadIndicatorBorder.setBackgroundResource(R.drawable.networkErrorBorder);
             } else {
                 topUnreadIndicator.setVisibility(View.GONE);
             }
 			if(firstUnreadPosition != -1 && first > firstUnreadPosition) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
 				topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+                topUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
 			}
 			if((lastHighlightPosition != -1 && first > lastHighlightPosition) ||
 					(firstHighlightPosition != -1 && first > firstHighlightPosition)) {
 				topUnreadIndicator.setVisibility(View.VISIBLE);
 				topUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
+                topUnreadIndicatorBorder.setBackgroundResource(R.drawable.highlightBorder);
 			}
 		}
 		if(bottomUnreadIndicator != null) {
             if(lastFailurePosition != -1 && last < lastFailurePosition) {
                 bottomUnreadIndicator.setVisibility(View.VISIBLE);
                 bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
+                bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.networkErrorBorder);
             } else {
                 bottomUnreadIndicator.setVisibility(View.GONE);
             }
 			if(lastUnreadPosition != -1 && last < lastUnreadPosition) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
 				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+                bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
 			}
 			if((firstHighlightPosition != -1 && last < firstHighlightPosition) ||
 					(lastHighlightPosition != -1 && last < lastHighlightPosition)) {
 				bottomUnreadIndicator.setVisibility(View.VISIBLE);
 				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
+                bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.highlightBorder);
 			}
 		}
 	}
@@ -846,6 +854,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 			
 		});
 		topUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.topUnreadIndicatorColor);
+        topUnreadIndicatorBorder = (LinearLayout)view.findViewById(R.id.topUnreadIndicatorBorder);
 		bottomUnreadIndicator = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicator);
 		bottomUnreadIndicator.setOnClickListener(new OnClickListener() {
 
@@ -863,6 +872,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 			
 		});
 		bottomUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicatorColor);
+        bottomUnreadIndicatorBorder = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicatorBorder);
 		listView = (ListView)view.findViewById(android.R.id.list);
 		listView.setOnScrollListener(new OnScrollListener() {
 			@Override
