@@ -165,6 +165,8 @@ public class ChannelOptionsFragment extends DialogFragment {
     			members.setChecked(true);
                 collapse.setChecked(true);
 	    	}
+            if(getActivity().getWindowManager().getDefaultDisplay().getWidth() < 800)
+                members.setVisibility(View.GONE);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
