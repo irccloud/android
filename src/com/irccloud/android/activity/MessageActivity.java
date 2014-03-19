@@ -1197,9 +1197,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 break;
 			case NetworkConnection.EVENT_LINKCHANNEL:
 				event = (IRCCloudJSONObject)obj;
-                if(event != null && event.eid() != -1) {
-                    showAlert(event.cid(), event.getString("msg"));
-                }
 				if(event != null && cidToOpen == event.cid() && event.has("invalid_chan") && event.has("valid_chan") && event.getString("invalid_chan").equalsIgnoreCase(bufferToOpen)) {
 					bufferToOpen = event.getString("valid_chan");
 					obj = BuffersDataSource.getInstance().getBuffer(event.bid());

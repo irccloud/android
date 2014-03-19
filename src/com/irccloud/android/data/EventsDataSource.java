@@ -586,9 +586,9 @@ public class EventsDataSource {
             public void format(IRCCloudJSONObject event, Event e) {
                 if(event.has("invalid_chan")) {
                     if(event.has("valid_chan")) {
-                        e.msg = event.getString("invalid_chan") + " → " + event.getString("valid_chan") + ": " + e.msg;
+                        e.msg = event.getString("invalid_chan") + " → " + event.getString("valid_chan") + " " + e.msg;
                     } else {
-                        e.msg = event.getString("invalid_chan") + ": " + e.msg;
+                        e.msg = event.getString("invalid_chan") + " " + e.msg;
                     }
                 }
                 e.bg_color = R.color.error;
