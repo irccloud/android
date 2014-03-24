@@ -1037,4 +1037,12 @@ public class EventsDataSource {
             }
         }
     }
+
+    public synchronized void clearCaches() {
+        synchronized(events) {
+            for(int bid : events.keySet()) {
+                clearCacheForBuffer(bid);
+            }
+        }
+    }
 }

@@ -47,5 +47,11 @@
             android:summaryOn="Messages will automatically start with a capital letter"
             android:summaryOff="Messages will not automatically start with a capital letter"
             android:title="Auto-capitalize messages"/>
+        <CheckBoxPreference
+            android:key="imageviewer"
+            android:defaultValue="true"
+            android:summaryOn="Image URLs will open in IRCCloud"
+            android:summaryOff="Image URLs will open in your browser"
+            android:title="Image Viewer"/>
 	</PreferenceCategory>
 </PreferenceScreen>

@@ -32,6 +32,7 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.Notifications;
 import com.irccloud.android.R;
+import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
@@ -125,6 +126,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		findPreference("faq").setOnPreferenceClickListener(urlClick);
 		findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
+        findPreference("imageviewer").setOnPreferenceChangeListener(imageviewertoggle);
 		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
 		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
@@ -270,6 +272,13 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 			return true;
 		}
 	};
+
+    Preference.OnPreferenceChangeListener imageviewertoggle = new Preference.OnPreferenceChangeListener() {
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            EventsDataSource.getInstance().clearCaches();
+            return true;
+        }
+    };
 
     Preference.OnPreferenceChangeListener dashclocktoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
