@@ -49,6 +49,7 @@ def getRevision = { ->
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.3"
+    aaptOptions.useAaptPngCruncher = true
 
     defaultConfig {
         minSdkVersion 8
