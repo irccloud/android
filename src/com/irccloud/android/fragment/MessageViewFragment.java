@@ -848,7 +848,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
         lp.topMargin = 0;
         backlogFailed.setLayoutParams(lp);
-        if(EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
+        if(buffer != null && EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
             requestingBacklog = true;
             if(refreshTask != null)
                 refreshTask.cancel(true);

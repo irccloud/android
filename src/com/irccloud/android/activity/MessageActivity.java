@@ -1564,13 +1564,18 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                             }
                         }
                     }
-		        	if(BuffersDataSource.getInstance().count() == 0) {
-                        startActivity(new Intent(MessageActivity.this, EditConnectionActivity.class));
-                        finish();
-                    } else {
-		        		if(!open_bid(BuffersDataSource.getInstance().firstBid()))
-                            finish();
-		        	}
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(BuffersDataSource.getInstance().count() == 0) {
+                                startActivity(new Intent(MessageActivity.this, EditConnectionActivity.class));
+                                finish();
+                            } else {
+                                if(!open_bid(BuffersDataSource.getInstance().firstBid()))
+                                    finish();
+                            }
+                        }
+                    });
 				}
                 runOnUiThread(new Runnable() {
                     @Override
