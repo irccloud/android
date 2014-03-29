@@ -559,8 +559,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     	super.onSaveInstanceState(state);
         if(server != null)
         	state.putInt("cid", server.cid);
-        if(buffer != null)
-        	state.putInt("bid", buffer.bid);
+        if(buffer != null) {
+            state.putInt("bid", buffer.bid);
+            if(messageTxt != null && messageTxt.getText() != null)
+                buffer.draft = messageTxt.getText().toString();
+            else
+                buffer.draft = null;
+        }
     	state.putSerializable("backStack", backStack);
     }
     
