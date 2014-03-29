@@ -1325,12 +1325,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         @SuppressWarnings("unchecked")
 		@Override
 		protected Void doInBackground(Void... params) {
+            TreeMap<Long,EventsDataSource.Event> evs = null;
 			long time = System.currentTimeMillis();
             if(buffer != null)
-    			events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
+    			evs = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
-			if(!isCancelled() && events != null && events.size() > 0) {
-    			events = (TreeMap<Long, EventsDataSource.Event>)events.clone();
+			if(!isCancelled() && evs != null && evs.size() > 0) {
+    			events = (TreeMap<Long, EventsDataSource.Event>)evs.clone();
                 if(isCancelled())
                     return null;
 
@@ -2207,18 +2208,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                for(int i = 0; i < adapter.data.size(); i++) {
-                                    EventsDataSource.Event e = adapter.data.get(i);
-                                    if(e.reqid == event.reqid && e.pending) {
-                                        if(i > 1) {
-                                            EventsDataSource.Event p = adapter.data.get(i-1);
-                                            if(p.row_type == ROW_TIMESTAMP) {
-                                                adapter.data.remove(p);
-                                                i--;
+                                if(adapter != null && adapter.data != null) {
+                                    for (int i = 0; i < adapter.data.size(); i++) {
+                                        EventsDataSource.Event e = adapter.data.get(i);
+                                        if (e.reqid == event.reqid && e.pending) {
+                                            if (i > 1) {
+                                                EventsDataSource.Event p = adapter.data.get(i - 1);
+                                                if (p.row_type == ROW_TIMESTAMP) {
+                                                    adapter.data.remove(p);
+                                                    i--;
+                                                }
                                             }
+                                            adapter.data.remove(e);
+                                            i--;
                                         }
-                                        adapter.data.remove(e);
-                                        i--;
                                     }
                                 }
                             }

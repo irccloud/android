@@ -16,6 +16,7 @@
 
 package com.irccloud.android.activity;
 
+import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.*;
 
@@ -35,6 +36,19 @@ import com.irccloud.android.data.ServersDataSource;
 
 public class BaseActivity extends ActionBarActivity implements NetworkConnection.IRCEventHandler{
 	NetworkConnection conn;
+    private View dialogTextPrompt;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        dialogTextPrompt = getLayoutInflater().inflate(R.layout.dialog_textprompt,null);
+    }
+
+    public View getDialogTextPrompt() {
+        if(dialogTextPrompt.getParent() != null)
+            ((ViewGroup)dialogTextPrompt.getParent()).removeView(dialogTextPrompt);
+        return dialogTextPrompt;
+    }
 
     @Override
     public void onResume() {
@@ -67,7 +81,6 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
     }
 
     public void onIRCEvent(int what, Object obj) {
-        LayoutInflater inflater;
         View view;
         TextView prompt;
         String message = "";
@@ -82,10 +95,10 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                 s = ServersDataSource.getInstance();
                 server = s.getServer(o.cid());
                 builder = new AlertDialog.Builder(BaseActivity.this);
-                inflater = getLayoutInflater();
-                view = inflater.inflate(R.layout.dialog_textprompt,null);
+                view = getDialogTextPrompt();
                 prompt = (TextView)view.findViewById(R.id.prompt);
                 final EditText keyinput = (EditText)view.findViewById(R.id.textInput);
+                keyinput.setText("");
                 keyinput.setOnEditorActionListener(new OnEditorActionListener() {
                     public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
                         if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -143,10 +156,10 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                 s = ServersDataSource.getInstance();
                 server = s.getServer(o.cid());
                 builder = new AlertDialog.Builder(BaseActivity.this);
-                inflater = getLayoutInflater();
-                view = inflater.inflate(R.layout.dialog_textprompt,null);
+                view = getDialogTextPrompt();
                 prompt = (TextView)view.findViewById(R.id.prompt);
                 final EditText nickinput = (EditText)view.findViewById(R.id.textInput);
+                nickinput.setText("");
                 nickinput.setOnEditorActionListener(new OnEditorActionListener() {
                     public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                         if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {

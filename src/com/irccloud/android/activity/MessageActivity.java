@@ -1841,7 +1841,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	    	} else if(buffer.type.equals("console")) {
 	    		menu.findItem(R.id.menu_archive).setVisible(false);
 	    		menu.findItem(R.id.menu_archive).setEnabled(false);
-	    		if(server != null && server.status != null && (server.status.equalsIgnoreCase("waiting_to_retry")) || (server.status.contains("connected") && !server.status.startsWith("dis"))) {
+	    		if(server != null && server.status != null && (server.status.equalsIgnoreCase("waiting_to_retry") || (server.status.contains("connected") && !server.status.startsWith("dis")))) {
 	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
 	        		menu.findItem(R.id.menu_delete).setVisible(false);
 	        		menu.findItem(R.id.menu_delete).setEnabled(false);
@@ -2244,8 +2244,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     void editTopic() {
     	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		LayoutInflater inflater = getLayoutInflater();
-    	View view = inflater.inflate(R.layout.dialog_textprompt,null);
+    	View view = getDialogTextPrompt();
     	TextView prompt = (TextView)view.findViewById(R.id.prompt);
     	final EditText input = (EditText)view.findViewById(R.id.textInput);
     	input.setText(c.topic_text);
@@ -2626,9 +2625,10 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 			    	}
 	    			onUserDoubleClicked(selected_user.nick);
 	    		} else if(items[item].equals("Invite to a channel…")) {
-		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	view = getDialogTextPrompt();
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
+                    input.setText("");
 		        	prompt.setText("Invite " + selected_user.nick + " to a channel");
 		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
 		    		builder.setView(view);
@@ -2650,7 +2650,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 	    		} else if(items[item].equals("Ignore")) {
-		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	view = getDialogTextPrompt();
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
 		        	input.setText("*!"+selected_user.hostmask);
@@ -2679,9 +2679,10 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	    		} else if(items[item].equals("Deop")) {
                     conn.mode(buffer.cid, buffer.name, "-" + (server!=null?server.MODE_OP:"o") + " " + selected_user.nick);
 	    		} else if(items[item].equals("Kick…")) {
-		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	view = getDialogTextPrompt();
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
+                    input.setText("");
 		        	prompt.setText("Give a reason for kicking");
 		        	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
 		    		builder.setView(view);
@@ -2703,7 +2704,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 		    		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		    		dialog.show();
 	    		} else if(items[item].equals("Ban…")) {
-		        	view = inflater.inflate(R.layout.dialog_textprompt,null);
+		        	view = getDialogTextPrompt();
 		        	prompt = (TextView)view.findViewById(R.id.prompt);
 		        	input = (EditText)view.findViewById(R.id.textInput);
 		        	input.setText("*!"+selected_user.hostmask);

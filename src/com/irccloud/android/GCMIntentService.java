@@ -48,80 +48,82 @@ public class GCMIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Bundle extras = intent.getExtras();
-        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
-        String messageType = gcm.getMessageType(intent);
+        if(intent != null) {
+            Bundle extras = intent.getExtras();
+            GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
+            String messageType = gcm.getMessageType(intent);
 
-        if (!extras.isEmpty()) {
-            if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
-                //Log.d("IRCCloud", "Send error: " + extras.toString());
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
-                //Log.d("IRCCloud", "Deleted messages on server: " + extras.toString());
-            } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                if(!IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getBoolean("gcm_registered", false)) {
-                    String regId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", "");
-                    if(regId.length() > 0) {
-                        scheduleUnregisterTimer(100, regId);
-                    }
-                } else if(intent != null && intent.getExtras() != null) {
-                    //Log.d("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
-                    try {
-                        String type = intent.getStringExtra("type");
-                        if(type.equalsIgnoreCase("heartbeat_echo")) {
-                            NetworkConnection conn = NetworkConnection.getInstance();
-                            JsonParser parser = new JsonParser();
-                            JsonObject seenEids = parser.parse(intent.getStringExtra("seenEids")).getAsJsonObject();
-                            Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
-                            while(i.hasNext()) {
-                                Entry<String, JsonElement> entry = i.next();
-                                JsonObject eids = entry.getValue().getAsJsonObject();
-                                Iterator<Entry<String, JsonElement>> j = eids.entrySet().iterator();
-                                while(j.hasNext()) {
-                                    Entry<String, JsonElement> eidentry = j.next();
-                                    String bid = eidentry.getKey();
-                                    long eid = eidentry.getValue().getAsLong();
-                                    if(conn.ready && conn.getState() != NetworkConnection.STATE_CONNECTED)
-                                        BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
-                                    Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
-                                    Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
-                                }
-                            }
-                            Notifications.getInstance().showNotifications(null);
-                        } else {
-                            int cid = Integer.valueOf(intent.getStringExtra("cid"));
-                            int bid = Integer.valueOf(intent.getStringExtra("bid"));
-                            long eid = Long.valueOf(intent.getStringExtra("eid"));
-                            if(Notifications.getInstance().getNotification(eid) != null) {
-                                return;
-                            }
-                            String from = intent.getStringExtra("from_nick");
-                            String msg = intent.getStringExtra("msg");
-                            if(msg != null)
-                                msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(msg))).toString();
-                            String chan = intent.getStringExtra("chan");
-                            if(chan == null)
-                                chan = "";
-                            String buffer_type = intent.getStringExtra("buffer_type");
-                            String server_name = intent.getStringExtra("server_name");
-                            if(server_name == null || server_name.length() == 0)
-                                server_name = intent.getStringExtra("server_hostname");
-
-                            String network = Notifications.getInstance().getNetwork(cid);
-                            if(network == null)
-                                Notifications.getInstance().addNetwork(cid, server_name);
-
-                            Notifications.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type);
-
-                            if(from == null || from.length() == 0)
-                                Notifications.getInstance().showNotifications(server_name + ": " + msg);
-                            else if(buffer_type.equals("channel"))
-                                Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
-                            else
-                                Notifications.getInstance().showNotifications(from + ": " + msg);
+            if (extras != null && !extras.isEmpty()) {
+                if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
+                    //Log.d("IRCCloud", "Send error: " + extras.toString());
+                } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
+                    //Log.d("IRCCloud", "Deleted messages on server: " + extras.toString());
+                } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+                    if (!IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getBoolean("gcm_registered", false)) {
+                        String regId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", "");
+                        if (regId.length() > 0) {
+                            scheduleUnregisterTimer(100, regId);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.w("IRCCloud", "Unable to parse GCM message");
+                    } else {
+                        //Log.d("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
+                        try {
+                            String type = intent.getStringExtra("type");
+                            if (type.equalsIgnoreCase("heartbeat_echo")) {
+                                NetworkConnection conn = NetworkConnection.getInstance();
+                                JsonParser parser = new JsonParser();
+                                JsonObject seenEids = parser.parse(intent.getStringExtra("seenEids")).getAsJsonObject();
+                                Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
+                                while (i.hasNext()) {
+                                    Entry<String, JsonElement> entry = i.next();
+                                    JsonObject eids = entry.getValue().getAsJsonObject();
+                                    Iterator<Entry<String, JsonElement>> j = eids.entrySet().iterator();
+                                    while (j.hasNext()) {
+                                        Entry<String, JsonElement> eidentry = j.next();
+                                        String bid = eidentry.getKey();
+                                        long eid = eidentry.getValue().getAsLong();
+                                        if (conn.ready && conn.getState() != NetworkConnection.STATE_CONNECTED)
+                                            BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                                        Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
+                                        Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                                    }
+                                }
+                                Notifications.getInstance().showNotifications(null);
+                            } else {
+                                int cid = Integer.valueOf(intent.getStringExtra("cid"));
+                                int bid = Integer.valueOf(intent.getStringExtra("bid"));
+                                long eid = Long.valueOf(intent.getStringExtra("eid"));
+                                if (Notifications.getInstance().getNotification(eid) != null) {
+                                    return;
+                                }
+                                String from = intent.getStringExtra("from_nick");
+                                String msg = intent.getStringExtra("msg");
+                                if (msg != null)
+                                    msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(msg))).toString();
+                                String chan = intent.getStringExtra("chan");
+                                if (chan == null)
+                                    chan = "";
+                                String buffer_type = intent.getStringExtra("buffer_type");
+                                String server_name = intent.getStringExtra("server_name");
+                                if (server_name == null || server_name.length() == 0)
+                                    server_name = intent.getStringExtra("server_hostname");
+
+                                String network = Notifications.getInstance().getNetwork(cid);
+                                if (network == null)
+                                    Notifications.getInstance().addNetwork(cid, server_name);
+
+                                Notifications.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type);
+
+                                if (from == null || from.length() == 0)
+                                    Notifications.getInstance().showNotifications(server_name + ": " + msg);
+                                else if (buffer_type.equals("channel"))
+                                    Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
+                                else
+                                    Notifications.getInstance().showNotifications(from + ": " + msg);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.w("IRCCloud", "Unable to parse GCM message");
+                        }
                     }
                 }
             }
@@ -131,7 +133,7 @@ public class GCMIntentService extends IntentService {
 
 	public static void scheduleRegisterTimer(int delay) {
         final int retrydelay = (delay<500)?500:delay;
-		
+
 		new Timer().schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -182,8 +184,9 @@ public class GCMIntentService extends IntentService {
 					scheduleRegisterTimer(retrydelay * 2);
 				}
 			}
-			
+
 		}, delay);
+
 	}
 	
 	public static void scheduleUnregisterTimer(int delay, final String regId) {
