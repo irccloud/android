@@ -76,9 +76,9 @@
     <orderEntry type="library" exported="" name="dslv-0.6.3" level="project" />
     <orderEntry type="library" exported="" name="support-v4-19.0.1" level="project" />
     <orderEntry type="library" exported="" name="notificationcompat2-1.1.2" level="project" />
+    <orderEntry type="library" exported="" name="crashlytics-1.1.11" level="project" />
     <orderEntry type="library" exported="" name="dashclock-api-2.0.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-4.1.32" level="project" />
-    <orderEntry type="library" exported="" name="crashlytics-1.1.10" level="project" />
     <orderEntry type="module" module-name="android-websockets" exported="" />
   </component>
 </module>

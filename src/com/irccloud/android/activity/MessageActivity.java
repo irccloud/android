@@ -451,7 +451,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         sugs.add(channel.name);
                 }
 
-                if(sortedUsers == null) {
+                if(sortedUsers == null && buffer != null) {
                     sortedUsers = UsersDataSource.getInstance().getUsersForBuffer(buffer.bid);
                     Collections.sort(sortedUsers, new Comparator<UsersDataSource.User>() {
                         @Override
@@ -464,9 +464,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         }
                     });
                 }
-                for(UsersDataSource.User user : sortedUsers) {
-                    if(user.nick.toLowerCase().startsWith(text))
-                        sugs.add(user.nick);
+                if(sortedUsers != null) {
+                    for (UsersDataSource.User user : sortedUsers) {
+                        if (user.nick.toLowerCase().startsWith(text))
+                            sugs.add(user.nick);
+                    }
                 }
             }
             if(sugs.size() > 0) {
