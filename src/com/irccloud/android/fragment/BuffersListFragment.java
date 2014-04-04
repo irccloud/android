@@ -205,8 +205,10 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 e.highlights = highlights;
 
                 ServersDataSource.Server s = ServersDataSource.getInstance().getServer(e.cid);
-                e.status = s.status;
-                e.fail_info = s.fail_info;
+                if(s != null) {
+                    e.status = s.status;
+                    e.fail_info = s.fail_info;
+                }
 
                 if (b.type.equalsIgnoreCase("channel")) {
                     ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
