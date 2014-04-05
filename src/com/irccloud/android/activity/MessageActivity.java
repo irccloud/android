@@ -1672,7 +1672,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     while(j.hasNext()) {
                         Map.Entry<String, JsonElement> eidentry = j.next();
                         Integer bid = Integer.valueOf(eidentry.getKey());
-                        if(bid != buffer.bid) {
+                        if(buffer != null && bid != buffer.bid) {
                             shouldRefresh = true;
                         }
                     }
