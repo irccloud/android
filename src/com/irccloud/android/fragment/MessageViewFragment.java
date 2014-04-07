@@ -2189,7 +2189,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            insertEvent(adapter, event, false, false);
+                            if(adapter != null)
+                                insertEvent(adapter, event, false, false);
                         }
                     });
                 }
@@ -2201,7 +2202,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                adapter.clearPending();
+                                if(adapter != null)
+                                    adapter.clearPending();
                             }
                         });
                     } else if(event.reqid != -1) {
