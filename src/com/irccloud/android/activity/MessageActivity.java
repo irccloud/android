@@ -113,8 +113,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
 
-import net.hockeyapp.android.UpdateManager;
-
 public class MessageActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
     BuffersDataSource.Buffer buffer;
     ServersDataSource.Server server;
@@ -839,8 +837,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	@Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
-        if(BuildConfig.DEBUG && BuildConfig.HOCKEYAPP_KEY.length() > 0)
-            UpdateManager.register(this, BuildConfig.HOCKEYAPP_KEY);
     	conn = NetworkConnection.getInstance();
     	if(!conn.ready) {
         	super.onResume();

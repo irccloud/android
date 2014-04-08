@@ -32,9 +32,7 @@ dependencies {
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile project(':android-websockets')
-    compile files('libs/HockeySDK-3.0.1.jar')
     compile 'com.crashlytics.android:crashlytics:1.+'
-
 }
 
 def getRevision = { ->
@@ -86,11 +84,9 @@ android {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"" + props['HOCKEYAPP_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
@@ -108,11 +104,9 @@ android {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"" + props['HOCKEYAPP_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
@@ -134,11 +128,9 @@ android {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"" + props['HOCKEYAPP_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
@@ -158,11 +150,9 @@ android {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"" + props['HOCKEYAPP_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
-                buildConfigField "String", "HOCKEYAPP_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""

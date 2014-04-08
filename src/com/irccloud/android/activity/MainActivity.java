@@ -33,8 +33,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -61,9 +59,6 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
-
-import net.hockeyapp.android.CrashManager;
-import net.hockeyapp.android.UpdateManager;
 
 public class MainActivity extends FragmentActivity implements NetworkConnection.IRCEventHandler {
 	private View login = null;
@@ -182,8 +177,6 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     @Override
     public void onResume() {
     	super.onResume();
-        if(BuildConfig.DEBUG && BuildConfig.HOCKEYAPP_KEY.length() > 0)
-            UpdateManager.register(this, BuildConfig.HOCKEYAPP_KEY);
     	conn = NetworkConnection.getInstance();
     	if(conn.ready) {
             if(ServersDataSource.getInstance().count() > 0) {
