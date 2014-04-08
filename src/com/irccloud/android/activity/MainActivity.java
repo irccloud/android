@@ -228,15 +228,13 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	    		if(seconds < 1) {
 	    			connectingMsg.setText("Connecting");
 					errorMsg.setVisibility(View.GONE);
-	    		} else if(seconds > 10 && error != null) {
-	    			connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
-					errorMsg.setText(error);
-					errorMsg.setVisibility(View.VISIBLE);
 	    		} else {
-					connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
-					errorMsg.setVisibility(View.GONE);
-					error = null;
-	    		}
+                    connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
+                    if(error != null) {
+                        errorMsg.setText(error);
+                        errorMsg.setVisibility(View.VISIBLE);
+                    }
+                }
 	    		try {
 					if(countdownTimer != null)
 						countdownTimer.cancel();

@@ -94,6 +94,7 @@ android {
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
+            buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-image"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
@@ -101,6 +102,7 @@ android {
         }
         release {
             buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
             buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
                 def props = new Properties()
@@ -140,6 +142,7 @@ android {
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
+            buildConfigField "String", "SSL_FP", "\"\""
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-image"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
@@ -163,6 +166,7 @@ android {
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
+            buildConfigField "String", "SSL_FP", "\"\""
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"

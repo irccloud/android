@@ -33,6 +33,7 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -431,7 +432,26 @@ public class NetworkConnection {
 				if(BuildConfig.SSL_CN.length() > 0 && !chain[0].getSubjectDN().getName().startsWith(BuildConfig.SSL_CN)) {
 					throw new CertificateException("Incorrect CN in cert chain");
 				}
-			}
+
+                if(BuildConfig.SSL_FP.length() > 0) {
+                    try {
+                        MessageDigest md = MessageDigest.getInstance("SHA-1");
+                        byte[] sha1 = md.digest(chain[0].getEncoded());
+                        // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
+                        final char[] hexArray = "0123456789ABCDEF".toCharArray();
+                        char[] hexChars = new char[sha1.length * 2];
+                        for (int j = 0; j < sha1.length; j++) {
+                            int v = sha1[j] & 0xFF;
+                            hexChars[j * 2] = hexArray[v >>> 4];
+                            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+                        }
+                        if(!BuildConfig.SSL_FP.equals(new String(hexChars)))
+                            throw new CertificateException("Incorrect CN in cert chain");
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
