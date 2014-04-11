@@ -504,9 +504,15 @@ public class NetworkConnection {
 	
 	public JSONObject login(String email, String password) {
 		try {
-            String postdata = "email="+URLEncoder.encode(email, "UTF-8")+"&password="+URLEncoder.encode(password, "UTF-8");
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
-			return new JSONObject(response);
+            String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null);
+            JSONObject token = new JSONObject(tokenResponse);
+            if(token.has("token")) {
+                String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token");
+                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
+                return new JSONObject(response);
+            } else {
+                return null;
+            }
         } catch (UnknownHostException e) {
             e.printStackTrace();
             return null;
