@@ -40,7 +40,6 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -56,7 +55,7 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
@@ -1711,9 +1710,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	
 	private class StatusRefreshRunnable implements Runnable {
 		String status;
-		JsonObject fail_info;
+		JsonNode fail_info;
 		
-		public StatusRefreshRunnable(String status, JsonObject fail_info) {
+		public StatusRefreshRunnable(String status, JsonNode fail_info) {
 			this.status = status;
 			this.fail_info = fail_info;
 		}
@@ -1771,7 +1770,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         return r;
     }
 
-	private void update_status(String status, JsonObject fail_info) {
+	private void update_status(String status, JsonNode fail_info) {
 		if(statusRefreshRunnable != null) {
 			mHandler.removeCallbacks(statusRefreshRunnable);
 			statusRefreshRunnable = null;
@@ -1792,21 +1791,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("disconnected")) {
             statusView.setVisibility(View.VISIBLE);
-            if(fail_info.has("type") && fail_info.get("type").getAsString().length() > 0) {
+            if(fail_info.has("type") && fail_info.get("type").asText().length() > 0) {
                 String text = "Disconnected: ";
-                if(fail_info.get("type").getAsString().equals("connecting_restricted")) {
-                    text = reason_txt(fail_info.get("reason").getAsString());
-                    if(text.equals(fail_info.get("reason").getAsString()))
+                if(fail_info.get("type").asText().equals("connecting_restricted")) {
+                    text = reason_txt(fail_info.get("reason").asText());
+                    if(text.equals(fail_info.get("reason").asText()))
                         text = "You can’t connect to this server with a free account.";
-                } else if(fail_info.get("type").getAsString().equals("connection_blocked")) {
+                } else if(fail_info.get("type").asText().equals("connection_blocked")) {
                     text = "Disconnected - Connections to this server have been blocked";
                 } else {
-                    if(fail_info.has("type") && fail_info.get("type").getAsString().equals("killed"))
+                    if(fail_info.has("type") && fail_info.get("type").asText().equals("killed"))
                         text = "Disconnected - Killed: ";
-                    else if(fail_info.has("type") && fail_info.get("type").getAsString().equals("connecting_failed"))
+                    else if(fail_info.has("type") && fail_info.get("type").asText().equals("connecting_failed"))
                         text = "Disconnected: Failed to connect - ";
                     if(fail_info.has("reason"))
-                        text += reason_txt(fail_info.get("reason").getAsString());
+                        text += reason_txt(fail_info.get("reason").asText());
                 }
                 statusView.setText(text);
                 statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
@@ -1844,11 +1843,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	} else if(status.equals("waiting_to_retry")) {
     		try {
 	    		statusView.setVisibility(View.VISIBLE);
-	    		long seconds = (fail_info.get("timestamp").getAsLong() + fail_info.get("retry_timeout").getAsLong() - conn.clockOffset) - System.currentTimeMillis()/1000;
+	    		long seconds = (fail_info.get("timestamp").asLong() + fail_info.get("retry_timeout").asLong() - conn.clockOffset) - System.currentTimeMillis()/1000;
 	    		if(seconds > 0) {
 		    		String text = "Disconnected";
-		    		if(fail_info.has("reason") && fail_info.get("reason").getAsString().length() > 0) {
-                        String reason = fail_info.get("reason").getAsString();
+		    		if(fail_info.has("reason") && fail_info.get("reason").asText().length() > 0) {
+                        String reason = fail_info.get("reason").asText();
                         reason = reason_txt(reason);
 		    			text += ": " + reason + ". ";
                     } else
@@ -1878,7 +1877,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         else
                             text += seconds + " seconds.";
                     }
-                    int attempts = fail_info.get("attempts").getAsInt();
+                    int attempts = fail_info.get("attempts").asInt();
                     if(attempts > 1)
                         text += " (" + ordinal(attempts) + " attempt)";
 		    		statusView.setText(text);

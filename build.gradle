@@ -11,7 +11,7 @@ buildscript {
     }
 }
 apply plugin: 'android'
-//apply plugin: 'crashlytics'
+apply plugin: 'crashlytics'
 
 tasks.withType(Compile) {
     options.encoding = "UTF-8"
@@ -23,7 +23,6 @@ repositories {
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.jakewharton:notificationcompat2:1.1.2'
     compile 'com.android.support:support-v4:19.0.+'
     compile 'com.android.support:appcompat-v7:19.0.+'
@@ -33,6 +32,7 @@ dependencies {
     compile 'com.vandalsoftware.android:dslv:+'
     compile project(':android-websockets')
     compile 'com.crashlytics.android:crashlytics:1.+'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.3.2'
 }
 
 def getRevision = { ->
@@ -185,6 +185,11 @@ android {
             assets.srcDirs = ['tests/assets']
             resources.srcDirs = ['tests/src']
         }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
     }
 }
 

@@ -26,12 +26,9 @@ import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -53,8 +50,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
@@ -112,7 +108,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 		int timeout;
 		String name;
 		String status;
-        JsonObject fail_info;
+        JsonNode fail_info;
         int ssl;
         int count;
         String contentDescription;
@@ -352,7 +348,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 			return data.size() - 1;
 		}
 		
-		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count, String contentDescription, JsonObject fail_info) {
+		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count, String contentDescription, JsonNode fail_info) {
 			BufferListEntry e = new BufferListEntry();
 			e.cid = cid;
 			e.bid = bid;
@@ -1025,14 +1021,14 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 }
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
-                JsonObject seenEids = object.getJsonObject("seenEids");
-                Iterator<Map.Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
-                while(i.hasNext()) {
-                    Map.Entry<String, JsonElement> entry = i.next();
-                    JsonObject eids = entry.getValue().getAsJsonObject();
-                    Iterator<Map.Entry<String, JsonElement>> j = eids.entrySet().iterator();
+                JsonNode seenEids = object.getJsonNode("seenEids");
+                Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
+                while(iterator.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = iterator.next();
+                    JsonNode eids = entry.getValue();
+                    Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
                     while(j.hasNext()) {
-                        Map.Entry<String, JsonElement> eidentry = j.next();
+                        Map.Entry<String, JsonNode> eidentry = j.next();
                         Integer bid = Integer.valueOf(eidentry.getKey());
                         b = BuffersDataSource.getInstance().getBuffer(bid);
                         if(b != null)

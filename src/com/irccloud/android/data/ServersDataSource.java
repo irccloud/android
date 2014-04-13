@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.Notifications;
 
 public class ServersDataSource {
@@ -41,16 +41,16 @@ public class ServersDataSource {
         public String server_pass;
         public String nickserv_pass;
         public String join_commands;
-        public JsonObject fail_info;
+        public ObjectNode fail_info;
         public String away;
         public String usermask;
         public String mode;
-        public JsonObject isupport;
-        public JsonArray raw_ignores;
+        public ObjectNode isupport;
+        public JsonNode raw_ignores;
 		public ArrayList<String> ignores;
         public int order;
         public String CHANTYPES;
-        public JsonObject PREFIX;
+        public ObjectNode PREFIX;
         public String MODE_OWNER = "q";
         public String MODE_ADMIN = "a";
         public String MODE_OP = "o";
@@ -83,7 +83,7 @@ public class ServersDataSource {
 		servers.clear();
 	}
 	
-	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, JsonObject fail_info, String away, JsonArray ignores, int order) {
+	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order) {
 		Server s = getServer(cid);
 		if(s == null) {
 			s = new Server();
@@ -106,10 +106,11 @@ public class ServersDataSource {
 		s.usermask = "";
 		s.mode = "";
         s.order = order;
-        s.isupport = new JsonObject();
+        s.isupport = new ObjectMapper().createObjectNode();
         if(s.name == null || s.name.length() == 0)
             s.name = s.hostname;
-        updateIgnores(cid, ignores);
+        if(ignores != null)
+            updateIgnores(cid, ignores);
 		return s;
 	}
 	
@@ -131,7 +132,7 @@ public class ServersDataSource {
 		}
 	}
 
-	public void updateStatus(int cid, String status, JsonObject fail_info) {
+	public void updateStatus(int cid, String status, ObjectNode fail_info) {
 		Server s = getServer(cid);
 		if(s != null) {
 			s.status = status;
@@ -169,36 +170,34 @@ public class ServersDataSource {
         }
     }
 
-	public void updateIsupport(int cid, JsonObject params) {
+	public void updateIsupport(int cid, ObjectNode params) {
 		Server s = getServer(cid);
 		if(s != null) {
-            for(Map.Entry<String, JsonElement> e : params.entrySet()) {
-                s.isupport.add(e.getKey(), e.getValue());
-            }
+            s.isupport.putAll(params);
             if(s.isupport.has("PREFIX")) {
-                s.PREFIX = s.isupport.getAsJsonObject("PREFIX");
+                s.PREFIX = (ObjectNode)s.isupport.get("PREFIX");
             } else {
-                s.PREFIX = new JsonObject();
-                s.PREFIX.addProperty(s.MODE_OWNER, "~");
-                s.PREFIX.addProperty(s.MODE_ADMIN, "&");
-                s.PREFIX.addProperty(s.MODE_OP, "@");
-                s.PREFIX.addProperty(s.MODE_HALFOP, "%");
-                s.PREFIX.addProperty(s.MODE_VOICED, "+");
+                s.PREFIX = new ObjectMapper().createObjectNode();
+                s.PREFIX.put(s.MODE_OWNER, "~");
+                s.PREFIX.put(s.MODE_ADMIN, "&");
+                s.PREFIX.put(s.MODE_OP, "@");
+                s.PREFIX.put(s.MODE_HALFOP, "%");
+                s.PREFIX.put(s.MODE_VOICED, "+");
             }
             if(s.isupport.has("CHANTYPES"))
-                s.CHANTYPES = s.isupport.get("CHANTYPES").getAsString();
+                s.CHANTYPES = s.isupport.get("CHANTYPES").asText();
             else
                 s.CHANTYPES = null;
 		}
 	}
 
-	public void updateIgnores(int cid, JsonArray ignores) {
+	public void updateIgnores(int cid, JsonNode ignores) {
 		Server s = getServer(cid);
 		if(s != null) {
             s.raw_ignores = ignores;
             s.ignores = new ArrayList<String>();
             for(int i = 0; i < ignores.size(); i++) {
-                String mask = ignores.get(i).getAsString().toLowerCase()
+                String mask = ignores.get(i).asText().toLowerCase()
                         .replace("\\", "\\\\")
                         .replace("(", "\\(")
                         .replace(")", "\\)")

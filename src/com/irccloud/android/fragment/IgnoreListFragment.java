@@ -22,8 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -37,14 +35,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
 public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
-	JsonArray ignores;
+	JsonNode ignores;
 	int cid;
 	IgnoresAdapter adapter;
 	NetworkConnection conn;
@@ -88,7 +86,7 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
 			public void onClick(View v) {
 				Integer position = (Integer)v.getTag();
 				try {
-					conn.unignore(cid, ignores.get(position).getAsString());
+					conn.unignore(cid, ignores.get(position).asText());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -119,7 +117,7 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
 			}
 			
 			try {
-				holder.label.setText(ignores.get(position).toString());
+				holder.label.setText(ignores.get(position).asText());
 				holder.removeBtn.setOnClickListener(removeClickListener);
 				holder.removeBtn.setTag(position);
 			} catch (Exception e) {

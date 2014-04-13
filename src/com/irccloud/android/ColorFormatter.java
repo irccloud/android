@@ -35,8 +35,6 @@ import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
 import android.util.Patterns;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.irccloud.android.data.ServersDataSource;
 
 public class ColorFormatter {

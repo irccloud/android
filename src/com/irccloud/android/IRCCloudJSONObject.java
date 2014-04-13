@@ -18,113 +18,115 @@ package com.irccloud.android;
 
 import org.json.JSONObject;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 public class IRCCloudJSONObject {
-	JsonObject o;
+	JsonNode o;
 	int cid = -1;
 	int bid = -1;
 	long eid = -1;
 	String type = null;
-	
-	public IRCCloudJSONObject() {
-		o = new JsonObject();
-	}
-	
+
+    public IRCCloudJSONObject() {
+        o = new ObjectMapper().createObjectNode();
+    }
+
+    public IRCCloudJSONObject(JsonNode object) {
+        o = object;
+    }
+
 	public IRCCloudJSONObject(String message) {
-		JsonParser parser = new JsonParser();
-		o = parser.parse(message).getAsJsonObject();
-	}
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            o = mapper.readValue(message, JsonNode.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 	
-	public IRCCloudJSONObject(JSONObject object) {
-		JsonParser parser = new JsonParser();
-		o = parser.parse(object.toString()).getAsJsonObject();
-	}
-	
-	public IRCCloudJSONObject(JsonObject object) {
-		o = object;
-	}
+    public IRCCloudJSONObject(JSONObject object) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            o = mapper.readValue(object.toString(), JsonNode.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 	
 	public int cid() {
 		if(cid == -1 && o.has("cid"))
-			cid = o.get("cid").getAsInt();
+			cid = o.get("cid").asInt();
 		return cid;
 	}
 	
 	public int bid() {
 		if(bid == -1 && o.has("bid"))
-			bid = o.get("bid").getAsInt();
+			bid = o.get("bid").asInt();
 		return bid;
 	}
 
 	public long eid() {
 		if(eid == -1 && o.has("eid"))
-			eid = o.get("eid").getAsLong();
+			eid = o.get("eid").asLong();
 		return eid;
 	}
 	
 	public String type() {
 		if(type == null) {
 			if(o.has("type"))
-				type = o.get("type").getAsString();
+				type = o.get("type").asText();
 			else
 				type = "undefined";
 		}
 		return type;
 	}
 
-	public boolean highlight() {
-		boolean highlight = false;
-		if(o.has("highlight"))
-			highlight = o.get("highlight").getAsBoolean();
-		return highlight;
-	}
-	
 	public boolean has(String name) {
-		return o.has(name) && !o.get(name).isJsonNull();
+		return o.has(name) && !o.get(name).isNull();
 	}
 	
 	public boolean getBoolean(String name) {
-		if(!o.has(name) || o.get(name).isJsonNull())
-			return false;
-		return o.get(name).getAsBoolean();
+		return o.path(name).asBoolean(false);
 	}
 	
 	public int getInt(String name) {
-        if(!o.has(name) || o.get(name).isJsonNull())
-            return -1;
-		return o.get(name).getAsInt();
+		return o.path(name).asInt(-1);
 	}
 	
 	public long getLong(String name) {
-        if(!o.has(name) || o.get(name).isJsonNull())
-            return -1;
-		return o.get(name).getAsLong();
+		return o.path(name).asLong(-1);
 	}
 	
 	public String getString(String name) {
-		if(!o.has(name) || o.get(name).isJsonNull())
-			return null;
-		return o.get(name).getAsString();
+		return o.path(name).asText();
 	}
 	
-	public JsonObject getJsonObject(String name) {
-		if(!o.has(name) || o.get(name).isJsonNull())
-			return null;
-		return o.getAsJsonObject(name);
+	public JsonNode getJsonNode(String name) {
+		return o.path(name);
 	}
-	
-	public JsonArray getJsonArray(String name) {
-		return o.getAsJsonArray(name);
-	}
-	
-	public JsonObject getObject() {
+
+    public ObjectNode getJsonObject(String name) {
+        return (ObjectNode)getJsonNode(name);
+    }
+
+    public JsonNode getObject() {
 		return o;
 	}
 	
 	public String toString() {
-		return o.toString();
-	}
+		ObjectMapper mapper = new ObjectMapper();
+        StringWriter writer = new StringWriter();
+        try {
+            mapper.writeValue(writer, o);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writer.toString();
+    }
 }

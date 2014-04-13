@@ -177,7 +177,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                 try {
                     message = o.getString("invalid_nick") + " is not a valid nickname, try again";
                     if(server.isupport != null && server.isupport.has("NICKLEN"))
-                        message += " (" + server.isupport.get("NICKLEN").getAsString() + " chars)";
+                        message += " (" + server.isupport.get("NICKLEN").asText() + " chars)";
                     message += ".";
                     prompt.setText(message);
                 } catch (Exception e) {

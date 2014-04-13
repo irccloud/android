@@ -39,10 +39,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.crashlytics.android.Crashlytics;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
@@ -1659,14 +1658,14 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 			case NetworkConnection.EVENT_HEARTBEATECHO:
                 boolean shouldRefresh = false;
                 event = (IRCCloudJSONObject)obj;
-                JsonObject seenEids = event.getJsonObject("seenEids");
-                Iterator<Map.Entry<String, JsonElement>> iterator = seenEids.entrySet().iterator();
+                JsonNode seenEids = event.getJsonNode("seenEids");
+                Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
                 while(iterator.hasNext()) {
-                    Map.Entry<String, JsonElement> entry = iterator.next();
-                    JsonObject eids = entry.getValue().getAsJsonObject();
-                    Iterator<Map.Entry<String, JsonElement>> j = eids.entrySet().iterator();
+                    Map.Entry<String, JsonNode> entry = iterator.next();
+                    JsonNode eids = entry.getValue();
+                    Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
                     while(j.hasNext()) {
-                        Map.Entry<String, JsonElement> eidentry = j.next();
+                        Map.Entry<String, JsonNode> eidentry = j.next();
                         Integer bid = Integer.valueOf(eidentry.getKey());
                         if(buffer != null && bid != buffer.bid) {
                             shouldRefresh = true;

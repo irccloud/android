@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Map.Entry;
@@ -34,10 +35,10 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.irccloud.android.data.BuffersDataSource;
 
 public class GCMIntentService extends IntentService {
@@ -70,23 +71,25 @@ public class GCMIntentService extends IntentService {
                             String type = intent.getStringExtra("type");
                             if (type.equalsIgnoreCase("heartbeat_echo")) {
                                 NetworkConnection conn = NetworkConnection.getInstance();
-                                JsonParser parser = new JsonParser();
-                                JsonObject seenEids = parser.parse(intent.getStringExtra("seenEids")).getAsJsonObject();
-                                Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
-                                while (i.hasNext()) {
-                                    Entry<String, JsonElement> entry = i.next();
-                                    JsonObject eids = entry.getValue().getAsJsonObject();
-                                    Iterator<Entry<String, JsonElement>> j = eids.entrySet().iterator();
-                                    while (j.hasNext()) {
-                                        Entry<String, JsonElement> eidentry = j.next();
+                                ObjectMapper mapper = new ObjectMapper();
+                                JsonParser parser = mapper.getFactory().createParser(intent.getStringExtra("seenEids"));
+                                JsonNode seenEids = mapper.readTree(parser);
+                                Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
+                                while(iterator.hasNext()) {
+                                    Map.Entry<String, JsonNode> entry = iterator.next();
+                                    JsonNode eids = entry.getValue();
+                                    Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
+                                    while(j.hasNext()) {
+                                        Map.Entry<String, JsonNode> eidentry = j.next();
                                         String bid = eidentry.getKey();
-                                        long eid = eidentry.getValue().getAsLong();
+                                        long eid = eidentry.getValue().asLong();
                                         if (conn.ready && conn.getState() != NetworkConnection.STATE_CONNECTED)
                                             BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
                                         Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
                                         Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
                                     }
                                 }
+                                parser.close();
                                 Notifications.getInstance().showNotifications(null);
                             } else {
                                 int cid = Integer.valueOf(intent.getStringExtra("cid"));

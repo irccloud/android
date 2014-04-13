@@ -39,7 +39,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -48,7 +48,7 @@ import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
 public class BanListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
-	JsonArray bans;
+	JsonNode bans;
 	int cid;
 	int bid;
 	IRCCloudJSONObject event;
@@ -96,7 +96,7 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			public void onClick(View v) {
 				Integer position = (Integer)v.getTag();
 				try {
-					conn.mode(cid, event.getString("channel"), "-b " + bans.get(position).getAsJsonObject().get("mask").getAsString());
+					conn.mode(cid, event.getString("channel"), "-b " + bans.get(position).get("mask").asText());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -128,9 +128,9 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			}
 			
 			try {
-				holder.mask.setText(Html.fromHtml(bans.get(position).getAsJsonObject().get("mask").getAsString()));
-				holder.setBy.setText("Set " + DateUtils.getRelativeTimeSpanString(bans.get(position).getAsJsonObject().get("time").getAsLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
-						+ " by " + bans.get(position).getAsJsonObject().get("usermask").getAsString());
+				holder.mask.setText(Html.fromHtml(bans.get(position).get("mask").asText()));
+				holder.setBy.setText("Set " + DateUtils.getRelativeTimeSpanString(bans.get(position).get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
+						+ " by " + bans.get(position).get("usermask").asText());
 				if(canUnBan) {
 					holder.removeBtn.setVisibility(View.VISIBLE);
 					holder.removeBtn.setOnClickListener(removeClickListener);
@@ -166,7 +166,7 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
         	cid = savedInstanceState.getInt("cid");
         	bid = savedInstanceState.getInt("bid");
         	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-        	bans = event.getJsonArray("bans");
+        	bans = event.getJsonNode("bans");
         	adapter = new BansAdapter(this);
         	listView.setAdapter(adapter);
         }
@@ -245,7 +245,7 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
     	cid = args.getInt("cid", 0);
     	bid = args.getInt("bid", 0);
     	event = new IRCCloudJSONObject(args.getString("event"));
-    	bans = event.getJsonArray("bans");
+    	bans = event.getJsonNode("bans");
     	if(getActivity() != null && cid > 0 && listView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

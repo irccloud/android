@@ -26,8 +26,6 @@ import org.json.JSONException;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,8 +36,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.JsonObject;
-import com.irccloud.android.AsyncTaskEx;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.NetworkConnection;
@@ -214,20 +212,19 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 		} catch (JSONException e) {
 		}
 
-        JsonObject PREFIX = null;
+        ObjectNode PREFIX = null;
         ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
         if(s != null)
             PREFIX = s.PREFIX;
 
         if(PREFIX == null) {
-            PREFIX = new JsonObject();
-            PREFIX.addProperty(s!=null?s.MODE_OWNER:"q", "~");
-            PREFIX.addProperty(s!=null?s.MODE_ADMIN:"a", "&");
-            PREFIX.addProperty(s!=null?s.MODE_OP:"o", "@");
-            PREFIX.addProperty(s!=null?s.MODE_HALFOP:"h", "%");
-            PREFIX.addProperty(s!=null?s.MODE_VOICED:"v", "+");
+            PREFIX = new ObjectMapper().createObjectNode();
+            PREFIX.put(s!=null?s.MODE_OWNER:"q", "~");
+            PREFIX.put(s!=null?s.MODE_ADMIN:"a", "&");
+            PREFIX.put(s!=null?s.MODE_OP:"o", "@");
+            PREFIX.put(s!=null?s.MODE_HALFOP:"h", "%");
+            PREFIX.put(s!=null?s.MODE_VOICED:"v", "+");
         }
-
 
         if(adapter == null) {
 			adapter = new UserListAdapter(UsersListFragment.this);
@@ -253,7 +250,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 		if(owners.size() > 0) {
             if(showSymbol) {
                 if(PREFIX.has(s != null ? s.MODE_OWNER : "q"))
-                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s!=null?s.MODE_OWNER:"q").getAsString() + " ", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s!=null?s.MODE_OWNER:"q").asText() + " ", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
                 else
                     addUsersFromList(entries, owners, "OWNER", "", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
             } else {
@@ -264,7 +261,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 		if(admins.size() > 0) {
             if(showSymbol) {
                 if(PREFIX.has(s!=null?s.MODE_ADMIN : "a"))
-                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s!=null?s.MODE_ADMIN:"a").getAsString() + " ", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s!=null?s.MODE_ADMIN:"a").asText() + " ", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
                 else
                     addUsersFromList(entries, admins, "ADMINS", "", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
             } else {
@@ -275,7 +272,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 		if(ops.size() > 0) {
             if(showSymbol) {
                 if(PREFIX.has(s!=null?s.MODE_OP:"o"))
-                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s!=null?s.MODE_OP:"o").getAsString() + " ", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s!=null?s.MODE_OP:"o").asText() + " ", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
                 else
                     addUsersFromList(entries, ops, "OPS", "", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
             } else {
@@ -286,7 +283,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 		if(halfops.size() > 0) {
             if(showSymbol) {
                 if(PREFIX.has(s!=null?s.MODE_HALFOP:"h"))
-                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s!=null?s.MODE_HALFOP:"h").getAsString() + " ", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s!=null?s.MODE_HALFOP:"h").asText() + " ", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
                 else
                     addUsersFromList(entries, halfops, "HALF OPS", "", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
             } else {
@@ -297,7 +294,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 		if(voiced.size() > 0) {
             if(showSymbol) {
                 if(PREFIX.has(s!=null?s.MODE_VOICED:"v"))
-                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s!=null?s.MODE_VOICED:"v").getAsString() + " ", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s!=null?s.MODE_VOICED:"v").asText() + " ", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
                 else
                     addUsersFromList(entries, voiced, "VOICED", "", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
             } else {

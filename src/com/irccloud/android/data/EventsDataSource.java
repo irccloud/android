@@ -25,8 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.R;
@@ -57,7 +56,7 @@ public class EventsDataSource {
         public boolean to_buffer;
         public int color;
         public int bg_color;
-        public JsonObject ops;
+        public JsonNode ops;
         public long group_eid;
         public int row_type;
         public String group_msg;
@@ -402,35 +401,35 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 boolean unknown = true;
-                JsonObject ops = event.getJsonObject("ops");
+                JsonNode ops = event.getJsonObject("ops");
                 if(ops != null) {
-                    JsonArray add = ops.getAsJsonArray("add");
+                    JsonNode add = ops.get("add");
                     if(add != null && add.size() > 0) {
-                        JsonObject op = add.get(0).getAsJsonObject();
-                        if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
+                        JsonNode op = add.get(0);
+                        if(op.get("mode").asText().equalsIgnoreCase("b")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban set for <b>" + op.get("param").getAsString() + "</b> (+b)";
+                            e.msg = "Channel ban set for <b>" + op.get("param").asText() + "</b> (+b)";
                             unknown = false;
-                        } else if(op.get("mode").getAsString().equalsIgnoreCase("e")) {
+                        } else if(op.get("mode").asText().equalsIgnoreCase("e")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban exception set for <b>" + op.get("param").getAsString() + "</b> (+e)";
+                            e.msg = "Channel ban exception set for <b>" + op.get("param").asText() + "</b> (+e)";
                             unknown = false;
                         }
                     }
-                    JsonArray remove = ops.getAsJsonArray("remove");
+                    JsonNode remove = ops.get("remove");
                     if(remove != null && remove.size() > 0) {
-                        JsonObject op = remove.get(0).getAsJsonObject();
-                        if(op.get("mode").getAsString().equalsIgnoreCase("b")) {
+                        JsonNode op = remove.get(0);
+                        if(op.get("mode").asText().equalsIgnoreCase("b")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban removed for <b>" + op.get("param").getAsString() + "</b> (-b)";
+                            e.msg = "Channel ban removed for <b>" + op.get("param").asText() + "</b> (-b)";
                             unknown = false;
-                        } else if(op.get("mode").getAsString().equalsIgnoreCase("e")) {
+                        } else if(op.get("mode").asText().equalsIgnoreCase("e")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban exception removed for <b>" + op.get("param").getAsString() + "</b> (-e)";
+                            e.msg = "Channel ban exception removed for <b>" + op.get("param").asText() + "</b> (-e)";
                             unknown = false;
                         }
                     }
@@ -448,14 +447,14 @@ public class EventsDataSource {
         put("motd_response", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                JsonArray lines = event.getJsonArray("lines");
+                JsonNode lines = event.getJsonNode("lines");
                 e.from = "";
                 if(lines != null) {
                     StringBuilder builder = new StringBuilder("<pre>");
                     if(event.has("start"))
                         builder.append(event.getString("start")).append("<br/>");
                     for(int i = 0; i < lines.size(); i++) {
-                        builder.append(TextUtils.htmlEncode(lines.get(i).getAsString()).replace("  ", " &nbsp;")).append("<br/>");
+                        builder.append(TextUtils.htmlEncode(lines.get(i).asText()).replace("  ", " &nbsp;")).append("<br/>");
                     }
                     builder.append("</pre>");
                     e.msg = builder.toString();
@@ -672,11 +671,13 @@ public class EventsDataSource {
                     e.msg = "<b>CAP</b> Acknowledged: ";
                 else if(e.type.equals("cap_raw"))
                     e.msg = "<b>CAP</b> " + event.getString("line");
-                JsonArray caps = event.getJsonArray("caps");
-                for(int i = 0; i < caps.size(); i++) {
-                    if(i > 0)
-                        e.msg += " | ";
-                    e.msg += caps.get(i).getAsString();
+                JsonNode caps = event.getJsonNode("caps");
+                if(caps != null) {
+                    for (int i = 0; i < caps.size(); i++) {
+                        if (i > 0)
+                            e.msg += " | ";
+                        e.msg += caps.get(i).asText();
+                    }
                 }
                 e.msg = "<pre>" + e.msg + "</pre>";
             }
@@ -836,7 +837,7 @@ public class EventsDataSource {
 			e.self = event.getBoolean("self");
 			e.to_chan = event.getBoolean("to_chan");
             e.to_buffer = event.getBoolean("to_buffer");
-			e.ops = event.getJsonObject("ops");
+			e.ops = event.getJsonNode("ops");
 			e.color = R.color.row_message_label;
 	    	e.bg_color = R.color.message_bg;
 	    	e.row_type = 0;

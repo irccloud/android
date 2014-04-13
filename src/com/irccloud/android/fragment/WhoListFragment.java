@@ -22,8 +22,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
@@ -34,14 +32,14 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
 public class WhoListFragment extends DialogFragment {
-	JsonArray users;
+	JsonNode users;
 	UsersAdapter adapter;
 	NetworkConnection conn;
 	ListView listView;
@@ -107,10 +105,10 @@ public class WhoListFragment extends DialogFragment {
 			}
 			
 			try {
-				holder.nick.setText(users.get(position).getAsJsonObject().get("nick").getAsString());
-				holder.name.setText(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).getAsJsonObject().get("realname").getAsString())) + ")"));
-				holder.server.setText("Connected via " + users.get(position).getAsJsonObject().get("ircserver").getAsString());
-				holder.mask.setText(users.get(position).getAsJsonObject().get("usermask").getAsString());
+				holder.nick.setText(users.get(position).get("nick").asText());
+				holder.name.setText(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).get("realname").asText())) + ")"));
+				holder.server.setText("Connected via " + users.get(position).get("ircserver").asText());
+				holder.mask.setText(users.get(position).get("usermask").asText());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -134,7 +132,7 @@ public class WhoListFragment extends DialogFragment {
     	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("event")) {
         	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-        	users = event.getJsonArray("users");
+        	users = event.getJsonNode("users");
         	adapter = new UsersAdapter(this);
         	listView.setAdapter(adapter);
         }
@@ -159,7 +157,7 @@ public class WhoListFragment extends DialogFragment {
     @Override
     public void setArguments(Bundle args) {
     	event = new IRCCloudJSONObject(args.getString("event"));
-    	users = event.getJsonArray("users");
+    	users = event.getJsonNode("users");
     	if(getActivity() != null && listView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
@@ -73,21 +74,18 @@ import android.net.TrafficStats;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.WindowManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
@@ -127,6 +125,8 @@ public class NetworkConnection {
     private boolean backlog = false;
     int currentBid = -1;
     long firstEid = -1;
+
+    private ObjectMapper mapper = new ObjectMapper();
 
 	public static final int BACKLOG_BUFFER_MAX = 100;
 	
@@ -673,7 +673,7 @@ public class NetworkConnection {
 		    	if(client != null && client.getListener() == this && message.length() > 0) {
 					try {
 						synchronized(parserLock) {
-							parse_object(new IRCCloudJSONObject(message));
+                            parse_object(new IRCCloudJSONObject(mapper.readValue(message, JsonNode.class)));
 						}
 					} catch (Exception e) {
                         Log.e(TAG, "Unable to parse: " + message);
@@ -1275,7 +1275,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
-                s.updateIgnores(object.cid(), object.getJsonArray("masks"));
+                s.updateIgnores(object.cid(), object.getJsonNode("masks"));
                 if(!backlog)
                     notifyHandlers(EVENT_SETIGNORES, object);
             }
@@ -1285,16 +1285,15 @@ public class NetworkConnection {
         put("heartbeat_echo", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                JsonObject seenEids = object.getJsonObject("seenEids");
-                Iterator<Entry<String, JsonElement>> i = seenEids.entrySet().iterator();
-                while(i.hasNext()) {
-                    Entry<String, JsonElement> entry = i.next();
-                    JsonObject eids = entry.getValue().getAsJsonObject();
-                    Iterator<Entry<String, JsonElement>> j = eids.entrySet().iterator();
+                Iterator<Entry<String, JsonNode>> iterator = object.getJsonNode("seeneids").fields();
+                while(iterator.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = iterator.next();
+                    JsonNode eids = entry.getValue();
+                    Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
                     while(j.hasNext()) {
-                        Entry<String, JsonElement> eidentry = j.next();
+                        Map.Entry<String, JsonNode> eidentry = j.next();
                         String bid = eidentry.getKey();
-                        long eid = eidentry.getValue().getAsLong();
+                        long eid = eidentry.getValue().asLong();
                         BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
                         Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
                         Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
@@ -1415,7 +1414,7 @@ public class NetworkConnection {
                 ServersDataSource.Server server = s.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-                        object.getJsonObject("fail_info"), object.getString("away"), object.getJsonArray("ignores"), (object.has("order")&&!object.getString("order").equals("undefined"))?object.getInt("order"):0);
+                        object.getJsonObject("fail_info"), object.getString("away"), object.getJsonNode("ignores"), (object.has("order")&&!object.getString("order").equals("undefined"))?object.getInt("order"):0);
                 Notifications.getInstance().deleteNetwork(object.cid());
                 if(object.getString("name") != null && object.getString("name").length() > 0)
                     Notifications.getInstance().addNetwork(object.cid(), object.getString("name"));
@@ -1475,9 +1474,9 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
-                JsonArray order = object.getJsonArray("order");
+                JsonNode order = object.getJsonNode("order");
                 for(int i = 0; i < order.size(); i++) {
-                    ServersDataSource.Server server = s.getServer(order.get(i).getAsInt());
+                    ServersDataSource.Server server = s.getServer(order.get(i).asInt());
                     server.order = i + 1;
                 }
                 notifyHandlers(EVENT_REORDERCONNECTIONS, object);
@@ -1693,17 +1692,17 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ChannelsDataSource c = ChannelsDataSource.getInstance();
                 ChannelsDataSource.Channel channel = c.createChannel(object.cid(), object.bid(), object.getString("chan"),
-                        object.getJsonObject("topic").get("text").isJsonNull()?"":object.getJsonObject("topic").get("text").getAsString(),
-                        object.getJsonObject("topic").get("time").getAsLong(),
-                        object.getJsonObject("topic").get("nick").getAsString(), object.getString("channel_type"),
+                        object.getJsonObject("topic").get("text").isNull()?"":object.getJsonObject("topic").get("text").asText(),
+                        object.getJsonObject("topic").get("time").asLong(),
+                        object.getJsonObject("topic").get("nick").asText(), object.getString("channel_type"),
                         object.getLong("timestamp"));
                 c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
                 UsersDataSource u = UsersDataSource.getInstance();
                 u.deleteUsersForBuffer(object.bid());
-                JsonArray users = object.getJsonArray("members");
+                JsonNode users = object.getJsonNode("members");
                 for(int i = 0; i < users.size(); i++) {
-                    JsonObject user = users.get(i).getAsJsonObject();
-                    u.createUser(object.cid(), object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString(), user.get("mode").getAsString(), user.get("away").getAsBoolean()?1:0, false);
+                    JsonNode user = users.get(i);
+                    u.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("away").asBoolean()?1:0, false);
                 }
                 if(!backlog)
                     notifyHandlers(EVENT_CHANNELINIT, channel);
@@ -1854,12 +1853,14 @@ public class NetworkConnection {
         put("member_updates", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                JsonObject updates = object.getJsonObject("updates");
-                for(Entry<String, JsonElement> entry : updates.entrySet()) {
-                    JsonObject user = entry.getValue().getAsJsonObject();
+                JsonNode updates = object.getJsonObject("updates");
+                Iterator<Map.Entry<String, JsonNode>> i = updates.fields();
+                while(i.hasNext()) {
+                    Map.Entry<String, JsonNode> e = i.next();
+                    JsonNode user = e.getValue();
                     UsersDataSource u = UsersDataSource.getInstance();
-                    u.updateAway(object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
-                    u.updateHostmask(object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
+                    u.updateAway(object.bid(), user.get("nick").asText(), user.get("away").asBoolean()?1:0);
+                    u.updateHostmask(object.bid(), user.get("nick").asText(), user.get("usermask").asText());
                 }
                 if(!backlog)
                     notifyHandlers(EVENT_MEMBERUPDATES, null);
@@ -1947,11 +1948,11 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if(!backlog) {
                     UsersDataSource u = UsersDataSource.getInstance();
-                    JsonArray users = object.getJsonArray("users");
+                    JsonNode users = object.getJsonNode("users");
                     for(int i = 0; i < users.size(); i++) {
-                        JsonObject user = users.get(i).getAsJsonObject();
-                        u.updateHostmask(object.bid(), user.get("nick").getAsString(), user.get("usermask").getAsString());
-                        u.updateAway(object.bid(), user.get("nick").getAsString(), user.get("away").getAsBoolean()?1:0);
+                        JsonNode user = users.get(i);
+                        u.updateHostmask(object.bid(), user.get("nick").asText(), user.get("usermask").asText());
+                        u.updateAway(object.bid(), user.get("nick").asText(), user.get("away").asBoolean()?1:0);
                     }
                     notifyHandlers(EVENT_WHOLIST, object);
                 }
@@ -2191,7 +2192,7 @@ public class NetworkConnection {
         public long join_date;
         public boolean auto_away;
         public String limits_name;
-        public JsonObject limits;
+        public ObjectNode limits;
         public int num_invites;
         public JSONObject prefs;
         public String highlights;
@@ -2214,12 +2215,12 @@ public class NetworkConnection {
 			limits = object.getJsonObject("limits");
 
 			if(object.has("highlights")) {
-				JsonArray h = object.getJsonArray("highlights");
+				JsonNode h = object.getJsonNode("highlights");
 				highlights = "";
 				for(int i = 0; i < h.size(); i++) {
 					if(highlights.length() > 0)
 						highlights += ", ";
-					highlights += h.get(i).getAsString();
+					highlights += h.get(i).asText();
 				}
 			}
 		}
@@ -2282,24 +2283,26 @@ public class NetworkConnection {
 				conn.setRequestProperty("User-Agent", useragent);
 				conn.connect();
                 if(conn.getResponseCode() == 200) {
-                    JsonReader reader = null;
+                    InputStreamReader reader = null;
                     try {
                         if(conn.getInputStream() != null) {
                             if(conn.getContentEncoding() != null && conn.getContentEncoding().equalsIgnoreCase("gzip"))
-                                reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getInputStream())));
+                                reader = new InputStreamReader(new GZIPInputStream(conn.getInputStream()));
                             else if(conn.getInputStream() != null)
-                                reader = new JsonReader(new InputStreamReader(conn.getInputStream()));
+                                reader = new InputStreamReader(conn.getInputStream());
                         }
                     } catch (IOException e) {
                         if(conn.getErrorStream() != null) {
                             if(conn.getContentEncoding() != null && conn.getContentEncoding().equalsIgnoreCase("gzip"))
-                                reader = new JsonReader(new InputStreamReader(new GZIPInputStream(conn.getErrorStream())));
+                                reader = new InputStreamReader(new GZIPInputStream(conn.getErrorStream()));
                             else if(conn.getErrorStream() != null)
-                                reader = new JsonReader(new InputStreamReader(conn.getErrorStream()));
+                                reader = new InputStreamReader(conn.getErrorStream());
                         }
                     }
 
-                    if(reader != null && reader.peek() == JsonToken.BEGIN_ARRAY) {
+                    JsonParser parser = mapper.getFactory().createParser(reader);
+
+                    if(reader != null && parser.nextToken() == JsonToken.START_ARRAY) {
                         synchronized(parserLock) {
                             cancel_idle_timer();
                             //if(ready)
@@ -2317,24 +2320,23 @@ public class NetworkConnection {
                                 BuffersDataSource.getInstance().invalidate();
                                 ChannelsDataSource.getInstance().invalidate();
                             }
-                            JsonParser parser = new JsonParser();
-                            reader.beginArray();
                             int count = 0;
-                            while(reader.hasNext()) {
+                            while(parser.nextToken() == JsonToken.START_OBJECT) {
                                 if(isCancelled()) {
                                     Crashlytics.log(Log.DEBUG, TAG, "Backlog parsing cancelled");
                                     return false;
                                 }
                                 long time = System.currentTimeMillis();
-                                JsonElement e = parser.parse(reader);
+                                JsonNode e = parser.readValueAsTree();
                                 totalJSONTime += (System.currentTimeMillis() - time);
                                 time = System.currentTimeMillis();
-                                IRCCloudJSONObject o = new IRCCloudJSONObject(e.getAsJsonObject());
+                                IRCCloudJSONObject o = new IRCCloudJSONObject(e);
                                 try {
                                     parse_object(o);
                                 } catch (Exception ex) {
                                     Crashlytics.log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
-                                    Crashlytics.logException(ex);
+                                    ex.printStackTrace();
+                                    //Crashlytics.logException(ex);
                                 }
                                 long t = (System.currentTimeMillis() - time);
                                 if(t > longestEventTime) {
@@ -2346,7 +2348,6 @@ public class NetworkConnection {
                                 if(Build.VERSION.SDK_INT >= 14)
                                     TrafficStats.incrementOperationCount(1);
                             }
-                            reader.endArray();
                             backlog = false;
                             //Debug.stopMethodTracing();
                             totalTime = (System.currentTimeMillis() - totalTime);
@@ -2376,7 +2377,7 @@ public class NetworkConnection {
                     } else {
                         throw new Exception("Unexpected JSON response");
                     }
-                    reader.close();
+                    parser.close();
 
                     if(bid != -1) {
                         BuffersDataSource.getInstance().updateTimeout(bid, 0);

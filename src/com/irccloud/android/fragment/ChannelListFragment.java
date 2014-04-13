@@ -32,8 +32,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -65,19 +64,19 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
 			ctx = context;
 		}
 		
-		public void set(JsonArray json) {
+		public void set(JsonNode json) {
 			channels = new ArrayList<Channel>(json.size());
 			
 			for(int i = 0; i < json.size(); i++) {
 				Channel c = new Channel();
-				JsonObject o = json.get(i).getAsJsonObject();
-				String channel = o.get("name").getAsString() + " (" + o.get("num_members").getAsInt() + " member";
-				if(o.get("num_members").getAsInt() != 1)
+				JsonNode o = json.get(i);
+				String channel = o.get("name").asText() + " (" + o.get("num_members").asInt() + " member";
+				if(o.get("num_members").asInt() != 1)
 					channel += "s";
 				channel += ")";
 				c.channel = ColorFormatter.html_to_spanned(channel, true, server);
 				
-				String topic = o.get("topic").getAsString();
+				String topic = o.get("topic").asText();
 				if(topic.length() > 0) {
 					c.topic = ColorFormatter.html_to_spanned(topic, true, server);
 				} else {
@@ -217,7 +216,7 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            adapter.set(o.getJsonArray("channels"));
+                            adapter.set(o.getJsonNode("channels"));
                             adapter.notifyDataSetChanged();
                         }
                     });

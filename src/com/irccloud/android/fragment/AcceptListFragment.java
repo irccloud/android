@@ -35,14 +35,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
 public class AcceptListFragment extends DialogFragment {
-	JsonArray acceptList;
+	JsonNode acceptList;
 	int cid;
 	IRCCloudJSONObject event;
 	AcceptListAdapter adapter;
@@ -87,7 +87,7 @@ public class AcceptListFragment extends DialogFragment {
 			public void onClick(View v) {
 				Integer position = (Integer)v.getTag();
 				try {
-					conn.say(cid, null, "/accept -" + acceptList.get(position).getAsString());
+					conn.say(cid, null, "/accept -" + acceptList.get(position).asText());
 					conn.say(cid, null, "/accept *");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -119,7 +119,7 @@ public class AcceptListFragment extends DialogFragment {
 			}
 			
 			try {
-				holder.user.setText(acceptList.get(position).getAsString());
+				holder.user.setText(acceptList.get(position).asText());
 				holder.removeBtn.setOnClickListener(removeClickListener);
 				holder.removeBtn.setTag(position);
 			} catch (Exception e) {
@@ -146,7 +146,7 @@ public class AcceptListFragment extends DialogFragment {
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
         	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-        	acceptList = event.getJsonArray("nicks");
+        	acceptList = event.getJsonNode("nicks");
         	adapter = new AcceptListAdapter(this);
         	listView.setAdapter(adapter);
         }
@@ -219,7 +219,7 @@ public class AcceptListFragment extends DialogFragment {
     public void setArguments(Bundle args) {
     	cid = args.getInt("cid", 0);
     	event = new IRCCloudJSONObject(args.getString("event"));
-    	acceptList = event.getJsonArray("nicks");
+    	acceptList = event.getJsonNode("nicks");
     	if(getActivity() != null && cid > 0 && listView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

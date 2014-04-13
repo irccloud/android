@@ -16,7 +16,6 @@
 
 package com.irccloud.android;
 
-import android.text.Html;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -25,12 +24,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
-
-import org.json.JSONException;
 
 public class CollapsedEventsList {
     public static final int TYPE_NETSPLIT = -1;
@@ -268,7 +266,7 @@ public class CollapsedEventsList {
         } else if(type.equalsIgnoreCase("nickchange")) {
             addEvent(event.eid, CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan);
         } else if(type.equalsIgnoreCase("user_channel_mode")) {
-            JsonObject ops = event.ops;
+            JsonNode ops = event.ops;
             if(ops != null) {
                 CollapsedEvent e = findEvent(event.nick, event.chan);
                 if(e == null) {
@@ -279,10 +277,10 @@ public class CollapsedEventsList {
                     e.nick = event.nick;
                     e.chan = event.chan;
                 }
-                JsonArray add = ops.getAsJsonArray("add");
+                JsonNode add = ops.get("add");
                 for(int i = 0; i < add.size(); i++) {
-                    JsonObject op = add.get(i).getAsJsonObject();
-                    if(!e.addMode(op.get("mode").getAsString()))
+                    JsonNode op = add.get(i);
+                    if(!e.addMode(op.get("mode").asText()))
                         return false;
                     if(e.type == TYPE_MODE) {
                         if(event.from != null && event.from.length() > 0) {
@@ -296,10 +294,10 @@ public class CollapsedEventsList {
                         e.from_mode = event.target_mode;
                     }
                 }
-                JsonArray remove = ops.getAsJsonArray("remove");
+                JsonNode remove = ops.get("remove");
                 for(int i = 0; i < remove.size(); i++) {
-                    JsonObject op = remove.get(i).getAsJsonObject();
-                    if(!e.removeMode(op.get("mode").getAsString()))
+                    JsonNode op = remove.get(i);
+                    if(!e.removeMode(op.get("mode").asText()))
                         return false;
                     if(e.type == TYPE_MODE) {
                         if(event.from != null && event.from.length() > 0) {
@@ -460,17 +458,17 @@ public class CollapsedEventsList {
 	}
 	
 	public String formatNick(String nick, String from_mode, boolean colorize) {
-        JsonObject PREFIX = null;
+        ObjectNode PREFIX = null;
         if(server != null)
             PREFIX = server.PREFIX;
 
         if(PREFIX == null) {
-            PREFIX = new JsonObject();
-            PREFIX.addProperty(server!=null?server.MODE_OWNER:"q", "~");
-            PREFIX.addProperty(server!=null?server.MODE_ADMIN:"a", "&");
-            PREFIX.addProperty(server!=null?server.MODE_OP:"o", "@");
-            PREFIX.addProperty(server!=null?server.MODE_HALFOP:"h", "%");
-            PREFIX.addProperty(server!=null?server.MODE_VOICED:"v", "+");
+            PREFIX = new ObjectMapper().createObjectNode();
+            PREFIX.put(server != null ? server.MODE_OWNER : "q", "~");
+            PREFIX.put(server!=null?server.MODE_ADMIN:"a", "&");
+            PREFIX.put(server!=null?server.MODE_OP:"o", "@");
+            PREFIX.put(server!=null?server.MODE_HALFOP:"h", "%");
+            PREFIX.put(server!=null?server.MODE_VOICED:"v", "+");
         }
 
         String[] colors = {"fc009a", "ff1f1a", "d20004", "fd6508", "880019", "c7009c", "804fc4", "5200b7", "123e92", "1d40ff", "108374", "2e980d", "207607", "196d61"};
@@ -521,7 +519,7 @@ public class CollapsedEventsList {
                 output.append("\u0002");
 			if(showSymbol) {
                 if(PREFIX.has(mode))
-                    output.append(TextUtils.htmlEncode(PREFIX.get(mode).getAsString()));
+                    output.append(TextUtils.htmlEncode(PREFIX.get(mode).asText()));
 			} else {
                 output.append("•");
 			}

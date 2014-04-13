@@ -18,8 +18,7 @@ package com.irccloud.android.data;
 
 import android.util.SparseArray;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 
@@ -119,19 +118,19 @@ public class ChannelsDataSource {
 		}
 	}
 	
-	public synchronized void updateMode(int bid, String mode, JsonObject ops, boolean init) {
+	public synchronized void updateMode(int bid, String mode, JsonNode ops, boolean init) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
             c.key = false;
-            JsonArray add = ops.get("add").getAsJsonArray();
+            JsonNode add = ops.get("add");
             for(int i = 0; i < add.size(); i++) {
-                JsonObject m = add.get(i).getAsJsonObject();
-                c.addMode(m.get("mode").getAsString(), m.get("param").getAsString(), init);
+                JsonNode m = add.get(i);
+                c.addMode(m.get("mode").asText(), m.get("param").asText(), init);
             }
-            JsonArray remove = ops.get("remove").getAsJsonArray();
+            JsonNode remove = ops.get("remove");
             for(int i = 0; i < remove.size(); i++) {
-                JsonObject m = remove.get(i).getAsJsonObject();
-                c.removeMode(m.get("mode").getAsString());
+                JsonNode m = remove.get(i);
+                c.removeMode(m.get("mode").asText());
             }
 			c.mode = mode;
 		}

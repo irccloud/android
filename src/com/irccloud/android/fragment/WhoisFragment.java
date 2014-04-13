@@ -31,7 +31,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.google.gson.JsonArray;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
@@ -245,9 +245,9 @@ public class WhoisFragment extends DialogFragment {
 			title.setVisibility(View.VISIBLE);
 			channels.setVisibility(View.VISIBLE);
     		String channelstxt = "";
-    		JsonArray c = event.getJsonArray(field);
+    		JsonNode c = event.getJsonNode(field);
     		for(int i = 0; i < c.size(); i++) {
-    			String chan = c.get(i).getAsString();
+    			String chan = c.get(i).asText();
     			channelstxt += "• " + chan + "<br/>";
     		}
     		channels.setText(ColorFormatter.html_to_spanned(channelstxt, true, ServersDataSource.getInstance().getServer(event.cid())));
