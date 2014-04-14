@@ -935,8 +935,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     	supportInvalidateOptionsMenu();
     	
     	if(NetworkConnection.getInstance().ready && buffer != null) {
-			if(showNotificationsTask != null)
-				showNotificationsTask.cancel(true);
+            try {
+                if (showNotificationsTask != null)
+                    showNotificationsTask.cancel(true);
+            } catch (Exception e) {
+            }
 			showNotificationsTask = new ShowNotificationsTask();
 			showNotificationsTask.execute(buffer.bid);
     	}
@@ -1173,8 +1176,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     public void onIRCEvent(int what, Object obj) {
         super.onIRCEvent(what, obj);
         Integer event_bid = 0;
-        IRCCloudJSONObject event = null;
-        Bundle args = null;
+        final IRCCloudJSONObject event;
         switch (what) {
             case NetworkConnection.EVENT_RENAMECONVERSATION:
                 if(buffer != null && (Integer)obj == buffer.bid) {
@@ -1209,7 +1211,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 				}
 			case NetworkConnection.EVENT_MAKEBUFFER:
 				BuffersDataSource.Buffer b = (BuffersDataSource.Buffer)obj;
-				if(cidToOpen == b.cid && (bufferToOpen == null || (b.name.equalsIgnoreCase(bufferToOpen) && !bufferToOpen.equalsIgnoreCase(buffer.name)))) {
+				if(cidToOpen == b.cid && (bufferToOpen == null || (b.name.equalsIgnoreCase(bufferToOpen) && (buffer == null || !bufferToOpen.equalsIgnoreCase(buffer.name))))) {
                     server = null;
                     final int bid = b.bid;
                     runOnUiThread(new Runnable() {
@@ -1291,117 +1293,132 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 				break;
 			case NetworkConnection.EVENT_BANLIST:
 				event = (IRCCloudJSONObject)obj;
-				if(event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
-	            	args = new Bundle();
-	            	args.putInt("cid", buffer.cid);
-	            	args.putInt("bid", buffer.bid);
-	            	args.putString("event", event.toString());
-	            	BanListFragment banList = (BanListFragment)getSupportFragmentManager().findFragmentByTag("banlist");
-	            	if(banList == null) {
-	            		banList = new BanListFragment();
-			        	banList.setArguments(args);
-			        	banList.show(getSupportFragmentManager(), "banlist");
-	            	} else {
-			        	banList.setArguments(args);
-	            	}
-				}
-	            break;
-			case NetworkConnection.EVENT_ACCEPTLIST:
-				event = (IRCCloudJSONObject)obj;
-				if(event != null && event.cid() == buffer.cid) {
-	            	args = new Bundle();
-	            	args.putInt("cid", buffer.cid);
-	            	args.putString("event", event.toString());
-	            	AcceptListFragment acceptList = (AcceptListFragment)getSupportFragmentManager().findFragmentByTag("acceptlist");
-	            	if(acceptList == null) {
-	            		acceptList = new AcceptListFragment();
-			        	acceptList.setArguments(args);
-			        	acceptList.show(getSupportFragmentManager(), "acceptlist");
-	            	} else {
-			        	acceptList.setArguments(args);
-	            	}
-				}
-	            break;
-			case NetworkConnection.EVENT_WHOLIST:
-				event = (IRCCloudJSONObject)obj;
-            	args = new Bundle();
-            	args.putString("event", event.toString());
-            	WhoListFragment whoList = (WhoListFragment)getSupportFragmentManager().findFragmentByTag("wholist");
-            	if(whoList == null) {
-            		whoList = new WhoListFragment();
-            		whoList.setArguments(args);
-            		whoList.show(getSupportFragmentManager(), "wholist");
-            	} else {
-            		whoList.setArguments(args);
-            	}
-	            break;
-            case NetworkConnection.EVENT_NAMESLIST:
-                    event = (IRCCloudJSONObject)obj;
-                    args = new Bundle();
-                    args.putString("event", event.toString());
-                    NamesListFragment namesList = (NamesListFragment)getSupportFragmentManager().findFragmentByTag("nameslist");
-                    if(namesList == null) {
-                        namesList = new NamesListFragment();
-                        namesList.setArguments(args);
-                        namesList.show(getSupportFragmentManager(), "nameslist");
-                    } else {
-                        namesList.setArguments(args);
-                    }
-                    break;
-			case NetworkConnection.EVENT_WHOIS:
-				event = (IRCCloudJSONObject)obj;
-            	args = new Bundle();
-            	args.putString("event", event.toString());
-            	WhoisFragment whois = (WhoisFragment)getSupportFragmentManager().findFragmentByTag("whois");
-            	if(whois == null) {
-            		whois = new WhoisFragment();
-            		whois.setArguments(args);
-            		whois.show(getSupportFragmentManager(), "whois");
-            	} else {
-            		whois.setArguments(args);
-            	}
-	            break;
-			case NetworkConnection.EVENT_LISTRESPONSEFETCHING:
-				event = (IRCCloudJSONObject)obj;
-				final String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
-				if(channelsListDialog == null) {
-	            	Context ctx = MessageActivity.this;
-	        		if(Build.VERSION.SDK_INT < 11)
-	        			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
-	        		final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-	            	builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
-	            	builder.setTitle(dialogtitle);
-	        		builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-	        			@Override
-	        			public void onClick(DialogInterface dialog, int which) {
-	        				dialog.dismiss();
-	        			}
-	        		});
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            channelsListDialog = builder.create();
-                            channelsListDialog.setOwnerActivity(MessageActivity.this);
-                        }
-                    });
-				} else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            channelsListDialog.setTitle(dialogtitle);
-                        }
-                    });
-				}
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        channelsListDialog.show();
+                        if(event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                            Bundle args = new Bundle();
+                            args.putInt("cid", buffer.cid);
+                            args.putInt("bid", buffer.bid);
+                            args.putString("event", event.toString());
+                            BanListFragment banList = (BanListFragment)getSupportFragmentManager().findFragmentByTag("banlist");
+                            if(banList == null) {
+                                banList = new BanListFragment();
+                                banList.setArguments(args);
+                                banList.show(getSupportFragmentManager(), "banlist");
+                            } else {
+                                banList.setArguments(args);
+                            }
+                        }
                     }
                 });
-				ChannelListFragment channels = (ChannelListFragment)getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
-            	args = new Bundle();
-            	args.putInt("cid", event.cid());
-        		channels.setArguments(args);
+	            break;
+			case NetworkConnection.EVENT_ACCEPTLIST:
+				event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(event != null && event.cid() == buffer.cid) {
+                            Bundle args = new Bundle();
+                            args.putInt("cid", buffer.cid);
+                            args.putString("event", event.toString());
+                            AcceptListFragment acceptList = (AcceptListFragment)getSupportFragmentManager().findFragmentByTag("acceptlist");
+                            if(acceptList == null) {
+                                acceptList = new AcceptListFragment();
+                                acceptList.setArguments(args);
+                                acceptList.show(getSupportFragmentManager(), "acceptlist");
+                            } else {
+                                acceptList.setArguments(args);
+                            }
+                        }
+                    }
+                });
+	            break;
+			case NetworkConnection.EVENT_WHOLIST:
+				event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bundle args = new Bundle();
+                        args.putString("event", event.toString());
+                        WhoListFragment whoList = (WhoListFragment)getSupportFragmentManager().findFragmentByTag("wholist");
+                        if(whoList == null) {
+                            whoList = new WhoListFragment();
+                            whoList.setArguments(args);
+                            whoList.show(getSupportFragmentManager(), "wholist");
+                        } else {
+                            whoList.setArguments(args);
+                        }
+                    }
+                });
+	            break;
+            case NetworkConnection.EVENT_NAMESLIST:
+                event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bundle args = new Bundle();
+                        args.putString("event", event.toString());
+                        NamesListFragment namesList = (NamesListFragment)getSupportFragmentManager().findFragmentByTag("nameslist");
+                        if(namesList == null) {
+                            namesList = new NamesListFragment();
+                            namesList.setArguments(args);
+                            namesList.show(getSupportFragmentManager(), "nameslist");
+                        } else {
+                            namesList.setArguments(args);
+                        }
+                    }
+                });
+                break;
+			case NetworkConnection.EVENT_WHOIS:
+				event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bundle args = new Bundle();
+                        args.putString("event", event.toString());
+                        WhoisFragment whois = (WhoisFragment)getSupportFragmentManager().findFragmentByTag("whois");
+                        if(whois == null) {
+                            whois = new WhoisFragment();
+                            whois.setArguments(args);
+                            whois.show(getSupportFragmentManager(), "whois");
+                        } else {
+                            whois.setArguments(args);
+                        }
+                    }
+                });
+	            break;
+			case NetworkConnection.EVENT_LISTRESPONSEFETCHING:
+				event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
+                        if(channelsListDialog == null) {
+                            Context ctx = MessageActivity.this;
+                            if(Build.VERSION.SDK_INT < 11)
+                                ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
+                            final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+                            builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
+                            builder.setTitle(dialogtitle);
+                            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                            channelsListDialog = builder.create();
+                            channelsListDialog.setOwnerActivity(MessageActivity.this);
+                        } else {
+                            channelsListDialog.setTitle(dialogtitle);
+                        }
+                        channelsListDialog.show();
+                        ChannelListFragment channels = (ChannelListFragment)getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
+                        Bundle args = new Bundle();
+                        args.putInt("cid", event.cid());
+                        channels.setArguments(args);
+                    }
+                });
 	            break;
 			case NetworkConnection.EVENT_USERINFO:
                 runOnUiThread(new Runnable() {
@@ -1795,9 +1812,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
-    	if(buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
+    	if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
         	if(buffer.archived == 0) {
-        		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
+                menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
         	} else {
         		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
         	}
@@ -1845,11 +1862,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	    		menu.findItem(R.id.menu_archive).setVisible(false);
 	    		menu.findItem(R.id.menu_archive).setEnabled(false);
 	    		if(server != null && server.status != null && (server.status.equalsIgnoreCase("waiting_to_retry") || (server.status.contains("connected") && !server.status.startsWith("dis")))) {
-	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
+                    if(menu.findItem(R.id.menu_disconnect) != null)
+    	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
 	        		menu.findItem(R.id.menu_delete).setVisible(false);
 	        		menu.findItem(R.id.menu_delete).setEnabled(false);
 	    		} else {
-	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_reconnect);
+                    if(menu.findItem(R.id.menu_disconnect) != null)
+    	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_reconnect);
 	        		menu.findItem(R.id.menu_delete).setVisible(true);
 	        		menu.findItem(R.id.menu_delete).setEnabled(true);
 	    		}
