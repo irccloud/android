@@ -438,10 +438,14 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
                             message = result.getString("message");
                             if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
                                 message = "Incorrect username or password.  Please try again.";
+                            else if(message.equals("json_error"))
+                                message = "Invalid response received from the server.  Please try again shortly.";
+                            else if(message.equals("invalid_response"))
+                                message = "Unexpected response received from the server.  Check your network settings and try again shortly.";
+                            else if(message.equals("empty_response"))
+                                message = "The server did not respond.  Check your network settings and try again shortly.";
                             else
                                 message = "Error: " + message;
-                        } else if(result.has("exception")) {
-                            message += "\n\n" + result.getString("exception");
                         }
 					} catch (JSONException e) {
 						e.printStackTrace();
