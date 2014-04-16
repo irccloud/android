@@ -324,7 +324,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         });
 
         upView = (ImageView)v.findViewById(R.id.upIndicator);
-        if(drawerLayout != null && getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null) {
+        if(drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
             drawerLayout.setDrawerListener(mDrawerListener);
         	upView.setVisibility(View.VISIBLE);
         	upView.setOnClickListener(upClickListener);
