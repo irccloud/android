@@ -1026,9 +1026,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentCollapsedEid = -1;
                     collapsedEvents.clear();
                     if(event.html == null) {
-                        if(event.from != null)
+                        if(event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, colors) + "</b> " + event.msg;
-                        else if(event.type.equals("buffer_msg") && event.server != null)
+                        else if(event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + event.msg;
                         else
                             event.html = event.msg;
