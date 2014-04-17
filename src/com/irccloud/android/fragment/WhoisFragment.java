@@ -48,6 +48,9 @@ public class WhoisFragment extends DialogFragment {
 		if(Build.VERSION.SDK_INT < 11)
 			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
+        if(ctx == null)
+            return null;
+
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.dialog_whois, null);
     	extra = (TextView)v.findViewById(R.id.extra);

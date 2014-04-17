@@ -220,6 +220,8 @@ public class GCMIntentService extends IntentService {
                     } else {
                         success = true;
                     }
+                    if(success)
+                        NetworkConnection.getInstance().logout(session);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

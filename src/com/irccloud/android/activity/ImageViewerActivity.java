@@ -131,7 +131,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 @Override
                 public void run() {
                     if(getSupportActionBar().isShowing()) {
-                        mHideTimer.cancel();
+                        if(mHideTimer != null)
+                            mHideTimer.cancel();
                         mHideTimer = null;
                         getSupportActionBar().hide();
                     } else {

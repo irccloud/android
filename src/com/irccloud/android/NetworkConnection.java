@@ -509,6 +509,15 @@ public class NetworkConnection {
             if(token.has("token")) {
                 String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token");
                 String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
+                if(response.length() < 1) {
+                    JSONObject o = new JSONObject();
+                    o.put("message", "empty_response");
+                    return o;
+                } else if(response.charAt(0) != '{') {
+                    JSONObject o = new JSONObject();
+                    o.put("message", "invalid_response");
+                    return o;
+                }
                 return new JSONObject(response);
             } else {
                 return null;
@@ -519,17 +528,17 @@ public class NetworkConnection {
 		} catch (IOException e) {
             e.printStackTrace();
             return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            JSONObject o = new JSONObject();
+            try {
+                o.put("message", "json_error");
+            } catch (JSONException e1) {
+            }
+            return o;
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                JSONObject o = new JSONObject();
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
-                o.put("exception", sw.toString());
-                return o;
-            } catch (JSONException e1) {
-                e.printStackTrace();
-            }
+            Crashlytics.logException(e);
 		}
 		return null;
 	}
@@ -565,6 +574,20 @@ public class NetworkConnection {
 		}
 		return null;
 	}
+
+    public void logout(final String sk) {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    Log.i("IRCCloud", "Invalidating session");
+                    doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session="+sk, sk);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        },50);
+    }
 
     public JSONArray networkPresets() throws IOException {
         try {
@@ -762,16 +785,6 @@ public class NetworkConnection {
     public void logout() {
         final String sk = session;
         disconnect();
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session="+sk, sk);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        },50);
         ready = false;
         streamId = null;
         accrued = 0;
@@ -782,9 +795,12 @@ public class NetworkConnection {
                 //Store the old session key so GCM can unregister later
                 editor.putString(regId, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
                 GCMIntentService.scheduleUnregisterTimer(100, regId);
+            } else {
+                logout(sk);
             }
         } catch (Exception e) {
             //GCM might not be available on the device
+            logout(sk);
         }
         editor.remove("session_key");
         editor.remove("gcm_registered");
@@ -1167,7 +1183,7 @@ public class NetworkConnection {
                         Crashlytics.log(Log.INFO, TAG, "Websocket idle time exceeded, reconnecting...");
                         state = STATE_DISCONNECTING;
                         notifyHandlers(EVENT_CONNECTIVITY, null);
-                        if(client != null)
+                        if (client != null)
                             client.disconnect();
                         connect(session);
                     }
