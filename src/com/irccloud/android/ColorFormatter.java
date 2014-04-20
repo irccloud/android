@@ -197,7 +197,7 @@ public class ColorFormatter {
         put("surfer","\uD83C\uDFC4");
         put("passport_control","\uD83D\uDEC2");
         put("slot_machine","\uD83C\uDFB0");
-        put("zero","\u0030\u20E3");
+        put("zero","\uDBBA\uDC37");
         put("phone","\u260E");
         put("telephone","\u260E");
         put("kissing_heart","\uD83D\uDE18");
@@ -208,7 +208,7 @@ public class ColorFormatter {
         put("back","\uD83D\uDD19");
         put("low_brightness","\uD83D\uDD05");
         put("blue_book","\uD83D\uDCD8");
-        put("one","\u0031\u20E3");
+        put("one","\uDBBA\uDC2E");
         put("page_facing_up","\uD83D\uDCC4");
         put("moneybag","\uD83D\uDCB0");
         put("arrow_lower_right","\u2198");
@@ -218,7 +218,7 @@ public class ColorFormatter {
         put("leopard","\uD83D\uDC06");
         put("customs","\uD83D\uDEC3");
         put("8ball","\uD83C\uDFB1");
-        put("two","\u0032\u20E3");
+        put("two","\uDBBA\uDC2F");
         put("kissing_smiling_eyes","\uD83D\uDE19");
         put("city_sunrise","\uD83C\uDF07");
         put("heavy_plus_sign","\u2795");
@@ -230,7 +230,7 @@ public class ColorFormatter {
         put("muscle","\uD83D\uDCAA");
         put("orange_book","\uD83D\uDCD9");
         put("date","\uD83D\uDCC5");
-        put("three","\u0033\u20E3");
+        put("three","\uDBBA\uDC30");
         put("currency_exchange","\uD83D\uDCB1");
         put("heavy_minus_sign","\u2796");
         put("ski","\uD83C\uDFBF");
@@ -241,7 +241,7 @@ public class ColorFormatter {
         put("baggage_claim","\uD83D\uDEC4");
         put("game_die","\uD83C\uDFB2");
         put("potable_water","\uD83D\uDEB0");
-        put("four","\u0034\u20E3");
+        put("four","\uDBBA\uDC31");
         put("rainbow","\uD83C\uDF08");
         put("laughing","\uD83D\uDE06");
         put("satisfied","\uD83D\uDE06");
@@ -249,7 +249,7 @@ public class ColorFormatter {
         put("cd","\uD83D\uDCBF");
         put("mute","\uD83D\uDD07");
         put("dizzy","\uD83D\uDCAB");
-        put("five","\u0035\u20E3");
+        put("five","\uDBBA\uDC32");
         put("calendar","\uD83D\uDCC6");
         put("heavy_dollar_sign","\uD83D\uDCB2");
         put("wc","\uD83D\uDEBE");
@@ -261,12 +261,12 @@ public class ColorFormatter {
         put("bowling","\uD83C\uDFB3");
         put("non-potable_water","\uD83D\uDEB1");
         put("left_luggage","\uD83D\uDEC5");
-        put("six","\u0036\u20E3");
+        put("six","\uDBBA\uDC33");
         put("bridge_at_night","\uD83C\uDF09");
         put("innocent","\uD83D\uDE07");
         put("coffee","\u2615");
         put("speech_balloon","\uD83D\uDCAC");
-        put("seven","\u0037\u20E3");
+        put("seven","\uDBBA\uDC34");
         put("card_index","\uD83D\uDCC7");
         put("credit_card","\uD83D\uDCB3");
         put("wavy_dash","\u3030");
@@ -278,12 +278,12 @@ public class ColorFormatter {
         put("flower_playing_cards","\uD83C\uDFB4");
         put("bike","\uD83D\uDEB2");
         put("carousel_horse","\uD83C\uDFA0");
-        put("eight","\u0038\u20E3");
+        put("eight","\uDBBA\uDC35");
         put("smiling_imp","\uD83D\uDE08");
         put("sound","\uD83D\uDD09");
         put("thought_balloon","\uD83D\uDCAD");
         put("chart_with_upwards_trend","\uD83D\uDCC8");
-        put("nine","\u0039\u20E3");
+        put("nine","\uDBBA\uDC36");
         put("yen","\uD83D\uDCB4");
         put("diamond_shape_with_a_dot_inside","\uD83D\uDCA0");
         put("video_game","\uD83C\uDFAE");
