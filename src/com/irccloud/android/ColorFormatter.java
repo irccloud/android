@@ -362,7 +362,7 @@ public class ColorFormatter {
         put("cool","\uD83C\uDD92");
         put("white_check_mark","\u2705");
         put("bouquet","\uD83D\uDC90");
-        put("kr","\uD83C\uDDF0\uD83C\uDDF7");
+        put("kr","\uDBB9\uDCEE");
         put("tractor","\uD83D\uDE9C");
         put("tm","\u2122");
         put("confetti_ball","\uD83C\uDF8A");
@@ -492,7 +492,7 @@ public class ColorFormatter {
         put("fireworks","\uD83C\uDF86");
         put("bullettrain_side","\uD83D\uDE84");
         put("stew","\uD83C\uDF72");
-        put("it","\uD83C\uDDEE\uD83C\uDDF9");
+        put("it","\uDBB9\uDCE9");
         put("alarm_clock","\u23F0");
         put("imp","\uD83D\uDC7F");
         put("couple","\uD83D\uDC6B");
@@ -503,9 +503,9 @@ public class ColorFormatter {
         put("sparkler","\uD83C\uDF87");
         put("bullettrain_front","\uD83D\uDE85");
         put("egg","\uD83C\uDF73");
-        put("jp","\uD83C\uDDEF\uD83C\uDDF5");
+        put("jp","\uDBB9\uDCE5");
         put("heart","\u2764");
-        put("us","\uD83C\uDDFA\uD83C\uDDF8");
+        put("us","\uDBB9\uDCE6");
         put("two_men_holding_hands","\uD83D\uDC6C");
         put("arrow_right","\u27A1");
         put("haircut","\uD83D\uDC87");
@@ -611,7 +611,7 @@ public class ColorFormatter {
         put("shaved_ice","\uD83C\uDF67");
         put("strawberry","\uD83C\uDF53");
         put("clock430","\uD83D\uDD5F");
-        put("cn","\uD83C\uDDE8\uD83C\uDDF3");
+        put("cn","\uDBB9\uDCED");
         put("clock1130","\uD83D\uDD66");
         put("clock3","\uD83D\uDD52");
         put("ok_hand","\uD83D\uDC4C");
@@ -639,8 +639,8 @@ public class ColorFormatter {
         put("pizza","\uD83C\uDF55");
         put("maple_leaf","\uD83C\uDF41");
         put("clock5","\uD83D\uDD54");
-        put("gb","\uD83C\uDDEC\uD83C\uDDE7");
-        put("uk","\uD83C\uDDEC\uD83C\uDDE7");
+        put("gb","\uDBB9\uDCEA");
+        put("uk","\uDBB9\uDCEA");
         put("-1","\uD83D\uDC4E");
         put("thumbsdown","\uD83D\uDC4E");
         put("wolf","\uD83D\uDC3A");
@@ -665,11 +665,11 @@ public class ColorFormatter {
         put("poultry_leg","\uD83C\uDF57");
         put("leaves","\uD83C\uDF43");
         put("fist","\u270A");
-        put("es","\uD83C\uDDEA\uD83C\uDDF8");
+        put("es","\uDBB9\uDCEB");
         put("small_red_triangle_down","\uD83D\uDD3B");
         put("clock7","\uD83D\uDD56");
         put("tv","\uD83D\uDCFA");
-        put("de","\uD83C\uDDE9\uD83C\uDDEA");
+        put("de","\uDBB9\uDCE8");
         put("panda_face","\uD83D\uDC3C");
         put("hand","\u270B");
         put("raised_hand","\u270B");
