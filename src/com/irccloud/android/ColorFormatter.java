@@ -564,7 +564,7 @@ public class ColorFormatter {
         put("cloud","\u2601");
         put("construction_worker","\uD83D\uDC77");
         put("footprints","\uD83D\uDC63");
-        put("hash","\u0023\u20E3");
+        put("hash","\uDBBA\uDC2C");
         put("spaghetti","\uD83C\uDF5D");
         put("cocktail","\uD83C\uDF78");
         put("fried_shrimp","\uD83C\uDF64");
