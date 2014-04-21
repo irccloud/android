@@ -990,13 +990,13 @@ public class ColorFormatter {
 
         if(Build.VERSION.SDK_INT >= 14) {
             if(EMOJI == null) {
-                String p = ":(";
+                String p = "\\B:(";
                 for(String key : emojiMap.keySet()) {
                     if(p.length() > 2)
                         p += "|";
                     p += key.replace("-", "\\-").replace("+", "\\+");
                 }
-                p += "):";
+                p += "):\\B";
 
                 EMOJI = Pattern.compile(p);
             }
