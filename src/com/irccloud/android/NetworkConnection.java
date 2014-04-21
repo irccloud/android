@@ -1301,7 +1301,7 @@ public class NetworkConnection {
         put("heartbeat_echo", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                Iterator<Entry<String, JsonNode>> iterator = object.getJsonNode("seeneids").fields();
+                Iterator<Entry<String, JsonNode>> iterator = object.getJsonNode("seenEids").fields();
                 while(iterator.hasNext()) {
                     Map.Entry<String, JsonNode> entry = iterator.next();
                     JsonNode eids = entry.getValue();
