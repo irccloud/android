@@ -220,6 +220,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 	EditText nickserv_pass;
 	EditText join_commands;
 	EditText server_pass;
+    EditText network;
 	
 	public String default_hostname = null;
 	public int default_port = 6667;
@@ -239,6 +240,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 		nickserv_pass = (EditText)v.findViewById(R.id.nickservpassword);
 		join_commands = (EditText)v.findViewById(R.id.commands);
 		server_pass = (EditText)v.findViewById(R.id.serverpassword);
+        network = (EditText)v.findViewById(R.id.network);
 
 		presets.setOnItemSelectedListener(new OnItemSelectedListener() {
 
@@ -333,6 +335,8 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 		if(server != null) {
 			presets.setSelection(0);
 			presets.setVisibility(View.GONE);
+            network.setVisibility(View.VISIBLE);
+            network.setText(server.name);
 			channelsWrapper.setVisibility(View.GONE);
 			hostname.setText(server.hostname);
 			port.setText(String.valueOf(server.port));
@@ -388,7 +392,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 							nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
 		} else {
 			return NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), portValue,
-					ssl.isChecked()?1:0, server.name, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
+					ssl.isChecked()?1:0, network.getText().toString(), nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString());
 			
 		}

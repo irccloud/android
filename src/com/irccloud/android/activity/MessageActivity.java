@@ -2457,11 +2457,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	    		} else if(items[item].equals("Edit Connection…")) {
                     if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
                         Intent i = new Intent(MessageActivity.this, EditConnectionActivity.class);
-                        i.putExtra("cid", buffer.cid);
+                        i.putExtra("cid", b.cid);
                         startActivity(i);
                     } else {
                         EditConnectionFragment editFragment = new EditConnectionFragment();
-                        editFragment.setCid(buffer.cid);
+                        editFragment.setCid(b.cid);
                         editFragment.show(getSupportFragmentManager(), "editconnection");
                     }
 	    		} else if(items[item].equals("Delete")) {

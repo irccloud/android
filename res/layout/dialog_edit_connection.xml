@@ -38,6 +38,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <EditText
+            android:id="@+id/network"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Network"
+            android:lines="1"
+            android:maxLines="1" />
+
         <include layout="@layout/dialog_edit_connection_hostname"  android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
         <TextView
