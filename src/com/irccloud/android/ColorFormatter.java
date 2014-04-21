@@ -1065,7 +1065,7 @@ public class ColorFormatter {
         if(server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
             chanTypes = server.CHANTYPES;
 
-        final String pattern = "\\B([" + chanTypes + "][^\u20E3\ufe0f<>!?\"()\\[\\],\\s\ufe55]+)";
+        final String pattern = "\\B([" + chanTypes + "][^\ufe0e\ufe0f\u20e3<>!?\"()\\[\\],\\s\ufe55]+)";
 
 		if(linkify) {
             Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {
