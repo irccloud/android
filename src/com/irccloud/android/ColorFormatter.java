@@ -988,7 +988,14 @@ public class ColorFormatter {
 		if(msg == null)
 			msg = "";
 
-        if(Build.VERSION.SDK_INT >= 14) {
+        boolean disableConvert = false;
+        try {
+            if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null)
+                disableConvert = NetworkConnection.getInstance().getUserInfo().prefs.getBoolean("emoji-disableconvert");
+        } catch (Exception e) {
+        }
+
+        if(!disableConvert && Build.VERSION.SDK_INT >= 14) {
             if(EMOJI == null) {
                 String p = "\\B:(";
                 for(String key : emojiMap.keySet()) {

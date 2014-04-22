@@ -122,6 +122,10 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
+        if(findPreference("emoji-disableconvert") != null) {
+            findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
+            findPreference("emoji-disableconvert").setSummary(":thumbs_up: → \uD83D\uDC4D");
+        }
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("faq").setOnPreferenceClickListener(urlClick);
 		findPreference("feedback").setOnPreferenceClickListener(urlClick);
@@ -240,6 +244,8 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                                     ((CheckBoxPreference)findPreference("time-24hr")).setChecked(prefs.has("time-24hr")?prefs.getBoolean("time-24hr"):false);
                                     ((CheckBoxPreference)findPreference("time-seconds")).setChecked(prefs.has("time-seconds")?prefs.getBoolean("time-seconds"):false);
                                     ((CheckBoxPreference)findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol")?prefs.getBoolean("mode-showsymbol"):false);
+                                    if(findPreference("emoji-disableconvert") != null)
+                                        ((CheckBoxPreference)findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert")?prefs.getBoolean("emoji-disableconvert"):false));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -304,8 +310,11 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 					prefs = new JSONObject();
 					conn.getUserInfo().prefs = prefs;
 				}
-	
-                prefs.put(preference.getKey(), (Boolean)newValue);
+
+                if(preference.getKey().equals("emoji-disableconvert"))
+                    prefs.put(preference.getKey(), !(Boolean)newValue);
+                else
+                    prefs.put(preference.getKey(), (Boolean)newValue);
 			} catch (JSONException e) {
 				prefs = null;
 			}
@@ -359,6 +368,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 				save_prefs_reqid = conn.set_prefs(conn.getUserInfo().prefs.toString());
 			else
 				save_prefs_reqid = -1;
+            EventsDataSource.getInstance().clearCaches();
 			return null;
 		}
 		

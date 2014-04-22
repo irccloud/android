@@ -1276,11 +1276,13 @@ public class NetworkConnection {
                     prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("time-seconds"));
                     prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("mode-showsymbol"));
                     prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("nick-colors"));
+                    prefs.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("emoji-disableconvert")));
                 } else {
                     prefs.putBoolean("time-24hr", false);
                     prefs.putBoolean("time-seconds", false);
                     prefs.putBoolean("mode-showsymbol", false);
                     prefs.putBoolean("nick-colors", false);
+                    prefs.putBoolean("emoji-disableconvert", true);
                 }
                 prefs.commit();
                 notifyHandlers(EVENT_USERINFO, userInfo);
