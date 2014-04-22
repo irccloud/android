@@ -1596,7 +1596,8 @@ public class NetworkConnection {
                     Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
                     streamId = null;
-                    client.disconnect();
+                    if(client != null)
+                        client.disconnect();
                 }
 
                 if(!backlog)
