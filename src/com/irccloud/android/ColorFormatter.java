@@ -409,7 +409,7 @@ public class ColorFormatter {
         put("heartbeat","\uD83D\uDC93");
         put("new","\uD83C\uDD95");
         put("suspension_railway","\uD83D\uDE9F");
-        put("ru","\uD83C\uDDF7\uD83C\uDDFA");
+        put("ru","\uDBB9\uDCEC");
         put("bamboo","\uD83C\uDF8D");
         put("hankey","\uD83D\uDCA9");
         put("poop","\uD83D\uDCA9");
@@ -980,6 +980,43 @@ public class ColorFormatter {
 
     public static Pattern EMOJI = null;
 
+    public static final HashMap<String,String> conversionMap = new HashMap<String, String>(){{
+        put("\uD83C\uDDEF\uD83C\uDDF5", "\uDBB9\uDCE5"); // JP
+        put("\uD83C\uDDF0\uD83C\uDDF7", "\uDBB9\uDCEE"); // KR
+        put("\uD83C\uDDE9\uD83C\uDDEA", "\uDBB9\uDCE8"); // DE
+        put("\uD83C\uDDE8\uD83C\uDDF3", "\uDBB9\uDCED"); // CN
+        put("\uD83C\uDDFA\uD83C\uDDF8", "\uDBB9\uDCE6"); // US
+        put("\uD83C\uDDEB\uD83C\uDDF7", "\uDBB9\uDCE7"); // FR
+        put("\uD83C\uDDEA\uD83C\uDDF8", "\uDBB9\uDCEB"); // ES
+        put("\uD83C\uDDEE\uD83C\uDDF9", "\uDBB9\uDCE9"); // IT
+        put("\uD83C\uDDF7\uD83C\uDDFA", "\uDBB9\uDCEC"); // RU
+        put("\uD83C\uDDEC\uD83C\uDDE7", "\uDBB9\uDCEA"); // GB
+        put("\u0030\u20E3", "\uDBBA\uDC37"); // ZERO
+        put("\u0031\u20E3", "\uDBBA\uDC2E"); // ONE
+        put("\u0032\u20E3", "\uDBBA\uDC2F"); // TWO
+        put("\u0033\u20E3", "\uDBBA\uDC30"); // THREE
+        put("\u0034\u20E3", "\uDBBA\uDC31"); // FOUR
+        put("\u0035\u20E3", "\uDBBA\uDC32"); // FIVE
+        put("\u0036\u20E3", "\uDBBA\uDC33"); // SIX
+        put("\u0037\u20E3", "\uDBBA\uDC34"); // SEVEN
+        put("\u0038\u20E3", "\uDBBA\uDC35"); // EIGHT
+        put("\u0039\u20E3", "\uDBBA\uDC36"); // NINE
+        put("\u0023\u20E3", "\uDBBA\uDC2C"); // HASH
+        put("\u0030\uFE0F\u20E3", "\uDBBA\uDC37"); // ZERO
+        put("\u0031\uFE0F\u20E3", "\uDBBA\uDC2E"); // ONE
+        put("\u0032\uFE0F\u20E3", "\uDBBA\uDC2F"); // TWO
+        put("\u0033\uFE0F\u20E3", "\uDBBA\uDC30"); // THREE
+        put("\u0034\uFE0F\u20E3", "\uDBBA\uDC31"); // FOUR
+        put("\u0035\uFE0F\u20E3", "\uDBBA\uDC32"); // FIVE
+        put("\u0036\uFE0F\u20E3", "\uDBBA\uDC33"); // SIX
+        put("\u0037\uFE0F\u20E3", "\uDBBA\uDC34"); // SEVEN
+        put("\u0038\uFE0F\u20E3", "\uDBBA\uDC35"); // EIGHT
+        put("\u0039\uFE0F\u20E3", "\uDBBA\uDC36"); // NINE
+        put("\u0023\uFE0F\u20E3", "\uDBBA\uDC2C"); // HASH
+    }};
+
+    public static Pattern CONVERSION = null;
+
 	public static Spanned html_to_spanned(String msg) {
 		return html_to_spanned(msg, false, null);
 	}
@@ -996,6 +1033,26 @@ public class ColorFormatter {
         }
 
         if(!disableConvert && Build.VERSION.SDK_INT >= 14) {
+            if(CONVERSION == null) {
+                String p = "(";
+                for(String key : conversionMap.keySet()) {
+                    if(p.length() > 2)
+                        p += "|";
+                    p += key;
+                }
+                p += ")";
+
+                CONVERSION = Pattern.compile(p);
+            }
+
+            Matcher m = CONVERSION.matcher(msg);
+            while (m.find()) {
+                if (conversionMap.containsKey(m.group(1))) {
+                    msg = m.replaceFirst(conversionMap.get(m.group(1)));
+                    m = CONVERSION.matcher(msg);
+                }
+            }
+
             if(EMOJI == null) {
                 String p = "\\B:(";
                 for(String key : emojiMap.keySet()) {
@@ -1008,7 +1065,7 @@ public class ColorFormatter {
                 EMOJI = Pattern.compile(p);
             }
 
-            Matcher m = EMOJI.matcher(msg);
+            m = EMOJI.matcher(msg);
             while (m.find()) {
                 if (emojiMap.containsKey(m.group(1))) {
                     msg = m.replaceFirst(emojiMap.get(m.group(1)));
