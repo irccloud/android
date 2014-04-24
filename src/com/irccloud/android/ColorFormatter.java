@@ -115,10 +115,13 @@ public class ColorFormatter {
         put("hotel","\uD83C\uDFE8");
         put("fuelpump","\u26FD");
         put("mouse2","\uD83D\uDC01");
+        put("nine","\u0039\u20E3");
         put("basketball","\uD83C\uDFC0");
         put("earth_asia","\uD83C\uDF0F");
         put("heart_eyes","\uD83D\uDE0D");
+        put("arrow_heading_down","\u2935\uFE0F");
         put("fearful","\uD83D\uDE28");
+        put("o","\u2B55\uFE0F");
         put("waning_gibbous_moon","\uD83C\uDF16");
         put("pensive","\uD83D\uDE14");
         put("mahjong","\uD83C\uDC04");
@@ -131,8 +134,10 @@ public class ColorFormatter {
         put("incoming_envelope","\uD83D\uDCE8");
         put("repeat","\uD83D\uDD01");
         put("notebook_with_decorative_cover","\uD83D\uDCD4");
+        put("arrow_forward","\u25B6\uFE0F");
         put("dvd","\uD83D\uDCC0");
         put("ram","\uD83D\uDC0F");
+        put("cloud","\u2601\uFE0F");
         put("curly_loop","\u27B0");
         put("trumpet","\uD83C\uDFBA");
         put("love_hotel","\uD83C\uDFE9");
@@ -142,12 +147,14 @@ public class ColorFormatter {
         put("checkered_flag","\uD83C\uDFC1");
         put("sunglasses","\uD83D\uDE0E");
         put("weary","\uD83D\uDE29");
+        put("heavy_multiplication_x","\u2716\uFE0F");
         put("last_quarter_moon","\uD83C\uDF17");
         put("confused","\uD83D\uDE15");
-        put("stars","\uD83C\uDF03");
+        put("night_with_stars","\uD83C\uDF03");
         put("grin","\uD83D\uDE01");
         put("lock_with_ink_pen","\uD83D\uDD0F");
         put("paperclip","\uD83D\uDCCE");
+        put("black_large_square","\u2B1B\uFE0F");
         put("seat","\uD83D\uDCBA");
         put("envelope_with_arrow","\uD83D\uDCE9");
         put("bookmark","\uD83D\uDD16");
@@ -160,6 +167,7 @@ public class ColorFormatter {
         put("snowboarder","\uD83C\uDFC2");
         put("smirk","\uD83D\uDE0F");
         put("bath","\uD83D\uDEC0");
+        put("scissors","\u2702\uFE0F");
         put("waning_crescent_moon","\uD83C\uDF18");
         put("confounded","\uD83D\uDE16");
         put("sunrise_over_mountains","\uD83C\uDF04");
@@ -170,6 +178,7 @@ public class ColorFormatter {
         put("arrows_clockwise","\uD83D\uDD03");
         put("book","\uD83D\uDCD6");
         put("open_book","\uD83D\uDCD6");
+        put("snowflake","\u2744\uFE0F");
         put("open_file_folder","\uD83D\uDCC2");
         put("left_right_arrow","\u2194");
         put("musical_score","\uD83C\uDFBC");
@@ -184,10 +193,12 @@ public class ColorFormatter {
         put("sunrise","\uD83C\uDF05");
         put("smiley","\uD83D\uDE03");
         put("kissing","\uD83D\uDE17");
+        put("black_medium_small_square","\u25FE\uFE0F");
         put("briefcase","\uD83D\uDCBC");
         put("radio_button","\uD83D\uDD18");
         put("arrows_counterclockwise","\uD83D\uDD04");
         put("green_book","\uD83D\uDCD7");
+        put("black_small_square","\u25AA\uFE0F");
         put("page_with_curl","\uD83D\uDCC3");
         put("arrow_upper_left","\u2196");
         put("running_shirt_with_sash","\uD83C\uDFBD");
@@ -197,7 +208,6 @@ public class ColorFormatter {
         put("surfer","\uD83C\uDFC4");
         put("passport_control","\uD83D\uDEC2");
         put("slot_machine","\uD83C\uDFB0");
-        put("zero","\uDBBA\uDC37");
         put("phone","\u260E");
         put("telephone","\u260E");
         put("kissing_heart","\uD83D\uDE18");
@@ -208,7 +218,6 @@ public class ColorFormatter {
         put("back","\uD83D\uDD19");
         put("low_brightness","\uD83D\uDD05");
         put("blue_book","\uD83D\uDCD8");
-        put("one","\uDBBA\uDC2E");
         put("page_facing_up","\uD83D\uDCC4");
         put("moneybag","\uD83D\uDCB0");
         put("arrow_lower_right","\u2198");
@@ -216,9 +225,9 @@ public class ColorFormatter {
         put("baby_symbol","\uD83D\uDEBC");
         put("circus_tent","\uD83C\uDFAA");
         put("leopard","\uD83D\uDC06");
+        put("black_circle","\u26AB\uFE0F");
         put("customs","\uD83D\uDEC3");
         put("8ball","\uD83C\uDFB1");
-        put("two","\uDBBA\uDC2F");
         put("kissing_smiling_eyes","\uD83D\uDE19");
         put("city_sunrise","\uD83C\uDF07");
         put("heavy_plus_sign","\u2795");
@@ -230,18 +239,17 @@ public class ColorFormatter {
         put("muscle","\uD83D\uDCAA");
         put("orange_book","\uD83D\uDCD9");
         put("date","\uD83D\uDCC5");
-        put("three","\uDBBA\uDC30");
         put("currency_exchange","\uD83D\uDCB1");
         put("heavy_minus_sign","\u2796");
         put("ski","\uD83C\uDFBF");
         put("toilet","\uD83D\uDEBD");
         put("ticket","\uD83C\uDFAB");
         put("rabbit2","\uD83D\uDC07");
+        put("umbrella","\u2614\uFE0F");
         put("trophy","\uD83C\uDFC6");
         put("baggage_claim","\uD83D\uDEC4");
         put("game_die","\uD83C\uDFB2");
         put("potable_water","\uD83D\uDEB0");
-        put("four","\uDBBA\uDC31");
         put("rainbow","\uD83C\uDF08");
         put("laughing","\uD83D\uDE06");
         put("satisfied","\uD83D\uDE06");
@@ -249,7 +257,6 @@ public class ColorFormatter {
         put("cd","\uD83D\uDCBF");
         put("mute","\uD83D\uDD07");
         put("dizzy","\uD83D\uDCAB");
-        put("five","\uDBBA\uDC32");
         put("calendar","\uD83D\uDCC6");
         put("heavy_dollar_sign","\uD83D\uDCB2");
         put("wc","\uD83D\uDEBE");
@@ -261,12 +268,12 @@ public class ColorFormatter {
         put("bowling","\uD83C\uDFB3");
         put("non-potable_water","\uD83D\uDEB1");
         put("left_luggage","\uD83D\uDEC5");
-        put("six","\uDBBA\uDC33");
         put("bridge_at_night","\uD83C\uDF09");
         put("innocent","\uD83D\uDE07");
         put("coffee","\u2615");
+        put("white_large_square","\u2B1C\uFE0F");
+        put("speaker","\uD83D\uDD08");
         put("speech_balloon","\uD83D\uDCAC");
-        put("seven","\uDBBA\uDC34");
         put("card_index","\uD83D\uDCC7");
         put("credit_card","\uD83D\uDCB3");
         put("wavy_dash","\u3030");
@@ -278,12 +285,12 @@ public class ColorFormatter {
         put("flower_playing_cards","\uD83C\uDFB4");
         put("bike","\uD83D\uDEB2");
         put("carousel_horse","\uD83C\uDFA0");
-        put("eight","\uDBBA\uDC35");
         put("smiling_imp","\uD83D\uDE08");
+        put("parking","\uD83C\uDD7F\uFE0F");
         put("sound","\uD83D\uDD09");
         put("thought_balloon","\uD83D\uDCAD");
+        put("sparkle","\u2747\uFE0F");
         put("chart_with_upwards_trend","\uD83D\uDCC8");
-        put("nine","\uDBBA\uDC36");
         put("yen","\uD83D\uDCB4");
         put("diamond_shape_with_a_dot_inside","\uD83D\uDCA0");
         put("video_game","\uD83C\uDFAE");
@@ -294,18 +301,27 @@ public class ColorFormatter {
         put("ferris_wheel","\uD83C\uDFA1");
         put("wink","\uD83D\uDE09");
         put("vs","\uD83C\uDD9A");
+        put("eight_spoked_asterisk","\u2733\uFE0F");
+        put("gemini","\u264A\uFE0F");
         put("gemini","\u264A");
         put("white_flower","\uD83D\uDCAE");
+        put("white_small_square","\u25AB\uFE0F");
         put("chart_with_downwards_trend","\uD83D\uDCC9");
+        put("spades","\u2660\uFE0F");
         put("dollar","\uD83D\uDCB5");
+        put("five","\u0035\uFE0F\u20E3");
         put("bulb","\uD83D\uDCA1");
         put("dart","\uD83C\uDFAF");
         put("no_smoking","\uD83D\uDEAD");
+        put("zero","\u0030\u20E3");
         put("notes","\uD83C\uDFB6");
         put("cancer","\u264B");
         put("roller_coaster","\uD83C\uDFA2");
         put("mountain_cableway","\uD83D\uDEA0");
         put("bicyclist","\uD83D\uDEB4");
+        put("no_entry","\u26D4\uFE0F");
+        put("seven","\u0037\uFE0F\u20E3");
+        put("leftwards_arrow_with_hook","\u21A9\uFE0F");
         put("100","\uD83D\uDCAF");
         put("leo","\u264C");
         put("arrow_backward","\u25C0");
@@ -325,6 +341,7 @@ public class ColorFormatter {
         put("pound","\uD83D\uDCB7");
         put("bomb","\uD83D\uDCA3");
         put("do_not_litter","\uD83D\uDEAF");
+        put("coffee","\u2615\uFE0F");
         put("arrow_left","\u2B05");
         put("guitar","\uD83C\uDFB8");
         put("walking","\uD83D\uDEB6");
@@ -332,6 +349,7 @@ public class ColorFormatter {
         put("scorpius","\u264F");
         put("arrow_heading_down","\u2935");
         put("ship","\uD83D\uDEA2");
+        put("mahjong","\uD83C\uDC04\uFE0F");
         put("sagittarius","\u2650");
         put("yellow_heart","\uD83D\uDC9B");
         put("arrow_up","\u2B06");
@@ -358,11 +376,12 @@ public class ColorFormatter {
         put("children_crossing","\uD83D\uDEB8");
         put("cinema","\uD83C\uDFA6");
         put("speedboat","\uD83D\uDEA4");
+        put("point_up","\u261D\uFE0F");
         put("gift_heart","\uD83D\uDC9D");
         put("cool","\uD83C\uDD92");
         put("white_check_mark","\u2705");
         put("bouquet","\uD83D\uDC90");
-        put("kr","\uDBB9\uDCEE");
+        put("kr","\uD83C\uDDF0\uD83C\uDDF7");
         put("tractor","\uD83D\uDE9C");
         put("tm","\u2122");
         put("confetti_ball","\uD83C\uDF8A");
@@ -374,19 +393,25 @@ public class ColorFormatter {
         put("traffic_light","\uD83D\uDEA5");
         put("revolving_hearts","\uD83D\uDC9E");
         put("pill","\uD83D\uDC8A");
+        put("eight_pointed_black_star","\u2734\uFE0F");
         put("free","\uD83C\uDD93");
         put("couple_with_heart","\uD83D\uDC91");
         put("black_circle","\u26AB");
+        put("cancer","\u264B\uFE0F");
         put("monorail","\uD83D\uDE9D");
-        put("fr","\uD83C\uDDEB\uD83C\uDDF7");
+        put("arrow_backward","\u25C0\uFE0F");
         put("tanabata_tree","\uD83C\uDF8B");
         put("droplet","\uD83D\uDCA7");
+        put("virgo","\u264D\uFE0F");
+        put("fr","\uD83C\uDDEB\uD83C\uDDF7");
         put("white_medium_square","\u25FB");
         put("school_satchel","\uD83C\uDF92");
         put("minibus","\uD83D\uDE90");
+        put("one","\u0031\u20E3");
         put("art","\uD83C\uDFA8");
         put("airplane","\u2708");
         put("vertical_traffic_light","\uD83D\uDEA6");
+        put("v","\u270C\uFE0F");
         put("heart_decoration","\uD83D\uDC9F");
         put("black_medium_square","\u25FC");
         put("kiss","\uD83D\uDC8B");
@@ -401,6 +426,8 @@ public class ColorFormatter {
         put("mortar_board","\uD83C\uDF93");
         put("white_medium_small_square","\u25FD");
         put("ambulance","\uD83D\uDE91");
+        put("recycle","\u267B\uFE0F");
+        put("heart","\u2764\uFE0F");
         put("tophat","\uD83C\uDFA9");
         put("construction","\uD83D\uDEA7");
         put("ab","\uD83C\uDD8E");
@@ -409,15 +436,19 @@ public class ColorFormatter {
         put("heartbeat","\uD83D\uDC93");
         put("new","\uD83C\uDD95");
         put("suspension_railway","\uD83D\uDE9F");
-        put("ru","\uDBB9\uDCEC");
+        put("ru","\uD83C\uDDF7\uD83C\uDDFA");
         put("bamboo","\uD83C\uDF8D");
         put("hankey","\uD83D\uDCA9");
         put("poop","\uD83D\uDCA9");
         put("shit","\uD83D\uDCA9");
+        put("train","\uD83D\uDE8B");
         put("fire_engine","\uD83D\uDE92");
         put("ribbon","\uD83C\uDF80");
         put("rotating_light","\uD83D\uDEA8");
+        put("arrow_up","\u2B06\uFE0F");
+        put("part_alternation_mark","\u303D\uFE0F");
         put("ring","\uD83D\uDC8D");
+        put("golf","\u26F3\uFE0F");
         put("broken_heart","\uD83D\uDC94");
         put("ng","\uD83C\uDD96");
         put("skull","\uD83D\uDC80");
@@ -439,19 +470,23 @@ public class ColorFormatter {
         put("oncoming_police_car","\uD83D\uDE94");
         put("birthday","\uD83C\uDF82");
         put("rocket","\uD83D\uDE80");
+        put("one","\u0031\uFE0F\u20E3");
         put("couplekiss","\uD83D\uDC8F");
         put("ghost","\uD83D\uDC7B");
         put("sparkling_heart","\uD83D\uDC96");
         put("sos","\uD83C\uDD98");
         put("guardsman","\uD83D\uDC82");
+        put("u7121","\uD83C\uDE1A\uFE0F");
         put("a","\uD83C\uDD70");
         put("trolleybus","\uD83D\uDE8E");
         put("baby_bottle","\uD83C\uDF7C");
+        put("three","\u0033\uFE0F\u20E3");
         put("ophiuchus","\u26CE");
         put("taxi","\uD83D\uDE95");
         put("jack_o_lantern","\uD83C\uDF83");
         put("helicopter","\uD83D\uDE81");
         put("anchor","\u2693");
+        put("congratulations","\u3297\uFE0F");
         put("o2","\uD83C\uDD7E");
         put("angel","\uD83D\uDC7C");
         put("rewind","\u23EA");
@@ -460,14 +495,22 @@ public class ColorFormatter {
         put("dancer","\uD83D\uDC83");
         put("up","\uD83C\uDD99");
         put("b","\uD83C\uDD71");
+        put("leo","\u264C\uFE0F");
         put("busstop","\uD83D\uDE8F");
+        put("libra","\u264E\uFE0F");
+        put("secret","\u3299\uFE0F");
+        put("star","\u2B50\uFE0F");
         put("oncoming_taxi","\uD83D\uDE96");
         put("christmas_tree","\uD83C\uDF84");
         put("steam_locomotive","\uD83D\uDE82");
         put("cake","\uD83C\uDF70");
         put("arrow_double_up","\u23EB");
+        put("two","\u0032\u20E3");
+        put("watch","\u231A\uFE0F");
+        put("relaxed","\u263A\uFE0F");
         put("parking","\uD83C\uDD7F");
         put("alien","\uD83D\uDC7D");
+        put("sagittarius","\u2650\uFE0F");
         put("cupid","\uD83D\uDC98");
         put("church","\u26EA");
         put("lipstick","\uD83D\uDC84");
@@ -478,8 +521,8 @@ public class ColorFormatter {
         put("red_car","\uD83D\uDE97");
         put("santa","\uD83C\uDF85");
         put("railway_car","\uD83D\uDE83");
-        put("train","\uD83D\uDE83");
         put("bento","\uD83C\uDF71");
+        put("snowman","\u26C4\uFE0F");
         put("sparkle","\u2747");
         put("space_invader","\uD83D\uDC7E");
         put("family","\uD83D\uDC6A");
@@ -492,8 +535,11 @@ public class ColorFormatter {
         put("fireworks","\uD83C\uDF86");
         put("bullettrain_side","\uD83D\uDE84");
         put("stew","\uD83C\uDF72");
-        put("it","\uDBB9\uDCE9");
+        put("arrow_left","\u2B05\uFE0F");
+        put("arrow_down","\u2B07\uFE0F");
         put("alarm_clock","\u23F0");
+        put("it","\uD83C\uDDEE\uD83C\uDDF9");
+        put("fountain","\u26F2\uFE0F");
         put("imp","\uD83D\uDC7F");
         put("couple","\uD83D\uDC6B");
         put("massage","\uD83D\uDC86");
@@ -503,22 +549,26 @@ public class ColorFormatter {
         put("sparkler","\uD83C\uDF87");
         put("bullettrain_front","\uD83D\uDE85");
         put("egg","\uD83C\uDF73");
-        put("jp","\uDBB9\uDCE5");
+        put("jp","\uD83C\uDDEF\uD83C\uDDF5");
         put("heart","\u2764");
-        put("us","\uDBB9\uDCE6");
+        put("us","\uD83C\uDDFA\uD83C\uDDF8");
         put("two_men_holding_hands","\uD83D\uDC6C");
         put("arrow_right","\u27A1");
         put("haircut","\uD83D\uDC87");
         put("man_with_turban","\uD83D\uDC73");
         put("hourglass_flowing_sand","\u23F3");
         put("lollipop","\uD83C\uDF6D");
+        put("interrobang","\u2049\uFE0F");
         put("balloon","\uD83C\uDF88");
         put("train2","\uD83D\uDE86");
         put("fork_and_knife","\uD83C\uDF74");
+        put("arrow_right","\u27A1\uFE0F");
         put("sweet_potato","\uD83C\uDF60");
+        put("airplane","\u2708\uFE0F");
         put("fountain","\u26F2");
         put("two_women_holding_hands","\uD83D\uDC6D");
         put("barber","\uD83D\uDC88");
+        put("tent","\u26FA\uFE0F");
         put("older_man","\uD83D\uDC74");
         put("high_heel","\uD83D\uDC60");
         put("golf","\u26F3");
@@ -534,19 +584,25 @@ public class ColorFormatter {
         put("syringe","\uD83D\uDC89");
         put("leftwards_arrow_with_hook","\u21A9");
         put("older_woman","\uD83D\uDC75");
+        put("scorpius","\u264F\uFE0F");
         put("sandal","\uD83D\uDC61");
+        put("clubs","\u2663\uFE0F");
         put("boat","\u26F5");
         put("sailboat","\u26F5");
         put("honey_pot","\uD83C\uDF6F");
         put("curry","\uD83C\uDF5B");
         put("light_rail","\uD83D\uDE88");
+        put("three","\u0033\u20E3");
         put("sake","\uD83C\uDF76");
         put("oden","\uD83C\uDF62");
         put("clock11","\uD83D\uDD5A");
         put("clock630","\uD83D\uDD61");
+        put("hourglass","\u231B\uFE0F");
         put("dancers","\uD83D\uDC6F");
+        put("capricorn","\u2651\uFE0F");
         put("purse","\uD83D\uDC5B");
         put("loop","\u27BF");
+        put("hash","\u0023\uFE0F\u20E3");
         put("baby","\uD83D\uDC76");
         put("m","\u24C2");
         put("boot","\uD83D\uDC62");
@@ -556,6 +612,8 @@ public class ColorFormatter {
         put("watch","\u231A");
         put("sushi","\uD83C\uDF63");
         put("sunny","\u2600");
+        put("anchor","\u2693\uFE0F");
+        put("partly_sunny","\u26C5\uFE0F");
         put("clock12","\uD83D\uDD5B");
         put("clock730","\uD83D\uDD62");
         put("ideograph_advantage","\uD83C\uDE50");
@@ -564,7 +622,6 @@ public class ColorFormatter {
         put("cloud","\u2601");
         put("construction_worker","\uD83D\uDC77");
         put("footprints","\uD83D\uDC63");
-        put("hash","\uDBBA\uDC2C");
         put("spaghetti","\uD83C\uDF5D");
         put("cocktail","\uD83C\uDF78");
         put("fried_shrimp","\uD83C\uDF64");
@@ -572,10 +629,15 @@ public class ColorFormatter {
         put("clock130","\uD83D\uDD5C");
         put("clock830","\uD83D\uDD63");
         put("accept","\uD83C\uDE51");
+        put("boat","\u26F5\uFE0F");
+        put("sailboat","\u26F5\uFE0F");
         put("pouch","\uD83D\uDC5D");
         put("princess","\uD83D\uDC78");
         put("bust_in_silhouette","\uD83D\uDC64");
+        put("eight","\u0038\uFE0F\u20E3");
         put("open_hands","\uD83D\uDC50");
+        put("left_right_arrow","\u2194\uFE0F");
+        put("arrow_upper_left","\u2196\uFE0F");
         put("bread","\uD83C\uDF5E");
         put("tangerine","\uD83C\uDF4A");
         put("tropical_drink","\uD83C\uDF79");
@@ -583,6 +645,7 @@ public class ColorFormatter {
         put("peach","\uD83C\uDF51");
         put("clock230","\uD83D\uDD5D");
         put("clock930","\uD83D\uDD64");
+        put("aries","\u2648\uFE0F");
         put("clock1","\uD83D\uDD50");
         put("mans_shoe","\uD83D\uDC5E");
         put("shoe","\uD83D\uDC5E");
@@ -597,9 +660,12 @@ public class ColorFormatter {
         put("icecream","\uD83C\uDF66");
         put("cherries","\uD83C\uDF52");
         put("black_small_square","\u25AA");
+        put("email","\u2709\uFE0F");
+        put("envelope","\u2709\uFE0F");
         put("clock330","\uD83D\uDD5E");
         put("clock1030","\uD83D\uDD65");
         put("clock2","\uD83D\uDD51");
+        put("m","\u24C2\uFE0F");
         put("athletic_shoe","\uD83D\uDC5F");
         put("wave","\uD83D\uDC4B");
         put("white_small_square","\u25AB");
@@ -609,29 +675,37 @@ public class ColorFormatter {
         put("banana","\uD83C\uDF4C");
         put("speak_no_evil","\uD83D\uDE4A");
         put("shaved_ice","\uD83C\uDF67");
+        put("phone","\u260E\uFE0F");
+        put("telephone","\u260E\uFE0F");
         put("strawberry","\uD83C\uDF53");
         put("clock430","\uD83D\uDD5F");
-        put("cn","\uDBB9\uDCED");
+        put("cn","\uD83C\uDDE8\uD83C\uDDF3");
         put("clock1130","\uD83D\uDD66");
         put("clock3","\uD83D\uDD52");
         put("ok_hand","\uD83D\uDC4C");
+        put("diamonds","\u2666\uFE0F");
         put("girl","\uD83D\uDC67");
         put("relaxed","\u263A");
         put("eyeglasses","\uD83D\uDC53");
         put("pineapple","\uD83C\uDF4D");
         put("raising_hand","\uD83D\uDE4B");
+        put("four","\u0034\u20E3");
         put("ice_cream","\uD83C\uDF68");
+        put("information_source","\u2139\uFE0F");
         put("hamburger","\uD83C\uDF54");
         put("four_leaf_clover","\uD83C\uDF40");
+        put("pencil2","\u270F\uFE0F");
         put("u55b6","\uD83C\uDE3A");
         put("clock1230","\uD83D\uDD67");
         put("clock4","\uD83D\uDD53");
         put("part_alternation_mark","\u303D");
+        put("aquarius","\u2652\uFE0F");
         put("+1","\uD83D\uDC4D");
         put("thumbsup","\uD83D\uDC4D");
         put("man","\uD83D\uDC68");
         put("necktie","\uD83D\uDC54");
         put("eyes","\uD83D\uDC40");
+        put("bangbang","\u203C\uFE0F");
         put("apple","\uD83C\uDF4E");
         put("raised_hands","\uD83D\uDE4C");
         put("hibiscus","\uD83C\uDF3A");
@@ -639,8 +713,8 @@ public class ColorFormatter {
         put("pizza","\uD83C\uDF55");
         put("maple_leaf","\uD83C\uDF41");
         put("clock5","\uD83D\uDD54");
-        put("gb","\uDBB9\uDCEA");
-        put("uk","\uDBB9\uDCEA");
+        put("gb","\uD83C\uDDEC\uD83C\uDDE7");
+        put("uk","\uD83C\uDDEC\uD83C\uDDE7");
         put("-1","\uD83D\uDC4E");
         put("thumbsdown","\uD83D\uDC4E");
         put("wolf","\uD83D\uDC3A");
@@ -657,19 +731,24 @@ public class ColorFormatter {
         put("clock6","\uD83D\uDD55");
         put("clap","\uD83D\uDC4F");
         put("bear","\uD83D\uDC3B");
+        put("warning","\u26A0\uFE0F");
         put("jeans","\uD83D\uDC56");
         put("ear","\uD83D\uDC42");
+        put("arrow_up_down","\u2195\uFE0F");
+        put("arrow_upper_right","\u2197\uFE0F");
         put("person_with_pouting_face","\uD83D\uDE4E");
         put("blossom","\uD83C\uDF3C");
         put("smiley_cat","\uD83D\uDE3A");
         put("poultry_leg","\uD83C\uDF57");
         put("leaves","\uD83C\uDF43");
         put("fist","\u270A");
-        put("es","\uDBB9\uDCEB");
+        put("es","\uD83C\uDDEA\uD83C\uDDF8");
         put("small_red_triangle_down","\uD83D\uDD3B");
+        put("white_medium_square","\u25FB\uFE0F");
         put("clock7","\uD83D\uDD56");
         put("tv","\uD83D\uDCFA");
-        put("de","\uDBB9\uDCE8");
+        put("taurus","\u2649\uFE0F");
+        put("de","\uD83C\uDDE9\uD83C\uDDEA");
         put("panda_face","\uD83D\uDC3C");
         put("hand","\u270B");
         put("raised_hand","\u270B");
@@ -693,17 +772,19 @@ public class ColorFormatter {
         put("ear_of_rice","\uD83C\uDF3E");
         put("smirk_cat","\uD83D\uDE3C");
         put("interrobang","\u2049");
-        put("mount_fuji","\uD83D\uDDFB");
         put("rice_ball","\uD83C\uDF59");
+        put("mount_fuji","\uD83D\uDDFB");
         put("tomato","\uD83C\uDF45");
         put("seedling","\uD83C\uDF31");
         put("arrow_down_small","\uD83D\uDD3D");
         put("clock9","\uD83D\uDD58");
         put("vhs","\uD83D\uDCFC");
+        put("church","\u26EA\uFE0F");
         put("beginner","\uD83D\uDD30");
         put("u7981","\uD83C\uDE32");
         put("feet","\uD83D\uDC3E");
         put("paw_prints","\uD83D\uDC3E");
+        put("hearts","\u2665\uFE0F");
         put("dromedary_camel","\uD83D\uDC2A");
         put("bikini","\uD83D\uDC59");
         put("pencil2","\u270F");
@@ -712,22 +793,29 @@ public class ColorFormatter {
         put("european_castle","\uD83C\uDFF0");
         put("herb","\uD83C\uDF3F");
         put("kissing_cat","\uD83D\uDE3D");
+        put("five","\u0035\u20E3");
         put("tokyo_tower","\uD83D\uDDFC");
+        put("seven","\u0037\u20E3");
         put("eggplant","\uD83C\uDF46");
+        put("ballot_box_with_check","\u2611\uFE0F");
         put("spades","\u2660");
         put("evergreen_tree","\uD83C\uDF32");
         put("cold_sweat","\uD83D\uDE30");
         put("hocho","\uD83D\uDD2A");
+        put("knife","\uD83D\uDD2A");
         put("clock10","\uD83D\uDD59");
+        put("two","\u0032\uFE0F\u20E3");
         put("trident","\uD83D\uDD31");
         put("u7a7a","\uD83C\uDE33");
         put("aries","\u2648");
         put("newspaper","\uD83D\uDCF0");
         put("congratulations","\u3297");
+        put("pisces","\u2653\uFE0F");
         put("camel","\uD83D\uDC2B");
         put("point_up_2","\uD83D\uDC46");
         put("convenience_store","\uD83C\uDFEA");
         put("dragon_face","\uD83D\uDC32");
+        put("hash","\u0023\u20E3");
         put("black_nib","\u2712");
         put("pouting_cat","\uD83D\uDE3E");
         put("sleepy","\uD83D\uDE2A");
@@ -737,6 +825,10 @@ public class ColorFormatter {
         put("no_good","\uD83D\uDE45");
         put("deciduous_tree","\uD83C\uDF33");
         put("scream","\uD83D\uDE31");
+        put("wheelchair","\u267F\uFE0F");
+        put("black_nib","\u2712\uFE0F");
+        put("heavy_check_mark","\u2714\uFE0F");
+        put("four","\u0034\uFE0F\u20E3");
         put("gun","\uD83D\uDD2B");
         put("mailbox_closed","\uD83D\uDCEA");
         put("black_square_button","\uD83D\uDD32");
@@ -759,19 +851,24 @@ public class ColorFormatter {
         put("crying_cat_face","\uD83D\uDE3F");
         put("palm_tree","\uD83C\uDF34");
         put("astonished","\uD83D\uDE32");
+        put("stars","\uD83C\uDF20");
         put("ok_woman","\uD83D\uDE46");
+        put("six","\u0036\uFE0F\u20E3");
         put("microscope","\uD83D\uDD2C");
         put("u7121","\uD83C\uDE1A");
         put("mailbox","\uD83D\uDCEB");
+        put("u6307","\uD83C\uDE2F\uFE0F");
         put("white_square_button","\uD83D\uDD33");
         put("zap","\u26A1");
         put("u6e80","\uD83C\uDE35");
         put("calling","\uD83D\uDCF2");
         put("mouse","\uD83D\uDC2D");
+        put("zap","\u26A1\uFE0F");
         put("hearts","\u2665");
         put("point_left","\uD83D\uDC48");
         put("department_store","\uD83C\uDFEC");
         put("horse","\uD83D\uDC34");
+        put("arrow_lower_right","\u2198\uFE0F");
         put("tropical_fish","\uD83D\uDC20");
         put("heavy_multiplication_x","\u2716");
         put("grimacing","\uD83D\uDE2C");
@@ -784,6 +881,7 @@ public class ColorFormatter {
         put("diamonds","\u2666");
         put("telescope","\uD83D\uDD2D");
         put("u6307","\uD83C\uDE2F");
+        put("black_medium_square","\u25FC\uFE0F");
         put("mailbox_with_mail","\uD83D\uDCEC");
         put("red_circle","\uD83D\uDD34");
         put("u6709","\uD83C\uDE36");
@@ -800,6 +898,7 @@ public class ColorFormatter {
         put("sob","\uD83D\uDE2D");
         put("first_quarter_moon_with_face","\uD83C\uDF1B");
         put("see_no_evil","\uD83D\uDE48");
+        put("soccer","\u26BD\uFE0F");
         put("sleeping","\uD83D\uDE34");
         put("angry","\uD83D\uDE20");
         put("hotsprings","\u2668");
@@ -817,6 +916,7 @@ public class ColorFormatter {
         put("bug","\uD83D\uDC1B");
         put("izakaya_lantern","\uD83C\uDFEE");
         put("lantern","\uD83C\uDFEE");
+        put("fuelpump","\u26FD\uFE0F");
         put("dog","\uD83D\uDC36");
         put("turtle","\uD83D\uDC22");
         put("house_with_garden","\uD83C\uDFE1");
@@ -842,17 +942,21 @@ public class ColorFormatter {
         put("eight_pointed_black_star","\u2734");
         put("ant","\uD83D\uDC1C");
         put("japanese_castle","\uD83C\uDFEF");
+        put("hotsprings","\u2668\uFE0F");
         put("pig","\uD83D\uDC37");
         put("hatching_chick","\uD83D\uDC23");
         put("office","\uD83C\uDFE2");
         put("hushed","\uD83D\uDE2F");
+        put("six","\u0036\u20E3");
         put("full_moon_with_face","\uD83C\uDF1D");
         put("stuck_out_tongue","\uD83D\uDE1B");
+        put("eight","\u0038\u20E3");
         put("cherry_blossom","\uD83C\uDF38");
         put("information_source","\u2139");
         put("cry","\uD83D\uDE22");
         put("no_mouth","\uD83D\uDE36");
         put("globe_with_meridians","\uD83C\uDF10");
+        put("arrow_heading_up","\u2934\uFE0F");
         put("soon","\uD83D\uDD1C");
         put("postal_horn","\uD83D\uDCEF");
         put("u5272","\uD83C\uDE39");
@@ -862,8 +966,10 @@ public class ColorFormatter {
         put("name_badge","\uD83D\uDCDB");
         put("loudspeaker","\uD83D\uDCE2");
         put("negative_squared_cross_mark","\u274E");
+        put("arrow_right_hook","\u21AA\uFE0F");
         put("bee","\uD83D\uDC1D");
         put("honeybee","\uD83D\uDC1D");
+        put("sunny","\u2600\uFE0F");
         put("frog","\uD83D\uDC38");
         put("baby_chick","\uD83D\uDC24");
         put("goat","\uD83D\uDC10");
@@ -887,6 +993,8 @@ public class ColorFormatter {
         put("snowman","\u26C4");
         put("crocodile","\uD83D\uDC0A");
         put("hamster","\uD83D\uDC39");
+        put("exclamation","\u2757\uFE0F");
+        put("heavy_exclamation_mark","\u2757\uFE0F");
         put("hatched_chick","\uD83D\uDC25");
         put("sheep","\uD83D\uDC11");
         put("european_post_office","\uD83C\uDFE4");
@@ -900,7 +1008,7 @@ public class ColorFormatter {
         put("partly_sunny","\u26C5");
         put("neutral_face","\uD83D\uDE10");
         put("underage","\uD83D\uDD1E");
-        put("speaker","\uD83D\uDD0A");
+        put("loud_sound","\uD83D\uDD0A");
         put("small_blue_diamond","\uD83D\uDD39");
         put("memo","\uD83D\uDCDD");
         put("pencil","\uD83D\uDCDD");
@@ -910,6 +1018,7 @@ public class ColorFormatter {
         put("triangular_ruler","\uD83D\uDCD0");
         put("fish","\uD83D\uDC1F");
         put("whale2","\uD83D\uDC0B");
+        put("arrow_lower_left","\u2199\uFE0F");
         put("bird","\uD83D\uDC26");
         put("question","\u2753");
         put("monkey","\uD83D\uDC12");
@@ -926,6 +1035,7 @@ public class ColorFormatter {
         put("grey_question","\u2754");
         put("battery","\uD83D\uDD0B");
         put("telephone_receiver","\uD83D\uDCDE");
+        put("white_medium_small_square","\u25FD\uFE0F");
         put("bar_chart","\uD83D\uDCCA");
         put("video_camera","\uD83D\uDCF9");
         put("flashlight","\uD83D\uDD26");
@@ -938,6 +1048,7 @@ public class ColorFormatter {
         put("rooster","\uD83D\uDC13");
         put("bank","\uD83C\uDFE6");
         put("worried","\uD83D\uDE1F");
+        put("baseball","\u26BE\uFE0F");
         put("earth_africa","\uD83C\uDF0D");
         put("yum","\uD83D\uDE0B");
         put("frowning","\uD83D\uDE26");
@@ -961,8 +1072,10 @@ public class ColorFormatter {
         put("exclamation","\u2757");
         put("heavy_exclamation_mark","\u2757");
         put("rat","\uD83D\uDC00");
+        put("white_circle","\u26AA\uFE0F");
         put("earth_americas","\uD83C\uDF0E");
         put("relieved","\uD83D\uDE0C");
+        put("nine","\u0039\uFE0F\u20E3");
         put("anguished","\uD83D\uDE27");
         put("full_moon","\uD83C\uDF15");
         put("sweat","\uD83D\uDE13");
@@ -975,7 +1088,19 @@ public class ColorFormatter {
         put("sa","\uD83C\uDE02");
         put("notebook","\uD83D\uDCD3");
         put("twisted_rightwards_arrows","\uD83D\uDD00");
+        put("zero","\u0030\uFE0F\u20E3");
         put("racehorse","\uD83D\uDC0E");
+
+        put("doge", "\uD83D\uDC36");
+        put("<3", "\u2764");
+        put("</3", "\uD83D\uDC94");
+        put(")", "\uD83D\uDE03");
+        put("-)", "\uD83D\uDE03");
+        put("(", "\uD83D\uDE1E");
+        put("'(", "\uD83D\uDE22");
+        put("_(", "\uD83D\uDE2D");
+        put(";)", "\uD83D\uDE09");
+        put(";p", "\uD83D\uDE1C");
     }};
 
     public static Pattern EMOJI = null;
@@ -1013,6 +1138,10 @@ public class ColorFormatter {
         put("\u0038\uFE0F\u20E3", "\uDBBA\uDC35"); // EIGHT
         put("\u0039\uFE0F\u20E3", "\uDBBA\uDC36"); // NINE
         put("\u0023\uFE0F\u20E3", "\uDBBA\uDC2C"); // HASH
+        put("\u24C2\uFE0F", "\u24c2"); // M
+        put("\u2139\uFE0F", "\u2139"); // INFORMATION_SOURCE
+        put("\u3297\uFE0F", "\u3297"); // CONGRATULATIONS
+        put("\u3299\uFE0F", "\u3299"); // SECRET
     }};
 
     public static Pattern CONVERSION = null;
@@ -1033,6 +1162,26 @@ public class ColorFormatter {
         }
 
         if(!disableConvert && Build.VERSION.SDK_INT >= 14) {
+            if(EMOJI == null) {
+                String p = "\\B:(";
+                for(String key : emojiMap.keySet()) {
+                    if(p.length() > 4)
+                        p += "|";
+                    p += key.replace("-", "\\-").replace("+", "\\+").replace(")", "\\)").replace("(", "\\(");
+                }
+                p += "):\\B";
+
+                EMOJI = Pattern.compile(p);
+            }
+
+            Matcher m = EMOJI.matcher(msg);
+            while (m.find()) {
+                if (emojiMap.containsKey(m.group(1))) {
+                    msg = m.replaceFirst(emojiMap.get(m.group(1)));
+                    m = EMOJI.matcher(msg);
+                }
+            }
+
             if(CONVERSION == null) {
                 String p = "(";
                 for(String key : conversionMap.keySet()) {
@@ -1045,31 +1194,11 @@ public class ColorFormatter {
                 CONVERSION = Pattern.compile(p);
             }
 
-            Matcher m = CONVERSION.matcher(msg);
+            m = CONVERSION.matcher(msg);
             while (m.find()) {
                 if (conversionMap.containsKey(m.group(1))) {
                     msg = m.replaceFirst(conversionMap.get(m.group(1)));
                     m = CONVERSION.matcher(msg);
-                }
-            }
-
-            if(EMOJI == null) {
-                String p = "\\B:(";
-                for(String key : emojiMap.keySet()) {
-                    if(p.length() > 2)
-                        p += "|";
-                    p += key.replace("-", "\\-").replace("+", "\\+");
-                }
-                p += "):\\B";
-
-                EMOJI = Pattern.compile(p);
-            }
-
-            m = EMOJI.matcher(msg);
-            while (m.find()) {
-                if (emojiMap.containsKey(m.group(1))) {
-                    msg = m.replaceFirst(emojiMap.get(m.group(1)));
-                    m = EMOJI.matcher(msg);
                 }
             }
         }
