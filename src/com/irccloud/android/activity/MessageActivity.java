@@ -1838,7 +1838,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	        		menu.findItem(R.id.menu_delete).setEnabled(false);
 	        		menu.findItem(R.id.menu_ban_list).setVisible(true);
 	        		menu.findItem(R.id.menu_ban_list).setEnabled(true);
-	        		if(menu.findItem(R.id.menu_userlist) != null && getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null) {
+	        		if(menu.findItem(R.id.menu_userlist) != null && findViewById(R.id.usersListFragment2) != null) {
 		        		boolean hide = true;
 		        		try {
 		        			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
