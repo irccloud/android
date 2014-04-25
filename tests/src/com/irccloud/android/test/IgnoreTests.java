@@ -1,7 +1,7 @@
 package com.irccloud.android.test;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.data.ServersDataSource;
 
@@ -10,8 +10,8 @@ import junit.framework.TestCase;
 public class IgnoreTests extends TestCase {
 
 	public void testNoNickWithDot() {
-        JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!users.1@host.local"));
+        ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!users.1@host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
 		Ignore ignore = new Ignore();
@@ -29,8 +29,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoNick() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!username@host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!username@host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
@@ -48,8 +48,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoNickIdentUsername() {
-		JsonArray ignores = new JsonArray();
-        ignores.add(new JsonPrimitive("*!~username@host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+        ignores.add("*!~username@host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
@@ -67,8 +67,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoHost() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!users.1@*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!users.1@*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
@@ -86,8 +86,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testJustHost() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
@@ -105,8 +105,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testPartialWildcard1() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*sam!*users.1@*.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*sam!*users.1@*.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
@@ -124,8 +124,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testPartialWildcard2() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*a*!*users.1@*.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*a*!*users.1@*.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
@@ -143,8 +143,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testPartialWildcard3() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!*users.1@*.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!*users.1@*.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
 		Ignore ignore = new Ignore();
@@ -162,8 +162,8 @@ public class IgnoreTests extends TestCase {
 	}
 	
 	public void testPartialWildcard4() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!user*@*.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!user*@*.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -181,8 +181,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoNickNoUsername1() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!*@host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!*@host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -200,8 +200,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoNickNoUsername2() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*@host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*@host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -219,8 +219,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testJustNick() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -238,8 +238,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testFull1() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!users.1@host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!users.1@host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -257,8 +257,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testFull2() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("Sam!Users.1@HOST.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("Sam!Users.1@HOST.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -276,8 +276,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoNickNoHost() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!users.1@*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!users.1@*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -295,8 +295,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoUsername1() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!*@host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!*@host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -314,8 +314,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoUsername2() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!host.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!host.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -333,8 +333,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoUsername3() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!*.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!*.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -352,8 +352,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoUsername4() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!*o*.local"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!*o*.local");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -371,8 +371,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoUsername5() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!host.*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!host.*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -390,8 +390,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoUsernameOrHost1() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!*@*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!*@*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -409,8 +409,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testNoUsernameOrHost2() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -428,8 +428,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testUsernameAlone() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("sam!~username"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("sam!~username");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -447,8 +447,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testAllWildcards1() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!*@*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!*@*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -466,8 +466,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testAllWildcards2() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*!*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*!*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -485,8 +485,8 @@ public class IgnoreTests extends TestCase {
 	}
 
 	public void testAllWildcards3() {
-		JsonArray ignores = new JsonArray();
-		ignores.add(new JsonPrimitive("*"));
+		ArrayNode ignores = new ObjectMapper().createArrayNode();
+		ignores.add("*");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
@@ -504,10 +504,10 @@ public class IgnoreTests extends TestCase {
 	}
 
     public void testBrackets() {
-        JsonArray ignores = new JsonArray();
-        ignores.add(new JsonPrimitive("(sam)"));
-        ignores.add(new JsonPrimitive("{sam}"));
-        ignores.add(new JsonPrimitive("[sam]"));
+        ArrayNode ignores = new ObjectMapper().createArrayNode();
+        ignores.add("(sam)");
+        ignores.add("{sam}");
+        ignores.add("[sam]");
         ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();

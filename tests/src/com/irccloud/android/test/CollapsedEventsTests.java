@@ -1,7 +1,9 @@
 package com.irccloud.android.test;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
@@ -12,10 +14,10 @@ public class CollapsedEventsTests extends TestCase {
     private long eid = 1;
 
     private void addMode(CollapsedEventsList list, String mode, String nick, String from) {
-        JsonArray add = new JsonArray();
-        JsonObject op = new JsonObject();
-        op.addProperty("param", nick);
-        op.addProperty("mode", mode);
+        ArrayNode add = new ObjectMapper().createArrayNode();
+        ObjectNode op = new ObjectMapper().createObjectNode();
+        op.put("param", nick);
+        op.put("mode", mode);
         add.add(op);
 
         EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
@@ -27,18 +29,18 @@ public class CollapsedEventsTests extends TestCase {
         e.target_mode = mode;
         e.server = "irc.example.net";
         e.chan = null;
-        e.ops = new JsonObject();
-        e.ops.add("add", add);
-        e.ops.add("remove", new JsonArray());
+        e.ops = new ObjectMapper().createObjectNode();
+        ((ObjectNode)e.ops).put("add", add);
+        ((ObjectNode)e.ops).put("remove", new ObjectMapper().createArrayNode());
 
         list.addEvent(e);
     }
 
     private void removeMode(CollapsedEventsList list, String mode, String nick, String from) {
-        JsonArray remove = new JsonArray();
-        JsonObject op = new JsonObject();
-        op.addProperty("param", nick);
-        op.addProperty("mode", mode);
+        ArrayNode remove = new ObjectMapper().createArrayNode();
+        ObjectNode op = new ObjectMapper().createObjectNode();
+        op.put("param", nick);
+        op.put("mode", mode);
         remove.add(op);
 
         EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
@@ -48,9 +50,9 @@ public class CollapsedEventsTests extends TestCase {
         e.nick = nick;
         e.server = "irc.example.net";
         e.chan = null;
-        e.ops = new JsonObject();
-        e.ops.add("add", new JsonArray());
-        e.ops.add("remove", remove);
+        e.ops = new ObjectMapper().createObjectNode();
+        ((ObjectNode)e.ops).put("add", new ObjectMapper().createArrayNode());
+        ((ObjectNode)e.ops).put("remove", remove);
 
         list.addEvent(e);
     }
