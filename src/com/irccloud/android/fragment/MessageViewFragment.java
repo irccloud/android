@@ -2056,7 +2056,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(connecting.getVisibility() == View.VISIBLE) {
+                        if(connecting.getVisibility() == View.VISIBLE && conn != null && conn.ready) {
                             TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
                             anim.setDuration(200);
                             anim.setFillAfter(true);

@@ -180,7 +180,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 	}
 
 	private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<UsersDataSource.User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
-		if(users.size() > 0) {
+		if(users.size() > 0 && symbol != null) {
 			entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0?symbol + String.valueOf(users.size()):null, heading_color, heading_bg_color, heading_bg_color, false, false));
 			for(int i = 0; i < users.size(); i++) {
 				UsersDataSource.User user = users.get(i);
@@ -232,15 +232,15 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
 		for(int i = 0; i < users.size(); i++) {
 			UsersDataSource.User user = users.get(i);
-			if(user.mode.contains(s!=null?s.MODE_OWNER:"q")) {
+			if(user.mode.contains(s!=null?s.MODE_OWNER:"q") && PREFIX.has(s!=null?s.MODE_OWNER:"q")) {
 				owners.add(user);
-			} else if(user.mode.contains(s!=null?s.MODE_ADMIN:"a")) {
+			} else if(user.mode.contains(s!=null?s.MODE_ADMIN:"a") && PREFIX.has(s!=null?s.MODE_ADMIN:"a")) {
 				admins.add(user);
-			} else if(user.mode.contains(s!=null?s.MODE_OP:"o")) {
+			} else if(user.mode.contains(s!=null?s.MODE_OP:"o") && PREFIX.has(s!=null?s.MODE_OP:"o")) {
 				ops.add(user);
-			} else if(user.mode.contains(s!=null?s.MODE_HALFOP:"h")) {
+			} else if(user.mode.contains(s!=null?s.MODE_HALFOP:"h") && PREFIX.has(s!=null?s.MODE_HALFOP:"h")) {
 				halfops.add(user);
-			} else if(user.mode.contains(s!=null?s.MODE_VOICED:"v")) {
+			} else if(user.mode.contains(s!=null?s.MODE_VOICED:"v") && PREFIX.has(s!=null?s.MODE_VOICED:"v")) {
 				voiced.add(user);
 			} else {
 				members.add(user);
