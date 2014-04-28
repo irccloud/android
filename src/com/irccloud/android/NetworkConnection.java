@@ -504,11 +504,11 @@ public class NetworkConnection {
 	
 	public JSONObject login(String email, String password) {
 		try {
-            String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null);
+            String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
             JSONObject token = new JSONObject(tokenResponse);
             if(token.has("token")) {
                 String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token");
-                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null);
+                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null, token.getString("token"));
                 if(response.length() < 1) {
                     JSONObject o = new JSONObject();
                     o.put("message", "empty_response");
@@ -545,7 +545,7 @@ public class NetworkConnection {
 
     public JSONObject fetchJSON(String url) throws IOException {
         try {
-            String response = doFetch(new URL(url), null, null);
+            String response = doFetch(new URL(url), null, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -556,7 +556,7 @@ public class NetworkConnection {
     public JSONObject registerGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
 		try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk);
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk, null);
 			return new JSONObject(response);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -567,7 +567,7 @@ public class NetworkConnection {
 	public JSONObject unregisterGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
 		try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk);
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk, null);
 			return new JSONObject(response);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -581,7 +581,7 @@ public class NetworkConnection {
             public void run() {
                 try {
                     Log.i("IRCCloud", "Invalidating session");
-                    doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session="+sk, sk);
+                    doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session="+sk, sk, null);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -591,7 +591,7 @@ public class NetworkConnection {
 
     public JSONArray networkPresets() throws IOException {
         try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/static/networks.json"), null, null);
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/static/networks.json"), null, null, null);
             JSONObject o = new JSONObject(response);
             return o.getJSONArray("networks");
         } catch (Exception e) {
@@ -2052,7 +2052,7 @@ public class NetworkConnection {
 			schedule_idle_timer();
 	}
 	
-	private String doFetch(URL url, String postdata, String sk) throws Exception {
+	private String doFetch(URL url, String postdata, String sk, String token) throws Exception {
 		HttpURLConnection conn = null;
 
         Proxy proxy = null;
@@ -2093,6 +2093,8 @@ public class NetworkConnection {
         conn.setRequestProperty("Accept", "application/json");
         if(sk != null)
             conn.setRequestProperty("Cookie", "session="+sk);
+        if(token != null)
+            conn.setRequestProperty("x-auth-formtoken", token);
         if(postdata != null) {
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);
