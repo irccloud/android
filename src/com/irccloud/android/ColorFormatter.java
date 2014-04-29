@@ -1161,24 +1161,26 @@ public class ColorFormatter {
         } catch (Exception e) {
         }
 
-        if(!disableConvert && Build.VERSION.SDK_INT >= 14) {
-            if(EMOJI == null) {
-                String p = "\\B:(";
-                for(String key : emojiMap.keySet()) {
-                    if(p.length() > 4)
-                        p += "|";
-                    p += key.replace("-", "\\-").replace("+", "\\+").replace(")", "\\)").replace("(", "\\(");
+        if(Build.VERSION.SDK_INT >= 14) {
+            if(!disableConvert) {
+                if (EMOJI == null) {
+                    String p = "\\B:(";
+                    for (String key : emojiMap.keySet()) {
+                        if (p.length() > 4)
+                            p += "|";
+                        p += key.replace("-", "\\-").replace("+", "\\+").replace(")", "\\)").replace("(", "\\(");
+                    }
+                    p += "):\\B";
+
+                    EMOJI = Pattern.compile(p);
                 }
-                p += "):\\B";
 
-                EMOJI = Pattern.compile(p);
-            }
-
-            Matcher m = EMOJI.matcher(msg);
-            while (m.find()) {
-                if (emojiMap.containsKey(m.group(1))) {
-                    msg = m.replaceFirst(emojiMap.get(m.group(1)));
-                    m = EMOJI.matcher(msg);
+                Matcher m = EMOJI.matcher(msg);
+                while (m.find()) {
+                    if (emojiMap.containsKey(m.group(1))) {
+                        msg = m.replaceFirst(emojiMap.get(m.group(1)));
+                        m = EMOJI.matcher(msg);
+                    }
                 }
             }
 
@@ -1194,7 +1196,7 @@ public class ColorFormatter {
                 CONVERSION = Pattern.compile(p);
             }
 
-            m = CONVERSION.matcher(msg);
+            Matcher m = CONVERSION.matcher(msg);
             while (m.find()) {
                 if (conversionMap.containsKey(m.group(1))) {
                     msg = m.replaceFirst(conversionMap.get(m.group(1)));
