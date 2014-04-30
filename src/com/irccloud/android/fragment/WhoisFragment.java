@@ -203,11 +203,15 @@ public class WhoisFragment extends DialogFragment {
     		} else {
     			extra.setVisibility(View.GONE);
     		}
-    		String nametxt = event.getString("user_realname");
-    		if(event.has("user_logged_in_as") && event.getString("user_logged_in_as").length() > 0) {
-    			nametxt += " (authed as " + event.getString("user_logged_in_as") + ")";
-    		}
-    		name.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(nametxt))));
+            if(event.has("user_realname")) {
+                String nametxt = event.getString("user_realname");
+                if (event.has("user_logged_in_as") && event.getString("user_logged_in_as").length() > 0) {
+                    nametxt += " (authed as " + event.getString("user_logged_in_as") + ")";
+                }
+                name.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(nametxt))));
+            } else {
+                name.setText("");
+            }
     		mask.setText(event.getString("user_username") + "@" + event.getString("user_host"));
             if(event.has("actual_host"))
                 mask.setText(mask.getText() + "/" + event.getString("actual_host"));

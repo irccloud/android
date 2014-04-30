@@ -106,6 +106,9 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+            if(ctx == null)
+                return null;
+            
 			View row = convertView;
 			ViewHolder holder;
 
