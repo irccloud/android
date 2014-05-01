@@ -2787,9 +2787,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             shouldFadeIn = false;
         else
             shouldFadeIn = true;
-        Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: " + bid + " shouldFadeIn: " + shouldFadeIn);
         buffer = BuffersDataSource.getInstance().getBuffer(bid);
         if(buffer != null) {
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.cid + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = ServersDataSource.getInstance().getServer(buffer.cid);
 
             TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
@@ -2804,6 +2804,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 }
             }
         } else {
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected but not found: bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = null;
         }
         update_subtitle();
