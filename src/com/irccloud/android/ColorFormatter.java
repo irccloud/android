@@ -1146,13 +1146,9 @@ public class ColorFormatter {
 
     public static Pattern CONVERSION = null;
 
-	public static Spanned html_to_spanned(String msg) {
-		return html_to_spanned(msg, false, null);
-	}
-	
-	public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
-		if(msg == null)
-			msg = "";
+    public static String emojify(String msg) {
+        if(msg == null)
+            return "";
 
         boolean disableConvert = false;
         try {
@@ -1204,6 +1200,16 @@ public class ColorFormatter {
                 }
             }
         }
+        return msg;
+    }
+
+	public static Spanned html_to_spanned(String msg) {
+		return html_to_spanned(msg, false, null);
+	}
+	
+	public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
+		if(msg == null)
+			msg = "";
 
 		Spannable output = (Spannable)Html.fromHtml(msg, null, new Html.TagHandler() {
 			@Override
@@ -1260,7 +1266,7 @@ public class ColorFormatter {
         if(server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
             chanTypes = server.CHANTYPES;
 
-        final String pattern = "\\B([" + chanTypes + "][^\ufe0e\ufe0f\u20e3<>!?\"()\\[\\],\\s\ufe55]+)";
+        final String pattern = "\\B([" + chanTypes + "]([^\ufe0e\ufe0f\u20e3<>!?\"()\\[\\],\\s\ufe55\\.]|\\.+\\w)+)";
 
 		if(linkify) {
             Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {

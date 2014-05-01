@@ -81,7 +81,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private View unreadBottomView;
 	private TextView highlightsTopLabel;
 	private TextView highlightsBottomLabel;
-    private BuffersDataSource.Buffer buffer;
+    public BuffersDataSource.Buffer buffer;
     private ServersDataSource.Server server;
 	private long earliest_eid;
 	private long backlog_eid = 0;
@@ -768,14 +768,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         conn = NetworkConnection.getInstance();
-        if(savedInstanceState != null && savedInstanceState.containsKey("bid")) {
-            buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
-            if(buffer != null) {
-                server = ServersDataSource.getInstance().getServer(buffer.cid);
-                dirty = false;
-            }
-        	backlog_eid = savedInstanceState.getLong("backlog_eid");
-        }
     }
     
     @Override
@@ -786,14 +778,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement MessageViewListener");
         }
-    }
-    
-    @Override
-    public void onSaveInstanceState(Bundle state) {
-    	super.onSaveInstanceState(state);
-        if(buffer != null)
-        	state.putInt("bid", buffer.bid);
-    	state.putLong("backlog_eid", backlog_eid);
     }
     
     @Override

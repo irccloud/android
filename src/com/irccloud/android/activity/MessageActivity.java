@@ -2891,6 +2891,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 			anim.setDuration(150);
 			anim.setFillAfter(true);
 			if(mvf != null && mvf.getListView() != null) {
+                if(mvf.buffer != buffer && buffer != null) {
+                    Bundle b = new Bundle();
+                    b.putInt("cid", buffer.cid);
+                    b.putInt("bid", buffer.bid);
+                    b.putBoolean("fade", false);
+                    mvf.setArguments(b);
+                }
                 mvf.showSpinner(false);
 				mvf.getListView().startAnimation(anim);
             }

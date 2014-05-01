@@ -19,6 +19,7 @@ package com.irccloud.android.data;
 import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ColorFormatter;
 
 import java.util.ArrayList;
 
@@ -94,7 +95,7 @@ public class ChannelsDataSource {
 		c.bid = bid;
 		c.name = name;
 		c.topic_author = topic_author;
-		c.topic_text = topic_text;
+        c.topic_text = ColorFormatter.emojify(topic_text);
 		c.topic_time = topic_time;
 		c.type = type;
 		c.timestamp = timestamp;
@@ -112,7 +113,7 @@ public class ChannelsDataSource {
 	public synchronized void updateTopic(int bid, String topic_text, long topic_time, String topic_author) {
 		Channel c = getChannelForBuffer(bid);
 		if(c != null) {
-			c.topic_text = topic_text;
+			c.topic_text = ColorFormatter.emojify(topic_text);
 			c.topic_time = topic_time;
 			c.topic_author = topic_author;
 		}

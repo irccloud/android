@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.R;
@@ -877,7 +878,9 @@ public class EventsDataSource {
 			
 			if(highest_eid < event.eid())
 				highest_eid = event.eid();
-			
+
+            e.msg = ColorFormatter.emojify(e.msg);
+
 			return e;
 		}
 	}
