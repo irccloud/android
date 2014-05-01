@@ -1285,6 +1285,8 @@ public class NetworkConnection {
                     prefs.putBoolean("emoji-disableconvert", true);
                 }
                 prefs.commit();
+                Crashlytics.setUserName("uid" + userInfo.id);
+                Crashlytics.setUserIdentifier(String.valueOf(userInfo.id));
                 notifyHandlers(EVENT_USERINFO, userInfo);
             }
         });
@@ -2204,6 +2206,7 @@ public class NetworkConnection {
 	}
 	
 	public class UserInfo {
+        public int id;
         public String name;
         public String email;
         public boolean verified;
@@ -2217,8 +2220,9 @@ public class NetworkConnection {
         public int num_invites;
         public JSONObject prefs;
         public String highlights;
-		
+
 		public UserInfo(IRCCloudJSONObject object) throws JSONException {
+            id = object.getInt("id");
 			name = object.getString("name");
 			email = object.getString("email");
 			verified = object.getBoolean("verified");
