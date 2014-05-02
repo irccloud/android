@@ -597,7 +597,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     	
     	@Override
     	protected void onPreExecute() {
-			if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
+			if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 sendBtn.setEnabled(false);
                 if(Build.VERSION.SDK_INT >= 11)
                     sendBtn.setAlpha(0.5f);
@@ -2943,8 +2943,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             Intent i = new Intent(this, ServerReorderActivity.class);
             startActivity(i);
         } else {
-            ServerReorderFragment fragment = new ServerReorderFragment();
-            fragment.show(getSupportFragmentManager(), "reorder");
+            try {
+                ServerReorderFragment fragment = new ServerReorderFragment();
+                fragment.show(getSupportFragmentManager(), "reorder");
+            } catch (IllegalStateException e) {
+                Intent i = new Intent(this, ServerReorderActivity.class);
+                startActivity(i);
+            }
         }
     }
 

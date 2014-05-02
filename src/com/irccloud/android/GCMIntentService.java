@@ -130,8 +130,8 @@ public class GCMIntentService extends IntentService {
                     }
                 }
             }
+            GCMBroadcastReceiver.completeWakefulIntent(intent);
         }
-        GCMBroadcastReceiver.completeWakefulIntent(intent);
 	}
 
 	public static void scheduleRegisterTimer(int delay) {

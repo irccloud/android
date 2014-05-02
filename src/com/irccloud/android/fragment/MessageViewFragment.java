@@ -27,6 +27,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import android.content.ActivityNotFoundException;
 import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.text.TextUtils;
@@ -140,7 +141,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				longPressOverride = false;
 				return false;
 			} else {
-				return super.onTouchEvent(widget, buffer, event);
+                try {
+                    return super.onTouchEvent(widget, buffer, event);
+                } catch (ActivityNotFoundException e) {
+                    // No app installed to handle this URL
+                }
 			}
 		}
 	}
@@ -1175,7 +1180,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 if (b != null) {
                                                     mListener.onBufferSelected(b.bid);
                                                 } else {
-                                                    conn.say(b.cid, null, "/query " + e.from);
+                                                    conn.say(buffer.cid, null, "/query " + e.from);
                                                 }
                                             } else {
                                                 long group = e.group_eid;
