@@ -2563,7 +2563,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
    		final String[] items;
    		final Spanned text_to_copy = message;
 		selected_user = user;
-		
+
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 		if(message != null)
@@ -2605,9 +2605,10 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 		
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 		    public void onClick(DialogInterface dialogInterface, int item) {
+                if(conn == null || buffer == null)
+                    return;
+
 	    		AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
-	    		LayoutInflater inflater = getLayoutInflater();
-	    		ServersDataSource s = ServersDataSource.getInstance();
 	    		View view;
 	    		final TextView prompt;
 	    		final EditText input;
