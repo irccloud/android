@@ -139,7 +139,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	    public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
 			if(longPressOverride) {
 				longPressOverride = false;
-				return false;
 			} else {
                 try {
                     return super.onTouchEvent(widget, buffer, event);
@@ -147,6 +146,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     // No app installed to handle this URL
                 }
 			}
+            return false;
 		}
 	}
 	
