@@ -434,7 +434,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 synchronized(e) {
                     if(e.html != null) {
                         try {
-                            e.html = ColorFormatter.irc_to_html(e.html);
+                            e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
                             e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
                             if(e.msg != null && e.msg.length() > 0)
                                 e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
@@ -483,7 +483,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 row.setOnClickListener(new OnItemClickListener(position));
 
                 if(e.html != null && e.formatted == null) {
-                    e.html = ColorFormatter.irc_to_html(e.html);
+                    e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
                     e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
                     if(e.msg != null && e.msg.length() > 0)
                         e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();

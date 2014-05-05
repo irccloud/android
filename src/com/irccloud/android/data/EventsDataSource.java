@@ -879,8 +879,6 @@ public class EventsDataSource {
 			if(highest_eid < event.eid())
 				highest_eid = event.eid();
 
-            e.msg = ColorFormatter.emojify(e.msg);
-
 			return e;
 		}
 	}

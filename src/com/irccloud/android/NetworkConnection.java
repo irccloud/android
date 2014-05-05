@@ -1285,8 +1285,7 @@ public class NetworkConnection {
                     prefs.putBoolean("emoji-disableconvert", true);
                 }
                 prefs.commit();
-                Crashlytics.setUserName("uid" + userInfo.id);
-                Crashlytics.setUserIdentifier(String.valueOf(userInfo.id));
+                Crashlytics.setUserIdentifier("uid" + userInfo.id);
                 notifyHandlers(EVENT_USERINFO, userInfo);
             }
         });

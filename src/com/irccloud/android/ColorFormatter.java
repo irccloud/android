@@ -1158,6 +1158,9 @@ public class ColorFormatter {
         }
 
         if(Build.VERSION.SDK_INT >= 14) {
+            StringBuilder builder = new StringBuilder(msg);
+            int offset;
+
             if(!disableConvert) {
                 if (EMOJI == null) {
                     String p = "\\B:(";
@@ -1174,10 +1177,11 @@ public class ColorFormatter {
                 Matcher m = EMOJI.matcher(msg);
                 while (m.find()) {
                     if (emojiMap.containsKey(m.group(1))) {
-                        msg = m.replaceFirst(emojiMap.get(m.group(1)));
-                        m = EMOJI.matcher(msg);
+                        offset = msg.length() - builder.length();
+                        builder.replace(m.start(1) - offset - 1, m.end(1) - offset + 1, emojiMap.get(m.group(1)));
                     }
                 }
+                msg = builder.toString();
             }
 
             if(CONVERSION == null) {
@@ -1195,10 +1199,12 @@ public class ColorFormatter {
             Matcher m = CONVERSION.matcher(msg);
             while (m.find()) {
                 if (conversionMap.containsKey(m.group(1))) {
-                    msg = m.replaceFirst(conversionMap.get(m.group(1)));
-                    m = CONVERSION.matcher(msg);
+                    offset = msg.length() - builder.length();
+                    builder.replace(m.start(1) - offset, m.end(1) - offset, conversionMap.get(m.group(1)));
                 }
             }
+
+            return builder.toString();
         }
         return msg;
     }
