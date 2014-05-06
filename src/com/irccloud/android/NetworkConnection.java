@@ -362,12 +362,13 @@ public class NetworkConnection {
 			} else if(ni == null || !ni.isConnected()) {
                 cancel_idle_timer();
                 reconnect_timestamp = 0;
-				if(client != null) {
-					state = STATE_DISCONNECTING;
-					client.disconnect();
-				}
-                state = STATE_DISCONNECTED;
-                notifyHandlers(EVENT_CONNECTIVITY, null);
+                try {
+                    state = STATE_DISCONNECTING;
+                    client.disconnect();
+                    state = STATE_DISCONNECTED;
+                    notifyHandlers(EVENT_CONNECTIVITY, null);
+                } catch (Exception e) {
+                }
 			}
 		}
 	};
