@@ -3220,7 +3220,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     String txt = messageTxt.getText().toString();
                     if (txt.length() > 0 && !txt.endsWith(" "))
                         txt += " ";
-                    txt += s;
+                    txt += s.replace("http://", "https://");
                     messageTxt.setText(txt);
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
