@@ -1858,7 +1858,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
     	if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
-            if(Build.VERSION.SDK_INT >= 11)
+            if(Build.VERSION.SDK_INT >= 11 && menu.findItem(R.id.menu_photo) != null)
                 menu.findItem(R.id.menu_photo).setVisible(false);
 
         	if(buffer.archived == 0) {
