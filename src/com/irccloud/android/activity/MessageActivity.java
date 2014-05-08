@@ -16,16 +16,25 @@
 
 package com.irccloud.android.activity;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 
+import android.app.Activity;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
@@ -33,6 +42,8 @@ import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Debug;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
 import android.view.*;
 import org.json.JSONException;
@@ -100,6 +111,7 @@ import android.view.View.OnKeyListener;
 import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -108,6 +120,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
@@ -137,6 +150,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 	private AlertDialog channelsListDialog;
     String bufferToOpen = null;
     int cidToOpen = -1;
+    private Uri imageCaptureURI = null;
 
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
@@ -174,6 +188,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     private Timer suggestionsTimer;
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
+    private ImgurUploadTask imgurTask = null;
 
     private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
@@ -307,6 +322,20 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     new SendTask().execute((Void) null);
             }
         });
+
+        View photoBtn = findViewById(R.id.photoBtn);
+        if(Build.VERSION.SDK_INT < 11) {
+            photoBtn.setVisibility(View.GONE);
+        } else {
+            photoBtn.setFocusable(false);
+            photoBtn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    insertPhoto();
+                }
+            });
+        }
+
         userListView = findViewById(R.id.usersListFragment);
         
         getSupportActionBar().setLogo(R.drawable.logo);
@@ -354,6 +383,15 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 GCMIntentService.scheduleRegisterTimer(100);
             }
         }
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("imagecaptureuri"))
+            imageCaptureURI = Uri.parse(savedInstanceState.getString("imagecaptureuri"));
+        else
+            imageCaptureURI = null;
+
+        imgurTask = (ImgurUploadTask)getLastCustomNonConfigurationInstance();
+        if(imgurTask != null)
+            imgurTask.setActivity(this);
     }
 
     private void show_topic_popup() {
@@ -566,6 +604,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 buffer.draft = null;
         }
     	state.putSerializable("backStack", backStack);
+        if(imageCaptureURI != null)
+            state.putString("imagecaptureuri", imageCaptureURI.toString());
     }
     
     @Override
@@ -831,7 +871,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     		setFromIntent(intent);
     	}
     }
-    
+
     @SuppressLint("NewApi")
 	@Override
     public void onResume() {
@@ -953,6 +993,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     @Override
     public void onPause() {
     	super.onPause();
+        if(imgurTask != null)
+            imgurTask.setActivity(null);
 		if(showNotificationsTask != null)
 			showNotificationsTask.cancel(true);
 		showNotificationsTask = new ShowNotificationsTask();
@@ -963,6 +1005,10 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     		conn.removeHandler(this);
         suggestionsAdapter.clear();
     	conn = null;
+    }
+
+    public Object onRetainCustomNonConfigurationInstance () {
+        return imgurTask;
     }
 
     private boolean open_uri(Uri uri) {
@@ -1812,6 +1858,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
     	if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
+            if(Build.VERSION.SDK_INT >= 11)
+                menu.findItem(R.id.menu_photo).setVisible(false);
+
         	if(buffer.archived == 0) {
                 menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
         	} else {
@@ -2134,13 +2183,59 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 		}
     	
     };
-    
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            if (imageCaptureURI != null) {
+                imgurTask = new ImgurUploadTask(imageCaptureURI);
+                imgurTask.execute((Void) null);
+            }
+        } else if (requestCode == 2 && resultCode == RESULT_OK) {
+            Uri selectedImage = imageReturnedIntent.getData();
+            if (selectedImage != null) {
+                imgurTask = new ImgurUploadTask(selectedImage);
+                imgurTask.execute((Void) null);
+            }
+        }
+    }
+
+    private void insertPhoto() {
+        AlertDialog.Builder builder;
+        AlertDialog dialog;
+        builder = new AlertDialog.Builder(this);
+        builder.setItems(new String[] {"Take a Photo", "Choose Existing"}, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which == 0) {
+                    try {
+                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", Environment.getExternalStorageDirectory()));
+                        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                        startActivityForResult(i, 1);
+                    } catch (IOException e) {
+                    }
+                } else {
+                    Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(i, 2);
+                }
+                dialog.dismiss();
+            }
+        });
+        dialog = builder.create();
+        dialog.setOwnerActivity(MessageActivity.this);
+        dialog.show();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	AlertDialog.Builder builder;
     	AlertDialog dialog;
     	
         switch (item.getItemId()) {
+            case R.id.menu_photo:
+                insertPhoto();
+                break;
 	        case R.id.menu_whois:
 	        	conn.whois(buffer.cid, buffer.name, null);
 	        	break;
@@ -2963,5 +3058,217 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             return false;
         }
         return true;
+    }
+
+    public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
+        private final String TAG = ImgurUploadTask.class.getSimpleName();
+        private final String UPLOAD_URL = "https://api.imgur.com/3/image";
+        private Uri mImageUri;  // local Uri to upload
+        private int total = 0;
+        public Activity activity;
+        private View connecting;
+        private TextView connectingMsg;
+        private ProgressBar progressBar;
+
+        public ImgurUploadTask(Uri imageUri) {
+            Log.i(TAG, "Uploading: " + imageUri);
+            this.mImageUri = imageUri;
+            setActivity(MessageActivity.this);
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            InputStream imageIn;
+            try {
+                while(activity == null)
+                    Thread.sleep(100);
+                imageIn = activity.getContentResolver().openInputStream(mImageUri);
+                total = imageIn.available();
+            } catch (Exception e) {
+                Log.e(TAG, "could not open InputStream", e);
+                return null;
+            }
+
+            HttpURLConnection conn = null;
+            InputStream responseIn = null;
+
+            try {
+                conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
+
+                OutputStream out = conn.getOutputStream();
+                copy(imageIn, out);
+                out.flush();
+                out.close();
+
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    responseIn = conn.getInputStream();
+                    return onInput(responseIn);
+                }
+                else {
+                    Log.i(TAG, "responseCode=" + conn.getResponseCode());
+                    responseIn = conn.getErrorStream();
+                    StringBuilder sb = new StringBuilder();
+                    Scanner scanner = new Scanner(responseIn);
+                    while (scanner.hasNext()) {
+                        sb.append(scanner.next());
+                    }
+                    Log.i(TAG, "error response: " + sb.toString());
+                    return null;
+                }
+            } catch (Exception ex) {
+                Log.e(TAG, "Error during POST", ex);
+                return null;
+            } finally {
+                try {
+                    responseIn.close();
+                } catch (Exception ignore) {}
+                try {
+                    conn.disconnect();
+                } catch (Exception ignore) {}
+                try {
+                    imageIn.close();
+                } catch (Exception ignore) {}
+            }
+        }
+
+        public void setActivity(Activity a) {
+            activity = a;
+            if(a != null) {
+                connecting = a.findViewById(R.id.connecting);
+                connectingMsg = (TextView)a.findViewById(R.id.connectingMsg);
+                progressBar = (ProgressBar)a.findViewById(R.id.connectingProgress);
+                if(total > 0) {
+                    if (connecting.getVisibility() == View.GONE) {
+                        TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
+                        anim.setDuration(200);
+                        anim.setFillAfter(true);
+                        connecting.startAnimation(anim);
+                        connecting.setVisibility(View.VISIBLE);
+                        connectingMsg.setText("Uploading");
+                        progressBar.setProgress(0);
+                        progressBar.setIndeterminate(true);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(Float... values) {
+            if(activity != null) {
+                try {
+                    if (connecting.getVisibility() == View.GONE) {
+                        TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
+                        anim.setDuration(200);
+                        anim.setFillAfter(true);
+                        connecting.startAnimation(anim);
+                        connecting.setVisibility(View.VISIBLE);
+                        connectingMsg.setText("Uploading");
+                        progressBar.setProgress(0);
+                        progressBar.setIndeterminate(true);
+                    }
+                    if (values[0] < 1.0f) {
+                        progressBar.setIndeterminate(false);
+                        progressBar.setProgress((int) (values[0] * 1000));
+                    } else {
+                        progressBar.setIndeterminate(true);
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if(mImageUri.toString().contains("irccloudcapture")) {
+                try {
+                    new File(new URI(mImageUri.toString())).delete();
+                } catch (Exception e) {
+                }
+            }
+            if(activity != null) {
+                TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
+                anim.setDuration(200);
+                anim.setFillAfter(true);
+                anim.setAnimationListener(new Animation.AnimationListener() {
+
+                    @Override
+                    public void onAnimationEnd(Animation arg0) {
+                        connecting.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                });
+                connecting.startAnimation(anim);
+            }
+            setText(s);
+        }
+
+        private void setText(final String s) {
+            //If the user rotated the screen, we might not be attached to an activity yet.  Keep trying until we reattach
+            if(activity != null) {
+                if(s != null) {
+                    ActionEditText messageTxt = (ActionEditText) activity.findViewById(R.id.messageTxt);
+                    String txt = messageTxt.getText().toString();
+                    if (txt.length() > 0 && !txt.endsWith(" "))
+                        txt += " ";
+                    txt += s;
+                    messageTxt.setText(txt);
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                    builder.setTitle("Upload Failed");
+                    builder.setMessage("Unable to upload photo to imgur.  Please try again.");
+                    builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.setOwnerActivity(activity);
+                    dialog.show();
+                }
+                imgurTask = null;
+            } else {
+                new Timer().schedule(new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        setText(s);
+                    }
+                }, 500);
+            }
+        }
+
+        private int copy(InputStream input, OutputStream output) throws IOException {
+            byte[] buffer = new byte[8192];
+            int count = 0;
+            int n = 0;
+            while (-1 != (n = input.read(buffer))) {
+                output.write(buffer, 0, n);
+                count += n;
+                publishProgress((float)count / (float)total);
+            }
+            return count;
+        }
+
+        protected String onInput(InputStream in) throws Exception {
+            StringBuilder sb = new StringBuilder();
+            Scanner scanner = new Scanner(in);
+            while (scanner.hasNext()) {
+                sb.append(scanner.next());
+            }
+
+            JSONObject root = new JSONObject(sb.toString());
+            return root.getJSONObject("data").getString("link");
+        }
     }
 }

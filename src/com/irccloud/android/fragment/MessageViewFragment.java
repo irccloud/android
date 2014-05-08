@@ -16,18 +16,30 @@
 
 package com.irccloud.android.fragment;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.content.ActivityNotFoundException;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.text.TextUtils;
@@ -57,7 +69,9 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
 import com.irccloud.android.CollapsedEventsList;
@@ -827,8 +841,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			unreadTopView.setVisibility(View.GONE);
         backlogFailed.setVisibility(View.GONE);
         loadBacklogButton.setVisibility(View.GONE);
-        if(getListView().getHeaderViewsCount() == 0) {
-            getListView().addHeaderView(headerViewContainer);
+        try {
+            if (getListView().getHeaderViewsCount() == 0) {
+                getListView().addHeaderView(headerViewContainer);
+            }
+        } catch (IllegalStateException e) {
         }
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
         lp.topMargin = 0;

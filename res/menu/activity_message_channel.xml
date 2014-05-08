@@ -15,6 +15,10 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_photo"
+        android:title="@string/menu_photo"
+        android:showAsAction="never" />
+
     <item android:id="@+id/menu_leave"
         android:title="@string/menu_leave"
         android:showAsAction="never" />

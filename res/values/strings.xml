@@ -31,6 +31,7 @@
     <string name="menu_ban_list">Ban List</string>
     <string name="menu_add_network">Add Network</string>
     <string name="menu_display_options">Display Options</string>
+    <string name="menu_photo">Insert Photo</string>
     
     <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>
