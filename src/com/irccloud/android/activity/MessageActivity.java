@@ -3070,6 +3070,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         private View connecting;
         private TextView connectingMsg;
         private ProgressBar progressBar;
+        private String error;
 
         public ImgurUploadTask(Uri imageUri) {
             Log.i(TAG, "Uploading: " + imageUri);
@@ -3115,6 +3116,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     while (scanner.hasNext()) {
                         sb.append(scanner.next());
                     }
+                    error = sb.toString();
                     Log.i(TAG, "error response: " + sb.toString());
                     return null;
                 }
@@ -3226,7 +3228,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setTitle("Upload Failed");
-                    builder.setMessage("Unable to upload photo to imgur.  Please try again.");
+                    builder.setMessage("Unable to upload photo to imgur.  Please try again. " + ((error != null)?error:""));
                     builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -3269,6 +3271,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             }
 
             JSONObject root = new JSONObject(sb.toString());
+            error = sb.toString();
             return root.getJSONObject("data").getString("link");
         }
     }
