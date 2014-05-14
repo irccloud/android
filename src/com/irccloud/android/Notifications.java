@@ -615,7 +615,7 @@ public class Notifications {
 		}
 
 		if(prefs.getBoolean("notify_lights", true))
-			builder.setLights(0xFF0000FF, 500, 1000);
+            builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS);
 
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putLong("lastNotificationTime", System.currentTimeMillis());
