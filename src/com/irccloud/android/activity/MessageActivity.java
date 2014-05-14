@@ -324,18 +324,19 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         });
 
         View photoBtn = findViewById(R.id.photoBtn);
-        if(Build.VERSION.SDK_INT < 11) {
-            photoBtn.setVisibility(View.GONE);
-        } else {
-            photoBtn.setFocusable(false);
-            photoBtn.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    insertPhoto();
-                }
-            });
+        if(photoBtn != null) {
+            if (Build.VERSION.SDK_INT < 11) {
+                photoBtn.setVisibility(View.GONE);
+            } else {
+                photoBtn.setFocusable(false);
+                photoBtn.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        insertPhoto();
+                    }
+                });
+            }
         }
-
         userListView = findViewById(R.id.usersListFragment);
         
         getSupportActionBar().setLogo(R.drawable.logo);
