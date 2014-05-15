@@ -1294,6 +1294,8 @@ public class ColorFormatter {
                         public String transformUrl(Matcher match, String url) {
                             if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
                                 String lower = url.toLowerCase();
+                                if(lower.contains("?"))
+                                    lower = lower.substring(0, lower.indexOf("?"));
                                 if(lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
                                         "(^(www\\.)?flickr\\.com/photos/.*$)|" +
                                         "(^(www\\.)?instagram\\.com/p/.*$)|(^(www\\.)?instagr\\.am/p/.*$)|" +
@@ -1316,6 +1318,8 @@ public class ColorFormatter {
                 public String transformUrl(Matcher match, String url) {
                     if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
                         String lower = url.toLowerCase();
+                        if(lower.contains("?"))
+                            lower = lower.substring(0, lower.indexOf("?"));
                         if(lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
                                 "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
                                 "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
