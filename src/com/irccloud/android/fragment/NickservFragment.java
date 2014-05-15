@@ -68,6 +68,9 @@ public class NickservFragment extends DialogFragment {
     
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if(server == null)
+            return null;
+
 		Context ctx = getActivity();
 		if(Build.VERSION.SDK_INT < 11)
 			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
@@ -76,12 +79,10 @@ public class NickservFragment extends DialogFragment {
     	View v = inflater.inflate(R.layout.dialog_nickserv,null);
     	nick = (TextView)v.findViewById(R.id.nickname);
     	pass = (EditText)v.findViewById(R.id.password);
-    	if(server != null) {
-	    	nick.setText("Password for " + server.nick);
-	    	if(server.nickserv_pass != null)
-	    		pass.setText(server.nickserv_pass);
-    	}
-    	
+        nick.setText("Password for " + server.nick);
+        if(server.nickserv_pass != null)
+            pass.setText(server.nickserv_pass);
+
     	String title = "Identify your nickname on ";
     	if(server.name != null && server.name.length() > 0)
     		title += server.name;

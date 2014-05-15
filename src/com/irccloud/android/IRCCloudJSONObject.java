@@ -112,7 +112,11 @@ public class IRCCloudJSONObject {
 	}
 
     public ObjectNode getJsonObject(String name) {
-        return (ObjectNode)getJsonNode(name);
+        try {
+            return (ObjectNode) getJsonNode(name);
+        } catch (ClassCastException e) {
+            return null;
+        }
     }
 
     public JsonNode getObject() {

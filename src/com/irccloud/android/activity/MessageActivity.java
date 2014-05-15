@@ -1351,7 +1351,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                             if(banList == null) {
                                 banList = new BanListFragment();
                                 banList.setArguments(args);
-                                banList.show(getSupportFragmentManager(), "banlist");
+                                try {
+                                    banList.show(getSupportFragmentManager(), "banlist");
+                                } catch (IllegalStateException e) {
+                                    //App lost focus already
+                                }
                             } else {
                                 banList.setArguments(args);
                             }
@@ -1372,7 +1376,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                             if(acceptList == null) {
                                 acceptList = new AcceptListFragment();
                                 acceptList.setArguments(args);
-                                acceptList.show(getSupportFragmentManager(), "acceptlist");
+                                try {
+                                    acceptList.show(getSupportFragmentManager(), "acceptlist");
+                                } catch (IllegalStateException e) {
+                                    //App lost focus already
+                                }
                             } else {
                                 acceptList.setArguments(args);
                             }
@@ -1391,7 +1399,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         if(whoList == null) {
                             whoList = new WhoListFragment();
                             whoList.setArguments(args);
-                            whoList.show(getSupportFragmentManager(), "wholist");
+                            try {
+                                whoList.show(getSupportFragmentManager(), "wholist");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
                         } else {
                             whoList.setArguments(args);
                         }
@@ -1409,7 +1421,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         if(namesList == null) {
                             namesList = new NamesListFragment();
                             namesList.setArguments(args);
-                            namesList.show(getSupportFragmentManager(), "nameslist");
+                            try {
+                                namesList.show(getSupportFragmentManager(), "nameslist");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
                         } else {
                             namesList.setArguments(args);
                         }
@@ -1427,7 +1443,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         if(whois == null) {
                             whois = new WhoisFragment();
                             whois.setArguments(args);
-                            whois.show(getSupportFragmentManager(), "whois");
+                            try {
+                                whois.show(getSupportFragmentManager(), "whois");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
                         } else {
                             whois.setArguments(args);
                         }
@@ -1458,7 +1478,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         } else {
                             channelsListDialog.setTitle(dialogtitle);
                         }
-                        channelsListDialog.show();
+                        try {
+                            channelsListDialog.show();
+                        } catch (IllegalStateException e) {
+                            //App lost focus already
+                        }
                         ChannelListFragment channels = (ChannelListFragment)getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
                         Bundle args = new Bundle();
                         args.putInt("cid", event.cid());
@@ -2487,7 +2511,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
    		final String[] items;
 		ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
 
-		if(b.bid != buffer.bid)
+		if(buffer == null || b.bid != buffer.bid)
 			itemList.add("Open");
 		
 		if(ChannelsDataSource.getInstance().getChannelForBuffer(b.bid) != null) {
@@ -2889,16 +2913,20 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.cid + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
             server = ServersDataSource.getInstance().getServer(buffer.cid);
 
-            TreeMap<Long,EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
-            if(events != null) {
-                events = (TreeMap<Long,EventsDataSource.Event>)events.clone();
-                for(EventsDataSource.Event e : events.values()) {
-                    if(e.highlight && e.from != null) {
-                        UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.bid, e.from);
-                        if(u != null && u.last_mention < e.eid)
-                            u.last_mention = e.eid;
+            try {
+                TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
+                if (events != null) {
+                    events = (TreeMap<Long, EventsDataSource.Event>) events.clone();
+                    for (EventsDataSource.Event e : events.values()) {
+                        if (e.highlight && e.from != null) {
+                            UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.bid, e.from);
+                            if (u != null && u.last_mention < e.eid)
+                                u.last_mention = e.eid;
+                        }
                     }
                 }
+            } catch (Exception e) {
+                Crashlytics.logException(e);
             }
         } else {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected but not found: bid" + bid + " shouldFadeIn: " + shouldFadeIn);

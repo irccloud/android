@@ -28,6 +28,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.data.BuffersDataSource;
@@ -134,7 +135,7 @@ public class IRCCloudApplication extends Application {
     public void onLowMemory() {
         super.onLowMemory();
         if(!NetworkConnection.getInstance().isVisible()) {
-            Crashlytics.log("Received low memory warning in the background, cleaning backlog in all buffers");
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the background, cleaning backlog in all buffers");
             for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
                 if (!b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
                     EventsDataSource.getInstance().pruneEvents(b.bid);

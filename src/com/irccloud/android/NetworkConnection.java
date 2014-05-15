@@ -1993,11 +1993,13 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(object.cid(), object.getString("chan"));
-                ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
-                if(c != null) {
-                    c.topic_author = object.getString("author");
-                    c.topic_time = object.getLong("time");
-                    c.topic_text = object.getString("text");
+                if(b != null) {
+                    ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+                    if (c != null) {
+                        c.topic_author = object.getString("author");
+                        c.topic_time = object.getLong("time");
+                        c.topic_text = object.getString("text");
+                    }
                 }
                 if(!backlog)
                     notifyHandlers(EVENT_CHANNELTOPICIS, object);

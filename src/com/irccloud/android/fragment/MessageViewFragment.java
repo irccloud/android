@@ -889,7 +889,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        Crashlytics.log("Received low memory warning in the foreground, cleaning backlog in other buffers");
+        Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the foreground, cleaning backlog in other buffers");
         for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
             if (b != buffer && !b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
                 EventsDataSource.getInstance().pruneEvents(b.bid);

@@ -61,7 +61,8 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
         if(Build.VERSION.SDK_INT >= 11) {
-            getActionBar().setDisplayHomeAsUpEnabled(true);
+            if(getActionBar() != null)
+                getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 		conn = NetworkConnection.getInstance();
 		addPreferencesFromResource(R.xml.preferences_account);
@@ -259,6 +260,9 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 
 	Preference.OnPreferenceChangeListener settingstoggle = new Preference.OnPreferenceChangeListener() {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if(conn == null || conn.getUserInfo() == null)
+                return false;
+
 			if(preference.getKey().equals("name")) {
 				conn.getUserInfo().name = (String)newValue;
 				findPreference("name").setSummary((String)newValue);
