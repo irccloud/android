@@ -886,6 +886,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             getActivity().runOnUiThread(r);
     }
 
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        Crashlytics.log("Received low memory warning in the foreground, cleaning backlog in other buffers");
+        for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+            if (b != buffer && !b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
+                EventsDataSource.getInstance().pruneEvents(b.bid);
+        }
+    }
+
     private synchronized void insertEvent(final MessageAdapter adapter, EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized(adapterLock) {
             try {

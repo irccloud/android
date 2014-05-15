@@ -129,4 +129,16 @@ public class IRCCloudApplication extends Application {
 		    }
 		}
     }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        if(!NetworkConnection.getInstance().isVisible()) {
+            Crashlytics.log("Received low memory warning in the background, cleaning backlog in all buffers");
+            for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+                if (!b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
+                    EventsDataSource.getInstance().pruneEvents(b.bid);
+            }
+        }
+    }
 }
