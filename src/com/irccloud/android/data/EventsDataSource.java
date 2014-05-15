@@ -355,7 +355,10 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("author");
-                e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
+                if(event.getString("topic") != null && event.getString("topic").length() > 0)
+                    e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
+                else
+                    e.msg = "cleared the topic";
                 e.bg_color = R.color.status_bg;
             }
         });
