@@ -23,9 +23,11 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -401,7 +403,14 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             AlertDialog.Builder builder = new AlertDialog.Builder(MessageActivity.this);
             builder.setTitle("Channel Topic");
             if (c.topic_text.length() > 0) {
-                builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), true, server));
+                String author = "";
+                if(c.topic_author != null && c.topic_author.length() > 0) {
+                    author = "<br/>— Set by " + c.topic_author;
+                    if(c.topic_time > 0) {
+                        author += " on " + DateFormat.getDateTimeInstance().format(new Date(c.topic_time * 1000));
+                    }
+                }
+                builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)) + author, true, server));
             } else
                 builder.setMessage("No topic set.");
             builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
