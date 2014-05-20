@@ -35,6 +35,8 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -55,6 +57,7 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -76,6 +79,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.security.KeyChain;
+import android.security.KeyChainException;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -205,7 +210,18 @@ public class NetworkConnection {
 
     private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
 
+    private PrivateKey SSLAuthKey;
+    private String SSLAuthAlias;
+    private X509Certificate[] SSLAuthCertificateChain;
+
+    public void setSSLAuth(String alias, PrivateKey key, X509Certificate[] certificateChain) {
+        SSLAuthAlias = alias;
+        SSLAuthKey = key;
+        SSLAuthCertificateChain = certificateChain;
+    }
+
     TrustManager tms[];
+    X509ExtendedKeyManager kms[];
 
     private SSLSocketFactory IRCCloudSocketFactory = new SSLSocketFactory() {
         final String CIPHERS[] = {
@@ -232,7 +248,7 @@ public class NetworkConnection {
         private void init() {
             try {
                 SSLContext c = SSLContext.getInstance("TLS");
-                c.init(null, tms, null);
+                c.init(kms, tms, null);
                 internalSocketFactory = c.getSocketFactory();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -408,7 +424,40 @@ public class NetworkConnection {
 
 		WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 		wifiLock = wfm.createWifiLock(TAG);
-		
+
+        kms = new X509ExtendedKeyManager[1];
+        kms[0] = new X509ExtendedKeyManager() {
+            @Override
+            public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
+                return SSLAuthAlias;
+            }
+
+            @Override
+            public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public X509Certificate[] getCertificateChain(String alias) {
+                return SSLAuthCertificateChain;
+            }
+
+            @Override
+            public String[] getClientAliases(String keyType, Principal[] issuers) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String[] getServerAliases(String keyType, Principal[] issuers) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public PrivateKey getPrivateKey(String alias) {
+                return SSLAuthKey;
+            }
+        };
+
 		tms = new TrustManager[1];
 		tms[0] = new X509TrustManager() {
 			@Override
