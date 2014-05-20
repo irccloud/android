@@ -1379,12 +1379,8 @@ public class NetworkConnection {
                     failCount = 0;
                     ready = true;
                     notifyHandlers(EVENT_BACKLOG_END, null);
-                    Log.d("IRCCloud", String.valueOf(incoming_reply_cid));
-                    Log.d("IRCCloud", incoming_reply_to);
-                    Log.d("IRCCloud", incoming_reply_msg);
                     if(incoming_reply_cid != -1 && incoming_reply_to != null && incoming_reply_msg != null) {
                         say(incoming_reply_cid, incoming_reply_to, incoming_reply_msg);
-                        Log.e("IRCCloud", "Sent: " + incoming_reply_msg);
                         incoming_reply_cid = -1;
                         incoming_reply_to = null;
                         incoming_reply_msg = null;
