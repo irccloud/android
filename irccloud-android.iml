@@ -74,6 +74,7 @@
     <orderEntry type="library" exported="" name="jackson-databind-2.3.2" level="project" />
     <orderEntry type="library" exported="" name="jackson-annotations-2.3.0" level="project" />
     <orderEntry type="library" exported="" name="dslv-0.6.3" level="project" />
+    <orderEntry type="library" exported="" name="wearable-preview-support" level="project" />
     <orderEntry type="library" exported="" name="support-v4-19.0.1" level="project" />
     <orderEntry type="library" exported="" name="notificationcompat2-1.1.2" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.3.2" level="project" />

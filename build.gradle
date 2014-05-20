@@ -33,6 +33,7 @@ dependencies {
     compile project(':android-websockets')
     compile 'com.crashlytics.android:crashlytics:1.+'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.2'
+    compile files('libs/wearable-preview-support.jar')
 }
 
 def getRevision = { ->

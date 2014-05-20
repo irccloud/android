@@ -199,7 +199,11 @@ public class NetworkConnection {
 	public boolean ready = false;
 	public String globalMsg = null;
 
-	private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
+    public String incoming_reply_msg = null;
+    public String incoming_reply_to = null;
+    public int incoming_reply_cid = -1;
+
+    private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
 
     TrustManager tms[];
 
@@ -789,6 +793,9 @@ public class NetworkConnection {
         ready = false;
         streamId = null;
         accrued = 0;
+        incoming_reply_cid = -1;
+        incoming_reply_to = null;
+        incoming_reply_msg = null;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         try {
             String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
@@ -1372,6 +1379,16 @@ public class NetworkConnection {
                     failCount = 0;
                     ready = true;
                     notifyHandlers(EVENT_BACKLOG_END, null);
+                    Log.d("IRCCloud", String.valueOf(incoming_reply_cid));
+                    Log.d("IRCCloud", incoming_reply_to);
+                    Log.d("IRCCloud", incoming_reply_msg);
+                    if(incoming_reply_cid != -1 && incoming_reply_to != null && incoming_reply_msg != null) {
+                        say(incoming_reply_cid, incoming_reply_to, incoming_reply_msg);
+                        Log.e("IRCCloud", "Sent: " + incoming_reply_msg);
+                        incoming_reply_cid = -1;
+                        incoming_reply_to = null;
+                        incoming_reply_msg = null;
+                    }
                 }
             }
         });

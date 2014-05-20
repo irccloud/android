@@ -867,7 +867,22 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         if(buffer == null)
             server = null;
 
-    	if(buffer == null) {
+        if(intent.hasExtra("reply")) {
+            Log.e("IRCCloud", "CID: " + intent.getIntExtra("cid", -1));
+            Log.e("IRCCloud", "BID: " + intent.getIntExtra("bid", -1));
+            Log.e("IRCCloud", "TO: " + intent.getStringExtra("to"));
+            if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
+                NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick")?intent.getStringExtra("nick") + ": ":"") + intent.getStringExtra("reply"));
+                Log.e("IRCCloud", "Sent: " + intent.getStringExtra("reply"));
+            } else {
+                Log.e("IRCCloud", "Request to send a reply but we're not connected yet");
+                NetworkConnection.getInstance().incoming_reply_cid = intent.getIntExtra("cid", -1);
+                NetworkConnection.getInstance().incoming_reply_to = intent.getStringExtra("to");
+                NetworkConnection.getInstance().incoming_reply_msg = (intent.hasExtra("nick")?intent.getStringExtra("nick") + ": ":"") + intent.getStringExtra("reply");
+            }
+        }
+
+        if(buffer == null) {
 			launchBid = intent.getIntExtra("bid", -1);
     	} else {
             onBufferSelected(buffer.bid);
