@@ -11,7 +11,7 @@ buildscript {
     }
 }
 apply plugin: 'android'
-apply plugin: 'crashlytics'
+//apply plugin: 'crashlytics'
 
 tasks.withType(Compile) {
     options.encoding = "UTF-8"
