@@ -17,6 +17,7 @@
 package com.irccloud.android.activity;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -41,14 +42,18 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_imageviewer);
         mWebView = (WebView)findViewById(R.id.image);
-        CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.removeAllCookie();
-        cookieManager.setAcceptCookie(false);
+        cookieManager.setAcceptCookie(true);
         mWebView.getSettings().setSaveFormData(false);
         mWebView.getSettings().setSavePassword(false);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                findViewById(R.id.progress).setVisibility(View.VISIBLE);
+            }
+
             @Override
             public void onPageFinished(WebView view, String url) {
                 findViewById(R.id.progress).setVisibility(View.GONE);
@@ -60,6 +65,7 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
                 if(url.startsWith("https://imgur.com/")) {
                     if(url.endsWith("?error=access_denied")) {
                         finish();
+                        return true;
                     } else if(url.startsWith("https://imgur.com/#access_token=")) {
                         SharedPreferences.Editor prefs = getSharedPreferences("prefs", 0).edit();
                         String args[] = url.substring(19).split("&");
@@ -69,8 +75,8 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
                         }
                         prefs.commit();
                         finish();
+                        return true;
                     }
-                    return true;
                 }
                 return false;
             }

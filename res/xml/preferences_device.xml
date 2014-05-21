@@ -54,7 +54,7 @@
             android:summaryOff="Image URLs will open in your browser"
             android:title="Image Viewer"/>
         <Preference
-            android:title="Imgur Account"
+            android:title="Imgur.com Account"
             android:key="imgur_account_username"
             />
 	</PreferenceCategory>
