@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2013 IRCCloud, Ltd.
   ~
@@ -12,9 +13,9 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
-
+-->
 <resources>
+
     <string name="menu_settings">Settings</string>
     <string name="menu_logout">Logout</string>
     <string name="menu_leave">Leave</string>
@@ -32,16 +33,16 @@
     <string name="menu_add_network">Add Network</string>
     <string name="menu_display_options">Display Options</string>
     <string name="menu_photo">Insert Photo</string>
-    
     <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>
-    
     <string name="email">Email Address</string>
     <string name="email_enterprise">Email or Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="host">Host</string>
-
     <string name="imeOptions">flagNoExtractUi|actionSend</string>
-    
+    <string name="title_activity_imgur_auth">Login to Imgur</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
 </resources>

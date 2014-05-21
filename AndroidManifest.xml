@@ -1,132 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.irccloud.android"
     android:installLocation="auto"
     android:versionCode="17"
     android:versionName="1.7.1" >
 
-    <permission android:name="com.irccloud.android.permission.C2D_MESSAGE" android:protectionLevel="signature" />
-    <permission android:name="com.irccloud.android.permission.BROADCAST" android:protectionLevel="signature" />
-   	<uses-permission android:name="com.irccloud.android.permission.C2D_MESSAGE" />
-	<uses-permission android:name="com.irccloud.android.permission.BROADCAST" />
+    <permission
+        android:name="com.irccloud.android.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+    <permission
+        android:name="com.irccloud.android.permission.BROADCAST"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.irccloud.android.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.irccloud.android.permission.BROADCAST" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION"/>
+    <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION" />
 
     <supports-screens
-        android:smallScreens="true"
-        android:normalScreens="true"
+        android:anyDensity="true"
         android:largeScreens="true"
-        android:xlargeScreens="true"
-        android:anyDensity="true"/>
+        android:normalScreens="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
 
     <application
         android:name="com.irccloud.android.IRCCloudApplication"
+        android:allowBackup="false"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        android:allowBackup="false">
+        android:theme="@style/AppTheme" >
         <activity
             android:name="com.irccloud.android.activity.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
-               	<category android:name="android.intent.category.BROWSABLE" />
-				<data android:scheme="irc" />
-				<data android:scheme="ircs" />
-			</intent-filter>
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="irc" />
+                <data android:scheme="ircs" />
+            </intent-filter>
         </activity>
+
         <activity-alias
-            android:name=".MainActivity"
+            android:name="com.irccloud.android.MainActivity"
             android:exported="true"
-            android:targetActivity="com.irccloud.android.activity.MainActivity"/>
+            android:targetActivity="com.irccloud.android.activity.MainActivity" />
+
         <activity
             android:name="com.irccloud.android.activity.MessageActivity"
             android:label="@string/title_activity_message"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
             android:name="com.irccloud.android.activity.EditConnectionActivity"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity
-            android:name="com.irccloud.android.activity.ServerReorderActivity">
+        <activity android:name="com.irccloud.android.activity.ServerReorderActivity" >
         </activity>
         <activity
             android:name="com.irccloud.android.activity.ImageViewerActivity"
-            android:theme="@style/ImageViewerTheme">
+            android:theme="@style/ImageViewerTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/IMAGE_SCHEME" />
                 <data android:scheme="@string/IMAGE_SCHEME_SECURE" />
             </intent-filter>
         </activity>
-        <activity android:name="com.irccloud.android.activity.PreferencesActivity" android:theme="@style/PrefsTheme" android:label="@string/menu_settings">
-			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
-		    <intent-filter>
-		       <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
-		       <category android:name="android.intent.category.DEFAULT" />
-		    </intent-filter>
-   		</activity>
-        <receiver android:name="com.irccloud.android.GCMBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
-		  <intent-filter>
-		    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-		    <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-		    <category android:name="com.irccloud.android" />
-		  </intent-filter>
-		</receiver>
-		<service android:name="com.irccloud.android.GCMIntentService" />
-        <receiver android:name="NotificationDismissBroadcastReceiver" android:permission="com.irccloud.android.permission.BROADCAST">
-		  <intent-filter>
-		    <action android:name="com.irccloud.android.DISMISS_NOTIFICATION" />
-			<data android:scheme="irccloud-dismiss" />
-		  </intent-filter>
-		</receiver>
-
-        <service android:name="SonyExtensionService" />
-
-        <receiver android:name="SonyExtensionReceiver">
+        <activity
+            android:name="com.irccloud.android.activity.PreferencesActivity"
+            android:label="@string/menu_settings"
+            android:theme="@style/PrefsTheme" >
             <intent-filter>
-                <!-- Generic extension intents. -->
-                <action android:name="com.sonyericsson.extras.liveware.aef.registration.EXTENSION_REGISTER_REQUEST" />
-                <action android:name="com.sonyericsson.extras.liveware.aef.registration.ACCESSORY_CONNECTION"/>
-                <action android:name="android.intent.action.LOCALE_CHANGED" />
+                <action android:name="android.intent.action.VIEW" />
 
-                <!-- Notification intents -->
-                <action android:name="com.sonyericsson.extras.liveware.aef.notification.VIEW_EVENT_DETAIL"/>
-                <action android:name="com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name="com.irccloud.android.GCMBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.irccloud.android" />
             </intent-filter>
         </receiver>
 
-        <service android:name="com.irccloud.android.DashClock"
-                 android:icon="@drawable/ic_stat_notify"
-                 android:label="@string/app_name"
-                 android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA">
+        <service android:name="com.irccloud.android.GCMIntentService" />
+
+        <receiver
+            android:name="com.irccloud.android.NotificationDismissBroadcastReceiver"
+            android:permission="com.irccloud.android.permission.BROADCAST" >
+            <intent-filter>
+                <action android:name="com.irccloud.android.DISMISS_NOTIFICATION" />
+
+                <data android:scheme="irccloud-dismiss" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="com.irccloud.android.SonyExtensionService" />
+
+        <receiver android:name="com.irccloud.android.SonyExtensionReceiver" >
+            <intent-filter>
+
+                <!-- Generic extension intents. -->
+                <action android:name="com.sonyericsson.extras.liveware.aef.registration.EXTENSION_REGISTER_REQUEST" />
+                <action android:name="com.sonyericsson.extras.liveware.aef.registration.ACCESSORY_CONNECTION" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+
+                <!-- Notification intents -->
+                <action android:name="com.sonyericsson.extras.liveware.aef.notification.VIEW_EVENT_DETAIL" />
+                <action android:name="com.sonyericsson.extras.liveware.aef.notification.REFRESH_REQUEST" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.irccloud.android.DashClock"
+            android:icon="@drawable/ic_stat_notify"
+            android:label="@string/app_name"
+            android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA" >
             <intent-filter>
                 <action android:name="com.google.android.apps.dashclock.Extension" />
             </intent-filter>
-            <meta-data android:name="protocolVersion" android:value="2" />
-            <meta-data android:name="description"
-                       android:value="Displays your unread IRC highlights" />
-            <meta-data android:name="worldReadable" android:value="true" />
+
+            <meta-data
+                android:name="protocolVersion"
+                android:value="2" />
+            <meta-data
+                android:name="description"
+                android:value="Displays your unread IRC highlights" />
+            <meta-data
+                android:name="worldReadable"
+                android:value="true" />
         </service>
-        <meta-data android:name="com.crashlytics.ApiKey" android:value="@string/CRASHLYTICS_KEY"/>
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
-	</application>
+
+        <meta-data
+            android:name="com.crashlytics.ApiKey"
+            android:value="@string/CRASHYLYTICS_KEY" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity
+            android:name="com.irccloud.android.activity.ImgurAuthActivity"
+            android:label="@string/title_activity_imgur_auth"
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+    </application>
 
 </manifest>

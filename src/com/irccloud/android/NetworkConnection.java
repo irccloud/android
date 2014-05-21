@@ -607,6 +607,16 @@ public class NetworkConnection {
         return null;
     }
 
+    public JSONObject fetchJSON(String url, String postdata) throws IOException {
+        try {
+            String response = doFetch(new URL(url), postdata, null, null);
+            return new JSONObject(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public JSONObject registerGCM(String regId, String sk) throws IOException {
 		String postdata = "device_id="+regId+"&session="+sk;
 		try {
@@ -869,6 +879,11 @@ public class NetworkConnection {
         editor.remove("name");
         editor.remove("highlights");
         editor.remove("autoaway");
+        editor.remove("imgur_account_username");
+        editor.remove("imgur_access_token");
+        editor.remove("imgur_refresh_token");
+        editor.remove("imgur_token_type");
+        editor.remove("imgur_expires_in");
         editor.commit();
         ServersDataSource.getInstance().clear();
         BuffersDataSource.getInstance().clear();

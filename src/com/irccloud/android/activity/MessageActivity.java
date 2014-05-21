@@ -3108,8 +3108,55 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         return true;
     }
 
+    public class ImgurRefreshTask extends AsyncTaskEx<Void, Void, JSONObject> {
+        private final String REFRESH_URL = "https://api.imgur.com/oauth2/token";
+        private Uri mImageUri;  // local Uri to upload
+
+        public ImgurRefreshTask(Uri imageUri) {
+            mImageUri = imageUri;
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... params) {
+            try {
+                JSONObject o = NetworkConnection.getInstance().fetchJSON(REFRESH_URL,
+                        "client_id="+BuildConfig.IMGUR_KEY
+                        +"&client_secret="+BuildConfig.IMGUR_SECRET
+                        +"&grant_type=refresh_token"
+                        +"&refresh_token=" + getSharedPreferences("prefs", 0).getString("imgur_refresh_token", "")
+                );
+                return o;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(JSONObject o) {
+            try {
+                if(o == null || (o.has("success") && !o.getBoolean("success"))) {
+                    startActivity(new Intent(MessageActivity.this, ImgurAuthActivity.class));
+                } else {
+                    SharedPreferences.Editor prefs = getSharedPreferences("prefs", 0).edit();
+                    Iterator<String> i = o.keys();
+                    while(i.hasNext()) {
+                        String k = i.next();
+                        prefs.putString("imgur_" + k, o.getString(k));
+                    }
+                    prefs.commit();
+                    if(mImageUri != null) {
+                        imgurTask = new ImgurUploadTask(mImageUri);
+                        imgurTask.execute((Void) null);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
     public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
-        private final String TAG = ImgurUploadTask.class.getSimpleName();
         private final String UPLOAD_URL = "https://api.imgur.com/3/image";
         private Uri mImageUri;  // local Uri to upload
         private int total = 0;
@@ -3120,7 +3167,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         private String error;
 
         public ImgurUploadTask(Uri imageUri) {
-            Log.i(TAG, "Uploading: " + imageUri);
             this.mImageUri = imageUri;
             setActivity(MessageActivity.this);
         }
@@ -3134,7 +3180,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 imageIn = activity.getContentResolver().openInputStream(mImageUri);
                 total = imageIn.available();
             } catch (Exception e) {
-                Log.e(TAG, "could not open InputStream", e);
+                Log.e("IRCCloud", "could not open InputStream", e);
                 return null;
             }
 
@@ -3144,7 +3190,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             try {
                 conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
                 conn.setDoOutput(true);
-                conn.setRequestProperty("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
+                if(getSharedPreferences("prefs", 0).contains("imgur_access_token")) {
+                    conn.setRequestProperty("Authorization", "Bearer " + getSharedPreferences("prefs", 0).getString("imgur_access_token", ""));
+                } else {
+                    conn.setRequestProperty("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
+                }
 
                 OutputStream out = conn.getOutputStream();
                 copy(imageIn, out);
@@ -3156,7 +3206,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     return onInput(responseIn);
                 }
                 else {
-                    Log.i(TAG, "responseCode=" + conn.getResponseCode());
+                    Log.i("IRCCloud", "responseCode=" + conn.getResponseCode());
                     responseIn = conn.getErrorStream();
                     StringBuilder sb = new StringBuilder();
                     Scanner scanner = new Scanner(responseIn);
@@ -3164,11 +3214,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         sb.append(scanner.next());
                     }
                     error = sb.toString();
-                    Log.i(TAG, "error response: " + sb.toString());
+                    Log.i("IRCCloud", "error response: " + sb.toString());
                     return null;
                 }
             } catch (Exception ex) {
-                Log.e(TAG, "Error during POST", ex);
+                Log.e("IRCCloud", "Error during POST", ex);
                 return null;
             } finally {
                 try {
@@ -3231,7 +3281,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
         @Override
         protected void onPostExecute(String s) {
-            if(mImageUri.toString().contains("irccloudcapture")) {
+            if(mImageUri.toString().contains("irccloudcapture") && s != null && s.length() > 0) {
                 try {
                     new File(new URI(mImageUri.toString())).delete();
                 } catch (Exception e) {
@@ -3273,6 +3323,14 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     txt += s.replace("http://", "https://");
                     messageTxt.setText(txt);
                 } else {
+                    try {
+                        JSONObject root = new JSONObject(error);
+                        if(root.has("status") && root.getInt("status") == 403) {
+                            new ImgurRefreshTask(mImageUri).execute((Void)null);
+                            return;
+                        }
+                    } catch (JSONException e) {
+                    }
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setTitle("Upload Failed");
                     builder.setMessage("Unable to upload photo to imgur.  Please try again. " + ((error != null)?error:""));
@@ -3316,6 +3374,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             while (scanner.hasNext()) {
                 sb.append(scanner.next());
             }
+
+            Log.d("IRCCloud", sb.toString());
 
             JSONObject root = new JSONObject(sb.toString());
             error = sb.toString();

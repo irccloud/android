@@ -18,6 +18,7 @@ package com.irccloud.android.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.*;
 import android.view.MenuItem;
@@ -132,6 +133,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
         findPreference("imageviewer").setOnPreferenceChangeListener(imageviewertoggle);
+        findPreference("imgur_account_username").setOnPreferenceClickListener(imgurClick);
 		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
 		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
@@ -180,6 +182,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(this);
         overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
+        findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
     }
 
     @Override
@@ -405,6 +408,21 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		}
 		
 	};
+
+    Preference.OnPreferenceClickListener imgurClick = new Preference.OnPreferenceClickListener() {
+
+        public boolean onPreferenceClick(Preference preference) {
+            SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+            editor.remove("imgur_account_username");
+            editor.remove("imgur_access_token");
+            editor.remove("imgur_refresh_token");
+            editor.remove("imgur_token_type");
+            editor.remove("imgur_expires_in");
+            editor.commit();
+            startActivity(new Intent(PreferencesActivity.this, ImgurAuthActivity.class));
+            return false;
+        }
+    };
 
     Preference.OnPreferenceClickListener licensesClick = new Preference.OnPreferenceClickListener() {
 

@@ -86,10 +86,12 @@ android {
                 props.load(new FileInputStream(file('private.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
+                buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
+                buildConfigField "String", "IMGUR_SECRET", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
@@ -108,10 +110,12 @@ android {
                 props.load(new FileInputStream(file('private.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
+                buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
+                buildConfigField "String", "IMGUR_SECRET", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
@@ -134,10 +138,12 @@ android {
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
+                buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
+                buildConfigField "String", "IMGUR_SECRET", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
@@ -158,10 +164,12 @@ android {
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
+                buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
+                buildConfigField "String", "IMGUR_SECRET", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
