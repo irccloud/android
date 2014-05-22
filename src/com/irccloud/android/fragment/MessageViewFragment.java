@@ -109,7 +109,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
 	private ProgressBar progressBar = null;
-	private Timer countdownTimer = null;
+	private Timer countdownTimer = new Timer("messsage-countdown-timer");
+    private TimerTask countdownTimerTask = null;
 	private String error = null;
 	private View connecting = null;
 	private View awayView = null;
@@ -138,7 +139,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private RefreshTask refreshTask = null;
 	private HeartbeatTask heartbeatTask = null;
 	private Ignore ignore = new Ignore();
-	private Timer tapTimer = null;
+	private Timer tapTimer = new Timer("message-tap-timer");
+    private TimerTask tapTimerTask = null;
 	private boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
 	public boolean ready = false;
@@ -805,9 +807,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(heartbeatTask != null)
             heartbeatTask.cancel(true);
         heartbeatTask = null;
-    	if(tapTimer != null)
-    		tapTimer.cancel();
-    	tapTimer = null;
+    	if(tapTimerTask != null)
+    		tapTimerTask.cancel();
+    	tapTimerTask = null;
         if(buffer == null || (args.containsKey("bid") && args.getInt("bid", 0) != buffer.bid)) {
             dirty = true;
         }
@@ -1132,7 +1134,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 if(!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
-                    new Timer().schedule(new TimerTask() {
+                    tapTimer.schedule(new TimerTask() {
                         @Override
                         public void run() {
                             runOnUiThread(new Runnable() {
@@ -1182,18 +1184,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	    		return;
 
 	    	if(adapter != null) {
-	    		if(tapTimer != null) {
-	    			tapTimer.cancel();
-	    			tapTimer = null;
+	    		if(tapTimerTask != null) {
+	    			tapTimerTask.cancel();
+	    			tapTimerTask = null;
 	    			mListener.onMessageDoubleClicked(adapter.data.get(pos));
 	    		} else {
-                    Timer t = new Timer();
-	    			t.schedule(new TimerTask() {
-	    				int position = pos;
-	    				
-						@Override
-						public void run() {
-				    		runOnUiThread(new Runnable() {
+                    tapTimerTask = new TimerTask() {
+                        int position = pos;
+
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (adapter != null && adapter.data != null && position < adapter.data.size()) {
@@ -1226,11 +1227,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     }
                                 }
                             });
-			    			tapTimer = null;
-						}
-	    				
-	    			}, 300);
-                    tapTimer = t;
+                            tapTimerTask = null;
+                        }
+                    };
+	    			tapTimer.schedule(tapTimerTask, 300);
 	    		}
 	    	}
     	}
@@ -1996,22 +1996,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 					error = null;
 	    		}
 				try {
-					if(countdownTimer != null)
-						countdownTimer.cancel();
-					countdownTimer = new Timer();
-					countdownTimer.schedule( new TimerTask(){
-			             public void run() {
-			    			 if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-			    				 runOnUiThread(new Runnable() {
-                                     @Override
-                                     public void run() {
-                                         updateReconnecting();
-                                     }
-                                 });
-			    			 }
-			    			 countdownTimer = null;
-			             }
-					}, 1000);
+					if(countdownTimerTask != null)
+						countdownTimerTask.cancel();
+                    countdownTimerTask =  new TimerTask(){
+                        public void run() {
+                            if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateReconnecting();
+                                    }
+                                });
+                            }
+                        }
+                    };
+					countdownTimer.schedule(countdownTimerTask, 1000);
 				} catch (Exception e) {
 				}
 			} else {

@@ -117,7 +117,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
 
     WebView mImage;
     ProgressBar mProgress;
-    Timer mHideTimer;
+    Timer mHideTimer = new Timer("actionbar-hide-timer");
+    TimerTask mHideTimerTask = null;
 
     public class JSInterface {
         @JavascriptInterface
@@ -131,9 +132,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 @Override
                 public void run() {
                     if(getSupportActionBar().isShowing()) {
-                        if(mHideTimer != null)
-                            mHideTimer.cancel();
-                        mHideTimer = null;
+                        if(mHideTimerTask != null)
+                            mHideTimerTask.cancel();
                         getSupportActionBar().hide();
                     } else {
                         getSupportActionBar().show();
@@ -242,10 +242,9 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     }
 
     private void hide_actionbar() {
-        if(mHideTimer != null)
-            mHideTimer.cancel();
-        mHideTimer = new Timer();
-        mHideTimer.schedule(new TimerTask() {
+        if(mHideTimerTask != null)
+            mHideTimerTask.cancel();
+        mHideTimerTask = new TimerTask() {
             @Override
             public void run() {
                 ImageViewerActivity.this.runOnUiThread(new Runnable() {
@@ -254,9 +253,9 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                         getSupportActionBar().hide();
                     }
                 });
-                mHideTimer = null;
             }
-        }, 3000);
+        };
+        mHideTimer.schedule(mHideTimerTask, 3000);
     }
 
     @Override
@@ -300,8 +299,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     @Override
     public void onShareActionProviderSubVisibilityChanged(boolean visible) {
         if(visible) {
-            if(mHideTimer != null)
-                mHideTimer.cancel();
+            if(mHideTimerTask != null)
+                mHideTimerTask.cancel();
         } else {
             hide_actionbar();
         }

@@ -187,7 +187,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     private SuggestionsAdapter suggestionsAdapter;
     private View suggestionsContainer;
     private GridView suggestions;
-    private Timer suggestionsTimer;
+    private Timer suggestionsTimer = new Timer("suggestions-timer");
+    private TimerTask suggestionsTimerTask = null;
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
     private ImgurUploadTask imgurTask = null;
@@ -288,16 +289,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         }
                     });
                 } else {
-                    try {
-                        if(suggestionsTimer != null)
-                            suggestionsTimer.cancel();
-                    } catch (Exception e) {
-                    }
-                    suggestionsTimer = new Timer();
-                    suggestionsTimer.schedule(new TimerTask() {
+                        if(suggestionsTimerTask != null)
+                            suggestionsTimerTask.cancel();
+                    suggestionsTimerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            suggestionsTimer = null;
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -305,7 +301,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                                 }
                             });
                         }
-                    }, 250);
+                    };
+                    suggestionsTimer.schedule(suggestionsTimerTask, 250);
                 }
             }
 
@@ -2901,9 +2898,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
 	@Override
 	public void onBufferSelected(int bid) {
-        if(suggestionsTimer != null)
-            suggestionsTimer.cancel();
-        suggestionsTimer = null;
+        if(suggestionsTimerTask != null)
+            suggestionsTimerTask.cancel();
         sortedChannels = null;
         sortedUsers = null;
 
@@ -3346,7 +3342,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 }
                 imgurTask = null;
             } else {
-                new Timer().schedule(new TimerTask() {
+                suggestionsTimer.schedule(new TimerTask() {
 
                     @Override
                     public void run() {

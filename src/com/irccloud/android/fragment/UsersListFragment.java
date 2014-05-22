@@ -55,9 +55,9 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 	private int cid = -1;
 	private int bid = -1;
 	private String channel;
-	private Timer tapTimer = null;
-    private Timer refreshTimer = null;
-	
+	private Timer tapTimer = new Timer("users-tap-timer");
+    private TimerTask tapTimerTask = null;
+
 	private class UserListAdapter extends BaseAdapter {
 		ArrayList<UserListEntry> data;
 		private ListFragment ctx;
@@ -345,7 +345,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     	bid = args.getInt("bid", 0);
     	channel = args.getString("name");
 
-        new Timer().schedule(new TimerTask() {
+        tapTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 if(getActivity() != null)
@@ -373,8 +373,6 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     	super.onPause();
     	if(conn != null)
     		conn.removeHandler(this);
-        if(refreshTimer != null)
-            refreshTimer.cancel();
     }
 
     @Override
@@ -431,9 +429,9 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 	    		return;
 
 	    	if(adapter != null) {
-	    		if(tapTimer != null) {
-	    			tapTimer.cancel();
-	    			tapTimer = null;
+	    		if(tapTimerTask != null) {
+	    			tapTimerTask.cancel();
+	    			tapTimerTask = null;
                     try {
                         UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry)adapter.getItem(pos);
                         if(e.type == TYPE_USER)
@@ -442,14 +440,13 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
                     }
 	    		} else {
-	    			tapTimer = new Timer();
-	    			tapTimer.schedule(new TimerTask() {
-	    				int position = pos;
-	    				
-						@Override
-						public void run() {
+                    tapTimerTask = new TimerTask() {
+                        int position = pos;
+
+                        @Override
+                        public void run() {
                             if(getActivity() != null)
-    				    		getActivity().runOnUiThread(new Runnable() {
+                                getActivity().runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
                                         try {
@@ -469,10 +466,10 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
                                         }
                                     }
                                 });
-			    			tapTimer = null;
-						}
-	    				
-	    			}, 300);
+                            tapTimerTask = null;
+                        }
+                    };
+	    			tapTimer.schedule(tapTimerTask, 300);
 	    		}
 	    	}
     	}

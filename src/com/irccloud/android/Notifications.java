@@ -163,78 +163,78 @@ public class Notifications {
 		}
 	}
 	
-	private Timer mSaveTimer = null;
-	
+	private Timer mSaveTimer = new Timer("notifications-save-timer");
+	private TimerTask mSaveTimerTask = null;
+
 	@TargetApi(9)
 	private void save() {
-		if(mSaveTimer != null)
-			mSaveTimer.cancel();
-		mSaveTimer = new Timer();
-		mSaveTimer.schedule(new TimerTask() {
+        if(mSaveTimerTask != null)
+            mSaveTimerTask.cancel();
+        mSaveTimerTask = new TimerTask() {
 
-			@Override
-			public void run() {
-				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-				try {
-					JSONArray array = new JSONArray();
-					synchronized(mNotifications) {
-						for(Notification n : mNotifications) {
-							JSONObject o = new JSONObject();
-							o.put("cid", n.cid);
-							o.put("bid", n.bid);
-							o.put("eid", n.eid);
-							o.put("nick", n.nick);
-							o.put("message", n.message);
-							o.put("chan", n.chan);
-							o.put("buffer_type", n.buffer_type);
-							o.put("message_type", n.message_type);
-							o.put("shown", n.shown);
-							array.put(o);
-						}
-						editor.putString("notifications_json", array.toString());
-					}
-					
-					array = new JSONArray();
-					for(int i = 0; i < mNetworks.size(); i++) {
-						int cid = mNetworks.keyAt(i);
-						String network = mNetworks.get(cid);
-						JSONObject o = new JSONObject();
-						o.put("cid", cid);
-						o.put("network", network);
-						array.put(o);
-					}
-					editor.putString("networks_json", array.toString());
+            @Override
+            public void run() {
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+                try {
+                    JSONArray array = new JSONArray();
+                    synchronized(mNotifications) {
+                        for(Notification n : mNotifications) {
+                            JSONObject o = new JSONObject();
+                            o.put("cid", n.cid);
+                            o.put("bid", n.bid);
+                            o.put("eid", n.eid);
+                            o.put("nick", n.nick);
+                            o.put("message", n.message);
+                            o.put("chan", n.chan);
+                            o.put("buffer_type", n.buffer_type);
+                            o.put("message_type", n.message_type);
+                            o.put("shown", n.shown);
+                            array.put(o);
+                        }
+                        editor.putString("notifications_json", array.toString());
+                    }
 
-					array = new JSONArray();
-					for(int i = 0; i < mLastSeenEIDs.size(); i++) {
-						int bid = mLastSeenEIDs.keyAt(i);
-						long eid = mLastSeenEIDs.get(bid);
-						JSONObject o = new JSONObject();
-						o.put("bid", bid);
-						o.put("eid", eid);
-						array.put(o);
-					}
-					editor.putString("lastseeneids_json", array.toString());
+                    array = new JSONArray();
+                    for(int i = 0; i < mNetworks.size(); i++) {
+                        int cid = mNetworks.keyAt(i);
+                        String network = mNetworks.get(cid);
+                        JSONObject o = new JSONObject();
+                        o.put("cid", cid);
+                        o.put("network", network);
+                        array.put(o);
+                    }
+                    editor.putString("networks_json", array.toString());
 
-					array = new JSONArray();
-					for(int i = 0; i < mDismissedEIDs.size(); i++) {
-						JSONArray a = new JSONArray();
-						int bid = mDismissedEIDs.keyAt(i);
-						HashSet<Long> eids = mDismissedEIDs.get(bid);
-						for(long eid : eids) {
-							a.put(eid);
-						}
-						JSONObject o = new JSONObject();
-						o.put("bid", bid);
-						o.put("eids", a);
-						array.put(o);
-					}
-					editor.putString("dismissedeids_json", array.toString());
+                    array = new JSONArray();
+                    for(int i = 0; i < mLastSeenEIDs.size(); i++) {
+                        int bid = mLastSeenEIDs.keyAt(i);
+                        long eid = mLastSeenEIDs.get(bid);
+                        JSONObject o = new JSONObject();
+                        o.put("bid", bid);
+                        o.put("eid", eid);
+                        array.put(o);
+                    }
+                    editor.putString("lastseeneids_json", array.toString());
 
-					if(Build.VERSION.SDK_INT >= 9)
-						editor.apply();
-					else
-						editor.commit();
+                    array = new JSONArray();
+                    for(int i = 0; i < mDismissedEIDs.size(); i++) {
+                        JSONArray a = new JSONArray();
+                        int bid = mDismissedEIDs.keyAt(i);
+                        HashSet<Long> eids = mDismissedEIDs.get(bid);
+                        for(long eid : eids) {
+                            a.put(eid);
+                        }
+                        JSONObject o = new JSONObject();
+                        o.put("bid", bid);
+                        o.put("eids", a);
+                        array.put(o);
+                    }
+                    editor.putString("dismissedeids_json", array.toString());
+
+                    if(Build.VERSION.SDK_INT >= 9)
+                        editor.apply();
+                    else
+                        editor.commit();
                 } catch (ConcurrentModificationException e) {
                 } catch (OutOfMemoryError e) {
                     editor.remove("notifications_json");
@@ -243,13 +243,12 @@ public class Notifications {
                     editor.remove("dismissedeids_json");
                     editor.commit();
                 } catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				mSaveTimer = null;
-			}
-			
-		}, 60000);
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        };
+		mSaveTimer.schedule(mSaveTimerTask, 60000);
 	}
 	
 	public void clearDismissed() {

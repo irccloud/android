@@ -134,10 +134,12 @@ public class GCMIntentService extends IntentService {
         }
 	}
 
+    private static Timer GCMTimer = new Timer("GCM-Registration-Timer");
+
 	public static void scheduleRegisterTimer(int delay) {
         final int retrydelay = (delay<500)?500:delay;
 
-		new Timer().schedule(new TimerTask() {
+        GCMTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				if(!IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("session_key")) {
@@ -194,8 +196,8 @@ public class GCMIntentService extends IntentService {
 	
 	public static void scheduleUnregisterTimer(int delay, final String regId) {
 		final int retrydelay = (delay<500)?500:delay;
-		
-		new Timer().schedule(new TimerTask() {
+
+        GCMTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				boolean success = false;

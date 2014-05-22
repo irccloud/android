@@ -70,7 +70,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
 	private ProgressBar progressBar = null;
-	private Timer countdownTimer = null;
+	private Timer countdownTimer = new Timer("main-countdown-timer");
+    private TimerTask countdownTimerTask = null;
 	private String error = null;
 	private View connecting = null;
 	
@@ -228,25 +229,21 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
                         errorMsg.setVisibility(View.VISIBLE);
                     }
                 }
-	    		try {
-					if(countdownTimer != null)
-						countdownTimer.cancel();
-	    		} catch (NullPointerException e) {
-	    		}
-				countdownTimer = new Timer();
-				countdownTimer.schedule( new TimerTask(){
-		             public void run() {
-                    if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateReconnecting();
-                            }
-                        });
+                if(countdownTimerTask != null)
+                    countdownTimerTask.cancel();
+                countdownTimerTask =  new TimerTask(){
+                    public void run() {
+                        if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    updateReconnecting();
+                                }
+                            });
+                        }
                     }
-                    countdownTimer = null;
-                }
-                }, 1000);
+                };
+				countdownTimer.schedule(countdownTimerTask, 1000);
 			} else {
 				connectingMsg.setText("Connecting");
 				error = null;

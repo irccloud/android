@@ -119,8 +119,8 @@ public class NetworkConnection {
 	private final ArrayList<IRCEventHandler> handlers = new ArrayList<IRCEventHandler>();
 	private String session = null;
 	private volatile int last_reqid = 0;
-	private Timer shutdownTimer = null;
-	private Timer idleTimer = null;
+	private Timer shutdownTimer = new Timer("shutdown-timer");
+	private Timer idleTimer = new Timer("websocket-idle-timer");
 	public long idle_interval = 1000;
     private volatile int failCount = 0;
 	private long reconnect_timestamp = 0;
@@ -375,9 +375,8 @@ public class NetworkConnection {
 			ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo ni = cm.getActiveNetworkInfo();
 			if(ni != null && ni.isConnected() && state == STATE_DISCONNECTED && session != null && handlers.size() > 0) {
-				if(idleTimer != null)
-					idleTimer.cancel();
-				idleTimer = null;
+                if(idleTimerTask != null)
+                    idleTimerTask.cancel();
 				connect(session);
 			} else if(ni == null || !ni.isConnected()) {
                 cancel_idle_timer();
@@ -526,14 +525,8 @@ public class NetworkConnection {
 		} else {
 			state = STATE_DISCONNECTED;
 		}
-		if(idleTimer != null) {
-            try {
-    			idleTimer.cancel();
-            } catch (NullPointerException e) {
-                //The timer expired already
-            }
-			idleTimer = null;
-		}
+        if(idleTimerTask != null)
+            idleTimerTask.cancel();
 		if(wifiLock.isHeld())
 			wifiLock.release();
 		reconnect_timestamp = 0;
@@ -640,7 +633,7 @@ public class NetworkConnection {
 	}
 
     public void logout(final String sk) {
-        new Timer().schedule(new TimerTask() {
+        idleTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
@@ -1229,27 +1222,18 @@ public class NetworkConnection {
 	}
 
 	public void cancel_idle_timer() {
-		if(idleTimer != null) {
-			idleTimer.cancel();
-			idleTimer = null;
-		}
+        if(idleTimerTask != null)
+            idleTimerTask.cancel();
 	}
 	
 	public void schedule_idle_timer() {
-		if(idleTimer != null) {
-            try {
-    			idleTimer.cancel();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-			idleTimer = null;
-		}
+        if(idleTimerTask != null)
+            idleTimerTask.cancel();
 		if(idle_interval <= 0)
 			return;
 		
 		try {
-			idleTimer = new Timer();
-			idleTimer.schedule(new TimerTask() {
+            idleTimerTask = new TimerTask() {
                 public void run() {
                     if (handlers.size() > 0) {
                         Crashlytics.log(Log.INFO, TAG, "Websocket idle time exceeded, reconnecting...");
@@ -1262,14 +1246,17 @@ public class NetworkConnection {
                     idleTimer = null;
                     reconnect_timestamp = 0;
                 }
-            }, idle_interval);
+            };
+			idleTimer.schedule(idleTimerTask, idle_interval);
 			reconnect_timestamp = System.currentTimeMillis() + idle_interval;
 		} catch (IllegalStateException e) {
 			//It's possible for timer to get canceled by another thread before before it gets scheduled
 			//so catch the exception
 		}
 	}
-	
+
+    private TimerTask idleTimerTask = null;
+
 	public long getReconnectTimestamp() {
 		return reconnect_timestamp;
 	}
@@ -2222,33 +2209,32 @@ public class NetworkConnection {
         synchronized (handlers) {
             if(!handlers.contains(handler))
                 handlers.add(handler);
-            if(shutdownTimer != null) {
-                shutdownTimer.cancel();
-                shutdownTimer = null;
-            }
+            if(shutdownTimerTask != null)
+                shutdownTimerTask.cancel();
         }
 	}
+
+    private TimerTask shutdownTimerTask = null;
 
 	public synchronized void removeHandler(IRCEventHandler handler) {
         synchronized (handlers) {
             handlers.remove(handler);
             if(handlers.isEmpty()){
-                if(shutdownTimer == null) {
-                    shutdownTimer = new Timer();
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-                    long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
-                    shutdownTimer.schedule( new TimerTask(){
-                         public void run() {
-                             if(handlers.isEmpty()) {
-                                 disconnect();
-                             }
-                             shutdownTimer = null;
-                          }
-                       }, timeout);
-                }
-                if(idleTimer != null && state != STATE_CONNECTED) {
-                    idleTimer.cancel();
-                    idleTimer = null;
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+                long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
+                if(shutdownTimerTask != null)
+                    shutdownTimerTask.cancel();
+                shutdownTimerTask = new TimerTask(){
+                    public void run() {
+                        if(handlers.isEmpty()) {
+                            disconnect();
+                        }
+                    }
+                };
+                shutdownTimer.schedule(shutdownTimerTask, timeout);
+                if(state != STATE_CONNECTED) {
+                    if(idleTimerTask != null)
+                        idleTimerTask.cancel();
                     failCount = 0;
                     if(wifiLock.isHeld())
                         wifiLock.release();
@@ -2504,7 +2490,7 @@ public class NetworkConnection {
                         BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
                         if(b != null && b.timeout == 1) {
                             Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
-                            new Timer().schedule(new TimerTask() {
+                            idleTimer.schedule(new TimerTask() {
                                  public void run() {
                                      doInBackground(mUrl);
                                  }
