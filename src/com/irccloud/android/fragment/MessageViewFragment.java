@@ -1240,13 +1240,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	public void onResume() {
     	super.onResume();
     	conn.addHandler(this);
-    	if(conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
+    	if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
 			TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
 			anim.setDuration(200);
 			anim.setFillAfter(true);
 			connecting.startAnimation(anim);
 			connecting.setVisibility(View.VISIBLE);
-    	}
+        }
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
     	updateReconnecting();

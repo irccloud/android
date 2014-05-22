@@ -390,8 +390,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             imageCaptureURI = null;
 
         imgurTask = (ImgurUploadTask)getLastCustomNonConfigurationInstance();
-        if(imgurTask != null)
-            imgurTask.setActivity(this);
     }
 
     private void show_topic_popup() {
@@ -1005,6 +1003,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
         if(drawerLayout != null)
             drawerLayout.closeDrawers();
+
+        if(imgurTask != null)
+            imgurTask.setActivity(this);
     }
 
     @Override
@@ -2229,14 +2230,12 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             if (imageCaptureURI != null) {
-                imgurTask = new ImgurUploadTask(imageCaptureURI);
-                imgurTask.execute((Void) null);
+                new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
             }
         } else if (requestCode == 2 && resultCode == RESULT_OK) {
             Uri selectedImage = imageReturnedIntent.getData();
             if (selectedImage != null) {
-                imgurTask = new ImgurUploadTask(selectedImage);
-                imgurTask.execute((Void) null);
+                new ImgurRefreshTask(selectedImage).execute((Void) null);
             }
         }
     }
@@ -3161,9 +3160,11 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         private TextView connectingMsg;
         private ProgressBar progressBar;
         private String error;
+        private BuffersDataSource.Buffer mBuffer;
 
         public ImgurUploadTask(Uri imageUri) {
-            this.mImageUri = imageUri;
+            mImageUri = imageUri;
+            mBuffer = buffer;
             setActivity(MessageActivity.this);
         }
 
@@ -3196,7 +3197,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 copy(imageIn, out);
                 out.flush();
                 out.close();
-
+                total = 0;
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     responseIn = conn.getInputStream();
                     return onInput(responseIn);
@@ -3310,26 +3311,41 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
         private void setText(final String s) {
             //If the user rotated the screen, we might not be attached to an activity yet.  Keep trying until we reattach
-            if(activity != null) {
-                if(s != null) {
-                    ActionEditText messageTxt = (ActionEditText) activity.findViewById(R.id.messageTxt);
-                    String txt = messageTxt.getText().toString();
-                    if (txt.length() > 0 && !txt.endsWith(" "))
-                        txt += " ";
-                    txt += s.replace("http://", "https://");
-                    messageTxt.setText(txt);
-                } else {
-                    try {
-                        JSONObject root = new JSONObject(error);
-                        if(root.has("status") && root.getInt("status") == 403) {
-                            new ImgurRefreshTask(mImageUri).execute((Void)null);
-                            return;
-                        }
-                    } catch (JSONException e) {
+            if(s == null) {
+                try {
+                    JSONObject root = new JSONObject(error);
+                    if (root.has("status") && root.getInt("status") == 403) {
+                        new ImgurRefreshTask(mImageUri).execute((Void) null);
+                        return;
                     }
+                } catch (JSONException e) {
+                }
+            }
+            if(activity != null) {
+                Log.e("IRCCloud", "Upload finished");
+                if (s != null) {
+                    if(mBuffer != null) {
+                        if (mBuffer.draft == null)
+                            mBuffer.draft = "";
+                        if (mBuffer.draft.length() > 0 && !mBuffer.draft.endsWith(" "))
+                            mBuffer.draft += " ";
+                        mBuffer.draft += s;
+                    }
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ActionEditText messageTxt = (ActionEditText) activity.findViewById(R.id.messageTxt);
+                            String txt = messageTxt.getText().toString();
+                            if (txt.length() > 0 && !txt.endsWith(" "))
+                                txt += " ";
+                            txt += s.replace("http://", "https://");
+                            messageTxt.setText(txt);
+                        }
+                    });
+                } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setTitle("Upload Failed");
-                    builder.setMessage("Unable to upload photo to imgur.  Please try again. " + ((error != null)?error:""));
+                    builder.setMessage("Unable to upload photo to imgur.  Please try again. " + ((error != null) ? error : ""));
                     builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -3341,7 +3357,15 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     dialog.show();
                 }
                 imgurTask = null;
+            } else if(mBuffer != null && s != null) {
+                Log.e("IRCCloud", "Upload finished, updating draft");
+                if (mBuffer.draft == null)
+                    mBuffer.draft = "";
+                if (mBuffer.draft.length() > 0 && !mBuffer.draft.endsWith(" "))
+                    mBuffer.draft += " ";
+                mBuffer.draft += s;
             } else {
+                Log.e("IRCCloud", "Upload finished, waiting for new activity reference");
                 suggestionsTimer.schedule(new TimerTask() {
 
                     @Override
