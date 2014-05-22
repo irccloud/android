@@ -3197,7 +3197,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 copy(imageIn, out);
                 out.flush();
                 out.close();
-                total = 0;
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     responseIn = conn.getInputStream();
                     return onInput(responseIn);
@@ -3399,6 +3398,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
             JSONObject root = new JSONObject(sb.toString());
             error = sb.toString();
+            total = 0;
             return root.getJSONObject("data").getString("link");
         }
     }
