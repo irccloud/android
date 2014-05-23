@@ -1243,7 +1243,6 @@ public class NetworkConnection {
                             client.disconnect();
                         connect(session);
                     }
-                    idleTimer = null;
                     reconnect_timestamp = 0;
                 }
             };
@@ -1288,7 +1287,7 @@ public class NetworkConnection {
         put("header", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                idle_interval = object.getLong("idle_interval") + 10000;
+                idle_interval = object.getLong("idle_interval") + 15000;
                 clockOffset = object.getLong("time") - (System.currentTimeMillis()/1000);
                 currentcount = 0;
                 currentBid = -1;
