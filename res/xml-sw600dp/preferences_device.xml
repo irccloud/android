@@ -47,5 +47,9 @@
             android:summaryOn="Image URLs will open in IRCCloud"
             android:summaryOff="Image URLs will open in your browser"
             android:title="Image Viewer"/>
+        <Preference
+            android:title="Imgur.com Account"
+            android:key="imgur_account_username"
+            />
 	</PreferenceCategory>
 </PreferenceScreen>
