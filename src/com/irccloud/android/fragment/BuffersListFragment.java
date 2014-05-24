@@ -997,11 +997,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         } catch (ClassCastException e) {
         }
         switch (what) {
-            case NetworkConnection.EVENT_CHANNELINIT:
-                b = BuffersDataSource.getInstance().getBuffer(((ChannelsDataSource.Channel)obj).bid);
-                if(b != null)
-                    adapter.updateBuffer(b);
-                break;
             case NetworkConnection.EVENT_CHANNELMODE:
                 b = BuffersDataSource.getInstance().getBuffer(object.bid());
                 if(b != null)

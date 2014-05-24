@@ -79,7 +79,7 @@ public class BuffersDataSource {
 	private SparseArray<Buffer> buffers_indexed;
 
 	private static BuffersDataSource instance = null;
-    private boolean dirty = true;
+    public boolean dirty = true;
 	
 	public synchronized static BuffersDataSource getInstance() {
 		if(instance == null)

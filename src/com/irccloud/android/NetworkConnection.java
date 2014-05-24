@@ -1788,6 +1788,7 @@ public class NetworkConnection {
                     JsonNode user = users.get(i);
                     u.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("away").asBoolean()?1:0, false);
                 }
+                BuffersDataSource.getInstance().dirty = true;
                 if(!backlog)
                     notifyHandlers(EVENT_CHANNELINIT, channel);
             }
@@ -1859,6 +1860,7 @@ public class NetworkConnection {
                         ChannelsDataSource c = ChannelsDataSource.getInstance();
                         c.deleteChannel(object.bid());
                         u.deleteUsersForBuffer(object.bid());
+                        BuffersDataSource.getInstance().dirty = true;
                     }
                     notifyHandlers(EVENT_PART, object);
                 }
@@ -1898,6 +1900,7 @@ public class NetworkConnection {
                         ChannelsDataSource c = ChannelsDataSource.getInstance();
                         c.deleteChannel(object.bid());
                         u.deleteUsersForBuffer(object.bid());
+                        BuffersDataSource.getInstance().dirty = true;
                     }
                     notifyHandlers(EVENT_KICK, object);
                 }
