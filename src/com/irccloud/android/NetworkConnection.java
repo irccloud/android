@@ -119,8 +119,8 @@ public class NetworkConnection {
 	private final ArrayList<IRCEventHandler> handlers = new ArrayList<IRCEventHandler>();
 	private String session = null;
 	private volatile int last_reqid = 0;
-	private Timer shutdownTimer = new Timer("shutdown-timer");
-	private Timer idleTimer = new Timer("websocket-idle-timer");
+	private static final Timer shutdownTimer = new Timer("shutdown-timer");
+	private static final Timer idleTimer = new Timer("websocket-idle-timer");
 	public long idle_interval = 1000;
     private volatile int failCount = 0;
 	private long reconnect_timestamp = 0;

@@ -86,7 +86,8 @@ public class Notifications {
 	
 	private static Notifications instance = null;
 	private int excludeBid = -1;
-	private Timer mNotificationTimer = null;
+	private static final Timer mNotificationTimer = new Timer("notification-timer");
+    private TimerTask mNotificationTimerTask = null;
 
 	public static Notifications getInstance() {
 		if(instance == null)
@@ -163,7 +164,7 @@ public class Notifications {
 		}
 	}
 	
-	private Timer mSaveTimer = new Timer("notifications-save-timer");
+	private static final Timer mSaveTimer = new Timer("notifications-save-timer");
 	private TimerTask mSaveTimerTask = null;
 
 	@TargetApi(9)
@@ -372,9 +373,8 @@ public class Notifications {
 	
 	public void deleteOldNotifications(int bid, long last_seen_eid) {
         boolean changed = false;
-		if(mNotificationTimer != null) {
-			mNotificationTimer.cancel();
-			mNotificationTimer = null;
+		if(mNotificationTimerTask != null) {
+			mNotificationTimerTask.cancel();
 		}
 
 		ArrayList<Notification> notifications = getOtherNotifications();
@@ -535,21 +535,20 @@ public class Notifications {
 			}
 		}
 
-		if(mNotificationTimer != null)
-			mNotificationTimer.cancel();
+		if(mNotificationTimerTask != null)
+			mNotificationTimerTask.cancel();
 
         try {
-            mNotificationTimer = new Timer();
-            mNotificationTimer.schedule(new TimerTask() {
+            mNotificationTimerTask = new TimerTask() {
                 @Override
                 public void run() {
                     showMessageNotifications(mTicker);
                     showOtherNotifications();
                     mTicker = null;
-                    mNotificationTimer = null;
                     IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
                 }
-            }, 5000);
+            };
+            mNotificationTimer.schedule(mNotificationTimerTask, 5000);
         } catch (Exception e) {
 
         }

@@ -187,7 +187,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     private SuggestionsAdapter suggestionsAdapter;
     private View suggestionsContainer;
     private GridView suggestions;
-    private Timer suggestionsTimer = new Timer("suggestions-timer");
+    private static final Timer suggestionsTimer = new Timer("suggestions-timer");
     private TimerTask suggestionsTimerTask = null;
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;

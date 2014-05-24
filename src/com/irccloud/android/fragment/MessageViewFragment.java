@@ -109,7 +109,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
 	private ProgressBar progressBar = null;
-	private Timer countdownTimer = new Timer("messsage-countdown-timer");
+	private static final Timer countdownTimer = new Timer("messsage-countdown-timer");
     private TimerTask countdownTimerTask = null;
 	private String error = null;
 	private View connecting = null;
@@ -139,7 +139,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private RefreshTask refreshTask = null;
 	private HeartbeatTask heartbeatTask = null;
 	private Ignore ignore = new Ignore();
-	private Timer tapTimer = new Timer("message-tap-timer");
+	private static final Timer tapTimer = new Timer("message-tap-timer");
     private TimerTask tapTimerTask = null;
 	private boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();

@@ -117,7 +117,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
 
     WebView mImage;
     ProgressBar mProgress;
-    Timer mHideTimer = new Timer("actionbar-hide-timer");
+    private static final Timer mHideTimer = new Timer("actionbar-hide-timer");
     TimerTask mHideTimerTask = null;
 
     public class JSInterface {

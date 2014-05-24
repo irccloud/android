@@ -70,7 +70,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
 	private ProgressBar progressBar = null;
-	private Timer countdownTimer = new Timer("main-countdown-timer");
+	private static final Timer countdownTimer = new Timer("main-countdown-timer");
     private TimerTask countdownTimerTask = null;
 	private String error = null;
 	private View connecting = null;

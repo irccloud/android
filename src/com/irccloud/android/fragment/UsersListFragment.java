@@ -55,7 +55,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 	private int cid = -1;
 	private int bid = -1;
 	private String channel;
-	private Timer tapTimer = new Timer("users-tap-timer");
+	private static final Timer tapTimer = new Timer("users-tap-timer");
     private TimerTask tapTimerTask = null;
 
 	private class UserListAdapter extends BaseAdapter {

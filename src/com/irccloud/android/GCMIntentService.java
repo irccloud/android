@@ -134,7 +134,7 @@ public class GCMIntentService extends IntentService {
         }
 	}
 
-    private static Timer GCMTimer = new Timer("GCM-Registration-Timer");
+    private static final Timer GCMTimer = new Timer("GCM-Registration-Timer");
 
 	public static void scheduleRegisterTimer(int delay) {
         final int retrydelay = (delay<500)?500:delay;
