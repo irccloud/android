@@ -3114,13 +3114,15 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                JSONObject o = NetworkConnection.getInstance().fetchJSON(REFRESH_URL,
-                        "client_id="+BuildConfig.IMGUR_KEY
-                        +"&client_secret="+BuildConfig.IMGUR_SECRET
-                        +"&grant_type=refresh_token"
-                        +"&refresh_token=" + getSharedPreferences("prefs", 0).getString("imgur_refresh_token", "")
-                );
-                return o;
+                if(getSharedPreferences("prefs", 0).contains("imgur_refresh_token")) {
+                    JSONObject o = NetworkConnection.getInstance().fetchJSON(REFRESH_URL,
+                            "client_id=" + BuildConfig.IMGUR_KEY
+                                    + "&client_secret=" + BuildConfig.IMGUR_SECRET
+                                    + "&grant_type=refresh_token"
+                                    + "&refresh_token=" + getSharedPreferences("prefs", 0).getString("imgur_refresh_token", "")
+                    );
+                    return o;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -3130,17 +3132,24 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         @Override
         protected void onPostExecute(JSONObject o) {
             try {
-                if(o == null || (o.has("success") && !o.getBoolean("success"))) {
-                    startActivity(new Intent(MessageActivity.this, ImgurAuthActivity.class));
-                } else {
-                    SharedPreferences.Editor prefs = getSharedPreferences("prefs", 0).edit();
-                    Iterator<String> i = o.keys();
-                    while(i.hasNext()) {
-                        String k = i.next();
-                        prefs.putString("imgur_" + k, o.getString(k));
+                if(getSharedPreferences("prefs", 0).contains("imgur_refresh_token")) {
+                    if (o == null || (o.has("success") && !o.getBoolean("success"))) {
+                        startActivity(new Intent(MessageActivity.this, ImgurAuthActivity.class));
+                    } else {
+                        SharedPreferences.Editor prefs = getSharedPreferences("prefs", 0).edit();
+                        Iterator<String> i = o.keys();
+                        while (i.hasNext()) {
+                            String k = i.next();
+                            prefs.putString("imgur_" + k, o.getString(k));
+                        }
+                        prefs.commit();
+                        if (mImageUri != null) {
+                            imgurTask = new ImgurUploadTask(mImageUri);
+                            imgurTask.execute((Void) null);
+                        }
                     }
-                    prefs.commit();
-                    if(mImageUri != null) {
+                } else {
+                    if (mImageUri != null) {
                         imgurTask = new ImgurUploadTask(mImageUri);
                         imgurTask.execute((Void) null);
                     }
