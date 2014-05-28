@@ -133,6 +133,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private MessageAdapter adapter;
 
 	private long currentCollapsedEid = -1;
+    private long lastCollapsedEid = -1;
 	private CollapsedEventsList collapsedEvents = new CollapsedEventsList();
 	private int lastCollapsedDay = -1;
 	private HashSet<Long> expandedSectionEids = new HashSet<Long>();
@@ -925,7 +926,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(type.startsWith("you_"))
                     type = type.substring(4);
 
-                if(type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode")) {
+                if(type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
                     boolean shouldExpand = false;
                     boolean showChan = !buffer.type.equals("channel");
                     if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
@@ -949,6 +950,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if(buffer.type.equals("channel")) {
                             if(conn.getUserInfo().prefs.has("channel-expandJoinPart"))
                                 expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
+                        } else if(buffer.type.equals("console")) {
+                            if(conn.getUserInfo().prefs.has("buffer-expandDisco"))
+                                expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandDisco");
                         } else {
                             if(conn.getUserInfo().prefs.has("buffer-expandJoinPart"))
                                 expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
@@ -1013,6 +1017,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             heading.bg_color = R.color.message_bg;
                             heading.linkify = false;
                             adapter.addItem(currentCollapsedEid - 1, heading);
+                            if(event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
+                                EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
+                                if(last != null)
+                                    last.row_type = ROW_MESSAGE;
+                                event.row_type = ROW_SOCKETCLOSED;
+                            }
                         }
                         event.timestamp = null;
                     } else {
@@ -1040,8 +1050,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     event.html = null;
                     event.formatted = null;
                     event.linkify = false;
+                    lastCollapsedEid = event.eid;
+                    if(buffer.type.equals("console") && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
+                        currentCollapsedEid = -1;
+                        lastCollapsedEid = -1;
+                        collapsedEvents.clear();
+                    }
                 } else {
                     currentCollapsedEid = -1;
+                    lastCollapsedEid = -1;
                     collapsedEvents.clear();
                     if(event.html == null) {
                         if(event.from != null && event.from.length() > 0)

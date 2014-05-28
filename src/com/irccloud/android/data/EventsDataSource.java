@@ -274,6 +274,7 @@ public class EventsDataSource {
                 e.from = "";
                 e.msg = "⇐ You disconnected";
                 e.color = R.color.timestamp;
+                e.self = false;
             }
         });
 

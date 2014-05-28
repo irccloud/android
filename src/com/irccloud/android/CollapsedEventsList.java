@@ -39,6 +39,7 @@ public class CollapsedEventsList {
 	public static final int TYPE_POPIN = 4;
 	public static final int TYPE_POPOUT = 5;
 	public static final int TYPE_NICKCHANGE = 6;
+    public static final int TYPE_CONNECTIONSTATUS = 7;
 
 	public static final int MODE_OWNER = 0;
 	public static final int MODE_ADMIN = 1;
@@ -67,6 +68,7 @@ public class CollapsedEventsList {
 		String target_mode;
         String chan;
         boolean netsplit;
+        int count;
 		
 		public String toString() {
 			return "{type: " + type + ", nick: " + nick + ", old_nick: " + old_nick + ", hostmask: " + hostmask + ", msg: " + msg + "netsplit: " + netsplit + "}";
@@ -265,6 +267,8 @@ public class CollapsedEventsList {
             addEvent(event.eid, CollapsedEventsList.TYPE_QUIT, event.nick, null, event.hostmask, event.from_mode, event.msg, event.chan);
         } else if(type.equalsIgnoreCase("nickchange")) {
             addEvent(event.eid, CollapsedEventsList.TYPE_NICKCHANGE, event.nick, event.old_nick, null, event.from_mode, null, event.chan);
+        } else if(type.equalsIgnoreCase("socket_closed") || type.equalsIgnoreCase("connecting_failed") || type.equalsIgnoreCase("connecting_cancelled")) {
+            addEvent(event.eid, CollapsedEventsList.TYPE_CONNECTIONSTATUS, null, null, null, null, event.msg, null);
         } else if(type.equalsIgnoreCase("user_channel_mode")) {
             JsonNode ops = event.ops;
             if(ops != null) {
@@ -379,41 +383,54 @@ public class CollapsedEventsList {
 			}
 		} else {
 			if(type == TYPE_NICKCHANGE) {
-				for(CollapsedEvent e1 : data) {
-					if(e1.type == TYPE_NICKCHANGE && e1.nick.equalsIgnoreCase(old_nick)) {
-						if(e1.old_nick.equalsIgnoreCase(nick))
-							data.remove(e1);
-						else
-							e1.nick = nick;
-						return;
-					}
-					if((e1.type == TYPE_JOIN || e1.type == TYPE_POPOUT) && e1.nick.equalsIgnoreCase(old_nick)) {
-						e1.old_nick = old_nick;
-						e1.nick = nick;
-						return;
-					}
-					if((e1.type == TYPE_QUIT || e1.type == TYPE_PART) && e1.nick.equalsIgnoreCase(nick)) {
-						e1.type = TYPE_POPOUT;
-						for(CollapsedEvent e2 : data) {
-							if(e2.type == TYPE_JOIN && e2.nick.equalsIgnoreCase(old_nick)) {
-								data.remove(e2);
-								break;
-							}
-						}
-						return;
-					}
-				}
-				e = new CollapsedEvent();
+                for (CollapsedEvent e1 : data) {
+                    if (e1.type == TYPE_NICKCHANGE && e1.nick.equalsIgnoreCase(old_nick)) {
+                        if (e1.old_nick.equalsIgnoreCase(nick))
+                            data.remove(e1);
+                        else
+                            e1.nick = nick;
+                        return;
+                    }
+                    if ((e1.type == TYPE_JOIN || e1.type == TYPE_POPOUT) && e1.nick.equalsIgnoreCase(old_nick)) {
+                        e1.old_nick = old_nick;
+                        e1.nick = nick;
+                        return;
+                    }
+                    if ((e1.type == TYPE_QUIT || e1.type == TYPE_PART) && e1.nick.equalsIgnoreCase(nick)) {
+                        e1.type = TYPE_POPOUT;
+                        for (CollapsedEvent e2 : data) {
+                            if (e2.type == TYPE_JOIN && e2.nick.equalsIgnoreCase(old_nick)) {
+                                data.remove(e2);
+                                break;
+                            }
+                        }
+                        return;
+                    }
+                }
+                e = new CollapsedEvent();
                 e.eid = eid;
-				e.type = type;
-				e.nick = nick;
+                e.type = type;
+                e.nick = nick;
                 e.from_mode = from_mode;
-				e.old_nick = old_nick;
-				e.hostmask = hostmask;
-				e.msg = msg;
+                e.old_nick = old_nick;
+                e.hostmask = hostmask;
+                e.msg = msg;
                 e.chan = chan;
-				data.add(e);
-			} else {
+                data.add(e);
+            } else if(type == TYPE_CONNECTIONSTATUS) {
+                for (CollapsedEvent e1 : data) {
+                    if(e1.msg.equals(msg)) {
+                        e1.count++;
+                        return;
+                    }
+                }
+                e = new CollapsedEvent();
+                e.eid = eid;
+                e.type = type;
+                e.msg = msg;
+                e.count = 1;
+                data.add(e);
+            } else {
 				e = new CollapsedEvent();
                 e.eid = eid;
 				e.type = type;
@@ -611,6 +628,11 @@ public class CollapsedEventsList {
                 if(showChan)
                     message.append(" " + e.chan);
 	    		break;
+            case TYPE_CONNECTIONSTATUS:
+                message.append(e.msg);
+                if(e.count > 1)
+                    message.append(" (" + e.count + "x)");
+                break;
 			}
 		} else {
             boolean netsplit = false;
@@ -664,6 +686,8 @@ public class CollapsedEventsList {
 					case TYPE_POPOUT:
 						message.append("↔ ");
 						break;
+                    case TYPE_CONNECTIONSTATUS:
+                        break;
 					}
 				}
 
@@ -675,6 +699,10 @@ public class CollapsedEventsList {
 					e.old_nick = old_nick;
                 } else if(e.type == TYPE_NETSPLIT) {
                     message.append(e.msg.replace(" ", " ↮ "));
+                } else if(e.type == TYPE_CONNECTIONSTATUS) {
+                    message.append(e.msg);
+                    if(e.count > 1)
+                        message.append(" (" + e.count + "x)");
 				} else if(!showChan) {
 					message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode, false)).append("</b>").append(was(e));
 				}
@@ -697,7 +725,7 @@ public class CollapsedEventsList {
 						message.append(" nipped out");
 						break;
 					}
-				} else if(showChan && e.type != TYPE_NETSPLIT) {
+				} else if(showChan && e.type != TYPE_NETSPLIT && e.type != TYPE_CONNECTIONSTATUS) {
                     if(groupcount == 0) {
                         message.append("<b>").append(formatNick(e.nick, (e.type == TYPE_MODE)?e.target_mode:e.from_mode, false)).append("</b>").append(was(e));
                         switch(e.type) {

@@ -40,5 +40,11 @@
             android:layout_height="wrap_content"
             android:text="Collapse nick changes, joins, and parts" />
 
+        <CheckBox
+            android:id="@+id/expandDisco"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Group repeated disconnects" />
+
     </LinearLayout>
 </ScrollView>

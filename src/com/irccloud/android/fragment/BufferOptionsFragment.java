@@ -38,6 +38,7 @@ public class BufferOptionsFragment extends DialogFragment {
 	CheckBox unread;
 	CheckBox joinpart;
     CheckBox collapse;
+    CheckBox expandDisco;
 	int cid;
 	int bid;
 	String type;
@@ -81,6 +82,8 @@ public class BufferOptionsFragment extends DialogFragment {
 		    	if(!type.equalsIgnoreCase("console")) {
 		    		prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
                     prefs = updatePref(prefs, collapse, "buffer-expandJoinPart");
+                } else {
+                    prefs = updatePref(prefs, expandDisco, "buffer-expandDisco");
                 }
 				NetworkConnection.getInstance().set_prefs(prefs.toString());
 			} catch (Exception e) {
@@ -124,10 +127,20 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         collapse.setChecked(true);
                     }
+                    if(prefs.has("buffer-expandDisco")) {
+                        JSONObject expandMap = prefs.getJSONObject("buffer-expandDisco");
+                        if(expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
+                            expandDisco.setChecked(false);
+                        else
+                            expandDisco.setChecked(true);
+                    } else {
+                        expandDisco.setChecked(true);
+                    }
 		    	} else {
                     joinpart.setChecked(true);
                     unread.setChecked(true);
                     collapse.setChecked(true);
+                    expandDisco.setChecked(true);
                 }
 	    	}
 		} catch (JSONException e) {
@@ -145,9 +158,12 @@ public class BufferOptionsFragment extends DialogFragment {
     	unread = (CheckBox)v.findViewById(R.id.unread);
     	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
         collapse = (CheckBox)v.findViewById(R.id.collapse);
+        expandDisco = (CheckBox)v.findViewById(R.id.expandDisco);
     	if(type.equalsIgnoreCase("console")) {
     		joinpart.setVisibility(View.GONE);
             collapse.setVisibility(View.GONE);
+        } else {
+            expandDisco.setVisibility(View.GONE);
         }
     	
     	return new AlertDialog.Builder(ctx)

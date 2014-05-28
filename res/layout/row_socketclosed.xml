@@ -31,7 +31,18 @@
 	        android:gravity="center_horizontal|top"
 	        android:paddingLeft="4dp"
 	        android:minWidth="@dimen/timestamp_base"
-	        android:textColor="@color/timestamp" />
+	        android:textColor="@color/timestamp"
+            android:paddingRight="4dp"/>
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:id="@+id/expandable"
+            android:src="@drawable/bullet_toggle_plus"
+            android:layout_gravity="top"
+            android:layout_marginTop="2dp"
+            android:visibility="gone"
+            android:scaleType="center"/>
 
         <TextView
             android:id="@+id/message"
@@ -41,7 +52,6 @@
             android:ellipsize="none"
             android:gravity="top"
             android:linksClickable="true"
-            android:paddingLeft="4dp"
             android:paddingRight="8dp" />
     </LinearLayout>
 
