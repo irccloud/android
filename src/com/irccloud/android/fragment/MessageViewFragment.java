@@ -38,6 +38,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import android.content.ActivityNotFoundException;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.ListFragment;
@@ -72,6 +73,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
 import com.irccloud.android.CollapsedEventsList;
@@ -518,9 +520,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(holder.timestamp != null) {
                     if(e.highlight)
-                        holder.timestamp.setTextColor(getResources().getColor(R.color.highlight_timestamp));
+                        holder.timestamp.setTextColor(getSafeResources().getColor(R.color.highlight_timestamp));
                     else if(e.row_type != ROW_TIMESTAMP)
-                        holder.timestamp.setTextColor(getResources().getColor(R.color.timestamp));
+                        holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
                     holder.timestamp.setText(e.timestamp);
                     holder.timestamp.setMinWidth(timestamp_width);
                 }
@@ -542,14 +544,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         holder.message.setTypeface(Typeface.DEFAULT);
                     try {
-                        holder.message.setTextColor(getResources().getColorStateList(e.color));
+                        holder.message.setTextColor(getSafeResources().getColorStateList(e.color));
                     } catch (Exception e1) {
 
                     }
                     if(e.color == R.color.timestamp || e.pending)
-                        holder.message.setLinkTextColor(getResources().getColor(R.color.lightLinkColor));
+                        holder.message.setLinkTextColor(getSafeResources().getColor(R.color.lightLinkColor));
                     else
-                        holder.message.setLinkTextColor(getResources().getColor(R.color.linkColor));
+                        holder.message.setLinkTextColor(getSafeResources().getColor(R.color.linkColor));
                     holder.message.setText(e.formatted);
                     if(e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
                         holder.message.setContentDescription(e.from + ": " + e.contentDescription);
@@ -1416,13 +1418,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 try {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
                     if(adapter.getLastSeenEIDPosition() == 0)
-                        lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                        lp.topMargin = (int)getSafeResources().getDimension(R.dimen.top_bar_height);
                     else
                         lp.topMargin = 0;
                     headerView.setLayoutParams(lp);
                     lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
                     if(adapter.getLastSeenEIDPosition() == 0)
-                        lp.topMargin = (int)getResources().getDimension(R.dimen.top_bar_height);
+                        lp.topMargin = (int)getSafeResources().getDimension(R.dimen.top_bar_height);
                     else
                         lp.topMargin = 0;
                     backlogFailed.setLayoutParams(lp);
@@ -1485,16 +1487,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                 try {
                     JSONObject prefs = conn.getUserInfo().prefs;
-                    timestamp_width = (int)getResources().getDimension(R.dimen.timestamp_base);
+                    timestamp_width = (int)getSafeResources().getDimension(R.dimen.timestamp_base);
                     if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
-                        timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_seconds);
+                        timestamp_width += (int)getSafeResources().getDimension(R.dimen.timestamp_seconds);
                     if(!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
-                        timestamp_width += (int)getResources().getDimension(R.dimen.timestamp_ampm);
+                        timestamp_width += (int)getSafeResources().getDimension(R.dimen.timestamp_ampm);
                 } catch (Exception e) {
 
                 }
             } else {
-                timestamp_width = getResources().getDimensionPixelSize(R.dimen.timestamp_base) + getResources().getDimensionPixelSize(R.dimen.timestamp_ampm);
+                timestamp_width = getSafeResources().getDimensionPixelSize(R.dimen.timestamp_base) + getSafeResources().getDimensionPixelSize(R.dimen.timestamp_ampm);
             }
 
             if(events == null || (events.size() == 0 && buffer.min_eid > 0)) {
@@ -1820,7 +1822,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	} else if(status.equals("quitting")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Disconnecting");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("disconnected")) {
             statusView.setVisibility(View.VISIBLE);
@@ -1841,37 +1843,37 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         text += reason_txt(fail_info.get("reason").asText());
                 }
                 statusView.setText(text);
-                statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
+                statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
                 statusView.setBackgroundResource(R.drawable.status_fail_bg);
             } else {
                 statusView.setText("Disconnected. Tap to reconnect.");
-                statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
                 statusView.setBackgroundResource(R.drawable.background_blue);
             }
     	} else if(status.equals("queued")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Connection queued");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("connecting")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Connecting");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("connected")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Connected");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("connected_joining")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Connected: Joining Channels");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	} else if(status.equals("pool_unavailable")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Connection temporarily unavailable");
-    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
+    		statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
     		statusView.setBackgroundResource(R.drawable.status_fail_bg);
     	} else if(status.equals("waiting_to_retry")) {
     		try {
@@ -1914,13 +1916,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(attempts > 1)
                         text += " (" + ordinal(attempts) + " attempt)";
 		    		statusView.setText(text);
-		    		statusView.setTextColor(getResources().getColor(R.color.status_fail_text));
+		    		statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
 		    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
 		    		statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
 	    		} else {
 	        		statusView.setVisibility(View.VISIBLE);
 	        		statusView.setText("Ready to connect, waiting our turn…");
-	        		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+	        		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
 	        		statusView.setBackgroundResource(R.drawable.background_blue);
 	    		}
 	    		mHandler.postDelayed(statusRefreshRunnable, 500);
@@ -1930,7 +1932,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	} else if(status.equals("ip_retry")) {
     		statusView.setVisibility(View.VISIBLE);
     		statusView.setText("Trying another IP address");
-    		statusView.setTextColor(getResources().getColor(R.color.dark_blue));
+    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
     		statusView.setBackgroundResource(R.drawable.background_blue);
     	}
 	}
@@ -2305,7 +2307,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-	public interface MessageViewListener extends OnBufferSelectedListener {
+    public Resources getSafeResources() {
+        return IRCCloudApplication.getInstance().getApplicationContext().getResources();
+    }
+
+    public interface MessageViewListener extends OnBufferSelectedListener {
 		public void onMessageViewReady();
 		public boolean onMessageLongClicked(EventsDataSource.Event event);
 		public void onMessageDoubleClicked(EventsDataSource.Event event);

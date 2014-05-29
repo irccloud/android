@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import android.content.res.Resources;
 import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,6 +53,7 @@ import android.widget.TextView;
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
@@ -149,7 +151,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 		public BufferListAdapter(ListFragment context) {
 			ctx = context;
 			data = new ArrayList<BufferListEntry>();
-            eightdp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+            eightdp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getSafeResources().getDisplayMetrics());
 		}
 		
 		public void setItems(ArrayList<BufferListEntry> items) {
@@ -416,15 +418,15 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 			holder.label.setText(e.name);
 			if(e.type == TYPE_ARCHIVES_HEADER) {
 				holder.label.setTypeface(null);
-				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archives_heading));
+				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archives_heading));
 				holder.unread.setBackgroundDrawable(null);
             } else if(e.type == TYPE_JOIN_CHANNEL) {
                 holder.label.setTypeface(null);
-                holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_join));
+                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_join));
                 holder.unread.setBackgroundDrawable(null);
 			} else if(e.archived == 1 && holder.bufferbg != null) {
 				holder.label.setTypeface(null);
-				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_archived));
+				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archived));
 				holder.unread.setBackgroundDrawable(null);
 			} else if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
                 if(selected_bid == e.bid) {
@@ -434,15 +436,15 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     holder.label.setTypeface(null);
                     holder.unread.setBackgroundDrawable(null);
                 }
-				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
+				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
 			} else if(e.unread > 0 || selected_bid == e.bid) {
 				holder.label.setTypeface(null, Typeface.BOLD);
-				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_unread));
+				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_unread));
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
                 row.setContentDescription(row.getContentDescription() + ", unread");
 			} else {
 				holder.label.setTypeface(null);
-				holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label));
 				holder.unread.setBackgroundDrawable(null);
 			}
 
@@ -505,15 +507,15 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable") ||
                             ((e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("type")))) {
                         holder.bufferbg.setBackgroundResource(R.drawable.row_failed_bg);
-                        holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_failed));
+                        holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_failed));
                         if(e.bid == selected_bid)
                             holder.unread.setBackgroundResource(R.drawable.status_fail_bg);
                     } else {
                         holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
                         if(e.status.equals("connected_ready"))
-                            holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+                            holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label));
                         else
-                            holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
+                            holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
                     }
                 } else if(e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
                     holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
@@ -1122,7 +1124,11 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-	public interface OnBufferSelectedListener {
+    public Resources getSafeResources() {
+        return IRCCloudApplication.getInstance().getApplicationContext().getResources();
+    }
+
+    public interface OnBufferSelectedListener {
 		public void onBufferSelected(int bid);
 		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
 		public void addButtonPressed(int cid);

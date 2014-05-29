@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.content.res.Resources;
 import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 
@@ -38,6 +39,7 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.NetworkConnection;
@@ -140,9 +142,9 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 			row.setOnClickListener(new OnItemClickListener(position));
 			holder.label.setText(e.text);
 			if(e.type == TYPE_USER && e.away) {
-				holder.label.setTextColor(getResources().getColorStateList(R.color.row_user_away));
+				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_user_away));
 			} else {
-				holder.label.setTextColor(getResources().getColorStateList(e.color));
+				holder.label.setTextColor(getSafeResources().getColorStateList(e.color));
 			}
 
 			if(e.last || e.type == TYPE_HEADING)
@@ -154,25 +156,25 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 				if(e.count != null) {
 					holder.count.setVisibility(View.VISIBLE);
 					holder.count.setText(e.count);
-					holder.count.setTextColor(getResources().getColorStateList(e.color));
+					holder.count.setTextColor(getSafeResources().getColorStateList(e.color));
 				} else {
 					holder.count.setVisibility(View.GONE);
 					holder.count.setText("");
 				}
 				row.setFocusable(false);
 				row.setEnabled(false);
-                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 36, getResources().getDisplayMetrics()));
-                row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getResources().getDisplayMetrics()), 0);
+                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 36, getSafeResources().getDisplayMetrics()));
+                row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getSafeResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getSafeResources().getDisplayMetrics()), 0);
 			} else {
                 holder.count.setVisibility(View.GONE);
                 holder.count.setText("");
 				row.setFocusable(true);
 				row.setEnabled(true);
-                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()));
+                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getSafeResources().getDisplayMetrics()));
 				if(e.last)
-					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()));
+					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getSafeResources().getDisplayMetrics()));
 				else
-					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getResources().getDisplayMetrics()), 0);
+					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), 0);
 			}
 			
 			return row;
@@ -516,6 +518,10 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 			default:
 				break;
         }
+    }
+
+    public Resources getSafeResources() {
+        return IRCCloudApplication.getInstance().getApplicationContext().getResources();
     }
 
 	public interface OnUserSelectedListener {

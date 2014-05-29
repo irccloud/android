@@ -310,7 +310,10 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                 builder.setNegativeButton("Ok", new OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+                        try {
+                            dialog.dismiss();
+                        } catch (IllegalArgumentException e) {
+                        }
                     }
                 });
                 AlertDialog dialog = builder.create();

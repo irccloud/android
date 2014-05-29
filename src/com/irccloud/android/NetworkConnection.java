@@ -2223,7 +2223,15 @@ public class NetworkConnection {
             handlers.remove(handler);
             if(handlers.isEmpty()){
                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-                long timeout = Long.valueOf(prefs.getString("timeout", "300000"));
+                long timeout = 300000;
+                try {
+                    timeout = Long.valueOf(prefs.getString("timeout", "300000"));
+                } catch (NumberFormatException e) {
+                    //Fix invalid value if user has tried to modify the timeout to an absurdly large number
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("timeout","300000");
+                    editor.commit();
+                }
                 if(shutdownTimerTask != null)
                     shutdownTimerTask.cancel();
                 shutdownTimerTask = new TimerTask(){
