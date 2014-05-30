@@ -191,6 +191,7 @@ public class NetworkConnection {
     public static final int EVENT_DEBUG = 999;
 
 	public static String IRCCLOUD_HOST = BuildConfig.HOST;
+    public static String IRCCLOUD_PATH = "/";
 	
 	private final Object parserLock = new Object();
 	private WifiManager.WifiLock wifiLock = null;
@@ -725,9 +726,9 @@ public class NetworkConnection {
 		    new BasicNameValuePair("User-Agent", useragent)
 		);
 
-		String url = "wss://" + IRCCLOUD_HOST;
+		String url = "wss://" + IRCCLOUD_HOST + IRCCLOUD_PATH;
 		if(EventsDataSource.getInstance().highest_eid > 0) {
-			url += "/?since_id=" + EventsDataSource.getInstance().highest_eid;
+			url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
             if(streamId != null && streamId.length() > 0)
                 url += "&stream_id=" + streamId;
         }
@@ -863,6 +864,7 @@ public class NetworkConnection {
             logout(sk);
         }
         editor.remove("session_key");
+        editor.remove("path");
         editor.remove("gcm_registered");
         editor.remove("mentionTip");
         editor.remove("userSwipeTip");

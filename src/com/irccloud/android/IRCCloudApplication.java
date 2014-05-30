@@ -70,8 +70,6 @@ public class IRCCloudApplication extends Application {
 		e = EventsDataSource.getInstance();
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
-
         if(prefs.getBoolean("acra.enable", true)) {
             try {
                 if(getResources().getString(R.string.CRASHLYTICS_KEY).length() > 0)
@@ -129,6 +127,23 @@ public class IRCCloudApplication extends Application {
 				}
 		    }
 		}
+
+        prefs = getSharedPreferences("prefs", 0);
+        if(prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
+            Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("path", "/websocket/" + prefs.getString("session_key", "").charAt(0));
+            editor.commit();
+        }
+        if(prefs.contains("host") && prefs.getString("host", "").equals("www.irccloud.com")) {
+            Crashlytics.log(Log.INFO, "IRCCloud", "Migrating host");
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString("host", "api.irccloud.com");
+            editor.commit();
+        }
+
+        NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
+        NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
     }
 
     @Override

@@ -135,7 +135,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         if(savedInstanceState != null && savedInstanceState.containsKey("host"))
             host.setText(savedInstanceState.getString("host"));
         else
-            host.setText(getSharedPreferences("prefs", 0).getString("host", "www.irccloud.com"));
+            host.setText(getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST));
 
         loginBtn = (Button)findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
@@ -388,6 +388,12 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 				try {
 					SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
 					editor.putString("session_key", result.getString("session"));
+                    if(result.has("websocket_host")) {
+                        NetworkConnection.IRCCLOUD_HOST = result.getString("websocket_host");
+                        NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
+                    }
+                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                    editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
 					login.setVisibility(View.GONE);
 					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 					imm.hideSoftInputFromWindow(password.getWindowToken(), 0);

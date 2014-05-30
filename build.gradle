@@ -78,7 +78,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"api.irccloud.com\""
             versionNameSuffix "-" + getRevision()
             buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
@@ -102,7 +102,7 @@ android {
             resValue "string", "app_name", "IRCCloud"
         }
         release {
-            buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"api.irccloud.com\""
             buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
             buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
@@ -131,7 +131,7 @@ android {
         enterprisedebug {
             packageNameSuffix ".enterprise"
             versionNameSuffix "-" + getRevision()
-            buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"api.irccloud.com\""
             buildConfigField "boolean", "ENTERPRISE", "true"
             if(rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
@@ -157,7 +157,7 @@ android {
         }
         enterpriserelease {
             packageNameSuffix ".enterprise"
-            buildConfigField "String", "HOST", "\"www.irccloud.com\""
+            buildConfigField "String", "HOST", "\"api.irccloud.com\""
             buildConfigField "boolean", "ENTERPRISE", "true"
             if(rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
