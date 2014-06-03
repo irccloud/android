@@ -902,16 +902,28 @@ public class NetworkConnection {
 			return -1;
 		}
 	}
-	
-	public int heartbeat(int cid, int bid, long last_seen_eid) {
+
+    public int heartbeat(int cid, int bid, long last_seen_eid) {
+        return heartbeat(bid, new Integer[] {cid}, new Integer[] {bid}, new Long[] {last_seen_eid});
+    }
+
+	public int heartbeat(int selectedBuffer, Integer cids[], Integer bids[], Long last_seen_eids[]) {
 		try {
+            JSONObject heartbeat = new JSONObject();
+            for(int i = 0; i < cids.length; i++) {
+                JSONObject o;
+                if(heartbeat.has(String.valueOf(cids[i]))) {
+                    o = heartbeat.getJSONObject(String.valueOf(cids[i]));
+                } else {
+                    o = new JSONObject();
+                    heartbeat.put(String.valueOf(cids[i]),o);
+                }
+                o.put(String.valueOf(bids[i]), last_seen_eids[i]);
+            }
+
 			JSONObject o = new JSONObject();
-			o.put("selectedBuffer", bid);
-			JSONObject eids = new JSONObject();
-			eids.put(String.valueOf(bid), last_seen_eid);
-			JSONObject cids = new JSONObject();
-			cids.put(String.valueOf(cid), eids);
-			o.put("seenEids", cids.toString());
+			o.put("selectedBuffer", selectedBuffer);
+			o.put("seenEids", heartbeat.toString());
 			return send("heartbeat", o);
 		} catch (JSONException e) {
 			e.printStackTrace();

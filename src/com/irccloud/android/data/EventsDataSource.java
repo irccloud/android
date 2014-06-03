@@ -918,6 +918,15 @@ public class EventsDataSource {
 		return null;
 	}
 
+    public Long lastEidForBuffer(int bid) {
+        synchronized(events) {
+            if(events.containsKey(bid)) {
+                return events.get(bid).lastEntry().getValue().eid;
+            }
+        }
+        return 0L;
+    }
+
 	public void pruneEvents(int bid, long min_eid) {
 		synchronized(events) {
 			if(events.containsKey(bid)) {

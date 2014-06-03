@@ -2555,6 +2555,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 				itemList.add("Display Options…");
 			}
 		}
+        itemList.add("Mark All As Read");
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		if(b.type.equalsIgnoreCase("console"))
@@ -2590,7 +2591,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 			            newFragment.show(getSupportFragmentManager(), "bufferoptions");
 	    			}
 	    		} else if(items[item].equals("Edit Connection…")) {
-                    if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+                    if (getWindowManager().getDefaultDisplay().getWidth() < 800) {
                         Intent i = new Intent(MessageActivity.this, EditConnectionActivity.class);
                         i.putExtra("cid", b.cid);
                         startActivity(i);
@@ -2599,6 +2600,19 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                         editFragment.setCid(b.cid);
                         editFragment.show(getSupportFragmentManager(), "editconnection");
                     }
+                } else if(items[item].equals("Mark All As Read")) {
+                    ArrayList<Integer> cids = new ArrayList<Integer>();
+                    ArrayList<Integer> bids = new ArrayList<Integer>();
+                    ArrayList<Long> eids = new ArrayList<Long>();
+
+                    for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+                        if(EventsDataSource.getInstance().lastEidForBuffer(b.bid) > 0) {
+                            cids.add(b.cid);
+                            bids.add(b.bid);
+                            eids.add(EventsDataSource.getInstance().lastEidForBuffer(b.bid));
+                        }
+                    }
+                    conn.heartbeat(buffer.bid, cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
 	    		} else if(items[item].equals("Delete")) {
 	            	builder = new AlertDialog.Builder(MessageActivity.this);
 	            	
