@@ -3,7 +3,7 @@
     package="com.irccloud.android"
     android:installLocation="auto"
     android:versionCode="17"
-    android:versionName="1.7.1" >
+    android:versionName="1.8" >
 
     <permission
         android:name="com.irccloud.android.permission.C2D_MESSAGE"
@@ -163,7 +163,7 @@
 
         <meta-data
             android:name="com.crashlytics.ApiKey"
-            android:value="@string/CRASHYLYTICS_KEY" />
+            android:value="@string/CRASHLYTICS_KEY" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />

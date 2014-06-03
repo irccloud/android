@@ -2167,6 +2167,10 @@ public class NetworkConnection {
             conn.setRequestProperty("Cookie", "session="+sk);
         if(token != null)
             conn.setRequestProperty("x-auth-formtoken", token);
+        if(BuildConfig.MASHAPE_KEY.length() > 0 && url.getHost().equals("imgur-apiv3.p.mashape.com")) {
+            conn.setRequestProperty("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
+            conn.setRequestProperty("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
+        }
         if(postdata != null) {
             conn.setRequestMethod("POST");
             conn.setDoOutput(true);

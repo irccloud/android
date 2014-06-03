@@ -87,11 +87,13 @@ android {
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
+                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
+                buildConfigField "String", "MASHAPE_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
@@ -111,11 +113,13 @@ android {
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
+                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
+                buildConfigField "String", "MASHAPE_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
@@ -139,11 +143,13 @@ android {
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
+                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
+                buildConfigField "String", "MASHAPE_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
@@ -165,11 +171,13 @@ android {
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
+                buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
+                buildConfigField "String", "MASHAPE_KEY", "\"\""
                 resValue "string", "CRASHLYTICS_KEY", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""

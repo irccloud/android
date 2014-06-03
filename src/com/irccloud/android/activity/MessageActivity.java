@@ -3161,7 +3161,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     };
 
     public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
-        private final String UPLOAD_URL = "https://api.imgur.com/3/image";
+        private final String UPLOAD_URL = (BuildConfig.MASHAPE_KEY.length() > 0)?"https://imgur-apiv3.p.mashape.com/3/image":"https://api.imgur.com/3/image";
         private Uri mImageUri;  // local Uri to upload
         private int total = 0;
         public Activity activity;
@@ -3196,6 +3196,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             try {
                 conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
                 conn.setDoOutput(true);
+                if(BuildConfig.MASHAPE_KEY.length() > 0)
+                    conn.setRequestProperty("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
                 if(getSharedPreferences("prefs", 0).contains("imgur_access_token")) {
                     conn.setRequestProperty("Authorization", "Bearer " + getSharedPreferences("prefs", 0).getString("imgur_access_token", ""));
                 } else {
