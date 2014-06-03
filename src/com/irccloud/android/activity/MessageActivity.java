@@ -3419,8 +3419,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 sb.append(scanner.next());
             }
 
-            Log.d("IRCCloud", sb.toString());
-
             JSONObject root = new JSONObject(sb.toString());
             error = sb.toString();
             total = 0;
