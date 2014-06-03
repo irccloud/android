@@ -137,6 +137,9 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         else
             host.setText(getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST));
 
+        if(host.getText().toString().equals("api.irccloud.com") || host.getText().toString().equals("www.irccloud.com"))
+            host.setText("");
+
         loginBtn = (Button)findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
 			@Override

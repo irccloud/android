@@ -195,10 +195,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             } else if((lower.startsWith("d.pr/i/") || lower.startsWith("droplr.com/i/")) && !lower.endsWith("+")) {
                 url += "+";
             } else if(lower.startsWith("imgur.com/")) {
-                if(BuildConfig.MASHAPE_KEY.length() > 0)
-                    new OEmbedTask().execute("https://imgur-apiv3.p.mashape.com/oembed.json?url=" + url);
-                else
-                    new OEmbedTask().execute("https://api.imgur.com/oembed.json?url=" + url);
+                new OEmbedTask().execute("https://api.imgur.com/oembed.json?url=" + url);
                 return;
             } else if(lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);

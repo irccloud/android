@@ -3186,6 +3186,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         private BuffersDataSource.Buffer mBuffer;
 
         public ImgurUploadTask(Uri imageUri) {
+            Log.i("IRCCloud", "Uploading image to " + UPLOAD_URL);
             mImageUri = imageUri;
             mBuffer = buffer;
             setActivity(MessageActivity.this);
