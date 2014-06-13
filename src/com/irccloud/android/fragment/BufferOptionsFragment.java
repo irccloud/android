@@ -19,6 +19,7 @@ package com.irccloud.android.fragment;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.widget.CheckBox;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
+@SuppressLint("ValidFragment")
 public class BufferOptionsFragment extends DialogFragment {
 	CheckBox unread;
 	CheckBox joinpart;
@@ -43,7 +45,7 @@ public class BufferOptionsFragment extends DialogFragment {
 	int bid;
 	String type;
 	
-	public BufferOptionsFragment(int cid, int bid, String type) {
+    public BufferOptionsFragment(int cid, int bid, String type) {
 		this.cid = cid;
 		this.bid = bid;
 		this.type = type;

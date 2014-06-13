@@ -930,7 +930,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
                     boolean shouldExpand = false;
-                    boolean showChan = !buffer.type.equals("channel");
+                    collapsedEvents.showChan = !buffer.type.equals("channel");
                     if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                         JSONObject hiddenMap = null;
                         if(buffer.type.equals("channel")) {
@@ -977,7 +977,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
                     }
 
-                    if(!showChan)
+                    if(!collapsedEvents.showChan)
                         event.chan = buffer.name;
 
                     if(!collapsedEvents.addEvent(event))
@@ -994,11 +994,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     String msg;
                     if(expandedSectionEids.contains(currentCollapsedEid)) {
                         CollapsedEventsList c = new CollapsedEventsList();
+                        c.showChan = collapsedEvents.showChan;
                         c.setServer(server);
                         c.addEvent(event);
-                        msg = c.getCollapsedMessage(showChan);
+                        msg = c.getCollapsedMessage();
                         if(!nextIsGrouped) {
-                            String group_msg = collapsedEvents.getCollapsedMessage(showChan);
+                            String group_msg = collapsedEvents.getCollapsedMessage();
                             if(group_msg == null && type.equals("nickchange")) {
                                 group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
                             }
@@ -1028,7 +1029,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         event.timestamp = null;
                     } else {
-                        msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage(showChan);
+                        msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage();
                     }
 
                     if(msg == null && type.equals("nickchange")) {

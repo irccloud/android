@@ -55,6 +55,8 @@ public class CollapsedEventsList {
 
     public static final int MODE_COUNT = 10;
 
+    public boolean showChan = false;
+
 	public class CollapsedEvent {
         long eid;
 		int type;
@@ -330,6 +332,27 @@ public class CollapsedEventsList {
 		CollapsedEvent e = null;
 		
 		if(type < TYPE_NICKCHANGE) {
+            if(showChan) {
+                if(type == TYPE_QUIT) {
+                    boolean found = false;
+                    for(CollapsedEvent ev : data) {
+                        if(ev.type == TYPE_JOIN) {
+                            ev.type = TYPE_POPIN;
+                            found = true;
+                        }
+                    }
+                    if(found)
+                        return;
+                } else if(type == TYPE_JOIN) {
+                    for(CollapsedEvent ev : data) {
+                        if(ev.type == TYPE_QUIT) {
+                            data.remove(ev);
+                            return;
+                        }
+                    }
+                }
+            }
+
 			if(old_nick != null && type != TYPE_MODE) {
 				e = findEvent(old_nick, chan);
 				if(e != null)
@@ -569,7 +592,7 @@ public class CollapsedEventsList {
 		return was.toString();
 	}
 	
-	public String getCollapsedMessage(boolean showChan) {
+	public String getCollapsedMessage() {
 		StringBuilder message = new StringBuilder();
 
 		if(data.size() == 0)
@@ -609,9 +632,11 @@ public class CollapsedEventsList {
 			case TYPE_QUIT:
 	    		message.append("⇐ <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>").append(was(e));
 	    		if(e.hostmask != null)
-	    			message.append(" quit (").append(e.hostmask).append(") ").append(e.msg);
+	    			message.append(" quit (").append(e.hostmask).append(") ");
 	    		else
-	    			message.append(" quit: ").append(e.msg);
+	    			message.append(" quit: ");
+                if(e.msg != null && e.msg.length() > 0)
+                    message.append(e.msg);
 				break;
 			case TYPE_NICKCHANGE:
 	    		message.append(e.old_nick).append(" → <b>").append(formatNick(e.nick, e.from_mode, false)).append("</b>");
