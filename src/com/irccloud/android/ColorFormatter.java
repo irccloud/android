@@ -1302,7 +1302,7 @@ public class ColorFormatter {
                                         "(^(www\\.)?imgur\\.com/(?!a/).*$)|" +
                                         "(^d\\.pr/i/.*)|(^droplr\\.com/i/.*)|"+
                                         "(^cl\\.ly/.*)"
-                                        ) && !lower.matches("(^cl\\.ly/robots\\.txt$)|(^cl\\.ly/image/?$)")) {
+                                        ) && !lower.matches("(^cl\\.ly/robots\\.txt$)|(^cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
                                     return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
                                 }
                             }
@@ -1326,7 +1326,7 @@ public class ColorFormatter {
                                 "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
                                 "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|"+
                                 "(^https?://cl\\.ly/.*)"
-                        ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)")) {
+                        ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
                             if(lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
                             else if(lower.startsWith("https://"))
