@@ -1814,7 +1814,7 @@ public class NetworkConnection {
                 e.addEvent(object);
                 if(!backlog) {
                     ChannelsDataSource c = ChannelsDataSource.getInstance();
-                    c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid"), object.getString("author"));
+                    c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid")/1000000, object.getString("author"));
                     notifyHandlers(EVENT_CHANNELTOPIC, object);
                 }
             }
