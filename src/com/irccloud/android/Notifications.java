@@ -624,8 +624,12 @@ public class Notifications {
 				builder.setSound(Uri.parse(ringtone));
 		}
 
-		if(prefs.getBoolean("notify_lights", true))
+        int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
+		if(led_color == 1) {
             builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS);
+        } else if(led_color == 2) {
+            builder.setLights(0xFF0000FF, 500, 500);
+        }
 
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putLong("lastNotificationTime", System.currentTimeMillis());

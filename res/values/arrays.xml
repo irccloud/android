@@ -38,4 +38,14 @@
         <item>Enabled</item>
         <item>Only while active</item>
 	</string-array>
+    <string-array name="pref_lights_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="pref_lights_names">
+        <item>Disabled</item>
+        <item>Default Color</item>
+        <item>Blue</item>
+    </string-array>
 </resources>

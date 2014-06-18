@@ -148,14 +148,26 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 				findPreference("notify_type").setSummary("Only while active");
 				break;
 		}
+        findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
+        switch(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_led_color", "1"))) {
+            case 0:
+                findPreference("notify_led_color").setSummary("Disabled");
+                break;
+            case 1:
+                findPreference("notify_led_color").setSummary("Default Color");
+                break;
+            case 2:
+                findPreference("notify_led_color").setSummary("Blue");
+                break;
+        }
 		if(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
 			findPreference("notify_vibrate").setEnabled(true);
 			findPreference("notify_ringtone").setEnabled(true);
-			findPreference("notify_lights").setEnabled(true);
+			findPreference("notify_led_color").setEnabled(true);
 		} else {
 			findPreference("notify_vibrate").setEnabled(false);
 			findPreference("notify_ringtone").setEnabled(false);
-			findPreference("notify_lights").setEnabled(false);
+			findPreference("notify_led_color").setEnabled(false);
 		}
 
 		try {
@@ -352,18 +364,36 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 			if(Integer.parseInt((String)newValue) > 0) {
 				findPreference("notify_vibrate").setEnabled(true);
 				findPreference("notify_ringtone").setEnabled(true);
-				findPreference("notify_lights").setEnabled(true);
+				findPreference("notify_led_color").setEnabled(true);
 			} else {
 				findPreference("notify_vibrate").setEnabled(false);
 				findPreference("notify_ringtone").setEnabled(false);
-				findPreference("notify_lights").setEnabled(false);
+				findPreference("notify_led_color").setEnabled(false);
 				Notifications.getInstance().clear();
 			}
 			return true;
 		}
 	};
-	
-	private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
+
+    Preference.OnPreferenceChangeListener ledtoggle = new Preference.OnPreferenceChangeListener() {
+        @SuppressWarnings("deprecation")
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            switch(Integer.parseInt((String)newValue)) {
+                case 0:
+                    findPreference("notify_led_color").setSummary("Disabled");
+                    break;
+                case 1:
+                    findPreference("notify_led_color").setSummary("Default Color");
+                    break;
+                case 2:
+                    findPreference("notify_led_color").setSummary("Blue");
+                    break;
+            }
+            return true;
+        }
+    };
+
+    private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... params) {

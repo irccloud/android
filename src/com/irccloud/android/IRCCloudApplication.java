@@ -93,6 +93,14 @@ public class IRCCloudApplication extends Application {
 			editor.commit();
 		}
 
+        if(prefs.contains("notify_lights")) {
+            SharedPreferences.Editor editor = prefs.edit();
+            if(!prefs.getBoolean("notify_lights", true))
+                editor.putString("notify_led_color", "0");
+            editor.remove("notify_lights");
+            editor.commit();
+        }
+
 		if(prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {
 			File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS);
 			File file = new File(path, "IRCCloud.mp3");
