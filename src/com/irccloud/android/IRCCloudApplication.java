@@ -68,6 +68,7 @@ public class IRCCloudApplication extends Application {
 		c = ChannelsDataSource.getInstance();
 		u = UsersDataSource.getInstance();
 		e = EventsDataSource.getInstance();
+        ColorFormatter.init();
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if(prefs.getBoolean("acra.enable", true)) {

@@ -1146,6 +1146,30 @@ public class ColorFormatter {
 
     public static Pattern CONVERSION = null;
 
+    public static void init() {
+        StringBuilder sb = new StringBuilder(8192);
+        sb.append("\\B:(");
+        for (String key : emojiMap.keySet()) {
+            if (sb.length() > 4)
+                sb.append("|");
+            sb.append(key.replace("-", "\\-").replace("+", "\\+").replace(")", "\\)").replace("(", "\\("));
+        }
+        sb.append("):\\B");
+
+        EMOJI = Pattern.compile(sb.toString());
+
+        sb.setLength(0);
+        sb.append("(");
+        for(String key : conversionMap.keySet()) {
+            if(sb.length() > 2)
+                sb.append("|");
+            sb.append(key);
+        }
+        sb.append(")");
+
+        CONVERSION = Pattern.compile(sb.toString());
+    }
+
     public static String emojify(String msg) {
         if(msg == null)
             return "";
@@ -1162,18 +1186,6 @@ public class ColorFormatter {
             int offset;
 
             if(!disableConvert) {
-                if (EMOJI == null) {
-                    String p = "\\B:(";
-                    for (String key : emojiMap.keySet()) {
-                        if (p.length() > 4)
-                            p += "|";
-                        p += key.replace("-", "\\-").replace("+", "\\+").replace(")", "\\)").replace("(", "\\(");
-                    }
-                    p += "):\\B";
-
-                    EMOJI = Pattern.compile(p);
-                }
-
                 Matcher m = EMOJI.matcher(msg);
                 while (m.find()) {
                     if (emojiMap.containsKey(m.group(1))) {
@@ -1182,18 +1194,6 @@ public class ColorFormatter {
                     }
                 }
                 msg = builder.toString();
-            }
-
-            if(CONVERSION == null) {
-                String p = "(";
-                for(String key : conversionMap.keySet()) {
-                    if(p.length() > 2)
-                        p += "|";
-                    p += key;
-                }
-                p += ")";
-
-                CONVERSION = Pattern.compile(p);
             }
 
             Matcher m = CONVERSION.matcher(msg);
