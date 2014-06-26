@@ -357,7 +357,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         	upView.setVisibility(View.VISIBLE);
         	upView.setOnClickListener(upClickListener);
 	        ImageView icon = (ImageView)v.findViewById(R.id.upIcon);
-	        icon.setOnClickListener(upClickListener);
+            if(icon != null)
+	            icon.setOnClickListener(upClickListener);
 	        if(refreshUpIndicatorTask != null)
 	        	refreshUpIndicatorTask.cancel(true);
 	        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
@@ -1972,25 +1973,31 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
         @Override
         public void onDrawerSlide(View view, float slideOffset) {
-            if(view != null && mSlider != null && ((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
-                float glyphOffset = mSlider.getOffset();
-                if (slideOffset > 0.5f) {
-                    glyphOffset = Math.max(glyphOffset, Math.max(0.f, slideOffset - 0.5f) * 2);
-                } else {
-                    glyphOffset = Math.min(glyphOffset, slideOffset * 2);
+            if(Build.VERSION.SDK_INT < 20) {
+                if (view != null && mSlider != null && ((DrawerLayout.LayoutParams) view.getLayoutParams()).gravity == Gravity.LEFT) {
+                    float glyphOffset = mSlider.getOffset();
+                    if (slideOffset > 0.5f) {
+                        glyphOffset = Math.max(glyphOffset, Math.max(0.f, slideOffset - 0.5f) * 2);
+                    } else {
+                        glyphOffset = Math.min(glyphOffset, slideOffset * 2);
+                    }
+                    mSlider.setOffset(glyphOffset);
                 }
-                mSlider.setOffset(glyphOffset);
             }
         }
 
         public void setUpDrawable(Drawable d) {
-            mSlider = new SlideDrawable(d);
-            mSlider.setOffsetBy(1.f / 3);
-            upView.setImageDrawable(mSlider);
-            if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                mSlider.setOffset(1.f);
+            if(Build.VERSION.SDK_INT < 20) {
+                mSlider = new SlideDrawable(d);
+                mSlider.setOffsetBy(1.f / 3);
+                upView.setImageDrawable(mSlider);
+                if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                    mSlider.setOffset(1.f);
+                } else {
+                    mSlider.setOffset(0.f);
+                }
             } else {
-                mSlider.setOffset(0.f);
+                upView.setImageDrawable(d);
             }
         }
 
