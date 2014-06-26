@@ -126,7 +126,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
         if(findPreference("emoji-disableconvert") != null) {
             findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
-            findPreference("emoji-disableconvert").setSummary(":thumbs_up: → \uD83D\uDC4D");
+            findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
         }
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("faq").setOnPreferenceClickListener(urlClick);
