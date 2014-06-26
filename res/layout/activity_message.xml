@@ -51,7 +51,8 @@
                 android:paddingBottom="4dp"
                 android:scaleType="fitEnd"
                 android:contentDescription="Insert Photo"
-                android:src="@drawable/ic_action_photo" />
+                android:src="@drawable/ic_action_photo"
+                android:layout_marginBottom="@dimen/barButtonBottomMargin" />
 
             <com.irccloud.android.ActionEditText
                 android:id="@+id/messageTxt"
@@ -62,13 +63,15 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Message"
-                android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage" />
+                android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
+                android:layout_margin="0dp" />
 
             <include
                 android:id="@+id/sendBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                layout="@layout/sendbtn" />
+                layout="@layout/sendbtn"
+                android:layout_marginBottom="@dimen/barButtonBottomMargin" />
         </LinearLayout>
     </LinearLayout>
 

@@ -23,8 +23,8 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:20.+'
-    compile 'com.android.support:appcompat-v7:20.+'
+    compile 'com.android.support:support-v4:21.+'
+    compile 'com.android.support:appcompat-v7:21.+'
 
     compile 'com.google.android.gms:play-services:4.1.+'
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
@@ -44,13 +44,13 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 'android-L'
     buildToolsVersion "20.0"
     aaptOptions.useAaptPngCruncher = true
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 19
+        targetSdkVersion 'L'
         applicationId "com.irccloud.android"
         testPackageName "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
