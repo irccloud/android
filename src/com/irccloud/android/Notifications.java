@@ -592,9 +592,14 @@ public class Notifications {
 		.setContentText(text)
         .setTicker(ticker)
         .setWhen(eids[0] / 1000)
-        .setSmallIcon(R.drawable.ic_stat_notify);
+        .setSmallIcon(R.drawable.ic_stat_notify)
+        .setGroup(String.valueOf(bid))
+        .setGroupSummary(true)
+        //.setVisibility(NotificationCompat.VISIBILITY_PRIVATE) -- Not in the support library yet
+        //.setCategory(Notification.CATEGORY_MESSAGE) -- Not in the support library yet
+        .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-		if(ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
+        if(ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
 			if(prefs.getBoolean("notify_vibrate", true))
 				builder.setDefaults(android.app.Notification.DEFAULT_VIBRATE);
 			String ringtone = prefs.getString("notify_ringtone", "content://settings/system/notification_sound");
@@ -626,8 +631,6 @@ public class Notifications {
 		dismiss.putExtra("eids", eids);
         builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 		builder.setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
-        builder.setGroup(String.valueOf(bid));
-        builder.setGroupSummary(true);
 
         android.app.Notification notification = builder.build();
 		RemoteViews contentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification);
