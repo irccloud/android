@@ -417,6 +417,13 @@ public class CollapsedEventsList {
                     if ((e1.type == TYPE_JOIN || e1.type == TYPE_POPOUT) && e1.nick.equalsIgnoreCase(old_nick)) {
                         e1.old_nick = old_nick;
                         e1.nick = nick;
+                        for (CollapsedEvent e2 : data) {
+                            if ((e2.type == TYPE_QUIT || e2.type == TYPE_PART) && e2.nick.equalsIgnoreCase(nick)) {
+                                e1.type = TYPE_POPOUT;
+                                data.remove(e2);
+                                break;
+                            }
+                        }
                         return;
                     }
                     if ((e1.type == TYPE_QUIT || e1.type == TYPE_PART) && e1.nick.equalsIgnoreCase(nick)) {

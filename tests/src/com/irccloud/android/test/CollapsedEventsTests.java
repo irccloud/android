@@ -245,10 +245,27 @@ public class CollapsedEventsTests extends TestCase {
 		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
 		list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
 		list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
-		assertEquals("→ <b>sam</b> (was sam_) joined ⇐ <b>sam</b> quit", list.getCollapsedMessage());
+		assertEquals("↔ <b>sam</b> (was sam_) nipped out", list.getCollapsedMessage());
 	}
 
-	public void testModeMode() {
+    public void testJoinQuitNickchange2() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam_", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_QUIT, "sam", null, "sam@example.net", null, null, null);
+        list.addEvent(eid++, CollapsedEventsList.TYPE_NICKCHANGE, "sam", "sam_", "sam@example.net", null, null, null);
+        assertEquals("↔ <b>sam</b> (was sam_) nipped out", list.getCollapsedMessage());
+    }
+
+    public void testModeMode() {
 		CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "v", "sam", "ChanServ");
         addMode(list, "o", "james", "ChanServ");
