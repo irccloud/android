@@ -42,6 +42,7 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_imageviewer);
         mWebView = (WebView)findViewById(R.id.image);
+        CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.removeAllCookie();
         cookieManager.setAcceptCookie(true);

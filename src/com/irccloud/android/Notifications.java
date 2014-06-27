@@ -811,6 +811,7 @@ public class Notifications {
                                 .setContentTitle(wearTitle)
                                 .setContentText(wearBody)
                                 .setWhen(n.eid / 1000)
+                                .setGroup(String.valueOf(n.bid))
                                 .setSmallIcon(R.drawable.ic_stat_notify);
 
                         Intent i = new Intent();
@@ -829,7 +830,7 @@ public class Notifications {
                         builder.extend(new WearableExtender().addAction(new NotificationCompat.Action.Builder(R.drawable.ic_reply,
                                 "Reply", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int) n.eid, i, PendingIntent.FLAG_UPDATE_CURRENT))
                                 .addRemoteInput(new RemoteInput.Builder("reply").setLabel("Reply").build())
-                                .build())).setGroup(String.valueOf(n.bid));
+                                .build()));
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), builder.build());
                     }
                 }
