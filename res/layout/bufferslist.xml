@@ -43,6 +43,7 @@
 	        android:id="@+id/topUnreadIndicatorBorder"
 	        android:layout_width="match_parent"
 	        android:layout_height="12dip"
+            android:elevation="8dp"
 	        android:background="@drawable/unreadBorder">
             <LinearLayout
                 android:id="@+id/topUnreadIndicatorColor"
@@ -65,6 +66,7 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="12dip"
             android:gravity="bottom"
+            android:elevation="8dp"
 	        android:background="@drawable/unreadBorder">
             <LinearLayout
                 android:id="@+id/bottomUnreadIndicatorColor"

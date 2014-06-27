@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/compose_bar_bg"
             android:padding="4dp"
+            android:elevation="4dp"
             android:paddingTop="2dp" >
 
             <ImageButton
@@ -81,6 +82,7 @@
         android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         android:layout_gravity="left"
+        android:elevation="8dp"
         tools:layout="@layout/bufferslist" />
 
     <fragment
@@ -89,6 +91,7 @@
         android:layout_width="@dimen/userlist_width"
         android:layout_height="match_parent"
         android:layout_gravity="right"
+        android:elevation="8dp"
         tools:layout="@layout/userslist" />
 
 </android.support.v4.widget.DrawerLayout>
