@@ -424,7 +424,8 @@ public class CollapsedEventsList {
                                 break;
                             }
                         }
-                        return;
+                        if(data.size() > 0)
+                            return;
                     }
                     if ((e1.type == TYPE_QUIT || e1.type == TYPE_PART) && e1.nick.equalsIgnoreCase(nick)) {
                         e1.type = TYPE_POPOUT;
@@ -434,7 +435,8 @@ public class CollapsedEventsList {
                                 break;
                             }
                         }
-                        return;
+                        if(data.size() > 0)
+                            return;
                     }
                 }
                 e = new CollapsedEvent();

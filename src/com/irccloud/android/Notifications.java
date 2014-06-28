@@ -816,20 +816,23 @@ public class Notifications {
 
                         Intent i = new Intent();
                         i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-                        i.putExtra("cid", n.cid);
                         i.putExtra("bid", n.bid);
-                        if (n.buffer_type.equals("channel")) {
-                            i.putExtra("to", n.chan);
-                            i.putExtra("nick", n.nick);
-                        } else {
-                            i.putExtra("to", n.nick);
-                        }
                         i.setData(Uri.parse("bid://" + n.bid));
-                        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+                        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int)n.eid, i, PendingIntent.FLAG_UPDATE_CURRENT));
+
+                        Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
+                        replyIntent.putExtra("cid", n.cid);
+                        replyIntent.putExtra("bid", n.bid);
+                        if (n.buffer_type.equals("channel")) {
+                            replyIntent.putExtra("to", n.chan);
+                            replyIntent.putExtra("nick", n.nick);
+                        } else {
+                            replyIntent.putExtra("to", n.nick);
+                        }
 
                         builder.extend(new WearableExtender().addAction(new NotificationCompat.Action.Builder(R.drawable.ic_reply,
-                                "Reply", PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), (int) n.eid, i, PendingIntent.FLAG_UPDATE_CURRENT))
-                                .addRemoteInput(new RemoteInput.Builder("reply").setLabel("Reply").build())
+                                "Reply", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int) n.eid, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT))
+                                .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply").build())
                                 .build()));
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), builder.build());
                     }

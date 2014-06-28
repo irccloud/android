@@ -1448,6 +1448,7 @@ public class NetworkConnection {
                         incoming_reply_cid = -1;
                         incoming_reply_to = null;
                         incoming_reply_msg = null;
+                        removeHandler(null);
                     }
                 }
             }

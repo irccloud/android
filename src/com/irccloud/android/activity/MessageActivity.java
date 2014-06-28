@@ -46,6 +46,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.RemoteInput;
 import android.support.v4.widget.DrawerLayout;
 import android.view.*;
 import org.json.JSONException;
@@ -861,16 +862,6 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
         if(buffer == null)
             server = null;
-
-        if(intent.hasExtra("reply")) {
-            if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
-                NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick")?intent.getStringExtra("nick") + ": ":"") + intent.getStringExtra("reply"));
-            } else {
-                NetworkConnection.getInstance().incoming_reply_cid = intent.getIntExtra("cid", -1);
-                NetworkConnection.getInstance().incoming_reply_to = intent.getStringExtra("to");
-                NetworkConnection.getInstance().incoming_reply_msg = (intent.hasExtra("nick")?intent.getStringExtra("nick") + ": ":"") + intent.getStringExtra("reply");
-            }
-        }
 
         if(buffer == null) {
 			launchBid = intent.getIntExtra("bid", -1);
