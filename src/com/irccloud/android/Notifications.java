@@ -266,20 +266,24 @@ public class Notifications {
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
 			        }
 				}
-				mNotifications.clear();
 			}
-			mNetworks.clear();
-			mLastSeenEIDs.clear();
-			save();
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
                 NotificationUtil.deleteAllEvents(IRCCloudApplication.getInstance().getApplicationContext());
         } catch (Exception e) {
 			e.printStackTrace();
-            mNotifications.clear();
-            mNetworks.clear();
-            mLastSeenEIDs.clear();
 		}
+        if(mSaveTimerTask != null)
+            mSaveTimerTask.cancel();
+        mNotifications.clear();
+        mNetworks.clear();
+        mLastSeenEIDs.clear();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+        editor.remove("notifications_json");
+        editor.remove("networks_json");
+        editor.remove("lastseeneids_json");
+        editor.remove("dismissedeids_json");
+        editor.commit();
 	}
 	
 	public long getLastSeenEid(int bid) {
@@ -454,7 +458,7 @@ public class Notifications {
 	}
 
     public int count() {
-        return mNotifications.size();
+        return getMessageNotifications().size() + getOtherNotifications().size();
     }
 
 	public ArrayList<Notification> getMessageNotifications() {

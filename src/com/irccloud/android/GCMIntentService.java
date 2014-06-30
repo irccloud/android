@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -155,6 +156,7 @@ public class GCMIntentService extends IntentService {
                         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                         editor.putString("gcm_reg_id", regId);
                         editor.putInt("gcm_app_version", appVersion);
+                        editor.putString("gcm_app_build", Build.FINGERPRINT);
                         editor.remove("gcm_registered");
                         editor.commit();
                         if(oldRegId.length() > 0) {
@@ -270,6 +272,11 @@ public class GCMIntentService extends IntentService {
         int currentVersion = getAppVersion();
         if (registeredVersion != currentVersion) {
             Log.i("IRCCloud", "App version changed.");
+            return "";
+        }
+        String build = prefs.getString("gcm_app_build", "");
+        if(!Build.FINGERPRINT.equals(build)) {
+            Log.i("IRCCloud", "OS version changed.");
             return "";
         }
         return registrationId;
