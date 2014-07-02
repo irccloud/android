@@ -855,7 +855,7 @@ public class NetworkConnection {
             if(regId.length() > 0) {
                 //Store the old session key so GCM can unregister later
                 editor.putString(regId, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
-                GCMIntentService.scheduleUnregisterTimer(100, regId);
+                GCMIntentService.scheduleUnregisterTimer(100, regId, false);
             } else {
                 logout(sk);
             }
@@ -885,6 +885,7 @@ public class NetworkConnection {
         ChannelsDataSource.getInstance().clear();
         UsersDataSource.getInstance().clear();
         EventsDataSource.getInstance().clear();
+        Notifications.getInstance().clearNetworks();
         Notifications.getInstance().clear();
     }
 
@@ -1311,6 +1312,7 @@ public class NetworkConnection {
                     accrued = object.getInt("accrued");
                 if(!(object.has("resumed") && object.getBoolean("resumed"))) {
                     Log.d("IRCCloud", "Socket was not resumed");
+                    Notifications.getInstance().clearNetworks();
                 }
             }
         });

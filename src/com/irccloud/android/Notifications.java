@@ -276,16 +276,22 @@ public class Notifications {
         if(mSaveTimerTask != null)
             mSaveTimerTask.cancel();
         mNotifications.clear();
-        mNetworks.clear();
         mLastSeenEIDs.clear();
+        mDismissedEIDs.clear();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         editor.remove("notifications_json");
-        editor.remove("networks_json");
         editor.remove("lastseeneids_json");
         editor.remove("dismissedeids_json");
         editor.commit();
 	}
-	
+
+    public void clearNetworks() {
+        mNetworks.clear();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+        editor.remove("networks_json");
+        editor.commit();
+    }
+
 	public long getLastSeenEid(int bid) {
 		if(mLastSeenEIDs.get(bid) != null)
 			return mLastSeenEIDs.get(bid);
