@@ -39,13 +39,15 @@ public class RemoteInputService extends IntentService {
                 if(remoteInput != null) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Got reply from RemoteInput");
                     String reply = remoteInput.getCharSequence("extra_reply").toString();
-                    if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
-                        NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick")?intent.getStringExtra("nick") + ": ":"") + reply);
-                    } else {
-                        NetworkConnection.getInstance().incoming_reply_cid = intent.getIntExtra("cid", -1);
-                        NetworkConnection.getInstance().incoming_reply_to = intent.getStringExtra("to");
-                        NetworkConnection.getInstance().incoming_reply_msg = (intent.hasExtra("nick")?intent.getStringExtra("nick") + ": ":"") + reply;
-                        NetworkConnection.getInstance().connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
+                    if(reply.length() > 0 && !reply.startsWith("/")) {
+                        if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
+                            NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply);
+                        } else {
+                            NetworkConnection.getInstance().incoming_reply_cid = intent.getIntExtra("cid", -1);
+                            NetworkConnection.getInstance().incoming_reply_to = intent.getStringExtra("to");
+                            NetworkConnection.getInstance().incoming_reply_msg = (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply;
+                            NetworkConnection.getInstance().connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
+                        }
                     }
                 } else {
                     Log.d("IRCCloud", "No remoteinput");

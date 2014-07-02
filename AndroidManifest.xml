@@ -179,7 +179,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".RemoteInputService">
+        <service android:name=".RemoteInputService"
+            android:permission="com.irccloud.android.permission.BROADCAST">
             <intent-filter>
             <action android:name="${applicationId}.ACTION_REPLY" />
             </intent-filter>
