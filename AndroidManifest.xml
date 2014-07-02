@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.irccloud.android"
     android:installLocation="auto"
-    android:versionCode="17"
-    android:versionName="1.8" >
+    android:versionCode="18"
+    android:versionName="1.9" >
 
     <permission
         android:name="com.irccloud.android.permission.C2D_MESSAGE"
@@ -119,7 +119,7 @@
             android:name=".NotificationDismissBroadcastReceiver"
             android:permission="com.irccloud.android.permission.BROADCAST" >
             <intent-filter>
-                <action android:name="com.irccloud.android.DISMISS_NOTIFICATION" />
+                <action android:name="${applicationId}.DISMISS_NOTIFICATION" />
 
                 <data android:scheme="irccloud-dismiss" />
             </intent-filter>
@@ -179,10 +179,9 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".RemoteInputService">
+        <service android:name=".RemoteInputService">
             <intent-filter>
-            <action android:name="com.irccloud.android.action.REPLY" />
+            <action android:name="${applicationId}.ACTION_REPLY" />
             </intent-filter>
         </service>
     </application>

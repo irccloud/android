@@ -464,7 +464,7 @@ public class Notifications {
 	}
 
     public int count() {
-        return getMessageNotifications().size() + getOtherNotifications().size();
+        return mNotifications.size();
     }
 
 	public ArrayList<Notification> getMessageNotifications() {

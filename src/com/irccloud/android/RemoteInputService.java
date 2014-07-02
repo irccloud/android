@@ -25,14 +25,14 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 
 public class RemoteInputService extends IntentService {
-    public static final String ACTION_REPLY = "com.irccloud.android.action.REPLY";
+    public static final String ACTION_REPLY = IRCCloudApplication.getInstance().getApplicationContext().getString(R.string.ACTION_REPLY);
     public RemoteInputService() {
         super("RemoteInputService");
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
+        if (intent != null && getSharedPreferences("prefs", 0).getString("session_key", "").length() > 0) {
             final String action = intent.getAction();
             if (ACTION_REPLY.equals(action)) {
                 Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
