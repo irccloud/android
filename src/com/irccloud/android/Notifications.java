@@ -833,6 +833,7 @@ public class Notifications {
                         Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
                         replyIntent.putExtra("cid", n.cid);
                         replyIntent.putExtra("bid", n.bid);
+                        replyIntent.putExtra("eid", n.eid);
                         if (n.buffer_type.equals("channel")) {
                             replyIntent.putExtra("to", n.chan);
                             replyIntent.putExtra("nick", n.nick);
@@ -841,7 +842,7 @@ public class Notifications {
                         }
 
                         builder.extend(new WearableExtender().addAction(new NotificationCompat.Action.Builder(R.drawable.ic_reply,
-                                "Reply", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int) n.eid, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT))
+                                "Reply", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int)(n.eid / 1000), replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT))
                                 .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply").build())
                                 .build()));
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), builder.build());
@@ -871,4 +872,19 @@ public class Notifications {
 	        }
 		}
 	}
+
+    public void alert(int bid, String title, String body) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+                .setContentTitle(title)
+                .setContentText(body)
+                .setSmallIcon(R.drawable.ic_stat_notify);
+
+        Intent i = new Intent();
+        i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+        i.putExtra("bid", bid);
+        i.setData(Uri.parse("bid://" + bid));
+        builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
+
+        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int)(System.currentTimeMillis() / 1000), builder.build());
+    }
 }

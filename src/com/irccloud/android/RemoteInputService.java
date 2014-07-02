@@ -19,6 +19,7 @@ package com.irccloud.android;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
@@ -41,16 +42,22 @@ public class RemoteInputService extends IntentService {
                     String reply = remoteInput.getCharSequence("extra_reply").toString();
                     if(reply.length() > 0 && !reply.startsWith("/")) {
                         if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
-                            NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply);
+                            NetworkConnection.getInstance().incoming_reply_bid = intent.getIntExtra("bid", -1);
+                            NetworkConnection.getInstance().incoming_reply_reqid = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply);
                         } else {
                             NetworkConnection.getInstance().incoming_reply_cid = intent.getIntExtra("cid", -1);
+                            NetworkConnection.getInstance().incoming_reply_bid = intent.getIntExtra("bid", -1);
                             NetworkConnection.getInstance().incoming_reply_to = intent.getStringExtra("to");
                             NetworkConnection.getInstance().incoming_reply_msg = (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply;
                             NetworkConnection.getInstance().connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
                         }
                     }
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (intent.getLongExtra("eid", 0) / 1000));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(intent.getIntExtra("bid", 0));
+                    Notifications.getInstance().dismiss(intent.getIntExtra("bid", 0), intent.getLongExtra("eid", 0));
+                    Notifications.getInstance().showNotifications(null);
                 } else {
-                    Log.d("IRCCloud", "No remoteinput");
+                    Crashlytics.log(Log.ERROR, "IRCCloud", "RemoteInputService received no remoteinput");
                 }
             }
         }
