@@ -37,6 +37,8 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.PorterDuff;
@@ -3166,6 +3168,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     };
 
     public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
+        private static final int MAX_IMAGE_SIZE = 2048;
         private final String UPLOAD_URL = (BuildConfig.MASHAPE_KEY.length() > 0)?"https://imgur-apiv3.p.mashape.com/3/image":"https://api.imgur.com/3/image";
         private Uri mImageUri;  // local Uri to upload
         private int total = 0;
@@ -3183,12 +3186,53 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             setActivity(MessageActivity.this);
         }
 
+        private Uri resize(Uri in) {
+            try {
+                Uri out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", Environment.getExternalStorageDirectory()));
+                BitmapFactory.Options o = new BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                BitmapFactory.decodeStream(activity.getContentResolver().openInputStream(in), null, o);
+                int scale = 1;
+
+                if(o.outWidth < MAX_IMAGE_SIZE && o.outHeight < MAX_IMAGE_SIZE)
+                    return in;
+
+                if (o.outWidth > o.outHeight) {
+                    if (o.outWidth > MAX_IMAGE_SIZE)
+                        scale = o.outWidth / MAX_IMAGE_SIZE;
+                } else {
+                    if (o.outHeight > MAX_IMAGE_SIZE)
+                        scale = o.outHeight / MAX_IMAGE_SIZE;
+                }
+
+                o = new BitmapFactory.Options();
+                o.inSampleSize = scale;
+                Bitmap bmp = BitmapFactory.decodeStream(activity.getContentResolver().openInputStream(in), null, o);
+                if(bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, activity.getContentResolver().openOutputStream(out))) {
+                    if (in.toString().contains("irccloudcapture")) {
+                        try {
+                            new File(new URI(mImageUri.toString())).delete();
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    return out;
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
         @Override
         protected String doInBackground(Void... params) {
             InputStream imageIn;
             try {
                 while(activity == null)
                     Thread.sleep(100);
+                if(PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("imgur_resize", true))
+                    mImageUri = resize(mImageUri);
                 imageIn = activity.getContentResolver().openInputStream(mImageUri);
                 total = imageIn.available();
             } catch (Exception e) {
