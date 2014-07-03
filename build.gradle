@@ -46,13 +46,12 @@ def getRevision = { ->
 android {
     compileSdkVersion 'android-L'
     buildToolsVersion "20.0"
-    aaptOptions.useAaptPngCruncher = true
 
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 'L'
         applicationId "com.irccloud.android"
-        testPackageName "com.irccloud.android.test"
+        testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
     }
 
@@ -99,6 +98,7 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-image"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
         }
         release {
@@ -124,6 +124,7 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
 
             if(rootProject.file('keystore.properties').exists()) {
@@ -154,7 +155,8 @@ android {
             buildConfigField "String", "SSL_FP", "\"\""
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-image"
-            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
+            resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
             resValue "string", "app_name", "IRCEnterprise"
 
             signingConfig signingConfigs.debug
@@ -182,7 +184,8 @@ android {
             buildConfigField "String", "SSL_FP", "\"\""
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
-            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
+            resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
+            resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
             resValue "string", "app_name", "IRCEnterprise"
 
             if(rootProject.file('keystore.properties').exists()) {

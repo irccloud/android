@@ -31,6 +31,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -63,7 +64,7 @@ public class GCMIntentService extends IntentService {
                     if (!IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getBoolean("gcm_registered", false)) {
                         String regId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", "");
                         if (regId.length() > 0) {
-                            scheduleUnregisterTimer(100, regId);
+                            scheduleUnregisterTimer(100, regId, false);
                         }
                     } else {
                         //Log.d("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
@@ -155,11 +156,12 @@ public class GCMIntentService extends IntentService {
                         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                         editor.putString("gcm_reg_id", regId);
                         editor.putInt("gcm_app_version", appVersion);
+                        editor.putString("gcm_app_build", Build.FINGERPRINT);
                         editor.remove("gcm_registered");
                         editor.commit();
                         if(oldRegId.length() > 0) {
                             Log.i("IRCCloud", "Unregistering old ID");
-                            scheduleUnregisterTimer(1000, oldRegId);
+                            scheduleUnregisterTimer(1000, oldRegId, true);
                         }
                     } catch (IOException ex) {
                         Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
@@ -194,19 +196,21 @@ public class GCMIntentService extends IntentService {
 
 	}
 	
-	public static void scheduleUnregisterTimer(int delay, final String regId) {
+	public static void scheduleUnregisterTimer(int delay, final String regId, final boolean serverOnly) {
 		final int retrydelay = (delay<500)?500:delay;
 
         GCMTimer.schedule(new TimerTask() {
 			@Override
 			public void run() {
 				boolean success = false;
-                try {
-                    GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).unregister();
-                } catch (IOException e) {
-                    Log.w("IRCCloud", "Failed to unregister device ID from GCM, will retry in " + ((retrydelay*2)/1000) + " seconds");
-                    scheduleUnregisterTimer(retrydelay * 2, regId);
-                    return;
+                if(!serverOnly) {
+                    try {
+                        GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).unregister();
+                    } catch (IOException e) {
+                        Log.w("IRCCloud", "Failed to unregister device ID from GCM, will retry in " + ((retrydelay * 2) / 1000) + " seconds");
+                        scheduleUnregisterTimer(retrydelay * 2, regId, false);
+                        return;
+                    }
                 }
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                 String session = null;
@@ -237,7 +241,7 @@ public class GCMIntentService extends IntentService {
                     Log.d("IRCCloud", "Device successfully unregistered");
 				} else {
 					Log.w("IRCCloud", "Failed to unregister device ID from IRCCloud, will retry in " + ((retrydelay*2)/1000) + " seconds");
-					scheduleUnregisterTimer(retrydelay * 2, regId);
+					scheduleUnregisterTimer(retrydelay * 2, regId, true);
 				}
                 editor.commit();
 			}
@@ -270,6 +274,11 @@ public class GCMIntentService extends IntentService {
         int currentVersion = getAppVersion();
         if (registeredVersion != currentVersion) {
             Log.i("IRCCloud", "App version changed.");
+            return "";
+        }
+        String build = prefs.getString("gcm_app_build", "");
+        if(!Build.FINGERPRINT.equals(build)) {
+            Log.i("IRCCloud", "OS version changed.");
             return "";
         }
         return registrationId;

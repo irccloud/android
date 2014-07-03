@@ -208,6 +208,8 @@ public class NetworkConnection {
     public String incoming_reply_msg = null;
     public String incoming_reply_to = null;
     public int incoming_reply_cid = -1;
+    public int incoming_reply_bid = -1;
+    public int incoming_reply_reqid = -1;
 
     private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
 
@@ -855,7 +857,7 @@ public class NetworkConnection {
             if(regId.length() > 0) {
                 //Store the old session key so GCM can unregister later
                 editor.putString(regId, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
-                GCMIntentService.scheduleUnregisterTimer(100, regId);
+                GCMIntentService.scheduleUnregisterTimer(100, regId, false);
             } else {
                 logout(sk);
             }
@@ -885,6 +887,7 @@ public class NetworkConnection {
         ChannelsDataSource.getInstance().clear();
         UsersDataSource.getInstance().clear();
         EventsDataSource.getInstance().clear();
+        Notifications.getInstance().clearNetworks();
         Notifications.getInstance().clear();
     }
 
@@ -1311,6 +1314,7 @@ public class NetworkConnection {
                     accrued = object.getInt("accrued");
                 if(!(object.has("resumed") && object.getBoolean("resumed"))) {
                     Log.d("IRCCloud", "Socket was not resumed");
+                    Notifications.getInstance().clearNetworks();
                 }
             }
         });
@@ -1434,6 +1438,10 @@ public class NetworkConnection {
                 Log.d("IRCCloud", "Cleaning up invalid BIDs");
                 BuffersDataSource.getInstance().purgeInvalidBIDs();
                 ChannelsDataSource.getInstance().purgeInvalidChannels();
+                if(Notifications.getInstance().count() == 0) {
+                    Log.d("IRCCloud", "Tidying up notifications");
+                    Notifications.getInstance().clear();
+                }
                 if(userInfo.connections > 0 && (ServersDataSource.getInstance().count() == 0 || BuffersDataSource.getInstance().count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
@@ -1444,10 +1452,14 @@ public class NetworkConnection {
                     ready = true;
                     notifyHandlers(EVENT_BACKLOG_END, null);
                     if(incoming_reply_cid != -1 && incoming_reply_to != null && incoming_reply_msg != null) {
-                        say(incoming_reply_cid, incoming_reply_to, incoming_reply_msg);
+                        incoming_reply_reqid = say(incoming_reply_cid, incoming_reply_to, incoming_reply_msg);
                         incoming_reply_cid = -1;
                         incoming_reply_to = null;
                         incoming_reply_msg = null;
+                        removeHandler(null);
+                    } else {
+                        incoming_reply_bid = -1;
+                        incoming_reply_reqid = -1;
                     }
                 }
             }
@@ -1456,7 +1468,28 @@ public class NetworkConnection {
         //Misc. popup alerts
         put("bad_channel_key", new BroadcastParser(EVENT_BADCHANNELKEY));
         put("invalid_nick", new BroadcastParser(EVENT_INVALIDNICK));
-        BroadcastParser alert = new BroadcastParser(EVENT_ALERT);
+        Parser alert = new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                if(handlers.size() == 0 && incoming_reply_reqid != -1) {
+                    String title = "IRCCloud";
+                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(incoming_reply_bid);
+                    if(b != null) {
+                        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+                        if(s != null)
+                            title = (s.name != null && s.name.length() > 0)?s.name:s.hostname;
+                        else
+                            title = b.name;
+                    }
+
+                    Notifications.getInstance().alert(incoming_reply_bid, title, object.getString("msg"));
+                    incoming_reply_reqid = -1;
+                    incoming_reply_bid = -1;
+                }
+                if(!backlog)
+                    notifyHandlers(EVENT_ALERT, object);
+            }
+        };
         String[] alerts = {"too_many_channels",
                 "no_such_channel",
                 "no_such_nick",
@@ -2095,6 +2128,11 @@ public class NetworkConnection {
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
                 Crashlytics.log(Log.ERROR, TAG, "Error: " + object);
 				notifyHandlers(EVENT_FAILURE_MSG, object);
+                if(handlers.size() == 0 && object.has("_reqid") && object.getInt("_reqid") == incoming_reply_reqid) {
+                    Notifications.getInstance().alert(incoming_reply_bid, "Message Failed", "The message could not be sent.");
+                    incoming_reply_reqid = -1;
+                    incoming_reply_bid = -1;
+                }
 			} else if(object.has("success")) {
 				notifyHandlers(EVENT_SUCCESS, object);
 			}

@@ -346,7 +346,7 @@ public class CollapsedEventsList {
                 } else if(type == TYPE_JOIN) {
                     for(CollapsedEvent ev : data) {
                         if(ev.type == TYPE_QUIT) {
-                            data.remove(ev);
+                            ev.type = TYPE_POPOUT;
                             return;
                         }
                     }
@@ -417,7 +417,15 @@ public class CollapsedEventsList {
                     if ((e1.type == TYPE_JOIN || e1.type == TYPE_POPOUT) && e1.nick.equalsIgnoreCase(old_nick)) {
                         e1.old_nick = old_nick;
                         e1.nick = nick;
-                        return;
+                        for (CollapsedEvent e2 : data) {
+                            if ((e2.type == TYPE_QUIT || e2.type == TYPE_PART) && e2.nick.equalsIgnoreCase(nick)) {
+                                e1.type = TYPE_POPOUT;
+                                data.remove(e2);
+                                break;
+                            }
+                        }
+                        if(data.size() > 0)
+                            return;
                     }
                     if ((e1.type == TYPE_QUIT || e1.type == TYPE_PART) && e1.nick.equalsIgnoreCase(nick)) {
                         e1.type = TYPE_POPOUT;
@@ -427,7 +435,8 @@ public class CollapsedEventsList {
                                 break;
                             }
                         }
-                        return;
+                        if(data.size() > 0)
+                            return;
                     }
                 }
                 e = new CollapsedEvent();

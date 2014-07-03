@@ -274,8 +274,12 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
         	listView.setAdapter(adapter);
     	}
         ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-        UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
-        canUnBan = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+        if(s != null) {
+            UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+            canUnBan = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+        } else {
+            canUnBan = false;
+        }
     }
 
     @Override

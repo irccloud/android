@@ -1346,7 +1346,11 @@ public class ColorFormatter {
 		            return url.replace("#", "%23");
 		        }
 		    });
-    		
+    		Linkify.addLinks(output, Pattern.compile("spotify:([a-zA-Z0-9:]+)"), null, null, new TransformFilter() {
+                public final String transformUrl(final Matcher match, String url) {
+                    return "http://open.spotify.com/" + url.substring(8).replace(":", "/");
+                }
+            });
 			
 		}
         if(server != null) {
