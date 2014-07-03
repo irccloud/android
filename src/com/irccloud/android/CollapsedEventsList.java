@@ -346,7 +346,7 @@ public class CollapsedEventsList {
                 } else if(type == TYPE_JOIN) {
                     for(CollapsedEvent ev : data) {
                         if(ev.type == TYPE_QUIT) {
-                            data.remove(ev);
+                            ev.type = TYPE_POPOUT;
                             return;
                         }
                     }
