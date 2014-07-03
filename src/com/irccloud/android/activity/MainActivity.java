@@ -358,8 +358,15 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 			email.setEnabled(false);
 			password.setEnabled(false);
             host.setEnabled(false);
-            if(BuildConfig.ENTERPRISE)
+            if(BuildConfig.ENTERPRISE) {
                 NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
+                if(NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
+                    NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
+                if(NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
+                    NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
+                if(NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
+                    NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
+            }
             SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
             editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
             editor.commit();
