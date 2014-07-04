@@ -248,7 +248,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             public void onClick(View v) {
                 if (drawerLayout != null) {
                     drawerLayout.closeDrawers();
-                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                    if (getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
                         upView.setVisibility(View.VISIBLE);
                 }
             }
@@ -3175,7 +3175,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     };
 
     public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
-        private static final int MAX_IMAGE_SIZE = 2048;
+        private int MAX_IMAGE_SIZE;
         private final String UPLOAD_URL = (BuildConfig.MASHAPE_KEY.length() > 0)?"https://imgur-apiv3.p.mashape.com/3/image":"https://api.imgur.com/3/image";
         private Uri mImageUri;  // local Uri to upload
         private int total = 0;
@@ -3228,6 +3228,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     return null;
                 }
             } catch (Exception e) {
+                Crashlytics.logException(e);
                 return null;
             }
         }
@@ -3238,8 +3239,10 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
             try {
                 while(activity == null)
                     Thread.sleep(100);
-                if(PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("imgur_resize", true))
+                MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024"));
+                if(MAX_IMAGE_SIZE > 0) {
                     mImageUri = resize(mImageUri);
+                }
                 imageIn = activity.getContentResolver().openInputStream(mImageUri);
                 total = imageIn.available();
             } catch (Exception e) {

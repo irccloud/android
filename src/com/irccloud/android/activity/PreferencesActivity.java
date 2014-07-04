@@ -69,6 +69,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		addPreferencesFromResource(R.xml.preferences_account);
 		addPreferencesFromResource(R.xml.preferences_display);
 		addPreferencesFromResource(R.xml.preferences_device);
+        addPreferencesFromResource(R.xml.preferences_photos);
 		addPreferencesFromResource(R.xml.preferences_notifications);
         addPreferencesFromResource(R.xml.preferences_dashclock);
         findPreference("dashclock_showmsgs").setOnPreferenceChangeListener(dashclocktoggle);
@@ -158,6 +159,21 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                 break;
             case 2:
                 findPreference("notify_led_color").setSummary("Blue");
+                break;
+        }
+        findPreference("photo_size").setOnPreferenceChangeListener(photosizetoggle);
+        switch(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"))) {
+            case 512:
+                findPreference("photo_size").setSummary("Small");
+                break;
+            case 1024:
+                findPreference("photo_size").setSummary("Medium");
+                break;
+            case 2048:
+                findPreference("photo_size").setSummary("Large");
+                break;
+            case -1:
+                findPreference("photo_size").setSummary("Original");
                 break;
         }
 		if(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
@@ -387,6 +403,27 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                     break;
                 case 2:
                     findPreference("notify_led_color").setSummary("Blue");
+                    break;
+            }
+            return true;
+        }
+    };
+
+    Preference.OnPreferenceChangeListener photosizetoggle = new Preference.OnPreferenceChangeListener() {
+        @SuppressWarnings("deprecation")
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            switch(Integer.parseInt((String)newValue)) {
+                case 512:
+                    findPreference("photo_size").setSummary("Small");
+                    break;
+                case 1024:
+                    findPreference("photo_size").setSummary("Medium");
+                    break;
+                case 2048:
+                    findPreference("photo_size").setSummary("Large");
+                    break;
+                case -1:
+                    findPreference("photo_size").setSummary("Original");
                     break;
             }
             return true;
