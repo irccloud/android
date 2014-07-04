@@ -53,15 +53,5 @@
             android:summaryOn="Image URLs will open in IRCCloud"
             android:summaryOff="Image URLs will open in your browser"
             android:title="Image Viewer"/>
-        <Preference
-            android:title="Imgur.com Account"
-            android:key="imgur_account_username"
-            />
-        <CheckBoxPreference
-            android:key="imgur_resize"
-            android:defaultValue="true"
-            android:summaryOn="Images will be resized before uploading to imgur.com"
-            android:summaryOff="Images will not be resized before uploading to imgur.com"
-            android:title="Resize before uploading"/>
 	</PreferenceCategory>
 </PreferenceScreen>
