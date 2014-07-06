@@ -2225,6 +2225,8 @@ public class NetworkConnection {
             try {
                 ostr = conn.getOutputStream();
                 ostr.write(postdata.getBytes());
+            } catch (Exception e) {
+                Crashlytics.logException(e);
             } finally {
                 if (ostr != null)
                     ostr.close();
