@@ -219,9 +219,11 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         try {
             URL url = new URL(urlStr);
             mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<body bgcolor='#000'>\n" +
-                    "<img src='" + url.toString() + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
+                    "<html><head><style>html, body, table { height: 100%; width: 100%; background-color: #000;}</style></head>\n" +
+                    "<body>\n" +
+                    "<table><tr><td>" +
+                    "<img src='" + url.toString() + "' width='100%' onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
+                    "</td></tr></table>" +
                     "</body>\n" +
                     "</html>", "text/html", "UTF-8",null);
         } catch (Exception e) {
