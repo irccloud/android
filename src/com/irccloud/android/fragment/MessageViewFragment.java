@@ -971,6 +971,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(shouldExpand)
                         expandedSectionEids.clear();
 
+                    if(event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
+                        EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
+                        if(last != null && !last.type.equals("socket_closed") && !last.type.equals("connecting_failed") && !last.type.equals("connecting_cancelled"))
+                            currentCollapsedEid = -1;
+                    } else {
+                        EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
+                        if(last != null && (last.type.equals("socket_closed") || last.type.equals("connecting_failed") || last.type.equals("connecting_cancelled")))
+                            currentCollapsedEid = -1;
+                    }
+
                     if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
                         collapsedEvents.clear();
                         currentCollapsedEid = eid;
