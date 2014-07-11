@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import android.content.res.Resources;
+import android.os.Build;
 import android.support.v4.app.ListFragment;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -568,6 +569,16 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     row.setMinimumHeight(eightdp * 6);
                 }
                 holder.unread.setLayoutParams(lp);
+            }
+
+            if(Build.VERSION.SDK_INT >= 20) {
+                if(holder.unread != null) {
+                    if (selected_bid == e.bid) {
+                        holder.unread.setTranslationZ(12);
+                    } else {
+                        holder.unread.setTranslationZ(0);
+                    }
+                }
             }
 
 			return row;
