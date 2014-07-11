@@ -27,10 +27,20 @@
         android:visibility="gone" />
 
     <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:id="@+id/spinner"
+        android:layout_gravity="center"
+        style="?android:attr/progressBarStyleLarge" />
+
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/progress"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:max="100"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:visibility="gone"
+        android:layout_margin="6dp" />
 
 </FrameLayout>

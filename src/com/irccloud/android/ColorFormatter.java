@@ -1301,7 +1301,8 @@ public class ColorFormatter {
                                         "(^(www\\.)?instagram\\.com/p/.*$)|(^(www\\.)?instagr\\.am/p/.*$)|" +
                                         "(^(www\\.)?imgur\\.com/(?!a/).*$)|" +
                                         "(^d\\.pr/i/.*)|(^droplr\\.com/i/.*)|"+
-                                        "(^cl\\.ly/.*)"
+                                        "(^cl\\.ly/.*)|" +
+                                        "(^.*\\.steampowered\\.com/ugc/.*)"
                                         ) && !lower.matches("(^cl\\.ly/robots\\.txt$)|(^cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
                                     return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
                                 }
@@ -1325,7 +1326,8 @@ public class ColorFormatter {
                                 "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
                                 "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
                                 "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|"+
-                                "(^https?://cl\\.ly/.*)"
+                                "(^https?://cl\\.ly/.*)|" +
+                                "(^https?://.*\\.steampowered\\.com/ugc/.*)"
                         ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
                             if(lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);

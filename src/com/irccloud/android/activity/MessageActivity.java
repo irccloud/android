@@ -61,6 +61,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.ColorFormatter;
@@ -3198,7 +3199,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 Uri out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", Environment.getExternalStorageDirectory()));
                 BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(activity.getContentResolver().openInputStream(in), null, o);
+                BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
                 int scale = 1;
 
                 if(o.outWidth < MAX_IMAGE_SIZE && o.outHeight < MAX_IMAGE_SIZE)
@@ -3214,8 +3215,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
                 o = new BitmapFactory.Options();
                 o.inSampleSize = scale;
-                Bitmap bmp = BitmapFactory.decodeStream(activity.getContentResolver().openInputStream(in), null, o);
-                if(bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, activity.getContentResolver().openOutputStream(out))) {
+                Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
+                if(bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
                     if (in.toString().contains("irccloudcapture")) {
                         try {
                             new File(new URI(mImageUri.toString())).delete();
@@ -3348,7 +3349,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
         @Override
         protected void onPostExecute(String s) {
-            if(mImageUri.toString().contains("irccloudcapture") && s != null && s.length() > 0) {
+            if(mImageUri != null && mImageUri.toString().contains("irccloudcapture") && s != null && s.length() > 0) {
                 try {
                     new File(new URI(mImageUri.toString())).delete();
                 } catch (Exception e) {

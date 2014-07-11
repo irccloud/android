@@ -26,12 +26,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.BuildConfig;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -117,6 +117,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     }
 
     WebView mImage;
+    ProgressBar mSpinner;
     ProgressBar mProgress;
     private static final Timer mHideTimer = new Timer("actionbar-hide-timer");
     TimerTask mHideTimerTask = null;
@@ -167,9 +168,16 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         mImage.getSettings().setJavaScriptEnabled(true);
         mImage.getSettings().setLoadWithOverviewMode(true);
         mImage.getSettings().setUseWideViewPort(true);
+        mImage.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                mProgress.setProgress(newProgress);
+            }
+        });
         mImage.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
+                mSpinner.setVisibility(View.GONE);
                 mProgress.setVisibility(View.GONE);
                 mImage.setVisibility(View.VISIBLE);
                 hide_actionbar();
@@ -179,8 +187,14 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 fail();
             }
-        }
-        );
+
+            @Override
+            public void onLoadResource(WebView view, String url) {
+                mSpinner.setVisibility(View.GONE);
+                mProgress.setVisibility(View.VISIBLE);
+            }
+        });
+        mSpinner = (ProgressBar)findViewById(R.id.spinner);
         mProgress = (ProgressBar)findViewById(R.id.progress);
 
         if(getIntent() != null && getIntent().getDataString() != null) {
@@ -219,9 +233,11 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         try {
             URL url = new URL(urlStr);
             mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
-                    "<html>\n" +
-                    "<body bgcolor='#000'>\n" +
-                    "<img src='" + url.toString() + "' width='100%' style='top:0; bottom:0; margin: auto; position: absolute;'  onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
+                    "<html><head><style>html, body, table { height: 100%; width: 100%; background-color: #000;}</style></head>\n" +
+                    "<body>\n" +
+                    "<table><tr><td>" +
+                    "<img src='" + url.toString() + "' width='100%' onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
+                    "</td></tr></table>" +
                     "</body>\n" +
                     "</html>", "text/html", "UTF-8",null);
         } catch (Exception e) {
@@ -238,7 +254,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     @Override
     public void onResume() {
         super.onResume();
-        if(mProgress.getVisibility() == View.GONE)
+        if(mSpinner.getVisibility() == View.GONE)
             hide_actionbar();
     }
 

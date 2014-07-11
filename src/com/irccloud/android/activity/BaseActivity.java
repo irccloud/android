@@ -332,20 +332,40 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	Intent i;
-    	
         switch (item.getItemId()) {
             case R.id.menu_logout:
-                conn.logout();
-        		i = new Intent(this, MainActivity.class);
-        		i.addFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                        Intent.FLAG_ACTIVITY_NEW_TASK);
-        		startActivity(i);
-        		finish();
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+                builder.setTitle("Logout");
+                builder.setMessage("Would you like to logout of IRCCloud?");
+
+                builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNeutralButton("Logout", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        conn.logout();
+                        Intent i = new Intent(BaseActivity.this, MainActivity.class);
+                        i.addFlags(
+                                Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                        Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(i);
+                        finish();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.setOwnerActivity(this);
+                dialog.show();
             	break;
             case R.id.menu_settings:
-        		i = new Intent(this, PreferencesActivity.class);
+        		Intent i = new Intent(this, PreferencesActivity.class);
         		startActivity(i);
             	break;
         }

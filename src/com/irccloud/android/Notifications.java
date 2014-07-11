@@ -810,7 +810,7 @@ public class Notifications {
 
                     if(Build.VERSION.SDK_INT >= 17) {
                         String wearTitle = n.nick;
-                        String wearBody = n.message;
+                        String wearBody = Html.fromHtml(n.message).toString();
                         if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0) {
                             wearTitle = n.chan;
                             wearBody = "<" + n.nick + "> " + n.message;
