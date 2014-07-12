@@ -85,7 +85,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 	int selected_bid = -1;
 	RefreshTask refreshTask = null;
 	private boolean ready = false;
-	
+	public boolean readOnly = false;
+
 	int firstUnreadPosition = -1;
 	int lastUnreadPosition= -1;
 	int firstHighlightPosition = -1;
@@ -437,7 +438,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     holder.unread.setBackgroundDrawable(null);
                 }
 				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
-			} else if(e.unread > 0 || selected_bid == e.bid) {
+			} else if((e.unread > 0 && !readOnly) || selected_bid == e.bid) {
 				holder.label.setTypeface(null, Typeface.BOLD);
 				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_unread));
 				holder.unread.setBackgroundResource(R.drawable.selected_blue);
@@ -540,7 +541,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 			}
 			
 			if(holder.addBtn != null) {
-                if(e.count > 1) {
+                if(e.count > 1 && !readOnly) {
                     holder.addBtn.setVisibility(View.VISIBLE);
                     holder.addBtn.setTag(e);
                     holder.addBtn.setOnClickListener(new OnClickListener() {
@@ -738,12 +739,15 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                         }
 					}
 				}
-                if(buffers.size() == 1) {
+                if(buffers.size() == 1 && !readOnly) {
                     entries.add(adapter.buildItem(s.cid, 0, TYPE_JOIN_CHANNEL, "Join a channel…", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Join a channel", null));
                 }
 			}
-            entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Add a network", null));
-            entries.add(adapter.buildItem(0, 0, TYPE_REORDER, "Reorder", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Reorder", null));
+
+            if(!readOnly) {
+                entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Add a network", null));
+                entries.add(adapter.buildItem(0, 0, TYPE_REORDER, "Reorder", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Reorder", null));
+            }
 			return null;
 		}
 		
@@ -790,46 +794,48 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 	}
 	
 	private void updateUnreadIndicators(int first, int last) {
-		if(topUnreadIndicator != null) {
-            if(firstFailurePosition != -1 && first > firstFailurePosition) {
-                topUnreadIndicator.setVisibility(View.VISIBLE);
-                topUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
-                topUnreadIndicatorBorder.setBackgroundResource(R.drawable.networkErrorBorder);
-            } else {
-                topUnreadIndicator.setVisibility(View.GONE);
+        if(!readOnly) {
+            if (topUnreadIndicator != null) {
+                if (firstFailurePosition != -1 && first > firstFailurePosition) {
+                    topUnreadIndicator.setVisibility(View.VISIBLE);
+                    topUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
+                    topUnreadIndicatorBorder.setBackgroundResource(R.drawable.networkErrorBorder);
+                } else {
+                    topUnreadIndicator.setVisibility(View.GONE);
+                }
+                if (firstUnreadPosition != -1 && first > firstUnreadPosition) {
+                    topUnreadIndicator.setVisibility(View.VISIBLE);
+                    topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+                    topUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
+                }
+                if ((lastHighlightPosition != -1 && first > lastHighlightPosition) ||
+                        (firstHighlightPosition != -1 && first > firstHighlightPosition)) {
+                    topUnreadIndicator.setVisibility(View.VISIBLE);
+                    topUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
+                    topUnreadIndicatorBorder.setBackgroundResource(R.drawable.highlightBorder);
+                }
             }
-			if(firstUnreadPosition != -1 && first > firstUnreadPosition) {
-				topUnreadIndicator.setVisibility(View.VISIBLE);
-				topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
-                topUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
-			}
-			if((lastHighlightPosition != -1 && first > lastHighlightPosition) ||
-					(firstHighlightPosition != -1 && first > firstHighlightPosition)) {
-				topUnreadIndicator.setVisibility(View.VISIBLE);
-				topUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
-                topUnreadIndicatorBorder.setBackgroundResource(R.drawable.highlightBorder);
-			}
-		}
-		if(bottomUnreadIndicator != null) {
-            if(lastFailurePosition != -1 && last < lastFailurePosition) {
-                bottomUnreadIndicator.setVisibility(View.VISIBLE);
-                bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
-                bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.networkErrorBorder);
-            } else {
-                bottomUnreadIndicator.setVisibility(View.GONE);
+            if (bottomUnreadIndicator != null) {
+                if (lastFailurePosition != -1 && last < lastFailurePosition) {
+                    bottomUnreadIndicator.setVisibility(View.VISIBLE);
+                    bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
+                    bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.networkErrorBorder);
+                } else {
+                    bottomUnreadIndicator.setVisibility(View.GONE);
+                }
+                if (lastUnreadPosition != -1 && last < lastUnreadPosition) {
+                    bottomUnreadIndicator.setVisibility(View.VISIBLE);
+                    bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+                    bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
+                }
+                if ((firstHighlightPosition != -1 && last < firstHighlightPosition) ||
+                        (lastHighlightPosition != -1 && last < lastHighlightPosition)) {
+                    bottomUnreadIndicator.setVisibility(View.VISIBLE);
+                    bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
+                    bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.highlightBorder);
+                }
             }
-			if(lastUnreadPosition != -1 && last < lastUnreadPosition) {
-				bottomUnreadIndicator.setVisibility(View.VISIBLE);
-				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
-                bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
-			}
-			if((firstHighlightPosition != -1 && last < firstHighlightPosition) ||
-					(lastHighlightPosition != -1 && last < lastHighlightPosition)) {
-				bottomUnreadIndicator.setVisibility(View.VISIBLE);
-				bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
-                bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.highlightBorder);
-			}
-		}
+        }
 	}
 	
 	@SuppressWarnings("unchecked")

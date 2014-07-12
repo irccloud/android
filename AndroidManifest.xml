@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.irccloud.android"
     android:installLocation="auto"
-    android:versionCode="18"
-    android:versionName="1.9" >
+    android:versionCode="19"
+    android:versionName="1.10" >
 
     <permission
         android:name="com.irccloud.android.permission.C2D_MESSAGE"
@@ -179,12 +179,33 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".RemoteInputService"
-            android:permission="com.irccloud.android.permission.BROADCAST">
+        <service
+            android:name=".RemoteInputService"
+            android:permission="com.irccloud.android.permission.BROADCAST" >
             <intent-filter>
-            <action android:name="${applicationId}.ACTION_REPLY" />
+                <action android:name="${applicationId}.ACTION_REPLY" />
             </intent-filter>
         </service>
+
+        <activity
+            android:name=".activity.ShareChooserActivity"
+            android:theme="@style/DialogTheme"
+            android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

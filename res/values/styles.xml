@@ -20,6 +20,7 @@
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
     </style>
     <style name="PrefsTheme" parent="@android:style/Theme"/>
+    <style name="DialogTheme" parent="@android:style/Theme.Dialog"/>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowActionBarOverlay">true</item>
     </style>
