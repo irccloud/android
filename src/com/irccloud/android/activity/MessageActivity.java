@@ -867,6 +867,14 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         if(buffer == null)
             server = null;
 
+        if(intent.hasExtra(Intent.EXTRA_STREAM)) {
+            new ImgurRefreshTask((Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
+        }
+
+        if(intent.hasExtra(Intent.EXTRA_TEXT)) {
+            buffer.draft = intent.getStringExtra(Intent.EXTRA_TEXT);
+        }
+
         if(buffer == null) {
 			launchBid = intent.getIntExtra("bid", -1);
     	} else {

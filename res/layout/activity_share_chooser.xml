@@ -1,0 +1,78 @@
+<!--
+  ~ Copyright (c) 2014 IRCCloud, Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_blue"
+    tools:context="com.irccloud.android.activity.ShareChooserActivity">
+
+    <fragment
+        android:id="@+id/BuffersList"
+        android:name="com.irccloud.android.fragment.BuffersListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout="@layout/bufferslist" />
+
+    <LinearLayout
+        android:id="@+id/connecting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:visibility="visible" >
+
+        <ImageView
+            android:id="@+id/splashlogo"
+            android:layout_width="@dimen/splashlogo_width"
+            android:layout_height="@dimen/splashlogo_width"
+            android:layout_marginBottom="@dimen/splashlogo_margin"
+            android:layout_marginTop="@dimen/splashlogo_margin"
+            android:src="@drawable/splashlogo" />
+
+        <TextView
+            android:id="@+id/connectingMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Connecting"
+            android:textColor="#000"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ProgressBar
+            android:id="@+id/connectingProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:layout_marginTop="6dp"
+            android:indeterminate="true"
+            android:max="1000" />
+
+        <TextView
+            android:id="@+id/errorMsg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#000"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+</RelativeLayout>
