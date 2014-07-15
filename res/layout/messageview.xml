@@ -96,7 +96,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Dismiss"
-                    android:textColor="@color/markAsReadColor" />
+                    android:textColor="#fff"
+                    android:background="#56A4F7"
+                    android:minHeight="32dp"
+                    android:padding="4dp" />
             </LinearLayout>
 
             <LinearLayout

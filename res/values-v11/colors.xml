@@ -19,5 +19,4 @@
 <resources>
     <drawable name="compose_bar_bg">#FFF</drawable>
     <color name="dialog_prompt">#000</color>
-    <color name="markAsReadColor">#FFF</color>
 </resources>
