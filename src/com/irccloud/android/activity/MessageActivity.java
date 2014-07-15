@@ -3196,8 +3196,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
         }
 
         private Uri resize(Uri in) {
+            Uri out = null;
             try {
-                Uri out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", Environment.getExternalStorageDirectory()));
+                out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", Environment.getExternalStorageDirectory()));
                 BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
@@ -3217,22 +3218,19 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 o = new BitmapFactory.Options();
                 o.inSampleSize = scale;
                 Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
-                if(bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
-                    if (in.toString().contains("irccloudcapture")) {
-                        try {
-                            new File(new URI(mImageUri.toString())).delete();
-                        } catch (Exception e) {
-                        }
-                    }
-
-                    return out;
-                } else {
-                    return null;
+                if(!bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
+                    out = null;
                 }
             } catch (Exception e) {
                 Crashlytics.logException(e);
-                return null;
             }
+            if (in.toString().contains("irccloudcapture")) {
+                try {
+                    new File(new URI(in.toString())).delete();
+                } catch (Exception e) {
+                }
+            }
+            return out;
         }
 
         @Override
