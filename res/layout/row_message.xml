@@ -19,7 +19,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="20dp"
-    android:orientation="horizontal" >
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/timestamp"
@@ -29,7 +29,9 @@
         android:paddingLeft="4dp"
         android:minWidth="@dimen/timestamp_base"
         android:textColor="@color/timestamp"
-        android:paddingRight="4dp"/>
+        android:paddingRight="4dp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginRight="6dp" />
 
     <ImageView
             android:layout_width="16dp"

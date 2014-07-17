@@ -16,7 +16,8 @@
   -->
 
 <PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:robobunny="http://robobunny.com">
 
 	<PreferenceCategory android:title="Display">
 		<CheckBoxPreference
@@ -39,6 +40,14 @@
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>
+        <com.robobunny.SeekBarPreference
+            android:key="textSize"
+            android:title="Text Size"
+            android:defaultValue="14"
+            android:max="24"
+            robobunny:min="12"
+            robobunny:unitsLeft=""
+            robobunny:unitsRight=""/>
 	</PreferenceCategory>
 
 </PreferenceScreen>
