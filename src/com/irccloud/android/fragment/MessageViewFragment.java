@@ -41,6 +41,7 @@ import android.content.ActivityNotFoundException;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.text.TextUtils;
@@ -152,6 +153,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     public View suggestionsContainer = null;
     public GridView suggestions = null;
+
+    private float textSize = 14.0f;
 	
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
 		@Override
@@ -525,6 +528,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
                     holder.timestamp.setText(e.timestamp);
                     holder.timestamp.setMinWidth(timestamp_width);
+                    holder.timestamp.setTextSize(textSize);
                 }
                 if(e.row_type == ROW_SOCKETCLOSED) {
                     if(e.msg.length() > 0) {
@@ -556,6 +560,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
                         holder.message.setContentDescription(e.from + ": " + e.contentDescription);
                     }
+                    holder.message.setTextSize(textSize);
                 }
 
                 if(holder.expandable != null) {
@@ -1484,6 +1489,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
 	private synchronized void refresh(MessageAdapter adapter, TreeMap<Long,EventsDataSource.Event> events) {
         synchronized (adapterLock) {
+            if(getActivity() != null)
+                textSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("textSize", 14);
             if(conn.getReconnectTimestamp() == 0)
                 conn.cancel_idle_timer(); //This may take a while...
             if(dirty) {

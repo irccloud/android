@@ -616,7 +616,8 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                     "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
                     "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
                     "See the License for the specific language governing permissions and\n" +
-                    "limitations under the License.");
+                    "limitations under the License.\n\n" +
+                    "SeekBarPreference by RoboBunny\n");
             builder.setView(v);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
