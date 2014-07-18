@@ -507,28 +507,33 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if(holder.timestamp != null) {
-                    holder.timestamp.setTextSize(textSize-2);
-                    if(timestamp_width == -1) {
-                        String s = "888:888";
-                        if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                            try {
-                                JSONObject prefs = conn.getUserInfo().prefs;
-                                if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
-                                    s += ":88";
-                                if(!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
-                                    s += " 88";
-                            } catch (Exception e1) {
+                    if(e.row_type == ROW_TIMESTAMP) {
+                        holder.timestamp.setTextSize(textSize);
+                    } else {
+                        holder.timestamp.setTextSize(textSize - 2);
 
+                        if (timestamp_width == -1) {
+                            String s = "888:888";
+                            if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                                try {
+                                    JSONObject prefs = conn.getUserInfo().prefs;
+                                    if (prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+                                        s += ":88";
+                                    if (!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
+                                        s += " 88";
+                                } catch (Exception e1) {
+
+                                }
                             }
+                            timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
                         }
-                        timestamp_width = (int)holder.timestamp.getPaint().measureText(s);
+                        holder.timestamp.setMinWidth(timestamp_width);
                     }
                     if(e.highlight)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.highlight_timestamp));
                     else if(e.row_type != ROW_TIMESTAMP)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
                     holder.timestamp.setText(e.timestamp);
-                    holder.timestamp.setMinWidth(timestamp_width);
                 }
                 if(e.row_type == ROW_SOCKETCLOSED) {
                     if(e.msg.length() > 0) {
