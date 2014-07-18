@@ -36,6 +36,7 @@
     <color name="timestamp">#AAA</color>
     <color name="message_bg">#FFF</color>
     <color name="status_bg">#EEE</color>
+    <drawable name="status_bg">#EEE</drawable>
     <color name="highlight">#C0DBFF</color>
     <color name="highlight_timestamp">#600000</color>
     <color name="self">#e2edff</color>
@@ -53,7 +54,7 @@
     <color name="heading_halfop">#B55900</color>
     <color name="heading_voiced">#25B100</color>
     <color name="heading_members">#666</color>
-    <color name="expanded_row_bg">#f5f5f5</color>
+    <drawable name="expanded_row_bg">#f5f5f5</drawable>
     <drawable name="join_bg_highlighted">#daf5aa</drawable>
     <color name="lightLinkColor">#9CC7FF</color>
     <color name="linkColor">#1D40FF</color>

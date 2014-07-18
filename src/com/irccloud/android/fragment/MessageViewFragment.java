@@ -16,22 +16,12 @@
 
 package com.irccloud.android.fragment;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -39,8 +29,6 @@ import java.util.TreeSet;
 
 import android.content.ActivityNotFoundException;
 import android.content.res.Resources;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
 import android.text.Html;
@@ -71,9 +59,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
@@ -119,6 +105,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private View awayView = null;
 	private TextView awayTxt = null;
 	private int timestamp_width = -1;
+    private float textSize = 14.0f;
 	private View globalMsgView = null;
 	private TextView globalMsg = null;
     private ProgressBar spinner = null;
@@ -154,8 +141,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     public View suggestionsContainer = null;
     public GridView suggestions = null;
 
-    private float textSize = 14.0f;
-	
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
 		@Override
 	    public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
@@ -522,13 +507,28 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if(holder.timestamp != null) {
+                    holder.timestamp.setTextSize(textSize-2);
+                    if(timestamp_width == -1) {
+                        String s = "888:888";
+                        if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                            try {
+                                JSONObject prefs = conn.getUserInfo().prefs;
+                                if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+                                    s += ":88";
+                                if(!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
+                                    s += " 88";
+                            } catch (Exception e1) {
+
+                            }
+                        }
+                        timestamp_width = (int)holder.timestamp.getPaint().measureText(s);
+                    }
                     if(e.highlight)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.highlight_timestamp));
                     else if(e.row_type != ROW_TIMESTAMP)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
                     holder.timestamp.setText(e.timestamp);
                     holder.timestamp.setMinWidth(timestamp_width);
-                    holder.timestamp.setTextSize(textSize);
                 }
                 if(e.row_type == ROW_SOCKETCLOSED) {
                     if(e.msg.length() > 0) {
@@ -568,10 +568,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if(expandedSectionEids.contains(e.group_eid)) {
                             if(e.group_eid == e.eid + 1) {
                                 holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
-                                row.setBackgroundResource(R.color.status_bg);
+                                row.setBackgroundResource(R.drawable.status_bg);
                             } else {
                                 holder.expandable.setImageResource(R.drawable.tiny_plus);
-                                row.setBackgroundResource(R.color.expanded_row_bg);
+                                row.setBackgroundResource(R.drawable.expanded_row_bg);
                             }
                         } else {
                             holder.expandable.setImageResource(R.drawable.bullet_toggle_plus);
@@ -1491,6 +1491,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         synchronized (adapterLock) {
             if(getActivity() != null)
                 textSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("textSize", 14);
+            timestamp_width = -1;
             if(conn.getReconnectTimestamp() == 0)
                 conn.cancel_idle_timer(); //This may take a while...
             if(dirty) {
@@ -1501,21 +1502,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             collapsedEvents.clear();
             currentCollapsedEid = -1;
             lastCollapsedDay = -1;
-
-            if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                try {
-                    JSONObject prefs = conn.getUserInfo().prefs;
-                    timestamp_width = (int)getSafeResources().getDimension(R.dimen.timestamp_base);
-                    if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
-                        timestamp_width += (int)getSafeResources().getDimension(R.dimen.timestamp_seconds);
-                    if(!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
-                        timestamp_width += (int)getSafeResources().getDimension(R.dimen.timestamp_ampm);
-                } catch (Exception e) {
-
-                }
-            } else {
-                timestamp_width = getSafeResources().getDimensionPixelSize(R.dimen.timestamp_base) + getSafeResources().getDimensionPixelSize(R.dimen.timestamp_ampm);
-            }
 
             if(events == null || (events.size() == 0 && buffer.min_eid > 0)) {
                 if(buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {

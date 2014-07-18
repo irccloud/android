@@ -175,7 +175,7 @@
             android:id="@+id/away"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/status_bg"
+            android:background="@drawable/status_bg"
             android:padding="6dp"
             android:visibility="gone" >
 
