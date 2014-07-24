@@ -18,7 +18,9 @@ package com.irccloud.android.data;
 
 import android.annotation.SuppressLint;
 
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -38,6 +40,7 @@ public class UsersDataSource {
 	}
 
 	private HashMap<Integer,TreeMap<String,User>> users;
+    private Collator collator;
 	
 	private static UsersDataSource instance = null;
 	
@@ -49,7 +52,9 @@ public class UsersDataSource {
 
 	public UsersDataSource() {
 		users = new HashMap<Integer,TreeMap<String,User>>();
-	}
+        collator = Collator.getInstance();
+        collator.setStrength(Collator.SECONDARY);
+    }
 
 	public synchronized void clear() {
 		users.clear();
@@ -68,7 +73,7 @@ public class UsersDataSource {
             u = new User();
 
             if(!users.containsKey(bid))
-                users.put(bid, new TreeMap<String,User>());
+                users.put(bid, new TreeMap<String,User>(comparator));
 			users.get(bid).put(nick.toLowerCase(),u);
 		}
 		u.cid = cid;
@@ -80,6 +85,14 @@ public class UsersDataSource {
 		u.joined = 1;
 		return u;
 	}
+
+    private Comparator<String> comparator = new Comparator<String>()
+    {
+        public int compare(String o1, String o2)
+        {
+            return collator.compare(o1, o2);
+        }
+    };
 
 	public synchronized void deleteUser(int bid, String nick) {
         if(users.containsKey(bid))
