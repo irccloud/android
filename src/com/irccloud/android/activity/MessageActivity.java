@@ -1872,10 +1872,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                             }
                             pendingEvents.clear();
                         } else if(pendingEvents.containsKey(e.reqid)) {
-                            EventsDataSource.Event e1 = pendingEvents.get(e.reqid);
-                            EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
+                            e = pendingEvents.get(e.reqid);
+                            EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
                             pendingEvents.remove(e.reqid);
-                            e.eid = e1.eid;
                         }
                     }
 				} catch (Exception e1) {
