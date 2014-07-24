@@ -656,6 +656,8 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 e.cid = buffer.cid;
                 e.bid = buffer.bid;
                 e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
+                if(e.eid < EventsDataSource.getInstance().lastEidForBuffer(buffer.bid))
+                    e.eid = EventsDataSource.getInstance().lastEidForBuffer(buffer.bid) + 1000;
                 e.self = true;
                 e.from = server.nick;
                 e.nick = server.nick;
@@ -1870,9 +1872,10 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                             }
                             pendingEvents.clear();
                         } else if(pendingEvents.containsKey(e.reqid)) {
-                            e = pendingEvents.get(e.reqid);
-                            EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+                            EventsDataSource.Event e1 = pendingEvents.get(e.reqid);
+                            EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
                             pendingEvents.remove(e.reqid);
+                            e.eid = e1.eid;
                         }
                     }
 				} catch (Exception e1) {
