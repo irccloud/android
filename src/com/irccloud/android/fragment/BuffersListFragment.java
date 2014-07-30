@@ -380,13 +380,20 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
 		@Override
 		public Object getItem(int position) {
-			return data.get(position);
+			if(position < data.size())
+                return data.get(position);
+            else
+                return null;
 		}
 
 		@Override
 		public long getItemId(int position) {
-			BufferListEntry e = data.get(position);
-			return e.bid;
+            if(position < data.size()) {
+                BufferListEntry e = data.get(position);
+                return e.bid;
+            } else {
+                return -1;
+            }
 		}
 
 		@SuppressWarnings("deprecation")
