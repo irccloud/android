@@ -827,7 +827,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
     	launchURI = null;
 
         if(NetworkConnection.getInstance().ready)
-        	setIntent(null);
+            setIntent(new Intent(this, MessageActivity.class));
     	
     	if(intent.hasExtra("bid")) {
     		int new_bid = intent.getIntExtra("bid", 0);
@@ -2915,6 +2915,12 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
 	@Override
 	public void onBufferSelected(int bid) {
+        launchBid = -1;
+        launchURI = null;
+        cidToOpen = -1;
+        bufferToOpen = null;
+        setIntent(new Intent(this, MessageActivity.class));
+
         if(suggestionsTimerTask != null)
             suggestionsTimerTask.cancel();
         sortedChannels = null;
