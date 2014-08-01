@@ -20,7 +20,7 @@ public class CollapsedEventsTests extends TestCase {
         op.put("mode", mode);
         add.add(op);
 
-        EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
+        EventsDataSource.Event e = new EventsDataSource.Event();
         e.eid = eid++;
         e.type = "user_channel_mode";
         e.from = from;
@@ -43,7 +43,7 @@ public class CollapsedEventsTests extends TestCase {
         op.put("mode", mode);
         remove.add(op);
 
-        EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
+        EventsDataSource.Event e = new EventsDataSource.Event();
         e.eid = eid++;
         e.type = "user_channel_mode";
         e.from = from;
@@ -66,7 +66,7 @@ public class CollapsedEventsTests extends TestCase {
 
     public void testOwner2() {
         CollapsedEventsList list = new CollapsedEventsList();
-        ServersDataSource.Server s = ServersDataSource.getInstance().new Server();
+        ServersDataSource.Server s = new ServersDataSource.Server();
         s.MODE_OWNER = "y";
         list.setServer(s);
         addMode(list, "y", "sam", "ChanServ");

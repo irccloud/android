@@ -1555,8 +1555,9 @@ public class ColorFormatter {
 					}
 					builder.insert(pos, html);
 				}
-			}
-			pos++;
+			} else {
+                pos++;
+            }
 		}
 		if(fg.length() > 0) {
 			builder.append("</font>");
