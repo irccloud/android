@@ -15,6 +15,13 @@
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
 # class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+-keepclassmembers class com.irccloud.android.activity.ImageViewerActivity.JSInterface {
+   public *;
+}
+
+-keep class com.irccloud.** { *; }
+-keepattributes *Annotation*,EnclosingMethod
+-keepnames class com.fasterxml.jackson.** { *; }
+-keepattributes SourceFile,LineNumberTable
+-dontwarn org.w3c.**
+-dontobfuscate

@@ -100,7 +100,11 @@ android {
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
+
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
+
         release {
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
             buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
@@ -130,7 +134,11 @@ android {
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
             }
+
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
+
         enterprisedebug {
             applicationIdSuffix ".enterprise"
             versionNameSuffix "-" + getRevision()
@@ -160,7 +168,10 @@ android {
             resValue "string", "app_name", "IRCEnterprise"
 
             signingConfig signingConfigs.debug
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
+
         enterpriserelease {
             applicationIdSuffix ".enterprise"
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
@@ -191,6 +202,8 @@ android {
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
             }
+            runProguard true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }
 
