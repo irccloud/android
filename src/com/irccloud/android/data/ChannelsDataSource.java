@@ -24,12 +24,12 @@ import com.irccloud.android.ColorFormatter;
 import java.util.ArrayList;
 
 public class ChannelsDataSource {
-    public class Mode {
+    public static class Mode {
         public String mode;
         public String param;
     }
 
-	public class Channel {
+	public static class Channel {
         public int cid;
         public int bid;
         public String name;

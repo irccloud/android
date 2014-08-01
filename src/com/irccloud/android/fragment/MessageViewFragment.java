@@ -223,7 +223,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		}
 
 		public int insertLastSeenEIDMarker() {
-			EventsDataSource.Event e = EventsDataSource.getInstance().new Event();
+			EventsDataSource.Event e = new EventsDataSource.Event();
 			e.type = TYPE_LASTSEENEID;
 			e.row_type = ROW_LASTSEENEID;
 			e.bg_color = R.drawable.socketclosed_bg;
@@ -407,7 +407,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     				formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
                 else
                     formatter.applyPattern("EEEE, MMMM dd, yyyy");
-				EventsDataSource.Event d = EventsDataSource.getInstance().new Event();
+				EventsDataSource.Event d = new EventsDataSource.Event();
 				d.type = TYPE_TIMESTAMP;
 				d.row_type = ROW_TIMESTAMP;
 				d.eid = eid;
@@ -1030,7 +1030,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                                 currentCollapsedEid = eid;
                             }
-                            EventsDataSource.Event heading = EventsDataSource.getInstance().new Event();
+                            EventsDataSource.Event heading = new EventsDataSource.Event();
                             heading.type = "__expanded_group_heading__";
                             heading.cid = event.cid;
                             heading.bid = event.bid;
@@ -1403,7 +1403,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if(backlog_eid < 0) {
                                 backlog_eid = MessageViewFragment.this.adapter.getItemId(oldPosition) - 1;
                             }
-                            EventsDataSource.Event backlogMarker = EventsDataSource.getInstance().new Event();
+                            EventsDataSource.Event backlogMarker = new EventsDataSource.Event();
                             backlogMarker.eid = backlog_eid;
                             backlogMarker.type = TYPE_BACKLOGMARKER;
                             backlogMarker.row_type = ROW_BACKLOGMARKER;

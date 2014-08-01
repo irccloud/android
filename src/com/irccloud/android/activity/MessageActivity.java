@@ -651,7 +651,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 if(Build.VERSION.SDK_INT >= 11)
                     sendBtn.setAlpha(0.5f);
                 UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
-                e = EventsDataSource.getInstance().new Event();
+                e = new EventsDataSource.Event();
                 e.command = messageTxt.getText().toString();
                 e.cid = buffer.cid;
                 e.bid = buffer.bid;
@@ -2673,7 +2673,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.bid, from);
 
 		if(user == null && from != null && event.hostmask != null) {
-			user = UsersDataSource.getInstance().new User();
+			user = new UsersDataSource.User();
 			user.nick = from;
 			user.hostmask = event.hostmask;
 			user.mode = "";

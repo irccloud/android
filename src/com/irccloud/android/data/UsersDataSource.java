@@ -26,7 +26,7 @@ import java.util.TreeMap;
 
 @SuppressLint("UseSparseArrays")
 public class UsersDataSource {
-	public class User {
+	public static class User {
 		public int cid;
         public int bid;
         public String nick;

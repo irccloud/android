@@ -35,7 +35,7 @@ import com.irccloud.android.fragment.MessageViewFragment;
 @SuppressLint("UseSparseArrays")
 public class EventsDataSource {
 
-	public class Event {
+	public static class Event {
 		public int cid;
         public int bid;
         public long eid;
@@ -921,7 +921,8 @@ public class EventsDataSource {
     public Long lastEidForBuffer(int bid) {
         synchronized(events) {
             if(events.containsKey(bid)) {
-                return events.get(bid).lastEntry().getValue().eid;
+                Long[] eids = events.get(bid).keySet().toArray(new Long[events.get(bid).keySet().size()]);
+                return eids[eids.length - 1];
             }
         }
         return 0L;

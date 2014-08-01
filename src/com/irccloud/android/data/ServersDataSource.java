@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.Notifications;
 
 public class ServersDataSource {
-	public class Server implements Comparable<Server> {
+	public static class Server implements Comparable<Server> {
 		public int cid;
         public String name;
         public String hostname;

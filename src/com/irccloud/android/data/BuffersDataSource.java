@@ -25,7 +25,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 public class BuffersDataSource {
-	public class Buffer {
+	public static class Buffer {
         public int bid;
         public int cid;
         public long min_eid;
