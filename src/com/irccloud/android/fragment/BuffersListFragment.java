@@ -801,7 +801,12 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 	}
 	
 	private void updateUnreadIndicators(int first, int last) {
-        if(!readOnly) {
+        if(readOnly) {
+            if (topUnreadIndicator != null)
+                topUnreadIndicator.setVisibility(View.GONE);
+            if (bottomUnreadIndicator != null)
+                bottomUnreadIndicator.setVisibility(View.GONE);
+        } else {
             if (topUnreadIndicator != null) {
                 if (firstFailurePosition != -1 && first > firstFailurePosition) {
                     topUnreadIndicator.setVisibility(View.VISIBLE);

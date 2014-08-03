@@ -46,6 +46,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     private TimerTask countdownTimerTask = null;
     private String error = null;
     private View connecting = null;
+    private View buffersList = null;
     private NetworkConnection conn = null;
 
     @Override
@@ -60,6 +61,8 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
 
         BuffersListFragment f = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
         f.readOnly = true;
+        buffersList = f.getView();
+        buffersList.setVisibility(View.GONE);
     }
 
     @Override
@@ -69,10 +72,12 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         if(session != null && session.length() > 0) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
-            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
+            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING) {
                 conn.connect(session);
-            else
+            } else {
                 connecting.setVisibility(View.GONE);
+                buffersList.setVisibility(View.VISIBLE);
+            }
         } else {
             finish();
         }
@@ -168,6 +173,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                     @Override
                     public void run() {
                         connecting.setVisibility(View.GONE);
+                        buffersList.setVisibility(View.VISIBLE);
                     }
                 });
                 break;
