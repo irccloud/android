@@ -19,6 +19,7 @@ package com.irccloud.android.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
@@ -217,6 +218,8 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     public void onBufferSelected(int bid) {
         Intent i = new Intent(this, MessageActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
         i.putExtra("bid", bid);
         if(getIntent() != null && getIntent().getData() != null)
             i.setData(getIntent().getData());

@@ -828,7 +828,7 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
 
         if(NetworkConnection.getInstance().ready)
             setIntent(new Intent(this, MessageActivity.class));
-    	
+
     	if(intent.hasExtra("bid")) {
     		int new_bid = intent.getIntExtra("bid", 0);
     		if(NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
