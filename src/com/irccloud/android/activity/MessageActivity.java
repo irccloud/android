@@ -706,6 +706,10 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     return null;
                 }
             }
+            if(e != null && e.command != null && e.command.equals("/ignore")) {
+                e.reqid = -2;
+                return null;
+            }
             if(e != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 e.reqid = conn.say(e.cid, e.chan, e.command);
                 if(e.msg != null)
@@ -726,6 +730,13 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                 } else if(messageTxt.getText().toString().equals("/crash")) {
                     Crashlytics.getInstance().crash();
                 }
+            }
+            if(e != null && e.command.equals("/ignore")) {
+                Bundle args = new Bundle();
+                args.putInt("cid", buffer.cid);
+                IgnoreListFragment ignoreList = new IgnoreListFragment();
+                ignoreList.setArguments(args);
+                ignoreList.show(getSupportFragmentManager(), "ignorelist");
             }
             if(e != null && e.reqid != -1) {
 				messageTxt.setText("");
