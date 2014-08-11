@@ -599,7 +599,7 @@ public class Notifications {
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
 		.setContentTitle(title)
-		.setContentText(text)
+		.setContentText(Html.fromHtml(text).toString())
         .setTicker(ticker)
         .setWhen(eids[0] / 1000)
         .setSmallIcon(R.drawable.ic_stat_notify)
@@ -770,9 +770,9 @@ public class Notifications {
                             eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network);
 
                         if(n.message_type.equals("buffer_me_msg"))
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + n.message);
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.message).toString());
                         else
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, n.message);
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, Html.fromHtml(n.message).toString());
 
                         eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PERSONAL, 1);
                         eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PUBLISHED_TIME, time);

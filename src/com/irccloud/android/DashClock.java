@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.*;
 import android.preference.PreferenceManager;
+import android.text.Html;
 
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
@@ -71,9 +72,9 @@ public class DashClock extends DashClockExtension {
                 ArrayList<Notifications.Notification> msgs = Notifications.getInstance().getMessageNotifications();
                 for(Notifications.Notification n : msgs) {
                     if(n.message_type.equals("buffer_me_msg"))
-                        msg += "— " + n.nick + " " + n.message + "\n";
+                        msg += "— " + n.nick + " " + Html.fromHtml(n.message) + "\n";
                     else
-                        msg += "<" + n.nick + "> " + n.message + "\n";
+                        msg += "<" + n.nick + "> " + Html.fromHtml(n.message) + "\n";
                 }
                 publishUpdate(new ExtensionData()
                         .visible(true)
