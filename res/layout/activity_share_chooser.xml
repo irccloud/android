@@ -17,7 +17,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/background_blue"
     tools:context="com.irccloud.android.activity.ShareChooserActivity">
 
@@ -36,43 +36,79 @@
         android:layout_centerHorizontal="true"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingLeft="24dp"
-        android:paddingRight="24dp"
-        android:layout_marginBottom="64dp"
-        android:visibility="visible" >
+        android:visibility="visible"
+        android:paddingBottom="12dp"
+        android:background="#4480FA">
 
-        <ImageView
-            android:id="@+id/splashlogo"
-            android:layout_width="@dimen/splashlogo_width"
-            android:layout_height="@dimen/splashlogo_width"
-            android:layout_marginBottom="@dimen/splashlogo_margin"
-            android:layout_marginTop="@dimen/splashlogo_margin"
-            android:src="@drawable/splashlogo" />
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/logocontainer"
+            android:gravity="center"
+            android:background="#0b2e60"
+            android:layout_marginBottom="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp">
+
+            <ImageView
+                android:id="@+id/splashlogo"
+                android:layout_width="@dimen/splashlogo_width"
+                android:layout_height="@dimen/splashlogo_width"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/splashlogo" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="IRC"
+                    android:textColor="#9CC7FF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Cloud"
+                    android:textColor="#6BA2F7" />
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/connectingMsg"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Connecting"
-            android:textColor="#000"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textColor="#fff"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center" />
 
         <ProgressBar
             android:id="@+id/connectingProgress"
-            style="?android:attr/progressBarStyleHorizontal"
+            style="@style/ProgressBarLogin"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:layout_marginTop="6dp"
             android:indeterminate="true"
-            android:max="1000" />
+            android:max="1000"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp" />
 
         <TextView
             android:id="@+id/errorMsg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textColor="#000"
+            android:textColor="#fff"
             android:visibility="invisible" />
     </LinearLayout>
 

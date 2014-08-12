@@ -33,7 +33,7 @@
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:paddingTop="16dp"
             android:paddingBottom="16dp">
 
@@ -77,11 +77,11 @@
             android:orientation="vertical"
             android:visibility="visible"
             android:gravity="center_horizontal"
-            android:paddingTop="24dp">
+            android:layout_margin="24dp">
 
             <EditText
                 android:id="@+id/name"
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="Name"
@@ -93,7 +93,7 @@
 
             <AutoCompleteTextView
                 android:id="@+id/email"
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:completionThreshold="1"
                 android:ems="10"
@@ -105,7 +105,7 @@
 
             <EditText
                 android:id="@+id/password"
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:ems="10"
@@ -116,7 +116,7 @@
 
             <EditText
                 android:id="@+id/host"
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:ems="10"
@@ -127,20 +127,21 @@
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:layout_width="280dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp">
 
                 <Button
                     android:id="@+id/loginBtn"
-                    android:layout_width="136dp"
+                    android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:text="@string/login"
                     android:background="#2746C7"
                     android:textColor="#fff"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginRight="4dp"
                     android:paddingLeft="8dp"
-                    android:paddingRight="8dp" />
+                    android:paddingRight="8dp"
+                    android:layout_weight="1" />
 
                 <Button
                     android:id="@+id/signupBtn"
@@ -148,7 +149,9 @@
                     android:layout_height="48dp"
                     android:text="Sign Up"
                     android:background="#2746C7"
-                    android:textColor="#fff" />
+                    android:textColor="#fff"
+                    android:layout_marginLeft="4dp"
+                    android:layout_weight="1" />
             </LinearLayout>
 
         </LinearLayout>

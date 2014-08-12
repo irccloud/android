@@ -28,14 +28,13 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="240dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:padding="32dp">
 
             <ImageView
                 android:id="@+id/splashlogo"

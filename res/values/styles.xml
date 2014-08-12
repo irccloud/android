@@ -70,8 +70,8 @@
     </style>
 
     <style name="ProgressBarLogin" parent="android:Widget.ProgressBar.Horizontal">
-        <item name="android:progressDrawable">@drawable/login_progress_horizontal_holo_light</item>
-        <item name="android:indeterminateDrawable">@drawable/login_progress_indeterminate_horizontal_holo_light</item>
+        <item name="android:progressDrawable">@drawable/login_progress_horizontal_holo_dark</item>
+        <item name="android:indeterminateDrawable">@drawable/login_progress_indeterminate_horizontal_holo_dark</item>
         <item name="android:minHeight">16dip</item>
         <item name="android:maxHeight">16dip</item>
     </style>
