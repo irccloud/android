@@ -65,7 +65,9 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	private AutoCompleteTextView email;
 	private EditText password;
     private EditText host;
+    private EditText name;
 	private Button loginBtn;
+    private Button signupBtn;
 	private NetworkConnection conn;
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
@@ -90,6 +92,9 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 		progressBar = (ProgressBar)findViewById(R.id.connectingProgress);
 
         login = findViewById(R.id.login);
+        name = (EditText)findViewById(R.id.name);
+        if(savedInstanceState != null && savedInstanceState.containsKey("name"))
+            name.setText(savedInstanceState.getString("name"));
         email = (AutoCompleteTextView)findViewById(R.id.email);
         if(BuildConfig.ENTERPRISE)
             email.setHint(R.string.email_enterprise);
@@ -149,7 +154,32 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         });
         loginBtn.setFocusable(true);
     	loginBtn.requestFocus();
-        
+
+        signupBtn = (Button)findViewById(R.id.signupBtn);
+        signupBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(name.getVisibility() == View.GONE) {
+                    name.setVisibility(View.VISIBLE);
+                    loginBtn.setVisibility(View.GONE);
+                    android.view.ViewGroup.MarginLayoutParams lp = (android.view.ViewGroup.MarginLayoutParams) signupBtn.getLayoutParams();
+                    lp.setMargins(0, 0, 0, 0);
+                    signupBtn.setLayoutParams(lp);
+                    name.requestFocus();
+                } else {
+                    new LoginTask().execute((Void)null);
+                }
+            }
+        });
+        if(savedInstanceState != null && savedInstanceState.containsKey("signup") && savedInstanceState.getBoolean("signup")) {
+            name.setVisibility(View.VISIBLE);
+            loginBtn.setVisibility(View.GONE);
+            android.view.ViewGroup.MarginLayoutParams lp = (android.view.ViewGroup.MarginLayoutParams) signupBtn.getLayoutParams();
+            lp.setMargins(0, 0, 0, 0);
+            signupBtn.setLayoutParams(lp);
+            name.requestFocus();
+        }
+
         TextView version = (TextView)findViewById(R.id.version);
         try {
             version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
@@ -168,6 +198,10 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	    		state.putString("password", password.getText().toString());
             if(host != null)
                 state.putString("host", host.getText().toString());
+            if(name != null) {
+                state.putString("name", name.getText().toString());
+                state.putBoolean("signup", name.getVisibility() == View.VISIBLE);
+            }
     	}
     }
 
@@ -355,6 +389,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     private class LoginTask extends AsyncTaskEx<Void, Void, JSONObject> {
 		@Override
 		public void onPreExecute() {
+            name.setEnabled(false);
 			email.setEnabled(false);
 			password.setEnabled(false);
             host.setEnabled(false);
@@ -371,7 +406,11 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
             editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
             editor.commit();
 			loginBtn.setEnabled(false);
-			connectingMsg.setText("Signing in");
+            signupBtn.setEnabled(false);
+            if(name.getVisibility() == View.VISIBLE)
+    			connectingMsg.setText("Creating Account");
+            else
+                connectingMsg.setText("Signing in");
 			progressBar.setIndeterminate(true);
 	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
 			anim.setDuration(250);
@@ -386,10 +425,17 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 		
 		@Override
 		protected JSONObject doInBackground(Void... arg0) {
-            if(email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
-    			return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
-            else
-                return null;
+            if(name.getVisibility() == View.VISIBLE) {
+                if (name.getText() != null && name.getText().length() > 0 && email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
+                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString());
+                else
+                    return null;
+            } else {
+                if (email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
+                    return NetworkConnection.getInstance().login(email.getText().toString(), password.getText().toString());
+                else
+                    return null;
+            }
 		}
 
 		@Override
@@ -414,10 +460,12 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 					e.printStackTrace();
 				}
 			} else {
+                name.setEnabled(true);
 				email.setEnabled(true);
 				password.setEnabled(true);
                 host.setEnabled(true);
 				loginBtn.setEnabled(true);
+                signupBtn.setEnabled(true);
 		    	AlphaAnimation anim = new AlphaAnimation(0, 1);
 				anim.setDuration(250);
 				anim.setFillAfter(true);
@@ -443,28 +491,43 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 				});
 				connecting.startAnimation(anim);
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-				builder.setTitle("Login Failed");
+                if(name.getVisibility() == View.VISIBLE)
+    				builder.setTitle("Sign Up Failed");
+                else
+                    builder.setTitle("Login Failed");
 				String message = "Unable to connect to IRCCloud.  Please try again later.";
 				if(result != null) {
 					try {
                         if(result.has("message")) {
                             message = result.getString("message");
                             if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
-                                message = "Incorrect username or password.  Please try again.";
+                                if(name.getVisibility() == View.VISIBLE)
+                                    message = "Invalid email address or password.  Please try again.";
+                                else
+                                    message = "Incorrect username or password.  Please try again.";
                             else if(message.equals("json_error"))
                                 message = "Invalid response received from the server.  Please try again shortly.";
                             else if(message.equals("invalid_response"))
                                 message = "Unexpected response received from the server.  Check your network settings and try again shortly.";
                             else if(message.equals("empty_response"))
                                 message = "The server did not respond.  Check your network settings and try again shortly.";
+                            else if(message.equals("realname"))
+                                message = "Please enter a valid name and try again.";
+                            else if(message.equals("email_exists"))
+                                message = "This email address is already in use, please sign in or try another.";
+                            else if(message.equals("rate_limited"))
+                                message = "Rate limited, please try again in a few minutes.";
                             else
                                 message = "Error: " + message;
                         }
 					} catch (JSONException e) {
 						e.printStackTrace();
 					}
-				} else if(email.getText() == null || email.getText().length() == 0 || password.getText() == null || password.getText().length() == 0) {
-                    message = "Please enter your username and password.";
+				} else if((name.getVisibility() == View.VISIBLE && (name.getText() == null || name.getText().length() == 0)) || email.getText() == null || email.getText().length() == 0 || password.getText() == null || password.getText().length() == 0) {
+                    if(name.getVisibility() == View.VISIBLE)
+                        message = "Please enter your name, email address, and password.";
+                    else
+                        message = "Please enter your username and password.";
                 }
 				builder.setMessage(message);
 				builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {

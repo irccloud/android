@@ -23,128 +23,199 @@
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@drawable/background_blue"
+        android:background="#4480FA"
         tools:context=".MainActivity" >
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_width="240dp"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:id="@+id/logocontainer"
             android:gravity="center"
-            android:paddingRight="48dp" >
+            android:background="#0b2e60"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/splashlogo"
-                android:layout_width="match_parent"
+                android:layout_width="@dimen/splashlogo_width"
                 android:layout_height="@dimen/splashlogo_width"
-                android:layout_gravity="center"
-                android:layout_weight="1"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
                 android:src="@drawable/splashlogo" />
 
-            <FrameLayout
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="IRC"
+                    android:textColor="#9CC7FF" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Cloud"
+                    android:textColor="#6BA2F7" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="24dp"
+            android:layout_toRightOf="@+id/logocontainer"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="24dp">
+
+            <LinearLayout
+                android:id="@+id/login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" >
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="visible" >
 
-                <LinearLayout
-                    android:id="@+id/login"
+                <EditText
+                    android:id="@+id/name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:visibility="visible" >
+                    android:ems="10"
+                    android:hint="Name"
+                    android:background="#fff"
+                    android:padding="6dp"
+                    android:layout_marginBottom="12dp"
+                    android:inputType="textPersonName"
+                    android:visibility="gone" />
 
-                    <AutoCompleteTextView
-                        android:id="@+id/email"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:completionThreshold="1"
-                        android:ems="10"
-                        android:hint="@string/email"
-                        android:imeOptions="actionNext"
-                        android:inputType="textEmailAddress" >
+                <AutoCompleteTextView
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:completionThreshold="1"
+                    android:ems="10"
+                    android:hint="@string/email"
+                    android:imeOptions="actionNext"
+                    android:inputType="textEmailAddress"
+                    android:padding="6dp"
+                    android:background="#fff">
 
-                        <requestFocus />
-                    </AutoCompleteTextView>
+                    <requestFocus />
+                </AutoCompleteTextView>
 
-                    <EditText
-                        android:id="@+id/password"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:ems="10"
-                        android:hint="@string/password"
-                        android:inputType="textPassword" />
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:ems="10"
+                    android:hint="@string/password"
+                    android:inputType="textPassword"
+                    android:padding="6dp"
+                    android:background="#fff" />
 
-                    <EditText
-                        android:id="@+id/host"
-                        android:layout_width="280dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:ems="10"
-                        android:hint="@string/host"
-                        android:inputType="textUri" />
+                <EditText
+                    android:id="@+id/host"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:ems="10"
+                    android:hint="@string/host"
+                    android:inputType="textUri"
+                    android:padding="6dp"
+                    android:background="#fff" />
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
 
                     <Button
                         android:id="@+id/loginBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="@string/login" />
-                </LinearLayout>
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="@string/login"
+                        android:background="#2746C7"
+                        android:textColor="#fff"
+                        android:layout_marginRight="4dp"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:layout_weight="1" />
 
-                <LinearLayout
-                    android:id="@+id/connecting"
+                    <Button
+                        android:id="@+id/signupBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Sign Up"
+                        android:background="#2746C7"
+                        android:textColor="#fff"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="4dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/connecting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone" >
+
+                <TextView
+                    android:id="@+id/connectingMsg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Connecting"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#fff" />
+
+                <ProgressBar
+                    android:id="@+id/connectingProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:layout_marginTop="6dp"
+                    android:indeterminate="true"
+                    android:max="1000" />
+
+                <TextView
+                    android:id="@+id/errorMsg"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
                     android:gravity="center"
-                    android:orientation="vertical"
-                    android:visibility="gone" >
+                    android:visibility="gone"
+                    android:textColor="#fff" />
+            </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/connectingMsg"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Connecting"
-                        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                    <ProgressBar
-                        android:id="@+id/connectingProgress"
-                        style="?android:attr/progressBarStyleHorizontal"
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:layout_marginTop="6dp"
-                        android:indeterminate="true"
-                        android:max="1000" />
-
-                    <TextView
-                        android:id="@+id/errorMsg"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:visibility="gone" />
-                </LinearLayout>
-
-            </FrameLayout>
-
-        </LinearLayout>
+        </FrameLayout>
 
         <TextView
             android:id="@+id/version"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
             android:layout_marginBottom="6dp"
             android:layout_marginTop="16dp"
-            android:gravity="bottom"
-            android:text="Version 1.0" />
+            android:gravity="center_horizontal|bottom"
+            android:text="Version 1.0"
+            android:layout_toRightOf="@+id/logocontainer"
+            android:textColor="#fff" />
+
     </RelativeLayout>
 
 </ScrollView>

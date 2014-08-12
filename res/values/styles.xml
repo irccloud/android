@@ -19,6 +19,9 @@
         <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
     </style>
+    <style name="LoginTheme" parent="AppTheme">
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+    </style>
     <style name="PrefsTheme" parent="@android:style/Theme"/>
     <style name="DialogTheme" parent="@android:style/Theme.Dialog"/>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -64,5 +67,12 @@
 
     <style name="messageTxt">
         <item name="android:imeOptions">actionSend</item>
+    </style>
+
+    <style name="ProgressBarLogin" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/login_progress_horizontal_holo_light</item>
+        <item name="android:indeterminateDrawable">@drawable/login_progress_indeterminate_horizontal_holo_light</item>
+        <item name="android:minHeight">16dip</item>
+        <item name="android:maxHeight">16dip</item>
     </style>
 </resources>

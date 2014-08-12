@@ -1810,6 +1810,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             r = "You've exceeded the connection limit for free accounts.";
         } else if(reason.equalsIgnoreCase("passworded_servers")) {
             r = "You can't connect to passworded servers with free accounts.";
+        } else if(reason.equalsIgnoreCase("unverified")) {
+            r = "You can’t connect to external servers until you confirm your email address.";
         }
         return r;
     }

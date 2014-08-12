@@ -593,6 +593,47 @@ public class NetworkConnection {
 		return null;
 	}
 
+    public JSONObject signup(String realname, String email, String password) {
+        try {
+            String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
+            JSONObject token = new JSONObject(tokenResponse);
+            if(token.has("token")) {
+                String postdata = "realname=" + URLEncoder.encode(realname, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token");
+                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/signup"), postdata, null, token.getString("token"));
+                if(response.length() < 1) {
+                    JSONObject o = new JSONObject();
+                    o.put("message", "empty_response");
+                    return o;
+                } else if(response.charAt(0) != '{') {
+                    JSONObject o = new JSONObject();
+                    o.put("message", "invalid_response");
+                    return o;
+                }
+                return new JSONObject(response);
+            } else {
+                return null;
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            JSONObject o = new JSONObject();
+            try {
+                o.put("message", "json_error");
+            } catch (JSONException e1) {
+            }
+            return o;
+        } catch (Exception e) {
+            e.printStackTrace();
+            Crashlytics.logException(e);
+        }
+        return null;
+    }
+
     public JSONObject fetchJSON(String url) throws IOException {
         try {
             String response = doFetch(new URL(url), null, null, null);
