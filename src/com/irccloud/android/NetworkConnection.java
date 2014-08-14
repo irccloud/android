@@ -1103,7 +1103,8 @@ public class NetworkConnection {
 			o.put("hostname", hostname);
 			o.put("port", port);
 			o.put("ssl", String.valueOf(ssl));
-			o.put("netname", netname);
+            if(netname != null)
+    			o.put("netname", netname);
 			o.put("nickname", nickname);
 			o.put("realname", realname);
 			o.put("server_pass", server_pass);
@@ -1123,7 +1124,8 @@ public class NetworkConnection {
 			o.put("hostname", hostname);
 			o.put("port", port);
 			o.put("ssl", String.valueOf(ssl));
-			o.put("netname", netname);
+            if(netname != null)
+    			o.put("netname", netname);
 			o.put("nickname", nickname);
 			o.put("realname", realname);
 			o.put("server_pass", server_pass);

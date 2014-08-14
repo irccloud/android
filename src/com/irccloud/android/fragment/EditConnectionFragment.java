@@ -383,7 +383,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 		} catch (NumberFormatException e) {
 		}
 		if(server == null) {
-			String netname = hostname.getText().toString();
+			String netname = null;
 			if(presets.getSelectedItemPosition() > 0) {
 				netname = ((PresetServersAdapter.PresetServer)adapter.getItem(presets.getSelectedItemPosition())).network;
 			}
@@ -391,8 +391,11 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 					ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString(), channels.getText().toString());
 		} else {
+            String netname = network.getText().toString();
+            if(hostname.getText().toString().equalsIgnoreCase(netname))
+                netname = null;
 			return NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), portValue,
-					ssl.isChecked()?1:0, network.getText().toString(), nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
+					ssl.isChecked()?1:0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
 							nickserv_pass.getText().toString(), join_commands.getText().toString());
 			
 		}
