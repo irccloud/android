@@ -318,6 +318,17 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         finish();
     }
 
+    @Override
+    public void onBackPressed() {
+        if(name.getVisibility() == View.VISIBLE) {
+            name.setVisibility(View.GONE);
+            loginBtn.setVisibility(View.VISIBLE);
+            TOS.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
     public void onIRCEvent(int what, final Object obj) {
         switch (what) {
             case NetworkConnection.EVENT_DEBUG:
