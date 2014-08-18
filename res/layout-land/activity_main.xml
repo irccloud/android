@@ -162,6 +162,18 @@
                         android:layout_weight="1"
                         android:layout_marginLeft="4dp" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="@string/TOS"
+                    android:id="@+id/TOS"
+                    android:textColor="#9CC7FF"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp"
+                    android:textColorLink="#fff"
+                    android:visibility="gone" />
             </LinearLayout>
 
             <LinearLayout

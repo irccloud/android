@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,6 +51,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -71,6 +73,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	private NetworkConnection conn;
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
+    private TextView TOS = null;
 	private ProgressBar progressBar = null;
 	private static final Timer countdownTimer = new Timer("main-countdown-timer");
     private TimerTask countdownTimerTask = null;
@@ -155,6 +158,9 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         loginBtn.setFocusable(true);
     	loginBtn.requestFocus();
 
+        TOS = (TextView)findViewById(R.id.TOS);
+        TOS.setMovementMethod(new LinkMovementMethod());
+
         signupBtn = (Button)findViewById(R.id.signupBtn);
         signupBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -166,6 +172,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
                     lp.setMargins(0, 0, 0, 0);
                     signupBtn.setLayoutParams(lp);
                     name.requestFocus();
+                    TOS.setVisibility(View.VISIBLE);
                 } else {
                     new LoginTask().execute((Void)null);
                 }
@@ -178,6 +185,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
             lp.setMargins(0, 0, 0, 0);
             signupBtn.setLayoutParams(lp);
             name.requestFocus();
+            TOS.setVisibility(View.VISIBLE);
         }
 
         TextView version = (TextView)findViewById(R.id.version);
@@ -293,6 +301,23 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     	}
     }
 
+    private void launchMessageActivity() {
+        if(ServersDataSource.getInstance().count() > 0) {
+            Intent i = new Intent(MainActivity.this, MessageActivity.class);
+            if(getIntent() != null) {
+                if(getIntent().getData() != null)
+                    i.setData(getIntent().getData());
+                if(getIntent().getExtras() != null)
+                    i.putExtras(getIntent().getExtras());
+            }
+            startActivity(i);
+        } else {
+            startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
+        }
+        overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+        finish();
+    }
+
     public void onIRCEvent(int what, final Object obj) {
         switch (what) {
             case NetworkConnection.EVENT_DEBUG:
@@ -326,20 +351,43 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
                 break;
 			case NetworkConnection.EVENT_BACKLOG_END:
 				if(conn.ready) {
-                    if(ServersDataSource.getInstance().count() > 0) {
-                        Intent i = new Intent(MainActivity.this, MessageActivity.class);
-                        if(getIntent() != null) {
-                            if(getIntent().getData() != null)
-                                i.setData(getIntent().getData());
-                            if(getIntent().getExtras() != null)
-                                i.putExtras(getIntent().getExtras());
-                        }
-                        startActivity(i);
+                    if(conn.getUserInfo() != null && !conn.getUserInfo().verified) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setTitle("Confirm your Email");
+                                builder.setMessage("You should shortly receive an email with a link to confirm your address.\n\nIf you’re still waiting for the email, you can send yourself another confirmation.");
+                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            dialog.dismiss();
+                                            launchMessageActivity();
+                                        } catch (IllegalArgumentException e) {
+                                        }
+                                    }
+                                });
+                                builder.setNeutralButton("Send Again", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            conn.resend_verify_email();
+                                            dialog.dismiss();
+                                            Toast.makeText(MainActivity.this, "Resent Confirmation.", Toast.LENGTH_SHORT).show();
+                                            launchMessageActivity();
+                                        } catch (IllegalArgumentException e) {
+                                        }
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.setOwnerActivity(MainActivity.this);
+                                dialog.show();
+                            }
+                        });
                     } else {
-                        startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
+                        launchMessageActivity();
                     }
-                    overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-                    finish();
 				}
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:

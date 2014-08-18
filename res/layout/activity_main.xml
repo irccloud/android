@@ -33,7 +33,6 @@
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:layout_marginBottom="8dp"
             android:paddingTop="16dp"
             android:paddingBottom="16dp">
 
@@ -154,6 +153,18 @@
                     android:layout_weight="1" />
             </LinearLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/TOS"
+                android:id="@+id/TOS"
+                android:textColor="#9CC7FF"
+                android:gravity="center"
+                android:layout_marginTop="6dp"
+                android:textColorLink="#fff"
+                android:visibility="gone" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -202,7 +213,6 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="6dp"
-            android:layout_marginTop="16dp"
             android:gravity="bottom"
             android:text="Version 1.0"
             android:textColor="#fff"

@@ -1260,6 +1260,11 @@ public class NetworkConnection {
         }
     }
 
+    public int resend_verify_email() {
+        JSONObject o = new JSONObject();
+        return send("resend-verify-email", o);
+    }
+
     public void request_backlog(int cid, int bid, long beforeId) {
 		try {
 			if(oobTasks.containsKey(bid)) {
