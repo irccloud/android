@@ -79,6 +79,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     private TimerTask countdownTimerTask = null;
 	private String error = null;
 	private View connecting = null;
+    private View loginHint = null;
+    private View signupHint = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +95,9 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 		errorMsg = (TextView)findViewById(R.id.errorMsg);
 		connectingMsg = (TextView)findViewById(R.id.connectingMsg);
 		progressBar = (ProgressBar)findViewById(R.id.connectingProgress);
+
+        loginHint = findViewById(R.id.loginHint);
+        signupHint = findViewById(R.id.signupHint);
 
         login = findViewById(R.id.login);
         name = (EditText)findViewById(R.id.name);
@@ -161,31 +166,46 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         TOS = (TextView)findViewById(R.id.TOS);
         TOS.setMovementMethod(new LinkMovementMethod());
 
+        signupHint.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                name.setVisibility(View.VISIBLE);
+                loginBtn.setVisibility(View.GONE);
+                signupBtn.setVisibility(View.VISIBLE);
+                name.requestFocus();
+                TOS.setVisibility(View.VISIBLE);
+                signupHint.setVisibility(View.GONE);
+                loginHint.setVisibility(View.VISIBLE);
+            }
+        });
+
+        loginHint.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                name.setVisibility(View.GONE);
+                loginBtn.setVisibility(View.VISIBLE);
+                signupBtn.setVisibility(View.GONE);
+                email.requestFocus();
+                TOS.setVisibility(View.GONE);
+                signupHint.setVisibility(View.VISIBLE);
+                loginHint.setVisibility(View.GONE);
+            }
+        });
+
         signupBtn = (Button)findViewById(R.id.signupBtn);
         signupBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(name.getVisibility() == View.GONE) {
-                    name.setVisibility(View.VISIBLE);
-                    loginBtn.setVisibility(View.GONE);
-                    android.view.ViewGroup.MarginLayoutParams lp = (android.view.ViewGroup.MarginLayoutParams) signupBtn.getLayoutParams();
-                    lp.setMargins(0, 0, 0, 0);
-                    signupBtn.setLayoutParams(lp);
-                    name.requestFocus();
-                    TOS.setVisibility(View.VISIBLE);
-                } else {
-                    new LoginTask().execute((Void)null);
-                }
+            new LoginTask().execute((Void)null);
             }
         });
         if(savedInstanceState != null && savedInstanceState.containsKey("signup") && savedInstanceState.getBoolean("signup")) {
             name.setVisibility(View.VISIBLE);
             loginBtn.setVisibility(View.GONE);
-            android.view.ViewGroup.MarginLayoutParams lp = (android.view.ViewGroup.MarginLayoutParams) signupBtn.getLayoutParams();
-            lp.setMargins(0, 0, 0, 0);
-            signupBtn.setLayoutParams(lp);
             name.requestFocus();
             TOS.setVisibility(View.VISIBLE);
+            signupHint.setVisibility(View.GONE);
+            loginHint.setVisibility(View.VISIBLE);
         }
 
         TextView version = (TextView)findViewById(R.id.version);
@@ -244,6 +264,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     		if(getSharedPreferences("prefs", 0).contains("session_key")) {
     			connecting.setVisibility(View.VISIBLE);
     			login.setVisibility(View.GONE);
+                signupHint.setVisibility(View.GONE);
+                loginHint.setVisibility(View.GONE);
     			conn.connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
     			updateReconnecting();
     		} else {
@@ -510,6 +532,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
 					login.setVisibility(View.GONE);
+                    signupHint.setVisibility(View.GONE);
+                    loginHint.setVisibility(View.GONE);
 					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
 					imm.hideSoftInputFromWindow(password.getWindowToken(), 0);
 					conn.addHandler(MainActivity.this);

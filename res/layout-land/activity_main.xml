@@ -28,13 +28,12 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="match_parent"
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:layout_weight="1"
-            android:padding="32dp">
+            android:layout_weight="1">
 
             <ImageView
                 android:id="@+id/splashlogo"
@@ -42,28 +41,83 @@
                 android:layout_height="@dimen/splashlogo_width"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:src="@drawable/splashlogo" />
+                android:src="@drawable/logo_shape"
+                android:layout_marginTop="32dp" />
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="IRC"
+                    android:textColor="#9CC7FF"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cloud"
+                    android:textColor="#6BA2F7"
+                    android:textSize="24sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/signupHint"
+                android:gravity="center"
+                android:background="#0b2e60"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Need an account?"
+                    android:textColor="#9CC7FF"
+                    android:textSize="14sp"
+                    android:gravity="center_horizontal" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Sign Up"
+                    android:textColor="#fff"
+                    android:textSize="14sp"
+                    android:gravity="center_horizontal" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/loginHint"
+                android:gravity="center"
+                android:background="#0b2e60"
+                android:visibility="gone"
                 android:layout_marginTop="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="IRC"
-                    android:textColor="#9CC7FF" />
+                    android:text="Already have an account?"
+                    android:textColor="#9CC7FF"
+                    android:textSize="14sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Cloud"
-                    android:textColor="#6BA2F7" />
+                    android:text="Login"
+                    android:textColor="#fff"
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -147,9 +201,6 @@
                         android:text="@string/login"
                         android:background="#2746C7"
                         android:textColor="#fff"
-                        android:layout_marginRight="4dp"
-                        android:paddingLeft="8dp"
-                        android:paddingRight="8dp"
                         android:layout_weight="1" />
 
                     <Button
@@ -160,7 +211,7 @@
                         android:background="#2746C7"
                         android:textColor="#fff"
                         android:layout_weight="1"
-                        android:layout_marginLeft="4dp" />
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <TextView
@@ -169,7 +220,7 @@
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="@string/TOS"
                     android:id="@+id/TOS"
-                    android:textColor="#9CC7FF"
+                    android:textColor="#fff"
                     android:gravity="center"
                     android:layout_marginTop="6dp"
                     android:textColorLink="#fff"
