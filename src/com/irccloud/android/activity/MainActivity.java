@@ -202,6 +202,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         if(savedInstanceState != null && savedInstanceState.containsKey("signup") && savedInstanceState.getBoolean("signup")) {
             name.setVisibility(View.VISIBLE);
             loginBtn.setVisibility(View.GONE);
+            signupBtn.setVisibility(View.VISIBLE);
             name.requestFocus();
             TOS.setVisibility(View.VISIBLE);
             signupHint.setVisibility(View.GONE);

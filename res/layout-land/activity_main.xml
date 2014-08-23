@@ -20,29 +20,28 @@
     android:layout_height="fill_parent"
     android:fillViewport="true" >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:background="#4480FA"
-        tools:context=".MainActivity" >
+        tools:context=".MainActivity"
+        android:orientation="horizontal"
+        android:weightSum="3">
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="200dp"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:layout_weight="1">
+            android:layout_weight="2">
 
             <ImageView
                 android:id="@+id/splashlogo"
-                android:layout_width="@dimen/splashlogo_width"
-                android:layout_height="@dimen/splashlogo_width"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/logo_shape"
-                android:layout_marginTop="32dp" />
+                android:layout_width="128dp"
+                android:layout_height="128dp"
+                android:src="@drawable/logo_shape" />
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -121,23 +120,23 @@
             </LinearLayout>
         </LinearLayout>
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_marginLeft="24dp"
-            android:layout_toRightOf="@+id/logocontainer"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="24dp">
+            android:layout_marginRight="24dp"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/login"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:visibility="visible" >
+                android:visibility="visible"
+                android:layout_weight="1">
 
                 <EditText
                     android:id="@+id/name"
@@ -230,12 +229,12 @@
             <LinearLayout
                 android:id="@+id/connecting"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:visibility="gone" >
+                android:visibility="gone"
+                android:layout_weight="1">
 
                 <TextView
                     android:id="@+id/connectingMsg"
@@ -262,22 +261,20 @@
                     android:gravity="center"
                     android:visibility="gone"
                     android:textColor="#fff" />
+
             </LinearLayout>
+            <TextView
+                android:id="@+id/version"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal|bottom"
+                android:text="Version 1.0"
+                android:textColor="#fff" />
 
-        </FrameLayout>
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/version"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="6dp"
-            android:layout_marginTop="16dp"
-            android:gravity="center_horizontal|bottom"
-            android:text="Version 1.0"
-            android:layout_toRightOf="@+id/logocontainer"
-            android:textColor="#fff" />
-
-    </RelativeLayout>
+    </LinearLayout>
 
 </ScrollView>
