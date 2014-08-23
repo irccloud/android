@@ -131,7 +131,8 @@
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:layout_margin="24dp"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:visibility="gone">
 
             <EditText
                 android:id="@+id/name"
@@ -229,7 +230,7 @@
             android:orientation="vertical"
             android:paddingLeft="24dp"
             android:paddingRight="24dp"
-            android:visibility="gone"
+            android:visibility="visible"
             android:paddingTop="24dp"
             android:layout_weight="1"
             android:gravity="center_horizontal">

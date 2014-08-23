@@ -474,6 +474,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 			email.setEnabled(false);
 			password.setEnabled(false);
             host.setEnabled(false);
+            loginHint.setEnabled(false);
+            signupHint.setEnabled(false);
             if(BuildConfig.ENTERPRISE) {
                 NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
                 if(NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
@@ -493,15 +495,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
             else
                 connectingMsg.setText("Signing in");
 			progressBar.setIndeterminate(true);
-	    	AlphaAnimation anim = new AlphaAnimation(1, 0);
-			anim.setDuration(250);
-			anim.setFillAfter(true);
-			login.startAnimation(anim);
-	    	anim = new AlphaAnimation(0, 1);
-			anim.setDuration(250);
-			anim.setFillAfter(true);
-			connecting.startAnimation(anim);
 			connecting.setVisibility(View.VISIBLE);
+            login.setVisibility(View.GONE);
 		}
 		
 		@Override
@@ -549,30 +544,10 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
                 host.setEnabled(true);
 				loginBtn.setEnabled(true);
                 signupBtn.setEnabled(true);
-		    	AlphaAnimation anim = new AlphaAnimation(0, 1);
-				anim.setDuration(250);
-				anim.setFillAfter(true);
-				login.startAnimation(anim);
-		    	anim = new AlphaAnimation(1, 0);
-				anim.setDuration(250);
-				anim.setFillAfter(true);
-				anim.setAnimationListener(new AnimationListener() {
-
-					@Override
-					public void onAnimationEnd(Animation arg0) {
-						connecting.setVisibility(View.GONE);
-					}
-
-					@Override
-					public void onAnimationRepeat(Animation animation) {
-					}
-
-					@Override
-					public void onAnimationStart(Animation animation) {
-					}
-					
-				});
-				connecting.startAnimation(anim);
+                loginHint.setEnabled(true);
+                signupHint.setEnabled(true);
+                connecting.setVisibility(View.GONE);
+                login.setVisibility(View.VISIBLE);
 				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 if(name.getVisibility() == View.VISIBLE)
     				builder.setTitle("Sign Up Failed");
