@@ -1165,6 +1165,7 @@ public class NetworkConnection {
 	
 	public int set_prefs(String prefs) {
 		try {
+            Log.i("IRCCloud", "Setting prefs: " + prefs);
 			JSONObject o = new JSONObject();
 			o.put("prefs", prefs);
 			return send("set-prefs", o);
@@ -2398,7 +2399,7 @@ public class NetworkConnection {
         public JSONObject prefs;
         public String highlights;
 
-		public UserInfo(IRCCloudJSONObject object) throws JSONException {
+		public UserInfo(IRCCloudJSONObject object) {
             id = object.getInt("id");
 			name = object.getString("name");
 			email = object.getString("email");
@@ -2408,10 +2409,20 @@ public class NetworkConnection {
 			active_connections = object.getLong("num_active_connections");
 			join_date = object.getLong("join_date");
 			auto_away = object.getBoolean("autoaway");
-			if(object.has("prefs") && !object.getString("prefs").equals("null"))
-				prefs = new JSONObject(object.getString("prefs"));
-			else
-				prefs = null;
+
+			if(object.has("prefs") && !object.getString("prefs").equals("null")) {
+                try {
+                    Log.i("IRCCloud", "Prefs: " + object.getString("prefs"));
+                    prefs = new JSONObject(object.getString("prefs"));
+                } catch (JSONException e) {
+                    Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to parse prefs: " + object.getString("prefs"));
+                    Crashlytics.logException(e);
+                    prefs = null;
+                }
+            } else {
+                Crashlytics.log("User prefs not set");
+                prefs = null;
+            }
 			
 			limits_name = object.getString("limits_name");
 			limits = object.getJsonObject("limits");

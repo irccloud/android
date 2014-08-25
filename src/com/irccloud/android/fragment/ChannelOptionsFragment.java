@@ -27,11 +27,14 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
@@ -82,20 +85,24 @@ public class ChannelOptionsFragment extends DialogFragment {
 		public void onClick(DialogInterface dialog, int which) {
 			JSONObject prefs = null;
 			try {
-				if(NetworkConnection.getInstance().getUserInfo() != null)
-					prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-				if(prefs == null)
-					prefs = new JSONObject();
-				
-				prefs = updatePref(prefs, members, "channel-hiddenMembers");
-				prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
-				prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
-                prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
-                prefs = updatePref(prefs, notifyAll, "channel-notifications-all");
+				if(NetworkConnection.getInstance().getUserInfo() != null) {
+                    prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                    if (prefs == null)
+                        prefs = new JSONObject();
 
-				NetworkConnection.getInstance().set_prefs(prefs.toString());
+                    prefs = updatePref(prefs, members, "channel-hiddenMembers");
+                    prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
+                    prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
+                    prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
+                    prefs = updatePref(prefs, notifyAll, "channel-notifications-all");
+
+                    NetworkConnection.getInstance().set_prefs(prefs.toString());
+                } else {
+                    Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                }
 			} catch (Exception e) {
-				e.printStackTrace();
+                Crashlytics.logException(e);
+                Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
 			}
 			dismiss();
 		}

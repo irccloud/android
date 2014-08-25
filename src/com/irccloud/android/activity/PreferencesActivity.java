@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.DashClock;
@@ -252,7 +253,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(PreferencesActivity.this, "An error occured while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
                         }
                     });
 				}
@@ -350,15 +351,17 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                     prefs.put(preference.getKey(), !(Boolean)newValue);
                 else
                     prefs.put(preference.getKey(), (Boolean)newValue);
+
+                if(savePreferencesTask != null)
+                    savePreferencesTask.cancel(true);
+                savePreferencesTask = new SavePreferencesTask();
+                savePreferencesTask.execute((Void)null);
 			} catch (JSONException e) {
-				prefs = null;
-			}
-			if(savePreferencesTask != null)
-				savePreferencesTask.cancel(true);
-			if(prefs != null) {
-				savePreferencesTask = new SavePreferencesTask();
-				savePreferencesTask.execute((Void)null);
-			}
+                Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
+                Crashlytics.logException(e);
+                Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                return false;
+            }
 			return true;
 		}
 	};

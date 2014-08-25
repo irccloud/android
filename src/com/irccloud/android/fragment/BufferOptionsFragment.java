@@ -31,7 +31,9 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
@@ -75,21 +77,25 @@ public class BufferOptionsFragment extends DialogFragment {
 		public void onClick(DialogInterface dialog, int which) {
 			JSONObject prefs = null;
 			try {
-				if(NetworkConnection.getInstance().getUserInfo() != null)
-					prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-				if(prefs == null)
-					prefs = new JSONObject();
-				
-				prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");
-		    	if(!type.equalsIgnoreCase("console")) {
-		    		prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
-                    prefs = updatePref(prefs, collapse, "buffer-expandJoinPart");
+				if(NetworkConnection.getInstance().getUserInfo() != null) {
+                    prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                    if (prefs == null)
+                        prefs = new JSONObject();
+
+                    prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");
+                    if (!type.equalsIgnoreCase("console")) {
+                        prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
+                        prefs = updatePref(prefs, collapse, "buffer-expandJoinPart");
+                    } else {
+                        prefs = updatePref(prefs, expandDisco, "buffer-expandDisco");
+                    }
+                    NetworkConnection.getInstance().set_prefs(prefs.toString());
                 } else {
-                    prefs = updatePref(prefs, expandDisco, "buffer-expandDisco");
+                    Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 }
-				NetworkConnection.getInstance().set_prefs(prefs.toString());
 			} catch (Exception e) {
-				e.printStackTrace();
+                Crashlytics.logException(e);
+                Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
 			}
 			dismiss();
 		}
