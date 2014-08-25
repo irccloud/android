@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.graphics.Typeface;
 import android.support.v4.app.FragmentActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -48,6 +50,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -79,8 +82,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     private TimerTask countdownTimerTask = null;
 	private String error = null;
 	private View connecting = null;
-    private View loginHint = null;
-    private View signupHint = null;
+    private LinearLayout loginHint = null;
+    private LinearLayout signupHint = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,8 +99,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 		connectingMsg = (TextView)findViewById(R.id.connectingMsg);
 		progressBar = (ProgressBar)findViewById(R.id.connectingProgress);
 
-        loginHint = findViewById(R.id.loginHint);
-        signupHint = findViewById(R.id.signupHint);
+        loginHint = (LinearLayout)findViewById(R.id.loginHint);
+        signupHint = (LinearLayout)findViewById(R.id.signupHint);
 
         login = findViewById(R.id.login);
         name = (EditText)findViewById(R.id.name);
@@ -215,6 +218,30 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 		} catch (NameNotFoundException e) {
 			version.setVisibility(View.GONE);
 		}
+
+        Typeface LatoRegular = Typeface.createFromAsset(getAssets(), "Lato-Regular.ttf");
+
+        for (int i=0; i < signupHint.getChildCount(); i++){
+            View v = signupHint.getChildAt(i);
+            if(v instanceof TextView) {
+                ((TextView)v).setTypeface(LatoRegular);
+            }
+        }
+
+        for (int i=0; i < loginHint.getChildCount(); i++){
+            View v = loginHint.getChildAt(i);
+            if(v instanceof TextView) {
+                ((TextView)v).setTypeface(LatoRegular);
+            }
+        }
+
+        LinearLayout IRCCloud = (LinearLayout)findViewById(R.id.IRCCloud);
+        for (int i=0; i < IRCCloud.getChildCount(); i++){
+            View v = IRCCloud.getChildAt(i);
+            if(v instanceof TextView) {
+                ((TextView)v).setTypeface(LatoRegular);
+            }
+        }
     }
     
     @Override

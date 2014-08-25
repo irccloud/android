@@ -35,20 +35,21 @@
             android:gravity="center"
             android:background="#0b2e60"
             android:paddingTop="32dp"
-            android:paddingBottom="32dp">
+            android:paddingBottom="24dp">
 
             <ImageView
                 android:id="@+id/splashlogo"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/logo_shape" />
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@drawable/login_logo" />
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:layout_marginLeft="16dp">
+                android:layout_marginLeft="6dp"
+                android:id="@+id/IRCCloud">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -74,7 +75,7 @@
             android:id="@+id/signupHint"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingBottom="32dp"
+            android:paddingBottom="24dp"
             android:layout_marginTop="-8dp">
 
             <TextView
@@ -101,7 +102,7 @@
             android:id="@+id/loginHint"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingBottom="32dp"
+            android:paddingBottom="24dp"
             android:visibility="gone"
             android:layout_marginTop="-8dp">
 
@@ -193,7 +194,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:text="@string/login"
-                    android:background="#2746C7"
+                    android:background="#0b2e60"
                     android:textColor="#fff"
                     android:layout_weight="1" />
 
@@ -202,7 +203,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:text="Sign Up"
-                    android:background="#2746C7"
+                    android:background="#0b2e60"
                     android:textColor="#fff"
                     android:layout_weight="1"
                     android:visibility="gone" />
@@ -218,7 +219,8 @@
                 android:gravity="center"
                 android:layout_marginTop="6dp"
                 android:textColorLink="#fff"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
