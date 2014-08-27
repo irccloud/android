@@ -21,6 +21,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.graphics.Typeface;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -412,6 +413,13 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     @Override
     public void onResume() {
     	super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs.getBoolean("screenlock", false)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
     	conn = NetworkConnection.getInstance();
     	if(conn.ready) {
             if(ServersDataSource.getInstance().count() > 0) {
