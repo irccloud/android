@@ -35,8 +35,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
@@ -73,10 +75,16 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     private EditText name;
 	private Button loginBtn;
     private Button signupBtn;
+    private Button nextBtn;
+    private Button sendAccessLinkBtn;
 	private NetworkConnection conn;
 	private TextView errorMsg = null;
 	private TextView connectingMsg = null;
     private TextView TOS = null;
+    private TextView forgotPassword = null;
+    private TextView enterpriseLearnMore = null;
+    private TextView EnterYourEmail = null;
+    private LinearLayout notAProblem = null;
 	private ProgressBar progressBar = null;
 	private static final Timer countdownTimer = new Timer("main-countdown-timer");
     private TimerTask countdownTimerTask = null;
@@ -84,6 +92,8 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	private View connecting = null;
     private LinearLayout loginHint = null;
     private LinearLayout signupHint = null;
+    private LinearLayout enterpriseHint = null;
+    private LinearLayout loginSignupHint = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -166,34 +176,37 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         loginBtn.setFocusable(true);
     	loginBtn.requestFocus();
 
+        sendAccessLinkBtn = (Button)findViewById(R.id.sendAccessLink);
+        nextBtn = (Button)findViewById(R.id.nextBtn);
+        nextBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(host.getText().length() > 0) {
+                    loginHintClickListener.onClick(view);
+                }
+            }
+        });
+
         TOS = (TextView)findViewById(R.id.TOS);
         TOS.setMovementMethod(new LinkMovementMethod());
 
-        signupHint.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                name.setVisibility(View.VISIBLE);
-                loginBtn.setVisibility(View.GONE);
-                signupBtn.setVisibility(View.VISIBLE);
-                name.requestFocus();
-                TOS.setVisibility(View.VISIBLE);
-                signupHint.setVisibility(View.GONE);
-                loginHint.setVisibility(View.VISIBLE);
+        forgotPassword = (TextView)findViewById(R.id.forgotPassword);
+        forgotPassword.setOnClickListener(forgotPasswordClickListener);
+        forgotPassword.setMovementMethod(new LinkMovementMethod() {
+            public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
+                forgotPasswordClickListener.onClick(widget);
+                return false;
             }
         });
 
-        loginHint.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                name.setVisibility(View.GONE);
-                loginBtn.setVisibility(View.VISIBLE);
-                signupBtn.setVisibility(View.GONE);
-                email.requestFocus();
-                TOS.setVisibility(View.GONE);
-                signupHint.setVisibility(View.VISIBLE);
-                loginHint.setVisibility(View.GONE);
-            }
-        });
+        enterpriseLearnMore = (TextView)findViewById(R.id.enterpriseLearnMore);
+        enterpriseLearnMore.setMovementMethod(new LinkMovementMethod());
+        enterpriseHint = (LinearLayout)findViewById(R.id.enterpriseHint);
+
+        EnterYourEmail = (TextView)findViewById(R.id.enterYourEmail);
+
+        signupHint.setOnClickListener(signupHintClickListener);
+        loginHint.setOnClickListener(loginHintClickListener);
 
         signupBtn = (Button)findViewById(R.id.signupBtn);
         signupBtn.setOnClickListener(new OnClickListener() {
@@ -202,15 +215,6 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
             new LoginTask().execute((Void)null);
             }
         });
-        if(savedInstanceState != null && savedInstanceState.containsKey("signup") && savedInstanceState.getBoolean("signup")) {
-            name.setVisibility(View.VISIBLE);
-            loginBtn.setVisibility(View.GONE);
-            signupBtn.setVisibility(View.VISIBLE);
-            name.requestFocus();
-            TOS.setVisibility(View.VISIBLE);
-            signupHint.setVisibility(View.GONE);
-            loginHint.setVisibility(View.VISIBLE);
-        }
 
         TextView version = (TextView)findViewById(R.id.version);
         try {
@@ -220,6 +224,7 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 		}
 
         Typeface LatoRegular = Typeface.createFromAsset(getAssets(), "Lato-Regular.ttf");
+        Typeface LatoLightItalic = Typeface.createFromAsset(getAssets(), "Lato-LightItalic.ttf");
 
         for (int i=0; i < signupHint.getChildCount(); i++){
             View v = signupHint.getChildAt(i);
@@ -242,8 +247,140 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
                 ((TextView)v).setTypeface(LatoRegular);
             }
         }
+
+        notAProblem = (LinearLayout)findViewById(R.id.notAProblem);
+        for (int i=0; i < notAProblem.getChildCount(); i++){
+            View v = notAProblem.getChildAt(i);
+            if(v instanceof TextView) {
+                ((TextView)v).setTypeface((i==0)?LatoRegular:LatoLightItalic);
+            }
+        }
+
+        loginSignupHint = (LinearLayout)findViewById(R.id.loginSignupHint);
+        for (int i=0; i < loginSignupHint.getChildCount(); i++){
+            View v = loginSignupHint.getChildAt(i);
+            if(v instanceof TextView) {
+                ((TextView)v).setTypeface(LatoRegular);
+                ((TextView)v).setOnClickListener((i==0)?loginHintClickListener:signupHintClickListener);
+            }
+        }
+
+        name.setTypeface(LatoRegular);
+        email.setTypeface(LatoRegular);
+        password.setTypeface(LatoRegular);
+        host.setTypeface(LatoRegular);
+        loginBtn.setTypeface(LatoRegular);
+        signupBtn.setTypeface(LatoRegular);
+        TOS.setTypeface(LatoRegular);
+        EnterYourEmail.setTypeface(LatoRegular);
+
+        if(BuildConfig.ENTERPRISE) {
+            name.setVisibility(View.GONE);
+            email.setVisibility(View.GONE);
+            password.setVisibility(View.GONE);
+            loginBtn.setVisibility(View.GONE);
+            signupBtn.setVisibility(View.GONE);
+            TOS.setVisibility(View.GONE);
+            signupHint.setVisibility(View.GONE);
+            loginHint.setVisibility(View.GONE);
+            forgotPassword.setVisibility(View.GONE);
+            loginSignupHint.setVisibility(View.GONE);
+            EnterYourEmail.setVisibility(View.GONE);
+            sendAccessLinkBtn.setVisibility(View.GONE);
+            notAProblem.setVisibility(View.GONE);
+            enterpriseLearnMore.setVisibility(View.VISIBLE);
+            enterpriseHint.setVisibility(View.VISIBLE);
+            host.setVisibility(View.VISIBLE);
+            nextBtn.setVisibility(View.VISIBLE);
+            host.requestFocus();
+        }
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("signup") && savedInstanceState.getBoolean("signup")) {
+            signupHintClickListener.onClick(null);
+        }
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("login") && savedInstanceState.getBoolean("login")) {
+            loginHintClickListener.onClick(null);
+        }
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("forgotPassword") && savedInstanceState.getBoolean("forgotPassword")) {
+            forgotPasswordClickListener.onClick(null);
+        }
     }
-    
+
+    private OnClickListener signupHintClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            name.setVisibility(View.VISIBLE);
+            email.setVisibility(View.VISIBLE);
+            password.setVisibility(View.VISIBLE);
+            loginBtn.setVisibility(View.GONE);
+            signupBtn.setVisibility(View.VISIBLE);
+            name.requestFocus();
+            TOS.setVisibility(View.VISIBLE);
+            signupHint.setVisibility(View.GONE);
+            loginHint.setVisibility(View.VISIBLE);
+            forgotPassword.setVisibility(View.GONE);
+            loginSignupHint.setVisibility(View.GONE);
+            EnterYourEmail.setVisibility(View.GONE);
+            sendAccessLinkBtn.setVisibility(View.GONE);
+            notAProblem.setVisibility(View.GONE);
+            email.setBackgroundResource(R.drawable.login_mid_input);
+            host.setVisibility(View.GONE);
+            nextBtn.setVisibility(View.GONE);
+            enterpriseLearnMore.setVisibility(View.GONE);
+            enterpriseHint.setVisibility(View.GONE);
+        }
+    };
+
+    private OnClickListener loginHintClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            name.setVisibility(View.GONE);
+            email.setVisibility(View.VISIBLE);
+            password.setVisibility(View.VISIBLE);
+            loginBtn.setVisibility(View.VISIBLE);
+            signupBtn.setVisibility(View.GONE);
+            email.requestFocus();
+            TOS.setVisibility(View.GONE);
+            signupHint.setVisibility(View.VISIBLE);
+            loginHint.setVisibility(View.GONE);
+            forgotPassword.setVisibility(View.VISIBLE);
+            loginSignupHint.setVisibility(View.GONE);
+            EnterYourEmail.setVisibility(View.GONE);
+            sendAccessLinkBtn.setVisibility(View.GONE);
+            notAProblem.setVisibility(View.GONE);
+            email.setBackgroundResource(R.drawable.login_top_input);
+            host.setVisibility(View.GONE);
+            nextBtn.setVisibility(View.GONE);
+            enterpriseLearnMore.setVisibility(View.GONE);
+            enterpriseHint.setVisibility(View.GONE);
+        }
+    };
+
+    private OnClickListener forgotPasswordClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            loginHint.setVisibility(View.GONE);
+            signupHint.setVisibility(View.GONE);
+            loginSignupHint.setVisibility(View.VISIBLE);
+            notAProblem.setVisibility(View.VISIBLE);
+            password.setVisibility(View.GONE);
+            loginBtn.setVisibility(View.GONE);
+            signupBtn.setVisibility(View.GONE);
+            TOS.setVisibility(View.GONE);
+            sendAccessLinkBtn.setVisibility(View.VISIBLE);
+            EnterYourEmail.setVisibility(View.VISIBLE);
+            forgotPassword.setVisibility(View.GONE);
+            name.setVisibility(View.GONE);
+            email.setBackgroundResource(R.drawable.login_only_input);
+            host.setVisibility(View.GONE);
+            nextBtn.setVisibility(View.GONE);
+            enterpriseLearnMore.setVisibility(View.GONE);
+            enterpriseHint.setVisibility(View.GONE);
+        }
+    };
+
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
@@ -254,10 +391,14 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 	    		state.putString("password", password.getText().toString());
             if(host != null)
                 state.putString("host", host.getText().toString());
-            if(name != null) {
+            if(name != null)
                 state.putString("name", name.getText().toString());
-                state.putBoolean("signup", name.getVisibility() == View.VISIBLE);
-            }
+            if(signupBtn != null)
+                state.putBoolean("signup", signupBtn.getVisibility() == View.VISIBLE);
+            if(loginBtn != null)
+                state.putBoolean("login", loginBtn.getVisibility() == View.VISIBLE);
+            if(sendAccessLinkBtn != null)
+                state.putBoolean("forgotPassword", sendAccessLinkBtn.getVisibility() == View.VISIBLE);
     	}
     }
 

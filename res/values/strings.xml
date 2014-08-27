@@ -44,5 +44,7 @@
     <string name="title_activity_imgur_auth">Login to Imgur</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="TOS">By signing up, you agree to our <a href="https://www.irccloud.com/terms">Terms of Service</a></string>
+    <string name="TOS">By signing up, you agree to our\n<a href="https://www.irccloud.com/terms">Terms of Service</a></string>
+    <string name="forgotPassword">Forgotten your password?\n<a href="#">Get an access link</a></string>
+    <string name="enterpriseLearnMore">Not using the Enterprise Edition?\n<a href="https://www.irccloud.com/enterprise">Learn More</a></string>
 </resources>

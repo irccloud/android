@@ -19,12 +19,14 @@ package com.irccloud.android.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.Window;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -63,6 +65,16 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         f.readOnly = true;
         buffersList = f.getView();
         buffersList.setVisibility(View.GONE);
+
+        Typeface LatoRegular = Typeface.createFromAsset(getAssets(), "Lato-Regular.ttf");
+
+        LinearLayout IRCCloud = (LinearLayout)findViewById(R.id.IRCCloud);
+        for (int i=0; i < IRCCloud.getChildCount(); i++){
+            View v = IRCCloud.getChildAt(i);
+            if(v instanceof TextView) {
+                ((TextView)v).setTypeface(LatoRegular);
+            }
+        }
     }
 
     @Override

@@ -41,44 +41,43 @@
         android:background="#4480FA">
 
         <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:layout_marginBottom="24dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp">
+            android:paddingTop="32dp"
+            android:paddingBottom="24dp">
 
             <ImageView
                 android:id="@+id/splashlogo"
-                android:layout_width="@dimen/splashlogo_width"
-                android:layout_height="@dimen/splashlogo_width"
-                android:layout_alignParentTop="true"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/splashlogo" />
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:src="@drawable/login_logo" />
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:gravity="center"
-                android:layout_marginTop="16dp">
+                android:layout_marginLeft="6dp"
+                android:id="@+id/IRCCloud">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="IRC"
-                    android:textColor="#9CC7FF" />
+                    android:textColor="#9CC7FF"
+                    android:textSize="40sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Cloud"
-                    android:textColor="#6BA2F7" />
+                    android:textColor="#6BA2F7"
+                    android:textSize="40sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -89,7 +88,8 @@
             android:text="Connecting"
             android:textColor="#fff"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:gravity="center" />
+            android:gravity="center"
+            android:layout_marginTop="12dp" />
 
         <ProgressBar
             android:id="@+id/connectingProgress"
