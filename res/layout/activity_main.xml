@@ -35,29 +35,30 @@
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingTop="32dp"
-            android:paddingBottom="24dp">
+            android:paddingTop="15dp"
+            android:paddingBottom="18dp">
 
             <ImageView
                 android:id="@+id/splashlogo"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:src="@drawable/login_logo" />
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:gravity="center"
-                android:layout_marginLeft="6dp"
-                android:id="@+id/IRCCloud">
+                android:layout_marginLeft="14dp"
+                android:id="@+id/IRCCloud"
+                android:layout_gravity="center_vertical">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="IRC"
                     android:textColor="#9CC7FF"
-                    android:textSize="40sp" />
+                    android:textSize="38sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -65,7 +66,7 @@
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Cloud"
                     android:textColor="#6BA2F7"
-                    android:textSize="40sp" />
+                    android:textSize="38sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -104,7 +105,7 @@
             android:id="@+id/loginHint"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingBottom="24dp"
+            android:paddingBottom="18dp"
             android:layout_marginTop="-8dp">
 
             <TextView
@@ -112,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:text="Already have an account?"
                 android:textColor="#9CC7FF"
-                android:textSize="18sp" />
+                android:textSize="16sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -120,7 +121,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="Login"
                 android:textColor="#fff"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:layout_marginLeft="12dp" />
         </LinearLayout>
 
@@ -175,7 +176,7 @@
 
         <LinearLayout
             android:id="@+id/login"
-            android:layout_width="match_parent"
+            android:layout_width="288dp"
             android:layout_height="match_parent"
             android:layout_below="@+id/logocontainer"
             android:layout_centerHorizontal="true"
