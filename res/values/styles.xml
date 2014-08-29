@@ -20,7 +20,9 @@
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
     </style>
     <style name="LoginTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:windowBackground">@color/loginBackgroundColor</item>
     </style>
     <style name="PrefsTheme" parent="@android:style/Theme"/>
     <style name="DialogTheme" parent="@android:style/Theme.Dialog"/>
