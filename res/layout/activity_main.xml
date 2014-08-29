@@ -35,8 +35,8 @@
             android:id="@+id/logocontainer"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingTop="15dp"
-            android:paddingBottom="18dp">
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
 
             <ImageView
                 android:id="@+id/splashlogo"
@@ -77,8 +77,8 @@
             android:id="@+id/signupHint"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingBottom="24dp"
-            android:layout_marginTop="-8dp"
+            android:paddingBottom="12dp"
+            android:layout_marginTop="-4dp"
             android:visibility="gone">
 
             <TextView
@@ -105,8 +105,8 @@
             android:id="@+id/loginHint"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingBottom="18dp"
-            android:layout_marginTop="-8dp">
+            android:paddingBottom="12dp"
+            android:layout_marginTop="-4dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -132,8 +132,8 @@
             android:id="@+id/enterpriseHint"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingBottom="24dp"
-            android:layout_marginTop="-8dp"
+            android:paddingBottom="12dp"
+            android:layout_marginTop="-4dp"
             android:visibility="gone">
 
             <TextView
@@ -151,8 +151,8 @@
             android:id="@+id/loginSignupHint"
             android:gravity="center"
             android:background="#0b2e60"
-            android:paddingBottom="24dp"
-            android:layout_marginTop="-8dp"
+            android:paddingBottom="12dp"
+            android:layout_marginTop="-4dp"
             android:visibility="gone">
 
             <TextView
@@ -176,7 +176,7 @@
 
         <LinearLayout
             android:id="@+id/login"
-            android:layout_width="288dp"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
             android:layout_below="@+id/logocontainer"
             android:layout_centerHorizontal="true"
@@ -185,7 +185,7 @@
             android:layout_weight="1"
             android:visibility="visible"
             android:layout_gravity="center_horizontal"
-            android:layout_margin="16dp">
+            android:layout_margin="14dp">
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -215,7 +215,7 @@
             <EditText
                 android:id="@+id/name"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="34dp"
                 android:ems="10"
                 android:hint="Name"
                 android:background="@drawable/login_top_input"
@@ -225,7 +225,7 @@
             <AutoCompleteTextView
                 android:id="@+id/email"
                 android:layout_width="match_parent"
-                android:layout_height="39dp"
+                android:layout_height="34dp"
                 android:completionThreshold="1"
                 android:ems="10"
                 android:hint="@string/email"
@@ -239,7 +239,7 @@
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
-                android:layout_height="38dp"
+                android:layout_height="34dp"
                 android:ems="10"
                 android:hint="@string/password"
                 android:inputType="textPassword"
@@ -249,7 +249,7 @@
             <EditText
                 android:id="@+id/host"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="34dp"
                 android:ems="10"
                 android:hint="@string/host"
                 android:inputType="textUri"
@@ -261,12 +261,12 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
+                android:layout_marginTop="14dp">
 
                 <Button
                     android:id="@+id/loginBtn"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="38dp"
                     android:text="@string/login"
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
@@ -275,15 +275,15 @@
                 <Button
                     android:id="@+id/signupBtn"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:text="Sign Up"
+                    android:layout_height="38dp"
+                    android:text="Sign up for an account"
                     android:background="@drawable/signup_button"
                     android:textColor="#fff" />
 
                 <Button
                     android:id="@+id/nextBtn"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="38dp"
                     android:text="Next"
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
@@ -292,7 +292,7 @@
                 <Button
                     android:id="@+id/sendAccessLink"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="38dp"
                     android:text="Send an access link"
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
