@@ -178,11 +178,28 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
     	loginBtn.requestFocus();
 
         sendAccessLinkBtn = (Button)findViewById(R.id.sendAccessLink);
+        sendAccessLinkBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new ResetPasswordTask().execute((Void)null);
+            }
+        });
+
         nextBtn = (Button)findViewById(R.id.nextBtn);
         nextBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(host.getText().length() > 0) {
+                    NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
+                    if(NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
+                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
+                    if(NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
+                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
+                    if(NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
+                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
+                    SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                    editor.commit();
                     loginHintClickListener.onClick(view);
                 }
             }
@@ -193,12 +210,6 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 
         forgotPassword = (TextView)findViewById(R.id.forgotPassword);
         forgotPassword.setOnClickListener(forgotPasswordClickListener);
-        forgotPassword.setMovementMethod(new LinkMovementMethod() {
-            public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
-                forgotPasswordClickListener.onClick(widget);
-                return false;
-            }
-        });
 
         enterpriseLearnMore = (TextView)findViewById(R.id.enterpriseLearnMore);
         enterpriseLearnMore.setMovementMethod(new LinkMovementMethod());
@@ -642,15 +653,6 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
             host.setEnabled(false);
             loginHint.setEnabled(false);
             signupHint.setEnabled(false);
-            if(BuildConfig.ENTERPRISE) {
-                NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
-                if(NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
-                    NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
-                if(NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
-                    NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
-                if(NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
-                    NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
-            }
             SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
             editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
             editor.commit();
@@ -768,6 +770,69 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 				}
 			}
 		}
+    }
+
+    private class ResetPasswordTask extends AsyncTaskEx<Void, Void, JSONObject> {
+        @Override
+        public void onPreExecute() {
+            email.setEnabled(false);
+            sendAccessLinkBtn.setEnabled(false);
+            connectingMsg.setText("Requesting Password Reset");
+            progressBar.setIndeterminate(true);
+            connecting.setVisibility(View.VISIBLE);
+            login.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... arg0) {
+            return NetworkConnection.getInstance().request_password(email.getText().toString());
+        }
+
+        @Override
+        public void onPostExecute(JSONObject result) {
+            email.setEnabled(true);
+            sendAccessLinkBtn.setEnabled(true);
+            progressBar.setIndeterminate(false);
+            connecting.setVisibility(View.GONE);
+            login.setVisibility(View.VISIBLE);
+            try {
+                if (result != null && result.has("success") && result.getBoolean("success")) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Password Reset");
+                    builder.setMessage("We've sent you a password reset link.  Check your email and follow the instructions to sign in.");
+                    builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            loginHintClickListener.onClick(null);
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.setOwnerActivity(MainActivity.this);
+                    try {
+                        dialog.show();
+                    } catch (WindowManager.BadTokenException e) {
+                    }
+                    return;
+                }
+            } catch (JSONException e) {
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("Password Reset Failed");
+            builder.setMessage("Unable to request a password reset.  Please try again later.");
+            builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(MainActivity.this);
+            try {
+                dialog.show();
+            } catch (WindowManager.BadTokenException e) {
+            }
+        }
     }
 
     private boolean checkPlayServices() {

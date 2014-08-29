@@ -270,7 +270,8 @@
                     android:text="@string/login"
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:textSize="18sp" />
 
                 <Button
                     android:id="@+id/signupBtn"
@@ -278,7 +279,8 @@
                     android:layout_height="38dp"
                     android:text="Sign up for an account"
                     android:background="@drawable/signup_button"
-                    android:textColor="#fff" />
+                    android:textColor="#fff"
+                    android:textSize="18sp" />
 
                 <Button
                     android:id="@+id/nextBtn"
@@ -287,7 +289,8 @@
                     android:text="Next"
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:textSize="18sp" />
 
                 <Button
                     android:id="@+id/sendAccessLink"
@@ -296,27 +299,28 @@
                     android:text="Send an access link"
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="32dp"
                 android:text="@string/TOS"
                 android:id="@+id/TOS"
                 android:textColor="#9CC7FF"
-                android:gravity="center"
+                android:gravity="center|top"
                 android:layout_marginTop="6dp"
                 android:textColorLink="#fff"
                 android:textSize="14sp" />
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="32dp"
                 android:text="@string/forgotPassword"
                 android:id="@+id/forgotPassword"
                 android:textColor="#9CC7FF"
-                android:gravity="center"
+                android:gravity="center|top"
                 android:layout_marginTop="6dp"
                 android:textColorLink="#fff"
                 android:textSize="14sp"
@@ -324,11 +328,11 @@
 
             <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="32dp"
                 android:text="@string/enterpriseLearnMore"
                 android:id="@+id/enterpriseLearnMore"
                 android:textColor="#9CC7FF"
-                android:gravity="center"
+                android:gravity="center|top"
                 android:layout_marginTop="6dp"
                 android:textColorLink="#fff"
                 android:textSize="14sp"
