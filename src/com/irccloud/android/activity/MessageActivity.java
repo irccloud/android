@@ -2271,8 +2271,9 @@ public class MessageActivity extends BaseActivity implements UsersListFragment.O
                     } catch (IOException e) {
                     }
                 } else {
-                    Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    startActivityForResult(i, 2);
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    i.setType("image/*");
+                    startActivityForResult(Intent.createChooser(i, "Select Picture"), 2);
                 }
                 dialog.dismiss();
             }
