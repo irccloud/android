@@ -16,6 +16,7 @@
 
 package com.irccloud.android.activity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -432,7 +433,13 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
         }
 
     	conn = NetworkConnection.getInstance();
-    	if(conn.ready) {
+        if(getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().startsWith("/chat/")) {
+            if(getIntent().getData().getPath().equals("/chat/access-link")) {
+                conn.logout();
+                new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + getIntent().getData().getPath() + "?" + getIntent().getData().getEncodedQuery() + "&format=json");
+                setIntent(new Intent(this, MainActivity.class));
+            }
+        } else if(conn.ready) {
             if(ServersDataSource.getInstance().count() > 0) {
                 Intent i = new Intent(MainActivity.this, MessageActivity.class);
                 if(getIntent() != null) {
@@ -770,6 +777,85 @@ public class MainActivity extends FragmentActivity implements NetworkConnection.
 				}
 			}
 		}
+    }
+
+    private class AccessLinkTask extends AsyncTaskEx<String, Void, JSONObject> {
+        @Override
+        public void onPreExecute() {
+            name.setEnabled(false);
+            email.setEnabled(false);
+            password.setEnabled(false);
+            host.setEnabled(false);
+            loginHint.setEnabled(false);
+            signupHint.setEnabled(false);
+            loginBtn.setEnabled(false);
+            signupBtn.setEnabled(false);
+            connectingMsg.setText("Signing in");
+            progressBar.setIndeterminate(true);
+            connecting.setVisibility(View.VISIBLE);
+            login.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected JSONObject doInBackground(String... arg0) {
+            try {
+                return NetworkConnection.getInstance().fetchJSON(arg0[0]);
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
+        @Override
+        public void onPostExecute(JSONObject result) {
+            if(result != null && result.has("session")) {
+                try {
+                    SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                    editor.putString("session_key", result.getString("session"));
+                    if(result.has("websocket_host")) {
+                        NetworkConnection.IRCCLOUD_HOST = result.getString("websocket_host");
+                        NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
+                    }
+                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                    editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
+                    login.setVisibility(View.GONE);
+                    signupHint.setVisibility(View.GONE);
+                    loginHint.setVisibility(View.GONE);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(password.getWindowToken(), 0);
+                    conn.addHandler(MainActivity.this);
+                    conn.connect(result.getString("session"));
+                    editor.commit();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                name.setEnabled(true);
+                email.setEnabled(true);
+                password.setEnabled(true);
+                host.setEnabled(true);
+                loginBtn.setEnabled(true);
+                signupBtn.setEnabled(true);
+                loginHint.setEnabled(true);
+                signupHint.setEnabled(true);
+                connecting.setVisibility(View.GONE);
+                login.setVisibility(View.VISIBLE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Login Failed");
+                builder.setMessage("Invalid access link");
+                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.setOwnerActivity(MainActivity.this);
+                try {
+                    dialog.show();
+                } catch (WindowManager.BadTokenException e) {
+                }
+            }
+        }
     }
 
     private class ResetPasswordTask extends AsyncTaskEx<Void, Void, JSONObject> {

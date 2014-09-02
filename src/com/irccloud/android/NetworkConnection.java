@@ -639,8 +639,8 @@ public class NetworkConnection {
             String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
             JSONObject token = new JSONObject(tokenResponse);
             if(token.has("token")) {
-                String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&token=" + token.getString("token");
-                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/request-password-reset"), postdata, null, token.getString("token"));
+                String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&token=" + token.getString("token"); // + "&mobile=1"
+                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/request-access-link"), postdata, null, token.getString("token"));
                 if(response.length() < 1) {
                     JSONObject o = new JSONObject();
                     o.put("message", "empty_response");

@@ -53,6 +53,8 @@ android {
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
+
+        resConfigs "en"
     }
 
     signingConfigs {
@@ -100,6 +102,7 @@ android {
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
+            resValue "string", "IRCCLOUD_SCHEME", "irccloud"
 
             runProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
@@ -130,6 +133,7 @@ android {
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
+            resValue "string", "IRCCLOUD_SCHEME", "irccloud"
 
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
@@ -166,6 +170,7 @@ android {
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
             resValue "string", "app_name", "IRCEnterprise"
+            resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
 
             signingConfig signingConfigs.debug
             runProguard true
@@ -198,6 +203,7 @@ android {
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
             resValue "string", "app_name", "IRCEnterprise"
+            resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
 
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
@@ -234,12 +240,16 @@ android {
 
 task __filteredResources(type:Copy) {
     from('res/') {
-        exclude 'drawable-xhdpi/splashlogo.png'
         exclude 'drawable-mdpi/ic_launcher.png'
         exclude 'drawable-hdpi/ic_launcher.png'
         exclude 'drawable-xhdpi/ic_launcher.png'
         exclude 'drawable-xxhdpi/ic_launcher.png'
         exclude 'drawable-xxxhdpi/ic_launcher.png'
+        exclude 'drawable-mdpi/login_logo.png'
+        exclude 'drawable-hdpi/login_logo.png'
+        exclude 'drawable-xhdpi/login_logo.png'
+        exclude 'drawable-xxhdpi/login_logo.png'
+        exclude 'drawable-xxxhdpi/login_logo.png'
     }
     into 'build/filtered_resources'
     includeEmptyDirs = true
