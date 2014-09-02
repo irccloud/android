@@ -41,6 +41,7 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
         super.onCreate(savedInstanceState);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_imageviewer);
+        findViewById(R.id.progress).setVisibility(View.GONE);
         mWebView = (WebView)findViewById(R.id.image);
         CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();
@@ -52,12 +53,12 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                findViewById(R.id.progress).setVisibility(View.VISIBLE);
+                findViewById(R.id.spinner).setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                findViewById(R.id.progress).setVisibility(View.GONE);
+                findViewById(R.id.spinner).setVisibility(View.GONE);
                 mWebView.setVisibility(View.VISIBLE);
             }
 
