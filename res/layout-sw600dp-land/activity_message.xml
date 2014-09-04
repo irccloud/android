@@ -20,6 +20,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <fragment
+        android:id="@+id/usersListFragment2"
+        android:name="com.irccloud.android.fragment.UsersListFragment"
+        android:layout_width="@dimen/userlist_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        tools:layout="@layout/userslist" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -90,13 +98,4 @@
         android:layout_height="match_parent"
         tools:layout="@layout/userslist" />
     </LinearLayout>
-
-    <fragment
-        android:id="@+id/usersListFragment2"
-        android:name="com.irccloud.android.fragment.UsersListFragment"
-        android:layout_width="@dimen/userlist_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        tools:layout="@layout/userslist" />
-
 </android.support.v4.widget.DrawerLayout>

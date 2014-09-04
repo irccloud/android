@@ -56,13 +56,11 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
     	String session = getSharedPreferences("prefs", 0).getString("session_key", "");
     	if(session != null && session.length() > 0) {
 	    	conn = NetworkConnection.getInstance();
-	    	if(conn.ready) {
-		    	conn.addHandler(this);
-		    	if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-		    		conn.connect(session);
-	    	}
+            conn.addHandler(this);
+            if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
+                conn.connect(session);
     	} else {
-    		Intent i = new Intent(this, MainActivity.class);
+    		Intent i = new Intent(this, LoginActivity.class);
     		i.addFlags(
                     Intent.FLAG_ACTIVITY_CLEAR_TOP |
                     Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -352,7 +350,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         conn.logout();
-                        Intent i = new Intent(BaseActivity.this, MainActivity.class);
+                        Intent i = new Intent(BaseActivity.this, LoginActivity.class);
                         i.addFlags(
                                 Intent.FLAG_ACTIVITY_CLEAR_TOP |
                                         Intent.FLAG_ACTIVITY_NEW_TASK);

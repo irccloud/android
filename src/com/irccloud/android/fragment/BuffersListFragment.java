@@ -1005,6 +1005,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     }
 
     public void onIRCEvent(int what, Object obj) {
+        if(adapter == null)
+            return;
         BuffersDataSource.Buffer b;
         IRCCloudJSONObject object = null;
         try {
@@ -1101,7 +1103,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_DEBUG:
 				break;
 			case NetworkConnection.EVENT_CONNECTIVITY:
-                if(adapter != null && getActivity() != null) {
+                if(getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

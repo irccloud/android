@@ -16,14 +16,12 @@
 
 package com.irccloud.android.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.LinearLayout;
@@ -34,7 +32,6 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.BuffersDataSource;
-import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.fragment.BuffersListFragment;
 
 import java.util.Timer;
@@ -234,7 +231,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
 
     @Override
     public void onBufferSelected(int bid) {
-        Intent i = new Intent(this, MessageActivity.class);
+        Intent i = new Intent(this, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
             i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);

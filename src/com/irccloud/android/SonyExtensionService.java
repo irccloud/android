@@ -33,7 +33,7 @@ package com.irccloud.android;
 
 import android.net.Uri;
 
-import com.irccloud.android.activity.MessageActivity;
+import com.irccloud.android.activity.MainActivity;
 import com.sonyericsson.extras.liveware.aef.notification.Notification;
 import com.sonyericsson.extras.liveware.extension.util.ExtensionService;
 import com.sonyericsson.extras.liveware.extension.util.registration.RegistrationInformation;
@@ -131,7 +131,7 @@ public class SonyExtensionService extends ExtensionService {
                 int nameIndex = cursor.getColumnIndex(Notification.EventColumns.DISPLAY_NAME);
                 int messageIndex = cursor.getColumnIndex(Notification.EventColumns.MESSAGE);
                 String bid = cursor.getString(cursor.getColumnIndex(Notification.EventColumns.FRIEND_KEY));
-                Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MessageActivity.class);
+                Intent i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 i.putExtra("bid", Integer.parseInt(bid));
                 i.setData(Uri.parse("bid://" + bid));

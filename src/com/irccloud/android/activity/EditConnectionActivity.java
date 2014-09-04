@@ -18,8 +18,6 @@ package com.irccloud.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -67,7 +65,7 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
 			public void onClick(View v) {
                 if(ServersDataSource.getInstance().count() < 1) {
                     NetworkConnection.getInstance().logout();
-                    Intent i = new Intent(EditConnectionActivity.this, MainActivity.class);
+                    Intent i = new Intent(EditConnectionActivity.this, LoginActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
                 }
@@ -105,7 +103,7 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
             case NetworkConnection.EVENT_MAKEBUFFER:
                 buffer = (BuffersDataSource.Buffer)o;
                 if(buffer.cid == cidToOpen) {
-                    Intent i = new Intent(EditConnectionActivity.this, MessageActivity.class);
+                    Intent i = new Intent(EditConnectionActivity.this, MainActivity.class);
                     i.putExtra("bid", buffer.bid);
                     startActivity(i);
                     finish();

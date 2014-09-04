@@ -22,6 +22,7 @@ import android.text.Html;
 
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
+import com.irccloud.android.activity.LoginActivity;
 import com.irccloud.android.activity.MainActivity;
 
 import java.util.ArrayList;
