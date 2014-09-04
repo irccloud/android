@@ -659,7 +659,7 @@ public class LoginActivity extends FragmentActivity {
         public void onPreExecute() {
             email.setEnabled(false);
             sendAccessLinkBtn.setEnabled(false);
-            connectingMsg.setText("Requesting Password Reset");
+            connectingMsg.setText("Requesting Access Link");
             progressBar.setIndeterminate(true);
             connecting.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
@@ -680,8 +680,8 @@ public class LoginActivity extends FragmentActivity {
             try {
                 if (result != null && result.has("success") && result.getBoolean("success")) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                    builder.setTitle("Password Reset");
-                    builder.setMessage("We've sent you a password reset link.  Check your email and follow the instructions to sign in.");
+                    builder.setTitle("Access Link");
+                    builder.setMessage("We've sent you an access link.  Check your email and follow the instructions to sign in.");
                     builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {

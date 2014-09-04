@@ -748,6 +748,9 @@ public class NetworkConnection {
         String host = null;
         int port = -1;
 
+        if(sk == null || sk.length() == 0)
+            return;
+
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
