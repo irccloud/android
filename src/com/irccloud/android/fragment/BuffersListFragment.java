@@ -588,7 +588,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         @Override
 		protected Void doInBackground(Void... params) {
 			if(!ready || isCancelled())
-				return null;
+                return null;
 
 			SparseArray<ServersDataSource.Server> serversArray = ServersDataSource.getInstance().getServers();
             ArrayList<ServersDataSource.Server> servers = new ArrayList<ServersDataSource.Server>();
@@ -788,11 +788,11 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 	}
 
 	public void setSelectedBid(int bid) {
-        BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(selected_bid);
-        if(b != null)
-            adapter.updateBuffer(b);
 		selected_bid = bid;
 		if(adapter != null) {
+            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(selected_bid);
+            if(b != null)
+                adapter.updateBuffer(b);
             b = BuffersDataSource.getInstance().getBuffer(bid);
             if(b != null)
                 adapter.updateBuffer(b);
@@ -1005,8 +1005,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     }
 
     public void onIRCEvent(int what, Object obj) {
-        if(adapter == null)
-            return;
         BuffersDataSource.Buffer b;
         IRCCloudJSONObject object = null;
         try {
@@ -1021,35 +1019,41 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         switch (what) {
             case NetworkConnection.EVENT_CHANNELMODE:
                 b = BuffersDataSource.getInstance().getBuffer(object.bid());
-                if(b != null)
+                if(b != null && adapter != null)
                     adapter.updateBuffer(b);
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
-                ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(object.cid());
-                for(BuffersDataSource.Buffer buffer : buffers) {
-                    adapter.updateBuffer(buffer);
+                if(adapter != null) {
+                    ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(object.cid());
+                    for (BuffersDataSource.Buffer buffer : buffers) {
+                        adapter.updateBuffer(buffer);
+                    }
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
-                if(event.bid != selected_bid) {
-                    b = BuffersDataSource.getInstance().getBuffer(event.bid);
-                    if(b != null && event.isImportant(b.type))
-                        adapter.updateBuffer(b);
+                if(adapter != null) {
+                    if (event.bid != selected_bid) {
+                        b = BuffersDataSource.getInstance().getBuffer(event.bid);
+                        if (b != null && event.isImportant(b.type))
+                            adapter.updateBuffer(b);
+                    }
                 }
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
-                JsonNode seenEids = object.getJsonNode("seenEids");
-                Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
-                while(iterator.hasNext()) {
-                    Map.Entry<String, JsonNode> entry = iterator.next();
-                    JsonNode eids = entry.getValue();
-                    Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
-                    while(j.hasNext()) {
-                        Map.Entry<String, JsonNode> eidentry = j.next();
-                        Integer bid = Integer.valueOf(eidentry.getKey());
-                        b = BuffersDataSource.getInstance().getBuffer(bid);
-                        if(b != null)
-                            adapter.updateBuffer(b);
+                if(adapter != null) {
+                    JsonNode seenEids = object.getJsonNode("seenEids");
+                    Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
+                    while (iterator.hasNext()) {
+                        Map.Entry<String, JsonNode> entry = iterator.next();
+                        JsonNode eids = entry.getValue();
+                        Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
+                        while (j.hasNext()) {
+                            Map.Entry<String, JsonNode> eidentry = j.next();
+                            Integer bid = Integer.valueOf(eidentry.getKey());
+                            b = BuffersDataSource.getInstance().getBuffer(bid);
+                            if (b != null)
+                                adapter.updateBuffer(b);
+                        }
                     }
                 }
                 break;

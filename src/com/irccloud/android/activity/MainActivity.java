@@ -400,6 +400,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             imageCaptureURI = null;
 
         imgurTask = (ImgurUploadTask)getLastCustomNonConfigurationInstance();
+
+        drawerLayout.setScrimColor(0);
+        drawerLayout.closeDrawers();
     }
 
     private void show_topic_popup() {
@@ -2024,8 +2027,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         public void onDrawerClosed(View view) {
-            drawerLayout.bringChildToFront(buffersListView);
-            drawerLayout.bringChildToFront(userListView);
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 if(mSlider != null)
@@ -2038,15 +2039,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         public void onDrawerStateChanged(int i) {
-            if(i == DrawerLayout.STATE_IDLE) {
-                if(findViewById(R.id.usersListFragment2) != null) {
+            if(i != DrawerLayout.STATE_SETTLING) {
+                if (findViewById(R.id.usersListFragment2) != null) {
                     drawerLayout.bringChildToFront(findViewById(R.id.usersListFragment2));
                 } else {
-                    if(buffersListView != null)
+                    if (buffersListView != null)
                         drawerLayout.bringChildToFront(buffersListView);
-                    if(userListView != null)
+                    if (userListView != null)
                         drawerLayout.bringChildToFront(userListView);
                 }
+                drawerLayout.setScrimColor(0x99000000);
             }
         }
 
