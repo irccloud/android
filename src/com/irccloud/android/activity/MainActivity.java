@@ -2275,7 +2275,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onClick(DialogInterface dialog, int which) {
                 if(which == 0) {
                     try {
-                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", Environment.getExternalStorageDirectory()));
+                        File imageDir = new File(Environment.getExternalStorageDirectory(), "irccloud");
+                        imageDir.mkdirs();
+                        new File(imageDir, ".nomedia").createNewFile();
+                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
                         Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                         i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
                         startActivityForResult(i, 1);
@@ -3229,7 +3232,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private Uri resize(Uri in) {
             Uri out = null;
             try {
-                out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", Environment.getExternalStorageDirectory()));
+                File imageDir = new File(Environment.getExternalStorageDirectory(), "irccloud");
+                imageDir.mkdirs();
+                new File(imageDir, ".nomedia").createNewFile();
+                out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", imageDir));
                 BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
