@@ -893,7 +893,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         if(intent.hasExtra(Intent.EXTRA_TEXT)) {
-            buffer.draft = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if(intent.hasExtra(Intent.EXTRA_SUBJECT))
+                buffer.draft = intent.getStringExtra(Intent.EXTRA_SUBJECT) + " (" + intent.getStringExtra(Intent.EXTRA_TEXT) + ")";
+            else
+                buffer.draft = intent.getStringExtra(Intent.EXTRA_TEXT);
         }
 
         if(buffer == null) {
