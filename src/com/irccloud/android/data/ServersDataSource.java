@@ -173,7 +173,11 @@ public class ServersDataSource {
 	public void updateIsupport(int cid, ObjectNode params) {
 		Server s = getServer(cid);
 		if(s != null) {
-            s.isupport.putAll(params);
+            if(params != null && !params.isArray())
+                s.isupport.putAll(params);
+            else
+                s.isupport = new ObjectMapper().createObjectNode();
+            
             if(s.isupport.has("PREFIX")) {
                 s.PREFIX = (ObjectNode)s.isupport.get("PREFIX");
             } else {
