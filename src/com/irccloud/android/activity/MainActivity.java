@@ -1697,7 +1697,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
                                 finish();
                             } else {
-                                if(!open_bid(BuffersDataSource.getInstance().firstBid()))
+                                if(!open_bid(NetworkConnection.getInstance().getUserInfo().last_selected_bid) && !open_bid(BuffersDataSource.getInstance().firstBid()))
                                     finish();
                             }
                         }
