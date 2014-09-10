@@ -355,7 +355,10 @@ public class EventsDataSource {
         put("channel_topic", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("author");
+                if(event.has("author"))
+                    e.from = event.getString("author");
+                else
+                    e.from = event.getString("server");
                 if(event.getString("topic") != null && event.getString("topic").length() > 0)
                     e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
                 else
