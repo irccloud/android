@@ -1918,7 +1918,7 @@ public class NetworkConnection {
                 ChannelsDataSource.Channel channel = c.createChannel(object.cid(), object.bid(), object.getString("chan"),
                         object.getJsonObject("topic").get("text").isNull()?"":object.getJsonObject("topic").get("text").asText(),
                         object.getJsonObject("topic").get("time").asLong(),
-                        object.getJsonObject("topic").get("nick").asText(), object.getString("channel_type"),
+                        object.getJsonObject("topic").has("nick")?object.getJsonObject("topic").get("nick").asText():null, object.getString("channel_type"),
                         object.getLong("timestamp"));
                 c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
                 UsersDataSource u = UsersDataSource.getInstance();
@@ -1940,7 +1940,7 @@ public class NetworkConnection {
                 e.addEvent(object);
                 if(!backlog) {
                     ChannelsDataSource c = ChannelsDataSource.getInstance();
-                    c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid")/1000000, object.getString("author"));
+                    c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid")/1000000, object.has("author")?object.getString("author"):null);
                     notifyHandlers(EVENT_CHANNELTOPIC, object);
                 }
             }
