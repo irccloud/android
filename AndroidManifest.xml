@@ -68,7 +68,12 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/IRCCLOUD_SCHEME"/>
+                <data android:scheme="@string/IRCCLOUD_SCHEME" android:host="chat" android:path="/access-link"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="www.irccloud.com" android:path="/chat/access-link"/>
             </intent-filter>
         </activity>
@@ -83,11 +88,14 @@
             android:theme="@style/ImageViewerTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data android:scheme="@string/IMAGE_SCHEME" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="@string/IMAGE_SCHEME_SECURE" />
             </intent-filter>
         </activity>

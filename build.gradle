@@ -146,7 +146,7 @@ android {
         enterprisedebug {
             applicationIdSuffix ".enterprise"
             versionNameSuffix "-" + getRevision()
-            buildConfigField "String", "HOST", "\"api.irccloud.com\""
+            buildConfigField "String", "HOST", "\"\""
             buildConfigField "boolean", "ENTERPRISE", "true"
             if(rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
@@ -179,7 +179,7 @@ android {
 
         enterpriserelease {
             applicationIdSuffix ".enterprise"
-            buildConfigField "String", "HOST", "\"api.irccloud.com\""
+            buildConfigField "String", "HOST", "\"\""
             buildConfigField "boolean", "ENTERPRISE", "true"
             if(rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()

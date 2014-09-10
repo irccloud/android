@@ -22,6 +22,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.graphics.Typeface;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import org.json.JSONException;
@@ -78,6 +79,7 @@ public class LoginActivity extends FragmentActivity {
     private TextView forgotPassword = null;
     private TextView enterpriseLearnMore = null;
     private TextView EnterYourEmail = null;
+    private TextView hostHint = null;
     private LinearLayout notAProblem = null;
 	private ProgressBar progressBar = null;
 	private View connecting = null;
@@ -101,6 +103,7 @@ public class LoginActivity extends FragmentActivity {
 
         loginHint = (LinearLayout)findViewById(R.id.loginHint);
         signupHint = (LinearLayout)findViewById(R.id.signupHint);
+        hostHint = (TextView)findViewById(R.id.hostHint);
 
         login = findViewById(R.id.login);
         name = (EditText)findViewById(R.id.name);
@@ -189,7 +192,14 @@ public class LoginActivity extends FragmentActivity {
                     SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.commit();
-                    loginHintClickListener.onClick(view);
+
+                    if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("chat") && getIntent().getData().getPath().equals("/access-link")) {
+                        NetworkConnection.getInstance().logout();
+                        new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery() + "&format=json");
+                        setIntent(new Intent(LoginActivity.this, LoginActivity.class));
+                    } else {
+                        loginHintClickListener.onClick(view);
+                    }
                 }
             }
         });
@@ -274,6 +284,7 @@ public class LoginActivity extends FragmentActivity {
         signupBtn.setTypeface(LatoRegular);
         TOS.setTypeface(LatoRegular);
         EnterYourEmail.setTypeface(LatoRegular);
+        hostHint.setTypeface(LatoLightItalic);
 
         if(BuildConfig.ENTERPRISE) {
             name.setVisibility(View.GONE);
@@ -293,6 +304,7 @@ public class LoginActivity extends FragmentActivity {
             enterpriseHint.setVisibility(View.VISIBLE);
             host.setVisibility(View.VISIBLE);
             nextBtn.setVisibility(View.VISIBLE);
+            hostHint.setVisibility(View.VISIBLE);
             host.requestFocus();
         }
 
@@ -331,6 +343,7 @@ public class LoginActivity extends FragmentActivity {
             nextBtn.setVisibility(View.GONE);
             enterpriseLearnMore.setVisibility(View.GONE);
             enterpriseHint.setVisibility(View.GONE);
+            hostHint.setVisibility(View.GONE);
         }
     };
 
@@ -356,6 +369,7 @@ public class LoginActivity extends FragmentActivity {
             nextBtn.setVisibility(View.GONE);
             enterpriseLearnMore.setVisibility(View.GONE);
             enterpriseHint.setVisibility(View.GONE);
+            hostHint.setVisibility(View.GONE);
         }
     };
 
@@ -379,6 +393,7 @@ public class LoginActivity extends FragmentActivity {
             nextBtn.setVisibility(View.GONE);
             enterpriseLearnMore.setVisibility(View.GONE);
             enterpriseHint.setVisibility(View.GONE);
+            hostHint.setVisibility(View.GONE);
         }
     };
 
@@ -411,7 +426,18 @@ public class LoginActivity extends FragmentActivity {
     @Override
     public void onResume() {
     	super.onResume();
-        if(getSharedPreferences("prefs", 0).contains("session_key")) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if(prefs.getBoolean("screenlock", false)) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
+        if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("chat") && getIntent().getData().getPath().equals("/access-link")) {
+            NetworkConnection.getInstance().logout();
+            new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery() + "&format=json");
+            setIntent(new Intent(this, LoginActivity.class));
+        } else if(getSharedPreferences("prefs", 0).contains("session_key")) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             if(getIntent() != null) {
                 if(getIntent().getData() != null)
@@ -422,21 +448,7 @@ public class LoginActivity extends FragmentActivity {
             startActivity(i);
             finish();
             return;
-        }
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if(prefs.getBoolean("screenlock", false)) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
-
-        if(getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().startsWith("/chat/")) {
-            if(getIntent().getData().getPath().equals("/chat/access-link")) {
-                NetworkConnection.getInstance().logout();
-                new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + getIntent().getData().getPath() + "?" + getIntent().getData().getEncodedQuery() + "&format=json");
-                setIntent(new Intent(this, LoginActivity.class));
-            }
-    	} else {
+    } else {
             connecting.setVisibility(View.GONE);
             login.setVisibility(View.VISIBLE);
             checkPlayServices();
@@ -495,6 +507,9 @@ public class LoginActivity extends FragmentActivity {
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
 					editor.commit();
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                        i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                     if(getIntent() != null) {
                         if(getIntent().getData() != null)
                             i.setData(getIntent().getData());

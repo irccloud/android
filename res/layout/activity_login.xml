@@ -257,6 +257,18 @@
                 android:visibility="gone"
                 android:textColorHint="#2857ad" />
 
+            <TextView
+                android:id="@+id/hostHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="e.g. irccloud.yourcompany.com"
+                android:textColor="#0b2e60"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:layout_gravity="left"
+                android:layout_marginTop="6dp" />
+
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
