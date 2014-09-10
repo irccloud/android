@@ -27,6 +27,7 @@ import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -88,6 +89,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                 buffersList.setVisibility(View.VISIBLE);
             }
         } else {
+            Toast.makeText(this, "You must login to the IRCCloud app before sharing", Toast.LENGTH_SHORT).show();
             finish();
         }
     }
@@ -95,7 +97,8 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     @Override
     protected void onPause() {
         super.onPause();
-        conn.removeHandler(this);
+        if(conn != null)
+            conn.removeHandler(this);
     }
 
     private void updateReconnecting() {
