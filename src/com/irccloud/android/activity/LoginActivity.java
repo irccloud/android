@@ -193,9 +193,9 @@ public class LoginActivity extends FragmentActivity {
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.commit();
 
-                    if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("chat") && getIntent().getData().getPath().equals("/access-link")) {
+                    if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
                         NetworkConnection.getInstance().logout();
-                        new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery() + "&format=json");
+                        new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1","") + "&format=json");
                         setIntent(new Intent(LoginActivity.this, LoginActivity.class));
                     } else {
                         loginHintClickListener.onClick(view);
@@ -433,9 +433,9 @@ public class LoginActivity extends FragmentActivity {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
-        if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("chat") && getIntent().getData().getPath().equals("/access-link")) {
+        if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
             NetworkConnection.getInstance().logout();
-            new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery() + "&format=json");
+            new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1","") + "&format=json");
             setIntent(new Intent(this, LoginActivity.class));
         } else if(getSharedPreferences("prefs", 0).contains("session_key")) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
