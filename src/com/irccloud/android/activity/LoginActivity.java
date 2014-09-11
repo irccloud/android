@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
@@ -211,7 +213,30 @@ public class LoginActivity extends FragmentActivity {
         forgotPassword.setOnClickListener(forgotPasswordClickListener);
 
         enterpriseLearnMore = (TextView)findViewById(R.id.enterpriseLearnMore);
-        enterpriseLearnMore.setMovementMethod(new LinkMovementMethod());
+        enterpriseLearnMore.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isPackageInstalled("com.irccloud.android", LoginActivity.this)) {
+                    startActivity(getPackageManager().getLaunchIntentForPackage("com.irccloud.android"));
+                } else {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.irccloud.android")));
+                    } catch (Exception e) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.irccloud.android")));
+                    }
+                }
+            }
+
+            private boolean isPackageInstalled(String packagename, Context context) {
+                PackageManager pm = context.getPackageManager();
+                try {
+                    pm.getPackageInfo(packagename, PackageManager.GET_ACTIVITIES);
+                    return true;
+                } catch (NameNotFoundException e) {
+                    return false;
+                }
+            }
+        });
         enterpriseHint = (LinearLayout)findViewById(R.id.enterpriseHint);
 
         EnterYourEmail = (TextView)findViewById(R.id.enterYourEmail);
