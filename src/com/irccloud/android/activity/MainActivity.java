@@ -429,7 +429,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             });
             boolean canEditTopic;
-            if (c.mode.contains("t")) {
+            if (c.hasMode("t")) {
                 UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
                 canEditTopic = (self_user != null && (self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o")));
             } else {

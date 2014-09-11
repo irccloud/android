@@ -65,6 +65,15 @@ public class ChannelsDataSource {
                 }
             }
         }
+
+        public synchronized boolean hasMode(String mode) {
+            for(Mode m : modes) {
+                if(m.mode.equals(mode)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 	
 	private SparseArray<Channel> channels;
