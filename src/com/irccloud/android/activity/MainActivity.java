@@ -348,10 +348,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(ulf != null)
             ulf.getView().setVisibility(View.INVISIBLE);
 
-        getSupportActionBar().setLogo(R.drawable.logo);
         getSupportActionBar().setHomeButtonEnabled(false);
        	getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
@@ -1126,16 +1125,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void update_subtitle() {
         if(server == null || buffer == null) {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setDisplayShowCustomEnabled(false);
             title.setText(null);
-            getSupportActionBar().setTitle(null);
             subtitle.setVisibility(View.GONE);
         } else if(!NetworkConnection.getInstance().ready) {
            	getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayShowCustomEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         } else {
            	getSupportActionBar().setDisplayShowHomeEnabled(false);
             getSupportActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
 
             if(buffer.type.equals("console")) {
                 if(server.name.length() > 0) {
