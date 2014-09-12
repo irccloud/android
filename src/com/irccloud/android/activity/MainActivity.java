@@ -3083,7 +3083,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 			anim.setDuration(150);
 			anim.setFillAfter(true);
 			if(mvf != null && mvf.getListView() != null) {
-                if(mvf.buffer != buffer && buffer != null) {
+                if(mvf.buffer != buffer && buffer != null && BuffersDataSource.getInstance().getBuffer(buffer.bid) != null) {
                     Bundle b = new Bundle();
                     b.putInt("cid", buffer.cid);
                     b.putInt("bid", buffer.bid);
@@ -3258,7 +3258,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 o = new BitmapFactory.Options();
                 o.inSampleSize = scale;
                 Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
-                if(!bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
+                if(bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
                     out = null;
                 }
             } catch (Exception e) {
@@ -3455,18 +3455,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                    builder.setTitle("Upload Failed");
-                    builder.setMessage("Unable to upload photo to imgur.  Please try again. " + ((error != null) ? error : ""));
-                    builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    activity.runOnUiThread(new Runnable() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+                        public void run() {
+                            if(activity != null) {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                builder.setTitle("Upload Failed");
+                                builder.setMessage("Unable to upload photo to imgur.  Please try again. " + ((error != null) ? error : ""));
+                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.setOwnerActivity(activity);
+                                dialog.show();
+                            }
                         }
                     });
-                    AlertDialog dialog = builder.create();
-                    dialog.setOwnerActivity(activity);
-                    dialog.show();
                 }
                 imgurTask = null;
             } else if(mBuffer != null && s != null) {

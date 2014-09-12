@@ -606,7 +606,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
 			@Override
 			public void onClick(View v) {
-				if(server != null && server.status != null && server.status.equalsIgnoreCase("disconnected")) {
+				if(conn != null && server != null && server.status != null && server.status.equalsIgnoreCase("disconnected")) {
 					conn.reconnect(buffer.cid);
 				}
 			}
@@ -1501,7 +1501,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 conn.cancel_idle_timer(); //This may take a while...
             if(dirty) {
                 Log.i("IRCCloud", "BID changed, clearing caches");
-                EventsDataSource.getInstance().clearCacheForBuffer(buffer.bid);
+                if(buffer != null)
+                    EventsDataSource.getInstance().clearCacheForBuffer(buffer.bid);
                 dirty = false;
             }
             collapsedEvents.clear();
