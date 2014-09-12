@@ -185,23 +185,9 @@ public class LoginActivity extends FragmentActivity {
             public void onClick(View view) {
                 if(host.getText().length() > 0) {
                     NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
-                    if(NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
-                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
-                    if(NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
-                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
-                    if(NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
-                        NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
-                    SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
-                    editor.commit();
+                    trimHost();
 
-                    if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
-                        NetworkConnection.getInstance().logout();
-                        new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1","") + "&format=json");
-                        setIntent(new Intent(LoginActivity.this, LoginActivity.class));
-                    } else {
-                        loginHintClickListener.onClick(view);
-                    }
+                    new EnterpriseConfigTask().execute((Void)null);
                 }
             }
         });
@@ -382,7 +368,6 @@ public class LoginActivity extends FragmentActivity {
             signupBtn.setVisibility(View.GONE);
             email.requestFocus();
             TOS.setVisibility(View.GONE);
-            signupHint.setVisibility(View.VISIBLE);
             loginHint.setVisibility(View.GONE);
             forgotPassword.setVisibility(View.VISIBLE);
             loginSignupHint.setVisibility(View.GONE);
@@ -395,6 +380,10 @@ public class LoginActivity extends FragmentActivity {
             enterpriseLearnMore.setVisibility(View.GONE);
             enterpriseHint.setVisibility(View.GONE);
             hostHint.setVisibility(View.GONE);
+            if(loginSignupHint.getChildAt(1).getVisibility() == View.VISIBLE)
+                signupHint.setVisibility(View.VISIBLE);
+            else
+                enterpriseHint.setVisibility(View.VISIBLE);
         }
     };
 
@@ -505,6 +494,15 @@ public class LoginActivity extends FragmentActivity {
 		
 		@Override
 		protected JSONObject doInBackground(Void... arg0) {
+            try {
+                if(!BuildConfig.ENTERPRISE)
+                    NetworkConnection.IRCCLOUD_HOST = BuildConfig.HOST;
+                JSONObject config = NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
+                NetworkConnection.IRCCLOUD_HOST = config.getString("api_host");
+                trimHost();
+            } catch (Exception e) {
+                return null;
+            }
             if(name.getVisibility() == View.VISIBLE) {
                 if (name.getText() != null && name.getText().length() > 0 && email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
                     return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString());
@@ -742,6 +740,87 @@ public class LoginActivity extends FragmentActivity {
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
             builder.setTitle("Password Reset Failed");
             builder.setMessage("Unable to request a password reset.  Please try again later.");
+            builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(LoginActivity.this);
+            try {
+                dialog.show();
+            } catch (WindowManager.BadTokenException e) {
+            }
+        }
+    }
+
+    private void trimHost() {
+        if(NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
+            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
+        if(NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
+            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
+        if(NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
+            NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
+    }
+
+    private class EnterpriseConfigTask extends AsyncTaskEx<Void, Void, JSONObject> {
+        @Override
+        public void onPreExecute() {
+            host.setEnabled(false);
+            connectingMsg.setText("Connecting");
+            progressBar.setIndeterminate(true);
+            connecting.setVisibility(View.VISIBLE);
+            login.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... arg0) {
+            try {
+                return NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        public void onPostExecute(JSONObject result) {
+            host.setEnabled(true);
+            progressBar.setIndeterminate(false);
+            connecting.setVisibility(View.GONE);
+            login.setVisibility(View.VISIBLE);
+            try {
+                if (result != null && result.get("enterprise") instanceof JSONObject) {
+                    NetworkConnection.IRCCLOUD_HOST = result.getString("api_host");
+                    trimHost();
+
+                    SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                    editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                    editor.commit();
+
+                    if(result.getString("auth_mechanism").equals("internal"))
+                        loginSignupHint.getChildAt(1).setVisibility(View.VISIBLE);
+                    else
+                        loginSignupHint.getChildAt(1).setVisibility(View.GONE);
+
+                    if(((JSONObject) result.get("enterprise")).has("fullname"))
+                        ((TextView)findViewById(R.id.enterpriseHintText)).setText(((JSONObject) result.get("enterprise")).getString("fullname"));
+
+                    if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
+                        NetworkConnection.getInstance().logout();
+                        new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1","") + "&format=json");
+                        setIntent(new Intent(LoginActivity.this, LoginActivity.class));
+                    } else {
+                        loginHintClickListener.onClick(null);
+                    }
+                    return;
+                }
+            } catch (JSONException e) {
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+            builder.setTitle("Connection Failed");
+            builder.setMessage("Please check your host and try again shortly, or contact your system administrator for assistance.");
             builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

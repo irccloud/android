@@ -141,7 +141,8 @@
                 android:layout_height="wrap_content"
                 android:text="Enterprise Edition"
                 android:textColor="#9CC7FF"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:id="@+id/enterpriseHintText" />
         </LinearLayout>
 
         <LinearLayout
