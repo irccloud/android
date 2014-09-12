@@ -292,8 +292,10 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 
 	Preference.OnPreferenceChangeListener settingstoggle = new Preference.OnPreferenceChangeListener() {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(conn == null || conn.getUserInfo() == null)
+            if(conn == null || conn.getUserInfo() == null) {
+                Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;
+            }
 
 			if(preference.getKey().equals("name")) {
 				conn.getUserInfo().name = (String)newValue;
@@ -340,6 +342,10 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 
     Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if(conn == null || conn.getUserInfo() == null) {
+                Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                return false;
+            }
 			JSONObject prefs = conn.getUserInfo().prefs;
 			try {
 				if(prefs == null) {
