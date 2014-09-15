@@ -911,7 +911,7 @@ public class NetworkConnection {
 		        state = STATE_DISCONNECTED;
 		        notifyHandlers(EVENT_CONNECTIVITY, null);
                 client = null;
-		    }
+            }
 		}, extraHeaders);
 
         Log.d("IRCCloud", "Creating websocket");
@@ -2234,6 +2234,7 @@ public class NetworkConnection {
 		String type = object.type();
 		if(type != null && type.length() > 0) {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
+            //Crashlytics.log("New event: " + type);
 			//Log.d(TAG, "New event: " + type);
             Parser p = parserMap.get(type);
             if(p != null) {
@@ -2294,6 +2295,12 @@ public class NetworkConnection {
             proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
         }
 
+        if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url + " via proxy: " + host);
+        } else {
+            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url);
+        }
+
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection(Proxy.NO_PROXY));
             if(url.getHost().equals(IRCCLOUD_HOST))
@@ -2327,6 +2334,22 @@ public class NetworkConnection {
         }
 		BufferedReader reader = null;
 		String response = "";
+
+        try {
+            ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni = cm.getActiveNetworkInfo();
+            if(ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
+                Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
+                conn.setConnectTimeout(2500);
+                conn.setReadTimeout(2500);
+            } else {
+                Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+            }
+        } catch (Exception e) {
+        }
+
 		conn.connect();
 		try {
 			if(conn.getInputStream() != null) {
@@ -2538,7 +2561,23 @@ public class NetworkConnection {
 				conn.setRequestProperty("Content-type", "application/json");
 				conn.setRequestProperty("Accept-Encoding", "gzip");
 				conn.setRequestProperty("User-Agent", useragent);
-				conn.connect();
+
+                try {
+                    ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo ni = cm.getActiveNetworkInfo();
+                    if(ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
+                        Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
+                        conn.setConnectTimeout(2500);
+                        conn.setReadTimeout(2500);
+                    } else {
+                        Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
+                        conn.setConnectTimeout(5000);
+                        conn.setReadTimeout(5000);
+                    }
+                } catch (Exception e) {
+                }
+
+                conn.connect();
                 if(conn.getResponseCode() == 200) {
                     InputStreamReader reader = null;
                     try {
