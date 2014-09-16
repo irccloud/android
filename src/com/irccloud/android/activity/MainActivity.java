@@ -343,13 +343,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         userListView = findViewById(R.id.usersListFragment);
 
-        BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
-        if(blf != null)
-            blf.getView().setVisibility(View.INVISIBLE);
-        UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
-        if(ulf != null)
-            ulf.getView().setVisibility(View.INVISIBLE);
-
         getSupportActionBar().setHomeButtonEnabled(false);
        	getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
