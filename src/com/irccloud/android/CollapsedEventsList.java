@@ -788,8 +788,10 @@ public class CollapsedEventsList {
                 }
 
 				if(next != null && next.type == e.type) {
-					message.append(", ");
-					groupcount++;
+                    if(message.length() > 0) {
+                        message.append(", ");
+                        groupcount++;
+                    }
 				} else if(next != null) {
 					message.append(" ");
 					groupcount = 0;

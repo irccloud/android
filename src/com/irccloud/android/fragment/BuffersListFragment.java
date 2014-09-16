@@ -1153,7 +1153,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                                     refreshTask.cancel(true);
                                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Refreshing buffers list");
                                 refreshTask = new RefreshTask();
-                                refreshTask.doInBackground(null);
+                                refreshTask.doInBackground((Void)null);
                                 refreshTask.onPostExecute(null);
                                 refreshTask = null;
                                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Done");

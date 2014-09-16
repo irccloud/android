@@ -171,7 +171,7 @@ public class EventsDataSource {
                 else if(event.has("server_ping_timeout"))
                     e.msg = "Server PING timed out";
                 else if(event.has("reason") && event.getString("reason").length() > 0)
-                    e.msg = "Connection lost: " + event.getString("reason");
+                    e.msg = "Connection lost: " + reason(event.getString("reason"));
                 else if(event.has("abnormal"))
                     e.msg = "Connection closed unexpectedly";
                 else
@@ -236,31 +236,8 @@ public class EventsDataSource {
                 e.color = R.color.timestamp;
                 e.from = "";
                 e.linkify = false;
-                String reason = event.getString("reason");
+                String reason = reason(event.getString("reason"));
                 if(reason != null) {
-                    if(reason.equalsIgnoreCase("pool_lost")) {
-                        reason = "Connection pool failed";
-                    } else if(reason.equalsIgnoreCase("no_pool")) {
-                        reason = "No available connection pools";
-                    } else if(reason.equalsIgnoreCase("enetdown")) {
-                        reason = "Network down";
-                    } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
-                        reason = "Timed out";
-                    } else if(reason.equalsIgnoreCase("ehostunreach")) {
-                        reason = "Host unreachable";
-                    } else if(reason.equalsIgnoreCase("econnrefused")) {
-                        reason = "Connection refused";
-                    } else if(reason.equalsIgnoreCase("nxdomain")) {
-                        reason = "Invalid hostname";
-                    } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
-                        reason = "PING timeout";
-                    } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
-                        reason = "SSL certificate error";
-                    } else if(reason.equalsIgnoreCase("ssl_error")) {
-                        reason = "SSL error";
-                    } else if(reason.equalsIgnoreCase("crash")) {
-                        reason = "Connection crashed";
-                    }
                     e.msg = "Failed to connect: " + reason;
                 } else {
                     e.msg = "Failed to connect.";
@@ -812,6 +789,35 @@ public class EventsDataSource {
         });
 
     }};
+    
+    private String reason(String reason) {
+        if(reason != null) {
+            if(reason.equalsIgnoreCase("pool_lost")) {
+                return "Connection pool failed";
+            } else if(reason.equalsIgnoreCase("no_pool")) {
+                return "No available connection pools";
+            } else if(reason.equalsIgnoreCase("enetdown")) {
+                return "Network down";
+            } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
+                return "Timed out";
+            } else if(reason.equalsIgnoreCase("ehostunreach")) {
+                return "Host unreachable";
+            } else if(reason.equalsIgnoreCase("econnrefused")) {
+                return "Connection refused";
+            } else if(reason.equalsIgnoreCase("nxdomain")) {
+                return "Invalid hostname";
+            } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
+                return "PING timeout";
+            } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
+                return "SSL certificate error";
+            } else if(reason.equalsIgnoreCase("ssl_error")) {
+                return "SSL error";
+            } else if(reason.equalsIgnoreCase("crash")) {
+                return "Connection crashed";
+            }
+        }
+        return reason;
+    }
 
 	public Event addEvent(IRCCloudJSONObject event) {
 		synchronized(events) {
