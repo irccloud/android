@@ -529,7 +529,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         holder.timestamp.setMinWidth(timestamp_width);
                     }
-                    if(e.highlight)
+                    if(e.highlight && !e.self)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.highlight_timestamp));
                     else if(e.row_type != ROW_TIMESTAMP)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
