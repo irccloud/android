@@ -41,10 +41,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
+import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -3239,7 +3241,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 File imageDir = new File(Environment.getExternalStorageDirectory(), "irccloud");
                 imageDir.mkdirs();
                 new File(imageDir, ".nomedia").createNewFile();
-                out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", imageDir));
+
                 BitmapFactory.Options o = new BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
@@ -3259,9 +3261,51 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 o = new BitmapFactory.Options();
                 o.inSampleSize = scale;
                 Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
+
+                //ExifInterface can only work on local files, so make a temporary copy on the SD card
+                out = Uri.fromFile(File.createTempFile("irccloudcapture-original", ".jpg", imageDir));
+                InputStream is = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in);
+                OutputStream os = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out);
+                byte[] buffer = new byte[8192];
+                int len;
+                while ((len = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, len);
+                }
+                is.close();
+                os.close();
+
+                ExifInterface exif = new ExifInterface(out.getPath());
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+                new File(new URI(out.toString())).delete();
+
+                out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", imageDir));
+                if(orientation > 1) {
+                    Matrix matrix = new Matrix();
+                    switch(orientation) {
+                        case ExifInterface.ORIENTATION_ROTATE_90:
+                            matrix.postRotate(90);
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_180:
+                            matrix.postRotate(180);
+                            break;
+                        case ExifInterface.ORIENTATION_ROTATE_270:
+                            matrix.postRotate(270);
+                            break;
+                    }
+                    try {
+                        Bitmap oldbmp = bmp;
+                        bmp = Bitmap.createBitmap(oldbmp, 0, 0, oldbmp.getWidth(), oldbmp.getHeight(), matrix, true);
+                        oldbmp.recycle();
+                    } catch (OutOfMemoryError e) {
+                        Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
+                    }
+                }
+
                 if(bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
                     out = null;
                 }
+                if(bmp != null)
+                    bmp.recycle();
             } catch (Exception e) {
                 Crashlytics.logException(e);
             }
