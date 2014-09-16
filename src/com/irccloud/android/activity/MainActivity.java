@@ -3325,7 +3325,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 while(activity == null)
                     Thread.sleep(100);
                 MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024"));
-                if(MAX_IMAGE_SIZE > 0) {
+                String type = activity.getContentResolver().getType(mImageUri);
+                if((type != null && !type.equals("image/gif")) || MAX_IMAGE_SIZE > 0) {
                     mImageUri = resize(mImageUri);
                 }
                 imageIn = activity.getContentResolver().openInputStream(mImageUri);
@@ -3341,6 +3342,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             try {
                 conn = (HttpURLConnection) new URL(UPLOAD_URL).openConnection();
                 conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(total);
                 if(BuildConfig.MASHAPE_KEY.length() > 0)
                     conn.setRequestProperty("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
                 if(getSharedPreferences("prefs", 0).contains("imgur_access_token")) {
@@ -3361,11 +3363,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     Crashlytics.log(Log.INFO, "IRCCloud", "responseCode=" + conn.getResponseCode());
                     responseIn = conn.getErrorStream();
                     StringBuilder sb = new StringBuilder();
-                    Scanner scanner = new Scanner(responseIn);
+                    Scanner scanner = new Scanner(responseIn).useDelimiter("\\A");
                     while (scanner.hasNext()) {
                         sb.append(scanner.next());
                     }
-                    error = sb.toString();
+                    JSONObject root = new JSONObject(sb.toString());
+                    if(root.has("data") && root.getJSONObject("data").has("error"))
+                        error = root.getJSONObject("data").getString("error");
+                    else
+                        error = null;
                     Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
                     return null;
                 }
@@ -3506,7 +3512,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if(activity != null) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                                 builder.setTitle("Upload Failed");
-                                builder.setMessage("Unable to upload photo to imgur.  Please try again. " + ((error != null) ? error : ""));
+                                builder.setMessage("Unable to upload photo to imgur.  Please try again." + ((error != null) ? ("\n\n" + error) : ""));
                                 builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -3553,13 +3559,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         protected String onInput(InputStream in) throws Exception {
             StringBuilder sb = new StringBuilder();
-            Scanner scanner = new Scanner(in);
+            Scanner scanner = new Scanner(in).useDelimiter("\\A");
             while (scanner.hasNext()) {
                 sb.append(scanner.next());
             }
 
             JSONObject root = new JSONObject(sb.toString());
-            error = sb.toString();
+            if(root.has("data") && root.getJSONObject("data").has("error"))
+                error = root.getJSONObject("data").getString("error");
+            else
+                error = null;
             total = 0;
             return root.getJSONObject("data").getString("link");
         }
