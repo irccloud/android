@@ -57,20 +57,29 @@ public class BuffersDataSource {
 
 	public class comparator implements Comparator<Buffer> {
 	    public int compare(Buffer b1, Buffer b2) {
-	    	int joined1 = 1, joined2 = 1;
-	    	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b1.bid);
-			if(c == null)
-				joined1 = 0;
-	    	c = ChannelsDataSource.getInstance().getChannelForBuffer(b2.bid);
-			if(c == null)
-				joined2 = 0;
-	    	if(b1.type.equals("conversation") && b2.type.equals("channel"))
-	    		return 1;
-	    	else if(b1.type.equals("channel") && b2.type.equals("conversation"))
-	    		return -1;
-	    	else if(joined1 != joined2)
-	    		return joined2 - joined1;
-	    	else {
+            if(b1.type.equals("console"))
+                return -1;
+            if(b2.type.equals("console"))
+                return 1;
+            if(b1.bid == b2.bid) {
+                return 0;
+            }
+            int joined1 = 1, joined2 = 1;
+            ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b1.bid);
+            if (c == null)
+                joined1 = 0;
+            c = ChannelsDataSource.getInstance().getChannelForBuffer(b2.bid);
+            if (c == null)
+                joined2 = 0;
+            if (b1.type.equals("conversation") && b2.type.equals("channel")) {
+                return 1;
+            } else if (b1.type.equals("channel") && b2.type.equals("conversation")) {
+                return -1;
+            } else if(joined1 != joined2) {
+                return joined2 - joined1;
+            } else {
+                if(collator.compare(b1.normalizedName(), b2.normalizedName()) == 0)
+                    return (b1.bid < b2.bid)?-1:1;
                 return collator.compare(b1.normalizedName(), b2.normalizedName());
             }
 	    }
