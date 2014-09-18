@@ -27,4 +27,8 @@
         android:title="Open in Browser"
         app:showAsAction="never"
         />
+    <item android:id="@+id/action_copy"
+        android:title="Copy Link"
+        app:showAsAction="never"
+        />
 </menu>
