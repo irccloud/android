@@ -51,6 +51,7 @@ import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
+import android.text.style.URLSpan;
 import android.view.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -268,7 +269,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void afterTextChanged(Editable s) {
                 Object[] spans = s.getSpans(0, s.length(), Object.class);
                 for (Object o : spans) {
-                    if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && (o.getClass() == StyleSpan.class || o.getClass() == ForegroundColorSpan.class || o.getClass() == BackgroundColorSpan.class || o.getClass() == UnderlineSpan.class)) {
+                    if (((s.getSpanFlags(o) & Spanned.SPAN_COMPOSING) != Spanned.SPAN_COMPOSING) && (o.getClass() == StyleSpan.class || o.getClass() == ForegroundColorSpan.class || o.getClass() == BackgroundColorSpan.class || o.getClass() == UnderlineSpan.class || o.getClass() == URLSpan.class)) {
                         s.removeSpan(o);
                     }
                 }
@@ -2721,7 +2722,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             }
-			showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + html));
+			showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + html, true, ServersDataSource.getInstance().getServer(event.cid)));
         } else {
 			showUserPopup(user, null);
         }
@@ -2740,13 +2741,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		ArrayList<String> itemList = new ArrayList<String>();
    		final String[] items;
    		final Spanned text_to_copy = message;
-		selected_user = user;
+
+        selected_user = user;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-		if(message != null)
-			itemList.add("Copy Message");
-		
+		if(message != null) {
+            if(message.getSpans(0, message.length(), URLSpan.class).length > 0)
+                itemList.add("Copy URL");
+            itemList.add("Copy Message");
+        }
+
 		if(selected_user != null) {
 			itemList.add("Whois…");
 			itemList.add("Send a message");
@@ -2803,15 +2808,67 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    			}
                     Toast.makeText(MainActivity.this, "Message copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if(items[item].equals("Copy Hostmask")) {
-                    if(Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                         clipboard.setText(selected_user.nick + "!" + selected_user.hostmask);
                     } else {
                         @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask",selected_user.nick + "!" + selected_user.hostmask);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", selected_user.nick + "!" + selected_user.hostmask);
                         clipboard.setPrimaryClip(clip);
                     }
                     Toast.makeText(MainActivity.this, "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
+                } else if(items[item].equals("Copy URL") && text_to_copy != null) {
+                    final ArrayList<String> urlListItems = new ArrayList<String>();
+
+                    for (URLSpan o : text_to_copy.getSpans(0, text_to_copy.length(), URLSpan.class)) {
+                        String url = o.getURL();
+                        url = url.replace("irccloud-image://", "http://");
+                        url = url.replace("irccloud-images://", "https://");
+                        if(server != null) {
+                            url = url.replace("ircs://" + server.cid + "/", "ircs://" + server.hostname + ":" + server.port + "/");
+                            url = url.replace("irc://" + server.cid + "/", ((server.ssl > 0)?"ircs://":"irc://") + server.hostname + ":" + server.port + "/");
+                        }
+                        urlListItems.add(url);
+                    }
+                    if(urlListItems.size() == 1) {
+                        if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                            clipboard.setText(urlListItems.get(0));
+                        } else {
+                            @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                            android.content.ClipData clip = android.content.ClipData.newRawUri(urlListItems.get(0), Uri.parse(urlListItems.get(0)));
+                            clipboard.setPrimaryClip(clip);
+                        }
+                        Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
+                    } else {
+                        builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("Choose a URL");
+
+                        builder.setItems(urlListItems.toArray(new String[urlListItems.size()]), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                    clipboard.setText(urlListItems.get(i));
+                                } else {
+                                    @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                                    android.content.ClipData clip = android.content.ClipData.newRawUri(urlListItems.get(i), Uri.parse(urlListItems.get(i)));
+                                    clipboard.setPrimaryClip(clip);
+                                }
+                                Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        dialog = builder.create();
+                        dialog.setOwnerActivity(MainActivity.this);
+                        dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                        dialog.show();
+                    }
 	    		} else if(items[item].equals("Whois…")) {
 	    			conn.whois(buffer.cid, selected_user.nick, null);
 	    		} else if(items[item].equals("Send a message")) {
