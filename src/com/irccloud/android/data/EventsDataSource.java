@@ -378,6 +378,8 @@ public class EventsDataSource {
                 e.hostmask = event.getString("kicker_hostmask");
                 e.color = R.color.timestamp;
                 e.linkify = false;
+                if(e.self)
+                    e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
             }
         });
         put("you_kicked_channel", get("kicked_channel"));
