@@ -28,7 +28,7 @@
         app:showAsAction="never"
         />
     <item android:id="@+id/action_copy"
-        android:title="Copy Link"
+        android:title="Copy URL"
         app:showAsAction="never"
         />
 </menu>
