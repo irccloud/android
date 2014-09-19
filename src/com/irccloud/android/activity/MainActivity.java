@@ -2822,8 +2822,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                     for (URLSpan o : text_to_copy.getSpans(0, text_to_copy.length(), URLSpan.class)) {
                         String url = o.getURL();
-                        url = url.replace("irccloud-image://", "http://");
-                        url = url.replace("irccloud-images://", "https://");
+                        url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
+                        url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
                         if(server != null) {
                             url = url.replace("ircs://" + server.cid + "/", "ircs://" + server.hostname + ":" + server.port + "/");
                             url = url.replace("irc://" + server.cid + "/", ((server.ssl > 0)?"ircs://":"irc://") + server.hostname + ":" + server.port + "/");
