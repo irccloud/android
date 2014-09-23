@@ -2310,7 +2310,9 @@ public class NetworkConnection {
         	conn = (HttpURLConnection)((proxy != null)?url.openConnection(proxy):url.openConnection(Proxy.NO_PROXY));
         }
 
-		conn.setRequestProperty("Connection", "close");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setUseCaches(false);
 		conn.setRequestProperty("User-Agent", useragent);
         conn.setRequestProperty("Accept", "application/json");
         if(sk != null)
@@ -2340,12 +2342,8 @@ public class NetworkConnection {
             NetworkInfo ni = cm.getActiveNetworkInfo();
             if(ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
                 Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
-                conn.setConnectTimeout(2500);
-                conn.setReadTimeout(2500);
             } else {
                 Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
-                conn.setConnectTimeout(5000);
-                conn.setReadTimeout(5000);
             }
         } catch (Exception e) {
         }
@@ -2365,6 +2363,7 @@ public class NetworkConnection {
 			response = toString(reader);
 			reader.close();
 		}
+        conn.disconnect();
 		return response;
 	}
 

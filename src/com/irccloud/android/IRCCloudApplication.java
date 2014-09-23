@@ -61,6 +61,10 @@ public class IRCCloudApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
         instance = this;
+
+        //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
+        System.setProperty("http.keepAlive", "false");
+
 		//Allocate all the shared objects at launch
 		conn = NetworkConnection.getInstance();
 		s = ServersDataSource.getInstance();
