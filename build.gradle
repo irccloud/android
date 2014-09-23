@@ -48,7 +48,7 @@ android {
     buildToolsVersion "20.0"
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 19
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
@@ -98,7 +98,7 @@ android {
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
             buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
-            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-image"
+            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
             resValue "string", "app_name", "IRCCloud"
@@ -166,7 +166,7 @@ android {
             buildConfigField "String", "SSL_CN", "\"\""
             buildConfigField "String", "SSL_FP", "\"\""
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
-            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-image"
+            resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
             resValue "string", "app_name", "IRCEnterprise"
