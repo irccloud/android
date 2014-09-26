@@ -16,7 +16,10 @@
 
 package com.irccloud.android.data;
 
+import android.util.Log;
 import android.util.SparseArray;
+
+import com.crashlytics.android.Crashlytics;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -43,6 +46,10 @@ public class BuffersDataSource {
         public int scrollPosition;
         public int scrollPositionOffset;
 
+        public String toString() {
+            return "{cid:" + cid + ", bid:" + bid + ", name: " + name + ", type: " + type + ", archived: " + archived + "}";
+        }
+
         public String normalizedName() {
             if(chan_types == null || chan_types.length() < 2) {
                 ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
@@ -57,13 +64,16 @@ public class BuffersDataSource {
 
 	public class comparator implements Comparator<Buffer> {
 	    public int compare(Buffer b1, Buffer b2) {
+            if(b1.cid < b2.cid)
+                return -1;
+            if(b1.cid > b2.cid)
+                return 1;
             if(b1.type.equals("console"))
                 return -1;
             if(b2.type.equals("console"))
                 return 1;
-            if(b1.bid == b2.bid) {
+            if(b1.bid == b2.bid)
                 return 0;
-            }
             int joined1 = 1, joined2 = 1;
             ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b1.bid);
             if (c == null)
@@ -211,7 +221,12 @@ public class BuffersDataSource {
 	public synchronized ArrayList<Buffer> getBuffersForServer(int cid) {
 		ArrayList<Buffer> list = new ArrayList<Buffer>();
         if(dirty) {
-            Collections.sort(buffers, new comparator());
+            try {
+                Collections.sort(buffers, new comparator());
+            } catch (Exception e) {
+                Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to sort buffers: " + buffers);
+                Crashlytics.logException(e);
+            }
             dirty = false;
         }
         for(Buffer b : buffers) {

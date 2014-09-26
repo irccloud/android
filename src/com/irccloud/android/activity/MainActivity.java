@@ -880,18 +880,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    	}
     	}
 
-        if(buffer == null)
+        if(buffer == null) {
             server = null;
+        } else {
+            if (intent.hasExtra(Intent.EXTRA_STREAM)) {
+                new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
+            }
 
-        if(intent.hasExtra(Intent.EXTRA_STREAM)) {
-            new ImgurRefreshTask((Uri)intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
-        }
-
-        if(intent.hasExtra(Intent.EXTRA_TEXT)) {
-            if(intent.hasExtra(Intent.EXTRA_SUBJECT))
-                buffer.draft = intent.getStringExtra(Intent.EXTRA_SUBJECT) + " (" + intent.getStringExtra(Intent.EXTRA_TEXT) + ")";
-            else
-                buffer.draft = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+                if (intent.hasExtra(Intent.EXTRA_SUBJECT))
+                    buffer.draft = intent.getStringExtra(Intent.EXTRA_SUBJECT) + " (" + intent.getStringExtra(Intent.EXTRA_TEXT) + ")";
+                else
+                    buffer.draft = intent.getStringExtra(Intent.EXTRA_TEXT);
+            }
         }
 
         if(buffer == null) {
