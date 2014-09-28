@@ -86,6 +86,7 @@ import com.irccloud.android.fragment.IgnoreListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
+import com.irccloud.android.fragment.ServerMapListFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
 import com.irccloud.android.fragment.UsersListFragment;
 import com.irccloud.android.fragment.WhoListFragment;
@@ -1457,6 +1458,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         } else {
                             namesList.setArguments(args);
+                        }
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_SERVERMAPLIST:
+                event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bundle args = new Bundle();
+                        args.putString("event", event.toString());
+                        ServerMapListFragment serversList = (ServerMapListFragment)getSupportFragmentManager().findFragmentByTag("serverslist");
+                        if(serversList == null) {
+                            serversList = new ServerMapListFragment();
+                            serversList.setArguments(args);
+                            try {
+                                serversList.show(getSupportFragmentManager(), "serverslist");
+                            } catch (IllegalStateException e) {
+                                //App lost focus already
+                            }
+                        } else {
+                            serversList.setArguments(args);
                         }
                     }
                 });

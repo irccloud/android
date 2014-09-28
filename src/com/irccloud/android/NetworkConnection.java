@@ -179,6 +179,7 @@ public class NetworkConnection {
     public static final int EVENT_NAMESLIST = 41;
     public static final int EVENT_REORDERCONNECTIONS = 42;
     public static final int EVENT_CHANNELTOPICIS = 43;
+    public static final int EVENT_SERVERMAPLIST = 44;
 
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -2173,6 +2174,7 @@ public class NetworkConnection {
         put("list_response_fetching", new BroadcastParser(EVENT_LISTRESPONSEFETCHING));
         put("list_response_toomany", new BroadcastParser(EVENT_LISTRESPONSETOOMANY));
         put("list_response", new BroadcastParser(EVENT_LISTRESPONSE));
+        put("map_list", new BroadcastParser(EVENT_SERVERMAPLIST));
         put("who_response", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
