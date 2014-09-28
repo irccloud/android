@@ -1805,6 +1805,9 @@ public class NetworkConnection {
                         client.disconnect();
                 }
 
+                if(handlers.size() == 0 && b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200 && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
+                    EventsDataSource.getInstance().pruneEvents(b.bid);
+
                 if(!backlog)
                     notifyHandlers(EVENT_BUFFERMSG, event);
             }

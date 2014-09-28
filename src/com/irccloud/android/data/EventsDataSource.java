@@ -898,7 +898,15 @@ public class EventsDataSource {
 		}
 	}
 
-	public Event getEvent(long eid, int bid) {
+    public int getSizeOfBuffer(int bid) {
+        synchronized(events) {
+            if(events.containsKey(bid))
+                return events.get(bid).size();
+        }
+        return 0;
+    }
+
+    public Event getEvent(long eid, int bid) {
 		synchronized(events) {
 			if(events.containsKey(bid))
 				return events.get(bid).get(eid);

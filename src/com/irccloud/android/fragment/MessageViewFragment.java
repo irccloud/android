@@ -1297,7 +1297,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     	@Override
     	protected void onPreExecute() {
-    		//Log.d("IRCCloud", "Heartbeat task created. Ready: " + ready + " BID: " + bid);
+            //if(buffer != null)
+            //    Log.d("IRCCloud", "Heartbeat task created. Ready: " + ready + " BID: " + buffer.bid);
     	}
     	
 		@Override
@@ -1318,7 +1319,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(events != null && events.size() > 0) {
                     Long eid = events.get(events.lastKey()).eid;
 
-                    if(eid > buffer.last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    if(eid >= buffer.last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         if(getActivity() != null && getActivity().getIntent() != null)
                             getActivity().getIntent().putExtra("last_seen_eid", eid);
                         NetworkConnection.getInstance().heartbeat(buffer.cid, buffer.bid, eid);
@@ -2058,6 +2059,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     public void onIRCEvent(int what, final Object obj) {
 		IRCCloudJSONObject e;
+
         switch (what) {
             case NetworkConnection.EVENT_DEBUG:
                 runOnUiThread(new Runnable() {
@@ -2285,6 +2287,24 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             @Override
                             public void run() {
                                 getListView().setSelection(adapter.getCount() - 1);
+                            }
+                        });
+                    }
+                }
+                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid);
+                if(b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200 && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0) {
+                    EventsDataSource.getInstance().pruneEvents(b.bid);
+                    if(b.bid == buffer.bid) {
+                        if(b.last_seen_eid < event.eid && unreadTopView.getVisibility() == View.GONE)
+                            b.last_seen_eid = event.eid;
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (refreshTask != null)
+                                    refreshTask.cancel(true);
+                                refreshTask = new RefreshTask();
+                                refreshTask.execute((Void) null);
                             }
                         });
                     }
