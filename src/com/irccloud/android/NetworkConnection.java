@@ -2333,7 +2333,7 @@ public class NetworkConnection {
                 ostr = conn.getOutputStream();
                 ostr.write(postdata.getBytes());
             } catch (Exception e) {
-                Crashlytics.logException(e);
+                e.printStackTrace();
             } finally {
                 if (ostr != null)
                     ostr.close();

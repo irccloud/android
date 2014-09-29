@@ -241,7 +241,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 						break;
 					}
 				}
-				if(lastSeenEidMarkerPosition != data.size() - 1) {
+				if(lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
 					if(lastSeenEidMarkerPosition > 0 && data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
 						lastSeenEidMarkerPosition--;
 					if(lastSeenEidMarkerPosition > 0)
