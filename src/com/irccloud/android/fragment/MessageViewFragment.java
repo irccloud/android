@@ -132,7 +132,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private Ignore ignore = new Ignore();
 	private static final Timer tapTimer = new Timer("message-tap-timer");
     private TimerTask tapTimerTask = null;
-	private boolean longPressOverride = false;
+	public boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
 	public boolean ready = false;
     private boolean dirty = true;
@@ -144,9 +144,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
 		@Override
 	    public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
-			if(longPressOverride) {
-				longPressOverride = false;
-			} else {
+			if(!longPressOverride && event.getAction() == MotionEvent.ACTION_UP) {
                 try {
                     return super.onTouchEvent(widget, buffer, event);
                 } catch (ActivityNotFoundException e) {

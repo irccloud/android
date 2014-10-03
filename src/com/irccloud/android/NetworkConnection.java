@@ -2353,7 +2353,6 @@ public class NetworkConnection {
         } catch (Exception e) {
         }
 
-		conn.connect();
 		try {
 			if(conn.getInputStream() != null) {
 				reader = new BufferedReader(new InputStreamReader(conn.getInputStream()), 512);

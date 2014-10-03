@@ -3016,6 +3016,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		
 		AlertDialog dialog = builder.create();
 		dialog.setOwnerActivity(this);
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+                if(mvf != null)
+                    mvf.longPressOverride = false;
+            }
+        });
 		dialog.show();
     }
 
