@@ -2660,7 +2660,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     ArrayList<Long> eids = new ArrayList<Long>();
 
                     for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-                        if(EventsDataSource.getInstance().lastEidForBuffer(b.bid) > 0) {
+                        if(EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type) == 1 && EventsDataSource.getInstance().lastEidForBuffer(b.bid) > 0) {
                             cids.add(b.cid);
                             bids.add(b.bid);
                             eids.add(EventsDataSource.getInstance().lastEidForBuffer(b.bid));
