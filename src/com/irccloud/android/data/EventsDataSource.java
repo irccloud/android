@@ -973,22 +973,16 @@ public class EventsDataSource {
         }
     }
 
-    public synchronized void clearCacheForBuffer(int bid) {
-        synchronized(events) {
-            if(events.containsKey(bid)) {
-                for(Event e : events.get(bid).values()) {
-                    e.timestamp = null;
-                    e.html = null;
-                    e.formatted = null;
-                }
-            }
-        }
-    }
-
     public synchronized void clearCaches() {
         synchronized(events) {
             for(int bid : events.keySet()) {
-                clearCacheForBuffer(bid);
+                if(events.containsKey(bid)) {
+                    for(Event e : events.get(bid).values()) {
+                        e.timestamp = null;
+                        e.html = null;
+                        e.formatted = null;
+                    }
+                }
             }
         }
     }

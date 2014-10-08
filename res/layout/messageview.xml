@@ -45,7 +45,7 @@
                 android:divider="#FFF"
                 android:cacheColorHint="#fff"
                 android:dividerHeight="1dip"
-                android:fastScrollEnabled="true"
+                android:fastScrollEnabled="false"
                 android:transcriptMode="normal"
                 android:stackFromBottom="true"/>
 

@@ -135,7 +135,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	public boolean longPressOverride = false;
 	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
 	public boolean ready = false;
-    private boolean dirty = true;
     private final Object adapterLock = new Object();
 
     public View suggestionsContainer = null;
@@ -821,9 +820,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	if(tapTimerTask != null)
     		tapTimerTask.cancel();
     	tapTimerTask = null;
-        if(buffer == null || (args.containsKey("bid") && args.getInt("bid", 0) != buffer.bid)) {
-            dirty = true;
-        }
         buffer = BuffersDataSource.getInstance().getBuffer(args.getInt("bid", -1));
         if(buffer != null) {
             server = ServersDataSource.getInstance().getServer(buffer.cid);
@@ -1500,12 +1496,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             timestamp_width = -1;
             if(conn.getReconnectTimestamp() == 0)
                 conn.cancel_idle_timer(); //This may take a while...
-            if(dirty) {
-                Log.i("IRCCloud", "BID changed, clearing caches");
-                if(buffer != null)
-                    EventsDataSource.getInstance().clearCacheForBuffer(buffer.bid);
-                dirty = false;
-            }
             collapsedEvents.clear();
             currentCollapsedEid = -1;
             lastCollapsedDay = -1;
@@ -2137,7 +2127,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 });
             case NetworkConnection.EVENT_USERINFO:
-                dirty = true;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {

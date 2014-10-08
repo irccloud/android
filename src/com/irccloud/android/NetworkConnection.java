@@ -1459,6 +1459,7 @@ public class NetworkConnection {
                     prefs.putBoolean("emoji-disableconvert", true);
                 }
                 prefs.commit();
+                EventsDataSource.getInstance().clearCaches();
                 Crashlytics.setUserIdentifier("uid" + userInfo.id);
                 notifyHandlers(EVENT_USERINFO, userInfo);
             }
