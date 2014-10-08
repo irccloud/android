@@ -39,6 +39,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -309,17 +310,31 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 		if(savedInstanceState != null && savedInstanceState.containsKey("cid"))
 			server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
     	
-    	Dialog d = new AlertDialog.Builder(ctx)
+    	final AlertDialog d = new AlertDialog.Builder(ctx)
         .setTitle("Add A Network")
         .setView(v)
-        .setPositiveButton((server == null)?"Add":"Save", new DoneClickListener())
+        .setPositiveButton((server == null)?"Add":"Save", null)
         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
                 NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
 			}
-        })
+            })
         .create();
+        d.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                Button b = d.getButton(AlertDialog.BUTTON_POSITIVE);
+                b.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
+                        NetworkConnection.getInstance().addHandler(EditConnectionFragment.this);
+                        reqid = save();
+                    }
+                });
+            }
+        });
 	    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
     	return d;
     }
@@ -401,15 +416,6 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 		}
 	}
 	
-    class DoneClickListener implements DialogInterface.OnClickListener {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-            NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
-            NetworkConnection.getInstance().addHandler(EditConnectionFragment.this);
-            reqid = save();
-		}
-    }
-
     public void onIRCEvent(int what, Object o) {
         IRCCloudJSONObject obj;
         switch (what) {
@@ -417,6 +423,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
                 obj = (IRCCloudJSONObject)o;
                 if(obj.getInt("_reqid") == reqid) {
                     NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
+                    dismiss();
                 }
                 break;
             case NetworkConnection.EVENT_FAILURE_MSG:
@@ -437,7 +444,6 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
                                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
                             }
                         });
-                    NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
                 }
                 break;
             default:
