@@ -165,7 +165,7 @@ public class IRCCloudApplication extends Application {
         if(!NetworkConnection.getInstance().isVisible()) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the background, cleaning backlog in all buffers");
             for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-                if (!b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
+                if (!b.scrolledUp)
                     EventsDataSource.getInstance().pruneEvents(b.bid);
             }
         }

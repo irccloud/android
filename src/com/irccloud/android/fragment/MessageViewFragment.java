@@ -904,7 +904,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         super.onLowMemory();
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the foreground, cleaning backlog in other buffers");
         for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-            if (b != buffer && !b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
+            if (b != buffer)
                 EventsDataSource.getInstance().pruneEvents(b.bid);
         }
     }
@@ -2290,7 +2290,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
                 BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid);
-                if(b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200 && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0) {
+                if(b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200) {
                     EventsDataSource.getInstance().pruneEvents(b.bid);
                     if(b.bid == buffer.bid) {
                         if(b.last_seen_eid < event.eid && unreadTopView.getVisibility() == View.GONE)

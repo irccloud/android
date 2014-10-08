@@ -782,7 +782,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if(unread == 0) {
                             int u = 0;
                             try {
-                                u = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
+                                u = b.unread;
                                 if(b.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid)))
                                     u = 0;
                                 else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
@@ -795,7 +795,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if(highlights == 0) {
                             try {
                                 if(!b.type.equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.bid)) || !bufferDisabledMap.getBoolean(String.valueOf(b.bid))) {
-                                    highlights += EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type);
+                                    highlights += b.highlights;
                                 }
                             } catch (JSONException e) {
                             }
@@ -2660,7 +2660,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     ArrayList<Long> eids = new ArrayList<Long>();
 
                     for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-                        if(EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type) == 1 && EventsDataSource.getInstance().lastEidForBuffer(b.bid) > 0) {
+                        if(b.unread == 1 && EventsDataSource.getInstance().lastEidForBuffer(b.bid) > 0) {
                             cids.add(b.cid);
                             bids.add(b.bid);
                             eids.add(EventsDataSource.getInstance().lastEidForBuffer(b.bid));

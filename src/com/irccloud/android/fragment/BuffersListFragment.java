@@ -181,8 +181,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 int unread = 0;
                 int highlights = 0;
                 if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                    unread = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
-                    highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                    unread = b.unread;
+                    highlights = b.highlights;
                 }
                 try {
                     if(b.type.equalsIgnoreCase("channel")) {
@@ -641,8 +641,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 						int unread = 0;
 						int highlights = 0;
 						if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-							unread = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
-							highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+							unread = b.unread;
+							highlights = b.highlights;
 						}
 						if(s.name.length() == 0)
 							s.name = s.hostname;
@@ -692,8 +692,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                         int highlights = 0;
                         String contentDescription = null;
                         if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                            unread = EventsDataSource.getInstance().getUnreadStateForBuffer(b.bid, b.last_seen_eid, b.type);
-                            highlights = EventsDataSource.getInstance().getHighlightCountForBuffer(b.bid, b.last_seen_eid, b.type);
+                            unread = b.unread;
+                            highlights = b.highlights;
                         }
                         try {
                             if (b.type.equalsIgnoreCase("channel")) {
@@ -796,9 +796,10 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 	}
 
 	public void setSelectedBid(int bid) {
+        int last_bid = selected_bid;
 		selected_bid = bid;
 		if(adapter != null) {
-            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(selected_bid);
+            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(last_bid);
             if(b != null)
                 adapter.updateBuffer(b);
             b = BuffersDataSource.getInstance().getBuffer(bid);

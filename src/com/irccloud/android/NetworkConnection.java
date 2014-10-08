@@ -543,7 +543,7 @@ public class NetworkConnection {
 		oobTasks.clear();
 		session = null;
         for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-            if(!b.scrolledUp && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
+            if(!b.scrolledUp)
                 EventsDataSource.getInstance().pruneEvents(b.bid);
         }
 		try {
@@ -1481,11 +1481,18 @@ public class NetworkConnection {
                     Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
                     while(j.hasNext()) {
                         Map.Entry<String, JsonNode> eidentry = j.next();
-                        String bid = eidentry.getKey();
+                        int bid = Integer.valueOf(eidentry.getKey());
                         long eid = eidentry.getValue().asLong();
-                        BuffersDataSource.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
-                        Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
-                        Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                        BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
+                        Notifications.getInstance().deleteOldNotifications(bid, eid);
+                        Notifications.getInstance().updateLastSeenEid(bid, eid);
+                        if(EventsDataSource.getInstance().lastEidForBuffer(bid) <= eid) {
+                            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+                            if(b != null) {
+                                b.unread = 0;
+                                b.highlights = 0;
+                            }
+                        }
                     }
                 }
                 if(!backlog) {
@@ -1719,6 +1726,10 @@ public class NetworkConnection {
                         (object.has("archived") && object.getBoolean("archived"))?1:0, (object.has("deferred") && object.getBoolean("deferred"))?1:0, (object.has("timeout") && object.getBoolean("timeout"))?1:0);
                 Notifications.getInstance().deleteOldNotifications(buffer.bid, buffer.last_seen_eid);
                 Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
+                if(EventsDataSource.getInstance().lastEidForBuffer(buffer.bid) <= buffer.last_seen_eid) {
+                    buffer.unread = 0;
+                    buffer.highlights = 0;
+                }
                 if(!backlog)
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
                 totalbuffers++;
@@ -1766,37 +1777,46 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 EventsDataSource e = EventsDataSource.getInstance();
+                boolean newEvent = (e.getEvent(object.eid(), object.bid()) == null);
                 EventsDataSource.Event event = e.addEvent(object);
                 BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());
 
-                if(b != null && event.eid > b.last_seen_eid && event.isImportant(b.type) && ((event.highlight || b.type.equals("conversation")))) {
-                    JSONObject bufferDisabledMap = null;
-                    boolean show = true;
-                    if(userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
-                        bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
-                        if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
-                            show = false;
-                    }
-                    if(show && Notifications.getInstance().getNotification(event.eid) == null) {
-                        String message = ColorFormatter.irc_to_html(event.msg);
-                        message = ColorFormatter.html_to_spanned(message).toString();
-                        Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null)?event.nick:event.from, message, b.name, b.type, event.type);
-                        if(!backlog) {
-                            if(b.type.equals("conversation"))
-                                Notifications.getInstance().showNotifications(b.name + ": " + message);
-                            else if(b.type.equals("console")) {
-                                if(event.from == null || event.from.length() == 0) {
-                                    ServersDataSource.Server s = ServersDataSource.getInstance().getServer(event.cid);
-                                    if(s.name != null && s.name.length() > 0)
-                                        Notifications.getInstance().showNotifications(s.name + ": " + message);
-                                    else
-                                        Notifications.getInstance().showNotifications(s.hostname + ": " + message);
-                                } else {
-                                    Notifications.getInstance().showNotifications(event.from + ": " + message);
-                                }
-                            } else
-                                Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
+                if(b != null && event.eid > b.last_seen_eid && event.isImportant(b.type)) {
+                    if((event.highlight || b.type.equals("conversation"))) {
+                        if(newEvent) {
+                            b.highlights++;
+                            b.unread = 1;
                         }
+                        JSONObject bufferDisabledMap = null;
+                        boolean show = true;
+                        if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
+                            bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
+                            if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                show = false;
+                        }
+                        if (show && Notifications.getInstance().getNotification(event.eid) == null) {
+                            String message = ColorFormatter.irc_to_html(event.msg);
+                            message = ColorFormatter.html_to_spanned(message).toString();
+                            Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.name, b.type, event.type);
+                            if (!backlog) {
+                                if (b.type.equals("conversation"))
+                                    Notifications.getInstance().showNotifications(b.name + ": " + message);
+                                else if (b.type.equals("console")) {
+                                    if (event.from == null || event.from.length() == 0) {
+                                        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(event.cid);
+                                        if (s.name != null && s.name.length() > 0)
+                                            Notifications.getInstance().showNotifications(s.name + ": " + message);
+                                        else
+                                            Notifications.getInstance().showNotifications(s.hostname + ": " + message);
+                                    } else {
+                                        Notifications.getInstance().showNotifications(event.from + ": " + message);
+                                    }
+                                } else
+                                    Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
+                            }
+                        }
+                    } else {
+                        b.unread = 1;
                     }
                 } else if(b == null && !oobTasks.containsKey(-1)) {
                     Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
@@ -1806,7 +1826,7 @@ public class NetworkConnection {
                         client.disconnect();
                 }
 
-                if(handlers.size() == 0 && b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200 && EventsDataSource.getInstance().getHighlightStateForBuffer(b.bid, b.last_seen_eid, b.type) == 0)
+                if(handlers.size() == 0 && b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200)
                     EventsDataSource.getInstance().pruneEvents(b.bid);
 
                 if(!backlog)

@@ -45,6 +45,8 @@ public class BuffersDataSource {
         public boolean scrolledUp;
         public int scrollPosition;
         public int scrollPositionOffset;
+        public int unread;
+        public int highlights;
 
         public String toString() {
             return "{cid:" + cid + ", bid:" + bid + ", name: " + name + ", type: " + type + ", archived: " + archived + "}";
@@ -149,6 +151,8 @@ public class BuffersDataSource {
 		b.timeout = timeout;
         b.valid = 1;
         dirty = true;
+        b.unread = 0;
+        b.highlights = 0;
 		return b;
 	}
 
