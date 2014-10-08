@@ -1322,6 +1322,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             getActivity().getIntent().putExtra("last_seen_eid", eid);
                         NetworkConnection.getInstance().heartbeat(buffer.cid, buffer.bid, eid);
                         BuffersDataSource.getInstance().updateLastSeenEid(buffer.bid, eid);
+                        buffer.unread = 0;
+                        buffer.highlights = 0;
                     }
                 }
             } catch (Exception e) {

@@ -586,7 +586,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 		ArrayList<BufferListEntry> entries = new ArrayList<BufferListEntry>();
 
         @Override
-		protected Void doInBackground(Void... params) {
+		protected synchronized Void doInBackground(Void... params) {
 			if(!ready || isCancelled()) {
                 Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment not ready or cancelled");
                 return null;
@@ -774,7 +774,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
 			if(adapter == null)
 				return;
-			
+
 			adapter.setItems(entries);
 			
 			if(getListAdapter() == null && entries.size() > 0) {

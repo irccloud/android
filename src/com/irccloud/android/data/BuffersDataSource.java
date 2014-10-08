@@ -228,8 +228,6 @@ public class BuffersDataSource {
             try {
                 Collections.sort(buffers, new comparator());
             } catch (Exception e) {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to sort buffers: " + buffers);
-                Crashlytics.logException(e);
             }
             dirty = false;
         }

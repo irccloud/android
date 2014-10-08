@@ -2664,6 +2664,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             cids.add(b.cid);
                             bids.add(b.bid);
                             eids.add(EventsDataSource.getInstance().lastEidForBuffer(b.bid));
+                            b.unread = 0;
+                            b.highlights = 0;
                         }
                     }
                     conn.heartbeat(buffer.bid, cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));

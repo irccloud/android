@@ -1317,6 +1317,10 @@ public class NetworkConnection {
                 Crashlytics.log(Log.WARN, TAG, "Ignoring duplicate backlog request for BID: " + bid);
 				return;
 			}
+            if(session == null || session.length() == 0) {
+                Crashlytics.log(Log.WARN, TAG, "Not fetching backlog before session is set");
+                return;
+            }
 			if(Looper.myLooper() == null)
 				Looper.prepare();
 			
