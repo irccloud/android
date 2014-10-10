@@ -958,16 +958,23 @@ public class NetworkConnection {
         editor.remove("userSwipeTip");
         editor.remove("bufferSwipeTip");
         editor.remove("longPressTip");
-        editor.remove("email");
-        editor.remove("name");
-        editor.remove("highlights");
-        editor.remove("autoaway");
         editor.remove("imgur_account_username");
         editor.remove("imgur_access_token");
         editor.remove("imgur_refresh_token");
         editor.remove("imgur_token_type");
         editor.remove("imgur_expires_in");
         editor.commit();
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+        prefs.remove("name");
+        prefs.remove("email");
+        prefs.remove("highlights");
+        prefs.remove("autoaway");
+        prefs.remove("time-24hr");
+        prefs.remove("time-seconds");
+        prefs.remove("mode-showsymbol");
+        prefs.remove("nick-colors");
+        prefs.remove("emoji-disableconvert");
+        prefs.commit();
         ServersDataSource.getInstance().clear();
         BuffersDataSource.getInstance().clear();
         ChannelsDataSource.getInstance().clear();
@@ -975,6 +982,7 @@ public class NetworkConnection {
         EventsDataSource.getInstance().clear();
         Notifications.getInstance().clearNetworks();
         Notifications.getInstance().clear();
+        userInfo = null;
     }
 
 	private synchronized int send(String method, JSONObject params) {

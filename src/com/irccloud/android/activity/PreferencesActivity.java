@@ -108,20 +108,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
 		addPreferencesFromResource(R.xml.preferences_about);
 		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
-		if(conn.getUserInfo() != null)
-			findPreference("name").setSummary(conn.getUserInfo().name);
-		else
-			findPreference("name").setSummary(((EditTextPreference)findPreference("name")).getText());
-		findPreference("email").setOnPreferenceChangeListener(settingstoggle);
-		if(conn.getUserInfo() != null)
-			findPreference("email").setSummary(conn.getUserInfo().email);
-		else
-			findPreference("email").setSummary(((EditTextPreference)findPreference("email")).getText());
-		findPreference("highlights").setOnPreferenceChangeListener(settingstoggle);
-		if(conn.getUserInfo() != null)
-			findPreference("highlights").setSummary(conn.getUserInfo().highlights);
-		else
-			findPreference("highlights").setSummary(((EditTextPreference)findPreference("highlights")).getText());
+
 		findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
 		findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
 		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
@@ -139,53 +126,8 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
 		//findPreference("changes").setOnPreferenceClickListener(urlClick);
 		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
-		switch(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1"))) {
-			case 0:
-				findPreference("notify_type").setSummary("Disabled");
-				break;
-			case 1:
-				findPreference("notify_type").setSummary("Enabled");
-				break;
-			case 2:
-				findPreference("notify_type").setSummary("Only while active");
-				break;
-		}
         findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
-        switch(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_led_color", "1"))) {
-            case 0:
-                findPreference("notify_led_color").setSummary("Disabled");
-                break;
-            case 1:
-                findPreference("notify_led_color").setSummary("Default Color");
-                break;
-            case 2:
-                findPreference("notify_led_color").setSummary("Blue");
-                break;
-        }
         findPreference("photo_size").setOnPreferenceChangeListener(photosizetoggle);
-        switch(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"))) {
-            case 512:
-                findPreference("photo_size").setSummary("Small");
-                break;
-            case 1024:
-                findPreference("photo_size").setSummary("Medium");
-                break;
-            case 2048:
-                findPreference("photo_size").setSummary("Large");
-                break;
-            case -1:
-                findPreference("photo_size").setSummary("Original");
-                break;
-        }
-		if(Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
-			findPreference("notify_vibrate").setEnabled(true);
-			findPreference("notify_ringtone").setEnabled(true);
-			findPreference("notify_led_color").setEnabled(true);
-		} else {
-			findPreference("notify_vibrate").setEnabled(false);
-			findPreference("notify_ringtone").setEnabled(false);
-			findPreference("notify_led_color").setEnabled(false);
-		}
 
 		try {
             findPreference("version").setSummary(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
@@ -208,10 +150,79 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
     @Override
     public void onResume() {
     	super.onResume();
-    	conn = NetworkConnection.getInstance();
-    	conn.addHandler(this);
-        overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
-        findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
+
+        String session = getSharedPreferences("prefs", 0).getString("session_key", "");
+        if(session != null && session.length() > 0) {
+
+            conn = NetworkConnection.getInstance();
+            conn.addHandler(this);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
+
+            if (conn.getUserInfo() != null)
+                findPreference("name").setSummary(conn.getUserInfo().name);
+            else
+                findPreference("name").setSummary(((EditTextPreference) findPreference("name")).getText());
+            findPreference("email").setOnPreferenceChangeListener(settingstoggle);
+            if (conn.getUserInfo() != null)
+                findPreference("email").setSummary(conn.getUserInfo().email);
+            else
+                findPreference("email").setSummary(((EditTextPreference) findPreference("email")).getText());
+            findPreference("highlights").setOnPreferenceChangeListener(settingstoggle);
+            if (conn.getUserInfo() != null)
+                findPreference("highlights").setSummary(conn.getUserInfo().highlights);
+            else
+                findPreference("highlights").setSummary(((EditTextPreference) findPreference("highlights")).getText());
+
+            switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1"))) {
+                case 0:
+                    findPreference("notify_type").setSummary("Disabled");
+                    break;
+                case 1:
+                    findPreference("notify_type").setSummary("Enabled");
+                    break;
+                case 2:
+                    findPreference("notify_type").setSummary("Only while active");
+                    break;
+            }
+            switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_led_color", "1"))) {
+                case 0:
+                    findPreference("notify_led_color").setSummary("Disabled");
+                    break;
+                case 1:
+                    findPreference("notify_led_color").setSummary("Default Color");
+                    break;
+                case 2:
+                    findPreference("notify_led_color").setSummary("Blue");
+                    break;
+            }
+            switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"))) {
+                case 512:
+                    findPreference("photo_size").setSummary("Small");
+                    break;
+                case 1024:
+                    findPreference("photo_size").setSummary("Medium");
+                    break;
+                case 2048:
+                    findPreference("photo_size").setSummary("Large");
+                    break;
+                case -1:
+                    findPreference("photo_size").setSummary("Original");
+                    break;
+            }
+            if (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1")) > 0) {
+                findPreference("notify_vibrate").setEnabled(true);
+                findPreference("notify_ringtone").setEnabled(true);
+                findPreference("notify_led_color").setEnabled(true);
+            } else {
+                findPreference("notify_vibrate").setEnabled(false);
+                findPreference("notify_ringtone").setEnabled(false);
+                findPreference("notify_led_color").setEnabled(false);
+            }
+            findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
+        } else {
+            Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     @Override
