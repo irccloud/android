@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2013 IRCCloud, Ltd.
+  ~ Copyright (c) 2014 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,16 +13,11 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
--->
-<resources>
+  -->
 
-    <dimen name="drawer_width">250dp</dimen>
-    <dimen name="userlist_width">200dp</dimen>
-    <dimen name="splashlogo_width">128dp</dimen>
-    <dimen name="splashlogo_margin">64dp</dimen>
-    <dimen name="unread_top_txt_size">12sp</dimen>
-    <dimen name="unread_bottom_txt_size">14sp</dimen>
-    <dimen name="unread_bubble_size">24dp</dimen>
-    <dimen name="top_bar_height">64dp</dimen>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
 
-</resources>
+    <solid android:color="@color/dark_blue"/>
+</shape>

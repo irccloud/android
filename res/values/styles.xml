@@ -16,13 +16,16 @@
 
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light">
-        <item name="actionBarStyle">@style/Widget.Styled.ActionBar</item>
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
     </style>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
+        <item name="colorPrimaryDark">#0b2e60</item>
     </style>
     <style name="PrefsTheme" parent="@android:style/Theme"/>
     <style name="DialogTheme" parent="@android:style/Theme.Dialog"/>
@@ -31,10 +34,6 @@
     </style>
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
 		<item name="android:textColor">@android:color/primary_text_light</item>
-	</style>
-	<style name="Widget.Styled.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
-	    <item name="background">@drawable/actionbar</item>
-	    <item name="android:background">@drawable/actionbar</item>
 	</style>
 	<style name="EditEventCustomActionButton" parent="Widget.AppCompat.Light.ActionButton">
         <item name="android:layout_height">match_parent</item>

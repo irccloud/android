@@ -55,6 +55,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/compose_bar_bg"
             android:padding="4dp"
+            android:elevation="4dp"
             android:paddingTop="2dp" >
 
             <ImageButton
@@ -78,13 +79,20 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Message"
-                android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage" />
+                android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
+                android:layout_margin="0dp" />
 
-            <include
+            <ImageButton
                 android:id="@+id/sendBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                layout="@layout/sendbtn" />
+                android:background="@null"
+                android:paddingLeft="6dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="4dp"
+                android:scaleType="fitEnd"
+                android:contentDescription="Send"
+                android:src="@drawable/ic_action_send" />
         </LinearLayout>
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

@@ -1,0 +1,58 @@
+<!--
+  ~ Copyright (c) 2014 IRCCloud, Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="android:dialogTheme">@style/AppDialogTheme</item>
+        <item name="android:alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:colorPrimary">@color/light_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+    </style>
+    <style name="LoginTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:windowBackground">@color/loginBackgroundColor</item>
+        <item name="android:navigationBarColor">#4480FA</item>
+        <item name="android:colorPrimaryDark">#0b2e60</item>
+        <item name="colorPrimaryDark">#0b2e60</item>
+    </style>
+    <style name="PrefsTheme" parent="@style/AppTheme"/>
+    <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowActionBarOverlay">true</item>
+    </style>
+    <style name="messageTxt">
+        <item name="android:imeOptions">flagNoExtractUi|actionSend</item>
+    </style>
+    <style name="NotificationText" parent="android:TextAppearance.StatusBar.EventContent" />
+    <style name="NotificationTitle" parent="android:TextAppearance.StatusBar.EventContent.Title">
+        <item name="android:textColor">#000</item>
+    </style>
+    <style name="AppDialogTheme" parent="android:Theme.Material.Light.Dialog">
+        <item name="android:colorPrimary">@color/light_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+    </style>
+    <style name="AppAlertTheme" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:colorPrimary">@color/light_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+    </style>
+</resources>

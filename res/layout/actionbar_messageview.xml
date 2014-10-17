@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2013 IRCCloud, Ltd.
+  ~ Copyright (c) 2014 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:gravity="center_vertical" >
+    android:gravity="center_vertical"
+    android:minHeight="64dp">
 
     <ImageView
         android:id="@+id/upIndicator"
@@ -29,26 +30,14 @@
         android:src="@drawable/ic_navigation_drawer"
         android:visibility="visible" />
 
-    <ImageView
-        android:id="@+id/upIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginLeft="-4dp"
-        android:layout_marginBottom="@dimen/abc_action_bar_icon_vertical_padding"
-        android:layout_marginTop="@dimen/abc_action_bar_icon_vertical_padding"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ic_launcher"
-        android:contentDescription="@string/abc_action_bar_up_description"/>
-
     <LinearLayout
         android:id="@+id/actionTitleArea"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center_vertical|left"
         android:orientation="vertical"
-        android:paddingLeft="6dp" >
+        android:paddingLeft="6dp"
+        android:layout_marginLeft="8dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -70,7 +59,7 @@
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:singleLine="true"
-                android:textSize="@dimen/abc_action_bar_title_text_size" />
+                android:textSize="18dp" />
 
         </LinearLayout>
 
@@ -78,10 +67,10 @@
             android:id="@+id/subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/abc_action_bar_subtitle_top_margin"
+            android:layout_marginTop="-3dp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="@dimen/abc_action_bar_subtitle_text_size"
+            android:textSize="14dp"
             android:visibility="gone" />
     </LinearLayout>
 

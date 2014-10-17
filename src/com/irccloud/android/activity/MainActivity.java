@@ -331,17 +331,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         View photoBtn = findViewById(R.id.photoBtn);
         if(photoBtn != null) {
-            if (Build.VERSION.SDK_INT < 11) {
-                photoBtn.setVisibility(View.GONE);
-            } else {
-                photoBtn.setFocusable(false);
-                photoBtn.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        insertPhoto();
-                    }
-                });
-            }
+            photoBtn.setFocusable(false);
+            photoBtn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    insertPhoto();
+                }
+            });
         }
         userListView = findViewById(R.id.usersListFragment);
 
@@ -362,8 +358,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             drawerLayout.setDrawerListener(mDrawerListener);
         	upView.setVisibility(View.VISIBLE);
         	upView.setOnClickListener(upClickListener);
-	        ImageView icon = (ImageView)v.findViewById(R.id.upIcon);
-	        icon.setOnClickListener(upClickListener);
 	        if(refreshUpIndicatorTask != null)
 	        	refreshUpIndicatorTask.cancel(true);
 	        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
@@ -812,13 +806,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		protected void onPostExecute(Void result) {
 			if(!isCancelled() && drawerLayout != null) {
 				if(highlights > 0) {
-                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
+                    upView.setImageResource(R.drawable.ic_navigation_drawer_highlight);
                     upView.setTag(R.drawable.ic_navigation_drawer_highlight);
 				} else if(unread > 0) {
-                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
+                    upView.setImageResource(R.drawable.ic_navigation_drawer_unread);
                     upView.setTag(R.drawable.ic_navigation_drawer_unread);
 				} else {
-                    mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer));
+                    upView.setImageResource(R.drawable.ic_navigation_drawer);
                     upView.setTag(R.drawable.ic_navigation_drawer);
 				}
 				refreshUpIndicatorTask = null;
@@ -1870,7 +1864,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_highlight));
+                                            upView.setImageResource(R.drawable.ic_navigation_drawer_highlight);
                                             upView.setTag(R.drawable.ic_navigation_drawer_highlight);
                                         }
                                     });
@@ -1895,7 +1889,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            mDrawerListener.setUpDrawable(getResources().getDrawable(R.drawable.ic_navigation_drawer_unread));
+                                            upView.setImageResource(R.drawable.ic_navigation_drawer_unread);
                                             upView.setTag(R.drawable.ic_navigation_drawer_unread);
                                         }
                                     });
@@ -2008,38 +2002,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private class ToggleListener implements DrawerLayout.DrawerListener  {
-        private SlideDrawable mSlider = null;
 
         @Override
         public void onDrawerSlide(View view, float slideOffset) {
-            if(view != null && mSlider != null && ((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
-                float glyphOffset = mSlider.getOffset();
-                if (slideOffset > 0.5f) {
-                    glyphOffset = Math.max(glyphOffset, Math.max(0.f, slideOffset - 0.5f) * 2);
-                } else {
-                    glyphOffset = Math.min(glyphOffset, slideOffset * 2);
-                }
-                mSlider.setOffset(glyphOffset);
-            }
-        }
-
-        public void setUpDrawable(Drawable d) {
-            mSlider = new SlideDrawable(d);
-            mSlider.setOffsetBy(1.f / 3);
-            upView.setImageDrawable(mSlider);
-            if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                mSlider.setOffset(1.f);
-            } else {
-                mSlider.setOffset(0.f);
-            }
         }
 
         @Override
         public void onDrawerOpened(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
-                if(mSlider != null)
-                    mSlider.setOffset(1.f);
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             }
@@ -2053,8 +2024,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public void onDrawerClosed(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                if(mSlider != null)
-                    mSlider.setOffset(0.f);
                 updateUsersListFragmentVisibility();
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);

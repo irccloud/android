@@ -30,6 +30,7 @@
             android:id="@+id/globalMessageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:elevation="4dp"
             layout="@layout/globalmessageview"
             android:visibility="gone" />
 
@@ -57,6 +58,7 @@
                 android:background="@color/dark_blue"
                 android:gravity="center_vertical"
                 android:padding="2dp"
+                android:elevation="4dp"
                 android:visibility="gone" >
 
                 <TextView
@@ -72,6 +74,7 @@
                     android:textColor="#fff"
                     android:textSize="@dimen/unread_top_txt_size"
                     android:textStyle="bold"
+                    android:elevation="2dp"
                     android:visibility="gone" />
 
                 <TextView
@@ -93,7 +96,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Dismiss"
-                    android:textColor="@color/markAsReadColor" />
+                    android:textColor="#fff"
+                    android:background="#56A4F7"
+                    android:minHeight="32dp"
+                    android:padding="4dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -104,6 +110,7 @@
                 android:background="@color/dark_blue"
                 android:gravity="center_vertical"
                 android:padding="4dp"
+                android:elevation="4dp"
                 android:visibility="gone" >
 			    
 			    <TextView
@@ -120,6 +127,7 @@
 			        android:textColor="#fff"
 			        android:textSize="@dimen/unread_bottom_txt_size"
 			        android:textStyle="bold"
+                    android:elevation="2dp"
 			        android:visibility="gone" />
                 
                 <TextView
@@ -151,6 +159,7 @@
                 android:id="@+id/suggestionsContainer"
                 android:layout_margin="2dp"
                 android:visibility="invisible"
+                android:elevation="2dp"
                 android:gravity="bottom">
 
                 <LinearLayout
@@ -177,6 +186,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/status_bg"
             android:padding="6dp"
+            android:elevation="4dp"
             android:visibility="gone" >
 
             <TextView
@@ -208,6 +218,7 @@
             android:padding="6dp"
             android:textColor="@color/dark_blue"
             android:textSize="16sp"
+            android:elevation="4dp"
             android:visibility="gone" />
 
 		<LinearLayout
@@ -223,6 +234,7 @@
         android:background="@drawable/bg"
         android:orientation="vertical"
         android:padding="6dp"
+        android:elevation="4dp"
         android:visibility="gone" >
 
         <TextView

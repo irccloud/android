@@ -16,8 +16,9 @@
 
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light">
-        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
     </style>
     <style name="PrefsTheme" parent="@style/AppTheme"/>
     <style name="DialogTheme" parent="@android:style/Theme.Holo.Dialog"/>

@@ -38,6 +38,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompatExtras;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.support.v4.app.RemoteInput;
@@ -605,7 +606,7 @@ public class Notifications {
         .setSmallIcon(R.drawable.ic_stat_notify)
         .setGroup(String.valueOf(bid))
         .setGroupSummary(true)
-        //.setVisibility(NotificationCompat.VISIBILITY_PRIVATE) -- Not in the support library yet
+        .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
         //.setCategory(Notification.CATEGORY_MESSAGE) -- Not in the support library yet
         .setPriority(NotificationCompat.PRIORITY_HIGH);
 
