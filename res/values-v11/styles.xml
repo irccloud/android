@@ -18,10 +18,11 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="colorPrimary">@color/light_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorAccent">#ff33b5e5</item>
     </style>
-    <style name="PrefsTheme" parent="@style/AppTheme"/>
-    <style name="DialogTheme" parent="@android:style/Theme.Holo.Dialog"/>
+    <style name="PrefsTheme" parent="android:Theme.Holo.Light">
+        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
+    </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:windowActionBarOverlay">true</item>
     </style>
@@ -31,5 +32,8 @@
     <style name="ProgressBarLogin" parent="android:Widget.Holo.Light.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/login_progress_horizontal_holo_dark</item>
         <item name="android:indeterminateDrawable">@drawable/login_progress_indeterminate_horizontal_holo_dark</item>
+    </style>
+    <style name="Widget.Styled.ActionBar" parent="android:Widget.Holo.ActionBar">
+        <item name="android:background">@drawable/actionbar</item>
     </style>
 </resources>

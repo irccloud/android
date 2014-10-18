@@ -63,8 +63,9 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
         if(Build.VERSION.SDK_INT >= 11) {
-            if(getActionBar() != null)
+            if(getActionBar() != null) {
                 getActionBar().setDisplayHomeAsUpEnabled(true);
+            }
         }
 		conn = NetworkConnection.getInstance();
 		addPreferencesFromResource(R.xml.preferences_account);
@@ -515,7 +516,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 
         public boolean onPreferenceClick(Preference preference) {
             AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+
             View v = getLayoutInflater().inflate(R.layout.dialog_licenses, null);
             TextView tv = (TextView)v.findViewById(R.id.licenses);
             tv.setText("IRCCloud\n" +
