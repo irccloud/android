@@ -579,12 +579,14 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 holder.unread.setLayoutParams(lp);
             }
 
-            if(Build.VERSION.SDK_INT >= 20) {
+            if(Build.VERSION.SDK_INT >= 21) {
                 if(holder.unread != null) {
                     if (selected_bid == e.bid) {
-                        holder.unread.setTranslationZ(12);
+                        holder.unread.setElevation(6);
+                        holder.bufferbg.setElevation(0);
                     } else {
-                        holder.unread.setTranslationZ(0);
+                        holder.unread.setElevation(0);
+                        holder.bufferbg.setElevation(6);
                     }
                 }
             }

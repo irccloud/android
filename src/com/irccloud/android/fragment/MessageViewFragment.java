@@ -1393,15 +1393,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(events != null && events.size() > 0) {
                     try {
-                        if(MessageViewFragment.this.adapter != null && MessageViewFragment.this.adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
-                            if(oldPosition > 0 && oldPosition == MessageViewFragment.this.adapter.data.size())
+                        if (MessageViewFragment.this.adapter != null && MessageViewFragment.this.adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
+                            if (oldPosition > 0 && oldPosition == MessageViewFragment.this.adapter.data.size())
                                 oldPosition--;
                             EventsDataSource.Event e = MessageViewFragment.this.adapter.data.get(oldPosition);
-                            if(e != null)
+                            if (e != null)
                                 backlog_eid = e.group_eid - 1;
                             else
                                 backlog_eid = -1;
-                            if(backlog_eid < 0) {
+                            if (backlog_eid < 0) {
                                 backlog_eid = MessageViewFragment.this.adapter.getItemId(oldPosition) - 1;
                             }
                             EventsDataSource.Event backlogMarker = new EventsDataSource.Event();
@@ -1420,17 +1420,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         //The list view doesn't exist yet
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
                     }
-                } else if(buffer != null && buffer.min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            headerView.setVisibility(View.VISIBLE);
-                            backlogFailed.setVisibility(View.GONE);
-                            loadBacklogButton.setVisibility(View.GONE);
-                        }
-                    });
                 }
-			}
+            } else if(buffer != null && buffer.min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !isCancelled()) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.VISIBLE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
+                        setListAdapter(adapter);
+                        MessageViewFragment.this.adapter = adapter;
+                        requestingBacklog = true;
+                        conn.request_backlog(buffer.cid, buffer.bid, 0);
+                    }
+                });
+            }
 			return null;
 		}
 

@@ -30,7 +30,7 @@
             android:id="@+id/globalMessageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="4dp"
+            android:elevation="2dp"
             layout="@layout/globalmessageview"
             android:visibility="gone" />
 
@@ -58,7 +58,7 @@
                 android:background="@color/dark_blue"
                 android:gravity="center_vertical"
                 android:padding="2dp"
-                android:elevation="4dp"
+                android:elevation="2dp"
                 android:visibility="gone" >
 
                 <TextView
@@ -110,7 +110,7 @@
                 android:background="@color/dark_blue"
                 android:gravity="center_vertical"
                 android:padding="4dp"
-                android:elevation="4dp"
+                android:elevation="2dp"
                 android:visibility="gone" >
 			    
 			    <TextView
@@ -186,7 +186,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/status_bg"
             android:padding="6dp"
-            android:elevation="4dp"
+            android:elevation="2dp"
             android:visibility="gone" >
 
             <TextView
@@ -218,7 +218,7 @@
             android:padding="6dp"
             android:textColor="@color/dark_blue"
             android:textSize="16sp"
-            android:elevation="4dp"
+            android:elevation="2dp"
             android:visibility="gone" />
 
 		<LinearLayout
@@ -234,7 +234,7 @@
         android:background="@drawable/bg"
         android:orientation="vertical"
         android:padding="6dp"
-        android:elevation="4dp"
+        android:elevation="2dp"
         android:visibility="gone" >
 
         <TextView

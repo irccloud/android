@@ -1016,6 +1016,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         messageTxt.clearFocus();
         messageTxt.setEnabled(true);
+
+        getSupportActionBar().setElevation(4);
     }
 
     @Override
