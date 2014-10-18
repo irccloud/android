@@ -83,11 +83,17 @@
                 android:imeOptions="flagNoExtractUi|actionSend"
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage" />
 
-            <include
+            <ImageButton
                 android:id="@+id/sendBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                layout="@layout/sendbtn" />
+                android:background="@null"
+                android:paddingLeft="6dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="4dp"
+                android:scaleType="fitEnd"
+                android:contentDescription="Send"
+                android:src="@drawable/ic_action_send" />
         </LinearLayout>
     </LinearLayout>
 

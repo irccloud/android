@@ -18,4 +18,5 @@
 
 <resources>
     <color name="dialogLinkColor">#ff33b5e5</color>
+    <color name="dialog_bg">@android:color/transparent</color>
 </resources>

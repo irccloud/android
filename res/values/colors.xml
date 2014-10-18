@@ -63,4 +63,5 @@
     <drawable name="highlightBorder">#d20004</drawable>
     <color name="loginBackgroundColor">#4480FA</color>
     <color name="dialogLinkColor">@color/linkColor</color>
+    <color name="dialog_bg">#fff</color>
 </resources>
