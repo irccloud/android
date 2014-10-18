@@ -36,6 +36,7 @@
             android:gravity="center"
             android:background="#0b2e60"
             android:paddingTop="12dp"
+            android:elevation="4dp"
             android:paddingBottom="12dp">
 
             <ImageView
@@ -79,6 +80,7 @@
             android:background="#0b2e60"
             android:paddingBottom="12dp"
             android:layout_marginTop="-4dp"
+            android:elevation="4dp"
             android:visibility="gone">
 
             <TextView
@@ -106,6 +108,7 @@
             android:gravity="center"
             android:background="#0b2e60"
             android:paddingBottom="12dp"
+            android:elevation="4dp"
             android:layout_marginTop="-4dp">
 
             <TextView
@@ -134,6 +137,7 @@
             android:background="#0b2e60"
             android:paddingBottom="12dp"
             android:layout_marginTop="-4dp"
+            android:elevation="4dp"
             android:visibility="gone">
 
             <TextView
@@ -154,6 +158,7 @@
             android:background="#0b2e60"
             android:paddingBottom="12dp"
             android:layout_marginTop="-4dp"
+            android:elevation="4dp"
             android:visibility="gone">
 
             <TextView
@@ -221,6 +226,7 @@
                 android:hint="Name"
                 android:background="@drawable/login_top_input"
                 android:inputType="textPersonName"
+                android:elevation="4dp"
                 android:textColorHint="#2857ad" />
 
             <AutoCompleteTextView
@@ -235,6 +241,7 @@
                 android:background="@drawable/login_mid_input"
                 android:password="false"
                 android:textAppearance="@android:style/TextAppearance.Medium"
+                android:elevation="4dp"
                 android:textColorHint="#2857ad" />
 
             <EditText
@@ -245,6 +252,7 @@
                 android:hint="@string/password"
                 android:inputType="textPassword"
                 android:background="@drawable/login_bottom_input"
+                android:elevation="4dp"
                 android:textColorHint="#2857ad" />
 
             <EditText
@@ -256,6 +264,7 @@
                 android:inputType="textUri"
                 android:background="@drawable/login_only_input"
                 android:visibility="gone"
+                android:elevation="4dp"
                 android:textColorHint="#2857ad" />
 
             <TextView
@@ -284,6 +293,8 @@
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
                     android:visibility="gone"
+                    android:elevation="4dp"
+                    android:textAllCaps="false"
                     android:textSize="18sp" />
 
                 <Button
@@ -293,6 +304,8 @@
                     android:text="Sign up for an account"
                     android:background="@drawable/signup_button"
                     android:textColor="#fff"
+                    android:elevation="4dp"
+                    android:textAllCaps="false"
                     android:textSize="18sp" />
 
                 <Button
@@ -303,6 +316,8 @@
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
                     android:visibility="gone"
+                    android:elevation="4dp"
+                    android:textAllCaps="false"
                     android:textSize="18sp" />
 
                 <Button
@@ -313,6 +328,8 @@
                     android:background="@drawable/login_button"
                     android:textColor="#fff"
                     android:visibility="gone"
+                    android:elevation="4dp"
+                    android:textAllCaps="false"
                     android:textSize="18sp" />
             </LinearLayout>
 
