@@ -16,6 +16,8 @@
 
 package com.irccloud.android.activity;
 
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.*;
@@ -41,7 +43,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dialogTextPrompt = getLayoutInflater().inflate(R.layout.dialog_textprompt,null);
+        dialogTextPrompt = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dialog_textprompt,null);
     }
 
     public View getDialogTextPrompt() {
@@ -90,6 +92,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                     public void run() {
                     ServersDataSource.Server server = ServersDataSource.getInstance().getServer(o.cid());
                     AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     View view = getDialogTextPrompt();
                     TextView prompt = (TextView)view.findViewById(R.id.prompt);
                     final EditText keyinput = (EditText)view.findViewById(R.id.textInput);
@@ -150,6 +153,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                     public void run() {
                         ServersDataSource.Server server = ServersDataSource.getInstance().getServer(o.cid());
                         AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+                        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                         View view = getDialogTextPrompt();
                         TextView prompt = (TextView)view.findViewById(R.id.prompt);
                         final EditText nickinput = (EditText)view.findViewById(R.id.textInput);
@@ -303,6 +307,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
             @Override
             public void run() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
                 builder.setMessage(msg);
                 builder.setNegativeButton("Ok", new OnClickListener() {
@@ -333,7 +338,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
         switch (item.getItemId()) {
             case R.id.menu_logout:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 builder.setTitle("Logout");
                 builder.setMessage("Would you like to logout of IRCCloud?");
 

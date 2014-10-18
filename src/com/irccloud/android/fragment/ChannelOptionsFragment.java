@@ -27,8 +27,6 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
@@ -188,8 +186,6 @@ public class ChannelOptionsFragment extends DialogFragment {
     		bid = savedInstanceState.getInt("bid");
     	}
 		Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.dialog_channel_options,null);
     	members = (CheckBox)v.findViewById(R.id.members);
@@ -199,7 +195,8 @@ public class ChannelOptionsFragment extends DialogFragment {
         collapse = (CheckBox)v.findViewById(R.id.collapse);
     	
     	return new AlertDialog.Builder(ctx)
-                .setTitle("Display Options")
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+        .setTitle("Display Options")
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

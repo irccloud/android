@@ -33,7 +33,6 @@
     <drawable name="status_fail_bg">#F8DF26</drawable>
     <drawable name="network_fail_bg">#ffee97</drawable>
     <color name="status_fail_text">#632800</color>
-    <color name="dialog_prompt">#FFF</color>
     <color name="timestamp">#AAA</color>
     <color name="message_bg">#FFF</color>
     <color name="status_bg">#EEE</color>
@@ -63,4 +62,5 @@
     <drawable name="networkErrorBorder">#dbb300</drawable>
     <drawable name="highlightBorder">#d20004</drawable>
     <color name="loginBackgroundColor">#4480FA</color>
+    <color name="dialogLinkColor">@color/linkColor</color>
 </resources>

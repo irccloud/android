@@ -31,12 +31,14 @@
             android:id="@+id/nick"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#000"
             android:text="ssteele"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/name"
+            android:textColor="#000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="(Sam Steele)" />

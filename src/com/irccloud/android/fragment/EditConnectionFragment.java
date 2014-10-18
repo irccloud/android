@@ -19,8 +19,7 @@ package com.irccloud.android.fragment;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import android.os.Handler;
-import android.os.Message;
+import android.os.Build;
 import android.support.v4.app.DialogFragment;
 
 import android.app.Activity;
@@ -28,9 +27,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -300,8 +297,6 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.dialog_edit_connection, null);
@@ -311,6 +306,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 			server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
     	
     	final AlertDialog d = new AlertDialog.Builder(ctx)
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         .setTitle("Add A Network")
         .setView(v)
         .setPositiveButton((server == null)?"Add":"Save", null)

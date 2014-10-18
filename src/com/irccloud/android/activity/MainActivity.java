@@ -399,6 +399,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
         if (c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setTitle("Channel Topic");
             if (c.topic_text.length() > 0) {
                 String author = "";
@@ -450,6 +451,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             });
         } else if (buffer != null && buffer.type.equals("channel") && buffer.archived == 0 && title.getText() != null && subtitle.getText() != null && subtitle.getText().length() > 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setTitle(title.getText().toString());
             final SpannableString s = new SpannableString(subtitle.getText().toString());
             Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
@@ -1011,6 +1013,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if(imgurTask != null)
             imgurTask.setActivity(this);
+
+        messageTxt.clearFocus();
+        messageTxt.setEnabled(true);
     }
 
     @Override
@@ -1508,9 +1513,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
                         if(channelsListDialog == null) {
                             Context ctx = MainActivity.this;
-                            if(Build.VERSION.SDK_INT < 11)
-                                ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
                             final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+                            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                             builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
                             builder.setTitle(dialogtitle);
                             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
@@ -2263,6 +2267,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog.Builder builder;
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
+        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
         builder.setItems(new String[] {"Take a Photo", "Choose Existing"}, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -2362,6 +2367,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             	return true;
             case R.id.menu_delete:
             	builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             	
             	if(buffer.type.equals("console"))
             		builder.setTitle("Delete Connection");
@@ -2423,6 +2429,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     void editTopic() {
     	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
     	View view = getDialogTextPrompt();
     	TextView prompt = (TextView)view.findViewById(R.id.prompt);
     	final EditText input = (EditText)view.findViewById(R.id.textInput);
@@ -2581,6 +2588,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         itemList.add("Mark All As Read");
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 		if(b.type.equalsIgnoreCase("console"))
 			builder.setTitle(s.name);
 		else
@@ -2640,6 +2648,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     conn.heartbeat(buffer.bid, cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
 	    		} else if(items[item].equals("Delete")) {
 	            	builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 	            	
 	            	if(b.type.equalsIgnoreCase("console"))
 	            		builder.setTitle("Delete Connection");
@@ -2740,6 +2749,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         selected_user = user;
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
 		if(message != null) {
             if(message.getSpans(0, message.length(), URLSpan.class).length > 0)
@@ -2787,6 +2797,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     return;
 
 	    		AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 	    		View view;
 	    		final TextView prompt;
 	    		final EditText input;
@@ -2837,6 +2848,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                     } else {
                         builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                         builder.setTitle("Choose a URL");
 
                         builder.setItems(urlListItems.toArray(new String[urlListItems.size()]), new DialogInterface.OnClickListener() {
@@ -3564,6 +3576,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         public void run() {
                             if(activity != null) {
                                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                                 builder.setTitle("Upload Failed");
                                 builder.setMessage("Unable to upload photo to imgur.  Please try again." + ((error != null) ? ("\n\n" + error) : ""));
                                 builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {

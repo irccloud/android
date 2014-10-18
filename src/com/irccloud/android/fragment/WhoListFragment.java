@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -121,8 +120,6 @@ public class WhoListFragment extends DialogFragment {
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.ignorelist, null);
@@ -137,6 +134,7 @@ public class WhoListFragment extends DialogFragment {
         	listView.setAdapter(adapter);
         }
     	Dialog d = new AlertDialog.Builder(ctx)
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         .setTitle("WHO response for " + event.getString("subject"))
         .setView(v)
         .setNegativeButton("Close", new DialogInterface.OnClickListener() {

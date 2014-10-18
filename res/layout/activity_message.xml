@@ -70,6 +70,11 @@
                 android:contentDescription="Insert Photo"
                 android:src="@drawable/ic_action_photo" />
 
+            <!-- Dummy item to prevent ActionEditText from receiving focus on launch -->
+            <LinearLayout
+                android:focusable="true" android:focusableInTouchMode="true"
+                android:layout_width="0px" android:layout_height="0px"/>
+
             <com.irccloud.android.ActionEditText
                 android:id="@+id/messageTxt"
                 style="@style/messageTxt"
@@ -79,6 +84,8 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Message"
+                android:enabled="false"
+                android:nextFocusLeft="@id/photoBtn"
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
                 android:layout_margin="0dp" />
 

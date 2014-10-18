@@ -23,7 +23,6 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -132,8 +131,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.ignorelist, null);
@@ -148,8 +145,10 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
         	listView.setAdapter(adapter);
         }
     	Dialog d = new AlertDialog.Builder(ctx)
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         .setTitle("Ignore list for " + ServersDataSource.getInstance().getServer(cid).name)
         .setView(v)
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         .setPositiveButton("Add Ignore Mask", new AddClickListener())
         .setNegativeButton("Close", new DialogInterface.OnClickListener() {
 			@Override
@@ -167,18 +166,18 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
 		public void onClick(DialogInterface d, int which) {
 			Context ctx = getActivity();
 			
-			if(Build.VERSION.SDK_INT < 11)
-				ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
     		ServersDataSource s = ServersDataSource.getInstance();
     		ServersDataSource.Server server = s.getServer(cid);
     		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-    		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+            LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         	View view = inflater.inflate(R.layout.dialog_textprompt,null);
         	TextView prompt = (TextView)view.findViewById(R.id.prompt);
         	final EditText input = (EditText)view.findViewById(R.id.textInput);
         	input.setHint("nickname!user@host.name");
         	prompt.setText("Ignore messages from this hostmask");
         	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
     		builder.setView(view);
     		builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
 				@Override

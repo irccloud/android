@@ -557,6 +557,7 @@ public class LoginActivity extends FragmentActivity {
                 connecting.setVisibility(View.GONE);
                 login.setVisibility(View.VISIBLE);
 				AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 if(name.getVisibility() == View.VISIBLE)
     				builder.setTitle("Sign Up Failed");
                 else
@@ -675,6 +676,7 @@ public class LoginActivity extends FragmentActivity {
                 connecting.setVisibility(View.GONE);
                 login.setVisibility(View.VISIBLE);
                 AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 builder.setTitle("Login Failed");
                 builder.setMessage("Invalid access link");
                 builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
@@ -719,6 +721,7 @@ public class LoginActivity extends FragmentActivity {
             try {
                 if (result != null && result.has("success") && result.getBoolean("success")) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                     builder.setTitle("Access Link");
                     builder.setMessage("We've sent you an access link.  Check your email and follow the instructions to sign in.");
                     builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
@@ -739,6 +742,7 @@ public class LoginActivity extends FragmentActivity {
             } catch (JSONException e) {
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setTitle("Password Reset Failed");
             builder.setMessage("Unable to request a password reset.  Please try again later.");
             builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
@@ -820,6 +824,7 @@ public class LoginActivity extends FragmentActivity {
             } catch (JSONException e) {
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setTitle("Connection Failed");
             builder.setMessage("Please check your host and try again shortly, or contact your system administrator for assistance.");
             builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {

@@ -515,6 +515,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 
         public boolean onPreferenceClick(Preference preference) {
             AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             View v = getLayoutInflater().inflate(R.layout.dialog_licenses, null);
             TextView tv = (TextView)v.findViewById(R.id.licenses);
             tv.setText("IRCCloud\n" +

@@ -34,6 +34,7 @@
 
         <TextView
             android:id="@+id/name"
+            android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -47,6 +48,7 @@
 
         <TextView
             android:id="@+id/away"
+            android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -59,6 +61,7 @@
 
         <TextView
             android:id="@+id/mask"
+            android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -71,6 +74,7 @@
 
         <TextView
             android:id="@+id/server"
+            android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -84,11 +88,13 @@
 
         <TextView
             android:id="@+id/time"
+            android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/extra"
+            android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="6dp"
@@ -105,6 +111,7 @@
 
         <TextView
             android:id="@+id/ownerChannels"
+            android:textColorLink="@color/dialogLinkColor"
             android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -119,6 +126,7 @@
 
         <TextView
             android:id="@+id/adminChannels"
+            android:textColorLink="@color/dialogLinkColor"
             android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -133,6 +141,7 @@
 
         <TextView
             android:id="@+id/opChannels"
+            android:textColorLink="@color/dialogLinkColor"
             android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -147,6 +156,7 @@
 
         <TextView
             android:id="@+id/halfopChannels"
+            android:textColorLink="@color/dialogLinkColor"
             android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -162,6 +172,7 @@
         <TextView
             android:id="@+id/voicedChannels"
             android:singleLine="false"
+            android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -175,6 +186,7 @@
 
         <TextView
             android:id="@+id/channels"
+            android:textColorLink="@color/dialogLinkColor"
             android:singleLine="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

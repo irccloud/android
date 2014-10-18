@@ -22,12 +22,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.format.DateUtils;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -156,9 +153,6 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
         if(ctx == null)
             return null;
 
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
-
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.ignorelist, null);
     	listView = (ListView)v.findViewById(android.R.id.list);
@@ -174,6 +168,7 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
         	listView.setAdapter(adapter);
         }
     	AlertDialog.Builder b = new AlertDialog.Builder(ctx)
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         .setTitle("Ban list for " + event.getString("channel"))
         .setView(v)
         .setNegativeButton("Close", new DialogInterface.OnClickListener() {
@@ -202,12 +197,11 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 		public void onClick(DialogInterface d, int which) {
 			Context ctx = getActivity();
 			
-			if(Build.VERSION.SDK_INT < 11)
-				ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
     		ServersDataSource s = ServersDataSource.getInstance();
     		ServersDataSource.Server server = s.getServer(cid);
     		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-    		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+            LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         	View view = inflater.inflate(R.layout.dialog_textprompt,null);
         	TextView prompt = (TextView)view.findViewById(R.id.prompt);
         	final EditText input = (EditText)view.findViewById(R.id.textInput);

@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -45,8 +44,6 @@ public class WhoisFragment extends DialogFragment {
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
         if(ctx == null)
             return null;
@@ -119,6 +116,7 @@ public class WhoisFragment extends DialogFragment {
         	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
         }
     	Dialog d = new AlertDialog.Builder(ctx)
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         .setTitle("WHOIS response for " + event.getString("user_nick"))
         .setView(v)
         .setNegativeButton("Close", new DialogInterface.OnClickListener() {

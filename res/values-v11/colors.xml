@@ -17,5 +17,5 @@
   -->
 
 <resources>
-    <color name="dialog_prompt">#000</color>
+    <color name="dialogLinkColor">#ff33b5e5</color>
 </resources>

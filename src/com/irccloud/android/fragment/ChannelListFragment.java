@@ -19,12 +19,10 @@ package com.irccloud.android.fragment;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -155,9 +153,6 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
     	conn.addHandler(this);
 
     	Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
-
 		if(ctx == null)
 			return null;
 		

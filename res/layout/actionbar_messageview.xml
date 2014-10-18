@@ -49,6 +49,7 @@
                 android:id="@+id/key"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
+                android:layout_marginRight="2dp"
                 android:src="@drawable/lock"
                 android:visibility="gone" />
 

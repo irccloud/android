@@ -21,16 +21,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.SparseArray;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -225,8 +221,6 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context ctx = getActivity();
-        if(Build.VERSION.SDK_INT < 11)
-            ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
         LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.reorderservers, null);

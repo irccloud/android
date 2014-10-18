@@ -28,6 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="#feedback (300 members)"
+        android:textColor="#000"
+        android:textColorLink="@color/dialogLinkColor"
         android:textSize="16sp" />
      
      <TextView

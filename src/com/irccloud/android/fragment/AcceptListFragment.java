@@ -23,7 +23,6 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,8 +133,6 @@ public class AcceptListFragment extends DialogFragment {
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Context ctx = getActivity();
-		if(Build.VERSION.SDK_INT < 11)
-			ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
 
 		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     	View v = inflater.inflate(R.layout.ignorelist, null);
@@ -155,6 +152,7 @@ public class AcceptListFragment extends DialogFragment {
         if(network == null || network.length() == 0)
         	network = s.hostname;
     	AlertDialog d = new AlertDialog.Builder(ctx)
+        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
         .setTitle("Accept list for " + network)
         .setView(v)
 		.setPositiveButton("Add Nickname", new AddClickListener())
@@ -174,11 +172,10 @@ public class AcceptListFragment extends DialogFragment {
 		public void onClick(DialogInterface d, int which) {
 			Context ctx = getActivity();
 			
-			if(Build.VERSION.SDK_INT < 11)
-				ctx = new ContextThemeWrapper(ctx, android.R.style.Theme_Dialog);
     		ServersDataSource s = ServersDataSource.getInstance();
     		ServersDataSource.Server server = s.getServer(cid);
     		AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
     		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         	View view = inflater.inflate(R.layout.dialog_textprompt,null);
         	TextView prompt = (TextView)view.findViewById(R.id.prompt);
