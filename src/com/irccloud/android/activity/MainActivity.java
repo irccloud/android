@@ -393,6 +393,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         drawerLayout.setScrimColor(0);
         drawerLayout.closeDrawers();
+
+        getSupportActionBar().setElevation(0);
+        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
     }
 
     private void show_topic_popup() {
@@ -1016,8 +1019,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         messageTxt.clearFocus();
         messageTxt.setEnabled(true);
-
-        getSupportActionBar().setElevation(4);
     }
 
     @Override
