@@ -42,7 +42,7 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
         setContentView(R.layout.activity_edit_connection);
         
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.heading_bg_blue));
+		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
 		getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);
 
 		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();

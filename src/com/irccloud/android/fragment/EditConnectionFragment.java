@@ -307,7 +307,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
     	
     	final AlertDialog d = new AlertDialog.Builder(ctx)
         .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-        .setTitle("Add A Network")
+        .setTitle((server == null)?"Add A Network":"Edit Connection")
         .setView(v)
         .setPositiveButton((server == null)?"Add":"Save", null)
         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
