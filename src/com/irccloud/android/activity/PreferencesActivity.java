@@ -65,6 +65,8 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
         if(Build.VERSION.SDK_INT >= 11) {
             if(getActionBar() != null) {
                 getActionBar().setDisplayHomeAsUpEnabled(true);
+                if(Build.VERSION.SDK_INT >= 21)
+                    getActionBar().setElevation(0);
             }
         }
 		conn = NetworkConnection.getInstance();
