@@ -388,6 +388,28 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 	}
 
 	public int save() {
+        if(NetworkConnection.getInstance().getUserInfo() != null && !NetworkConnection.getInstance().getUserInfo().verified) {
+            if(!hostname.getText().toString().equalsIgnoreCase("irc.irccloud.com")) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Confirm Your Email");
+                builder.setMessage("You can't connect to external servers until you confirm your email address.\n\nIf you're still waiting for the email, you can send yourself another confirmation.");
+                builder.setNeutralButton("Cancel", null);
+                builder.setPositiveButton("Send Again", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        NetworkConnection.getInstance().resend_verify_email();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Confirmation Sent");
+                        builder.setMessage("You should shortly receive an email with a link to confirm your address.");
+                        builder.setNeutralButton("Close", null);
+                        builder.show();
+                    }
+                });
+                builder.show();
+                return -1;
+            }
+        }
+
 		int portValue = 6667;
 		try {
 			portValue = Integer.parseInt(port.getText().toString());
