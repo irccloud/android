@@ -2270,7 +2270,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     for (int i = 0; i < adapter.data.size(); i++) {
                                         EventsDataSource.Event e = adapter.data.get(i);
                                         if (e.reqid == event.reqid && e.pending) {
-                                            if (i > 1) {
+                                            if (i > 0) {
                                                 EventsDataSource.Event p = adapter.data.get(i - 1);
                                                 if (p.row_type == ROW_TIMESTAMP) {
                                                     adapter.data.remove(p);
