@@ -1428,12 +1428,24 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         headerView.setVisibility(View.VISIBLE);
                         backlogFailed.setVisibility(View.GONE);
                         loadBacklogButton.setVisibility(View.GONE);
+                        adapter = new MessageAdapter(MessageViewFragment.this);
                         setListAdapter(adapter);
                         MessageViewFragment.this.adapter = adapter;
                         requestingBacklog = true;
                         conn.request_backlog(buffer.cid, buffer.bid, 0);
                     }
                 });
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        headerView.setVisibility(View.GONE);
+                        backlogFailed.setVisibility(View.GONE);
+                        loadBacklogButton.setVisibility(View.GONE);
+                        adapter = new MessageAdapter(MessageViewFragment.this);
+                        setListAdapter(adapter);
+                        MessageViewFragment.this.adapter = adapter;
+                    }});
             }
 			return null;
 		}
