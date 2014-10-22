@@ -29,7 +29,13 @@
     </style>
     <style name="PrefsTheme" parent="@android:style/Theme"/>
     <style name="DialogTheme" parent="@android:style/Theme.Dialog"/>
+    <style name="ImgurAuthTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorAccent">#888</item>
+        <item name="colorPrimaryDark">#000</item>
+    </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorAccent">#888</item>
+        <item name="colorPrimaryDark">#000</item>
         <item name="windowActionBarOverlay">true</item>
     </style>
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">

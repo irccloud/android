@@ -186,6 +186,7 @@
         <activity
             android:name=".activity.ImgurAuthActivity"
             android:label="@string/title_activity_imgur_auth"
+            android:theme="@style/ImgurAuthTheme"
             android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
