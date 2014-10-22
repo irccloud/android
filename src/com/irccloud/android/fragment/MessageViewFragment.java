@@ -242,8 +242,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 						break;
 					}
 				}
-				if(lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
-					if(lastSeenEidMarkerPosition > 0 && data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
+				if(lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
+					if(data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
 						lastSeenEidMarkerPosition--;
 					if(lastSeenEidMarkerPosition > 0)
 						data.add(lastSeenEidMarkerPosition + 1, e);
@@ -1415,9 +1415,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         adapter = new MessageAdapter(MessageViewFragment.this);
                         refresh(adapter, events);
                     } catch (IndexOutOfBoundsException e) {
+                        e.printStackTrace();
                         return null;
                     } catch (IllegalStateException e) {
                         //The list view doesn't exist yet
+                        e.printStackTrace();
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
                     }
                 }
@@ -1501,6 +1503,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     new FormatTask().execute((Void)null);
                 } catch (IllegalStateException e) {
                     //The list view isn't on screen anymore
+                    e.printStackTrace();
                 }
                 refreshTask = null;
                 requestingBacklog = false;
@@ -1690,6 +1693,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 					ready = true;
 				} catch (IllegalStateException e) {
 					//The list view wasn't on screen yet
+                    e.printStackTrace();
 				}
 			}
 		}
