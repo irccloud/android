@@ -21,7 +21,6 @@
     android:background="@drawable/row_timestamp_bg"
     android:gravity="center"
     android:minHeight="28dp"
-    android:elevation="1dp"
     android:orientation="horizontal" >
 
     <TextView

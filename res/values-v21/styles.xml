@@ -26,6 +26,7 @@
         <item name="colorAccent">#ff33b5e5</item>
         <item name="colorPrimaryDark">#000</item>
     </style>
+    <style name="DialogTheme" parent="@android:style/Theme.Material.Light.Dialog"/>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
