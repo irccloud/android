@@ -256,7 +256,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     @Override
     public void onResume() {
         super.onResume();
-        if(mSpinner.getVisibility() == View.GONE)
+        if(mSpinner != null && mSpinner.getVisibility() == View.GONE)
             hide_actionbar();
     }
 

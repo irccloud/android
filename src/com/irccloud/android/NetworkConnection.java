@@ -589,7 +589,6 @@ public class NetworkConnection {
             return o;
         } catch (Exception e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
 		}
 		return null;
 	}
@@ -630,7 +629,6 @@ public class NetworkConnection {
             return o;
         } catch (Exception e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
         }
         return null;
     }
@@ -671,7 +669,6 @@ public class NetworkConnection {
             return o;
         } catch (Exception e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
         }
         return null;
     }
@@ -920,12 +917,14 @@ public class NetworkConnection {
         idle_interval = 0;
         accrued = 0;
 		notifyHandlers(EVENT_CONNECTIVITY, null);
-		client.setSocketTag(WEBSOCKET_TAG);
-        if(host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0)
-            client.setProxy(host, port);
-        else
-            client.setProxy(null, -1);
-		client.connect();
+        if(client != null) {
+            client.setSocketTag(WEBSOCKET_TAG);
+            if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0)
+                client.setProxy(host, port);
+            else
+                client.setProxy(null, -1);
+            client.connect();
+        }
 	}
 
     public void logout() {

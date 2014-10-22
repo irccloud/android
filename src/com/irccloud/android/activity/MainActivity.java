@@ -17,6 +17,7 @@
 package com.irccloud.android.activity;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -3056,7 +3057,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (events != null) {
                     events = (TreeMap<Long, EventsDataSource.Event>) events.clone();
                     for (EventsDataSource.Event e : events.values()) {
-                        if (e.highlight && e.from != null) {
+                        if (e != null && e.highlight && e.from != null) {
                             UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.bid, e.from);
                             if (u != null && u.last_mention < e.eid)
                                 u.last_mention = e.eid;
@@ -3315,7 +3316,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
                 int scale = 1;
 
-                if(o.outWidth < MAX_IMAGE_SIZE && o.outHeight < MAX_IMAGE_SIZE)
+                if (o.outWidth < MAX_IMAGE_SIZE && o.outHeight < MAX_IMAGE_SIZE)
                     return in;
 
                 if (o.outWidth > o.outHeight) {
@@ -3347,9 +3348,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 new File(new URI(out.toString())).delete();
 
                 out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", imageDir));
-                if(orientation > 1) {
+                if (orientation > 1) {
                     Matrix matrix = new Matrix();
-                    switch(orientation) {
+                    switch (orientation) {
                         case ExifInterface.ORIENTATION_ROTATE_90:
                             matrix.postRotate(90);
                             break;
@@ -3369,11 +3370,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
 
-                if(bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
+                if (bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
                     out = null;
                 }
-                if(bmp != null)
+                if (bmp != null)
                     bmp.recycle();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
             } catch (Exception e) {
                 Crashlytics.logException(e);
             }
@@ -3383,7 +3386,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } catch (Exception e) {
                 }
             }
-            return out;
+            if(out != null)
+                return out;
+            else
+                return in;
         }
 
         @Override

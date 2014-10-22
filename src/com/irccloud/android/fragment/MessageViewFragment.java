@@ -233,7 +233,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 					data.remove(i);
 				}
 			}
-			if(min_eid > 0 && buffer.last_seen_eid > 0 && min_eid >= buffer.last_seen_eid) {
+
+            if(buffer == null)
+                return -1;
+
+            if(min_eid > 0 && buffer.last_seen_eid > 0 && min_eid >= buffer.last_seen_eid) {
 				lastSeenEidMarkerPosition = 0;
 			} else {
 				for(int i = data.size() - 1; i >= 0; i--) {
@@ -607,7 +611,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
 			@Override
 			public void onClick(View v) {
-				if(conn != null && server != null && server.status != null && server.status.equalsIgnoreCase("disconnected")) {
+				if(buffer != null && conn != null && server != null && server.status != null && server.status.equalsIgnoreCase("disconnected")) {
 					conn.reconnect(buffer.cid);
 				}
 			}
@@ -699,10 +703,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         loadBacklogButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                backlogFailed.setVisibility(View.GONE);
-                loadBacklogButton.setVisibility(View.GONE);
-                headerView.setVisibility(View.VISIBLE);
-                conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
+                if(conn != null && buffer != null) {
+                    backlogFailed.setVisibility(View.GONE);
+                    loadBacklogButton.setVisibility(View.GONE);
+                    headerView.setVisibility(View.VISIBLE);
+                    conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
+                }
             }
         });
         return v;
@@ -2307,7 +2313,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid);
                 if(b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200) {
                     EventsDataSource.getInstance().pruneEvents(b.bid);
-                    if(b.bid == buffer.bid) {
+                    if(buffer != null && b.bid == buffer.bid) {
                         if(b.last_seen_eid < event.eid && unreadTopView.getVisibility() == View.GONE)
                             b.last_seen_eid = event.eid;
 

@@ -941,7 +941,8 @@ public class EventsDataSource {
         synchronized(events) {
             if(events.containsKey(bid)) {
                 Long[] eids = events.get(bid).keySet().toArray(new Long[events.get(bid).keySet().size()]);
-                return eids[eids.length - 1];
+                if(eids.length > 0)
+                    return eids[eids.length - 1];
             }
         }
         return 0L;
