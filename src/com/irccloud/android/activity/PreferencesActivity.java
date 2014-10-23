@@ -64,6 +64,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		super.onCreate(icicle);
         if(Build.VERSION.SDK_INT >= 11) {
             if(getActionBar() != null) {
+                getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
                 getActionBar().setDisplayHomeAsUpEnabled(true);
                 if(Build.VERSION.SDK_INT >= 21)
                     getActionBar().setElevation(0);
