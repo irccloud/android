@@ -82,4 +82,7 @@
         <item name="android:minHeight">16dip</item>
         <item name="android:maxHeight">16dip</item>
     </style>
+    <style name="Widget.Styled.ImageButton" parent="android:Widget.ImageButton">
+        <item name="android:background">@null</item>
+    </style>
 </resources>

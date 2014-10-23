@@ -39,4 +39,7 @@
     <style name="Widget.Styled.ActionBar" parent="android:Widget.Holo.ActionBar">
         <item name="android:background">@drawable/actionbar</item>
     </style>
+    <style name="Widget.Styled.ImageButton" parent="android:Widget.Holo.Light.ImageButton">
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
 </resources>

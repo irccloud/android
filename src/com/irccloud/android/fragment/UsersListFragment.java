@@ -147,7 +147,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 				holder.label.setTextColor(getSafeResources().getColorStateList(e.color));
 			}
 
-			if(e.last || e.type == TYPE_HEADING)
+			if(e.type == TYPE_HEADING)
 				row.setBackgroundResource(e.static_bg_color);
 			else
 				row.setBackgroundResource(e.bg_color);

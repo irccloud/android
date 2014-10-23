@@ -303,7 +303,8 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
 
 	protected void showAlert(int cid, final String msg) {
 		final ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
-        runOnUiThread(new Runnable() {
+        if(server != null)
+            runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);

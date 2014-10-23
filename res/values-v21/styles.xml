@@ -62,4 +62,7 @@
         <item name="android:colorAccent">#ff33b5e5</item>
         <item name="android:colorPrimaryDark">#000</item>
     </style>
+    <style name="Widget.Styled.ImageButton" parent="android:Widget.Material.Light.ImageButton">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
 </resources>
