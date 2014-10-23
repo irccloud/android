@@ -46,6 +46,7 @@
     <drawable name="archived_bg_selected">#666</drawable>
     <drawable name="archived_bg_highlighted">#eee</drawable>
     <drawable name="highlight_red">#ff1f1a</drawable>
+    <color name="highlight_red">#ff1f1a</color>
     <color name="border">#C0D2FF</color>
     <color name="heading_owner">#E7AA00</color>
     <color name="heading_admin">#6500A5</color>

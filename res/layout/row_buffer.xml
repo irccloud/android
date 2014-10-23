@@ -71,7 +71,6 @@
 			        android:minWidth="24dp"
 			        android:padding="4dp"
 			        android:textColor="#fff"
-                    android:elevation="2dp"
 			        android:textStyle="bold" />
 			    
    			    <ProgressBar

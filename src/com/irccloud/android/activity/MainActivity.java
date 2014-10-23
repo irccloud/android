@@ -41,9 +41,11 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
@@ -64,6 +66,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.DrawerArrowDrawable;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
@@ -150,7 +153,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     DrawerLayout drawerLayout;
 	NetworkConnection conn;
 	private boolean shouldFadeIn = false;
-	ImageView upView;
 	private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
 	private ShowNotificationsTask showNotificationsTask = null;
 	private ArrayList<Integer> backStack = new ArrayList<Integer>();
@@ -201,6 +203,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
     private ImgurUploadTask imgurTask = null;
 
+    private DrawerArrowDrawable upDrawable;
+    private int redColor;
+    private int blueColor;
+    private int greyColor = 0;
+
     private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
 	
     @SuppressLint("NewApi")
@@ -214,7 +221,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout)findViewById(R.id.messageContainer);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawerLayout);
-        
+
+        redColor = getResources().getColor(R.color.highlight_red);
+        blueColor = getResources().getColor(R.color.dark_blue);
+
         messageTxt = (ActionEditText)findViewById(R.id.messageTxt);
 		messageTxt.setOnKeyListener(new OnKeyListener() {
 			@Override
@@ -235,8 +245,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 			public void onFocusChange(View v, boolean hasFocus) {
 				if(drawerLayout != null && v == messageTxt && hasFocus) {
                     drawerLayout.closeDrawers();
-                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-    		        	upView.setVisibility(View.VISIBLE);
                     update_suggestions(false);
 				} else if(!hasFocus) {
                     runOnUiThread(new Runnable() {
@@ -253,8 +261,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onClick(View v) {
                 if (drawerLayout != null) {
                     drawerLayout.closeDrawers();
-                    if (getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                        upView.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -342,10 +348,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         userListView = findViewById(R.id.usersListFragment);
 
-        getSupportActionBar().setHomeButtonEnabled(false);
-       	getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        
+
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
             @Override
@@ -354,25 +358,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        upView = (ImageView)v.findViewById(R.id.upIndicator);
         if(drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
+            upDrawable = new DrawerArrowDrawable(this);
+            greyColor = upDrawable.getColor();
+            getSupportActionBar().setHomeAsUpIndicator(upDrawable);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
             drawerLayout.setDrawerListener(mDrawerListener);
-        	upView.setVisibility(View.VISIBLE);
-        	upView.setOnClickListener(upClickListener);
 	        if(refreshUpIndicatorTask != null)
 	        	refreshUpIndicatorTask.cancel(true);
 	        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
 	        refreshUpIndicatorTask.execute((Void)null);
         } else {
-        	upView.setVisibility(View.INVISIBLE);
+        	getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setHomeButtonEnabled(false);
         }
-		messageTxt.setDrawerLayout(drawerLayout, upView);
+		messageTxt.setDrawerLayout(drawerLayout);
 
         title = (TextView)v.findViewById(R.id.title);
         subtitle = (TextView)v.findViewById(R.id.subtitle);
         key = (ImageView)v.findViewById(R.id.key);
         getSupportActionBar().setCustomView(v);
-        
+
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
         	buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
@@ -621,14 +628,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(imageCaptureURI != null)
             state.putString("imagecaptureuri", imageCaptureURI.toString());
     }
-    
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
         	if(drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
                 drawerLayout.closeDrawers();
-                if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-    	        	upView.setVisibility(View.VISIBLE);
 	        	return true;
         	}
             while(backStack != null && backStack.size() > 0) {
@@ -645,10 +650,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         return super.onKeyDown(keyCode, event);
     }
-    
+
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
     	EventsDataSource.Event e = null;
-    	
+
     	@Override
     	protected void onPreExecute() {
 			if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
@@ -702,7 +707,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
 			}
     	}
-    	
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
             if(BuildConfig.DEBUG && e != null && e.command != null) {
@@ -722,7 +727,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 			return null;
 		}
-    	
+
 		@Override
 		protected void onPostExecute(Void result) {
             if(BuildConfig.DEBUG) {
@@ -753,11 +758,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 		}
     }
-    
+
     private class RefreshUpIndicatorTask extends AsyncTaskEx<Void, Void, Void> {
 		int unread = 0;
 		int highlights = 0;
-    	
+
 		@Override
 		protected Void doInBackground(Void... arg0) {
             if(drawerLayout != null) {
@@ -807,25 +812,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 			return null;
 		}
-    	
+
 		@Override
 		protected void onPostExecute(Void result) {
 			if(!isCancelled() && drawerLayout != null) {
 				if(highlights > 0) {
-                    upView.setImageResource(R.drawable.ic_navigation_drawer_highlight);
-                    upView.setTag(R.drawable.ic_navigation_drawer_highlight);
+                    upDrawable.setColor(redColor);
 				} else if(unread > 0) {
-                    upView.setImageResource(R.drawable.ic_navigation_drawer_unread);
-                    upView.setTag(R.drawable.ic_navigation_drawer_unread);
+                    upDrawable.setColor(blueColor);
 				} else {
-                    upView.setImageResource(R.drawable.ic_navigation_drawer);
-                    upView.setTag(R.drawable.ic_navigation_drawer);
+                    upDrawable.setColor(greyColor);
 				}
 				refreshUpIndicatorTask = null;
 			}
 		}
     }
-    
+
     private class ShowNotificationsTask extends AsyncTaskEx<Integer, Void, Void> {
 
 		@Override
@@ -837,7 +839,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 			return null;
 		}
     }
-    
+
     private void setFromIntent(Intent intent) {
     	launchBid = -1;
     	launchURI = null;
@@ -866,7 +868,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 launchBid = new_bid;
             }
     	}
-    	
+
     	if(intent.getData() != null && intent.getData().getScheme() != null && intent.getData().getScheme().startsWith("irc")) {
     		if(open_uri(intent.getData()))
     			return;
@@ -902,7 +904,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             onBufferSelected(buffer.bid);
         }
     }
-    
+
     @Override
     protected void onNewIntent(Intent intent) {
     	if(intent != null) {
@@ -929,7 +931,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(conn.getState() != NetworkConnection.STATE_CONNECTED) {
             if (drawerLayout != null && !NetworkConnection.getInstance().ready) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                upView.setVisibility(View.INVISIBLE);
+                getSupportActionBar().setHomeButtonEnabled(false);
             }
             sendBtn.setEnabled(false);
             if (Build.VERSION.SDK_INT >= 11)
@@ -938,8 +940,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } else {
             if (drawerLayout != null) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                if (getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                    upView.setVisibility(View.VISIBLE);
+                getSupportActionBar().setHomeButtonEnabled(true);
             }
             if (messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 sendBtn.setEnabled(true);
@@ -998,7 +999,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         refreshUpIndicatorTask.execute((Void)null);
 
     	supportInvalidateOptionsMenu();
-    	
+
     	if(NetworkConnection.getInstance().ready && buffer != null) {
             try {
                 if (showNotificationsTask != null)
@@ -1111,7 +1112,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		}
 		return false;
     }
-    
+
     private boolean open_bid(int bid) {
 		if(BuffersDataSource.getInstance().getBuffer(bid) != null) {
 			onBufferSelected(bid);
@@ -1122,20 +1123,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		Log.w("IRCCloud", "Requested BID not found");
 		return false;
     }
-    
+
     private void update_subtitle() {
         if(server == null || buffer == null) {
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(true);
             getSupportActionBar().setDisplayShowCustomEnabled(false);
             title.setText(null);
             subtitle.setVisibility(View.GONE);
         } else if(!NetworkConnection.getInstance().ready) {
-           	getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayShowCustomEnabled(false);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         } else {
-           	getSupportActionBar().setDisplayShowHomeEnabled(false);
             getSupportActionBar().setDisplayShowCustomEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -1215,7 +1213,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     	}
     	supportInvalidateOptionsMenu();
     }
-    
+
     private void updateUsersListFragmentVisibility() {
     	boolean hide = true;
 		if(userListView != null) {
@@ -1337,8 +1335,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                                        upView.setVisibility(View.VISIBLE);
+                                    getSupportActionBar().setHomeButtonEnabled(true);
                                     updateUsersListFragmentVisibility();
                                 }
                             });
@@ -1359,8 +1356,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             public void run() {
                                 if(drawerLayout != null && !NetworkConnection.getInstance().ready) {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                                        upView.setVisibility(View.INVISIBLE);
+                                    getSupportActionBar().setHomeButtonEnabled(false);
                                 }
                                 sendBtn.setEnabled(false);
                                 if(Build.VERSION.SDK_INT >= 11)
@@ -1649,8 +1645,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void run() {
                         if(drawerLayout != null) {
                             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                                upView.setVisibility(View.VISIBLE);
+                            getSupportActionBar().setHomeButtonEnabled(true);
                             updateUsersListFragmentVisibility();
                         }
                         if(ServersDataSource.getInstance().count() < 1) {
@@ -1865,18 +1860,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 				try {
 					EventsDataSource.Event e = (EventsDataSource.Event)obj;
                     if(e != null && buffer != null) {
-                        if(e.bid != buffer.bid && upView != null) {
+                        if(e.bid != buffer.bid && upDrawable != null) {
                             BuffersDataSource.Buffer buf = BuffersDataSource.getInstance().getBuffer(e.bid);
                             if(e.isImportant(buf.type)) {
-                                if(!upView.getTag().equals(R.drawable.ic_navigation_drawer_highlight) && (e.highlight || buf.type.equals("conversation"))) {
+                                if(upDrawable.getColor() != redColor && (e.highlight || buf.type.equals("conversation"))) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upView.setImageResource(R.drawable.ic_navigation_drawer_highlight);
-                                            upView.setTag(R.drawable.ic_navigation_drawer_highlight);
+                                            upDrawable.setColor(redColor);
                                         }
                                     });
-                                } else if(upView.getTag().equals(R.drawable.ic_navigation_drawer)) {
+                                } else if(upDrawable.getColor() == greyColor) {
                                     JSONObject channelDisabledMap = null;
                                     JSONObject bufferDisabledMap = null;
                                     if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
@@ -1897,8 +1891,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upView.setImageResource(R.drawable.ic_navigation_drawer_unread);
-                                            upView.setTag(R.drawable.ic_navigation_drawer_unread);
+                                            upDrawable.setColor(blueColor);
                                         }
                                     });
                                 }
@@ -1931,14 +1924,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
 	    	else if(buffer.type.equals("console"))
 	    		getMenuInflater().inflate(R.menu.activity_message_console, menu);
-	
+
 	    	getMenuInflater().inflate(R.menu.activity_message_archive, menu);
     	}
     	getMenuInflater().inflate(R.menu.activity_main, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
     	if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
@@ -2013,11 +2006,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         public void onDrawerSlide(View view, float slideOffset) {
+            if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT)
+                upDrawable.setProgress(slideOffset);
         }
 
         @Override
         public void onDrawerOpened(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
+                upDrawable.setProgress(1);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
@@ -2031,6 +2027,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         public void onDrawerClosed(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
+                upDrawable.setProgress(0);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 updateUsersListFragmentVisibility();
             } else {
@@ -2052,206 +2049,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 drawerLayout.setScrimColor(0x99000000);
             }
         }
-
-        class SlideDrawable extends Drawable implements Drawable.Callback {
-            private Drawable mWrapped;
-            private float mOffset;
-            private float mOffsetBy;
-
-            private final Rect mTmpRect = new Rect();
-
-            public SlideDrawable(Drawable wrapped) {
-                mWrapped = wrapped;
-            }
-
-            public void setOffset(float offset) {
-                mOffset = offset;
-                invalidateSelf();
-            }
-
-            public float getOffset() {
-                return mOffset;
-            }
-
-            public void setOffsetBy(float offsetBy) {
-                mOffsetBy = offsetBy;
-                invalidateSelf();
-            }
-
-            @Override
-            public void draw(Canvas canvas) {
-                mWrapped.copyBounds(mTmpRect);
-                canvas.save();
-                canvas.translate(mOffsetBy * mTmpRect.width() * -mOffset, 0);
-                mWrapped.draw(canvas);
-                canvas.restore();
-            }
-
-            @Override
-            public void setChangingConfigurations(int configs) {
-                mWrapped.setChangingConfigurations(configs);
-            }
-
-            @Override
-            public int getChangingConfigurations() {
-                return mWrapped.getChangingConfigurations();
-            }
-
-            @Override
-            public void setDither(boolean dither) {
-                mWrapped.setDither(dither);
-            }
-
-            @Override
-            public void setFilterBitmap(boolean filter) {
-                mWrapped.setFilterBitmap(filter);
-            }
-
-            @Override
-            public void setAlpha(int alpha) {
-                mWrapped.setAlpha(alpha);
-            }
-
-            @Override
-            public void setColorFilter(ColorFilter cf) {
-                mWrapped.setColorFilter(cf);
-            }
-
-            @Override
-            public void setColorFilter(int color, PorterDuff.Mode mode) {
-                mWrapped.setColorFilter(color, mode);
-            }
-
-            @Override
-            public void clearColorFilter() {
-                mWrapped.clearColorFilter();
-            }
-
-            @Override
-            public boolean isStateful() {
-                return mWrapped.isStateful();
-            }
-
-            @Override
-            public boolean setState(int[] stateSet) {
-                return mWrapped.setState(stateSet);
-            }
-
-            @Override
-            public int[] getState() {
-                return mWrapped.getState();
-            }
-
-            @Override
-            public Drawable getCurrent() {
-                return mWrapped.getCurrent();
-            }
-
-            @Override
-            public boolean setVisible(boolean visible, boolean restart) {
-                return super.setVisible(visible, restart);
-            }
-
-            @Override
-            public int getOpacity() {
-                return mWrapped.getOpacity();
-            }
-
-            @Override
-            public Region getTransparentRegion() {
-                return mWrapped.getTransparentRegion();
-            }
-
-            @Override
-            protected boolean onStateChange(int[] state) {
-                mWrapped.setState(state);
-                return super.onStateChange(state);
-            }
-
-            @Override
-            protected void onBoundsChange(Rect bounds) {
-                super.onBoundsChange(bounds);
-                mWrapped.setBounds(bounds);
-            }
-
-            @Override
-            public int getIntrinsicWidth() {
-                return mWrapped.getIntrinsicWidth();
-            }
-
-            @Override
-            public int getIntrinsicHeight() {
-                return mWrapped.getIntrinsicHeight();
-            }
-
-            @Override
-            public int getMinimumWidth() {
-                return mWrapped.getMinimumWidth();
-            }
-
-            @Override
-            public int getMinimumHeight() {
-                return mWrapped.getMinimumHeight();
-            }
-
-            @Override
-            public boolean getPadding(Rect padding) {
-                return mWrapped.getPadding(padding);
-            }
-
-            @Override
-            public ConstantState getConstantState() {
-                return super.getConstantState();
-            }
-
-            @Override
-            public void invalidateDrawable(Drawable who) {
-                if (who == mWrapped) {
-                    invalidateSelf();
-                }
-            }
-
-            @Override
-            public void scheduleDrawable(Drawable who, Runnable what, long when) {
-                if (who == mWrapped) {
-                    scheduleSelf(what, when);
-                }
-            }
-
-            @Override
-            public void unscheduleDrawable(Drawable who, Runnable what) {
-                if (who == mWrapped) {
-                    unscheduleSelf(what);
-                }
-            }
-        }
-    };
+   };
 
     private ToggleListener mDrawerListener = new ToggleListener();
-
-    private OnClickListener upClickListener = new OnClickListener() {
-
-		@Override
-		public void onClick(View arg0) {
-        	if(drawerLayout != null) {
-	        	if(drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                    drawerLayout.closeDrawers();
-	        	} else if(upView.getVisibility() == View.VISIBLE) {
-                    if(drawerLayout.isDrawerOpen(Gravity.RIGHT))
-                        drawerLayout.closeDrawers();
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-                    drawerLayout.openDrawer(Gravity.LEFT);
-	        	}
-		    	if(!getSharedPreferences("prefs", 0).getBoolean("bufferSwipeTip", false)) {
-		    		Toast.makeText(MainActivity.this, "Drag from the edge of the screen to quickly open and close channels and conversations list", Toast.LENGTH_LONG).show();
-		    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-		    		editor.putBoolean("bufferSwipeTip", true);
-		    		editor.commit();
-		    	}
-        	}
-		}
-    	
-    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
@@ -2303,8 +2103,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public boolean onOptionsItemSelected(MenuItem item) {
     	AlertDialog.Builder builder;
     	AlertDialog dialog;
-    	
+
         switch (item.getItemId()) {
+            case android.R.id.home:
+                if(drawerLayout != null) {
+                    if(drawerLayout.isDrawerOpen(Gravity.LEFT))
+                        drawerLayout.closeDrawer(Gravity.LEFT);
+                    else
+                        drawerLayout.openDrawer(Gravity.LEFT);
+                    drawerLayout.closeDrawer(Gravity.RIGHT);
+                }
+                break;
             case R.id.menu_photo:
                 insertPhoto();
                 break;
@@ -2337,8 +2146,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                         drawerLayout.openDrawer(Gravity.RIGHT);
 		        	}
-                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-    		        	upView.setVisibility(View.VISIBLE);
 			    	if(!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
 			    		Toast.makeText(this, "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
 			    		SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
@@ -2372,19 +2179,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case R.id.menu_delete:
             	builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-            	
+
             	if(buffer.type.equals("console"))
             		builder.setTitle("Delete Connection");
             	else
             		builder.setTitle("Delete History");
-            	
+
             	if(buffer.type.equalsIgnoreCase("console"))
             		builder.setMessage("Are you sure you want to remove this connection?");
             	else if(buffer.type.equalsIgnoreCase("channel"))
             		builder.setMessage("Are you sure you want to clear your history in " + buffer.name + "?");
             	else
             		builder.setMessage("Are you sure you want to clear your history with " + buffer.name + "?");
-            	
+
             	builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
 
 					@Override
@@ -2429,7 +2236,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         return super.onOptionsItemSelected(item);
     }
-    
+
     void editTopic() {
     	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -2459,16 +2266,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 		dialog.show();
     }
-    
+
 	@Override
 	public void onMessageDoubleClicked(EventsDataSource.Event event) {
 		if(event == null)
 			return;
-		
+
 		String from = event.from;
 		if(from == null || from.length() == 0)
 			from = event.nick;
-		
+
 		onUserDoubleClicked(from);
 	}
 
@@ -2482,10 +2289,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     		editor.putBoolean("mentionTip", true);
     		editor.commit();
     	}
-		
+
 		if(drawerLayout != null)
 			drawerLayout.closeDrawers();
-		
+
 		if(messageTxt.getText().length() == 0) {
 			messageTxt.append(from + ": ");
 		} else {
@@ -2550,7 +2357,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		InputMethodManager keyboard = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
         keyboard.showSoftInput(messageTxt, 0);
 	}
-	
+
 	@Override
 	public boolean onBufferLongClicked(final BuffersDataSource.Buffer b) {
    		if(b == null)
@@ -2562,7 +2369,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
 		if(buffer == null || b.bid != buffer.bid)
 			itemList.add("Open");
-		
+
 		if(ChannelsDataSource.getInstance().getChannelForBuffer(b.bid) != null) {
 			itemList.add("Leave");
 			itemList.add("Display Options…");
@@ -2653,19 +2460,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		} else if(items[item].equals("Delete")) {
 	            	builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-	            	
+
 	            	if(b.type.equalsIgnoreCase("console"))
 	            		builder.setTitle("Delete Connection");
 	            	else
 	            		builder.setTitle("Delete History");
-	            	
+
 	            	if(b.type.equalsIgnoreCase("console"))
 	            		builder.setMessage("Are you sure you want to remove this connection?");
 	            	else if(b.type.equalsIgnoreCase("channel"))
 	            		builder.setMessage("Are you sure you want to clear your history in " + b.name + "?");
 	            	else
 	            		builder.setMessage("Are you sure you want to clear your history with " + b.name + "?");
-	            	
+
 	            	builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
 
 						@Override
@@ -2691,13 +2498,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		}
 		    }
 		});
-		
+
 		AlertDialog dialog = builder.create();
 		dialog.setOwnerActivity(this);
 		dialog.show();
 		return true;
 	}
-	
+
 	@Override
 	public boolean onMessageLongClicked(EventsDataSource.Event event) {
 		String from = event.from;
@@ -2712,10 +2519,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 			user.hostmask = event.hostmask;
 			user.mode = "";
 		}
-		
+
 		if(user == null && event.html == null)
 			return false;
-		
+
 		if(event.html != null) {
             String html = event.html;
             if(user != null) {
@@ -2736,13 +2543,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 		return true;
     }
-    
+
 	@Override
 	public void onUserSelected(int c, String chan, String nick) {
 		UsersDataSource u = UsersDataSource.getInstance();
         showUserPopup(u.getUser(buffer.bid, nick), null);
 	}
-	
+
 	@SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
 	private void showUserPopup(UsersDataSource.User user, Spanned message) {
@@ -2786,7 +2593,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		}
 
 		items = itemList.toArray(new String[itemList.size()]);
-		
+
 		if(selected_user != null)
             if(selected_user.hostmask != null && selected_user.hostmask.length() > 0)
     			builder.setTitle(selected_user.nick + "\n(" + selected_user.hostmask + ")");
@@ -2794,7 +2601,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 builder.setTitle(selected_user.nick);
 		else
 			builder.setTitle("Message");
-		
+
 		builder.setItems(items, new DialogInterface.OnClickListener() {
 		    public void onClick(DialogInterface dialogInterface, int item) {
                 if(conn == null || buffer == null)
@@ -3000,7 +2807,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		    	dialogInterface.dismiss();
 		    }
 		});
-		
+
 		AlertDialog dialog = builder.create();
 		dialog.setOwnerActivity(this);
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -3029,8 +2836,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
 		if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                upView.setVisibility(View.VISIBLE);
 		}
         if(bid != -1 && conn != null && conn.getUserInfo() != null) {
             conn.getUserInfo().last_selected_bid = bid;
@@ -3136,11 +2941,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             showNotificationsTask.cancel(true);
         showNotificationsTask = new ShowNotificationsTask();
         showNotificationsTask.execute(bid);
-        if(upView != null)
+        if(drawerLayout != null)
             new RefreshUpIndicatorTask().execute((Void)null);
 		if(buffer != null && buffer.cid != -1) {
-			if(drawerLayout != null)
-				drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+			if(drawerLayout != null) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+                getSupportActionBar().setHomeButtonEnabled(true);
+            }
 		}
         update_suggestions(false);
 	}
@@ -3175,8 +2982,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	public void addButtonPressed(int cid) {
         if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                upView.setVisibility(View.VISIBLE);
         }
 	}
 
@@ -3184,8 +2989,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void addNetwork() {
         if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                upView.setVisibility(View.VISIBLE);
         }
         if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
             Intent i = new Intent(this, EditConnectionActivity.class);
@@ -3200,8 +3003,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void reorder() {
         if(drawerLayout != null) {
             drawerLayout.closeDrawers();
-            if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
-                upView.setVisibility(View.VISIBLE);
         }
         if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
             Intent i = new Intent(this, ServerReorderActivity.class);

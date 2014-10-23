@@ -33,8 +33,7 @@ import android.widget.ImageView;
 public class ActionEditText extends EditText
 {
 	private DrawerLayout mDrawerLayout = null;
-	private ImageView upView = null;
-	
+
     public ActionEditText(Context context)
     {
         super(context);
@@ -72,13 +71,11 @@ public class ActionEditText extends EditText
     public boolean onKeyPreIme(int keyCode, KeyEvent event) {
         if(mDrawerLayout != null && event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
         	mDrawerLayout.closeDrawers();
-        	upView.setVisibility(View.VISIBLE);
         }
         return super.onKeyPreIme(keyCode, event);
     }
     
-    public void setDrawerLayout(DrawerLayout view, ImageView upView) {
+    public void setDrawerLayout(DrawerLayout view) {
     	mDrawerLayout = view;
-    	this.upView = upView;
     }
 }
