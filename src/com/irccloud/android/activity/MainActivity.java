@@ -815,7 +815,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
 		@Override
 		protected void onPostExecute(Void result) {
-			if(!isCancelled() && drawerLayout != null) {
+			if(!isCancelled() && upDrawable != null) {
 				if(highlights > 0) {
                     upDrawable.setColor(redColor);
 				} else if(unread > 0) {
