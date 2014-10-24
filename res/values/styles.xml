@@ -27,7 +27,18 @@
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
         <item name="colorPrimaryDark">#0b2e60</item>
     </style>
-    <style name="PrefsTheme" parent="@android:style/Theme"/>
+    <style name="PrefsTheme" parent="Theme.AppCompat">
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:windowTitleSize">?attr/actionBarSize</item>
+        <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+        <item name="colorPrimary">#888</item>
+        <item name="colorAccent">#888</item>
+        <item name="colorPrimaryDark">#000</item>
+    </style>
+    <style name="PrefsWindowTitleBackground">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:padding">0px</item>
+    </style>
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog"/>
     <style name="ImgurAuthTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorAccent">#888</item>

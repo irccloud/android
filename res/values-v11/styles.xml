@@ -21,9 +21,9 @@
         <item name="colorAccent">#ff33b5e5</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
-    <style name="PrefsTheme" parent="android:Theme.Holo.Light">
-        <item name="android:actionBarStyle">@style/Widget.Styled.ActionBar</item>
-        <item name="android:windowContentOverlay">@null</item>
+    <style name="PrefsTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:windowTitleSize">?attr/actionBarSize</item>
     </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowActionBarOverlay">true</item>

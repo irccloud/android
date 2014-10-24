@@ -21,8 +21,10 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.*;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
@@ -61,15 +63,26 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle icicle) {
-		super.onCreate(icicle);
-        if(Build.VERSION.SDK_INT >= 11) {
-            if(getActionBar() != null) {
-                getActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
-                getActionBar().setDisplayHomeAsUpEnabled(true);
-                if(Build.VERSION.SDK_INT >= 21)
-                    getActionBar().setElevation(0);
+        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+        super.onCreate(icicle);
+        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.actionbar_prefs);
+
+        Toolbar toolbar = (Toolbar)findViewById(R.id.actionbar);
+        toolbar.setTitle(getTitle());
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
-        }
+        });
+
+        if(Build.VERSION.SDK_INT >= 11)
+            toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
+
+        if(Build.VERSION.SDK_INT >= 21)
+            toolbar.setElevation(0);
+
 		conn = NetworkConnection.getInstance();
 		addPreferencesFromResource(R.xml.preferences_account);
 		addPreferencesFromResource(R.xml.preferences_display);
