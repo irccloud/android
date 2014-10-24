@@ -26,6 +26,13 @@
         <item name="colorAccent">#ff33b5e5</item>
         <item name="colorPrimaryDark">#000</item>
     </style>
+    <style name="PrefsTheme" parent="AppTheme">
+        <item name="android:windowNoTitle">false</item>
+        <item name="android:windowTitleSize">?attr/actionBarSize</item>
+        <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+        <item name="android:colorAccent">#000</item>
+        <item name="colorAccent">#000</item>
+    </style>
     <style name="DialogTheme" parent="@android:style/Theme.Material.Light.Dialog"/>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
