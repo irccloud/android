@@ -3085,8 +3085,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private Uri mImageUri;  // local Uri to upload
         private int total = 0;
         public Activity activity;
-        private View connecting;
-        private TextView connectingMsg;
         private ProgressBar progressBar;
         private String error;
         private BuffersDataSource.Buffer mBuffer;
@@ -3262,19 +3260,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public void setActivity(Activity a) {
             activity = a;
             if(a != null) {
-                connecting = a.findViewById(R.id.connecting);
-                connectingMsg = (TextView)a.findViewById(R.id.connectingMsg);
                 progressBar = (ProgressBar)a.findViewById(R.id.connectingProgress);
                 if(total > 0) {
-                    if (connecting.getVisibility() == View.GONE) {
-                        TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
-                        anim.setDuration(200);
+                    getSupportActionBar().setTitle("Uploading");
+                    getSupportActionBar().setDisplayShowCustomEnabled(false);
+                    getSupportActionBar().setDisplayShowTitleEnabled(true);
+                    progressBar.setProgress(0);
+                    progressBar.setIndeterminate(true);
+                    if(progressBar.getVisibility() != View.VISIBLE) {
+                        AlphaAnimation anim = new AlphaAnimation(0, 1);
                         anim.setFillAfter(true);
-                        connecting.startAnimation(anim);
-                        connecting.setVisibility(View.VISIBLE);
-                        connectingMsg.setText("Uploading");
-                        progressBar.setProgress(0);
-                        progressBar.setIndeterminate(true);
+                        anim.setDuration(250);
+                        anim.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+                                progressBar.setVisibility(View.VISIBLE);
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+                            }
+                        });
+                        progressBar.startAnimation(anim);
                     }
                 }
             }
@@ -3284,15 +3295,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onProgressUpdate(Float... values) {
             if(activity != null) {
                 try {
-                    if (connecting.getVisibility() == View.GONE) {
-                        TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
-                        anim.setDuration(200);
-                        anim.setFillAfter(true);
-                        connecting.startAnimation(anim);
-                        connecting.setVisibility(View.VISIBLE);
-                        connectingMsg.setText("Uploading");
+                    if (progressBar.getVisibility() == View.GONE) {
+                        getSupportActionBar().setTitle("Uploading");
+                        getSupportActionBar().setDisplayShowCustomEnabled(false);
+                        getSupportActionBar().setDisplayShowTitleEnabled(true);
                         progressBar.setProgress(0);
                         progressBar.setIndeterminate(true);
+                        if(progressBar.getVisibility() != View.VISIBLE) {
+                            AlphaAnimation anim = new AlphaAnimation(0, 1);
+                            anim.setFillAfter(true);
+                            anim.setDuration(250);
+                            anim.setAnimationListener(new Animation.AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+                                    progressBar.setVisibility(View.VISIBLE);
+                                }
+
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                }
+
+                                @Override
+                                public void onAnimationRepeat(Animation animation) {
+                                }
+                            });
+                            progressBar.startAnimation(anim);
+                        }
                     }
                     if (values[0] < 1.0f) {
                         progressBar.setIndeterminate(false);
@@ -3314,26 +3342,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             if(activity != null) {
-                TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
-                anim.setDuration(200);
-                anim.setFillAfter(true);
-                anim.setAnimationListener(new Animation.AnimationListener() {
+                if(progressBar.getVisibility() == View.VISIBLE) {
+                    AlphaAnimation anim = new AlphaAnimation(1, 0);
+                    anim.setFillAfter(true);
+                    anim.setDuration(250);
+                    anim.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
 
-                    @Override
-                    public void onAnimationEnd(Animation arg0) {
-                        connecting.setVisibility(View.GONE);
-                    }
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            progressBar.setVisibility(View.GONE);
+                        }
 
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
-
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
-
-                });
-                connecting.startAnimation(anim);
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+                    });
+                    progressBar.startAnimation(anim);
+                }
+                getSupportActionBar().setDisplayShowCustomEnabled(true);
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
             setText(s);
         }

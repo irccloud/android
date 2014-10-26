@@ -15,209 +15,24 @@
   ~ limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="match_parent" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical" >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#fff"
-        android:orientation="vertical" >
-
-        <include
-            android:id="@+id/globalMessageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            layout="@layout/globalmessageview"
-            android:visibility="gone" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1" >
-
-            <com.irccloud.android.ListViewHax
-                android:id="@android:id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:divider="#FFF"
-                android:cacheColorHint="#fff"
-                android:dividerHeight="1dip"
-                android:fastScrollEnabled="true"
-                android:transcriptMode="normal"
-                android:stackFromBottom="true"/>
-
-            <LinearLayout
-                android:id="@+id/unreadTop"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:background="@color/dark_blue"
-                android:gravity="center_vertical"
-                android:padding="2dp"
-                android:visibility="gone" >
-
-                <TextView
-                    android:id="@+id/highlightsTop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="4dp"
-                    android:background="@drawable/highlights_bg"
-                    android:gravity="center"
-                    android:minHeight="@dimen/unread_bubble_size"
-                    android:minWidth="@dimen/unread_bubble_size"
-                    android:padding="4dp"
-                    android:textColor="#fff"
-                    android:textSize="@dimen/unread_top_txt_size"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/unreadTopText"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="4dp"
-                    android:layout_marginRight="4dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical"
-                    android:minHeight="24dp"
-                    android:textColor="@color/message_bg"
-                    android:textSize="@dimen/unread_top_txt_size"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/markAsRead"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Dismiss"
-                    android:textColor="#fff"
-                    android:background="#56A4F7"
-                    android:minHeight="32dp"
-                    android:padding="4dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/unreadBottom"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:background="@color/dark_blue"
-                android:gravity="center_vertical"
-                android:padding="4dp"
-                android:visibility="gone" >
-			    
-			    <TextView
-			        android:id="@+id/highlightsBottom"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:layout_marginLeft="4dp"
-			        android:layout_marginRight="4dp"
-			        android:background="@drawable/highlights_bg"
-			        android:gravity="center"
-			        android:minHeight="@dimen/unread_bubble_size"
-			        android:minWidth="@dimen/unread_bubble_size"
-			        android:padding="4dp"
-			        android:textColor="#fff"
-			        android:textSize="@dimen/unread_bottom_txt_size"
-			        android:textStyle="bold"
-			        android:visibility="gone" />
-                
-                <TextView
-                    android:id="@+id/unread"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:minHeight="24dp"
-                    android:textColor="@color/message_bg"
-                    android:textSize="@dimen/unread_bottom_txt_size"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <ProgressBar
-                    style="?android:attr/progressBarStyleLarge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/spinner"
-                    android:layout_centerVertical="true"
-                    android:layout_centerHorizontal="true"
-                    android:indeterminate="true"
-                    android:visibility="gone"/>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="140dp"
-                android:layout_alignParentBottom="true"
-                android:id="@+id/suggestionsContainer"
-                android:layout_margin="2dp"
-                android:visibility="invisible"
-                android:gravity="bottom">
-
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/border"
-                    android:padding="2dp">
-
-                    <GridView
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/suggestions"
-                        android:background="@drawable/row_bg_blue"
-                        android:numColumns="auto_fit"
-                        android:columnWidth="160dp" />
-                </LinearLayout>
-            </LinearLayout>
-        </RelativeLayout>
-
-        <LinearLayout
-            android:id="@+id/away"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/status_bg"
-            android:padding="6dp"
-            android:visibility="gone" >
-
-            <TextView
-                android:id="@+id/awayTxt"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:ellipsize="middle" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:layout_weight="0"
-                android:gravity="right"
-                android:lines="1"
-                android:text="Tap to come back"
-                android:textColor="@color/timestamp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/statusView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:layout_weight="0"
-            android:background="@drawable/background_blue"
-            android:padding="6dp"
-            android:textColor="@color/dark_blue"
-            android:textSize="16sp"
-            android:visibility="gone" />
-
-		<LinearLayout
-			android:layout_width="fill_parent"
-			android:layout_height="1dp"
-			android:background="#c2c2c2"/>
-    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/connectingProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:max="1000"
+        android:layout_marginTop="-8dp"
+        android:visibility="visible"
+        android:gravity="top"
+        android:layout_gravity="top"
+        android:layout_marginBottom="-7dp" />
 
     <TextView
         android:id="@+id/errorMsg"
@@ -228,16 +43,195 @@
         android:padding="6dp"
         android:visibility="gone" />
 
-    <ProgressBar
-        android:id="@+id/connectingProgress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="fill_parent"
+    <include
+        android:id="@+id/globalMessageView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:max="1000"
-        android:layout_marginTop="-8dp"
-        android:visibility="gone"
-        android:gravity="top"
-        android:layout_gravity="top" />
+        layout="@layout/globalmessageview"
+        android:visibility="gone" />
 
-</FrameLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <com.irccloud.android.ListViewHax
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="#FFF"
+            android:cacheColorHint="#fff"
+            android:dividerHeight="1dip"
+            android:fastScrollEnabled="true"
+            android:transcriptMode="normal"
+            android:stackFromBottom="true"/>
+
+        <LinearLayout
+            android:id="@+id/unreadTop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:background="@color/dark_blue"
+            android:gravity="center_vertical"
+            android:padding="2dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/highlightsTop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:background="@drawable/highlights_bg"
+                android:gravity="center"
+                android:minHeight="@dimen/unread_bubble_size"
+                android:minWidth="@dimen/unread_bubble_size"
+                android:padding="4dp"
+                android:textColor="#fff"
+                android:textSize="@dimen/unread_top_txt_size"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/unreadTopText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:minHeight="24dp"
+                android:textColor="@color/message_bg"
+                android:textSize="@dimen/unread_top_txt_size"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/markAsRead"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dismiss"
+                android:textColor="#fff"
+                android:background="#56A4F7"
+                android:minHeight="32dp"
+                android:padding="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/unreadBottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/dark_blue"
+            android:gravity="center_vertical"
+            android:padding="4dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/highlightsBottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginRight="4dp"
+                android:background="@drawable/highlights_bg"
+                android:gravity="center"
+                android:minHeight="@dimen/unread_bubble_size"
+                android:minWidth="@dimen/unread_bubble_size"
+                android:padding="4dp"
+                android:textColor="#fff"
+                android:textSize="@dimen/unread_bottom_txt_size"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/unread"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="24dp"
+                android:textColor="@color/message_bg"
+                android:textSize="@dimen/unread_bottom_txt_size"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <ProgressBar
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:indeterminate="true"
+                android:visibility="gone"/>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="140dp"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/suggestionsContainer"
+            android:layout_margin="2dp"
+            android:visibility="invisible"
+            android:gravity="bottom">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/border"
+                android:padding="2dp">
+
+                <GridView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/suggestions"
+                    android:background="@drawable/row_bg_blue"
+                    android:numColumns="auto_fit"
+                    android:columnWidth="160dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/away"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/status_bg"
+        android:padding="6dp"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/awayTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="middle" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_weight="0"
+            android:gravity="right"
+            android:lines="1"
+            android:text="Tap to come back"
+            android:textColor="@color/timestamp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/statusView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|center_vertical"
+        android:layout_weight="0"
+        android:background="@drawable/background_blue"
+        android:padding="6dp"
+        android:textColor="@color/dark_blue"
+        android:textSize="16sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#c2c2c2"/>
+</LinearLayout>
