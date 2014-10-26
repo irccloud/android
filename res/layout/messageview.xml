@@ -29,7 +29,7 @@
         android:indeterminate="true"
         android:max="1000"
         android:layout_marginTop="-8dp"
-        android:visibility="visible"
+        android:visibility="gone"
         android:gravity="top"
         android:layout_gravity="top"
         android:layout_marginBottom="-7dp" />
