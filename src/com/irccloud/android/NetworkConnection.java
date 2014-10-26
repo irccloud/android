@@ -1654,10 +1654,14 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 ServersDataSource s = ServersDataSource.getInstance();
+                String away = object.getString("away");
+                if(getUserInfo() != null && getUserInfo().auto_away && away.equals("Auto-away"))
+                    away = "";
+
                 ServersDataSource.Server server = s.createServer(object.cid(), object.getString("name"), object.getString("hostname"),
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined")?0:object.getLong("lag"), object.getBoolean("ssl")?1:0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
-                        object.getJsonObject("fail_info"), object.getString("away"), object.getJsonNode("ignores"), (object.has("order")&&!object.getString("order").equals("undefined"))?object.getInt("order"):0);
+                        object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order")&&!object.getString("order").equals("undefined"))?object.getInt("order"):0);
                 Notifications.getInstance().deleteNetwork(object.cid());
                 if(object.getString("name") != null && object.getString("name").length() > 0)
                     Notifications.getInstance().addNetwork(object.cid(), object.getString("name"));
@@ -2155,12 +2159,13 @@ public class NetworkConnection {
         put("self_away", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
-                UsersDataSource u = UsersDataSource.getInstance();
-                u.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("away_msg"));
-                s.updateAway(object.cid(), object.getString("away_msg"));
-                if(!backlog)
+                if(!backlog) {
+                    ServersDataSource s = ServersDataSource.getInstance();
+                    UsersDataSource u = UsersDataSource.getInstance();
+                    u.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("away_msg"));
+                    s.updateAway(object.cid(), object.getString("away_msg"));
                     notifyHandlers(EVENT_AWAY, object);
+                }
             }
         });
         put("self_back", new Parser() {
