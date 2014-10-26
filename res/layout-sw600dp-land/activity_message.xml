@@ -61,16 +61,21 @@
             android:paddingTop="2dp" >
 
             <ImageButton
+                style="@style/Widget.Styled.ImageButton"
                 android:id="@+id/photoBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@null"
                 android:paddingLeft="6dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="4dp"
                 android:scaleType="fitEnd"
                 android:contentDescription="Insert Photo"
                 android:src="@drawable/ic_action_photo" />
+
+            <!-- Dummy item to prevent ActionEditText from receiving focus on launch -->
+            <LinearLayout
+                android:focusable="true" android:focusableInTouchMode="true"
+                android:layout_width="0px" android:layout_height="0px"/>
 
             <com.irccloud.android.ActionEditText
                 android:id="@+id/messageTxt"
@@ -84,10 +89,10 @@
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage" />
 
             <ImageButton
+                style="@style/Widget.Styled.ImageButton"
                 android:id="@+id/sendBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:background="@null"
                 android:paddingLeft="6dp"
                 android:paddingRight="4dp"
                 android:paddingBottom="4dp"

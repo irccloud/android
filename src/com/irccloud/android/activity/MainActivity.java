@@ -359,20 +359,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        if(drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
-            upDrawable = new DrawerArrowDrawable(this);
-            greyColor = upDrawable.getColor();
-            getSupportActionBar().setHomeAsUpIndicator(upDrawable);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-            drawerLayout.setDrawerListener(mDrawerListener);
-	        if(refreshUpIndicatorTask != null)
-	        	refreshUpIndicatorTask.cancel(true);
-	        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-	        refreshUpIndicatorTask.execute((Void)null);
-        } else {
-        	getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            getSupportActionBar().setHomeButtonEnabled(false);
+        if(drawerLayout != null) {
+            if(findViewById(R.id.usersListFragment2) == null) {
+                upDrawable = new DrawerArrowDrawable(this);
+                greyColor = upDrawable.getColor();
+                getSupportActionBar().setHomeAsUpIndicator(upDrawable);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setHomeButtonEnabled(true);
+                drawerLayout.setDrawerListener(mDrawerListener);
+                if (refreshUpIndicatorTask != null)
+                    refreshUpIndicatorTask.cancel(true);
+                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                refreshUpIndicatorTask.execute((Void) null);
+            } else {
+                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_launcher);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                getSupportActionBar().setHomeButtonEnabled(false);
+            }
         }
 		messageTxt.setDrawerLayout(drawerLayout);
 
@@ -2099,7 +2102,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                if(drawerLayout != null) {
+                if(drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
                     if(drawerLayout.isDrawerOpen(Gravity.LEFT))
                         drawerLayout.closeDrawer(Gravity.LEFT);
                     else
@@ -2134,7 +2137,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		        	if(drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
 	        			drawerLayout.closeDrawers();
 		        	} else {
-                        if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) == null)
+                        if(findViewById(R.id.usersListFragment2) == null)
                             drawerLayout.closeDrawer(Gravity.LEFT);
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                         drawerLayout.openDrawer(Gravity.RIGHT);
