@@ -348,8 +348,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         userListView = findViewById(R.id.usersListFragment);
 
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-
         View v = getLayoutInflater().inflate(R.layout.actionbar_messageview, null);
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
             @Override
@@ -357,6 +355,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 show_topic_popup();
             }
         });
+
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         if(drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
             upDrawable = new DrawerArrowDrawable(this);
