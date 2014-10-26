@@ -1126,17 +1126,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private void update_subtitle() {
         if(server == null || buffer == null) {
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
             title.setText(null);
             subtitle.setVisibility(View.GONE);
-        } else if(!NetworkConnection.getInstance().ready) {
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
         } else {
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-
             if(buffer.type.equals("console")) {
                 if(server.name.length() > 0) {
                     title.setText(server.name);

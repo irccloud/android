@@ -17,6 +17,7 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="colorPrimary">@color/light_blue</item>
         <item name="colorAccent">#ff33b5e5</item>
         <item name="android:windowContentOverlay">@null</item>

@@ -17,6 +17,7 @@
 <resources>
     <style name="AppTheme" parent="Theme.AppCompat.Light">
 	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="colorPrimary">@color/light_blue</item>
         <item name="colorAccent">#888</item>
         <item name="colorPrimaryDark">#000</item>
@@ -93,6 +94,13 @@
         <item name="android:minHeight">16dip</item>
         <item name="android:maxHeight">16dip</item>
     </style>
+    <style name="ProgressBarMain" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/main_progress_horizontal_holo_light</item>
+        <item name="android:indeterminateDrawable">@drawable/main_progress_indeterminate_horizontal_holo_light</item>
+        <item name="android:minHeight">16dip</item>
+        <item name="android:maxHeight">16dip</item>
+    </style>
+
     <style name="Widget.Styled.ImageButton" parent="android:Widget.ImageButton">
         <item name="android:background">@null</item>
     </style>

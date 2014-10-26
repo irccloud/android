@@ -33,7 +33,10 @@ import android.preference.PreferenceManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -100,12 +103,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private int newHighlights = 0;
 	private MessageViewListener mListener;
 	private TextView errorMsg = null;
-	private TextView connectingMsg = null;
 	private ProgressBar progressBar = null;
 	private static final Timer countdownTimer = new Timer("messsage-countdown-timer");
     private TimerTask countdownTimerTask = null;
 	private String error = null;
-	private View connecting = null;
 	private View awayView = null;
 	private TextView awayTxt = null;
 	private int timestamp_width = -1;
@@ -113,6 +114,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private View globalMsgView = null;
 	private TextView globalMsg = null;
     private ProgressBar spinner = null;
+    private ActionBar actionBar = null;
 	private final Handler mHandler = new Handler();
 
 	public static final int ROW_MESSAGE = 0;
@@ -602,9 +604,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
-        connecting = v.findViewById(R.id.connecting);
 		errorMsg = (TextView)v.findViewById(R.id.errorMsg);
-		connectingMsg = (TextView)v.findViewById(R.id.connectingMsg);
 		progressBar = (ProgressBar)v.findViewById(R.id.connectingProgress);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	statusView.setOnClickListener(new OnClickListener() {
@@ -751,7 +751,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			if(!ready || buffer == null)
 				return;
 
-            if(connecting.getVisibility() == View.VISIBLE)
+            if(progressBar.getVisibility() == View.VISIBLE)
                 return;
 
 			if(headerView != null && buffer.min_eid > 0 && conn.ready) {
@@ -819,6 +819,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement MessageViewListener");
         }
+        actionBar = ((ActionBarActivity)activity).getSupportActionBar();
     }
     
     @Override
@@ -854,6 +855,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     		} else {
     			awayView.setVisibility(View.GONE);
     		}
+            collapsedEvents.setServer(server);
 			update_status(server.status, server.fail_info);
     	}
 		if(unreadTopView != null)
@@ -1284,13 +1286,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	public void onResume() {
     	super.onResume();
     	conn.addHandler(this);
-    	if(NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
-			TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
-			anim.setDuration(200);
-			anim.setFillAfter(true);
-			connecting.startAnimation(anim);
-			connecting.setVisibility(View.VISIBLE);
-        }
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
     	updateReconnecting();
@@ -1315,7 +1310,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			if(isCancelled())
 				return null;
 
-            if(connecting.getVisibility() == View.VISIBLE)
+            if(progressBar.getVisibility() == View.VISIBLE)
                 return null;
 
             try {
@@ -1990,26 +1985,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		}
     	if(conn != null)
     		conn.removeHandler(this);
-		TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, -1);
-		anim.setDuration(10);
-		anim.setFillAfter(true);
-		anim.setAnimationListener(new AnimationListener() {
-
-			@Override
-			public void onAnimationEnd(Animation arg0) {
-				connecting.setVisibility(View.GONE);
-			}
-
-			@Override
-			public void onAnimationRepeat(Animation animation) {
-			}
-
-			@Override
-			public void onAnimationStart(Animation animation) {
-			}
-			
-		});
-		connecting.startAnimation(anim);
+        progressBar.setVisibility(View.GONE);
+        errorMsg.setVisibility(View.GONE);
 		error = null;
 		try {
 			getListView().setOnScrollListener(null);
@@ -2019,31 +1996,48 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private void updateReconnecting() {
 		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
-			connectingMsg.setText("Loading");
+			actionBar.setTitle("Loading");
 		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
+            actionBar.setDisplayShowCustomEnabled(false);
+            actionBar.setDisplayShowTitleEnabled(true);
             progressBar.setProgress(0);
 			progressBar.setIndeterminate(true);
-			if(connecting.getVisibility() == View.GONE) {
-				TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1, Animation.RELATIVE_TO_SELF, 0);
-				anim.setDuration(200);
-				anim.setFillAfter(true);
-				connecting.startAnimation(anim);
-				connecting.setVisibility(View.VISIBLE);
-			}
+            if(progressBar.getVisibility() != View.VISIBLE) {
+                AlphaAnimation anim = new AlphaAnimation(0, 1);
+                anim.setFillAfter(true);
+                anim.setDuration(250);
+                anim.setAnimationListener(new AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+                progressBar.startAnimation(anim);
+            }
 			if(conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.getReconnectTimestamp() > 0) {
-	    		String plural = "";
 	    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
-	    		if(seconds != 1)
-	    			plural = "s";
 	    		if(seconds < 1) {
-	    			connectingMsg.setText("Connecting");
+                    actionBar.setTitle("Connecting");
 					errorMsg.setVisibility(View.GONE);
-	    		} else if(seconds > 10 && error != null) {
-	    			connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
-					errorMsg.setText(error);
-					errorMsg.setVisibility(View.VISIBLE);
+	    		} else if(seconds >= 10) {
+                    actionBar.setTitle("Reconnecting in 0:" + seconds);
+                    if(error != null && error.length() > 0) {
+                        errorMsg.setText(error);
+                        errorMsg.setVisibility(View.VISIBLE);
+                    } else {
+                        errorMsg.setVisibility(View.GONE);
+                        error = null;
+                    }
 	    		} else {
-					connectingMsg.setText("Reconnecting in " + seconds + " second" + plural);
+                    actionBar.setTitle("Reconnecting in 0:0" + seconds);
 					errorMsg.setVisibility(View.GONE);
 					error = null;
 	    		}
@@ -2066,12 +2060,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				} catch (Exception e) {
 				}
 			} else {
-				connectingMsg.setText("Connecting");
+                actionBar.setTitle("Connecting");
 				error = null;
 				errorMsg.setVisibility(View.GONE);
 			}
     	} else {
-			connectingMsg.setText("Offline");
+            actionBar.setTitle("Offline");
 			progressBar.setIndeterminate(false);
 			progressBar.setProgress(0);
     	}
@@ -2124,29 +2118,30 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(connecting.getVisibility() == View.VISIBLE && conn != null && conn.ready) {
-                            TranslateAnimation anim = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, 0, Animation.RELATIVE_TO_SELF, -1);
-                            anim.setDuration(200);
+                        errorMsg.setVisibility(View.GONE);
+                        error = null;
+                        if(progressBar.getVisibility() == View.VISIBLE) {
+                            AlphaAnimation anim = new AlphaAnimation(1, 0);
                             anim.setFillAfter(true);
+                            anim.setDuration(250);
                             anim.setAnimationListener(new AnimationListener() {
+                                @Override
+                                public void onAnimationStart(Animation animation) {
+                                }
 
                                 @Override
-                                public void onAnimationEnd(Animation arg0) {
-                                    connecting.setVisibility(View.GONE);
+                                public void onAnimationEnd(Animation animation) {
+                                    progressBar.setVisibility(View.GONE);
                                 }
 
                                 @Override
                                 public void onAnimationRepeat(Animation animation) {
                                 }
-
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-                                }
-
                             });
-                            connecting.startAnimation(anim);
-                            error = null;
+                            progressBar.startAnimation(anim);
                         }
+                        actionBar.setDisplayShowCustomEnabled(true);
+                        actionBar.setDisplayShowTitleEnabled(false);
                     }
                 });
             case NetworkConnection.EVENT_CONNECTIVITY:

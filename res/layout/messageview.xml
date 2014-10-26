@@ -219,36 +219,25 @@
 			android:background="#c2c2c2"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/connecting"
+    <TextView
+        android:id="@+id/errorMsg"
+        android:background="@drawable/bg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg"
-        android:orientation="vertical"
+        android:gravity="center"
         android:padding="6dp"
-        android:visibility="gone" >
+        android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/connectingMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Connecting"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <ProgressBar
-            android:id="@+id/connectingProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
-            android:max="1000" />
-
-        <TextView
-            android:id="@+id/errorMsg"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:visibility="gone" />
-    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/connectingProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:max="1000"
+        android:layout_marginTop="-8dp"
+        android:visibility="visible"
+        android:gravity="top"
+        android:layout_gravity="top" />
 
 </FrameLayout>
