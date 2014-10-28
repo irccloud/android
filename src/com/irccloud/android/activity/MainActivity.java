@@ -54,6 +54,7 @@ import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.Toolbar;
 import android.text.style.URLSpan;
 import android.view.*;
 import org.json.JSONException;
@@ -163,6 +164,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     String bufferToOpen = null;
     int cidToOpen = -1;
     private Uri imageCaptureURI = null;
+    private ProgressBar progressBar;
+    private TextView errorMsg = null;
+    private static final Timer countdownTimer = new Timer("messsage-countdown-timer");
+    private TimerTask countdownTimerTask = null;
+    private String error = null;
 
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
@@ -217,7 +223,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onCreate(savedInstanceState);
 		getWindow().setBackgroundDrawable(null);
         setContentView(R.layout.activity_message);
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
+
         suggestionsAdapter = new SuggestionsAdapter();
+        progressBar = (ProgressBar)findViewById(R.id.progress);
+        errorMsg = (TextView)findViewById(R.id.errorMsg);
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout)findViewById(R.id.messageContainer);
         drawerLayout = (DrawerLayout)findViewById(R.id.drawerLayout);
@@ -363,18 +373,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(findViewById(R.id.usersListFragment2) == null) {
                 upDrawable = new DrawerArrowDrawable(this);
                 greyColor = upDrawable.getColor();
-                getSupportActionBar().setHomeAsUpIndicator(upDrawable);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setHomeButtonEnabled(true);
+                ((Toolbar)findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
                 drawerLayout.setDrawerListener(mDrawerListener);
                 if (refreshUpIndicatorTask != null)
                     refreshUpIndicatorTask.cancel(true);
                 refreshUpIndicatorTask = new RefreshUpIndicatorTask();
                 refreshUpIndicatorTask.execute((Void) null);
             } else {
-                getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_launcher);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setHomeButtonEnabled(false);
+                ((Toolbar)findViewById(R.id.toolbar)).setNavigationIcon(R.drawable.ic_launcher);
             }
         }
 		messageTxt.setDrawerLayout(drawerLayout);
@@ -407,7 +413,70 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         drawerLayout.closeDrawers();
 
         getSupportActionBar().setElevation(0);
-        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
+    }
+
+    private void updateReconnecting() {
+        if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+            getSupportActionBar().setTitle("Loading");
+        } else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            progressBar.setProgress(0);
+            progressBar.setIndeterminate(true);
+            if(progressBar.getVisibility() != View.VISIBLE) {
+                if(Build.VERSION.SDK_INT >= 16) {
+                    progressBar.setAlpha(0);
+                    progressBar.animate().alpha(1);
+                }
+                progressBar.setVisibility(View.VISIBLE);
+            }
+            if(conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.getReconnectTimestamp() > 0) {
+                int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
+                if(seconds < 1) {
+                    getSupportActionBar().setTitle("Connecting");
+                    errorMsg.setVisibility(View.GONE);
+                } else if(seconds >= 10) {
+                    getSupportActionBar().setTitle("Reconnecting in 0:" + seconds);
+                    if(error != null && error.length() > 0) {
+                        errorMsg.setText(error);
+                        errorMsg.setVisibility(View.VISIBLE);
+                    } else {
+                        errorMsg.setVisibility(View.GONE);
+                        error = null;
+                    }
+                } else {
+                    getSupportActionBar().setTitle("Reconnecting in 0:0" + seconds);
+                    errorMsg.setVisibility(View.GONE);
+                    error = null;
+                }
+                try {
+                    if(countdownTimerTask != null)
+                        countdownTimerTask.cancel();
+                    countdownTimerTask =  new TimerTask(){
+                        public void run() {
+                            if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateReconnecting();
+                                    }
+                                });
+                            }
+                        }
+                    };
+                    countdownTimer.schedule(countdownTimerTask, 1000);
+                } catch (Exception e) {
+                }
+            } else {
+                getSupportActionBar().setTitle("Connecting");
+                error = null;
+                errorMsg.setVisibility(View.GONE);
+            }
+        } else {
+            getSupportActionBar().setTitle("Offline");
+            progressBar.setIndeterminate(false);
+            progressBar.setProgress(0);
+        }
     }
 
     private void show_topic_popup() {
@@ -1042,6 +1111,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         messageTxt.clearFocus();
         messageTxt.setEnabled(true);
+
+        updateReconnecting();
     }
 
     @Override
@@ -1059,6 +1130,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     		conn.removeHandler(this);
         suggestionsAdapter.clear();
     	conn = null;
+        progressBar.setVisibility(View.GONE);
+        errorMsg.setVisibility(View.GONE);
+        error = null;
     }
 
     public Object onRetainCustomNonConfigurationInstance () {
@@ -1267,7 +1341,37 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onIRCEvent(what, obj);
         Integer event_bid = 0;
         final IRCCloudJSONObject event;
+        final Object o = obj;
         switch (what) {
+            case NetworkConnection.EVENT_DEBUG:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        errorMsg.setVisibility(View.VISIBLE);
+                        errorMsg.setText(o.toString());
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_PROGRESS:
+                final float progress = (Float)obj;
+                if(progressBar.getProgress() < progress) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setIndeterminate(false);
+                            progressBar.setProgress((int) progress);
+                        }
+                    });
+                }
+                break;
+            case NetworkConnection.EVENT_BACKLOG_START:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setProgress(0);
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_RENAMECONVERSATION:
                 if(buffer != null && (Integer)obj == buffer.bid) {
                     runOnUiThread(new Runnable() {
@@ -1337,7 +1441,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 				}
 				break;
             case NetworkConnection.EVENT_CONNECTIVITY:
-				if(conn != null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateReconnecting();
+                    }
+                });
+                if(conn != null) {
 					if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 						for(EventsDataSource.Event e : pendingEvents.values()) {
 							EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
@@ -1656,6 +1766,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        errorMsg.setVisibility(View.GONE);
+                        error = null;
+                        if(progressBar.getVisibility() == View.VISIBLE) {
+                            if(Build.VERSION.SDK_INT >= 16) {
+                                progressBar.animate().alpha(0).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                            } else {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        }
+                        getSupportActionBar().setDisplayShowTitleEnabled(false);
+                        getSupportActionBar().setDisplayShowCustomEnabled(true);
                         if(drawerLayout != null) {
                             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                             getSupportActionBar().setHomeButtonEnabled(true);
@@ -1868,7 +1994,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         editor.commit();
                     }
                 }
-				break;
+                try {
+                    error = event.getString("message");
+                    if(error.equals("temp_unavailable"))
+                        error = "Your account is temporarily unavailable";
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateReconnecting();
+                        }
+                    });
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                break;
 			case NetworkConnection.EVENT_BUFFERMSG:
 				try {
 					EventsDataSource.Event e = (EventsDataSource.Event)obj;
@@ -3126,7 +3265,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private Uri mImageUri;  // local Uri to upload
         private int total = 0;
         public Activity activity;
-        private ProgressBar progressBar;
         private String error;
         private BuffersDataSource.Buffer mBuffer;
 
@@ -3301,7 +3439,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public void setActivity(Activity a) {
             activity = a;
             if(a != null) {
-                progressBar = (ProgressBar)a.findViewById(R.id.connectingProgress);
                 if(total > 0) {
                     getSupportActionBar().setTitle("Uploading");
                     getSupportActionBar().setDisplayShowCustomEnabled(false);

@@ -21,28 +21,6 @@
     android:background="#fff"
     android:orientation="vertical" >
 
-    <ProgressBar
-        android:id="@+id/connectingProgress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:max="1000"
-        android:layout_marginTop="-8dp"
-        android:visibility="gone"
-        android:gravity="top"
-        android:layout_gravity="top"
-        android:layout_marginBottom="-7dp" />
-
-    <TextView
-        android:id="@+id/errorMsg"
-        android:background="@drawable/bg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="6dp"
-        android:visibility="gone" />
-
     <include
         android:id="@+id/globalMessageView"
         android:layout_width="match_parent"

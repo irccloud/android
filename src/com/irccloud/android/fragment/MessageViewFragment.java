@@ -30,16 +30,10 @@ import java.util.TreeSet;
 import android.content.ActivityNotFoundException;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.view.animation.AlphaAnimation;
 import android.widget.*;
 import org.json.JSONException;
@@ -60,7 +54,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
-import android.view.animation.TranslateAnimation;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 
@@ -102,11 +95,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private long newMsgTime = 0;
 	private int newHighlights = 0;
 	private MessageViewListener mListener;
-	private TextView errorMsg = null;
-	private ProgressBar progressBar = null;
-	private static final Timer countdownTimer = new Timer("messsage-countdown-timer");
-    private TimerTask countdownTimerTask = null;
-	private String error = null;
 	private View awayView = null;
 	private TextView awayTxt = null;
 	private int timestamp_width = -1;
@@ -114,7 +102,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private View globalMsgView = null;
 	private TextView globalMsg = null;
     private ProgressBar spinner = null;
-    private ActionBar actionBar = null;
 	private final Handler mHandler = new Handler();
 
 	public static final int ROW_MESSAGE = 0;
@@ -604,8 +591,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	final View v = inflater.inflate(R.layout.messageview, container, false);
-		errorMsg = (TextView)v.findViewById(R.id.errorMsg);
-		progressBar = (ProgressBar)v.findViewById(R.id.connectingProgress);
     	statusView = (TextView)v.findViewById(R.id.statusView);
     	statusView.setOnClickListener(new OnClickListener() {
 
@@ -762,7 +747,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private void hideView(final View v) {
         if(v.getVisibility() != View.GONE) {
             if (Build.VERSION.SDK_INT >= 16) {
-                v.animate().alpha(0).withEndAction(new Runnable() {
+                v.animate().alpha(0).setDuration(100).withEndAction(new Runnable() {
                     @Override
                     public void run() {
                         v.setVisibility(View.GONE);
@@ -778,7 +763,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(v.getVisibility() != View.VISIBLE) {
             if (Build.VERSION.SDK_INT >= 16) {
                 v.setAlpha(0);
-                v.animate().alpha(1);
+                v.animate().alpha(1).setDuration(100);
             }
             v.setVisibility(View.VISIBLE);
         }
@@ -787,13 +772,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			if(!ready || buffer == null)
-				return;
-
-            if(progressBar.getVisibility() == View.VISIBLE)
+            if(!ready || buffer == null || !conn.ready || adapter == null)
                 return;
 
-			if(headerView != null && buffer.min_eid > 0 && conn.ready) {
+            if(headerView != null && buffer.min_eid > 0 && conn.ready) {
 				if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 					requestingBacklog = true;
 					conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
@@ -824,7 +806,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 buffer.scrollPosition = -1;
             }
 			if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
-				mUpdateTopUnreadRunnable.run();
+                update_top_unread(firstVisibleItem);
 				int markerPos = -1;
 				if(adapter != null)
 					markerPos = adapter.getLastSeenEIDPosition();
@@ -858,7 +840,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement MessageViewListener");
         }
-        actionBar = ((ActionBarActivity)activity).getSupportActionBar();
     }
     
     @Override
@@ -898,7 +879,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			update_status(server.status, server.fail_info);
     	}
 		if(unreadTopView != null)
-            hideView(unreadTopView);
+            unreadTopView.setVisibility(View.GONE);
         backlogFailed.setVisibility(View.GONE);
         loadBacklogButton.setVisibility(View.GONE);
         try {
@@ -1327,7 +1308,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	conn.addHandler(this);
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
-    	updateReconnecting();
     	update_global_msg();
     }
     
@@ -1346,10 +1326,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			} catch (InterruptedException e) {
 			}
 
-			if(isCancelled())
+			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED)
 				return null;
 
-            if(progressBar.getVisibility() == View.VISIBLE)
+            if(unreadTopView.getVisibility() == View.VISIBLE || unreadBottomView.getVisibility() == View.VISIBLE)
                 return null;
 
             try {
@@ -1547,6 +1527,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 refreshTask = null;
                 requestingBacklog = false;
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        update_top_unread(getListView().getFirstVisiblePosition());
+                        if(server != null)
+                            update_status(server.status, server.fail_info);
+                        if(mListener != null && !ready)
+                            mListener.onMessageViewReady();
+                        ready = true;
+                    }
+                }, 250);
                 //Debug.stopMethodTracing();
             }
         }
@@ -1635,110 +1626,100 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     //adapter.notifyDataSetChanged();
                 }
             }
-            mHandler.removeCallbacks(mUpdateTopUnreadRunnable);
-            mHandler.postDelayed(mUpdateTopUnreadRunnable, 100);
             if(conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
                 conn.schedule_idle_timer();
         }
 	}
 
-	private Runnable mUpdateTopUnreadRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if(adapter != null) {
-				try {
-					int markerPos = adapter.getLastSeenEIDPosition();
-		    		if(markerPos >= 0 && getListView().getFirstVisiblePosition() > (markerPos + 1)) {
-		    			if(shouldTrackUnread()) {
-		    				int highlights = adapter.getUnreadHighlightsAbovePosition(getListView().getFirstVisiblePosition());
-		    				int count = (getListView().getFirstVisiblePosition() - markerPos - 1) - highlights;
-		    				String txt = "";
-		    				if(highlights > 0) {
-			    				if(highlights == 1)
-			    					txt = "mention";
-			    				else if(highlights > 0)
-			    					txt = "mentions";
-			    				highlightsTopLabel.setText(String.valueOf(highlights));
-		    					highlightsTopLabel.setVisibility(View.VISIBLE);
-		    					
-		    					if(count > 0)
-		    						txt += " and ";
-		    				} else {
-		    					highlightsTopLabel.setVisibility(View.GONE);
-		    				}
-		    				if(markerPos == 0) {
-		    			        long seconds = (long)Math.ceil((earliest_eid - buffer.last_seen_eid) / 1000000.0);
-                                if(seconds < 0) {
-                                    if(count < 0) {
-                                        hideView(unreadTopView);
-                                        return;
-                                    } else {
-                                        if(count == 1)
-                                            txt += count + " unread message";
-                                        else if(count > 0)
-                                            txt += count + " unread messages";
-                                    }
-                                } else {
-                                    int minutes = (int)Math.ceil(seconds / 60.0);
-                                    int hours = (int)Math.ceil(seconds / 60.0 / 60.0);
-                                    int days = (int)Math.ceil(seconds / 60.0 / 60.0 / 24.0);
-                                    if(hours >= 24) {
-                                        if(days == 1)
-                                            txt += days + " day of unread messages";
-                                        else
-                                            txt += days + " days of unread messages";
-                                    } else if(hours > 0) {
-                                        if(hours == 1)
-                                            txt += hours + " hour of unread messages";
-                                        else
-                                            txt += hours + " hours of unread messages";
-                                    } else if(minutes > 0) {
-                                        if(minutes == 1)
-                                            txt += minutes + " minute of unread messages";
-                                        else
-                                            txt += minutes + " minutes of unread messages";
-                                    } else {
-                                        if(seconds == 1)
-                                            txt += seconds + " second of unread messages";
-                                        else
-                                            txt += seconds + " seconds of unread messages";
-                                    }
-                                }
-		    				} else {
-			    				if(count == 1)
-			    					txt += count + " unread message";
-			    				else if(count > 0)
-			    					txt += count + " unread messages";
-		    				}
-			    			unreadTopLabel.setText(txt);
-                            showView(unreadTopView);
-		    			} else {
-                            hideView(unreadTopView);
-		    			}
-		    		} else {
-                        if(markerPos > 0) {
-                            hideView(unreadTopView);
-                            if(adapter.data.size() > 0) {
-                                if(heartbeatTask != null)
-                                    heartbeatTask.cancel(true);
-                                heartbeatTask = new HeartbeatTask();
-                                heartbeatTask.execute((Void)null);
-                            }
+	private void update_top_unread(int first) {
+        if(adapter != null) {
+            try {
+                int markerPos = adapter.getLastSeenEIDPosition();
+                if(markerPos >= 0 && first > (markerPos + 1)) {
+                    if(shouldTrackUnread()) {
+                        int highlights = adapter.getUnreadHighlightsAbovePosition(first);
+                        int count = (first - markerPos - 1) - highlights;
+                        String txt = "";
+                        if(highlights > 0) {
+                            if(highlights == 1)
+                                txt = "mention";
+                            else if(highlights > 0)
+                                txt = "mentions";
+                            highlightsTopLabel.setText(String.valueOf(highlights));
+                            highlightsTopLabel.setVisibility(View.VISIBLE);
+
+                            if(count > 0)
+                                txt += " and ";
+                        } else {
+                            highlightsTopLabel.setVisibility(View.GONE);
                         }
-		    		}
-		    		if(server != null)
-		    			update_status(server.status, server.fail_info);
-					if(mListener != null && !ready)
-						mListener.onMessageViewReady();
-					ready = true;
-				} catch (IllegalStateException e) {
-					//The list view wasn't on screen yet
-                    e.printStackTrace();
-				}
-			}
-		}
-	};
-	
+                        if(markerPos == 0) {
+                            long seconds = (long)Math.ceil((earliest_eid - buffer.last_seen_eid) / 1000000.0);
+                            if(seconds < 0) {
+                                if(count < 0) {
+                                    hideView(unreadTopView);
+                                    return;
+                                } else {
+                                    if(count == 1)
+                                        txt += count + " unread message";
+                                    else if(count > 0)
+                                        txt += count + " unread messages";
+                                }
+                            } else {
+                                int minutes = (int)Math.ceil(seconds / 60.0);
+                                int hours = (int)Math.ceil(seconds / 60.0 / 60.0);
+                                int days = (int)Math.ceil(seconds / 60.0 / 60.0 / 24.0);
+                                if(hours >= 24) {
+                                    if(days == 1)
+                                        txt += days + " day of unread messages";
+                                    else
+                                        txt += days + " days of unread messages";
+                                } else if(hours > 0) {
+                                    if(hours == 1)
+                                        txt += hours + " hour of unread messages";
+                                    else
+                                        txt += hours + " hours of unread messages";
+                                } else if(minutes > 0) {
+                                    if(minutes == 1)
+                                        txt += minutes + " minute of unread messages";
+                                    else
+                                        txt += minutes + " minutes of unread messages";
+                                } else {
+                                    if(seconds == 1)
+                                        txt += seconds + " second of unread messages";
+                                    else
+                                        txt += seconds + " seconds of unread messages";
+                                }
+                            }
+                        } else {
+                            if(count == 1)
+                                txt += count + " unread message";
+                            else if(count > 0)
+                                txt += count + " unread messages";
+                        }
+                        unreadTopLabel.setText(txt);
+                        showView(unreadTopView);
+                    } else {
+                        hideView(unreadTopView);
+                    }
+                } else {
+                    if(markerPos > 0) {
+                        hideView(unreadTopView);
+                        if(adapter.data.size() > 0) {
+                            if(heartbeatTask != null)
+                                heartbeatTask.cancel(true);
+                            heartbeatTask = new HeartbeatTask();
+                            heartbeatTask.execute((Void)null);
+                        }
+                    }
+                }
+            } catch (IllegalStateException e) {
+                //The list view wasn't on screen yet
+                e.printStackTrace();
+            }
+        }
+    }
+
 	private boolean shouldTrackUnread() {
 		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
 			try {
@@ -2024,112 +2005,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		}
     	if(conn != null)
     		conn.removeHandler(this);
-        progressBar.setVisibility(View.GONE);
-        errorMsg.setVisibility(View.GONE);
-		error = null;
 		try {
 			getListView().setOnScrollListener(null);
 		} catch (Exception e) {
 		}
+        ready = false;
    	}
-
-    private void updateReconnecting() {
-		if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
-			actionBar.setTitle("Loading");
-		} else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
-            actionBar.setDisplayShowCustomEnabled(false);
-            actionBar.setDisplayShowTitleEnabled(true);
-            progressBar.setProgress(0);
-			progressBar.setIndeterminate(true);
-            if(progressBar.getVisibility() != View.VISIBLE) {
-                if(Build.VERSION.SDK_INT >= 16) {
-                    progressBar.setAlpha(0);
-                    progressBar.animate().alpha(1);
-                }
-                progressBar.setVisibility(View.VISIBLE);
-            }
-			if(conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.getReconnectTimestamp() > 0) {
-	    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
-	    		if(seconds < 1) {
-                    actionBar.setTitle("Connecting");
-					errorMsg.setVisibility(View.GONE);
-	    		} else if(seconds >= 10) {
-                    actionBar.setTitle("Reconnecting in 0:" + seconds);
-                    if(error != null && error.length() > 0) {
-                        errorMsg.setText(error);
-                        errorMsg.setVisibility(View.VISIBLE);
-                    } else {
-                        errorMsg.setVisibility(View.GONE);
-                        error = null;
-                    }
-	    		} else {
-                    actionBar.setTitle("Reconnecting in 0:0" + seconds);
-					errorMsg.setVisibility(View.GONE);
-					error = null;
-	    		}
-				try {
-					if(countdownTimerTask != null)
-						countdownTimerTask.cancel();
-                    countdownTimerTask =  new TimerTask(){
-                        public void run() {
-                            if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        updateReconnecting();
-                                    }
-                                });
-                            }
-                        }
-                    };
-					countdownTimer.schedule(countdownTimerTask, 1000);
-				} catch (Exception e) {
-				}
-			} else {
-                actionBar.setTitle("Connecting");
-				error = null;
-				errorMsg.setVisibility(View.GONE);
-			}
-    	} else {
-            actionBar.setTitle("Offline");
-			progressBar.setIndeterminate(false);
-			progressBar.setProgress(0);
-    	}
-    }
 
     public void onIRCEvent(int what, final Object obj) {
 		IRCCloudJSONObject e;
 
         switch (what) {
-            case NetworkConnection.EVENT_DEBUG:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        errorMsg.setVisibility(View.VISIBLE);
-                        errorMsg.setText(obj.toString());
-                    }
-                });
-                break;
-            case NetworkConnection.EVENT_PROGRESS:
-                final float progress = (Float)obj;
-                if(progressBar.getProgress() < progress) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setIndeterminate(false);
-                            progressBar.setProgress((int) progress);
-                        }
-                    });
-                }
-                break;
-            case NetworkConnection.EVENT_BACKLOG_START:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        progressBar.setProgress(0);
-                    }
-                });
-                break;
             case NetworkConnection.EVENT_BACKLOG_FAILED:
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2141,34 +2027,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 });
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        errorMsg.setVisibility(View.GONE);
-                        error = null;
-                        if(progressBar.getVisibility() == View.VISIBLE) {
-                            if(Build.VERSION.SDK_INT >= 16) {
-                                progressBar.animate().alpha(0).withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-                                });
-                            } else {
-                                progressBar.setVisibility(View.GONE);
-                            }
-                        }
-                        actionBar.setDisplayShowCustomEnabled(true);
-                        actionBar.setDisplayShowTitleEnabled(false);
-                    }
-                });
             case NetworkConnection.EVENT_CONNECTIVITY:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateReconnecting();
-                    }
-                });
             case NetworkConnection.EVENT_USERINFO:
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2179,22 +2038,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         refreshTask.execute((Void)null);
                     }
                 });
-                break;
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                IRCCloudJSONObject o = (IRCCloudJSONObject)obj;
-                try {
-                    error = o.getString("message");
-                    if(error.equals("temp_unavailable"))
-                        error = "Your account is temporarily unavailable";
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateReconnecting();
-                        }
-                    });
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
                 break;
             case NetworkConnection.EVENT_CONNECTIONLAG:
                 try {
