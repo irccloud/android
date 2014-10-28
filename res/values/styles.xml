@@ -53,7 +53,7 @@
         <item name="colorPrimaryDark">#000</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
     </style>
-    <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorAccent">#888</item>
         <item name="colorPrimaryDark">#000</item>
         <item name="windowActionBarOverlay">true</item>

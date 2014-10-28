@@ -23,13 +23,16 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -121,6 +124,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     WebView mImage;
     ProgressBar mSpinner;
     ProgressBar mProgress;
+    Toolbar toolbar;
     private static final Timer mHideTimer = new Timer("actionbar-hide-timer");
     TimerTask mHideTimerTask = null;
 
@@ -135,12 +139,25 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             ImageViewerActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(getSupportActionBar().isShowing()) {
+                    if(toolbar.getVisibility() == View.VISIBLE) {
                         if(mHideTimerTask != null)
                             mHideTimerTask.cancel();
-                        getSupportActionBar().hide();
+                        if(Build.VERSION.SDK_INT > 16) {
+                            toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    toolbar.setVisibility(View.GONE);
+                                }
+                            });
+                        } else {
+                            toolbar.setVisibility(View.GONE);
+                        }
                     } else {
-                        getSupportActionBar().show();
+                        if(Build.VERSION.SDK_INT > 16) {
+                            toolbar.setAlpha(0);
+                            toolbar.animate().alpha(1).translationY(0);
+                        }
+                        toolbar.setVisibility(View.VISIBLE);
                         hide_actionbar();
                     }
                 }
@@ -155,8 +172,19 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         if(savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
-        if(Integer.parseInt(Build.VERSION.SDK) >= 14 && Integer.parseInt(Build.VERSION.SDK) < 19)
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if(Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 19)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        else if(Build.VERSION.SDK_INT >= 19) {
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
+            int resid = getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if(resid > 0)
+                lp.topMargin = getResources().getDimensionPixelSize(resid);
+            else
+                lp.topMargin = getResources().getDimensionPixelSize(R.dimen.status_bar_height);
+            toolbar.setLayoutParams(lp);
+        }
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_translucent));
@@ -269,7 +297,16 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 ImageViewerActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        getSupportActionBar().hide();
+                        if(Build.VERSION.SDK_INT > 16) {
+                            toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    toolbar.setVisibility(View.GONE);
+                                }
+                            });
+                        } else {
+                            toolbar.setVisibility(View.GONE);
+                        }
                     }
                 });
             }
@@ -298,6 +335,13 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             share.setShareIntent(intent);
         }
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if(mHideTimerTask != null)
+            mHideTimerTask.cancel();
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

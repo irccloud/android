@@ -27,8 +27,7 @@
         <item name="android:windowTitleSize">?attr/actionBarSize</item>
         <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
     </style>
-    <style name="ImageViewerTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="windowActionBarOverlay">true</item>
+    <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorAccent">#fff</item>
     </style>
     <style name="messageTxt">
