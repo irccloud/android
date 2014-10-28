@@ -607,7 +607,7 @@ public class Notifications {
         .setGroup(String.valueOf(bid))
         .setGroupSummary(true)
         .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
-        //.setCategory(Notification.CATEGORY_MESSAGE) -- Not in the support library yet
+        .setCategory(NotificationCompat.CATEGORY_MESSAGE)
         .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         if(ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
@@ -823,6 +823,8 @@ public class Notifications {
                                 .setContentText(wearBody)
                                 .setWhen(n.eid / 1000)
                                 .setGroup(String.valueOf(n.bid))
+                                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+                                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                                 .setSmallIcon(R.drawable.ic_stat_notify);
 
                         Intent i = new Intent();
