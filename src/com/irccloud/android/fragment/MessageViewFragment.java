@@ -651,7 +651,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         heartbeatTask.cancel(true);
                     heartbeatTask = new HeartbeatTask();
                     heartbeatTask.execute((Void)null);
-                    unreadTopView.setVisibility(View.GONE);
+                    hideView(unreadTopView);
 				}
 				getListView().setSelection(adapter.getLastSeenEIDPosition());
 			}
@@ -663,7 +663,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	b.setOnClickListener(new OnClickListener() {
     		@Override
     		public void onClick(View v) {
-				unreadTopView.setVisibility(View.GONE);
+                hideView(unreadTopView);
                 if(heartbeatTask != null)
                     heartbeatTask.cancel(true);
                 heartbeatTask = new HeartbeatTask();
@@ -716,32 +716,71 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     public void showSpinner(boolean show) {
         if(show) {
-            AlphaAnimation anim = new AlphaAnimation(0, 1);
-            anim.setDuration(150);
-            anim.setFillAfter(true);
-            spinner.setAnimation(anim);
+            if(Build.VERSION.SDK_INT < 16) {
+                AlphaAnimation anim = new AlphaAnimation(0, 1);
+                anim.setDuration(150);
+                anim.setFillAfter(true);
+                spinner.setAnimation(anim);
+            } else {
+                spinner.setAlpha(0);
+                spinner.animate().alpha(1);
+            }
             spinner.setVisibility(View.VISIBLE);
         } else {
-            AlphaAnimation anim = new AlphaAnimation(1, 0);
-            anim.setDuration(150);
-            anim.setFillAfter(true);
-            anim.setAnimationListener(new AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
+            if(Build.VERSION.SDK_INT < 16) {
+                AlphaAnimation anim = new AlphaAnimation(1, 0);
+                anim.setDuration(150);
+                anim.setFillAfter(true);
+                anim.setAnimationListener(new AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
 
-                }
+                    }
 
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    spinner.setVisibility(View.GONE);
-                }
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        spinner.setVisibility(View.GONE);
+                    }
 
-                @Override
-                public void onAnimationRepeat(Animation animation) {
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
 
-                }
-            });
-            spinner.setAnimation(anim);
+                    }
+                });
+                spinner.setAnimation(anim);
+            } else {
+                spinner.animate().alpha(0).withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        spinner.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }
+    }
+
+    private void hideView(final View v) {
+        if(v.getVisibility() != View.GONE) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                v.animate().alpha(0).withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        v.setVisibility(View.GONE);
+                    }
+                });
+            } else {
+                v.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private void showView(final View v) {
+        if(v.getVisibility() != View.VISIBLE) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                v.setAlpha(0);
+                v.animate().alpha(1);
+            }
+            v.setVisibility(View.VISIBLE);
         }
     }
 
@@ -763,7 +802,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			
 			if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
 				if(firstVisibleItem + visibleItemCount == totalItemCount) {
-					unreadBottomView.setVisibility(View.GONE);
+                    hideView(unreadBottomView);
 					if(unreadTopView.getVisibility() == View.GONE) {
 	    				if(heartbeatTask != null)
 	    					heartbeatTask.cancel(true);
@@ -790,7 +829,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				if(adapter != null)
 					markerPos = adapter.getLastSeenEIDPosition();
 	    		if(markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
-	    			unreadTopView.setVisibility(View.GONE);
+                    hideView(unreadTopView);
     				if(heartbeatTask != null)
     					heartbeatTask.cancel(true);
     				heartbeatTask = new HeartbeatTask();
@@ -859,7 +898,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			update_status(server.status, server.fail_info);
     	}
 		if(unreadTopView != null)
-			unreadTopView.setVisibility(View.GONE);
+            hideView(unreadTopView);
         backlogFailed.setVisibility(View.GONE);
         loadBacklogButton.setVisibility(View.GONE);
         try {
@@ -1631,7 +1670,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		    			        long seconds = (long)Math.ceil((earliest_eid - buffer.last_seen_eid) / 1000000.0);
                                 if(seconds < 0) {
                                     if(count < 0) {
-                                        unreadTopView.setVisibility(View.GONE);
+                                        hideView(unreadTopView);
                                         return;
                                     } else {
                                         if(count == 1)
@@ -1672,13 +1711,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			    					txt += count + " unread messages";
 		    				}
 			    			unreadTopLabel.setText(txt);
-			    			unreadTopView.setVisibility(View.VISIBLE);
+                            showView(unreadTopView);
 		    			} else {
-			    			unreadTopView.setVisibility(View.GONE);
+                            hideView(unreadTopView);
 		    			}
 		    		} else {
                         if(markerPos > 0) {
-                            unreadTopView.setVisibility(View.GONE);
+                            hideView(unreadTopView);
                             if(adapter.data.size() > 0) {
                                 if(heartbeatTask != null)
                                     heartbeatTask.cancel(true);
@@ -1763,7 +1802,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			else if(msgCnt > 0)
 				txt += msgCnt + " unread messages";
 			unreadBottomLabel.setText(txt);
-			unreadBottomView.setVisibility(View.VISIBLE);
+            showView(unreadBottomView);
 			unreadRefreshRunnable = new UnreadRefreshRunnable();
 			mHandler.postDelayed(unreadRefreshRunnable, 10000);
 		}
@@ -2003,24 +2042,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             progressBar.setProgress(0);
 			progressBar.setIndeterminate(true);
             if(progressBar.getVisibility() != View.VISIBLE) {
-                AlphaAnimation anim = new AlphaAnimation(0, 1);
-                anim.setFillAfter(true);
-                anim.setDuration(250);
-                anim.setAnimationListener(new AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        progressBar.setVisibility(View.VISIBLE);
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
-                });
-                progressBar.startAnimation(anim);
+                if(Build.VERSION.SDK_INT >= 16) {
+                    progressBar.setAlpha(0);
+                    progressBar.animate().alpha(1);
+                }
+                progressBar.setVisibility(View.VISIBLE);
             }
 			if(conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.getReconnectTimestamp() > 0) {
 	    		int seconds = (int)((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
@@ -2121,24 +2147,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         errorMsg.setVisibility(View.GONE);
                         error = null;
                         if(progressBar.getVisibility() == View.VISIBLE) {
-                            AlphaAnimation anim = new AlphaAnimation(1, 0);
-                            anim.setFillAfter(true);
-                            anim.setDuration(250);
-                            anim.setAnimationListener(new AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                    progressBar.setVisibility(View.GONE);
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
-                                }
-                            });
-                            progressBar.startAnimation(anim);
+                            if(Build.VERSION.SDK_INT >= 16) {
+                                progressBar.animate().alpha(0).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                });
+                            } else {
+                                progressBar.setVisibility(View.GONE);
+                            }
                         }
                         actionBar.setDisplayShowCustomEnabled(true);
                         actionBar.setDisplayShowTitleEnabled(false);
@@ -2228,7 +2246,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                unreadTopView.setVisibility(View.GONE);
+                                hideView(unreadTopView);
                             }
                         });
                     }

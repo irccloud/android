@@ -541,10 +541,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     suggestions.smoothScrollToPosition(0);
                 }
                 if(suggestionsContainer.getVisibility() == View.INVISIBLE) {
-                    AlphaAnimation anim = new AlphaAnimation(0, 1);
-                    anim.setDuration(250);
-                    anim.setFillAfter(true);
-                    suggestionsContainer.startAnimation(anim);
+                    if(Build.VERSION.SDK_INT < 16) {
+                        AlphaAnimation anim = new AlphaAnimation(0, 1);
+                        anim.setDuration(250);
+                        anim.setFillAfter(true);
+                        suggestionsContainer.startAnimation(anim);
+                    } else {
+                        suggestionsContainer.setAlpha(0);
+                        suggestionsContainer.setTranslationY(1000);
+                        suggestionsContainer.animate().alpha(1).translationY(0);
+                    }
                     suggestionsContainer.setVisibility(View.VISIBLE);
                     runOnUiThread(new Runnable() {
                         @Override
@@ -557,28 +563,39 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else {
                 if(suggestionsContainer.getVisibility() == View.VISIBLE) {
-                    AlphaAnimation anim = new AlphaAnimation(1, 0);
-                    anim.setDuration(250);
-                    anim.setFillAfter(true);
-                    anim.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
+                    if(Build.VERSION.SDK_INT < 16) {
+                        AlphaAnimation anim = new AlphaAnimation(1, 0);
+                        anim.setDuration(250);
+                        anim.setFillAfter(true);
+                        anim.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
 
-                        }
+                            }
 
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            suggestionsContainer.setVisibility(View.INVISIBLE);
-                            suggestionsAdapter.clear();
-                            suggestionsAdapter.notifyDataSetChanged();
-                        }
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                suggestionsContainer.setVisibility(View.INVISIBLE);
+                                suggestionsAdapter.clear();
+                                suggestionsAdapter.notifyDataSetChanged();
+                            }
 
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
 
-                        }
-                    });
-                    suggestionsContainer.startAnimation(anim);
+                            }
+                        });
+                        suggestionsContainer.startAnimation(anim);
+                    } else {
+                        suggestionsContainer.animate().alpha(1).translationY(1000).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                suggestionsContainer.setVisibility(View.INVISIBLE);
+                                suggestionsAdapter.clear();
+                                suggestionsAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
                     sortedUsers = null;
                     sortedChannels = null;
                     if(!getSupportActionBar().isShowing())
@@ -2893,36 +2910,50 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if(shouldFadeIn) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade Out");
-            AlphaAnimation anim = new AlphaAnimation(1, 0);
-            anim.setDuration(150);
-            anim.setFillAfter(true);
-            anim.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
+            if(Build.VERSION.SDK_INT < 16) {
+                AlphaAnimation anim = new AlphaAnimation(1, 0);
+                anim.setDuration(150);
+                anim.setFillAfter(true);
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if (mvf != null)
+                            mvf.setArguments(b);
+                        messageTxt.setText("");
+                        if (buffer != null && buffer.draft != null)
+                            messageTxt.append(buffer.draft);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                try {
+                    mvf.getListView().startAnimation(anim);
+                    ulf.getListView().startAnimation(anim);
+                } catch (Exception e) {
 
                 }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    if(mvf != null)
-                        mvf.setArguments(b);
-                    messageTxt.setText("");
-                    if(buffer != null && buffer.draft != null)
-                        messageTxt.append(buffer.draft);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-
-                }
-            });
-            try {
-                mvf.showSpinner(true);
-                mvf.getListView().startAnimation(anim);
-                ulf.getListView().startAnimation(anim);
-            } catch (Exception e) {
-
+            } else {
+                mvf.getListView().animate().alpha(0).withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mvf != null)
+                            mvf.setArguments(b);
+                        messageTxt.setText("");
+                        if (buffer != null && buffer.draft != null)
+                            messageTxt.append(buffer.draft);
+                    }
+                });
+                ulf.getListView().animate().alpha(0);
             }
+            mvf.showSpinner(true);
         } else {
             if(mvf != null)
                 mvf.setArguments(b);
@@ -2954,11 +2985,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Fade In");
             MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
 	    	UsersListFragment ulf = (UsersListFragment)getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
-	    	AlphaAnimation anim = new AlphaAnimation(0, 1);
-			anim.setDuration(150);
-			anim.setFillAfter(true);
-			if(mvf != null && mvf.getListView() != null) {
-                if(mvf.buffer != buffer && buffer != null && BuffersDataSource.getInstance().getBuffer(buffer.bid) != null) {
+
+            if(Build.VERSION.SDK_INT < 16) {
+                AlphaAnimation anim = new AlphaAnimation(0, 1);
+                anim.setDuration(150);
+                anim.setFillAfter(true);
+                if (mvf != null && mvf.getListView() != null)
+                    mvf.getListView().startAnimation(anim);
+                if (ulf != null && ulf.getListView() != null)
+                    ulf.getListView().startAnimation(anim);
+            } else {
+                mvf.getListView().animate().alpha(1);
+                ulf.getListView().animate().alpha(1);
+            }
+            if (mvf != null && mvf.getListView() != null) {
+                if (mvf.buffer != buffer && buffer != null && BuffersDataSource.getInstance().getBuffer(buffer.bid) != null) {
                     Bundle b = new Bundle();
                     b.putInt("cid", buffer.cid);
                     b.putInt("bid", buffer.bid);
@@ -2966,10 +3007,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     mvf.setArguments(b);
                 }
                 mvf.showSpinner(false);
-				mvf.getListView().startAnimation(anim);
             }
-			if(ulf != null && ulf.getListView() != null)
-				ulf.getListView().startAnimation(anim);
 			shouldFadeIn = false;
         }
 	}
@@ -3271,24 +3309,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     progressBar.setProgress(0);
                     progressBar.setIndeterminate(true);
                     if(progressBar.getVisibility() != View.VISIBLE) {
-                        AlphaAnimation anim = new AlphaAnimation(0, 1);
-                        anim.setFillAfter(true);
-                        anim.setDuration(250);
-                        anim.setAnimationListener(new Animation.AnimationListener() {
-                            @Override
-                            public void onAnimationStart(Animation animation) {
-                                progressBar.setVisibility(View.VISIBLE);
-                            }
-
-                            @Override
-                            public void onAnimationEnd(Animation animation) {
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animation animation) {
-                            }
-                        });
-                        progressBar.startAnimation(anim);
+                        if(Build.VERSION.SDK_INT >= 16) {
+                            progressBar.setAlpha(0);
+                            progressBar.animate().alpha(1);
+                        }
+                        progressBar.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -3298,32 +3323,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onProgressUpdate(Float... values) {
             if(activity != null) {
                 try {
-                    if (progressBar.getVisibility() == View.GONE) {
+                    if (progressBar.getVisibility() != View.VISIBLE) {
                         getSupportActionBar().setTitle("Uploading");
                         getSupportActionBar().setDisplayShowCustomEnabled(false);
                         getSupportActionBar().setDisplayShowTitleEnabled(true);
-                        progressBar.setProgress(0);
-                        progressBar.setIndeterminate(true);
-                        if(progressBar.getVisibility() != View.VISIBLE) {
-                            AlphaAnimation anim = new AlphaAnimation(0, 1);
-                            anim.setFillAfter(true);
-                            anim.setDuration(250);
-                            anim.setAnimationListener(new Animation.AnimationListener() {
-                                @Override
-                                public void onAnimationStart(Animation animation) {
-                                    progressBar.setVisibility(View.VISIBLE);
-                                }
-
-                                @Override
-                                public void onAnimationEnd(Animation animation) {
-                                }
-
-                                @Override
-                                public void onAnimationRepeat(Animation animation) {
-                                }
-                            });
-                            progressBar.startAnimation(anim);
+                        if(Build.VERSION.SDK_INT >= 16) {
+                            progressBar.setAlpha(0);
+                            progressBar.animate().alpha(1);
                         }
+                        progressBar.setVisibility(View.VISIBLE);
                     }
                     if (values[0] < 1.0f) {
                         progressBar.setIndeterminate(false);
@@ -3346,24 +3354,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if(activity != null) {
                 if(progressBar.getVisibility() == View.VISIBLE) {
-                    AlphaAnimation anim = new AlphaAnimation(1, 0);
-                    anim.setFillAfter(true);
-                    anim.setDuration(250);
-                    anim.setAnimationListener(new Animation.AnimationListener() {
-                        @Override
-                        public void onAnimationStart(Animation animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animation animation) {
-                            progressBar.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animation animation) {
-                        }
-                    });
-                    progressBar.startAnimation(anim);
+                    if(Build.VERSION.SDK_INT >= 16) {
+                        progressBar.animate().alpha(0).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        });
+                    } else {
+                        progressBar.setVisibility(View.GONE);
+                    }
                 }
                 getSupportActionBar().setDisplayShowCustomEnabled(true);
                 getSupportActionBar().setDisplayShowTitleEnabled(false);
