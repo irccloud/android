@@ -48,7 +48,7 @@
         <item name="android:padding">0px</item>
     </style>
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog"/>
-    <style name="ImgurAuthTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="ImgurAuthTheme" parent="Theme.AppCompat">
         <item name="colorAccent">#888</item>
         <item name="colorPrimaryDark">#000</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
