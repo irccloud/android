@@ -40,20 +40,14 @@ import java.util.TreeMap;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Matrix;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.Rect;
-import android.graphics.Region;
-import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.os.Debug;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.internal.widget.TintImageView;
+import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.text.style.URLSpan;
 import android.view.*;
@@ -208,6 +202,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
     private ImgurUploadTask imgurTask = null;
+    private Toolbar toolbar;
 
     private DrawerArrowDrawable upDrawable;
     private int redColor;
@@ -2092,7 +2087,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
-    	if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
+        //Hacky fix for miscolored overflow menu, see https://code.google.com/p/android/issues/detail?id=78289
+        Toolbar t = (Toolbar)findViewById(R.id.toolbar);
+        for(int i = 0; i < t.getChildCount(); i++) {
+            if(t.getChildAt(i) instanceof ActionMenuView) {
+                ActionMenuView v = (ActionMenuView)t.getChildAt(i);
+                for(int j = 0; j < v.getChildCount(); j++) {
+                    if(v.getChildAt(j) instanceof TintImageView) {
+                        TintImageView v1 = (TintImageView)v.getChildAt(j);
+                        v1.setImageResource(R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha);
+                    }
+                }
+            }
+        }
+
+        if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
         	if(buffer.archived == 0) {
                 if(menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
