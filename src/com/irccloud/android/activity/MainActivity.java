@@ -454,7 +454,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         countdownTimerTask.cancel();
                     countdownTimerTask =  new TimerTask(){
                         public void run() {
-                            if(conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+                            if(conn != null && conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -1998,7 +1998,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                         editor.commit();
                         NetworkConnection.getInstance().connect(event.getString("cookie"));
-                        editor.commit();
                     }
                 }
                 try {
@@ -2094,13 +2093,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
     	if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
-            if(Build.VERSION.SDK_INT >= 11 && menu.findItem(R.id.menu_photo) != null)
-                menu.findItem(R.id.menu_photo).setVisible(false);
-
         	if(buffer.archived == 0) {
-                menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
+                if(menu.findItem(R.id.menu_archive) != null)
+                    menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
         	} else {
-        		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
+                if(menu.findItem(R.id.menu_archive) != null)
+            		menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
         	}
 	    	if(buffer.type.equals("channel")) {
 	        	if(ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid) == null) {
@@ -2272,9 +2270,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         drawerLayout.openDrawer(Gravity.LEFT);
                     drawerLayout.closeDrawer(Gravity.RIGHT);
                 }
-                break;
-            case R.id.menu_photo:
-                insertPhoto();
                 break;
 	        case R.id.menu_whois:
 	        	conn.whois(buffer.cid, buffer.name, null);

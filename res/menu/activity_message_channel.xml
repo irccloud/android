@@ -14,24 +14,22 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_photo"
-        android:title="@string/menu_photo"
-        android:showAsAction="never" />
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/menu_leave"
         android:title="@string/menu_leave"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     
     <item android:id="@+id/menu_ignore_list"
         android:title="@string/menu_ignore_list"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     
     <item android:id="@+id/menu_ban_list"
         android:title="@string/menu_ban_list"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     
     <item android:id="@+id/menu_channel_options"
         android:title="@string/menu_display_options"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 </menu>

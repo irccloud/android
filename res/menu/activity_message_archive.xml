@@ -14,11 +14,12 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/menu_archive"
         android:title="@string/menu_archive"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
     <item android:id="@+id/menu_delete"
         android:title="@string/menu_delete"
-        android:showAsAction="never" />
+        app:showAsAction="never" />
 </menu>

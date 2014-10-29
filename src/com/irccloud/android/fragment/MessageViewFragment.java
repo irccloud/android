@@ -1530,7 +1530,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        update_top_unread(getListView().getFirstVisiblePosition());
+                        try {
+                            update_top_unread(getListView().getFirstVisiblePosition());
+                        } catch (IllegalStateException e) {
+                            //List view not ready yet
+                        }
                         if(server != null)
                             update_status(server.status, server.fail_info);
                         if(mListener != null && !ready)
