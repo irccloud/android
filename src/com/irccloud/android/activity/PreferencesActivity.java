@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.*;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -240,6 +241,10 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        //Reset the up indicator as the color tint may have been lost
+        Toolbar toolbar = (Toolbar)findViewById(R.id.actionbar);
+        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
     }
 
     @Override
