@@ -51,13 +51,13 @@
     <style name="ImgurAuthTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorAccent">#888</item>
         <item name="colorPrimaryDark">#000</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
     </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorAccent">#888</item>
         <item name="colorPrimaryDark">#000</item>
         <item name="windowActionBarOverlay">true</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
     </style>
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
 		<item name="android:textColor">@android:color/primary_text_light</item>
