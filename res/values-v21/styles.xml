@@ -19,22 +19,22 @@
         <item name="android:dialogTheme">@style/AppDialogTheme</item>
         <item name="android:alertDialogTheme">@style/AppAlertTheme</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:colorPrimary">@color/light_blue</item>
-        <item name="android:colorAccent">#ff33b5e5</item>
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
-        <item name="colorPrimary">@color/light_blue</item>
-        <item name="colorAccent">#ff33b5e5</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:dialogTheme">@style/AppDialogTheme</item>
         <item name="android:alertDialogTheme">@style/AppAlertTheme</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:colorPrimary">@color/light_blue</item>
-        <item name="android:colorAccent">#ff33b5e5</item>
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
-        <item name="colorPrimary">@color/light_blue</item>
-        <item name="colorAccent">#ff33b5e5</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
     </style>
     <style name="PrefsTheme" parent="AppTheme">
