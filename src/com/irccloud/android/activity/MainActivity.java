@@ -1990,6 +1990,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         NetworkConnection.getInstance().ready = false;
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putString("session_key", event.getString("cookie"));
+                        if(event.has("websocket_host")) {
+                            NetworkConnection.IRCCLOUD_HOST = event.getString("websocket_host");
+                            NetworkConnection.IRCCLOUD_PATH = event.getString("websocket_path");
+                        }
+                        editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
+                        editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
+                        editor.commit();
                         NetworkConnection.getInstance().connect(event.getString("cookie"));
                         editor.commit();
                     }
