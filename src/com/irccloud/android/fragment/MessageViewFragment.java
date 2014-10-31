@@ -32,8 +32,10 @@ import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.os.Build;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.animation.AlphaAnimation;
 import android.widget.*;
 import org.json.JSONException;
@@ -769,6 +771,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
+    public void drawerClosed() {
+        try {
+            ListView v = getListView();
+            mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
+        } catch (Exception e) {
+        }
+    }
+
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -1328,6 +1338,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
 			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED)
 				return null;
+
+            if(getActivity() != null) {
+                DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawerLayout);
+
+                if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT)))
+                    return null;
+            }
 
             if(unreadTopView.getVisibility() == View.VISIBLE || unreadBottomView.getVisibility() == View.VISIBLE)
                 return null;

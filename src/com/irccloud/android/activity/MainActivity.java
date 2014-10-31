@@ -2199,6 +2199,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
             }
+            MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+            if(mvf != null)
+                mvf.drawerClosed();
         }
 
         @Override
