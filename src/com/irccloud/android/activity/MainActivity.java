@@ -411,6 +411,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void updateReconnecting() {
+        if(conn == null)
+            return;
+        
         if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
             getSupportActionBar().setTitle("Loading");
         } else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
