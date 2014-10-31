@@ -413,7 +413,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void updateReconnecting() {
         if(conn == null)
             return;
-        
+
         if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
             getSupportActionBar().setTitle("Loading");
         } else if(conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
@@ -2694,6 +2694,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
 		if(event.html != null) {
             String html = event.html;
+
             if(user != null) {
                 if(html.startsWith("<b>")) {
                     String nick = event.html.substring(0, event.html.indexOf("</b>"));
@@ -2702,6 +2703,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if(nick.contains(user.nick + "<")) {
                         html = html.substring(nick.length());
                         nick = "<b>&lt;" + nick.replace("</b> <font", "</b><font").substring(3);
+                        html = nick + "&gt;" + html;
+                    } else if(nick.endsWith(user.nick)) {
+                        html = html.substring(nick.length());
+                        nick = "<b>&lt;" + nick.replace("</b> ", "</b>").substring(3);
                         html = nick + "&gt;" + html;
                     }
                 }
