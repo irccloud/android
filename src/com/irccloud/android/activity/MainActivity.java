@@ -2114,25 +2114,40 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         	}
 	    	if(buffer.type.equals("channel")) {
 	        	if(ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid) == null) {
-	        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
-	        		menu.findItem(R.id.menu_archive).setVisible(true);
-	        		menu.findItem(R.id.menu_archive).setEnabled(true);
-	        		menu.findItem(R.id.menu_delete).setVisible(true);
-	        		menu.findItem(R.id.menu_delete).setEnabled(true);
+                    if(menu.findItem(R.id.menu_leave) != null)
+    	        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
+
+                    if(menu.findItem(R.id.menu_archive) != null) {
+                        menu.findItem(R.id.menu_archive).setVisible(true);
+                        menu.findItem(R.id.menu_archive).setEnabled(true);
+                    }
+                    if(menu.findItem(R.id.menu_delete) != null) {
+                        menu.findItem(R.id.menu_delete).setVisible(true);
+                        menu.findItem(R.id.menu_delete).setEnabled(true);
+                    }
 	        		if(menu.findItem(R.id.menu_userlist) != null) {
 	        			menu.findItem(R.id.menu_userlist).setEnabled(false);
 	        			menu.findItem(R.id.menu_userlist).setVisible(false);
 	        		}
-	        		menu.findItem(R.id.menu_ban_list).setVisible(false);
-	        		menu.findItem(R.id.menu_ban_list).setEnabled(false);
+                    if(menu.findItem(R.id.menu_ban_list) != null) {
+                        menu.findItem(R.id.menu_ban_list).setVisible(false);
+                        menu.findItem(R.id.menu_ban_list).setEnabled(false);
+                    }
 	        	} else {
-	        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
-	        		menu.findItem(R.id.menu_archive).setVisible(false);
-	        		menu.findItem(R.id.menu_archive).setEnabled(false);
-	        		menu.findItem(R.id.menu_delete).setVisible(false);
-	        		menu.findItem(R.id.menu_delete).setEnabled(false);
-	        		menu.findItem(R.id.menu_ban_list).setVisible(true);
-	        		menu.findItem(R.id.menu_ban_list).setEnabled(true);
+                    if(menu.findItem(R.id.menu_leave) != null)
+    	        		menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
+                    if(menu.findItem(R.id.menu_archive) != null) {
+                        menu.findItem(R.id.menu_archive).setVisible(false);
+                        menu.findItem(R.id.menu_archive).setEnabled(false);
+                    }
+                    if(menu.findItem(R.id.menu_delete) != null) {
+                        menu.findItem(R.id.menu_delete).setVisible(false);
+                        menu.findItem(R.id.menu_delete).setEnabled(false);
+                    }
+                    if(menu.findItem(R.id.menu_ban_list) != null) {
+                        menu.findItem(R.id.menu_ban_list).setVisible(true);
+                        menu.findItem(R.id.menu_ban_list).setEnabled(true);
+                    }
 	        		if(menu.findItem(R.id.menu_userlist) != null && findViewById(R.id.usersListFragment2) != null) {
 		        		boolean hide = true;
 		        		try {
@@ -2153,18 +2168,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	        		}
 	        	}
 	    	} else if(buffer.type.equals("console")) {
-	    		menu.findItem(R.id.menu_archive).setVisible(false);
-	    		menu.findItem(R.id.menu_archive).setEnabled(false);
+                if(menu.findItem(R.id.menu_archive) != null) {
+                    menu.findItem(R.id.menu_archive).setVisible(false);
+                    menu.findItem(R.id.menu_archive).setEnabled(false);
+                }
 	    		if(server != null && server.status != null && (server.status.equalsIgnoreCase("waiting_to_retry") || (server.status.contains("connected") && !server.status.startsWith("dis")))) {
                     if(menu.findItem(R.id.menu_disconnect) != null)
     	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
-	        		menu.findItem(R.id.menu_delete).setVisible(false);
-	        		menu.findItem(R.id.menu_delete).setEnabled(false);
+                    if(menu.findItem(R.id.menu_delete) != null) {
+                        menu.findItem(R.id.menu_delete).setVisible(false);
+                        menu.findItem(R.id.menu_delete).setEnabled(false);
+                    }
 	    		} else {
                     if(menu.findItem(R.id.menu_disconnect) != null)
     	    			menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_reconnect);
-	        		menu.findItem(R.id.menu_delete).setVisible(true);
-	        		menu.findItem(R.id.menu_delete).setEnabled(true);
+                    if(menu.findItem(R.id.menu_delete) != null) {
+                        menu.findItem(R.id.menu_delete).setVisible(true);
+                        menu.findItem(R.id.menu_delete).setEnabled(true);
+                    }
 	    		}
 	    	}
     	}
