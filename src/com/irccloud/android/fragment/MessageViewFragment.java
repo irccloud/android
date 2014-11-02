@@ -423,12 +423,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
 		@Override
 		public Object getItem(int position) {
-			return data.get(position);
+			if(position < data.size())
+                return data.get(position);
+            else
+                return null;
 		}
 
 		@Override
 		public long getItemId(int position) {
-			return data.get(position).eid;
+			if(position < data.size())
+                return data.get(position).eid;
+            else
+                return -1;
 		}
 		
         public void format() {
