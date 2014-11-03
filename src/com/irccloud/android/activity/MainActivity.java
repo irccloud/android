@@ -17,7 +17,6 @@
 package com.irccloud.android.activity;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,6 +43,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Debug;
 import android.os.Environment;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.internal.widget.TintImageView;
@@ -117,9 +117,10 @@ import android.util.Log;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnClickListener;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -616,7 +617,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     } else {
                         suggestionsContainer.setAlpha(0);
                         suggestionsContainer.setTranslationY(1000);
-                        suggestionsContainer.animate().alpha(1).translationY(0);
+                        suggestionsContainer.animate().alpha(1).translationY(0).setInterpolator(new DecelerateInterpolator());
                     }
                     suggestionsContainer.setVisibility(View.VISIBLE);
                     runOnUiThread(new Runnable() {
@@ -654,7 +655,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         });
                         suggestionsContainer.startAnimation(anim);
                     } else {
-                        suggestionsContainer.animate().alpha(1).translationY(1000).withEndAction(new Runnable() {
+                        suggestionsContainer.animate().alpha(1).translationY(1000).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
                             @Override
                             public void run() {
                                 suggestionsContainer.setVisibility(View.INVISIBLE);
@@ -1092,10 +1093,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             try {
                 if (showNotificationsTask != null)
                     showNotificationsTask.cancel(true);
+                showNotificationsTask = new ShowNotificationsTask();
+                showNotificationsTask.execute(buffer.bid);
             } catch (Exception e) {
             }
-			showNotificationsTask = new ShowNotificationsTask();
-			showNotificationsTask.execute(buffer.bid);
     	}
    		sendBtn.setEnabled(messageTxt.getText().length() > 0);
    		if(Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
@@ -3389,10 +3390,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if (bmp != null)
                     bmp.recycle();
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
                 Crashlytics.logException(e);
+            } catch (OutOfMemoryError e) {
+                Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
             }
             if (in.toString().contains("irccloudcapture")) {
                 try {
@@ -3591,6 +3594,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         @Override
                         public void run() {
                             if(activity != null) {
+                                if(Looper.myLooper() == null)
+                                    Looper.prepare();
                                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                                 builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                                 builder.setTitle("Upload Failed");
