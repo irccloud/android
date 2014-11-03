@@ -49,6 +49,8 @@ android {
     buildToolsVersion "21.0"
 
     defaultConfig {
+        versionCode 21
+        versionName "1.12"
         minSdkVersion 9
         targetSdkVersion 21
         applicationId "com.irccloud.android"

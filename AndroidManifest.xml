@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.irccloud.android"
-    android:installLocation="auto"
-    android:versionCode="20"
-    android:versionName="1.11" >
+    android:installLocation="auto">
 
     <permission
         android:name="com.irccloud.android.permission.C2D_MESSAGE"
