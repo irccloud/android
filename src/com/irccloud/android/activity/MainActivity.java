@@ -425,7 +425,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(progressBar.getVisibility() != View.VISIBLE) {
                 if(Build.VERSION.SDK_INT >= 16) {
                     progressBar.setAlpha(0);
-                    progressBar.animate().alpha(1);
+                    progressBar.animate().alpha(1).setDuration(200);
                 }
                 progressBar.setVisibility(View.VISIBLE);
             }
@@ -1769,7 +1769,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         error = null;
                         if(progressBar.getVisibility() == View.VISIBLE) {
                             if(Build.VERSION.SDK_INT >= 16) {
-                                progressBar.animate().alpha(0).withEndAction(new Runnable() {
+                                progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
                                     @Override
                                     public void run() {
                                         progressBar.setVisibility(View.GONE);
@@ -3494,7 +3494,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if(progressBar.getVisibility() != View.VISIBLE) {
                         if(Build.VERSION.SDK_INT >= 16) {
                             progressBar.setAlpha(0);
-                            progressBar.animate().alpha(1);
+                            progressBar.animate().alpha(1).setDuration(200);
                         }
                         progressBar.setVisibility(View.VISIBLE);
                     }
@@ -3512,7 +3512,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         getSupportActionBar().setDisplayShowTitleEnabled(true);
                         if(Build.VERSION.SDK_INT >= 16) {
                             progressBar.setAlpha(0);
-                            progressBar.animate().alpha(1);
+                            progressBar.animate().alpha(1).setDuration(200);
                         }
                         progressBar.setVisibility(View.VISIBLE);
                     }
@@ -3538,7 +3538,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(activity != null) {
                 if(progressBar.getVisibility() == View.VISIBLE) {
                     if(Build.VERSION.SDK_INT >= 16) {
-                        progressBar.animate().alpha(0).withEndAction(new Runnable() {
+                        progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
                             @Override
                             public void run() {
                                 progressBar.setVisibility(View.GONE);
