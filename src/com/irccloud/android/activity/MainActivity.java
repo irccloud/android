@@ -483,7 +483,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
         if (c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setTitle("Channel Topic");
             if (c.topic_text.length() > 0) {
                 String author = "";
@@ -524,6 +523,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             final AlertDialog dialog = builder.create();
             dialog.setOwnerActivity(MainActivity.this);
             dialog.show();
+
+            if(Build.VERSION.SDK_INT < 11)
+                ((TextView) dialog.findViewById(android.R.id.message)).setTextColor(0xFFFFFFFF);
+
             ((TextView) dialog.findViewById(android.R.id.message)).setLinkTextColor(getResources().getColor(R.color.dialogLinkColor));
             ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(new LinkMovementMethod() {
                 @Override
