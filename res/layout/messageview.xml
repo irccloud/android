@@ -43,6 +43,8 @@
             android:fastScrollEnabled="true"
             android:transcriptMode="normal"
             android:fadingEdge="none"
+            android:scrollbarThumbVertical="@drawable/scrollbar"
+            android:scrollbarSize="@dimen/scrollbar_size"
             android:stackFromBottom="true"/>
 
         <LinearLayout

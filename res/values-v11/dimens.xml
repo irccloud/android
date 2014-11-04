@@ -15,16 +15,6 @@
   ~ limitations under the License.
 -->
 <resources>
-
-    <dimen name="drawer_width">250dp</dimen>
-    <dimen name="userlist_width">200dp</dimen>
-    <dimen name="splashlogo_width">128dp</dimen>
-    <dimen name="splashlogo_margin">64dp</dimen>
-    <dimen name="unread_top_txt_size">12sp</dimen>
-    <dimen name="unread_bottom_txt_size">14sp</dimen>
-    <dimen name="unread_bubble_size">24dp</dimen>
-    <dimen name="top_bar_height">64dp</dimen>
-    <dimen name="status_bar_height">25dp</dimen>
-    <dimen name="scrollbar_inset">0dp</dimen>
-    <dimen name="scrollbar_size">2dp</dimen>
+    <dimen name="scrollbar_inset">2dp</dimen>
+    <dimen name="scrollbar_size">8dp</dimen>
 </resources>

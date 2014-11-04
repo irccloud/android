@@ -25,6 +25,7 @@
         <item name="colorPrimary">@color/dark_blue</item>
         <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:dialogTheme">@style/AppDialogTheme</item>
@@ -36,6 +37,7 @@
         <item name="colorPrimary">@color/dark_blue</item>
         <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
     </style>
     <style name="PrefsTheme" parent="AppTheme">
         <item name="android:windowNoTitle">false</item>

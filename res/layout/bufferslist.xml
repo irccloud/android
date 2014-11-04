@@ -32,6 +32,8 @@
         android:divider="#00000000"
         android:dividerHeight="0dip"
         android:fadingEdge="none"
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:scrollbarSize="@dimen/scrollbar_size"
         android:fastScrollEnabled="true" />
 
     <LinearLayout
