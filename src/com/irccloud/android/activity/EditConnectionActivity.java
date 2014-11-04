@@ -83,17 +83,12 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
 			}
         	
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         NetworkConnection.getInstance().addHandler(this);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onDestroy() {
+        super.onDestroy();
         NetworkConnection.getInstance().removeHandler(this);
     }
 
