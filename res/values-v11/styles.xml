@@ -30,6 +30,8 @@
         <item name="colorAccent">#ff33b5e5</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+        <item name="actionModeBackground">@drawable/actionbar</item>
+        <item name="windowActionModeOverlay">true</item>
     </style>
     <style name="PrefsTheme" parent="AppTheme">
         <item name="android:windowNoTitle">false</item>
