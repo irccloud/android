@@ -1228,14 +1228,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(buffer.type.equals("console")) {
                 if(server.name.length() > 0) {
                     title.setText(server.name);
-                    getSupportActionBar().setTitle(server.name);
+                    if(progressBar.getVisibility() == View.GONE)
+                        getSupportActionBar().setTitle(server.name);
                 } else {
                     title.setText(server.hostname);
-                    getSupportActionBar().setTitle(server.hostname);
+                    if(progressBar.getVisibility() == View.GONE)
+                        getSupportActionBar().setTitle(server.hostname);
                 }
             } else {
                 title.setText(buffer.name);
-                getSupportActionBar().setTitle(buffer.name);
+                if(progressBar.getVisibility() == View.GONE)
+                    getSupportActionBar().setTitle(buffer.name);
             }
 
             if(buffer.archived > 0 && !buffer.type.equals("console")) {

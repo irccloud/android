@@ -800,7 +800,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			
 			if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
 				if(firstVisibleItem + visibleItemCount == totalItemCount) {
-                    hideView(unreadBottomView);
+                    unreadBottomView.setVisibility(View.GONE);
 					if(unreadTopView.getVisibility() == View.GONE) {
 	    				if(heartbeatTask != null)
 	    					heartbeatTask.cancel(true);
@@ -827,7 +827,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				if(adapter != null)
 					markerPos = adapter.getLastSeenEIDPosition();
 	    		if(markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
-                    hideView(unreadTopView);
+                    unreadTopView.setVisibility(View.GONE);
     				if(heartbeatTask != null)
     					heartbeatTask.cancel(true);
     				heartbeatTask = new HeartbeatTask();
