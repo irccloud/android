@@ -43,8 +43,12 @@
         <item name="android:windowNoTitle">false</item>
         <item name="android:windowTitleSize">?attr/actionBarSize</item>
         <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-        <item name="android:colorAccent">#000</item>
-        <item name="colorAccent">#000</item>
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
     </style>
     <style name="DialogTheme" parent="@android:style/Theme.Material.Light.Dialog">
         <item name="android:colorPrimary">@color/dark_blue</item>
