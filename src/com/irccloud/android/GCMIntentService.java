@@ -164,6 +164,7 @@ public class GCMIntentService extends IntentService {
                             scheduleUnregisterTimer(1000, oldRegId, true);
                         }
                     } catch (IOException ex) {
+                        ex.printStackTrace();
                         Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
                         scheduleRegisterTimer(retrydelay * 2);
                         return;

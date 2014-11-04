@@ -49,6 +49,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.internal.widget.TintImageView;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
+import android.text.Spannable;
 import android.text.style.URLSpan;
 import android.view.*;
 import org.json.JSONException;
@@ -523,14 +524,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             final AlertDialog dialog = builder.create();
             dialog.setOwnerActivity(MainActivity.this);
             dialog.show();
-            ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-            dialog.findViewById(android.R.id.message).setOnClickListener(new OnClickListener() {
-
+            ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(new LinkMovementMethod() {
                 @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
+                public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
+                    if(super.onTouchEvent(widget, buffer, event) && event.getAction() == MotionEvent.ACTION_UP) {
+                        dialog.dismiss();
+                        return true;
+                    }
+                    return false;
                 }
-
             });
         } else if (buffer != null && buffer.type.equals("channel") && buffer.archived == 0 && title.getText() != null && subtitle.getText() != null && subtitle.getText().length() > 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
