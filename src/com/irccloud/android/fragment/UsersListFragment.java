@@ -147,11 +147,8 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 				holder.label.setTextColor(getSafeResources().getColorStateList(e.color));
 			}
 
-			if(e.type == TYPE_HEADING)
-				row.setBackgroundResource(e.static_bg_color);
-			else
-				row.setBackgroundResource(e.bg_color);
-			
+            row.setBackgroundResource(e.static_bg_color);
+
 			if(e.type == TYPE_HEADING) {
 				if(e.count != null) {
 					holder.count.setVisibility(View.VISIBLE);
@@ -161,20 +158,20 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 					holder.count.setVisibility(View.GONE);
 					holder.count.setText("");
 				}
+                holder.label.setBackgroundDrawable(null);
 				row.setFocusable(false);
 				row.setEnabled(false);
-                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 36, getSafeResources().getDisplayMetrics()));
-                row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getSafeResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 6, getSafeResources().getDisplayMetrics()), 0);
+                row.setPadding(0, 0, 0, 0);
 			} else {
                 holder.count.setVisibility(View.GONE);
                 holder.count.setText("");
+                holder.label.setBackgroundResource(e.bg_color);
 				row.setFocusable(true);
 				row.setEnabled(true);
-                row.setMinimumHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getSafeResources().getDisplayMetrics()));
 				if(e.last)
-					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getSafeResources().getDisplayMetrics()));
+					row.setPadding(0, 0, 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 8, getSafeResources().getDisplayMetrics()));
 				else
-					row.setPadding((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), 0, (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12, getSafeResources().getDisplayMetrics()), 0);
+					row.setPadding(0, 0, 0, 0);
 			}
 			
 			return row;
