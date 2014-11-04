@@ -138,6 +138,9 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
                     });
                 }
                 break;
+            case NetworkConnection.EVENT_USERINFO:
+                finish();
+                break;
             default:
                 break;
         }
