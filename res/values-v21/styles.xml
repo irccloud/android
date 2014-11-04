@@ -46,7 +46,11 @@
         <item name="android:colorAccent">#000</item>
         <item name="colorAccent">#000</item>
     </style>
-    <style name="DialogTheme" parent="@android:style/Theme.Material.Light.Dialog"/>
+    <style name="DialogTheme" parent="@android:style/Theme.Material.Light.Dialog">
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+    </style>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
@@ -67,13 +71,13 @@
         <item name="android:textColor">#000</item>
     </style>
     <style name="AppDialogTheme" parent="android:Theme.Material.Light.Dialog">
-        <item name="android:colorPrimary">@color/light_blue</item>
-        <item name="android:colorAccent">#ff33b5e5</item>
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
     </style>
     <style name="AppAlertTheme" parent="android:Theme.Material.Light.Dialog.Alert">
-        <item name="android:colorPrimary">@color/light_blue</item>
-        <item name="android:colorAccent">#ff33b5e5</item>
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
     </style>
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Material.Light.ImageButton">

@@ -524,6 +524,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             final AlertDialog dialog = builder.create();
             dialog.setOwnerActivity(MainActivity.this);
             dialog.show();
+            ((TextView) dialog.findViewById(android.R.id.message)).setLinkTextColor(getResources().getColor(R.color.dialogLinkColor));
             ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(new LinkMovementMethod() {
                 @Override
                 public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
