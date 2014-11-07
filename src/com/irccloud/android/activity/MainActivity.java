@@ -37,6 +37,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -218,7 +219,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-		getWindow().setBackgroundDrawable(null);
+        if(Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+            cloud.recycle();
+        }
         setContentView(R.layout.activity_message);
         setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
 

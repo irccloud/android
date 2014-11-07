@@ -16,9 +16,12 @@
 
 package com.irccloud.android.activity;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.preference.*;
 import android.support.v7.widget.Toolbar;
@@ -66,6 +69,11 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 	public void onCreate(Bundle icicle) {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
+        if(Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+            cloud.recycle();
+        }
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.actionbar_prefs);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.actionbar);

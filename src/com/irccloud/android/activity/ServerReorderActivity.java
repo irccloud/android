@@ -16,6 +16,10 @@
 
 package com.irccloud.android.activity;
 
+import android.app.ActivityManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
@@ -28,6 +32,11 @@ public class ServerReorderActivity extends ActionBarActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+            cloud.recycle();
+        }
         setContentView(R.layout.activity_reorder_servers);
         getSupportActionBar().setTitle("Connections");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
