@@ -1057,7 +1057,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		if(launchURI == null || !open_uri(launchURI)) {
 		    		if(!open_bid(conn.getUserInfo().last_selected_bid)) {
 		    			if(!open_bid(BuffersDataSource.getInstance().firstBid())) {
-		    				if(drawerLayout != null && NetworkConnection.getInstance().ready)
+		    				if(drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null)
                                 drawerLayout.openDrawer(Gravity.LEFT);
                         }
 		    		}
@@ -1810,7 +1810,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     if (launchBid == -1 || !open_bid(launchBid)) {
                                         if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
                                             if (!open_bid(BuffersDataSource.getInstance().firstBid())) {
-                                                if (drawerLayout != null && NetworkConnection.getInstance().ready) {
+                                                if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
                                                     drawerLayout.openDrawer(Gravity.LEFT);
                                                 }
                                             }
