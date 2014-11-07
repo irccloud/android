@@ -3192,8 +3192,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (ulf != null && ulf.getListView() != null)
                     ulf.getListView().startAnimation(anim);
             } else {
-                mvf.getListView().animate().alpha(1);
-                ulf.getListView().animate().alpha(1);
+                if (mvf != null && mvf.getListView() != null)
+                    mvf.getListView().animate().alpha(1);
+                if (ulf != null && ulf.getListView() != null)
+                    ulf.getListView().animate().alpha(1);
             }
             if (mvf != null && mvf.getListView() != null) {
                 if (mvf.buffer != buffer && buffer != null && BuffersDataSource.getInstance().getBuffer(buffer.bid) != null) {
