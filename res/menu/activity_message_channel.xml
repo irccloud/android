@@ -17,10 +17,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/menu_leave"
-        android:title="@string/menu_leave"
+    <item android:id="@+id/menu_channel_options"
+        android:title="@string/menu_display_options"
         app:showAsAction="never" />
-    
+
     <item android:id="@+id/menu_ignore_list"
         android:title="@string/menu_ignore_list"
         app:showAsAction="never" />
@@ -28,8 +28,8 @@
     <item android:id="@+id/menu_ban_list"
         android:title="@string/menu_ban_list"
         app:showAsAction="never" />
-    
-    <item android:id="@+id/menu_channel_options"
-        android:title="@string/menu_display_options"
+
+    <item android:id="@+id/menu_leave"
+        android:title="@string/menu_leave"
         app:showAsAction="never" />
 </menu>
