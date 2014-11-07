@@ -53,11 +53,13 @@ public class ActionEditText extends EditText
     public InputConnection onCreateInputConnection(EditorInfo outAttrs)
     {
         InputConnection conn = super.onCreateInputConnection(outAttrs);
-        outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
         outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
         if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_send", true)) {
+            outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
             outAttrs.inputType = EditorInfo.TYPE_CLASS_TEXT|EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT;
+        } else {
+            outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_ENTER_ACTION;
         }
         if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_caps", true)) {
             outAttrs.inputType |= EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES;
