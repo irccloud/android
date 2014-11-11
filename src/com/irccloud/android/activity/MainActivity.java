@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
@@ -572,6 +573,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(text.endsWith(":"))
                 text = text.substring(0, text.length() - 1);
             ArrayList<String> sugs = new ArrayList<String>();
+            HashSet<String> sugs_set = new HashSet<String>();
             if(text.length() > 1 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
                 if(sortedChannels == null) {
                     sortedChannels = ChannelsDataSource.getInstance().getChannels();
@@ -583,11 +585,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 }
 
-                if(buffer != null && messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text))
+                if(buffer != null && messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text) && !sugs_set.contains(buffer.name)) {
+                    sugs_set.add(buffer.name);
                     sugs.add(buffer.name);
+                }
                 for(ChannelsDataSource.Channel channel : sortedChannels) {
-                    if(text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !channel.name.equalsIgnoreCase(buffer.name))
+                    if(text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(buffer.name)) {
+                        sugs_set.add(buffer.name);
                         sugs.add(channel.name);
+                    }
                 }
 
                 if(sortedUsers == null && buffer != null) {
@@ -605,8 +611,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if(sortedUsers != null) {
                     for (UsersDataSource.User user : sortedUsers) {
-                        if (user.nick.toLowerCase().startsWith(text))
+                        String nick = user.nick;
+                        if(text.matches("^[a-z0-9]+.*"))
+                            nick = nick.replaceFirst("^[^a-z0-9]+", "");
+
+                        if (nick.toLowerCase().startsWith(text) && !sugs_set.contains(user.nick)) {
+                            sugs_set.add(user.nick);
                             sugs.add(user.nick);
+                        }
                     }
                 }
             }
