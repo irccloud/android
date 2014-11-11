@@ -43,10 +43,11 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dialogTextPrompt = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dialog_textprompt,null);
     }
 
     public View getDialogTextPrompt() {
+        if(dialogTextPrompt == null)
+            dialogTextPrompt = ((LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dialog_textprompt,null);
         if(dialogTextPrompt.getParent() != null)
             ((ViewGroup)dialogTextPrompt.getParent()).removeView(dialogTextPrompt);
         return dialogTextPrompt;
@@ -175,7 +176,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                         try {
                             String message = o.getString("invalid_nick") + " is not a valid nickname, try again";
                             if(server.isupport != null && server.isupport.has("NICKLEN"))
-                                message += " (" + server.isupport.get("NICKLEN").asText() + " chars)";
+                                message += "\n(" + server.isupport.get("NICKLEN").asText() + " chars)";
                             message += ".";
                             prompt.setText(message);
                         } catch (Exception e) {

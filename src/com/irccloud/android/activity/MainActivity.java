@@ -2627,6 +2627,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		AlertDialog.Builder builder;
 	    		AlertDialog dialog;
 
+                if(conn == null || b == null)
+                    return;
+
 	    		if(items[item].equals("Open")) {
                     onBufferSelected(b.bid);
 	    		} else if(items[item].equals("Join")) {
@@ -2642,7 +2645,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		} else if(items[item].equals("Disconnect")) {
 	    			conn.disconnect(b.cid, null);
 	    		} else if(items[item].equals("Display Options…")) {
-	    			if(buffer.type.equals("channel")) {
+	    			if(b.type.equals("channel")) {
 			        	ChannelOptionsFragment newFragment = new ChannelOptionsFragment(b.cid, b.bid);
 			            newFragment.show(getSupportFragmentManager(), "channeloptions");
 	    			} else {
