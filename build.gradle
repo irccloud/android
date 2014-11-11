@@ -25,7 +25,7 @@ repositories {
 dependencies {
     compile 'com.android.support:support-v4:21.+'
     compile 'com.android.support:appcompat-v7:21.+'
-    compile 'com.android.support:cardview-v7:21.0.+'
+    compile 'com.android.support:cardview-v7:21.+'
 
     compile 'com.google.android.gms:play-services:4.1.+'
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
@@ -49,8 +49,8 @@ android {
     buildToolsVersion "21.0"
 
     defaultConfig {
-        versionCode 21
-        versionName "1.12"
+        versionCode 22
+        versionName "1.13"
         minSdkVersion 9
         targetSdkVersion 21
         applicationId "com.irccloud.android"
