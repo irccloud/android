@@ -173,7 +173,10 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        try {
+            setSupportActionBar(toolbar);
+        } catch (Throwable t) {
+        }
         if(Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 19)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         else if(Build.VERSION.SDK_INT >= 19) {

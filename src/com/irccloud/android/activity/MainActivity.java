@@ -226,7 +226,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             cloud.recycle();
         }
         setContentView(R.layout.activity_message);
-        setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
+        try {
+            setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
+        } catch (Throwable t) {
+        }
 
         suggestionsAdapter = new SuggestionsAdapter();
         progressBar = (ProgressBar)findViewById(R.id.progress);
