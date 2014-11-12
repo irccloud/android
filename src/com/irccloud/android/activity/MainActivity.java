@@ -615,8 +615,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(sortedUsers != null) {
                     for (UsersDataSource.User user : sortedUsers) {
                         String nick = user.nick;
-                        if(text.matches("^[a-z0-9]+.*"))
-                            nick = nick.replaceFirst("^[^a-z0-9]+", "");
+                        if(text.matches("^[a-zA-Z0-9]+.*"))
+                            nick = nick.replaceFirst("^[^a-zA-Z0-9]+", "");
 
                         if (nick.toLowerCase().startsWith(text) && !sugs_set.contains(user.nick)) {
                             sugs_set.add(user.nick);
