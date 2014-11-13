@@ -1392,52 +1392,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         final IRCCloudJSONObject event;
         final Object o = obj;
         switch (what) {
-            case NetworkConnection.EVENT_SUCCESS:
-                event = (IRCCloudJSONObject)obj;
-                if(fileUploadTask != null && event.getInt("_reqid") == fileUploadTask.reqid) {
-                    if(buffer == null || buffer.bid != fileUploadTask.bid) {
-                        BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(fileUploadTask.bid);
-                        if (b.draft == null)
-                            b.draft = "";
-                        if (b.draft.length() > 0 && !b.draft.endsWith(" "))
-                            b.draft += " ";
-                        b.draft += event.getJsonObject("file").get("url").asText();
-                    } else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(messageTxt != null) {
-                                    String txt = messageTxt.getText().toString();
-                                    if (txt.length() > 0 && !txt.endsWith(" "))
-                                        txt += " ";
-                                    txt += event.getJsonObject("file").get("url").asText();
-                                    messageTxt.setText(txt);
-                                }
-                            }
-                        });
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(progressBar != null && progressBar.getVisibility() == View.VISIBLE) {
-                                if(Build.VERSION.SDK_INT >= 16) {
-                                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            progressBar.setVisibility(View.GONE);
-                                        }
-                                    });
-                                } else {
-                                    progressBar.setVisibility(View.GONE);
-                                }
-                            }
-                            getSupportActionBar().setDisplayShowCustomEnabled(true);
-                            getSupportActionBar().setDisplayShowTitleEnabled(false);
-                        }
-                    });
-                    fileUploadTask = null;
-                }
-                break;
             case NetworkConnection.EVENT_DEBUG:
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2071,45 +2025,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         e.failed = true;
                         e.bg_color = R.color.error;
 						conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
-					} else if(fileUploadTask != null && fileUploadTask.reqid == reqid) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(progressBar != null && progressBar.getVisibility() == View.VISIBLE) {
-                                    if(Build.VERSION.SDK_INT >= 16) {
-                                        progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                progressBar.setVisibility(View.GONE);
-                                            }
-                                        });
-                                    } else {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-                                }
-                                getSupportActionBar().setDisplayShowCustomEnabled(true);
-                                getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                                builder.setTitle("Upload Failed");
-                                builder.setMessage("Unable to finalize image upload: " + event.getString("message"));
-                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        try {
-                                            dialog.dismiss();
-                                        } catch (IllegalArgumentException e) {
-                                        }
-                                    }
-                                });
-                                AlertDialog dialog = builder.create();
-                                dialog.setOwnerActivity(MainActivity.this);
-                                dialog.show();
-                            }
-                        });
-                        fileUploadTask = null;
-                    }
+					}
 				} else {
                     if(event.getString("message").equalsIgnoreCase("auth")) {
                         conn.logout();
@@ -3816,21 +3732,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    public class FileUploadTask extends AsyncTaskEx<Void, Float, String> {
+    public class FileUploadTask extends AsyncTaskEx<Void, Float, String> implements NetworkConnection.IRCEventHandler {
         private Uri mFileUri;  // local Uri to upload
         private int total = 0;
+        private TextView fileSize;
         public Activity activity;
+        public BuffersDataSource.Buffer mBuffer;
         public int reqid = -1;
-        public int bid = -1;
 
         public String filename;
         public String original_filename;
         public String type;
         public String file_id;
+        public String message;
         public boolean uploadFinished = false;
         public boolean filenameSet = false;
 
         public FileUploadTask(Uri fileUri) {
+            NetworkConnection.getInstance().addHandler(this);
+            mBuffer = buffer;
             mFileUri = fileUri;
             type = getContentResolver().getType(mFileUri);
             if(type == null)
@@ -3853,7 +3773,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(!original_filename.contains("."))
                 original_filename += "." + type.substring(type.indexOf("/") + 1);
 
-            bid = buffer.bid;
             setActivity(MainActivity.this);
 
             runOnUiThread(new Runnable() {
@@ -3861,9 +3780,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 public void run() {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                    View view = getDialogTextPrompt();
-                    TextView prompt = (TextView)view.findViewById(R.id.prompt);
-                    final EditText fileinput = (EditText)view.findViewById(R.id.textInput);
+                    View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
+                    final EditText fileinput = (EditText) view.findViewById(R.id.filename);
+                    final EditText messageinput = (EditText) view.findViewById(R.id.message);
+                    fileSize = (TextView)view.findViewById(R.id.filesize);
+                    fileSize.setText("Calculating size… • " + type);
+
                     fileinput.setText(original_filename);
                     fileinput.setSelection(0, original_filename.lastIndexOf("."));
                     fileinput.setOnEditorActionListener(new OnEditorActionListener() {
@@ -3882,14 +3804,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             return true;
                         }
                     });
-                    prompt.setText("Choose a name for this file");
-                    builder.setTitle("Share A File");
+                    builder.setTitle("Upload A File To " + buffer.name);
                     builder.setView(view);
-                    builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             try {
                                 filename = fileinput.getText().toString();
+                                message = messageinput.getText().toString();
                                 filenameSet = true;
                                 finalize_upload();
                             } catch (Exception e) {
@@ -3906,6 +3828,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 fileUploadTask.cancel(true);
                             fileUploadTask = null;
                             dialog.dismiss();
+                            hide_progress();
                         }
                     });
                     AlertDialog dialog = builder.create();
@@ -3930,6 +3853,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             if (activity != null) {
                                 if (Looper.myLooper() == null)
                                     Looper.prepare();
+                                hide_progress();
                                 AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                                 builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                                 builder.setTitle("Upload Failed");
@@ -3967,6 +3891,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
                 return null;
             }
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String filesize;
+                    if (total < 1024) {
+                        filesize = total + " B";
+                    } else {
+                        int exp = (int) (Math.log(total) / Math.log(1024));
+                        filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+                    }
+                    fileSize.setText(filesize + " • " + type);
+                }
+            });
 
             HttpURLConnection conn = null;
             InputStream responseIn = null;
@@ -4106,6 +4044,86 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return root.getString("id");
             else
                 return null;
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            fileUploadTask = null;
+            NetworkConnection.getInstance().removeHandler(this);
+        }
+
+        private void hide_progress() {
+            if (progressBar != null && progressBar.getVisibility() == View.VISIBLE) {
+                if (Build.VERSION.SDK_INT >= 16) {
+                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    });
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                }
+            }
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
+        public void onIRCEvent(int what, Object obj) {
+            final IRCCloudJSONObject event;
+            final Object o = obj;
+            switch (what) {
+                case NetworkConnection.EVENT_SUCCESS:
+                    event = (IRCCloudJSONObject) obj;
+                    if(event.getInt("_reqid") == reqid) {
+                        if(message == null || message.length() == 0)
+                            message = "";
+                        else
+                            message += " ";
+                        message += event.getJsonObject("file").get("url").asText();
+                        NetworkConnection.getInstance().say(buffer.cid, buffer.name, message);
+                        fileUploadTask = null;
+                        NetworkConnection.getInstance().removeHandler(this);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                hide_progress();
+                            }
+                        });
+                    }
+                    break;
+                case NetworkConnection.EVENT_FAILURE_MSG:
+                    event = (IRCCloudJSONObject) obj;
+                    if(event.getInt("_reqid") == reqid) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                hide_progress();
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                                builder.setTitle("Upload Failed");
+                                builder.setMessage("Unable to finalize image upload: " + event.getString("message"));
+                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            dialog.dismiss();
+                                        } catch (IllegalArgumentException e) {
+                                        }
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.setOwnerActivity(MainActivity.this);
+                                dialog.show();
+                            }
+                        });
+                        fileUploadTask = null;
+                        NetworkConnection.getInstance().removeHandler(this);
+                    }
+                    break;
+            }
         }
     }
 }
