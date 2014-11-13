@@ -2071,7 +2071,45 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         e.failed = true;
                         e.bg_color = R.color.error;
 						conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
-					}
+					} else if(fileUploadTask != null && fileUploadTask.reqid == reqid) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(progressBar != null && progressBar.getVisibility() == View.VISIBLE) {
+                                    if(Build.VERSION.SDK_INT >= 16) {
+                                        progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressBar.setVisibility(View.GONE);
+                                            }
+                                        });
+                                    } else {
+                                        progressBar.setVisibility(View.GONE);
+                                    }
+                                }
+                                getSupportActionBar().setDisplayShowCustomEnabled(true);
+                                getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                                builder.setTitle("Upload Failed");
+                                builder.setMessage("Unable to finalize image upload: " + event.getString("message"));
+                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            dialog.dismiss();
+                                        } catch (IllegalArgumentException e) {
+                                        }
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.setOwnerActivity(MainActivity.this);
+                                dialog.show();
+                            }
+                        });
+                        fileUploadTask = null;
+                    }
 				} else {
                     if(event.getString("message").equalsIgnoreCase("auth")) {
                         conn.logout();
@@ -3784,8 +3822,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public Activity activity;
         public int reqid = -1;
         public int bid = -1;
-        private String filename;
-        private String type;
+
+        public String filename;
+        public String original_filename;
+        public String type;
+        public String file_id;
+        public boolean uploadFinished = false;
+        public boolean filenameSet = false;
 
         public FileUploadTask(Uri fileUri) {
             mFileUri = fileUri;
@@ -3794,25 +3837,117 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 type = "image/jpeg";
 
             if(Build.VERSION.SDK_INT < 16) {
-                filename = fileUri.getLastPathSegment();
+                original_filename = fileUri.getLastPathSegment();
             } else {
                 Cursor cursor = getContentResolver().query(fileUri, null, null, null, null, null);
                 try {
                     if (cursor != null && cursor.moveToFirst()) {
-                        filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                        original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     } else {
-                        filename = fileUri.getLastPathSegment();
+                        original_filename = fileUri.getLastPathSegment();
                     }
                 } catch (Exception e) {
-                    filename = String.valueOf(System.currentTimeMillis());
+                    original_filename = String.valueOf(System.currentTimeMillis());
                 }
             }
-            if(!filename.contains("."))
-                filename += "." + type.substring(type.indexOf("/") + 1);
+            if(!original_filename.contains("."))
+                original_filename += "." + type.substring(type.indexOf("/") + 1);
 
             bid = buffer.bid;
             setActivity(MainActivity.this);
-            Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + filename + " " + type);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                    View view = getDialogTextPrompt();
+                    TextView prompt = (TextView)view.findViewById(R.id.prompt);
+                    final EditText fileinput = (EditText)view.findViewById(R.id.textInput);
+                    fileinput.setText(original_filename);
+                    fileinput.setSelection(0, original_filename.lastIndexOf("."));
+                    fileinput.setOnEditorActionListener(new OnEditorActionListener() {
+                        public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+                            if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                                try {
+                                    filename = fileinput.getText().toString();
+                                    filenameSet = true;
+                                    finalize_upload();
+                                } catch (Exception e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                                ((AlertDialog) fileinput.getTag()).dismiss();
+                            }
+                            return true;
+                        }
+                    });
+                    prompt.setText("Choose a name for this file");
+                    builder.setTitle("Share A File");
+                    builder.setView(view);
+                    builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                filename = fileinput.getText().toString();
+                                filenameSet = true;
+                                finalize_upload();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(fileUploadTask != null)
+                                fileUploadTask.cancel(true);
+                            fileUploadTask = null;
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    fileinput.setTag(dialog);
+                    dialog.setOwnerActivity(MainActivity.this);
+                    dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    dialog.show();
+                }
+            });
+
+            Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + original_filename + " " + type);
+        }
+
+        private void finalize_upload() {
+            if (uploadFinished && filenameSet && !isCancelled()) {
+                if (file_id != null && file_id.length() > 0) {
+                    reqid = NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename);
+                } else {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (activity != null) {
+                                if (Looper.myLooper() == null)
+                                    Looper.prepare();
+                                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                                builder.setTitle("Upload Failed");
+                                builder.setMessage("Unable to upload photo to IRCCloud.  Please try again." + ((error != null) ? ("\n\n" + error) : ""));
+                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                AlertDialog dialog = builder.create();
+                                dialog.setOwnerActivity(activity);
+                                dialog.show();
+                            }
+                        }
+                    });
+                }
+            }
         }
 
         @Override
@@ -3840,7 +3975,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 String boundary = UUID.randomUUID().toString();
                 conn = (HttpURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
                 conn.setDoOutput(true);
-                conn.setFixedLengthStreamingMode(total + (boundary.length() * 2) + filename.length() + type.length() + 88);
+                conn.setFixedLengthStreamingMode(total + (boundary.length() * 2) + original_filename.length() + type.length() + 88);
                 conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
                 conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
                 conn.setRequestProperty("Cookie", "session=" + NetworkConnection.getInstance().session);
@@ -3848,7 +3983,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 OutputStream out = conn.getOutputStream();
                 out.write(("--" + boundary + "\r\n").getBytes());
-                out.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + filename + "\"\r\n").getBytes());
+                out.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + original_filename + "\"\r\n").getBytes());
                 out.write(("Content-Type: " + type + "\r\n\r\n").getBytes());
                 copy(fileIn, out);
                 out.write(("\r\n--" + boundary + "--\r\n").getBytes());
@@ -3941,7 +4076,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
 
-            reqid = NetworkConnection.getInstance().finalize_upload(s, filename, filename);
+            file_id = s;
+            uploadFinished = true;
+            finalize_upload();
         }
 
         private int copy(InputStream input, OutputStream output) throws IOException {
