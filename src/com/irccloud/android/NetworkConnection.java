@@ -117,14 +117,14 @@ public class NetworkConnection {
     private WebSocketClient client = null;
 	private UserInfo userInfo = null;
 	private final ArrayList<IRCEventHandler> handlers = new ArrayList<IRCEventHandler>();
-	private String session = null;
+	public String session = null;
 	private volatile int last_reqid = 0;
 	private static final Timer shutdownTimer = new Timer("shutdown-timer");
 	private static final Timer idleTimer = new Timer("websocket-idle-timer");
 	public long idle_interval = 1000;
     private volatile int failCount = 0;
 	private long reconnect_timestamp = 0;
-	private String useragent = null;
+	public String useragent = null;
     private String streamId = null;
     private int accrued = 0;
     private boolean backlog = false;
@@ -1316,6 +1316,19 @@ public class NetworkConnection {
     public int resend_verify_email() {
         JSONObject o = new JSONObject();
         return send("resend-verify-email", o);
+    }
+
+    public int finalize_upload(String id, String filename, String original_filename) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("id", id);
+            o.put("filename", filename);
+            o.put("original_filename", original_filename);
+            return send("upload-finalise", o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     public void request_backlog(int cid, int bid, long beforeId) {

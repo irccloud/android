@@ -36,9 +36,11 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -47,6 +49,7 @@ import android.os.Debug;
 import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.internal.widget.TintImageView;
 import android.support.v7.widget.ActionMenuView;
@@ -206,7 +209,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
     private ImgurUploadTask imgurTask = null;
-    private Toolbar toolbar;
+    private FileUploadTask fileUploadTask = null;
 
     private DrawerArrowDrawable upDrawable;
     private int redColor;
@@ -413,7 +416,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         else
             imageCaptureURI = null;
 
-        imgurTask = (ImgurUploadTask)getLastCustomNonConfigurationInstance();
+        ConfigInstance config = (ConfigInstance)getLastCustomNonConfigurationInstance();
+        if(config != null) {
+            imgurTask = config.imgurUploadTask;
+            fileUploadTask = config.fileUploadTask;
+        }
 
         drawerLayout.setScrimColor(0);
         drawerLayout.closeDrawers();
@@ -1131,13 +1138,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(drawerLayout != null)
             drawerLayout.closeDrawers();
 
+        updateReconnecting();
+
         if(imgurTask != null)
             imgurTask.setActivity(this);
 
+        if(fileUploadTask != null)
+            fileUploadTask.setActivity(this);
+
         messageTxt.clearFocus();
         messageTxt.setEnabled(true);
-
-        updateReconnecting();
     }
 
     @Override
@@ -1145,7 +1155,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     	super.onPause();
         if(imgurTask != null)
             imgurTask.setActivity(null);
-		if(showNotificationsTask != null)
+        if(fileUploadTask != null)
+            fileUploadTask.setActivity(null);
+
+        if(showNotificationsTask != null)
 			showNotificationsTask.cancel(true);
 		showNotificationsTask = new ShowNotificationsTask();
 		showNotificationsTask.execute(-1);
@@ -1160,8 +1173,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         error = null;
     }
 
+    public static class ConfigInstance {
+        public ImgurUploadTask imgurUploadTask;
+        public FileUploadTask fileUploadTask;
+    }
+
     public Object onRetainCustomNonConfigurationInstance () {
-        return imgurTask;
+        ConfigInstance config = new ConfigInstance();
+        config.imgurUploadTask = imgurTask;
+        config.fileUploadTask = fileUploadTask;
+        return config;
     }
 
     private boolean open_uri(Uri uri) {
@@ -1371,6 +1392,52 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         final IRCCloudJSONObject event;
         final Object o = obj;
         switch (what) {
+            case NetworkConnection.EVENT_SUCCESS:
+                event = (IRCCloudJSONObject)obj;
+                if(fileUploadTask != null && event.getInt("_reqid") == fileUploadTask.reqid) {
+                    if(buffer == null || buffer.bid != fileUploadTask.bid) {
+                        BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(fileUploadTask.bid);
+                        if (b.draft == null)
+                            b.draft = "";
+                        if (b.draft.length() > 0 && !b.draft.endsWith(" "))
+                            b.draft += " ";
+                        b.draft += event.getJsonObject("file").get("url").asText();
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(messageTxt != null) {
+                                    String txt = messageTxt.getText().toString();
+                                    if (txt.length() > 0 && !txt.endsWith(" "))
+                                        txt += " ";
+                                    txt += event.getJsonObject("file").get("url").asText();
+                                    messageTxt.setText(txt);
+                                }
+                            }
+                        });
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(progressBar != null && progressBar.getVisibility() == View.VISIBLE) {
+                                if(Build.VERSION.SDK_INT >= 16) {
+                                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressBar.setVisibility(View.GONE);
+                                        }
+                                    });
+                                } else {
+                                    progressBar.setVisibility(View.GONE);
+                                }
+                            }
+                            getSupportActionBar().setDisplayShowCustomEnabled(true);
+                            getSupportActionBar().setDisplayShowTitleEnabled(false);
+                        }
+                    });
+                    fileUploadTask = null;
+                }
+                break;
             case NetworkConnection.EVENT_DEBUG:
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2280,12 +2347,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             if (imageCaptureURI != null) {
-                new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
+                fileUploadTask = new FileUploadTask(imageCaptureURI);
+                fileUploadTask.execute((Void) null);
+                //new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
             }
         } else if (requestCode == 2 && resultCode == RESULT_OK) {
             Uri selectedImage = imageReturnedIntent.getData();
             if (selectedImage != null) {
-                new ImgurRefreshTask(selectedImage).execute((Void) null);
+                fileUploadTask = new FileUploadTask(selectedImage);
+                fileUploadTask.execute((Void) null);
+                //new ImgurRefreshTask(selectedImage).execute((Void) null);
+            }
+        } else if (requestCode == 3 && resultCode == RESULT_OK) {
+            Uri selectedFile = imageReturnedIntent.getData();
+            if (selectedFile != null) {
+                fileUploadTask = new FileUploadTask(selectedFile);
+                fileUploadTask.execute((Void) null);
             }
         }
     }
@@ -2295,7 +2372,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        builder.setItems(new String[] {"Take a Photo", "Choose Existing"}, new DialogInterface.OnClickListener() {
+        String[] items = (Build.VERSION.SDK_INT < 19) ? new String[] {"Take a Photo", "Choose Existing"} : new String[] {"Take a Photo", "Choose Existing Photo", "Choose Existing Document"};
+        builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(which == 0) {
@@ -2309,10 +2387,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         startActivityForResult(i, 1);
                     } catch (IOException e) {
                     }
-                } else {
+                } else if(which == 1) {
                     Intent i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
                     i.setType("image/*");
                     startActivityForResult(Intent.createChooser(i, "Select Picture"), 2);
+                } else if(which == 2 && Build.VERSION.SDK_INT >= 19) {
+                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("*/*");
+                    startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
                 }
                 dialog.dismiss();
             }
@@ -3280,6 +3364,97 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return true;
     }
 
+    private Uri resize(Uri in) {
+        Uri out = null;
+        try {
+            int MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"));
+            File imageDir = new File(Environment.getExternalStorageDirectory(), "irccloud");
+            imageDir.mkdirs();
+            new File(imageDir, ".nomedia").createNewFile();
+
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
+            int scale = 1;
+
+            if (o.outWidth < MAX_IMAGE_SIZE && o.outHeight < MAX_IMAGE_SIZE)
+                return in;
+
+            if (o.outWidth > o.outHeight) {
+                if (o.outWidth > MAX_IMAGE_SIZE)
+                    scale = o.outWidth / MAX_IMAGE_SIZE;
+            } else {
+                if (o.outHeight > MAX_IMAGE_SIZE)
+                    scale = o.outHeight / MAX_IMAGE_SIZE;
+            }
+
+            o = new BitmapFactory.Options();
+            o.inSampleSize = scale;
+            Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
+
+            //ExifInterface can only work on local files, so make a temporary copy on the SD card
+            out = Uri.fromFile(File.createTempFile("irccloudcapture-original", ".jpg", imageDir));
+            InputStream is = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in);
+            OutputStream os = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out);
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+            is.close();
+            os.close();
+
+            ExifInterface exif = new ExifInterface(out.getPath());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+            new File(new URI(out.toString())).delete();
+
+            out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", imageDir));
+            if (orientation > 1) {
+                Matrix matrix = new Matrix();
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matrix.postRotate(90);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        matrix.postRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        matrix.postRotate(270);
+                        break;
+                }
+                try {
+                    Bitmap oldbmp = bmp;
+                    bmp = Bitmap.createBitmap(oldbmp, 0, 0, oldbmp.getWidth(), oldbmp.getHeight(), matrix, true);
+                    oldbmp.recycle();
+                } catch (OutOfMemoryError e) {
+                    Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
+                }
+            }
+
+            if (bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
+                out = null;
+            }
+            if (bmp != null)
+                bmp.recycle();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            Crashlytics.logException(e);
+        } catch (OutOfMemoryError e) {
+            Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
+        }
+        if (in.toString().contains("irccloudcapture")) {
+            try {
+                new File(new URI(in.toString())).delete();
+            } catch (Exception e) {
+            }
+        }
+        if(out != null)
+            return out;
+        else
+            return in;
+    }
+
     public class ImgurRefreshTask extends AsyncTaskEx<Void, Void, JSONObject> {
         private final String REFRESH_URL = "https://api.imgur.com/oauth2/token";
         private Uri mImageUri;  // local Uri to upload
@@ -3338,7 +3513,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     };
 
     public class ImgurUploadTask extends AsyncTaskEx<Void, Float, String> {
-        private int MAX_IMAGE_SIZE;
         private final String UPLOAD_URL = (BuildConfig.MASHAPE_KEY.length() > 0)?"https://imgur-apiv3.p.mashape.com/3/image":"https://api.imgur.com/3/image";
         private Uri mImageUri;  // local Uri to upload
         private int total = 0;
@@ -3353,105 +3527,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             setActivity(MainActivity.this);
         }
 
-        private Uri resize(Uri in) {
-            Uri out = null;
-            try {
-                File imageDir = new File(Environment.getExternalStorageDirectory(), "irccloud");
-                imageDir.mkdirs();
-                new File(imageDir, ".nomedia").createNewFile();
-
-                BitmapFactory.Options o = new BitmapFactory.Options();
-                o.inJustDecodeBounds = true;
-                BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
-                int scale = 1;
-
-                if (o.outWidth < MAX_IMAGE_SIZE && o.outHeight < MAX_IMAGE_SIZE)
-                    return in;
-
-                if (o.outWidth > o.outHeight) {
-                    if (o.outWidth > MAX_IMAGE_SIZE)
-                        scale = o.outWidth / MAX_IMAGE_SIZE;
-                } else {
-                    if (o.outHeight > MAX_IMAGE_SIZE)
-                        scale = o.outHeight / MAX_IMAGE_SIZE;
-                }
-
-                o = new BitmapFactory.Options();
-                o.inSampleSize = scale;
-                Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
-
-                //ExifInterface can only work on local files, so make a temporary copy on the SD card
-                out = Uri.fromFile(File.createTempFile("irccloudcapture-original", ".jpg", imageDir));
-                InputStream is = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in);
-                OutputStream os = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out);
-                byte[] buffer = new byte[8192];
-                int len;
-                while ((len = is.read(buffer)) != -1) {
-                    os.write(buffer, 0, len);
-                }
-                is.close();
-                os.close();
-
-                ExifInterface exif = new ExifInterface(out.getPath());
-                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-                new File(new URI(out.toString())).delete();
-
-                out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", imageDir));
-                if (orientation > 1) {
-                    Matrix matrix = new Matrix();
-                    switch (orientation) {
-                        case ExifInterface.ORIENTATION_ROTATE_90:
-                            matrix.postRotate(90);
-                            break;
-                        case ExifInterface.ORIENTATION_ROTATE_180:
-                            matrix.postRotate(180);
-                            break;
-                        case ExifInterface.ORIENTATION_ROTATE_270:
-                            matrix.postRotate(270);
-                            break;
-                    }
-                    try {
-                        Bitmap oldbmp = bmp;
-                        bmp = Bitmap.createBitmap(oldbmp, 0, 0, oldbmp.getWidth(), oldbmp.getHeight(), matrix, true);
-                        oldbmp.recycle();
-                    } catch (OutOfMemoryError e) {
-                        Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
-                    }
-                }
-
-                if (bmp == null || !bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out))) {
-                    out = null;
-                }
-                if (bmp != null)
-                    bmp.recycle();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                Crashlytics.logException(e);
-            } catch (OutOfMemoryError e) {
-                Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
-            }
-            if (in.toString().contains("irccloudcapture")) {
-                try {
-                    new File(new URI(in.toString())).delete();
-                } catch (Exception e) {
-                }
-            }
-            if(out != null)
-                return out;
-            else
-                return in;
-        }
-
         @Override
         protected String doInBackground(Void... params) {
             InputStream imageIn;
             try {
                 while(activity == null)
                     Thread.sleep(100);
-                MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024"));
                 String type = activity.getContentResolver().getType(mImageUri);
-                if((type != null && !type.equals("image/gif")) || MAX_IMAGE_SIZE > 0) {
+                if((type != null && !type.equals("image/gif")) || Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
                     mImageUri = resize(mImageUri);
                 }
                 imageIn = activity.getContentResolver().openInputStream(mImageUri);
@@ -3692,6 +3775,200 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 error = null;
             total = 0;
             return root.getJSONObject("data").getString("link");
+        }
+    }
+
+    public class FileUploadTask extends AsyncTaskEx<Void, Float, String> {
+        private Uri mFileUri;  // local Uri to upload
+        private int total = 0;
+        public Activity activity;
+        public int reqid = -1;
+        public int bid = -1;
+        private String filename;
+        private String type;
+
+        public FileUploadTask(Uri fileUri) {
+            mFileUri = fileUri;
+            type = getContentResolver().getType(mFileUri);
+            if(type == null)
+                type = "image/jpeg";
+
+            if(Build.VERSION.SDK_INT < 16) {
+                filename = fileUri.getLastPathSegment();
+            } else {
+                Cursor cursor = getContentResolver().query(fileUri, null, null, null, null, null);
+                try {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    } else {
+                        filename = fileUri.getLastPathSegment();
+                    }
+                } catch (Exception e) {
+                    filename = String.valueOf(System.currentTimeMillis());
+                }
+            }
+            if(!filename.contains("."))
+                filename += "." + type.substring(type.indexOf("/") + 1);
+
+            bid = buffer.bid;
+            setActivity(MainActivity.this);
+            Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + filename + " " + type);
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            InputStream fileIn;
+            try {
+                while(activity == null)
+                    Thread.sleep(100);
+                if(type != null && type.startsWith("image/") && !type.equals("image/gif") && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
+                    mFileUri = resize(mFileUri);
+                }
+                if(type == null)
+                    type = "application/octet-stream";
+                fileIn = activity.getContentResolver().openInputStream(mFileUri);
+                total = fileIn.available();
+            } catch (Exception e) {
+                Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
+                return null;
+            }
+
+            HttpURLConnection conn = null;
+            InputStream responseIn = null;
+
+            try {
+                String boundary = UUID.randomUUID().toString();
+                conn = (HttpURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(total + (boundary.length() * 2) + filename.length() + type.length() + 88);
+                conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
+                conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+                conn.setRequestProperty("Cookie", "session=" + NetworkConnection.getInstance().session);
+                conn.setRequestProperty("x-irccloud-session", NetworkConnection.getInstance().session);
+
+                OutputStream out = conn.getOutputStream();
+                out.write(("--" + boundary + "\r\n").getBytes());
+                out.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + filename + "\"\r\n").getBytes());
+                out.write(("Content-Type: " + type + "\r\n\r\n").getBytes());
+                copy(fileIn, out);
+                out.write(("\r\n--" + boundary + "--\r\n").getBytes());
+                out.flush();
+                out.close();
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    responseIn = conn.getInputStream();
+                    return onInput(responseIn);
+                }
+                else {
+                    Crashlytics.log(Log.INFO, "IRCCloud", "responseCode=" + conn.getResponseCode());
+                    responseIn = conn.getErrorStream();
+                    StringBuilder sb = new StringBuilder();
+                    Scanner scanner = new Scanner(responseIn).useDelimiter("\\A");
+                    while (scanner.hasNext()) {
+                        sb.append(scanner.next());
+                    }
+                    Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
+                    return null;
+                }
+            } catch (Exception ex) {
+                Crashlytics.log(Log.ERROR, "IRCCloud", "Error during POST: " + ex);
+                return null;
+            } finally {
+                try {
+                    if(responseIn != null)
+                        responseIn.close();
+                } catch (Exception ignore) {}
+                try {
+                    if(conn != null)
+                        conn.disconnect();
+                } catch (Exception ignore) {}
+                try {
+                    fileIn.close();
+                } catch (Exception ignore) {}
+            }
+        }
+
+        public void setActivity(Activity a) {
+            activity = a;
+            if(a != null) {
+                if(total > 0) {
+                    getSupportActionBar().setTitle("Uploading");
+                    getSupportActionBar().setDisplayShowCustomEnabled(false);
+                    getSupportActionBar().setDisplayShowTitleEnabled(true);
+                    progressBar.setProgress(0);
+                    progressBar.setIndeterminate(true);
+                    if(progressBar.getVisibility() != View.VISIBLE) {
+                        if(Build.VERSION.SDK_INT >= 16) {
+                            progressBar.setAlpha(0);
+                            progressBar.animate().alpha(1).setDuration(200);
+                        }
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(Float... values) {
+            if(activity != null) {
+                try {
+                    if (progressBar.getVisibility() != View.VISIBLE) {
+                        getSupportActionBar().setTitle("Uploading");
+                        getSupportActionBar().setDisplayShowCustomEnabled(false);
+                        getSupportActionBar().setDisplayShowTitleEnabled(true);
+                        if(Build.VERSION.SDK_INT >= 16) {
+                            progressBar.setAlpha(0);
+                            progressBar.animate().alpha(1).setDuration(200);
+                        }
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                    if (values[0] < 1.0f) {
+                        progressBar.setIndeterminate(false);
+                        progressBar.setProgress((int) (values[0] * 1000));
+                    } else {
+                        progressBar.setIndeterminate(true);
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if(mFileUri != null && mFileUri.toString().contains("irccloudcapture") && s != null && s.length() > 0) {
+                try {
+                    new File(new URI(mFileUri.toString())).delete();
+                } catch (Exception e) {
+                }
+            }
+
+            reqid = NetworkConnection.getInstance().finalize_upload(s, filename, filename);
+        }
+
+        private int copy(InputStream input, OutputStream output) throws IOException {
+            byte[] buffer = new byte[8192];
+            int count = 0;
+            int n = 0;
+            while (-1 != (n = input.read(buffer))) {
+                output.write(buffer, 0, n);
+                count += n;
+                publishProgress((float)count / (float)total);
+            }
+            return count;
+        }
+
+        protected String onInput(InputStream in) throws Exception {
+            StringBuilder sb = new StringBuilder();
+            Scanner scanner = new Scanner(in).useDelimiter("\\A");
+            while (scanner.hasNext()) {
+                sb.append(scanner.next());
+            }
+
+            total = 0;
+            JSONObject root = new JSONObject(sb.toString());
+            if(root.has("success") && root.getBoolean("success"))
+                return root.getString("id");
+            else
+                return null;
         }
     }
 }
