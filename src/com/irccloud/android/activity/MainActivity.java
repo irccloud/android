@@ -593,8 +593,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     sugs.add(buffer.name);
                 }
                 for(ChannelsDataSource.Channel channel : sortedChannels) {
-                    if(text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(buffer.name)) {
-                        sugs_set.add(buffer.name);
+                    if(text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(channel.name)) {
+                        sugs_set.add(channel.name);
                         sugs.add(channel.name);
                     }
                 }
