@@ -823,8 +823,6 @@ public class Notifications {
                                 .setContentText(wearBody)
                                 .setWhen(n.eid / 1000)
                                 .setGroup(String.valueOf(n.bid))
-                                .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
-                                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                                 .setSmallIcon(R.drawable.ic_stat_notify);
 
                         Intent i = new Intent();

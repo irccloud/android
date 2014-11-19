@@ -106,13 +106,11 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
         } catch (Exception e) {
         }
         boolean foundSony=false;
-        if(!foundSony) {
-            try {
-                getPackageManager().getPackageInfo("com.sonyericsson.extras.liveware", 0);
-                addPreferencesFromResource(R.xml.preferences_sony);
-                foundSony = true;
-            } catch (Exception e) {
-            }
+        try {
+            getPackageManager().getPackageInfo("com.sonyericsson.extras.liveware", 0);
+            addPreferencesFromResource(R.xml.preferences_sony);
+            foundSony = true;
+        } catch (Exception e) {
         }
         if(!foundSony) {
             try {
@@ -154,6 +152,18 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
         findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
         findPreference("photo_size").setOnPreferenceChangeListener(photosizetoggle);
+
+        imgurPreference = findPreference("imgur_account_username");
+        if(NetworkConnection.getInstance().uploadsAvailable()) {
+            if(!PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+                c.removePreference(imgurPreference);
+            }
+            findPreference("image_service").setOnPreferenceChangeListener(imageservicetoggle);
+        } else {
+            PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+            c.removePreference(findPreference("image_service"));
+        }
 
 		try {
             findPreference("version").setSummary(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
@@ -244,7 +254,10 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                 findPreference("notify_ringtone").setEnabled(false);
                 findPreference("notify_led_color").setEnabled(false);
             }
-            findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
+            if(findPreference("imgur_account_username") != null)
+                findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
+            if(findPreference("image_service") != null)
+                findPreference("image_service").setSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud"));
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
@@ -476,6 +489,23 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                     findPreference("photo_size").setSummary("Original");
                     break;
             }
+            return true;
+        }
+    };
+
+    private Preference imgurPreference;
+
+    Preference.OnPreferenceChangeListener imageservicetoggle = new Preference.OnPreferenceChangeListener() {
+        @SuppressWarnings("deprecation")
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if(newValue.equals("imgur")) {
+                PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+                c.addPreference(imgurPreference);
+            } else {
+                PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+                c.removePreference(imgurPreference);
+            }
+            findPreference("image_service").setSummary((String)newValue);
             return true;
         }
     };

@@ -2478,6 +2478,10 @@ public class NetworkConnection {
         }
 	}
 
+    public boolean uploadsAvailable() {
+        return IRCCLOUD_PATH != null && IRCCLOUD_PATH.equals("/websocket/5");
+    }
+
 	public boolean isVisible() {
 		return (handlers != null && handlers.size() > 0);
 	}

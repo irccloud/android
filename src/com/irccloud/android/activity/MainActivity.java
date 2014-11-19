@@ -40,6 +40,7 @@ import java.util.UUID;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -2301,16 +2302,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             if (imageCaptureURI != null) {
-                fileUploadTask = new FileUploadTask(imageCaptureURI);
-                fileUploadTask.execute((Void) null);
-                //new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
+                if(!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                    new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
+                } else {
+                    fileUploadTask = new FileUploadTask(imageCaptureURI);
+                    fileUploadTask.execute((Void) null);
+                }
+
+                if(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
+                    ContentValues image = new ContentValues();
+                    image.put(MediaStore.Images.Media.DATA, imageCaptureURI.toString().substring(7));
+                    getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image);
+                }
             }
         } else if (requestCode == 2 && resultCode == RESULT_OK) {
             Uri selectedImage = imageReturnedIntent.getData();
             if (selectedImage != null) {
-                fileUploadTask = new FileUploadTask(selectedImage);
-                fileUploadTask.execute((Void) null);
-                //new ImgurRefreshTask(selectedImage).execute((Void) null);
+                if(!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                    new ImgurRefreshTask(selectedImage).execute((Void) null);
+                } else {
+                    fileUploadTask = new FileUploadTask(selectedImage);
+                    fileUploadTask.execute((Void) null);
+                }
             }
         } else if (requestCode == 3 && resultCode == RESULT_OK) {
             Uri selectedFile = imageReturnedIntent.getData();
@@ -2332,7 +2345,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onClick(DialogInterface dialog, int which) {
                 if(which == 0) {
                     try {
-                        File imageDir = new File(Environment.getExternalStorageDirectory(), "irccloud");
+                        File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
                         imageDir.mkdirs();
                         new File(imageDir, ".nomedia").createNewFile();
                         imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
@@ -3322,7 +3335,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         Uri out = null;
         try {
             int MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"));
-            File imageDir = new File(Environment.getExternalStorageDirectory(), "irccloud");
+            File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
             imageDir.mkdirs();
             new File(imageDir, ".nomedia").createNewFile();
 
@@ -3397,7 +3410,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } catch (OutOfMemoryError e) {
             Log.e("IRCCloud", "Out of memory rotating the photo, it may look wrong on imgur");
         }
-        if (in.toString().contains("irccloudcapture")) {
+        if(!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && in.toString().contains("irccloudcapture")) {
             try {
                 new File(new URI(in.toString())).delete();
             } catch (Exception e) {
@@ -3601,9 +3614,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         protected void onPostExecute(String s) {
             if(mImageUri != null && mImageUri.toString().contains("irccloudcapture") && s != null && s.length() > 0) {
-                try {
-                    new File(new URI(mImageUri.toString())).delete();
-                } catch (Exception e) {
+                if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("keep_photos", false) || mImageUri.toString().contains("irccloudcapture-resized")) {
+                    try {
+                        new File(new URI(mImageUri.toString())).delete();
+                    } catch (Exception e) {
+                    }
                 }
             }
             if(activity != null) {
@@ -4008,9 +4023,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         protected void onPostExecute(String s) {
             if(mFileUri != null && mFileUri.toString().contains("irccloudcapture") && s != null && s.length() > 0) {
-                try {
-                    new File(new URI(mFileUri.toString())).delete();
-                } catch (Exception e) {
+                if(!PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("keep_photos", false) || mFileUri.toString().contains("irccloudcapture-resized")) {
+                    try {
+                        new File(new URI(mFileUri.toString())).delete();
+                    } catch (Exception e) {
+                    }
                 }
             }
 
