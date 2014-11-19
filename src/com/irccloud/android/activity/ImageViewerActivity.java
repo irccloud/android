@@ -179,7 +179,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         }
         if(Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 19)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-        else if(Build.VERSION.SDK_INT >= 19) {
+        else if(Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
             ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
             int resid = getResources().getIdentifier("status_bar_height", "dimen", "android");
             if(resid > 0)
