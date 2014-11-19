@@ -72,10 +72,6 @@
     <style name="messageTxt">
         <item name="android:imeOptions">flagNoExtractUi|actionSend</item>
     </style>
-    <style name="NotificationText" parent="android:TextAppearance.StatusBar.EventContent" />
-    <style name="NotificationTitle" parent="android:TextAppearance.StatusBar.EventContent.Title">
-        <item name="android:textColor">#000</item>
-    </style>
     <style name="AppDialogTheme" parent="android:Theme.Material.Light.Dialog">
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>

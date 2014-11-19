@@ -604,6 +604,7 @@ public class Notifications {
         .setTicker(ticker)
         .setWhen(eids[0] / 1000)
         .setSmallIcon(R.drawable.ic_stat_notify)
+        .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.dark_blue))
         .setGroup(String.valueOf(bid))
         .setGroupSummary(true)
         .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
@@ -822,6 +823,7 @@ public class Notifications {
                                 .setContentTitle(wearTitle)
                                 .setContentText(wearBody)
                                 .setWhen(n.eid / 1000)
+                                .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.dark_blue))
                                 .setGroup(String.valueOf(n.bid))
                                 .setSmallIcon(R.drawable.ic_stat_notify);
 
