@@ -138,7 +138,7 @@ public class AcceptListFragment extends DialogFragment {
     	View v = inflater.inflate(R.layout.ignorelist, null);
     	listView = (ListView)v.findViewById(android.R.id.list);
     	TextView empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("No accepted nicks.  You can accept someone by tapping their message request or by using /accept.");
+    	empty.setText("No accepted nicks.\n\nYou can accept someone by tapping their message request or by using /accept.");
     	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
