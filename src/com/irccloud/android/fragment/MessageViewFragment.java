@@ -1348,8 +1348,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if(getActivity() != null) {
                 DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawerLayout);
 
-                if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT)))
-                    return null;
+                try {
+                    if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT)))
+                        return null;
+                } catch (Exception e) {
+                }
             }
 
             if(unreadTopView.getVisibility() == View.VISIBLE || unreadBottomView.getVisibility() == View.VISIBLE)
@@ -1430,7 +1433,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     			evs = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			if(!isCancelled() && evs != null && evs.size() > 0) {
-    			events = (TreeMap<Long, EventsDataSource.Event>)evs.clone();
+                try {
+                    events = (TreeMap<Long, EventsDataSource.Event>) evs.clone();
+                } catch (Exception e) {
+                    return null;
+                }
                 if(isCancelled())
                     return null;
 

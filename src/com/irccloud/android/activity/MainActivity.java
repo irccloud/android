@@ -588,6 +588,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(text.length() > 1 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
                 if(sortedChannels == null) {
                     sortedChannels = ChannelsDataSource.getInstance().getChannels();
+                    if(sortedChannels == null)
+                        return;
                     Collections.sort(sortedChannels, new Comparator<ChannelsDataSource.Channel>() {
                         @Override
                         public int compare(ChannelsDataSource.Channel lhs, ChannelsDataSource.Channel rhs) {
@@ -609,16 +611,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 if(sortedUsers == null && buffer != null) {
                     sortedUsers = UsersDataSource.getInstance().getUsersForBuffer(buffer.bid);
-                    Collections.sort(sortedUsers, new Comparator<UsersDataSource.User>() {
-                        @Override
-                        public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
-                            if(lhs.last_mention > rhs.last_mention)
-                                return -1;
-                            if(lhs.last_mention < rhs.last_mention)
-                                return 1;
-                            return lhs.nick.compareToIgnoreCase(rhs.nick);
-                        }
-                    });
+                    if(sortedUsers != null) {
+                        Collections.sort(sortedUsers, new Comparator<UsersDataSource.User>() {
+                            @Override
+                            public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
+                                if (lhs.last_mention > rhs.last_mention)
+                                    return -1;
+                                if (lhs.last_mention < rhs.last_mention)
+                                    return 1;
+                                return lhs.nick.compareToIgnoreCase(rhs.nick);
+                            }
+                        });
+                    }
                 }
                 if(sortedUsers != null) {
                     for (UsersDataSource.User user : sortedUsers) {
@@ -1361,7 +1365,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     hide = false;
             }
 			try {
-				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null) {
+				if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && findViewById(R.id.usersListFragment2) != null) {
 					JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
 					if(hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid)))
 						hide = true;
@@ -1371,18 +1375,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    	if(hide) {
 	    		userListView.setVisibility(View.GONE);
                 if(drawerLayout != null) {
-                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null && c != null)
+                    if(findViewById(R.id.usersListFragment2) != null && c != null)
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                     else
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                 }
             } else {
 	    		userListView.setVisibility(View.VISIBLE);
-                if(drawerLayout != null)
-                    if(getSupportFragmentManager().findFragmentById(R.id.usersListFragment2) != null)
+                if(drawerLayout != null) {
+                    if (findViewById(R.id.usersListFragment2) != null)
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                     else
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                }
             }
 		}
     }
@@ -2260,9 +2265,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             }
-            if(getCurrentFocus() != null) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            try {
+                if (getCurrentFocus() != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                }
+            } catch (Exception e) {
             }
         }
 
@@ -2339,7 +2347,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        String[] items = (Build.VERSION.SDK_INT < 19) ? new String[] {"Take a Photo", "Choose Existing"} : new String[] {"Take a Photo", "Choose Existing Photo", "Choose Existing Document"};
+        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[] {"Take a Photo", "Choose Existing"} : new String[] {"Take a Photo", "Choose Existing Photo", "Choose Existing Document"};
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
