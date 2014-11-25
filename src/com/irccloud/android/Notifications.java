@@ -656,10 +656,10 @@ public class Notifications {
 			bigContentView.setTextViewText(R.id.title, title);
 			bigContentView.setTextViewText(R.id.text, big_text);
             bigContentView.setLong(R.id.time, "setTime", eids[0]/1000);
-			if(count > 4) {
+			if(count > 3) {
 				bigContentView.setViewVisibility(R.id.divider, View.VISIBLE);
 				bigContentView.setViewVisibility(R.id.more, View.VISIBLE);
-				bigContentView.setTextViewText(R.id.more, "+" + (count - 4) + " more");
+				bigContentView.setTextViewText(R.id.more, "+" + (count - 3) + " more");
 			} else {
 				bigContentView.setViewVisibility(R.id.divider, View.GONE);
 				bigContentView.setViewVisibility(R.id.more, View.GONE);
@@ -738,7 +738,7 @@ public class Notifications {
 					eids = new long[notifications.size()];
 					show = false;
 	        	}
-	        	if(count < 4) {
+	        	if(count < 3) {
 	        		if(text.length() > 0)
 	        			text += "<br/>";
 		        	if(n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
