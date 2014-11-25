@@ -440,14 +440,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         public void format() {
             for(int i = 0; i < data.size(); i++) {
                 EventsDataSource.Event e = data.get(i);
-                synchronized(e) {
-                    if(e.html != null) {
-                        try {
-                            e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
-                            e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
-                            if(e.msg != null && e.msg.length() > 0)
-                                e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
-                        } catch (Exception ex) {
+                if(e != null) {
+                    synchronized (e) {
+                        if (e.html != null) {
+                            try {
+                                e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
+                                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
+                                if (e.msg != null && e.msg.length() > 0)
+                                    e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
+                            } catch (Exception ex) {
+                            }
                         }
                     }
                 }
