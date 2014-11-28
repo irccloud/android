@@ -82,7 +82,7 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 import com.irccloud.android.fragment.AcceptListFragment;
-import com.irccloud.android.fragment.BanListFragment;
+import com.irccloud.android.fragment.ChannelModeListFragment;
 import com.irccloud.android.fragment.BufferOptionsFragment;
 import com.irccloud.android.fragment.BuffersListFragment;
 import com.irccloud.android.fragment.ChannelListFragment;
@@ -1553,23 +1553,121 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             Bundle args = new Bundle();
                             args.putInt("cid", buffer.cid);
                             args.putInt("bid", buffer.bid);
+                            args.putString("mode", "b");
+                            args.putString("placeholder", "No bans in effect.\n\nYou can ban someone by tapping their nickname in the user list, long-pressing a message, or by using /ban.");
+                            args.putString("mask", "mask");
+                            args.putString("list", "bans");
+                            args.putString("title", "Ban list for " + buffer.name);
                             args.putString("event", event.toString());
-                            BanListFragment banList = (BanListFragment)getSupportFragmentManager().findFragmentByTag("banlist");
-                            if(banList == null) {
-                                banList = new BanListFragment();
-                                banList.setArguments(args);
+                            ChannelModeListFragment channelModeList = (ChannelModeListFragment)getSupportFragmentManager().findFragmentByTag("banlist");
+                            if(channelModeList == null) {
+                                channelModeList = new ChannelModeListFragment();
+                                channelModeList.setArguments(args);
                                 try {
-                                    banList.show(getSupportFragmentManager(), "banlist");
+                                    channelModeList.show(getSupportFragmentManager(), "banlist");
                                 } catch (IllegalStateException e) {
                                     //App lost focus already
                                 }
                             } else {
-                                banList.setArguments(args);
+                                channelModeList.setArguments(args);
                             }
                         }
                     }
                 });
 	            break;
+            case NetworkConnection.EVENT_QUIETLIST:
+                event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                            Bundle args = new Bundle();
+                            args.putInt("cid", buffer.cid);
+                            args.putInt("bid", buffer.bid);
+                            args.putString("mode", "q");
+                            args.putString("placeholder", "Empty quiet list.");
+                            args.putString("mask", "quiet_mask");
+                            args.putString("list", "list");
+                            args.putString("title", "Quiet list for " + buffer.name);
+                            args.putString("event", event.toString());
+                            ChannelModeListFragment channelModeList = (ChannelModeListFragment)getSupportFragmentManager().findFragmentByTag("quietlist");
+                            if(channelModeList == null) {
+                                channelModeList = new ChannelModeListFragment();
+                                channelModeList.setArguments(args);
+                                try {
+                                    channelModeList.show(getSupportFragmentManager(), "quietlist");
+                                } catch (IllegalStateException e) {
+                                    //App lost focus already
+                                }
+                            } else {
+                                channelModeList.setArguments(args);
+                            }
+                        }
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_BANEXCEPTIONLIST:
+                event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                            Bundle args = new Bundle();
+                            args.putInt("cid", buffer.cid);
+                            args.putInt("bid", buffer.bid);
+                            args.putString("mode", "e");
+                            args.putString("placeholder", "Empty exception list.");
+                            args.putString("mask", "mask");
+                            args.putString("list", "exceptions");
+                            args.putString("title", "Exception list for " + buffer.name);
+                            args.putString("event", event.toString());
+                            ChannelModeListFragment channelModeList = (ChannelModeListFragment)getSupportFragmentManager().findFragmentByTag("exceptionlist");
+                            if(channelModeList == null) {
+                                channelModeList = new ChannelModeListFragment();
+                                channelModeList.setArguments(args);
+                                try {
+                                    channelModeList.show(getSupportFragmentManager(), "exceptionlist");
+                                } catch (IllegalStateException e) {
+                                    //App lost focus already
+                                }
+                            } else {
+                                channelModeList.setArguments(args);
+                            }
+                        }
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_INVITELIST:
+                event = (IRCCloudJSONObject)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                            Bundle args = new Bundle();
+                            args.putInt("cid", buffer.cid);
+                            args.putInt("bid", buffer.bid);
+                            args.putString("mode", "I");
+                            args.putString("placeholder", "Empty invite list");
+                            args.putString("mask", "mask");
+                            args.putString("list", "list");
+                            args.putString("title", "Invite list for " + buffer.name);
+                            args.putString("event", event.toString());
+                            ChannelModeListFragment channelModeList = (ChannelModeListFragment)getSupportFragmentManager().findFragmentByTag("invitelist");
+                            if(channelModeList == null) {
+                                channelModeList = new ChannelModeListFragment();
+                                channelModeList.setArguments(args);
+                                try {
+                                    channelModeList.show(getSupportFragmentManager(), "invitelist");
+                                } catch (IllegalStateException e) {
+                                    //App lost focus already
+                                }
+                            } else {
+                                channelModeList.setArguments(args);
+                            }
+                        }
+                    }
+                });
+                break;
 			case NetworkConnection.EVENT_ACCEPTLIST:
 				event = (IRCCloudJSONObject)obj;
                 runOnUiThread(new Runnable() {

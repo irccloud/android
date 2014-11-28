@@ -44,17 +44,22 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
-public class BanListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
-	JsonNode bans;
+public class ChannelModeListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+	JsonNode data;
 	int cid;
 	int bid;
 	IRCCloudJSONObject event;
-	BansAdapter adapter;
+	Adapter adapter;
 	NetworkConnection conn;
 	ListView listView;
-	boolean canUnBan = false;
+    String mode;
+    String placeholder;
+    String mask;
+    String list;
+    String title;
+	boolean canChangeMode = false;
 	
-	private class BansAdapter extends BaseAdapter {
+	private class Adapter extends BaseAdapter {
 		private DialogFragment ctx;
 		
 		private class ViewHolder {
@@ -64,19 +69,19 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			Button removeBtn;
 		}
 	
-		public BansAdapter(DialogFragment context) {
+		public Adapter(DialogFragment context) {
 			ctx = context;
 		}
 		
 		@Override
 		public int getCount() {
-			return bans.size();
+			return data.size();
 		}
 
 		@Override
 		public Object getItem(int pos) {
 			try {
-				return bans.get(pos);
+				return data.get(pos);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -93,7 +98,7 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			public void onClick(View v) {
 				Integer position = (Integer)v.getTag();
 				try {
-					conn.mode(cid, event.getString("channel"), "-b " + bans.get(position).get("mask").asText());
+					conn.mode(cid, event.getString("channel"), "-" + mode + " " + data.get(position).get(mask).asText());
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -128,10 +133,10 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			}
 			
 			try {
-				holder.mask.setText(Html.fromHtml(bans.get(position).get("mask").asText()));
-				holder.setBy.setText("Set " + DateUtils.getRelativeTimeSpanString(bans.get(position).get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
-						+ " by " + bans.get(position).get("usermask").asText());
-				if(canUnBan) {
+				holder.mask.setText(Html.fromHtml(data.get(position).get(mask).asText()));
+				holder.setBy.setText("Set " + DateUtils.getRelativeTimeSpanString(data.get(position).get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
+						+ " by " + data.get(position).get("usermask").asText());
+				if(canChangeMode) {
 					holder.removeBtn.setVisibility(View.VISIBLE);
 					holder.removeBtn.setOnClickListener(removeClickListener);
 					holder.removeBtn.setTag(position);
@@ -157,19 +162,24 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
     	View v = inflater.inflate(R.layout.ignorelist, null);
     	listView = (ListView)v.findViewById(android.R.id.list);
     	TextView empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("No bans in effect.\n\nYou can ban someone by tapping their nickname in the user list, long-pressing a message, or by using /ban.");
+    	empty.setText(placeholder);
     	listView.setEmptyView(empty);
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	cid = savedInstanceState.getInt("cid");
         	bid = savedInstanceState.getInt("bid");
         	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-        	bans = event.getJsonNode("bans");
-        	adapter = new BansAdapter(this);
+            list = savedInstanceState.getString("list");
+            mask = savedInstanceState.getString("mask");
+            placeholder = savedInstanceState.getString("placeholder");
+            title = savedInstanceState.getString("title");
+            mode = savedInstanceState.getString("mode");
+        	data = event.getJsonNode(list);
+        	adapter = new Adapter(this);
         	listView.setAdapter(adapter);
         }
     	AlertDialog.Builder b = new AlertDialog.Builder(ctx)
         .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-        .setTitle("Ban list for " + event.getString("channel"))
+        .setTitle(title)
         .setView(v)
         .setNegativeButton("Close", new DialogInterface.OnClickListener() {
 			@Override
@@ -178,10 +188,8 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			}
         });
         try {
-            ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
-            UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, ServersDataSource.getInstance().getServer(cid).nick);
-            if(self_user != null && (self_user.mode.contains(server!=null?server.MODE_OWNER:"q") || self_user.mode.contains(server!=null?server.MODE_ADMIN:"a") || self_user.mode.contains(server!=null?server.MODE_OP:"o"))) {
-                b.setPositiveButton("Add Ban Mask", new AddClickListener());
+            if(canChangeMode) {
+                b.setPositiveButton("Add", new AddClickListener());
             }
         } catch (Exception e) {
 
@@ -206,13 +214,13 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
         	TextView prompt = (TextView)view.findViewById(R.id.prompt);
         	final EditText input = (EditText)view.findViewById(R.id.textInput);
         	input.setHint("nickname!user@host.name");
-        	prompt.setText("Ban this hostmask");
+        	prompt.setText("Add this hostmask");
         	builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
     		builder.setView(view);
-    		builder.setPositiveButton("Ban", new DialogInterface.OnClickListener() {
+    		builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					conn.mode(cid, event.getString("channel"), "+b " + input.getText().toString());
+					conn.mode(cid, event.getString("channel"), "+" + mode + " " + input.getText().toString());
 					dialog.dismiss();
 				}
     		});
@@ -235,6 +243,11 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
     	state.putInt("cid", cid);
     	state.putInt("bid", bid);
     	state.putString("event", event.toString());
+        state.putString("list", list);
+        state.putString("mask", mask);
+        state.putString("placeholder", placeholder);
+        state.putString("title", title);
+        state.putString("mode", mode);
     }
 	
     @Override
@@ -242,13 +255,21 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
     	cid = args.getInt("cid", 0);
     	bid = args.getInt("bid", 0);
     	event = new IRCCloudJSONObject(args.getString("event"));
-    	bans = event.getJsonNode("bans");
+        list = args.getString("list");
+        mask = args.getString("mask");
+        placeholder = args.getString("placeholder");
+        title = args.getString("title");
+        mode = args.getString("mode");
+    	data = event.getJsonNode(list);
+        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+        canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
     	if(getActivity() != null && cid > 0 && listView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if(adapter == null) {
-                        adapter = new BansAdapter(BanListFragment.this);
+                        adapter = new Adapter(ChannelModeListFragment.this);
                         listView.setAdapter(adapter);
                     } else {
                         adapter.notifyDataSetChanged();
@@ -264,15 +285,15 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
     	conn.addHandler(this);
     	
     	if(cid > 0) {
-        	adapter = new BansAdapter(this);
+        	adapter = new Adapter(this);
         	listView.setAdapter(adapter);
     	}
         ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
         if(s != null) {
             UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
-            canUnBan = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
+            canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
         } else {
-            canUnBan = false;
+            canChangeMode = false;
         }
     }
 
@@ -288,7 +309,7 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			case NetworkConnection.EVENT_USERCHANNELMODE:
                 ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
 				UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
-				canUnBan = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+				canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -300,7 +321,7 @@ public class BanListFragment extends DialogFragment implements NetworkConnection
 			case NetworkConnection.EVENT_BUFFERMSG:
 				EventsDataSource.Event e = (EventsDataSource.Event)obj;
 				if(e.bid == bid && e.type.equals("channel_mode_list_change"))
-					conn.mode(cid, event.getString("channel"), "b");
+					conn.mode(cid, event.getString("channel"), mode);
 				break;
 			default:
 				break;

@@ -393,30 +393,50 @@ public class EventsDataSource {
                     JsonNode add = ops.get("add");
                     if(add != null && add.size() > 0) {
                         JsonNode op = add.get(0);
-                        if(op.get("mode").asText().equalsIgnoreCase("b")) {
+                        if(op.get("mode").asText().equals("b")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban set for <b>" + op.get("param").asText() + "</b> (+b)";
+                            e.msg = "banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>+b</font>)";
                             unknown = false;
-                        } else if(op.get("mode").asText().equalsIgnoreCase("e")) {
+                        } else if(op.get("mode").asText().equals("e")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban exception set for <b>" + op.get("param").asText() + "</b> (+e)";
+                            e.msg = "exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>+e</font>)";
+                            unknown = false;
+                        } else if(op.get("mode").asText().equals("q")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>+q</font>)";
+                            unknown = false;
+                        } else if(op.get("mode").asText().equals("I")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "added <b>" + op.get("param").asText() + "</b> to the invite list (<font color=#808080>+I</font>)";
                             unknown = false;
                         }
                     }
                     JsonNode remove = ops.get("remove");
                     if(remove != null && remove.size() > 0) {
                         JsonNode op = remove.get(0);
-                        if(op.get("mode").asText().equalsIgnoreCase("b")) {
+                        if(op.get("mode").asText().equals("b")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban removed for <b>" + op.get("param").asText() + "</b> (-b)";
+                            e.msg = "un-banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>-b</font>)";
                             unknown = false;
-                        } else if(op.get("mode").asText().equalsIgnoreCase("e")) {
+                        } else if(op.get("mode").asText().equals("e")) {
                             e.nick = e.from;
                             e.from = "";
-                            e.msg = "Channel ban exception removed for <b>" + op.get("param").asText() + "</b> (-e)";
+                            e.msg = "un-exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>-e</font>)";
+                            unknown = false;
+                        } else if(op.get("mode").asText().equals("q")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "un-quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>-q</font>)";
+                            unknown = false;
+                        } else if(op.get("mode").asText().equals("I")) {
+                            e.nick = e.from;
+                            e.from = "";
+                            e.msg = "removed <b>" + op.get("param").asText() + "</b> from the invite list (<font color=#808080>-I</font>)";
                             unknown = false;
                         }
                     }
@@ -424,10 +444,11 @@ public class EventsDataSource {
                 if(unknown) {
                     e.nick = e.from;
                     e.from = "";
-                    e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
+                    e.msg = "set channel mode: <b>" + event.getString("diff") + "</b>";
                 }
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
+                e.self = false;
             }
         });
 

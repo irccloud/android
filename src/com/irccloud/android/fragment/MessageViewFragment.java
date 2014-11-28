@@ -1192,9 +1192,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 } else if(type.equals("channel_mode_list_change")) {
                     if(event.from.length() == 0) {
                         if(event.nick != null && event.nick.length() > 0)
-                            event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
+                            event.html = "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> " + event.msg;
                         else if(event.server != null && event.server.length() > 0)
-                            event.html = event.msg + " by the server <b>" + event.server + "</b>";
+                            event.html = "The server <b>" + event.server + "</b> " + event.msg;
                     }
                 }
 

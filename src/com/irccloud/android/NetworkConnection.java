@@ -180,6 +180,9 @@ public class NetworkConnection {
     public static final int EVENT_REORDERCONNECTIONS = 42;
     public static final int EVENT_CHANNELTOPICIS = 43;
     public static final int EVENT_SERVERMAPLIST = 44;
+    public static final int EVENT_QUIETLIST = 45;
+    public static final int EVENT_BANEXCEPTIONLIST = 46;
+    public static final int EVENT_INVITELIST = 47;
 
 	public static final int EVENT_BACKLOG_START = 100;
 	public static final int EVENT_BACKLOG_END = 101;
@@ -2225,6 +2228,9 @@ public class NetworkConnection {
         put("list_response_toomany", new BroadcastParser(EVENT_LISTRESPONSETOOMANY));
         put("list_response", new BroadcastParser(EVENT_LISTRESPONSE));
         put("map_list", new BroadcastParser(EVENT_SERVERMAPLIST));
+        put("quiet_list", new BroadcastParser(EVENT_QUIETLIST));
+        put("ban_exception_list", new BroadcastParser(EVENT_BANEXCEPTIONLIST));
+        put("invite_list", new BroadcastParser(EVENT_INVITELIST));
         put("who_response", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
@@ -2479,7 +2485,7 @@ public class NetworkConnection {
 	}
 
     public boolean uploadsAvailable() {
-        return IRCCLOUD_PATH != null && IRCCLOUD_PATH.equals("/websocket/5");
+        return userInfo != null && !userInfo.uploads_disabled;
     }
 
 	public boolean isVisible() {
@@ -2522,6 +2528,7 @@ public class NetworkConnection {
         public int num_invites;
         public JSONObject prefs;
         public String highlights;
+        public boolean uploads_disabled;
 
 		public UserInfo(IRCCloudJSONObject object) {
             id = object.getInt("id");
@@ -2533,6 +2540,10 @@ public class NetworkConnection {
 			active_connections = object.getLong("num_active_connections");
 			join_date = object.getLong("join_date");
 			auto_away = object.getBoolean("autoaway");
+            if(object.has("uploads_disabled"))
+                uploads_disabled = object.getBoolean("uploads_disabled");
+            else
+                uploads_disabled = false;
 
 			if(object.has("prefs") && !object.getString("prefs").equals("null")) {
                 try {
