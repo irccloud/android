@@ -5,15 +5,15 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
+        classpath 'com.android.tools.build:gradle:1.0.0-rc4'
         classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
 
     }
 }
 apply plugin: 'com.android.application'
-//apply plugin: 'crashlytics'
+apply plugin: 'crashlytics'
 
-tasks.withType(Compile) {
+tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
@@ -23,9 +23,9 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:21.+'
-    compile 'com.android.support:appcompat-v7:21.+'
-    compile 'com.android.support:cardview-v7:21.+'
+    compile 'com.android.support:support-v4:21.0.2'
+    compile 'com.android.support:appcompat-v7:21.0.2'
+    compile 'com.android.support:cardview-v7:21.0.2'
 
     compile 'com.google.android.gms:play-services:4.1.+'
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
@@ -46,11 +46,11 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0"
+    buildToolsVersion "21.1.1"
 
     defaultConfig {
-        versionCode 22
-        versionName "1.13"
+        versionCode 24
+        versionName "1.15"
         minSdkVersion 9
         targetSdkVersion 21
         applicationId "com.irccloud.android"
@@ -90,13 +90,13 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
-                resValue "string", "CRASHLYTICS_KEY", "\"\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
             buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
@@ -107,7 +107,8 @@ android {
             resValue "string", "app_name", "IRCCloud"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
 
-            runProguard true
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
@@ -122,13 +123,13 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
-                resValue "string", "CRASHLYTICS_KEY", "\"\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
@@ -142,7 +143,8 @@ android {
                 signingConfig signingConfigs.release
             }
 
-            runProguard true
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
@@ -158,13 +160,13 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
-                resValue "string", "CRASHLYTICS_KEY", "\"\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String", "SSL_CN", "\"\""
             buildConfigField "String", "SSL_FP", "\"\""
@@ -176,7 +178,8 @@ android {
             resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
 
             signingConfig signingConfigs.debug
-            runProguard true
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
@@ -191,13 +194,13 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
-                resValue "string", "CRASHLYTICS_KEY", "\"" + props['CRASHLYTICS_KEY'] + "\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
-                resValue "string", "CRASHLYTICS_KEY", "\"\""
+                manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String", "SSL_CN", "\"\""
             buildConfigField "String", "SSL_FP", "\"\""
@@ -211,7 +214,8 @@ android {
             if(rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
             }
-            runProguard true
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }

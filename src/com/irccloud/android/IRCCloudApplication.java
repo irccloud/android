@@ -24,6 +24,8 @@ import java.io.OutputStream;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
@@ -77,7 +79,8 @@ public class IRCCloudApplication extends Application {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if(prefs.getBoolean("acra.enable", true)) {
             try {
-                if(getResources().getString(R.string.CRASHLYTICS_KEY).length() > 0)
+                ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+                if(ai.metaData.getString("com.crashlytics.ApiKey").length() > 0)
                     Crashlytics.start(this);
             } catch (Exception e) {
             }
