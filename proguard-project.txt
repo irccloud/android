@@ -20,6 +20,7 @@
 }
 
 -keep class com.irccloud.** { *; }
+-keep class android.support.v7.widget.SearchView { *; }
 -keepattributes *Annotation*,EnclosingMethod
 -keepnames class com.fasterxml.jackson.** { *; }
 -keepattributes SourceFile,LineNumberTable

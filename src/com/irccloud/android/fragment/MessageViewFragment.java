@@ -16,6 +16,7 @@
 
 package com.irccloud.android.fragment;
 
+import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -111,10 +112,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	public static final int ROW_BACKLOGMARKER = 2;
 	public static final int ROW_SOCKETCLOSED = 3;
 	public static final int ROW_LASTSEENEID = 4;
+    public static final int ROW_SEARCHHEADER = 5;
 	private static final String TYPE_TIMESTAMP = "__timestamp__";
 	private static final String TYPE_BACKLOGMARKER = "__backlog__";
 	private static final String TYPE_LASTSEENEID = "__lastseeneid__";
-	
+    private static final String TYPE_SEARCHHEADER = "__search_header__";
+
 	private MessageAdapter adapter;
 
 	private long currentCollapsedEid = -1;
@@ -134,6 +137,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     public View suggestionsContainer = null;
     public GridView suggestions = null;
+    private String searchQuery = null;
 
 	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
 		@Override
@@ -282,6 +286,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTimeInMillis(eid / 1000);
 			int insert_pos = -1;
+            int lastBid = -1;
 			SimpleDateFormat formatter = null;
             if(e.timestamp == null || e.timestamp.length() == 0) {
                 formatter = new SimpleDateFormat("h:mm a");
@@ -321,11 +326,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				data.remove(currentGroupPosition);
 				data.add(currentGroupPosition, e);
 				insert_pos = currentGroupPosition;
-			} else if(eid > max_eid || data.size() == 0 || eid > data.get(data.size()-1).eid) { //Message at the bottom
+			} else if(searchQuery != null || eid > max_eid || data.size() == 0 || eid > data.get(data.size()-1).eid) { //Message at the bottom
 				if(data.size() > 0) {
 					lastDay = data.get(data.size()-1).day;
+                    lastBid = data.get(data.size()-1).bid;
 				} else {
 					lastDay = 0;
+                    lastBid = -1;
 				}
 				max_eid = eid;
 				data.add(e);
@@ -386,7 +393,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				return;
 			}
 			
-			if(eid > buffer.last_seen_eid && e.highlight)
+			if(buffer != null && eid > buffer.last_seen_eid && e.highlight)
 				unseenHighlightPositions.add(insert_pos);
 			
 			if(eid < min_eid || min_eid == 0)
@@ -397,8 +404,37 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			} else if(currentCollapsedEid == -1) {
 				currentGroupPosition = -1;
 			}
-			
-			if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
+
+            if(searchQuery != null) {
+                if(e.bid != lastBid) {
+                    if(formatter == null)
+                        formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
+                    else
+                        formatter.applyPattern("EEEE, MMMM dd, yyyy");
+                    EventsDataSource.Event d = new EventsDataSource.Event();
+                    d.type = TYPE_SEARCHHEADER;
+                    d.row_type = ROW_SEARCHHEADER;
+                    d.eid = eid;
+                    d.timestamp = formatter.format(calendar.getTime());
+                    d.bg_color = R.drawable.row_timestamp_bg;
+                    d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+                    d.bid = e.bid;
+                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(e.bid);
+                    if(b != null) {
+                        if(b.type.equals("conversation")) {
+                            d.msg = "Conversation with " + b.name;
+                        } else if(b.type.equals("console")) {
+                            ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
+                            d.msg = s.name;
+                        } else {
+                            d.msg = b.name;
+                        }
+                    } else {
+                        d.msg = e.chan;
+                    }
+                    data.add(insert_pos, d);
+                }
+            } else if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
                 if(formatter == null)
     				formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
                 else
@@ -445,7 +481,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (e.html != null) {
                             try {
                                 e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
-                                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
+                                e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, searchQuery);
                                 if (e.msg != null && e.msg.length() > 0)
                                     e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                             } catch (Exception ex) {
@@ -476,6 +512,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         row = inflater.inflate(R.layout.row_socketclosed, null);
                     else if(e.row_type == ROW_LASTSEENEID)
                         row = inflater.inflate(R.layout.row_lastseeneid, null);
+                    else if(e.row_type == ROW_SEARCHHEADER)
+                        row = inflater.inflate(R.layout.row_searchheader, null);
                     else
                         row = inflater.inflate(R.layout.row_message, null);
 
@@ -495,7 +533,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(e.html != null && e.formatted == null) {
                     e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
-                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
+                    e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, searchQuery);
                     if(e.msg != null && e.msg.length() > 0)
                         e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                 }
@@ -511,7 +549,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if(holder.timestamp != null) {
-                    if(e.row_type == ROW_TIMESTAMP) {
+                    if(e.row_type == ROW_TIMESTAMP || e.row_type == ROW_SEARCHHEADER) {
                         holder.timestamp.setTextSize(textSize);
                     } else {
                         holder.timestamp.setTextSize(textSize - 2);
@@ -535,7 +573,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                     if(e.highlight && !e.self)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.highlight_timestamp));
-                    else if(e.row_type != ROW_TIMESTAMP)
+                    else if(e.row_type != ROW_TIMESTAMP && e.row_type != ROW_SEARCHHEADER)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
                     holder.timestamp.setText(e.timestamp);
                 }
@@ -547,6 +585,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.timestamp.setVisibility(View.GONE);
                         holder.message.setVisibility(View.GONE);
                     }
+                }
+
+                if(e.row_type == ROW_SEARCHHEADER) {
+                    holder.message.setTextSize(textSize);
+                    holder.message.setText(e.msg);
                 }
 
                 if(holder.message != null && e.html != null) {
@@ -863,6 +906,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void setArguments(Bundle args) {
         ready = false;
+        searchQuery = null;
         if(heartbeatTask != null)
             heartbeatTask.cancel(true);
         heartbeatTask = null;
@@ -963,7 +1007,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     colors = true;
 
                 long start = System.currentTimeMillis();
-                if(event.eid <= buffer.min_eid) {
+                if(buffer != null && event.eid <= buffer.min_eid) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -983,9 +1027,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     type = type.substring(4);
 
                 if(type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
-                    boolean shouldExpand = false;
-                    collapsedEvents.showChan = !buffer.type.equals("channel");
-                    if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                    boolean shouldExpand = searchQuery != null;
+                    collapsedEvents.showChan = buffer != null && !buffer.type.equals("channel");
+                    if(buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                         JSONObject hiddenMap = null;
                         if(buffer.type.equals("channel")) {
                             if(conn.getUserInfo().prefs.has("channel-hideJoinPart"))
@@ -1025,14 +1069,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(shouldExpand)
                         expandedSectionEids.clear();
 
-                    if(event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
-                        EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
-                        if(last != null && !last.type.equals("socket_closed") && !last.type.equals("connecting_failed") && !last.type.equals("connecting_cancelled"))
-                            currentCollapsedEid = -1;
-                    } else {
-                        EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
-                        if(last != null && (last.type.equals("socket_closed") || last.type.equals("connecting_failed") || last.type.equals("connecting_cancelled")))
-                            currentCollapsedEid = -1;
+                    if(buffer != null) {
+                        if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
+                            EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
+                            if (last != null && !last.type.equals("socket_closed") && !last.type.equals("connecting_failed") && !last.type.equals("connecting_cancelled"))
+                                currentCollapsedEid = -1;
+                        } else {
+                            EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
+                            if (last != null && (last.type.equals("socket_closed") || last.type.equals("connecting_failed") || last.type.equals("connecting_cancelled")))
+                                currentCollapsedEid = -1;
+                        }
                     }
 
                     if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
@@ -1041,7 +1087,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
                     }
 
-                    if(!collapsedEvents.showChan)
+                    if(!collapsedEvents.showChan && buffer != null)
                         event.chan = buffer.name;
 
                     if(!collapsedEvents.addEvent(event))
@@ -1118,7 +1164,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     event.formatted = null;
                     event.linkify = false;
                     lastCollapsedEid = event.eid;
-                    if(buffer.type.equals("console") && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
+                    if(buffer != null && buffer.type.equals("console") && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
                         currentCollapsedEid = -1;
                         lastCollapsedEid = -1;
                         collapsedEvents.clear();
@@ -1141,7 +1187,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(from == null || from.length() == 0)
                     from = event.nick;
 
-                if(from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer.type != null && !buffer.type.equals("conversation")) {
+                if(from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer != null && buffer.type != null && !buffer.type.equals("conversation")) {
                     String usermask = from + "!" + event.hostmask;
                     if(ignore.match(usermask)) {
                         if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
@@ -1264,7 +1310,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         public void onClick(View arg0) {
         	longPressOverride = false;
         	
-	    	if(pos < 0 || pos >= adapter.data.size())
+	    	if(pos < 0 || pos >= adapter.data.size() || searchQuery != null)
 	    		return;
 
 	    	if(adapter != null) {
@@ -1407,6 +1453,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         private MessageAdapter adapter;
 
         TreeMap<Long,EventsDataSource.Event> events;
+        ArrayList<EventsDataSource.Event> search;
         BuffersDataSource.Buffer buffer;
         int oldPosition = -1;
         int topOffset = -1;
@@ -1433,6 +1480,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			long time = System.currentTimeMillis();
             if(buffer != null)
     			evs = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
+            else if(searchQuery != null)
+                search = EventsDataSource.getInstance().getSearch();
 			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
 			if(!isCancelled() && evs != null && evs.size() > 0) {
                 try {
@@ -1489,6 +1538,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         conn.request_backlog(buffer.cid, buffer.bid, 0);
                     }
                 });
+            } else if(search != null && search.size() > 0) {
+                if(getActivity() != null)
+                    textSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("textSize", 14);
+                timestamp_width = -1;
+                if(conn.getReconnectTimestamp() == 0)
+                    conn.cancel_idle_timer(); //This may take a while...
+                collapsedEvents.clear();
+                currentCollapsedEid = -1;
+                lastCollapsedDay = -1;
+                adapter = new MessageAdapter(MessageViewFragment.this);
+                for(EventsDataSource.Event e : search) {
+                    insertEvent(adapter, e, true, false);
+                }
             } else {
                 runOnUiThread(new Runnable() {
                     @Override
@@ -2052,6 +2114,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		IRCCloudJSONObject e;
 
         switch (what) {
+            case NetworkConnection.EVENT_SEARCH:
+                searchQuery = (String)obj;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showSpinner(false);
+                        if(refreshTask != null)
+                            refreshTask.cancel(true);
+                        refreshTask = new RefreshTask();
+                        refreshTask.execute((Void)null);
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_BACKLOG_FAILED:
                 runOnUiThread(new Runnable() {
                     @Override

@@ -51,9 +51,12 @@ import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.internal.widget.TintImageView;
 import android.support.v7.widget.ActionMenuView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Spannable;
 import android.text.style.URLSpan;
@@ -211,6 +214,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
     private ImgurUploadTask imgurTask = null;
     private FileUploadTask fileUploadTask = null;
+    private SearchView searchView = null;
 
     private DrawerArrowDrawable upDrawable;
     private int redColor;
@@ -742,6 +746,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
+        if(MenuItemCompat.isActionViewExpanded(searchMenuItem)) {
+            onKeyDown(KeyEvent.KEYCODE_BACK, null);
+        }
         if(server != null)
         	state.putInt("cid", server.cid);
         if(buffer != null) {
@@ -759,6 +766,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
+            findViewById(R.id.compose_bar).setVisibility(View.VISIBLE);
         	if(drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
                 drawerLayout.closeDrawers();
 	        	return true;
@@ -768,12 +776,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         		backStack.remove(0);
         		BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
         		if(b != null) {
+                    MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+                    mvf.showSpinner(false);
                     onBufferSelected(bid);
 	    			if(backStack.size() > 0)
 	    				backStack.remove(0);
                     return true;
         		}
         	}
+        } else if(keyCode == KeyEvent.KEYCODE_SEARCH) {
+            search();
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -2225,6 +2237,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
+    MenuItem searchMenuItem;
+    Menu menu;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	if(buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
@@ -2239,12 +2254,48 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    	getMenuInflater().inflate(R.menu.activity_message_archive, menu);
     	}
     	getMenuInflater().inflate(R.menu.activity_main, menu);
+        getMenuInflater().inflate(R.menu.activity_message_search, menu);
+        searchMenuItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView)MenuItemCompat.getActionView(searchMenuItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+                mvf.showSpinner(true);
+                NetworkConnection.getInstance().search(s);
+                return false;
+            }
 
+            @Override
+            public boolean onQueryTextChange(String s) {
+                return false;
+            }
+        });
+        MenuItemCompat.setOnActionExpandListener(searchMenuItem, new MenuItemCompat.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+                if(mvf != null)
+                    mvf.showSpinner(false);
+                if(drawerLayout != null)
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+                findViewById(R.id.compose_bar).setVisibility(View.VISIBLE);
+                onKeyDown(KeyEvent.KEYCODE_BACK, null);
+                return true;
+            }
+        });
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
+        this.menu = menu;
         //Hacky fix for miscolored overflow menu, see https://code.google.com/p/android/issues/detail?id=78289
         Toolbar t = (Toolbar)findViewById(R.id.toolbar);
         for(int i = 0; i < t.getChildCount(); i++) {
@@ -2344,6 +2395,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		}
 	    	}
     	}
+        searchMenuItem = menu.findItem(R.id.action_search);
+
+        searchMenuItem.setVisible(buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().admin);
     	return super.onPrepareOptionsMenu(menu);
     }
 
@@ -2479,12 +2533,43 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         dialog.show();
     }
 
+    public void search() {
+        if(buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().admin) {
+            if (drawerLayout != null) {
+                drawerLayout.closeDrawers();
+            }
+            for (int i = 0; i < backStack.size(); i++) {
+                if (buffer != null && backStack.get(i) == buffer.bid)
+                    backStack.remove(i);
+            }
+            if (buffer != null && buffer.bid >= 0) {
+                backStack.add(0, buffer.bid);
+                buffer.draft = messageTxt.getText().toString();
+            }
+            buffer = null;
+            updateUsersListFragmentVisibility();
+            MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+            if (mvf != null)
+                mvf.setArguments(new Bundle());
+            findViewById(R.id.compose_bar).setVisibility(View.GONE);
+
+            for (int i = 0; i < menu.size(); i++) {
+                if (menu.getItem(i) != searchMenuItem)
+                    menu.getItem(i).setVisible(false);
+            }
+            MenuItemCompat.expandActionView(searchMenuItem);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
     	AlertDialog.Builder builder;
     	AlertDialog dialog;
 
         switch (item.getItemId()) {
+            case R.id.action_search:
+                search();
+                break;
             case android.R.id.home:
                 if(drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
                     if(drawerLayout.isDrawerOpen(Gravity.LEFT))
@@ -2891,9 +2976,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		if(from == null || from.length() == 0)
 			from = event.nick;
 
-		UsersDataSource.User user = UsersDataSource.getInstance().getUser(buffer.bid, from);
+		UsersDataSource.User user = (buffer != null) ? UsersDataSource.getInstance().getUser(buffer.bid, from) : null;
 
-		if(user == null && from != null && event.hostmask != null) {
+		if(buffer != null && user == null && from != null && event.hostmask != null) {
 			user = new UsersDataSource.User();
 			user.nick = from;
 			user.hostmask = event.hostmask;
@@ -3212,6 +3297,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         launchURI = null;
         cidToOpen = -1;
         bufferToOpen = null;
+        EventsDataSource.getInstance().clearSearch();
         setIntent(new Intent(this, MainActivity.class));
 
         if(suggestionsTimerTask != null)

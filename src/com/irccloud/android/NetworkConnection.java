@@ -191,6 +191,8 @@ public class NetworkConnection {
 	public static final int EVENT_SUCCESS = 104;
 	public static final int EVENT_PROGRESS = 105;
 	public static final int EVENT_ALERT = 106;
+    public static final int EVENT_SEARCH = 107;
+    public static final int EVENT_SEARCH_FAILED = 108;
 
     public static final int EVENT_DEBUG = 999;
 
@@ -2372,7 +2374,6 @@ public class NetworkConnection {
         }
 
         conn.setConnectTimeout(5000);
-        conn.setReadTimeout(5000);
         conn.setUseCaches(false);
 		conn.setRequestProperty("User-Agent", useragent);
         conn.setRequestProperty("Accept", "application/json");
@@ -2529,6 +2530,7 @@ public class NetworkConnection {
         public JSONObject prefs;
         public String highlights;
         public boolean uploads_disabled;
+        public boolean admin;
 
 		public UserInfo(IRCCloudJSONObject object) {
             id = object.getInt("id");
@@ -2540,6 +2542,7 @@ public class NetworkConnection {
 			active_connections = object.getLong("num_active_connections");
 			join_date = object.getLong("join_date");
 			auto_away = object.getBoolean("autoaway");
+            admin = object.getBoolean("admin");
             if(object.has("uploads_disabled"))
                 uploads_disabled = object.getBoolean("uploads_disabled");
             else
@@ -2573,7 +2576,45 @@ public class NetworkConnection {
 			}
 		}
 	}
-	
+
+    public void search(String query) {
+        new SearchTask().execute(query);
+    }
+
+    private class SearchTask extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                EventsDataSource.getInstance().clearSearch();
+                JSONObject results = new JSONObject(doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/search?query=" + URLEncoder.encode(params[0], "UTF-8")), null, session, null));
+                int matchCount = 0;
+                JSONArray matches = results.getJSONObject("results").getJSONArray("matches");
+                for(int i = matches.length() - 1; i >= 0; i--) {
+                    JSONArray lines = matches.getJSONObject(i).getJSONArray("lines");
+                    int firstMatch = 0, lastMatch = 0;
+                    for(int j = 0; j < lines.length(); j++) {
+                        JSONObject event = lines.getJSONObject(j);
+                        if(event.has("match") && event.getBoolean("match")) {
+                            if(firstMatch == 0)
+                                firstMatch = j;
+                            lastMatch = j;
+                            matchCount++;
+                        }
+                    }
+                    for(int j = firstMatch; j <= lastMatch + 1 && j < lines.length(); j++) {
+                        EventsDataSource.getInstance().addSearchResult(new IRCCloudJSONObject(lines.getJSONObject(j)));
+                    }
+                }
+
+                Log.i("IRCCloud", "Got " + matchCount + " matches");
+                notifyHandlers(EVENT_SEARCH, results.getString("query"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
 	private class OOBIncludeTask extends AsyncTask<URL, Void, Boolean> {
 		private int bid = -1;
 		private URL mUrl;

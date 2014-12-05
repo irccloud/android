@@ -1210,10 +1210,14 @@ public class ColorFormatter {
     }
 
 	public static Spanned html_to_spanned(String msg) {
-		return html_to_spanned(msg, false, null);
+		return html_to_spanned(msg, false, null, null);
 	}
-	
-	public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
+
+    public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
+        return html_to_spanned(msg,linkify,server,null);
+    }
+
+	public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server, String query) {
 		if(msg == null)
 			msg = "";
 
@@ -1377,6 +1381,16 @@ public class ColorFormatter {
                     });
         }
 
+        if(query != null && query.length() > 0) {
+            String s = output.toString().toLowerCase();
+            int pos = 0;
+
+            do {
+                pos = s.indexOf(query.toLowerCase(), pos + 1);
+                if(pos >= 0)
+                    output.setSpan(new BackgroundColorSpan(Color.parseColor("#FFFF00")), pos, pos + query.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            } while(pos >= 0);
+        }
 		return output;
 	}
 	

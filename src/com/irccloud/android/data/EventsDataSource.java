@@ -122,9 +122,68 @@ public class EventsDataSource {
                     type.equals("callerid") ||
                     type.equals("wallops"));
         }
+
+        public synchronized void set(IRCCloudJSONObject event) {
+            cid = event.cid();
+            bid = event.bid();
+            eid = event.eid();
+            type = event.type();
+            msg = event.getString("msg");
+            hostmask = event.getString("hostmask");
+            from = event.getString("from");
+            from_mode = event.getString("from_mode");
+            chan = event.getString("chan");
+            if(event.has("newnick"))
+                nick = event.getString("newnick");
+            else if(event.has("nick"))
+                nick = event.getString("nick");
+            else
+                nick = null;
+            old_nick = event.getString("oldnick");
+            server = event.getString("server");
+            diff = event.getString("diff");
+            highlight = event.getBoolean("highlight");
+            self = event.getBoolean("self");
+            to_chan = event.getBoolean("to_chan");
+            to_buffer = event.getBoolean("to_buffer");
+            ops = event.getJsonNode("ops");
+            color = R.color.row_message_label;
+            bg_color = R.color.message_bg;
+            row_type = 0;
+            html = null;
+            group_msg = null;
+            linkify = true;
+            target_mode = null;
+            pending = false;
+            failed = false;
+            command = null;
+            day = -1;
+
+            if(event.has("reqid"))
+                reqid = event.getInt("reqid");
+            else
+                reqid = -1;
+
+            if(from != null)
+                from = TextUtils.htmlEncode(from);
+
+            if(msg != null)
+                msg = TextUtils.htmlEncode(msg);
+
+            if(event.has("value") && !event.type().startsWith("cap_")) {
+                msg = "<pre>" + event.getString("value") + " " + msg + "</pre>";
+            }
+
+            if(highlight)
+                bg_color = R.color.highlight;
+
+            if(self)
+                bg_color = R.color.self;
+        }
     }
 	
-	private final HashMap<Integer,TreeMap<Long, Event>> events;
+	private final HashMap<Integer,TreeMap<Long, Event>> events = new HashMap<Integer,TreeMap<Long, Event>>();;
+    private final ArrayList<Event> search = new ArrayList<Event>();
 	private static EventsDataSource instance = null;
 	public long highest_eid = -1;
 	
@@ -134,17 +193,21 @@ public class EventsDataSource {
 		return instance;
 	}
 
-	public EventsDataSource() {
-		events = new HashMap<Integer,TreeMap<Long, Event>>();
-	}
-
 	public void clear() {
 		synchronized(events) {
 			events.clear();
 			highest_eid = -1;
 		}
 	}
-	
+
+    public ArrayList<Event> getSearch() {
+        return search;
+    }
+
+    public void clearSearch() {
+        search.clear();
+    }
+
 	public void addEvent(Event event) {
 		synchronized(events) {
 			if(!events.containsKey(event.bid))
@@ -852,72 +915,30 @@ public class EventsDataSource {
 				e = new Event();
 				events.get(event.bid()).put(event.eid(), e);
 			}
-			e.cid = event.cid();
-			e.bid = event.bid();
-			e.eid = event.eid();
-			e.type = event.type();
-			e.msg = event.getString("msg");
-			e.hostmask = event.getString("hostmask");
-			e.from = event.getString("from");
-			e.from_mode = event.getString("from_mode");
-            e.chan = event.getString("chan");
-			if(event.has("newnick"))
-				e.nick = event.getString("newnick");
-			else if(event.has("nick"))
-				e.nick = event.getString("nick");
-			else
-				e.nick = null;
-			e.old_nick = event.getString("oldnick");
-			e.server = event.getString("server");
-			e.diff = event.getString("diff");
-			e.highlight = event.getBoolean("highlight");
-			e.self = event.getBoolean("self");
-			e.to_chan = event.getBoolean("to_chan");
-            e.to_buffer = event.getBoolean("to_buffer");
-			e.ops = event.getJsonNode("ops");
-			e.color = R.color.row_message_label;
-	    	e.bg_color = R.color.message_bg;
-	    	e.row_type = 0;
-	    	e.html = null;
-	    	e.group_msg = null;
-	    	e.linkify = true;
-	    	e.target_mode = null;
-	    	e.pending = false;
-            e.failed = false;
-            e.command = null;
-            e.day = -1;
 
-	    	if(event.has("reqid"))
-	    		e.reqid = event.getInt("reqid");
-	    	else
-	    		e.reqid = -1;
-
-			if(e.from != null)
-				e.from = TextUtils.htmlEncode(e.from);
-			
-			if(e.msg != null)
-				e.msg = TextUtils.htmlEncode(e.msg);
+            e.set(event);
 
             Formatter f = formatterMap.get(e.type);
             if(f != null)
                 f.format(event, e);
 
-	    	if(event.has("value") && !event.type().startsWith("cap_")) {
-	    		e.msg = "<pre>" + event.getString("value") + " " + e.msg + "</pre>";
-	    	}
-
-	    	if(e.highlight)
-	    		e.bg_color = R.color.highlight;
-	    	
-	    	if(e.self)
-	    		e.bg_color = R.color.self;
-			
 			if(highest_eid < event.eid())
 				highest_eid = event.eid();
 
 			return e;
 		}
 	}
+
+    public void addSearchResult(IRCCloudJSONObject event) {
+        synchronized (search) {
+            Event e = new Event();
+            e.set(event);
+            Formatter f = formatterMap.get(e.type);
+            if(f != null)
+                f.format(event, e);
+            search.add(e);
+        }
+    }
 
     public int getSizeOfBuffer(int bid) {
         synchronized(events) {

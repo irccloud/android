@@ -107,8 +107,8 @@ android {
             resValue "string", "app_name", "IRCCloud"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
 
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
