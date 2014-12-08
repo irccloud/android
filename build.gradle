@@ -27,7 +27,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.2'
     compile 'com.android.support:cardview-v7:21.0.2'
 
-    compile 'com.google.android.gms:play-services:4.1.+'
+    compile 'com.google.android.gms:play-services-base:6.5.+'
+    compile 'com.google.android.gms:play-services-wearable:6.5.+'
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile project(':android-websockets')
