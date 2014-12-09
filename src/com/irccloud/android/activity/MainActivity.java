@@ -2684,7 +2684,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 			int end = oldPosition + from.length();
 			if(end > text.length() - 1)
 				end = text.length() - 1;
-			if(match >= 0 && match < end) {
+            char nextChar = (match + from.length() < text.length())?text.charAt(match + from.length()):0;
+			if(match >= 0 && match < end && (nextChar == 0 || nextChar == ' ' || nextChar == ':')) {
 				String newtext = "";
 				if(match > 1 && text.charAt(match - 1) == ' ')
 					newtext = text.substring(0, match - 1);
