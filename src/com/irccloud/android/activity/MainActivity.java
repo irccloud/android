@@ -40,7 +40,9 @@ import java.util.UUID;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -228,6 +230,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(screenReceiver, filter);
+
         if(Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
@@ -431,6 +437,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         drawerLayout.closeDrawers();
 
         getSupportActionBar().setElevation(0);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(screenReceiver);
     }
 
     private void updateReconnecting() {
@@ -2769,7 +2781,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 			int end = oldPosition + from.length();
 			if(end > text.length() - 1)
 				end = text.length() - 1;
-			if(match >= 0 && match < end) {
+            char nextChar = (match + from.length() < text.length())?text.charAt(match + from.length()):0;
+			if(match >= 0 && match < end && (nextChar == 0 || nextChar == ' ' || nextChar == ':')) {
 				String newtext = "";
 				if(match > 1 && text.charAt(match - 1) == ' ')
 					newtext = text.substring(0, match - 1);
@@ -4335,4 +4348,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
     }
+
+    public class ScreenReceiver extends BroadcastReceiver {
+        public boolean wasScreenOn = true;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(messageTxt.getWindowToken(), 0);
+                wasScreenOn = false;
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                wasScreenOn = true;
+            }
+        }
+    }
+
+    private ScreenReceiver screenReceiver = new ScreenReceiver();
 }

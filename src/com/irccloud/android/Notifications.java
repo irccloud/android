@@ -406,6 +406,7 @@ public class Notifications {
 					mNotifications.remove(n);
 					i--;
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
                     changed = true;
 				}
 			}
