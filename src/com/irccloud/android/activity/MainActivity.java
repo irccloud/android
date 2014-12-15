@@ -2546,19 +2546,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     public void search() {
-        if(buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().admin) {
+        if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().admin) {
             if (drawerLayout != null) {
                 drawerLayout.closeDrawers();
             }
-            for (int i = 0; i < backStack.size(); i++) {
-                if (buffer != null && backStack.get(i) == buffer.bid)
-                    backStack.remove(i);
+
+            if(buffer != null) {
+                for (int i = 0; i < backStack.size(); i++) {
+                    if (buffer != null && backStack.get(i) == buffer.bid)
+                        backStack.remove(i);
+                }
+                if (buffer != null && buffer.bid >= 0) {
+                    backStack.add(0, buffer.bid);
+                    buffer.draft = messageTxt.getText().toString();
+                }
+                buffer = null;
+                server = null;
             }
-            if (buffer != null && buffer.bid >= 0) {
-                backStack.add(0, buffer.bid);
-                buffer.draft = messageTxt.getText().toString();
-            }
-            buffer = null;
             updateUsersListFragmentVisibility();
             MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
             if (mvf != null)

@@ -918,6 +918,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             server = ServersDataSource.getInstance().getServer(buffer.cid);
             Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: switched to bid: " + buffer.bid);
         } else {
+            server = null;
             Crashlytics.log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
         }
 		requestingBacklog = false;
@@ -939,7 +940,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     		}
             collapsedEvents.setServer(server);
 			update_status(server.status, server.fail_info);
-    	}
+    	} else {
+            awayView.setVisibility(View.GONE);
+            statusView.setVisibility(View.GONE);
+        }
 		if(unreadTopView != null)
             unreadTopView.setVisibility(View.GONE);
         backlogFailed.setVisibility(View.GONE);
