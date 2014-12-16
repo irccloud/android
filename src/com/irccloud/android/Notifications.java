@@ -357,7 +357,7 @@ public class Notifications {
 		n.cid = cid;
 		n.eid = eid;
 		n.nick = from;
-		n.message = TextUtils.htmlEncode(message);
+		n.message = TextUtils.htmlEncode(ColorFormatter.emojify(message));
 		n.chan = chan;
 		n.buffer_type = buffer_type;
 		n.message_type = message_type;
@@ -536,7 +536,7 @@ public class Notifications {
 	
 	public synchronized void showNotifications(String ticker) {
 		if(ticker != null)
-			mTicker = ticker;
+			mTicker = ColorFormatter.emojify(ticker);
 		
 		ArrayList<Notification> notifications = getMessageNotifications();
 		for(Notification n : notifications) {
@@ -815,7 +815,7 @@ public class Notifications {
                         String wearBody = Html.fromHtml(n.message).toString();
                         if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0) {
                             wearTitle = n.chan;
-                            wearBody = "<" + n.nick + "> " + n.message;
+                            wearBody = "<" + n.nick + "> " + Html.fromHtml(n.message).toString();
                         }
                         if (n.message_type.equals("buffer_me_msg"))
                             wearBody = "— " + wearBody;
