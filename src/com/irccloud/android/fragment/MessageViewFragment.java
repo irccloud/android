@@ -906,7 +906,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void setArguments(Bundle args) {
         ready = false;
-        searchQuery = null;
+        if(args.containsKey("searchQuery"))
+            searchQuery = args.getString("searchQuery");
+        else
+            searchQuery = null;
         if(heartbeatTask != null)
             heartbeatTask.cancel(true);
         heartbeatTask = null;
@@ -960,7 +963,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
         lp.topMargin = 0;
         backlogFailed.setLayoutParams(lp);
-        if(buffer != null && EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
+        if(searchQuery != null || (buffer != null && EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null)) {
             requestingBacklog = true;
             if(refreshTask != null)
                 refreshTask.cancel(true);

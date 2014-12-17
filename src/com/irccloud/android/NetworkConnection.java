@@ -2588,29 +2588,31 @@ public class NetworkConnection {
                 EventsDataSource.getInstance().clearSearch();
                 JSONObject results = new JSONObject(doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/search?query=" + URLEncoder.encode(params[0], "UTF-8")), null, session, null));
                 int matchCount = 0;
-                JSONArray matches = results.getJSONObject("results").getJSONArray("matches");
-                for(int i = matches.length() - 1; i >= 0; i--) {
-                    JSONArray lines = matches.getJSONObject(i).getJSONArray("lines");
-                    int firstMatch = 0, lastMatch = 0;
-                    for(int j = 0; j < lines.length(); j++) {
-                        JSONObject event = lines.getJSONObject(j);
-                        if(event.has("match") && event.getBoolean("match")) {
-                            if(firstMatch == 0)
-                                firstMatch = j;
-                            lastMatch = j;
-                            matchCount++;
+                if(results != null && results.has("results")) {
+                    JSONArray matches = results.getJSONObject("results").getJSONArray("matches");
+                    for (int i = matches.length() - 1; i >= 0; i--) {
+                        JSONArray lines = matches.getJSONObject(i).getJSONArray("lines");
+                        int firstMatch = 0, lastMatch = 0;
+                        for (int j = 0; j < lines.length(); j++) {
+                            JSONObject event = lines.getJSONObject(j);
+                            if (event.has("match") && event.getBoolean("match")) {
+                                if (firstMatch == 0)
+                                    firstMatch = j;
+                                lastMatch = j;
+                                matchCount++;
+                            }
+                        }
+                        for (int j = firstMatch; j <= lastMatch + 1 && j < lines.length(); j++) {
+                            EventsDataSource.getInstance().addSearchResult(new IRCCloudJSONObject(lines.getJSONObject(j)));
                         }
                     }
-                    for(int j = firstMatch; j <= lastMatch + 1 && j < lines.length(); j++) {
-                        EventsDataSource.getInstance().addSearchResult(new IRCCloudJSONObject(lines.getJSONObject(j)));
-                    }
+                    Log.i("IRCCloud", "Got " + matchCount + " matches");
+                    notifyHandlers(EVENT_SEARCH, results.getString("query"));
                 }
-
-                Log.i("IRCCloud", "Got " + matchCount + " matches");
-                notifyHandlers(EVENT_SEARCH, results.getString("query"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            notifyHandlers(EVENT_SEARCH_FAILED, null);
             return null;
         }
     }

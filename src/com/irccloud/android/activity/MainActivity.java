@@ -176,6 +176,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private static final Timer countdownTimer = new Timer("messsage-countdown-timer");
     private TimerTask countdownTimerTask = null;
     private String error = null;
+    private String searchQuery = null;
 
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
@@ -413,8 +414,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
         	server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
         	buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
-        	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("backStack"))
+            backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
+
         if(getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && checkPlayServices()) {
             final String regId = GCMIntentService.getRegistrationId(this);
             if (regId.equals("") || !getSharedPreferences("prefs", 0).contains("gcm_registered")) {
@@ -437,6 +441,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         drawerLayout.closeDrawers();
 
         getSupportActionBar().setElevation(0);
+
+        if(savedInstanceState != null && savedInstanceState.containsKey("search")) {
+            searchQuery = savedInstanceState.getString("search");
+        }
     }
 
     @Override
@@ -758,9 +766,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onSaveInstanceState(Bundle state) {
     	super.onSaveInstanceState(state);
-        if(MenuItemCompat.isActionViewExpanded(searchMenuItem)) {
-            onKeyDown(KeyEvent.KEYCODE_BACK, null);
-        }
         if(server != null)
         	state.putInt("cid", server.cid);
         if(buffer != null) {
@@ -773,6 +778,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     	state.putSerializable("backStack", backStack);
         if(imageCaptureURI != null)
             state.putString("imagecaptureuri", imageCaptureURI.toString());
+
+        if(searchMenuItem != null && MenuItemCompat.isActionViewExpanded(searchMenuItem)) {
+            state.putString("search", searchQuery != null? searchQuery : "");
+        }
     }
 
     @Override
@@ -797,7 +806,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         		}
         	}
         } else if(keyCode == KeyEvent.KEYCODE_SEARCH) {
-            search();
+            if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().admin) {
+                search();
+            }
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -1100,7 +1111,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
 
-    	if(server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
+        if(searchQuery != null) {
+            search();
+        } else if(server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
     		if(getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Launch intent contains a BID or URL");
 	    		setFromIntent(getIntent());
@@ -2272,6 +2285,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+                searchQuery = s;
                 MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
                 mvf.showSpinner(true);
                 NetworkConnection.getInstance().search(s);
@@ -2297,11 +2311,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     mvf.showSpinner(false);
                 if(drawerLayout != null)
                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+                searchQuery = null;
+                EventsDataSource.getInstance().clearSearch();
                 findViewById(R.id.compose_bar).setVisibility(View.VISIBLE);
                 onKeyDown(KeyEvent.KEYCODE_BACK, null);
                 return true;
             }
         });
+        if(searchQuery != null) {
+            MenuItemCompat.expandActionView(searchMenuItem);
+            searchView.setQuery(searchQuery, false);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -2410,6 +2430,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         searchMenuItem = menu.findItem(R.id.action_search);
 
         searchMenuItem.setVisible(buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().admin);
+
+        if(searchQuery != null) {
+            for (int i = 0; i < menu.size(); i++) {
+                if (menu.getItem(i) != searchMenuItem)
+                    menu.getItem(i).setVisible(false);
+            }
+        }
     	return super.onPrepareOptionsMenu(menu);
     }
 
@@ -2546,29 +2573,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     public void search() {
-        if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().admin) {
-            if (drawerLayout != null) {
-                drawerLayout.closeDrawers();
-            }
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawers();
+        }
 
-            if(buffer != null) {
-                for (int i = 0; i < backStack.size(); i++) {
-                    if (buffer != null && backStack.get(i) == buffer.bid)
-                        backStack.remove(i);
-                }
-                if (buffer != null && buffer.bid >= 0) {
-                    backStack.add(0, buffer.bid);
-                    buffer.draft = messageTxt.getText().toString();
-                }
-                buffer = null;
-                server = null;
+        if(buffer != null) {
+            for (int i = 0; i < backStack.size(); i++) {
+                if (buffer != null && backStack.get(i) == buffer.bid)
+                    backStack.remove(i);
             }
-            updateUsersListFragmentVisibility();
-            MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
-            if (mvf != null)
-                mvf.setArguments(new Bundle());
-            findViewById(R.id.compose_bar).setVisibility(View.GONE);
+            if (buffer != null && buffer.bid >= 0) {
+                backStack.add(0, buffer.bid);
+                buffer.draft = messageTxt.getText().toString();
+            }
+            buffer = null;
+            server = null;
+        }
+        updateUsersListFragmentVisibility();
+        Bundle b = new Bundle();
+        if(searchQuery != null)
+            b.putString("searchQuery", searchQuery);
+        MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+        if (mvf != null)
+            mvf.setArguments(b);
+        findViewById(R.id.compose_bar).setVisibility(View.GONE);
 
+        if(menu != null) {
             for (int i = 0; i < menu.size(); i++) {
                 if (menu.getItem(i) != searchMenuItem)
                     menu.getItem(i).setVisible(false);
