@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 
 import org.xml.sax.XMLReader;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -1176,8 +1177,12 @@ public class ColorFormatter {
 
         boolean disableConvert = false;
         try {
-            if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null)
+            if(NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
                 disableConvert = NetworkConnection.getInstance().getUserInfo().prefs.getBoolean("emoji-disableconvert");
+            } else {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+                disableConvert = prefs.getBoolean("emoji-disableconvert", false);
+            }
         } catch (Exception e) {
         }
 

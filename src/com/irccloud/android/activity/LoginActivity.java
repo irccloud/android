@@ -591,6 +591,16 @@ public class LoginActivity extends FragmentActivity {
                                 message = "This email address is already in use, please sign in or try another.";
                             else if(message.equals("rate_limited"))
                                 message = "Rate limited, please try again in a few minutes.";
+                            else if(message.equals("password_error"))
+                                message = "Invalid password, try again.";
+                            else if(message.equals("banned") || message.equals("ip_banned"))
+                                message = "Signup server unavailable, please try again later.";
+                            else if(message.equals("bad_email"))
+                                message = "No signups allowed from that domain.";
+                            else if(message.equals("tor_blocked"))
+                                message = "No signups allowed from TOR exit nodes";
+                            else if(message.equals("signup_ip_blocked"))
+                                message = "Your IP address has been blacklisted";
                             else
                                 message = "Error: " + message;
                         }
