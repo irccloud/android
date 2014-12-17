@@ -2282,6 +2282,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         getMenuInflater().inflate(R.menu.activity_message_search, menu);
         searchMenuItem = menu.findItem(R.id.action_search);
         searchView = (SearchView)MenuItemCompat.getActionView(searchMenuItem);
+        searchView.setMaxWidth(findViewById(R.id.toolbar).getWidth());
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
