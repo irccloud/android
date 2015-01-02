@@ -23,6 +23,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,6 +49,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
 import android.os.Debug;
 import android.os.Environment;
 import android.os.Looper;
@@ -3269,6 +3273,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } catch (Exception e) {
                 Crashlytics.logException(e);
+            }
+
+            try {
+                if (Build.VERSION.SDK_INT >= 16 && buffer != null && server != null) {
+                    NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+                    if (nfc != null) {
+                        String uri = "irc";
+                        if (server.ssl > 0)
+                            uri += "s";
+                        uri += "://" + server.hostname + ":" + server.port;
+                        if (buffer.type.equals("channel"))
+                            uri += "/" + URLEncoder.encode(buffer.name, "UTF-8");
+                        nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(uri)), this);
+                    }
+                }
+            } catch (Exception e) {
             }
         } else {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected but not found: bid" + bid + " shouldFadeIn: " + shouldFadeIn);

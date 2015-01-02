@@ -78,18 +78,18 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 21 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="play-services-wearable-6.5.87" level="project" />
     <orderEntry type="library" exported="" name="crashlytics-1.1.13" level="project" />
-    <orderEntry type="library" exported="" name="jackson-databind-2.3.2" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-21.0.2" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-21.0.2" level="project" />
-    <orderEntry type="library" exported="" name="jackson-annotations-2.3.0" level="project" />
-    <orderEntry type="library" exported="" name="dslv-0.6.3" level="project" />
-    <orderEntry type="library" exported="" name="play-services-base-6.5.87" level="project" />
-    <orderEntry type="library" exported="" name="jackson-core-2.3.2" level="project" />
-    <orderEntry type="library" exported="" name="appcompat-v7-21.0.2" level="project" />
     <orderEntry type="library" exported="" name="dashclock-api-2.0.0" level="project" />
+    <orderEntry type="library" exported="" name="jackson-databind-2.3.2" level="project" />
+    <orderEntry type="library" exported="" name="play-services-base-6.5.87" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-21.0.2" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-21.0.2" level="project" />
+    <orderEntry type="library" exported="" name="dslv-0.6.3" level="project" />
+    <orderEntry type="library" exported="" name="jackson-annotations-2.3.0" level="project" />
+    <orderEntry type="library" exported="" name="jackson-core-2.3.2" level="project" />
+    <orderEntry type="library" exported="" name="play-services-wearable-6.5.87" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-21.0.2" level="project" />
+    <orderEntry type="library" exported="" name="appcompat-v7-21.0.2" level="project" />
     <orderEntry type="module" module-name="android-websockets" exported="" />
   </component>
 </module>
