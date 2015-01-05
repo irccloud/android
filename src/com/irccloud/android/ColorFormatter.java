@@ -1102,6 +1102,7 @@ public class ColorFormatter {
         put("_(", "\uD83D\uDE2D");
         put(";)", "\uD83D\uDE09");
         put(";p", "\uD83D\uDE1C");
+        put("simple_smile", ":)");
     }};
 
     public static Pattern EMOJI = null;
