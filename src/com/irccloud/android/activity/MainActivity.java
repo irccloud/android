@@ -2923,7 +2923,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		if(event.html != null) {
             String html = event.html;
 
-            if(user != null) {
+            if(event.type.equals("buffer_msg") && user != null) {
                 if(html.startsWith("<b>")) {
                     String nick = event.html.substring(0, event.html.indexOf("</b>"));
                     if(!nick.contains(user.nick) && event.html.indexOf("</b>", nick.length() + 4) > 0)
