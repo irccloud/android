@@ -3283,8 +3283,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (server.ssl > 0)
                             uri += "s";
                         uri += "://" + server.hostname + ":" + server.port;
-                        if (buffer.type.equals("channel"))
+                        if (buffer.type.equals("channel")) {
                             uri += "/" + URLEncoder.encode(buffer.name, "UTF-8");
+                            ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
+                            if(c != null && c.hasMode("k"))
+                                uri += "," + c.paramForMode("k");
+                        }
                         nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(uri)), this);
                     }
                 }

@@ -20,6 +20,9 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -273,6 +276,16 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                     "</td></tr></table>" +
                     "</body>\n" +
                     "</html>", "text/html", "UTF-8",null);
+
+            try {
+                if (Build.VERSION.SDK_INT >= 16) {
+                    NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+                    if (nfc != null) {
+                        nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
+                    }
+                }
+            } catch (Exception e) {
+            }
         } catch (Exception e) {
             fail();
         }
