@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import java.util.*;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.ContentValues;
@@ -622,7 +623,10 @@ public class Notifications {
 
         int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
 		if(led_color == 1) {
-            builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS);
+            if(prefs.getBoolean("notify_vibrate", true))
+                builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS | android.app.Notification.DEFAULT_VIBRATE);
+            else
+                builder.setDefaults(android.app.Notification.DEFAULT_LIGHTS);
         } else if(led_color == 2) {
             builder.setLights(0xFF0000FF, 500, 500);
         }
@@ -821,6 +825,7 @@ public class Notifications {
                             wearBody = "— " + wearBody;
 
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+                                .setDefaults(android.app.Notification.DEFAULT_ALL)
                                 .setContentTitle(wearTitle)
                                 .setContentText(wearBody)
                                 .setWhen(n.eid / 1000)
