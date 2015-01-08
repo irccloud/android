@@ -166,7 +166,23 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
         }
 
 		try {
-            findPreference("version").setSummary(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+            final String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            findPreference("version").setSummary(version);
+            findPreference("version").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if(Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        clipboard.setText(version);
+                    } else {
+                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Version",version);
+                        clipboard.setPrimaryClip(clip);
+                    }
+                    Toast.makeText(PreferencesActivity.this, "Version number copied to clipboard", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
 		} catch (NameNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
