@@ -37,7 +37,7 @@
 		    android:defaultValue="true"/>
 		<CheckBoxPreference
 			android:key="kb_send"
-			android:defaultValue="true"
+			android:defaultValue="false"
 		    android:summaryOn="Send button will be displayed on the on-screen keyboard"
 		    android:summaryOff="Emoticon button will be displayed on the on-screen keyboard"
 			android:title="Show send button"/>

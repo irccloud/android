@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.content.Context;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
@@ -53,9 +54,11 @@ public class ActionEditText extends EditText
     public InputConnection onCreateInputConnection(EditorInfo outAttrs)
     {
         InputConnection conn = super.onCreateInputConnection(outAttrs);
-        outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
-        outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
-        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_send", true)) {
+        if(Build.VERSION.SDK_INT >= 11) {
+            outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_PREVIOUS;
+            outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NAVIGATE_NEXT;
+        }
+        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("kb_send", false)) {
             outAttrs.imeOptions &= ~EditorInfo.IME_FLAG_NO_ENTER_ACTION;
             outAttrs.inputType = EditorInfo.TYPE_CLASS_TEXT|EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT;
         } else {
