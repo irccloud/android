@@ -101,8 +101,9 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
         addPreferencesFromResource(R.xml.preferences_dashclock);
         findPreference("dashclock_showmsgs").setOnPreferenceChangeListener(dashclocktoggle);
         try {
-            getPackageManager().getPackageInfo("com.getpebble.android", 0);
-            addPreferencesFromResource(R.xml.preferences_pebble);
+            int pebbleVersion = getPackageManager().getPackageInfo("com.getpebble.android", 0).versionCode;
+            if(pebbleVersion < 553)
+                addPreferencesFromResource(R.xml.preferences_pebble);
         } catch (Exception e) {
         }
         boolean foundSony=false;

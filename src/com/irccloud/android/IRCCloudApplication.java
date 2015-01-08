@@ -144,6 +144,18 @@ public class IRCCloudApplication extends Application {
 		    }
 		}
 
+        if(prefs.contains("notify_pebble")) {
+            try {
+                int pebbleVersion = getPackageManager().getPackageInfo("com.getpebble.android", 0).versionCode;
+                if(pebbleVersion >= 553) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.remove("notify_pebble");
+                    editor.commit();
+                }
+            } catch (Exception e) {
+            }
+        }
+
         prefs = getSharedPreferences("prefs", 0);
         if(prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
