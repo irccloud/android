@@ -21,7 +21,7 @@
 
 -keep class com.irccloud.** { *; }
 -keepattributes *Annotation*,EnclosingMethod
--keepnames class com.fasterxml.jackson.** { *; }
+-keep class com.fasterxml.jackson.** { *; }
 -keepattributes SourceFile,LineNumberTable
 -dontwarn org.w3c.**
 -dontobfuscate
