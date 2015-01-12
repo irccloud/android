@@ -404,9 +404,15 @@ public class EventsDataSource {
                             e.msg = "exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>+e</font>)";
                             unknown = false;
                         } else if(op.get("mode").asText().equals("q")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>+q</font>)";
+                            if(op.get("param").asText().contains("@")) {
+                                e.nick = e.from;
+                                e.from = "";
+                                e.msg = "quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>+q</font>)";
+                            } else {
+                                e.type = "user_channel_mode";
+                                e.chan = event.getString("channel");
+                                e.nick = op.get("param").asText();
+                            }
                             unknown = false;
                         } else if(op.get("mode").asText().equals("I")) {
                             e.nick = e.from;
@@ -429,9 +435,15 @@ public class EventsDataSource {
                             e.msg = "un-exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>-e</font>)";
                             unknown = false;
                         } else if(op.get("mode").asText().equals("q")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "un-quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>-q</font>)";
+                            if(op.get("param").asText().contains("@")) {
+                                e.nick = e.from;
+                                e.from = "";
+                                e.msg = "un-quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>-q</font>)";
+                            } else {
+                                e.type = "user_channel_mode";
+                                e.chan = event.getString("channel");
+                                e.nick = op.get("param").asText();
+                            }
                             unknown = false;
                         } else if(op.get("mode").asText().equals("I")) {
                             e.nick = e.from;
