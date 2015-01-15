@@ -404,7 +404,7 @@ public class EventsDataSource {
                             e.msg = "exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>+e</font>)";
                             unknown = false;
                         } else if(op.get("mode").asText().equals("q")) {
-                            if(op.get("param").asText().contains("@")) {
+                            if(op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
                                 e.nick = e.from;
                                 e.from = "";
                                 e.msg = "quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>+q</font>)";
@@ -435,7 +435,7 @@ public class EventsDataSource {
                             e.msg = "un-exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>-e</font>)";
                             unknown = false;
                         } else if(op.get("mode").asText().equals("q")) {
-                            if(op.get("param").asText().contains("@")) {
+                            if(op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
                                 e.nick = e.from;
                                 e.from = "";
                                 e.msg = "un-quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>-q</font>)";
