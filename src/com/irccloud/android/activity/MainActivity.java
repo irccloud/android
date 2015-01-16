@@ -516,18 +516,46 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
         if (c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("Channel Topic");
-            if (c.topic_text.length() > 0) {
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+            View v = getLayoutInflater().inflate(R.layout.dialog_topic, null);
+            if(c.topic_text.length() > 0) {
                 String author = "";
                 if(c.topic_author != null && c.topic_author.length() > 0) {
-                    author = "<br/>— Set by " + c.topic_author;
+                    author = "— Set by " + c.topic_author;
                     if(c.topic_time > 0) {
                         author += " on " + DateFormat.getDateTimeInstance().format(new Date(c.topic_time * 1000));
                     }
+                    v.findViewById(R.id.setBy).setVisibility(View.VISIBLE);
+                    ((TextView)v.findViewById(R.id.setBy)).setText(author);
                 }
-                builder.setMessage(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)) + author, true, server));
-            } else
-                builder.setMessage("No topic set.");
+                ((TextView)v.findViewById(R.id.topic)).setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(c.topic_text), true, server));
+            } else {
+                ((TextView) v.findViewById(R.id.topic)).setText("No topic set.");
+            }
+            if(c.mode.length() > 0) {
+                v.findViewById(R.id.mode).setVisibility(View.VISIBLE);
+                ((TextView)v.findViewById(R.id.mode)).setText("Mode: +" + c.mode);
+
+                for(ChannelsDataSource.Mode m : c.modes) {
+                    if(m.mode.equals("i")) {
+                        v.findViewById(R.id.mode_i).setVisibility(View.VISIBLE);
+                    } else if(m.mode.equals("k")) {
+                        v.findViewById(R.id.mode_k).setVisibility(View.VISIBLE);
+                        ((TextView)v.findViewById(R.id.key)).setText(m.param);
+                    } else if(m.mode.equals("m")) {
+                        v.findViewById(R.id.mode_m).setVisibility(View.VISIBLE);
+                    } else if(m.mode.equals("n")) {
+                        v.findViewById(R.id.mode_n).setVisibility(View.VISIBLE);
+                    } else if(m.mode.equals("p")) {
+                        v.findViewById(R.id.mode_p).setVisibility(View.VISIBLE);
+                    } else if(m.mode.equals("s")) {
+                        v.findViewById(R.id.mode_s).setVisibility(View.VISIBLE);
+                    } else if(m.mode.equals("t")) {
+                        v.findViewById(R.id.mode_t).setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            builder.setView(v);
             builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
 
                 @Override
@@ -544,7 +572,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 
             if (canEditTopic) {
-                builder.setNeutralButton("Edit", new DialogInterface.OnClickListener() {
+                builder.setNeutralButton("Edit Topic", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -557,11 +585,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             dialog.setOwnerActivity(MainActivity.this);
             dialog.show();
 
-            if(Build.VERSION.SDK_INT < 11)
-                ((TextView) dialog.findViewById(android.R.id.message)).setTextColor(0xFFFFFFFF);
-
-            ((TextView) dialog.findViewById(android.R.id.message)).setLinkTextColor(getResources().getColor(R.color.dialogLinkColor));
-            ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(new LinkMovementMethod() {
+            ((TextView) v.findViewById(R.id.topic)).setMovementMethod(new LinkMovementMethod() {
                 @Override
                 public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
                     if(super.onTouchEvent(widget, buffer, event) && event.getAction() == MotionEvent.ACTION_UP) {
@@ -571,23 +595,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     return false;
                 }
             });
-        } else if (buffer != null && buffer.type.equals("channel") && buffer.archived == 0 && title.getText() != null && subtitle.getText() != null && subtitle.getText().length() > 0) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-            builder.setTitle(title.getText().toString());
-            final SpannableString s = new SpannableString(subtitle.getText().toString());
-            Linkify.addLinks(s, Linkify.WEB_URLS | Linkify.EMAIL_ADDRESSES);
-            builder.setMessage(s);
-            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            });
-            AlertDialog dialog = builder.create();
-            dialog.setOwnerActivity(MainActivity.this);
-            dialog.show();
-            ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
