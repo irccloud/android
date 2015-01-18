@@ -825,7 +825,6 @@ public class Notifications {
                             wearBody = "— " + wearBody;
 
                         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
-                                .setDefaults(android.app.Notification.DEFAULT_ALL)
                                 .setContentTitle(wearTitle)
                                 .setContentText(wearBody)
                                 .setWhen(n.eid / 1000)
