@@ -1313,7 +1313,7 @@ public class ColorFormatter {
                                     return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
                                 }
                             }
-                            return "http://" + url;
+                            return ((url.startsWith("irc.") && !url.contains("/"))?"irc://":"http://") + url;
                         }
                     });
 			//based on http://daringfireball.net/2010/07/improved_regex_for_matching_urls
