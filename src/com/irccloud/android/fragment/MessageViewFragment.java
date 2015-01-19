@@ -1582,7 +1582,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 	private synchronized void refresh(MessageAdapter adapter, TreeMap<Long,EventsDataSource.Event> events) {
         synchronized (adapterLock) {
             if(getActivity() != null)
-                textSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("textSize", 16);
+                textSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("textSize", getActivity().getResources().getInteger(R.integer.default_text_size));
             timestamp_width = -1;
             if(conn.getReconnectTimestamp() == 0)
                 conn.cancel_idle_timer(); //This may take a while...

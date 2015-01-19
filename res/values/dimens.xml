@@ -27,4 +27,6 @@
     <dimen name="status_bar_height">25dp</dimen>
     <dimen name="scrollbar_inset">0dp</dimen>
     <dimen name="scrollbar_size">2dp</dimen>
+    <integer name="default_text_size">14</integer>
+    <dimen name="message_row_spacing">0dp</dimen>
 </resources>

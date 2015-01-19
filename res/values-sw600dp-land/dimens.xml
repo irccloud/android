@@ -16,4 +16,6 @@
 
 <resources>
     <dimen name="drawer_width">200dp</dimen>
+    <integer name="default_text_size">16</integer>
+    <dimen name="message_row_spacing">4dp</dimen>
 </resources>
