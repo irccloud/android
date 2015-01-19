@@ -1255,7 +1255,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    				return open_bid(b.bid);
     			}
     		} else {
-				if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+				if(!getResources().getBoolean(R.bool.isTablet)) {
 					Intent i = new Intent(this, EditConnectionActivity.class);
 					i.putExtra("hostname", uri.getHost());
 					if(uri.getPort() > 0)
@@ -2616,7 +2616,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    		dialog.show();
             	return true;
             case R.id.menu_editconnection:
-				if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+				if(!getResources().getBoolean(R.bool.isTablet)) {
 					Intent i = new Intent(this, EditConnectionActivity.class);
 					i.putExtra("cid", buffer.cid);
 					startActivity(i);
@@ -2837,7 +2837,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 			            newFragment.show(getSupportFragmentManager(), "bufferoptions");
 	    			}
 	    		} else if(items[item].equals("Edit Connection…")) {
-                    if (getWindowManager().getDefaultDisplay().getWidth() < 800) {
+                    if (!getResources().getBoolean(R.bool.isTablet)) {
                         Intent i = new Intent(MainActivity.this, EditConnectionActivity.class);
                         i.putExtra("cid", b.cid);
                         startActivity(i);
@@ -3456,7 +3456,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(drawerLayout != null) {
             drawerLayout.closeDrawers();
         }
-        if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+        if(!getResources().getBoolean(R.bool.isTablet)) {
             Intent i = new Intent(this, ServerReorderActivity.class);
             startActivity(i);
         } else {

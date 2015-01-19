@@ -18,7 +18,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="20dp"
+    android:minHeight="24dp"
     android:orientation="horizontal">
 
     <TextView
@@ -47,7 +47,9 @@
         android:ellipsize="none"
         android:gravity="top"
         android:linksClickable="true"
+        android:lineSpacingExtra="4dp"
         android:paddingRight="8dp"
+        android:layout_marginBottom="4dp"
         android:layout_weight="1" />
 
     <ImageView

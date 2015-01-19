@@ -172,7 +172,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     			members.setChecked(true);
                 collapse.setChecked(true);
 	    	}
-            if(getActivity().getWindowManager().getDefaultDisplay().getWidth() < 800)
+            if(!getActivity().getResources().getBoolean(R.bool.isTablet))
                 members.setVisibility(View.GONE);
 		} catch (JSONException e) {
 			e.printStackTrace();

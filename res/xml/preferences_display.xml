@@ -39,7 +39,7 @@
         <com.robobunny.SeekBarPreference
             android:key="textSize"
             android:title="Text Size"
-            android:defaultValue="14"
+            android:defaultValue="16"
             android:max="24"
             robobunny:min="12"
             robobunny:unitsLeft=""

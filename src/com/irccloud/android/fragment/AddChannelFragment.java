@@ -97,7 +97,7 @@ public class AddChannelFragment extends DialogFragment {
     	b.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(getActivity().getWindowManager().getDefaultDisplay().getWidth() < 800) {
+				if(!getActivity().getResources().getBoolean(R.bool.isTablet)) {
 					Intent i = new Intent(getActivity(), EditConnectionActivity.class);
 					startActivity(i);
 				} else {
