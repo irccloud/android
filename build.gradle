@@ -1,17 +1,17 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { url 'http://download.crashlytics.com/maven' }
+        maven { url 'https://maven.fabric.io/public' }
 
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.0'
-        classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+        classpath 'io.fabric.tools:gradle:1.+'
 
     }
 }
 apply plugin: 'com.android.application'
-apply plugin: 'crashlytics'
+apply plugin: 'io.fabric'
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
@@ -19,7 +19,7 @@ tasks.withType(JavaCompile) {
 
 repositories {
     jcenter()
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 dependencies {
@@ -32,8 +32,10 @@ dependencies {
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile project(':android-websockets')
-    compile 'com.crashlytics.android:crashlytics:1.+'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.3.2'
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.0@aar') {
+        transitive = true;
+    }
 }
 
 def getRevision = { ->

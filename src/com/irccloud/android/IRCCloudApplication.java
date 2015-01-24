@@ -16,6 +16,7 @@
 
 package com.irccloud.android;
 
+import io.fabric.sdk.android.Fabric;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -81,7 +82,7 @@ public class IRCCloudApplication extends Application {
             try {
                 ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
                 if(ai.metaData.getString("com.crashlytics.ApiKey").length() > 0)
-                    Crashlytics.start(this);
+                    Fabric.with(this, new Crashlytics());
             } catch (Exception e) {
             }
         }
