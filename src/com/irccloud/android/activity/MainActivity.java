@@ -2853,13 +2853,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                     for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
                         if(b.unread == 1 && EventsDataSource.getInstance().lastEidForBuffer(b.bid) > 0) {
-                            cids.add(b.cid);
-                            bids.add(b.bid);
-                            eids.add(EventsDataSource.getInstance().lastEidForBuffer(b.bid));
                             b.unread = 0;
                             b.highlights = 0;
+                            b.last_seen_eid = EventsDataSource.getInstance().lastEidForBuffer(b.bid);
+                            cids.add(b.cid);
+                            bids.add(b.bid);
+                            eids.add(b.last_seen_eid);
                         }
                     }
+                    BuffersListFragment blf = (BuffersListFragment)getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+                    if(blf != null)
+                        blf.refresh();
                     conn.heartbeat(buffer.bid, cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
 	    		} else if(items[item].equals("Delete")) {
 	            	builder = new AlertDialog.Builder(MainActivity.this);

@@ -320,10 +320,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(refreshTask != null)
-                                refreshTask.cancel(true);
-                            refreshTask = new RefreshTask();
-                            refreshTask.execute((Void)null);
+                            refresh();
                         }
                     });
                 }
@@ -970,10 +967,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 		if(adapter != null)
 			adapter.showProgress(-1);
 
-		if(refreshTask != null)
-        	refreshTask.cancel(true);
-		refreshTask = new RefreshTask();
-		refreshTask.execute((Void)null);
+        refresh();
    }
     
     @Override
@@ -1004,10 +998,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             return;
     	case TYPE_ARCHIVES_HEADER:
     		mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
-            if(refreshTask != null)
-            	refreshTask.cancel(true);
-			refreshTask = new RefreshTask();
-			refreshTask.execute((Void)null);
+            refresh();
     		return;
         case TYPE_JOIN_CHANNEL:
             AddChannelFragment newFragment = new AddChannelFragment();
@@ -1059,6 +1050,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 if(adapter != null) {
                     JsonNode seenEids = object.getJsonNode("seenEids");
                     Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
+                    int count = 0;
                     while (iterator.hasNext()) {
                         Map.Entry<String, JsonNode> entry = iterator.next();
                         JsonNode eids = entry.getValue();
@@ -1069,7 +1061,16 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                             b = BuffersDataSource.getInstance().getBuffer(bid);
                             if (b != null)
                                 adapter.updateBuffer(b);
+                            count++;
                         }
+                    }
+                    if(count > 1) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                            refresh();
+                            }
+                        });
                     }
                 }
                 break;
@@ -1081,10 +1082,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(refreshTask != null)
-                                refreshTask.cancel(true);
-                            refreshTask = new RefreshTask();
-                            refreshTask.execute((Void)null);
+                            refresh();
                         }
                     });
                 }
@@ -1169,15 +1167,19 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(refreshTask != null)
-                                refreshTask.cancel(true);
-                            refreshTask = new RefreshTask();
-                            refreshTask.execute((Void)null);
+                            refresh();
                         }
                     });
                 }
 				break;
         }
+    }
+
+    public void refresh() {
+        if(refreshTask != null)
+            refreshTask.cancel(true);
+        refreshTask = new RefreshTask();
+        refreshTask.execute((Void)null);
     }
 
     public Resources getSafeResources() {
