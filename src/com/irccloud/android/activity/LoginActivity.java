@@ -61,7 +61,10 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
@@ -93,7 +96,9 @@ public class LoginActivity extends FragmentActivity {
     private LinearLayout signupHint = null;
     private LinearLayout enterpriseHint = null;
     private LinearLayout loginSignupHint = null;
-	
+
+    private String impression_id = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -457,8 +462,16 @@ public class LoginActivity extends FragmentActivity {
 
         if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
             NetworkConnection.getInstance().logout();
-            new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1","") + "&format=json");
+            new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1", "") + "&format=json");
             setIntent(new Intent(this, LoginActivity.class));
+        } else if(getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("referral")) {
+            new ImpressionTask().execute(getIntent().getDataString().substring(getIntent().getData().getScheme().length() + getIntent().getData().getHost().length() + 4));
+            if(getSharedPreferences("prefs", 0).contains("session_key")) {
+                Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(i);
+                finish();
+                return;
+            }
         } else if(getSharedPreferences("prefs", 0).contains("session_key")) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             if(getIntent() != null) {
@@ -470,7 +483,7 @@ public class LoginActivity extends FragmentActivity {
             startActivity(i);
             finish();
             return;
-    } else {
+        } else {
             connecting.setVisibility(View.GONE);
             login.setVisibility(View.VISIBLE);
             checkPlayServices();
@@ -513,7 +526,7 @@ public class LoginActivity extends FragmentActivity {
             }
             if(name.getVisibility() == View.VISIBLE) {
                 if (name.getText() != null && name.getText().length() > 0 && email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
-                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString());
+                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString(), (impression_id != null)?impression_id:"");
                 else
                     return null;
             } else {
@@ -628,6 +641,34 @@ public class LoginActivity extends FragmentActivity {
 				}
 			}
 		}
+    }
+
+    private class ImpressionTask extends AsyncTaskEx<String, Void, JSONObject> {
+        @Override
+        protected JSONObject doInBackground(String... arg0) {
+            try {
+                return NetworkConnection.getInstance().impression(AdvertisingIdClient.getAdvertisingIdInfo(LoginActivity.this).getId(), arg0[0], getSharedPreferences("prefs", 0).getString("session_key", ""));
+            } catch (IOException e) {
+            } catch (GooglePlayServicesNotAvailableException e) {
+                e.printStackTrace();
+            } catch (GooglePlayServicesRepairableException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public void onPostExecute(JSONObject result) {
+            if(result != null && result.has("success")) {
+                try {
+                    if(result.getBoolean("success")) {
+                        impression_id = result.getString("id");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private class AccessLinkTask extends AsyncTaskEx<String, Void, JSONObject> {
