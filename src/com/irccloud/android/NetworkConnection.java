@@ -133,8 +133,6 @@ public class NetworkConnection {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-	public static final int BACKLOG_BUFFER_MAX = 100;
-	
 	public static final int EVENT_CONNECTIVITY = 0;
 	public static final int EVENT_USERINFO = 1;
 	public static final int EVENT_MAKESERVER = 2;
@@ -2343,7 +2341,7 @@ public class NetworkConnection {
                 if((object.bid() > -1 || type.equals("backlog_complete")) && !type.equals("makebuffer") && !type.equals("channel_init")) {
                     currentcount++;
                     if(object.bid() != currentBid) {
-                        if(currentBid != -1 && currentcount >= BACKLOG_BUFFER_MAX) {
+                        if(currentBid != -1) {
                             EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
                         }
                         currentBid = object.bid();
@@ -2351,8 +2349,8 @@ public class NetworkConnection {
                         currentcount = 0;
                     }
                 }
-                if(numbuffers > 0 && currentcount < BACKLOG_BUFFER_MAX) {
-                    notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float)currentcount / (float)BACKLOG_BUFFER_MAX))/ numbuffers) * 1000.0f);
+                if(numbuffers > 0 && currentcount < 100) {
+                    notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float)currentcount / (float)100))/ numbuffers) * 1000.0f);
                 }
             } else if(accrued > 0) {
                 notifyHandlers(EVENT_PROGRESS, ((float)currentcount++ / (float)accrued) * 1000.0f);

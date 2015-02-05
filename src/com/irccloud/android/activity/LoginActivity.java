@@ -66,6 +66,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.grab.Grab.Grab;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -102,6 +103,8 @@ public class LoginActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(BuildConfig.GRAB_SECRET.length() > 0)
+            Grab.init(this, BuildConfig.GRAB_SECRET, false);
         if(Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xff0b2e60));
@@ -446,13 +449,31 @@ public class LoginActivity extends FragmentActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if(BuildConfig.GRAB_SECRET.length() > 0)
+            Grab.handleStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(BuildConfig.GRAB_SECRET.length() > 0)
+            Grab.handleStop();
+    }
+
+    @Override
     public void onPause() {
     	super.onPause();
+        if(BuildConfig.GRAB_SECRET.length() > 0)
+            Grab.handlePause();
     }
     
     @Override
     public void onResume() {
     	super.onResume();
+        if(BuildConfig.GRAB_SECRET.length() > 0)
+            Grab.handleResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if(prefs.getBoolean("screenlock", false)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -550,6 +571,12 @@ public class LoginActivity extends FragmentActivity {
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
 					editor.commit();
+
+                    if(name.getVisibility() == View.VISIBLE)
+                        Grab.signUp("");
+                    else
+                        Grab.login("");
+
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
