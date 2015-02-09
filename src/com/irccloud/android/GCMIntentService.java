@@ -119,10 +119,17 @@ public class GCMIntentService extends IntentService {
 
                                 if (from == null || from.length() == 0)
                                     Notifications.getInstance().showNotifications(server_name + ": " + msg);
-                                else if (buffer_type.equals("channel"))
-                                    Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
-                                else
-                                    Notifications.getInstance().showNotifications(from + ": " + msg);
+                                else if (buffer_type.equals("channel")) {
+                                    if(type.equals("buffer_me_msg"))
+                                        Notifications.getInstance().showNotifications(chan + ": — " + from + " " + msg);
+                                    else
+                                        Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
+                                } else {
+                                    if(type.equals("buffer_me_msg"))
+                                        Notifications.getInstance().showNotifications("— " + from + " " + msg);
+                                    else
+                                        Notifications.getInstance().showNotifications(from + ": " + msg);
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

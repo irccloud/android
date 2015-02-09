@@ -1863,9 +1863,12 @@ public class NetworkConnection {
                             message = ColorFormatter.html_to_spanned(message).toString();
                             Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.name, b.type, event.type);
                             if (!backlog) {
-                                if (b.type.equals("conversation"))
-                                    Notifications.getInstance().showNotifications(b.name + ": " + message);
-                                else if (b.type.equals("console")) {
+                                if (b.type.equals("conversation")) {
+                                    if(event.type.equals("buffer_me_msg"))
+                                        Notifications.getInstance().showNotifications("— " + b.name + " " + message);
+                                    else
+                                        Notifications.getInstance().showNotifications(b.name + ": " + message);
+                                } else if (b.type.equals("console")) {
                                     if (event.from == null || event.from.length() == 0) {
                                         ServersDataSource.Server s = ServersDataSource.getInstance().getServer(event.cid);
                                         if (s.name != null && s.name.length() > 0)
@@ -1875,8 +1878,12 @@ public class NetworkConnection {
                                     } else {
                                         Notifications.getInstance().showNotifications(event.from + ": " + message);
                                     }
-                                } else
-                                    Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
+                                } else {
+                                    if(event.type.equals("buffer_me_msg"))
+                                        Notifications.getInstance().showNotifications(b.name + ": — " + event.nick + " " + message);
+                                    else
+                                        Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
+                                }
                             }
                         }
                     } else {
