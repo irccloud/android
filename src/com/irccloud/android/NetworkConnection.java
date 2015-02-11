@@ -379,7 +379,7 @@ public class NetworkConnection {
 		public void onReceive(Context context, Intent intent) {
 			ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo ni = cm.getActiveNetworkInfo();
-			if(ni != null && ni.isConnected() && state == STATE_DISCONNECTED && session != null && handlers.size() > 0) {
+			if(ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0) {
                 if(idleTimerTask != null)
                     idleTimerTask.cancel();
 				connect(session);
@@ -547,11 +547,6 @@ public class NetworkConnection {
             if(!b.scrolledUp)
                 EventsDataSource.getInstance().pruneEvents(b.bid);
         }
-		try {
-			IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
-		} catch (IllegalArgumentException e) {
-			//The broadcast receiver hasn't been registered yet
-		}
 	}
 	
 	public JSONObject login(String email, String password) {
@@ -775,15 +770,7 @@ public class NetworkConnection {
         return null;
     }
 
-    public synchronized void connect(String sk) {
-        Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
-		session = sk;
-        String host = null;
-        int port = -1;
-
-        if(sk == null || sk.length() == 0)
-            return;
-
+    public void registerForConnectivity(Context ctx) {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -792,6 +779,24 @@ public class NetworkConnection {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void unregisterForConnectivity(Context ctx) {
+        try {
+            ctx.unregisterReceiver(connectivityListener);
+        } catch (IllegalArgumentException e) {
+            //The broadcast receiver hasn't been registered yet
+        }
+    }
+
+    public synchronized void connect(String sk) {
+        Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
+		session = sk;
+        String host = null;
+        int port = -1;
+
+        if(sk == null || sk.length() == 0)
+            return;
 
         if(ctx != null) {
             ConnectivityManager cm = (ConnectivityManager)ctx.getSystemService(Context.CONNECTIVITY_SERVICE);

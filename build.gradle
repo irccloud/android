@@ -37,7 +37,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.2.0@aar') {
         transitive = true;
     }
-    compile files('Grab_Android_v3.0.3.jar')
+    compile files('Grab_Android_v3.0.4.jar')
 }
 
 def getRevision = { ->

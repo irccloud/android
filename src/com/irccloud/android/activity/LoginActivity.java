@@ -573,9 +573,9 @@ public class LoginActivity extends FragmentActivity {
 					editor.commit();
 
                     if(name.getVisibility() == View.VISIBLE)
-                        Grab.signUp("");
+                        Grab.signUp("email");
                     else
-                        Grab.login("");
+                        Grab.login("email");
 
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

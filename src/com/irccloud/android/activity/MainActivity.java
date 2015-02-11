@@ -490,7 +490,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         countdownTimerTask.cancel();
                     countdownTimerTask =  new TimerTask(){
                         public void run() {
-                            if(conn != null && conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+                            if(conn != null) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -512,6 +512,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             getSupportActionBar().setTitle("Offline");
             progressBar.setIndeterminate(false);
             progressBar.setProgress(0);
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
         }
     }
 
@@ -1071,6 +1073,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onStart();
         if(BuildConfig.GRAB_SECRET.length() > 0)
             Grab.handleStart();
+        NetworkConnection.getInstance().registerForConnectivity(this);
     }
 
     @Override
@@ -1078,6 +1081,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onStop();
         if(BuildConfig.GRAB_SECRET.length() > 0)
             Grab.handleStop();
+        NetworkConnection.getInstance().unregisterForConnectivity(this);
     }
 
     @SuppressLint("NewApi")
