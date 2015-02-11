@@ -215,16 +215,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		}
 
 		public int insertLastSeenEIDMarker() {
-			EventsDataSource.Event e = new EventsDataSource.Event();
-			e.type = TYPE_LASTSEENEID;
-			e.row_type = ROW_LASTSEENEID;
-			e.bg_color = R.drawable.socketclosed_bg;
-			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).row_type == ROW_LASTSEENEID) {
-					data.remove(i);
-				}
-			}
-
             if(buffer == null)
                 return -1;
 
@@ -232,7 +222,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				lastSeenEidMarkerPosition = 0;
 			} else {
 				for(int i = data.size() - 1; i >= 0; i--) {
-					if(data.get(i).eid <= buffer.last_seen_eid) {
+					if(data.get(i).eid <= buffer.last_seen_eid && data.get(i).row_type != ROW_LASTSEENEID) {
 						lastSeenEidMarkerPosition = i;
 						break;
 					}
@@ -240,24 +230,51 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				if(lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
 					if(data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
 						lastSeenEidMarkerPosition--;
-					if(lastSeenEidMarkerPosition > 0)
-						data.add(lastSeenEidMarkerPosition + 1, e);
+					if(lastSeenEidMarkerPosition > 0) {
+                        EventsDataSource.Event e = new EventsDataSource.Event();
+                        e.bid = buffer.bid;
+                        e.cid = buffer.cid;
+                        e.eid = buffer.last_seen_eid + 1;
+                        e.type = TYPE_LASTSEENEID;
+                        e.row_type = ROW_LASTSEENEID;
+                        e.bg_color = R.drawable.socketclosed_bg;
+                        data.add(lastSeenEidMarkerPosition + 1, e);
+                        EventsDataSource.getInstance().addEvent(e);
+                        for(int i = 0; i < data.size(); i++) {
+                            if(data.get(i).row_type == ROW_LASTSEENEID && data.get(i) != e) {
+                                EventsDataSource.getInstance().deleteEvent(data.get(i).eid, buffer.bid);
+                                data.remove(i);
+                            }
+                        }
+                    }
 				} else {
 					lastSeenEidMarkerPosition = -1;
 				}
 			}
             if(lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition <= currentGroupPosition)
                 currentGroupPosition++;
+
+            if(lastSeenEidMarkerPosition == -1) {
+                for(int i = data.size() - 1; i >= 0; i--) {
+                    if(data.get(i).row_type == ROW_LASTSEENEID) {
+                        lastSeenEidMarkerPosition = i;
+                        break;
+                    }
+                }
+            }
 			return lastSeenEidMarkerPosition;
 		}
 		
 		public void clearLastSeenEIDMarker() {
 			for(int i = 0; i < data.size(); i++) {
 				if(data.get(i).row_type == ROW_LASTSEENEID) {
+                    EventsDataSource.getInstance().deleteEvent(data.get(i).eid, buffer.bid);
 					data.remove(i);
 				}
 			}
-			lastSeenEidMarkerPosition = -1;
+            if(lastSeenEidMarkerPosition > 0)
+    			lastSeenEidMarkerPosition = -1;
+            notifyDataSetChanged();
 		}
 		
 		public int getLastSeenEIDPosition() {
@@ -397,7 +414,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			} else if(currentCollapsedEid == -1) {
 				currentGroupPosition = -1;
 			}
-			
+
 			if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
                 if(formatter == null)
     				formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
@@ -869,6 +886,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	if(tapTimerTask != null)
     		tapTimerTask.cancel();
     	tapTimerTask = null;
+        if(buffer != null && buffer.bid != args.getInt("bid", -1) && adapter != null)
+            adapter.clearLastSeenEIDMarker();
         buffer = BuffersDataSource.getInstance().getBuffer(args.getInt("bid", -1));
         if(buffer != null) {
             server = ServersDataSource.getInstance().getServer(buffer.cid);
@@ -1215,6 +1234,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(event.highlight)
                         newHighlights++;
                     update_unread();
+                    adapter.insertLastSeenEIDMarker();
                 }
                 if(!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
@@ -1301,6 +1321,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 else if (e.eid != group)
                                                     expandedSectionEids.add(group);
                                                 if (e.eid != e.group_eid) {
+                                                    adapter.clearLastSeenEIDMarker();
                                                     if (refreshTask != null)
                                                         refreshTask.cancel(true);
                                                     refreshTask = new RefreshTask();
@@ -1330,21 +1351,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
     
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {
+        BuffersDataSource.Buffer b;
 
-    	@Override
-    	protected void onPreExecute() {
-            //if(buffer != null)
-            //    Log.d("IRCCloud", "Heartbeat task created. Ready: " + ready + " BID: " + buffer.bid);
-    	}
-    	
+        public HeartbeatTask() {
+            b = buffer;
+            /*if(buffer != null)
+                Log.d("IRCCloud", "Heartbeat task created. Ready: " + ready + " BID: " + buffer.bid);
+            Thread.dumpStack();*/
+        }
+
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
-				Thread.sleep(250);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 			}
 
-			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED)
+			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null)
 				return null;
 
             if(getActivity() != null) {
@@ -1365,13 +1388,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(events != null && events.size() > 0) {
                     Long eid = events.get(events.lastKey()).eid;
 
-                    if(eid >= buffer.last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    if(eid >= b.last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         if(getActivity() != null && getActivity().getIntent() != null)
                             getActivity().getIntent().putExtra("last_seen_eid", eid);
-                        NetworkConnection.getInstance().heartbeat(buffer.cid, buffer.bid, eid);
-                        BuffersDataSource.getInstance().updateLastSeenEid(buffer.bid, eid);
-                        buffer.unread = 0;
-                        buffer.highlights = 0;
+                        NetworkConnection.getInstance().heartbeat(b.cid, b.bid, eid);
+                        BuffersDataSource.getInstance().updateLastSeenEid(b.bid, eid);
+                        b.unread = 0;
+                        b.highlights = 0;
+                        //Log.e("IRCCloud", "Heartbeat: " + buffer.name + ": " + events.get(events.lastKey()).msg);
                     }
                 }
             } catch (Exception e) {
@@ -1741,7 +1765,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 } else {
                     if(markerPos > 0) {
                         hideView(unreadTopView);
-                        if(adapter.data.size() > 0) {
+                        if(adapter.data.size() > 0 && ready) {
                             if(heartbeatTask != null)
                                 heartbeatTask.cancel(true);
                             heartbeatTask = new HeartbeatTask();
@@ -2065,14 +2089,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CONNECTIVITY:
             case NetworkConnection.EVENT_USERINFO:
-                runOnUiThread(new Runnable() {
+                if(ready)
+                    runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         if(refreshTask != null)
                             refreshTask.cancel(true);
                         refreshTask = new RefreshTask();
                         refreshTask.execute((Void)null);
-                    }
+                            }
                 });
                 break;
             case NetworkConnection.EVENT_CONNECTIONLAG:
