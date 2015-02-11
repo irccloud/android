@@ -274,7 +274,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			}
             if(lastSeenEidMarkerPosition > 0)
     			lastSeenEidMarkerPosition = -1;
-            notifyDataSetChanged();
 		}
 		
 		public int getLastSeenEIDPosition() {
@@ -1235,6 +1234,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         newHighlights++;
                     update_unread();
                     adapter.insertLastSeenEIDMarker();
+                    adapter.notifyDataSetChanged();
                 }
                 if(!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
@@ -1367,7 +1367,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			} catch (InterruptedException e) {
 			}
 
-			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null)
+			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null || !ready)
 				return null;
 
             if(getActivity() != null) {
@@ -2089,10 +2089,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CONNECTIVITY:
             case NetworkConnection.EVENT_USERINFO:
-                if(ready)
-                    runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+                runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
                         if(refreshTask != null)
                             refreshTask.cancel(true);
                         refreshTask = new RefreshTask();
