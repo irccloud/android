@@ -1316,9 +1316,9 @@ public class ColorFormatter {
                             url = "http://" + url;
                     }
 
-                    if(quotes.containsKey(url.substring(url.length() - 1))) {
-                        char close = url.substring(url.length() - 1).charAt(0);
-                        char open = quotes.get(url.substring(url.length() - 1)).charAt(0);
+                    if(quotes.containsKey(String.valueOf(url.charAt(url.length() - 1)))) {
+                        char close = url.charAt(url.length() - 1);
+                        char open = quotes.get(String.valueOf(url.charAt(url.length() - 1))).charAt(0);
                         int countOpen = 0, countClose = 0;
                         for(int i = 0; i < url.length(); i++) {
                             char c = url.charAt(i);
@@ -1388,17 +1388,46 @@ public class ColorFormatter {
                     });
         }
 
-        for (URLSpan u: output.getSpans(0, output.length(), URLSpan.class)) {
-            output.setSpan(new UnderlineSpan() {
-                public void updateDrawState(TextPaint tp) {
-                    tp.setUnderlineText(false);
+        URLSpan[] spans = output.getSpans(0, output.length(), URLSpan.class);
+        for (URLSpan span: spans) {
+            int start = output.getSpanStart(span);
+            int end = output.getSpanEnd(span);
+            output.removeSpan(span);
+
+            if(quotes.containsKey(String.valueOf(output.charAt(end-1)))) {
+                char close = output.charAt(end-1);
+                char open = quotes.get(String.valueOf(output.charAt(end-1))).charAt(0);
+                int countOpen = 0, countClose = 0;
+                for(int i = start; i < end; i++) {
+                    char c = output.charAt(i);
+                    if(c == open)
+                        countOpen++;
+                    else if(c == close)
+                        countClose++;
                 }
-            }, output.getSpanStart(u), output.getSpanEnd(u), 0);
+                if(countOpen != countClose) {
+                    end--;
+                }
+            }
+
+            span = new URLSpanNoUnderline(span.getURL());
+            output.setSpan(span, start, end, 0);
         }
 
 		return output;
 	}
-	
+
+    private static class URLSpanNoUnderline extends URLSpan {
+        public URLSpanNoUnderline(String url) {
+            super(url);
+        }
+        @Override public void updateDrawState(TextPaint ds) {
+            boolean keepUnderline = ds.isUnderlineText();
+            super.updateDrawState(ds);
+            ds.setUnderlineText(keepUnderline);
+        }
+    }
+
 	public static String irc_to_html(String msg) {
 		int pos=0;
 		boolean bold=false, underline=false, italics=false;
