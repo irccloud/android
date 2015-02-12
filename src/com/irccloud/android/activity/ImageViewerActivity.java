@@ -244,13 +244,13 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 }
             } else if((lower.startsWith("d.pr/i/") || lower.startsWith("droplr.com/i/")) && !lower.endsWith("+")) {
                 url += "+";
-            } else if(lower.startsWith("imgur.com/")) {
+            } else if(lower.startsWith("imgur.com/") || lower.startsWith("www.imgur.com/")) {
                 new OEmbedTask().execute("https://api.imgur.com/oembed.json?url=" + url);
                 return;
             } else if(lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
                 return;
-            } else if(lower.startsWith("instagram.com/") || lower.startsWith("www.instagram.com/") || lower.startsWith("instagr.am/")) {
+            } else if(lower.startsWith("instagram.com/") || lower.startsWith("www.instagram.com/") || lower.startsWith("instagr.am/") || lower.startsWith("www.instagr.am/")) {
                 new OEmbedTask().execute("http://api.instagram.com/oembed?url=" + url);
                 return;
             } else if(lower.startsWith("cl.ly")) {
@@ -258,6 +258,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 return;
             } else if(url.contains("/wiki/File:")) {
                 new WikiTask().execute(url.replace("/wiki/", "/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles="));
+            } else if(lower.startsWith("leetfiles.com/") || lower.startsWith("www.leetfiles.com/")) {
+                url = url.replace("www.","").replace("leetfiles.com/image/", "i.leetfiles.com/").replace("?id=", "");
             }
             loadImage(url);
         } else {
