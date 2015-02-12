@@ -1349,6 +1349,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
     	update_global_msg();
+        if(buffer != null && adapter != null && buffer.unread == 0 && !buffer.scrolledUp) {
+            adapter.clearLastSeenEIDMarker();
+            adapter.notifyDataSetChanged();
+        }
     }
     
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {
