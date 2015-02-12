@@ -260,6 +260,8 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 new WikiTask().execute(url.replace("/wiki/", "/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles="));
             } else if(lower.startsWith("leetfiles.com/") || lower.startsWith("www.leetfiles.com/")) {
                 url = url.replace("www.","").replace("leetfiles.com/image/", "i.leetfiles.com/").replace("?id=", "");
+            } else if(lower.startsWith("leetfil.es/") || lower.startsWith("www.leetfil.es/")) {
+                url = url.replace("www.","").replace("leetfil.es/image/", "i.leetfiles.com/").replace("?id=", "");
             }
             loadImage(url);
         } else {
