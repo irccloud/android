@@ -24,7 +24,7 @@
 -keep class com.fasterxml.jackson.** { *; }
 -keepattributes SourceFile,LineNumberTable
 -dontwarn org.w3c.**
--keep class com.grab.** { *; }
+-keep class com.google.android.gms.ads.identifier.** { *; }
 -dontwarn com.android.vending.billing.**
 -dontobfuscate
 
