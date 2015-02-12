@@ -51,6 +51,7 @@ def getRevision = { ->
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
+    testBuildType 'debugTest'
 
     defaultConfig {
         versionCode 26
@@ -229,6 +230,12 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+
+        debugTest.initWith(debug)
+        debugTest {
+            minifyEnabled false
+            shrinkResources false
         }
     }
 

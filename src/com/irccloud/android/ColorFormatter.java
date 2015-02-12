@@ -89,8 +89,8 @@ public class ColorFormatter {
                     + "[0-9]{2}|[1-9][0-9]|[1-9]|0)\\.(?:25[0-5]|2[0-4][0-9]|[0-1][0-9]{2}"
                     + "|[1-9][0-9]|[0-9])))"
                     + "(?:\\:\\d{1,5})?)" // plus option port number
-                    + "(\\/(?:(?:[" + GOOD_IRI_CHAR + "\\;\\/\\?\\:\\@\\&\\=\\#\\~\\$"  // plus option query params
-                    + "\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_\\^])|(?:\\%[a-fA-F0-9]{2}))*)?"
+                    + "([\\/\\?\\#](?:(?:[" + GOOD_IRI_CHAR + "\\;\\/\\?\\:\\@\\&\\=\\#\\~\\$"  // plus option query params
+                    + "\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_\\^\\{\\}\\[\\]\\<\\>])|(?:\\%[a-fA-F0-9]{2}))*)?"
                     + "(?:\\b|$)");
 
 	private static final String[] COLOR_MAP = {
@@ -1316,9 +1316,15 @@ public class ColorFormatter {
                             url = "http://" + url;
                     }
 
-                    if(quotes.containsKey(String.valueOf(url.charAt(url.length() - 1)))) {
-                        char close = url.charAt(url.length() - 1);
-                        char open = quotes.get(String.valueOf(url.charAt(url.length() - 1))).charAt(0);
+                    char last = url.charAt(url.length() - 1);
+                    if(isPunctuation(last)) {
+                        url = url.substring(0, url.length() - 1);
+                        last = url.charAt(url.length() - 1);
+                    }
+
+                    if(quotes.containsKey(String.valueOf(last))) {
+                        char close = last;
+                        char open = quotes.get(String.valueOf(last)).charAt(0);
                         int countOpen = 0, countClose = 0;
                         for(int i = 0; i < url.length(); i++) {
                             char c = url.charAt(i);
@@ -1336,7 +1342,7 @@ public class ColorFormatter {
                         String lower = url.toLowerCase();
                         if (lower.contains("?"))
                             lower = lower.substring(0, lower.indexOf("?"));
-                        if (lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
+                        if (lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|(^.*\\/.*\\.bmp$)|" +
                                         "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
                                         "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
                                         "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
@@ -1394,6 +1400,10 @@ public class ColorFormatter {
             int end = output.getSpanEnd(span);
             output.removeSpan(span);
 
+            char last = output.charAt(end-1);
+            if(isPunctuation(last))
+                end--;
+
             if(quotes.containsKey(String.valueOf(output.charAt(end-1)))) {
                 char close = output.charAt(end-1);
                 char open = quotes.get(String.valueOf(output.charAt(end-1))).charAt(0);
@@ -1417,7 +1427,11 @@ public class ColorFormatter {
 		return output;
 	}
 
-    private static class URLSpanNoUnderline extends URLSpan {
+    private static boolean isPunctuation(char c) {
+        return (c == '.' || c == '!' || c == '?' || c == ',');
+    }
+
+    public static class URLSpanNoUnderline extends URLSpan {
         public URLSpanNoUnderline(String url) {
             super(url);
         }
