@@ -1363,7 +1363,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
-				Thread.sleep(500);
+				Thread.sleep(250);
 			} catch (InterruptedException e) {
 			}
 

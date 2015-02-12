@@ -1146,6 +1146,18 @@ public class ColorFormatter {
         put("\u3299\uFE0F", "\u3299"); // SECRET
     }};
 
+    public static final HashMap<String,String> quotes = new HashMap<String, String>(){{
+        put("\"", "\"");
+        put("'", "'");
+        put(")", "(");
+        put("]", "[");
+        put("}", "{");
+        put(">", "<");
+        put("”", "”");
+        put("’", "’");
+        put("»", "«");
+    }};
+
     public static Pattern CONVERSION = null;
 
     public static void init() {
@@ -1282,69 +1294,59 @@ public class ColorFormatter {
 
 		if(linkify) {
             Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {
-		        public final boolean acceptMatch(CharSequence s, int start, int end) {
-		        	if(start >= 6 && s.subSequence(start - 6, end).toString().toLowerCase().startsWith("irc://"))
-		        		return false;
-		        	if(start >= 7 && s.subSequence(start - 7, end).toString().toLowerCase().startsWith("ircs://"))
-		        		return false;
-		        	if(s.subSequence(start, end).toString().toLowerCase().startsWith("https://"))
-		        		return false;
-		        	if(s.subSequence(start, end).toString().toLowerCase().startsWith("http://"))
-		        		return false;
-                    if(start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
+                public final boolean acceptMatch(CharSequence s, int start, int end) {
+                    if (start >= 6 && s.subSequence(start - 6, end).toString().toLowerCase().startsWith("irc://"))
                         return false;
-		        	return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
-		        }
-		    }, new TransformFilter() {
-                        @Override
-                        public String transformUrl(Matcher match, String url) {
-                            if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
-                                String lower = url.toLowerCase();
-                                if(lower.contains("?"))
-                                    lower = lower.substring(0, lower.indexOf("?"));
-                                if(lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
-                                        "(^(www\\.)?flickr\\.com/photos/.*$)|" +
-                                        "(^(www\\.)?instagram\\.com/p/.*$)|(^(www\\.)?instagr\\.am/p/.*$)|" +
-                                        "(^(www\\.)?imgur\\.com/(?!a/).*$)|" +
-                                        "(^d\\.pr/i/.*)|(^droplr\\.com/i/.*)|"+
-                                        "(^cl\\.ly/.*)|" +
-                                        "(^.*\\.steampowered\\.com/ugc/.*)"
-                                        ) && !lower.matches("(^cl\\.ly/robots\\.txt$)|(^cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
-                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url;
-                                }
-                            }
-                            return ((url.startsWith("irc.") && !url.contains("/"))?"irc://":"http://") + url;
-                        }
-                    });
-			//based on http://daringfireball.net/2010/07/improved_regex_for_matching_urls
-			Linkify.addLinks(output, Pattern.compile("https?://(" +
-                    "(?:|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)" +
-                    "(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))" +
-                    "+(?:(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))", Pattern.CASE_INSENSITIVE), null, null, new TransformFilter() {
+                    if (start >= 7 && s.subSequence(start - 7, end).toString().toLowerCase().startsWith("ircs://"))
+                        return false;
+                    if (start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
+                        return false;
+                    return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
+                }
+            }, new TransformFilter() {
                 @Override
                 public String transformUrl(Matcher match, String url) {
-                    if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
+                    if (!url.contains("://")) {
+                        if(url.toLowerCase().startsWith("irc."))
+                            url = "irc://" + url;
+                        else
+                            url = "http://" + url;
+                    }
+
+                    if(quotes.containsKey(url.substring(url.length() - 1))) {
+                        char close = url.substring(url.length() - 1).charAt(0);
+                        char open = quotes.get(url.substring(url.length() - 1)).charAt(0);
+                        int countOpen = 0, countClose = 0;
+                        for(int i = 0; i < url.length(); i++) {
+                            char c = url.charAt(i);
+                            if(c == open)
+                                countOpen++;
+                            else if(c == close)
+                                countClose++;
+                        }
+                        if(countOpen != countClose) {
+                            url = url.substring(0, url.length() - 1);
+                        }
+                    }
+
+                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("imageviewer", true)) {
                         String lower = url.toLowerCase();
-                        if(lower.contains("?"))
+                        if (lower.contains("?"))
                             lower = lower.substring(0, lower.indexOf("?"));
-                        if(lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
-                                "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
-                                "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
-                                "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
-                                "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|"+
-                                "(^https?://cl\\.ly/.*)|" +
-                                "(^https?://.*\\.steampowered\\.com/ugc/.*)"
+                        if (lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|" +
+                                        "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
+                                        "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
+                                        "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
+                                        "(^https?://d\\.pr/i/.*)|(^https?://droplr\\.com/i/.*)|" +
+                                        "(^https?://cl\\.ly/.*)|" +
+                                        "(^https?://.*\\.steampowered\\.com/ugc/.*)"
                         ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
-                            if(lower.startsWith("http://"))
+                            if (lower.startsWith("http://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME) + "://" + url.substring(7);
-                            else if(lower.startsWith("https://"))
+                            else if (lower.startsWith("https://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
                         }
                     }
-                    if(url.toLowerCase().startsWith("https:"))
-                        url = "https" + url.substring(5);
-                    else
-                        url = "http" + url.substring(4);
                     return url;
                 }
             });
