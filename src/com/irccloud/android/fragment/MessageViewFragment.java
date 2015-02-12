@@ -806,13 +806,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if(!ready || buffer == null || !conn.ready || adapter == null)
+            if(!ready || buffer == null || !conn.ready || adapter == null || requestingBacklog)
                 return;
 
             if(headerView != null && buffer.min_eid > 0 && conn.ready) {
-				if(firstVisibleItem == 0 && !requestingBacklog && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+				if(firstVisibleItem == 0 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 					requestingBacklog = true;
 					conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
+                    return;
 				}
 			}
 			
@@ -1367,7 +1368,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			} catch (InterruptedException e) {
 			}
 
-			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null || !ready)
+			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null || !ready || requestingBacklog)
 				return null;
 
             if(getActivity() != null) {

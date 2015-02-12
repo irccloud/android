@@ -71,7 +71,6 @@ import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.grab.Grab.Grab;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
@@ -231,8 +230,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(BuildConfig.GRAB_SECRET.length() > 0)
-            Grab.init(this, BuildConfig.GRAB_SECRET, false);
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenReceiver, filter);
@@ -1068,28 +1065,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     	}
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if(BuildConfig.GRAB_SECRET.length() > 0)
-            Grab.handleStart();
-        NetworkConnection.getInstance().registerForConnectivity(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(BuildConfig.GRAB_SECRET.length() > 0)
-            Grab.handleStop();
-        NetworkConnection.getInstance().unregisterForConnectivity(this);
-    }
-
     @SuppressLint("NewApi")
 	@Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
-        if(BuildConfig.GRAB_SECRET.length() > 0)
-            Grab.handleResume();
     	conn = NetworkConnection.getInstance();
     	conn.addHandler(this);
 
@@ -1204,8 +1183,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onPause() {
     	super.onPause();
-        if(BuildConfig.GRAB_SECRET.length() > 0)
-            Grab.handlePause();
         if(imgurTask != null)
             imgurTask.setActivity(null);
         if(fileUploadTask != null)
