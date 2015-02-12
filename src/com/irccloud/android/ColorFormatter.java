@@ -32,7 +32,10 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.URLSpan;
+import android.text.style.UnderlineSpan;
 import android.text.util.Linkify;
 import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
@@ -1383,6 +1386,14 @@ public class ColorFormatter {
                             return "irc://" + server.cid + "/" + channel;
                         }
                     });
+        }
+
+        for (URLSpan u: output.getSpans(0, output.length(), URLSpan.class)) {
+            output.setSpan(new UnderlineSpan() {
+                public void updateDrawState(TextPaint tp) {
+                    tp.setUnderlineText(false);
+                }
+            }, output.getSpanStart(u), output.getSpanEnd(u), 0);
         }
 
 		return output;
