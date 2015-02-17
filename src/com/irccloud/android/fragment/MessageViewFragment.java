@@ -820,7 +820,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 			if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
 				if(firstVisibleItem + visibleItemCount == totalItemCount) {
                     unreadBottomView.setVisibility(View.GONE);
-					if(unreadTopView.getVisibility() == View.GONE) {
+					if(unreadTopView.getVisibility() == View.GONE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
 	    				if(heartbeatTask != null)
 	    					heartbeatTask.cancel(true);
 	    				heartbeatTask = new HeartbeatTask();
@@ -847,10 +847,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 					markerPos = adapter.getLastSeenEIDPosition();
 	    		if(markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
                     unreadTopView.setVisibility(View.GONE);
-    				if(heartbeatTask != null)
-    					heartbeatTask.cancel(true);
-    				heartbeatTask = new HeartbeatTask();
-    				heartbeatTask.execute((Void)null);
+                    if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                        if (heartbeatTask != null)
+                            heartbeatTask.cancel(true);
+                        heartbeatTask = new HeartbeatTask();
+                        heartbeatTask.execute((Void) null);
+                    }
 	    		}
 			}
 		}
