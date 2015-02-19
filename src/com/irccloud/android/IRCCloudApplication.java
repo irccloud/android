@@ -64,6 +64,7 @@ public class IRCCloudApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
         instance = this;
+        Fabric.with(this, new Crashlytics());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
         System.setProperty("http.keepAlive", "false");
@@ -78,14 +79,6 @@ public class IRCCloudApplication extends Application {
         ColorFormatter.init();
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if(prefs.getBoolean("acra.enable", true)) {
-            try {
-                ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
-                if(ai.metaData.getString("com.crashlytics.ApiKey").length() > 0)
-                    Fabric.with(this, new Crashlytics());
-            } catch (Exception e) {
-            }
-        }
 
         if(prefs.contains("notify")) {
 			SharedPreferences.Editor editor = prefs.edit();
@@ -155,6 +148,12 @@ public class IRCCloudApplication extends Application {
                 }
             } catch (Exception e) {
             }
+        }
+
+        if(prefs.contains("acra.enable")) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove("acra.enable");
+            editor.commit();
         }
 
         prefs = getSharedPreferences("prefs", 0);
