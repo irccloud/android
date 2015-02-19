@@ -56,7 +56,7 @@ android {
     defaultConfig {
         versionCode 27
         versionName "1.18"
-        minSdkVersion 10
+        minSdkVersion 9
         targetSdkVersion 21
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"

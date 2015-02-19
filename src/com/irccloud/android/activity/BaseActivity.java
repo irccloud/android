@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.*;
 
 import android.app.AlertDialog;
@@ -36,13 +37,32 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
+import java.lang.reflect.Field;
+
 public class BaseActivity extends ActionBarActivity implements NetworkConnection.IRCEventHandler{
 	NetworkConnection conn;
     private View dialogTextPrompt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (isMenuWorkaroundRequired()) {
+            forceOverflowMenu();
+        }
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return (keyCode == KeyEvent.KEYCODE_MENU && isMenuWorkaroundRequired()) || super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU && isMenuWorkaroundRequired()) {
+            openOptionsMenu();
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     public View getDialogTextPrompt() {
@@ -375,5 +395,28 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
             	break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //Work around for buggy LG devices, see https://code.google.com/p/android/issues/detail?id=78154
+    public static boolean isMenuWorkaroundRequired() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT &&
+                Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1 &&
+                ("LGE".equalsIgnoreCase(Build.MANUFACTURER) || "E6710".equalsIgnoreCase(Build.DEVICE));
+    }
+
+    /**
+     * Modified from: http://stackoverflow.com/a/13098824
+     */
+    public void forceOverflowMenu() {
+        try {
+            ViewConfiguration config = ViewConfiguration.get(this);
+            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+            if(menuKeyField != null) {
+                menuKeyField.setAccessible(true);
+                menuKeyField.setBoolean(config, false);
+            }
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            Log.w("IRCCloud", "Failed to force overflow menu.");
+        }
     }
 }

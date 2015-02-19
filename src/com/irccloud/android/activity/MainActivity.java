@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -224,7 +225,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private int greyColor = 0;
 
     private HashMap<Integer, EventsDataSource.Event> pendingEvents = new HashMap<Integer, EventsDataSource.Event>();
-	
+
     @SuppressLint("NewApi")
 	@SuppressWarnings({ "deprecation", "unchecked" })
 	@Override
