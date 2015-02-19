@@ -1314,6 +1314,11 @@ public class ColorFormatter {
                             url = "irc://" + url;
                         else
                             url = "http://" + url;
+                    } else {
+                        if(url.startsWith("Http"))
+                            url = "h" + url.substring(1);
+                        else if(url.startsWith("Rtsp"))
+                            url = "r" + url.substring(1);
                     }
 
                     char last = url.charAt(url.length() - 1);
