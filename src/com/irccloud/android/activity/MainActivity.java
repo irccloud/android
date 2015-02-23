@@ -395,6 +395,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 upDrawable = new DrawerArrowDrawable(this);
                 greyColor = upDrawable.getColor();
                 ((Toolbar)findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
+                ((Toolbar)findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
                 drawerLayout.setDrawerListener(mDrawerListener);
                 if (refreshUpIndicatorTask != null)
                     refreshUpIndicatorTask.cancel(true);

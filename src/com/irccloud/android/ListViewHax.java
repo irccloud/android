@@ -19,6 +19,7 @@ package com.irccloud.android;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ListView;
 
 /**
@@ -61,6 +62,15 @@ public class ListViewHax extends ListView {
                 setSelectionFromTop(bottomPos, h - bottomOffset);
             else
                 setSelection(getCount() - 1);
+        }
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfoForItem (View view, int position, AccessibilityNodeInfo info) {
+        try {
+            super.onInitializeAccessibilityNodeInfoForItem(view, position, info);
+        } catch (Exception e) {
+            //Work around an Android bug
         }
     }
 }
