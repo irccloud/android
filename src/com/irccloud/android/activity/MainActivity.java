@@ -2433,36 +2433,38 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            if (imageCaptureURI != null) {
-                if(!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
-                    new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
-                } else {
-                    fileUploadTask = new FileUploadTask(imageCaptureURI);
-                    fileUploadTask.execute((Void) null);
-                }
+        if(buffer != null) {
+            if (requestCode == 1 && resultCode == RESULT_OK) {
+                if (imageCaptureURI != null) {
+                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                        new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
+                    } else {
+                        fileUploadTask = new FileUploadTask(imageCaptureURI);
+                        fileUploadTask.execute((Void) null);
+                    }
 
-                if(PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
-                    ContentValues image = new ContentValues();
-                    image.put(MediaStore.Images.Media.DATA, imageCaptureURI.toString().substring(7));
-                    getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image);
+                    if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
+                        ContentValues image = new ContentValues();
+                        image.put(MediaStore.Images.Media.DATA, imageCaptureURI.toString().substring(7));
+                        getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image);
+                    }
                 }
-            }
-        } else if (requestCode == 2 && resultCode == RESULT_OK) {
-            Uri selectedImage = imageReturnedIntent.getData();
-            if (selectedImage != null) {
-                if(!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
-                    new ImgurRefreshTask(selectedImage).execute((Void) null);
-                } else {
-                    fileUploadTask = new FileUploadTask(selectedImage);
+            } else if (requestCode == 2 && resultCode == RESULT_OK) {
+                Uri selectedImage = imageReturnedIntent.getData();
+                if (selectedImage != null) {
+                    if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                        new ImgurRefreshTask(selectedImage).execute((Void) null);
+                    } else {
+                        fileUploadTask = new FileUploadTask(selectedImage);
+                        fileUploadTask.execute((Void) null);
+                    }
+                }
+            } else if (requestCode == 3 && resultCode == RESULT_OK) {
+                Uri selectedFile = imageReturnedIntent.getData();
+                if (selectedFile != null) {
+                    fileUploadTask = new FileUploadTask(selectedFile);
                     fileUploadTask.execute((Void) null);
                 }
-            }
-        } else if (requestCode == 3 && resultCode == RESULT_OK) {
-            Uri selectedFile = imageReturnedIntent.getData();
-            if (selectedFile != null) {
-                fileUploadTask = new FileUploadTask(selectedFile);
-                fileUploadTask.execute((Void) null);
             }
         }
     }
@@ -3977,7 +3979,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             return true;
                         }
                     });
-                    builder.setTitle("Upload A File To " + buffer.name);
+                    builder.setTitle("Upload A File To " + mBuffer.name);
                     builder.setView(view);
                     builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
                         @Override
@@ -4020,7 +4022,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (file_id != null && file_id.length() > 0) {
                     reqid = NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename);
                 } else {
-                    activity.runOnUiThread(new Runnable() {
+                    if(activity != null)
+                        activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if (activity != null) {
