@@ -70,6 +70,7 @@ public class EventsDataSource {
         public int day;
         public Spanned formatted;
         public String contentDescription;
+        public JsonNode entities;
 
         public String toString() {
             return "{"+
@@ -898,6 +899,7 @@ public class EventsDataSource {
             e.failed = false;
             e.command = null;
             e.day = -1;
+            e.entities = event.getJsonNode("entities");
 
 	    	if(event.has("reqid"))
 	    		e.reqid = event.getInt("reqid");

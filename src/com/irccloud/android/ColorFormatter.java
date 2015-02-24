@@ -19,6 +19,7 @@ package com.irccloud.android;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,6 +42,7 @@ import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
 import android.util.Patterns;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.ServersDataSource;
 
 public class ColorFormatter {
@@ -1231,10 +1233,14 @@ public class ColorFormatter {
     }
 
 	public static Spanned html_to_spanned(String msg) {
-		return html_to_spanned(msg, false, null);
+		return html_to_spanned(msg, false, null, null);
 	}
-	
-	public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
+
+    public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
+        return html_to_spanned(msg, linkify, server, null);
+    }
+
+	public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server, final JsonNode entities) {
 		if(msg == null)
 			msg = "";
 
@@ -1347,7 +1353,20 @@ public class ColorFormatter {
                         String lower = url.toLowerCase();
                         if (lower.contains("?"))
                             lower = lower.substring(0, lower.indexOf("?"));
-                        if (lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|(^.*\\/.*\\.bmp$)|" +
+
+                        boolean isImageEnt = false;
+                        if(entities != null && entities.has("files")) {
+                            for(JsonNode file : entities.get("files")) {
+                                String u = file.get("url").asText().toLowerCase();
+                                isImageEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && file.get("mime_type").asText().startsWith("image/"));
+                                if(isImageEnt) {
+                                    url = file.get("url").asText();
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (isImageEnt || lower.matches("(^.*\\/.*\\.png$)|(^.*\\/.*\\.jpe?g$)|(^.*\\/.*\\.gif$)|(^.*\\/.*\\.bmp$)|" +
                                         "(^https?://(www\\.)?flickr\\.com/photos/.*$)|" +
                                         "(^https?://(www\\.)?instagram\\.com/p/.*$)|(^https?://(www\\.)?instagr\\.am/p/.*$)|" +
                                         "(^https?://(www\\.)?imgur\\.com/(?!a/).*$)|" +
