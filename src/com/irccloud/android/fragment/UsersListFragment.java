@@ -120,8 +120,11 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			UserListEntry e = data.get(position);
 			View row = convertView;
+            if(position >= data.size())
+                return row;
+
+            UserListEntry e = data.get(position);
 			ViewHolder holder;
 
 			if (row == null) {

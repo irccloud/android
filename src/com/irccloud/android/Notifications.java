@@ -881,10 +881,13 @@ public class Notifications {
 		}
 	}
 
-    public void alert(int bid, String title, String body) {
+    public NotificationCompat.Builder alert(int bid, String title, String body) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
                 .setContentTitle(title)
                 .setContentText(body)
+                .setTicker(body)
+                .setAutoCancel(true)
+                .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.dark_blue))
                 .setSmallIcon(R.drawable.ic_stat_notify);
 
         Intent i = new Intent();
@@ -893,6 +896,8 @@ public class Notifications {
         i.setData(Uri.parse("bid://" + bid));
         builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 
-        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int)(System.currentTimeMillis() / 1000), builder.build());
+        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(bid, builder.build());
+
+        return builder;
     }
 }

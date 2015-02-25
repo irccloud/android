@@ -1378,9 +1378,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				return null;
 
             if(getActivity() != null) {
-                DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawerLayout);
-
                 try {
+                    DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawerLayout);
+
                     if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT)))
                         return null;
                 } catch (Exception e) {
@@ -1497,13 +1497,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         adapter = new MessageAdapter(MessageViewFragment.this);
                         refresh(adapter, events);
-                    } catch (IndexOutOfBoundsException e) {
-                        e.printStackTrace();
-                        return null;
                     } catch (IllegalStateException e) {
                         //The list view doesn't exist yet
                         e.printStackTrace();
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return null;
                     }
                 }
             } else if(buffer != null && buffer.min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !isCancelled()) {
@@ -2151,15 +2151,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
-                if(buffer != null && adapter != null && adapter.data.size() > 0) {
-                    if(buffer.last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                hideView(unreadTopView);
-                            }
-                        });
+                try {
+                    if (buffer != null && adapter != null && adapter.data.size() > 0) {
+                        if (buffer.last_seen_eid == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    hideView(unreadTopView);
+                                }
+                            });
+                        }
                     }
+                } catch (Exception ex) {
                 }
                 break;
             case NetworkConnection.EVENT_CHANNELTOPIC:

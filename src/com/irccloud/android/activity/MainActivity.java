@@ -42,7 +42,10 @@ import java.util.UUID;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.IntentFilter;
 import android.database.Cursor;
@@ -58,6 +61,8 @@ import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.internal.widget.TintImageView;
 import android.support.v7.widget.ActionMenuView;
@@ -3913,9 +3918,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     public class FileUploadTask extends AsyncTaskEx<Void, Float, String> implements NetworkConnection.IRCEventHandler {
+        private HttpURLConnection http = null;
         private Uri mFileUri;  // local Uri to upload
         private int total = 0;
         private TextView fileSize;
+        private AlertDialog metadataDialog;
         public Activity activity;
         public BuffersDataSource.Buffer mBuffer;
         public int reqid = -1;
@@ -3927,6 +3934,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         public String message;
         public boolean uploadFinished = false;
         public boolean filenameSet = false;
+
+        private NotificationCompat.Builder notification;
 
         public FileUploadTask(Uri fileUri) {
             NetworkConnection.getInstance().addHandler(this);
@@ -3954,6 +3963,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 original_filename += "." + type.substring(type.indexOf("/") + 1);
 
             setActivity(MainActivity.this);
+
+            notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
+                    .setContentTitle("Uploading File")
+                    .setContentText("Calculating size… • " + type)
+                    .setProgress(0, 0, true)
+                    .setLocalOnly(true)
+                    .setOngoing(true)
+                    .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.dark_blue))
+                    .setSmallIcon(android.R.drawable.stat_sys_upload);
+
+            Intent i = new Intent();
+            i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
+            i.putExtra("bid", mBuffer.bid);
+            i.setData(Uri.parse("bid://" + mBuffer.bid));
+            notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -4011,11 +4035,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             hide_progress();
                         }
                     });
-                    AlertDialog dialog = builder.create();
-                    fileinput.setTag(dialog);
-                    dialog.setOwnerActivity(MainActivity.this);
-                    dialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                    dialog.show();
+                    metadataDialog = builder.create();
+                    fileinput.setTag(metadataDialog);
+                    metadataDialog.setOwnerActivity(MainActivity.this);
+                    metadataDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    metadataDialog.show();
                 }
             });
 
@@ -4031,24 +4055,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (activity != null) {
-                                if (Looper.myLooper() == null)
-                                    Looper.prepare();
-                                hide_progress();
-                                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                                builder.setTitle("Upload Failed");
-                                builder.setMessage("Unable to upload photo to IRCCloud.  Please try again." + ((error != null) ? ("\n\n" + error) : ""));
-                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                AlertDialog dialog = builder.create();
-                                dialog.setOwnerActivity(activity);
-                                dialog.show();
-                            }
+                            show_alert("Upload Failed", "Unable to upload file to IRCCloud." + ((error != null) ? ("\n\n" + error) : ""));
                         }
                     });
                 }
@@ -4084,47 +4091,60 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
                     }
                     fileSize.setText(filesize + " • " + type);
+                    notification.setContentText(filesize + " • " + type);
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.bid, notification.build());
                 }
             });
 
-            HttpURLConnection conn = null;
             InputStream responseIn = null;
 
             try {
                 String boundary = UUID.randomUUID().toString();
-                conn = (HttpURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
-                conn.setDoOutput(true);
-                conn.setFixedLengthStreamingMode(total + (boundary.length() * 2) + original_filename.length() + type.length() + 88);
-                conn.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
-                conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-                conn.setRequestProperty("Cookie", "session=" + NetworkConnection.getInstance().session);
-                conn.setRequestProperty("x-irccloud-session", NetworkConnection.getInstance().session);
+                http = (HttpURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
+                http.setDoOutput(true);
+                http.setFixedLengthStreamingMode(total + (boundary.length() * 2) + original_filename.length() + type.length() + 88);
+                http.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
+                http.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+                http.setRequestProperty("Cookie", "session=" + NetworkConnection.getInstance().session);
+                http.setRequestProperty("x-irccloud-session", NetworkConnection.getInstance().session);
+                http.setReadTimeout(60000);
 
-                OutputStream out = conn.getOutputStream();
+                OutputStream out = http.getOutputStream();
                 out.write(("--" + boundary + "\r\n").getBytes());
                 out.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + original_filename + "\"\r\n").getBytes());
                 out.write(("Content-Type: " + type + "\r\n\r\n").getBytes());
                 copy(fileIn, out);
-                out.write(("\r\n--" + boundary + "--\r\n").getBytes());
-                out.flush();
-                out.close();
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    responseIn = conn.getInputStream();
-                    return onInput(responseIn);
-                }
-                else {
-                    Crashlytics.log(Log.INFO, "IRCCloud", "responseCode=" + conn.getResponseCode());
-                    responseIn = conn.getErrorStream();
-                    StringBuilder sb = new StringBuilder();
-                    Scanner scanner = new Scanner(responseIn).useDelimiter("\\A");
-                    while (scanner.hasNext()) {
-                        sb.append(scanner.next());
+
+                if(!isCancelled()) {
+                    out.write(("\r\n--" + boundary + "--\r\n").getBytes());
+                    out.flush();
+                    out.close();
+                    if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        responseIn = http.getInputStream();
+                        return onInput(responseIn);
+                    } else {
+                        Crashlytics.log(Log.INFO, "IRCCloud", "responseCode=" + http.getResponseCode());
+                        responseIn = http.getErrorStream();
+                        StringBuilder sb = new StringBuilder();
+                        Scanner scanner = new Scanner(responseIn).useDelimiter("\\A");
+                        while (scanner.hasNext()) {
+                            sb.append(scanner.next());
+                        }
+                        Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
+                        return null;
                     }
-                    Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
+                } else {
+                    Log.e("IRCCloud", "Upload cancelled");
                     return null;
                 }
             } catch (Exception ex) {
                 Crashlytics.log(Log.ERROR, "IRCCloud", "Error during POST: " + ex);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        show_alert("Upload Failed", "Unable to upload file to IRCCloud. Please try again later.");
+                    }
+                });
                 return null;
             } finally {
                 try {
@@ -4132,8 +4152,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         responseIn.close();
                 } catch (Exception ignore) {}
                 try {
-                    if(conn != null)
-                        conn.disconnect();
+                    if(http != null)
+                        http.disconnect();
                 } catch (Exception ignore) {}
                 try {
                     fileIn.close();
@@ -4163,6 +4183,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         protected void onProgressUpdate(Float... values) {
+            if (values[0] < 1.0f)
+                notification.setProgress(1000, (int)(values[0] * 1000), false);
+            else
+                notification.setProgress(0, 0, true);
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.bid, notification.build());
+
             if(activity != null) {
                 try {
                     if (progressBar.getVisibility() != View.VISIBLE) {
@@ -4206,7 +4232,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             byte[] buffer = new byte[8192];
             int count = 0;
             int n = 0;
-            while (-1 != (n = input.read(buffer))) {
+            while (-1 != (n = input.read(buffer)) && !isCancelled()) {
                 output.write(buffer, 0, n);
                 count += n;
                 publishProgress((float)count / (float)total);
@@ -4234,6 +4260,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             super.onCancelled();
             fileUploadTask = null;
             NetworkConnection.getInstance().removeHandler(this);
+            hide_progress();
         }
 
         private void hide_progress() {
@@ -4251,6 +4278,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             getSupportActionBar().setDisplayShowCustomEnabled(true);
             getSupportActionBar().setDisplayShowTitleEnabled(false);
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
         }
 
         public void onIRCEvent(int what, Object obj) {
@@ -4268,6 +4296,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         NetworkConnection.getInstance().say(buffer.cid, buffer.name, message);
                         fileUploadTask = null;
                         NetworkConnection.getInstance().removeHandler(this);
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -4283,29 +4312,46 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             @Override
                             public void run() {
                                 hide_progress();
-
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                                builder.setTitle("Upload Failed");
-                                builder.setMessage("Unable to finalize image upload: " + event.getString("message"));
-                                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        try {
-                                            dialog.dismiss();
-                                        } catch (IllegalArgumentException e) {
-                                        }
-                                    }
-                                });
-                                AlertDialog dialog = builder.create();
-                                dialog.setOwnerActivity(MainActivity.this);
-                                dialog.show();
+                                show_alert("Upload Failed", "Unable to upload file to IRCCloud: " + event.getString("message"));
                             }
                         });
                         fileUploadTask = null;
                         NetworkConnection.getInstance().removeHandler(this);
                     }
                     break;
+            }
+        }
+
+        private void show_alert(String title, String message) {
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+            try {
+                if(activity == null)
+                    throw new IllegalStateException();
+
+                if (Looper.myLooper() == null)
+                    Looper.prepare();
+                hide_progress();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                builder.setTitle(title);
+                builder.setMessage(message);
+                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            dialog.dismiss();
+                        } catch (IllegalArgumentException e) {
+                        }
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.setOwnerActivity(MainActivity.this);
+                dialog.show();
+
+                metadataDialog.dismiss();
+            } catch (Exception e) {
+                Notifications.getInstance().alert(mBuffer.bid, "Upload Failed", "Unable to upload file to IRCCloud.");
             }
         }
     }
