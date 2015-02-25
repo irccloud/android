@@ -2744,7 +2744,7 @@ public class NetworkConnection {
                                 } catch (Exception ex) {
                                     Crashlytics.log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
                                     ex.printStackTrace();
-                                    //Crashlytics.logException(ex);
+                                    Crashlytics.logException(ex);
                                 }
                                 long t = (System.currentTimeMillis() - time);
                                 if(t > longestEventTime) {

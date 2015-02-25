@@ -1046,7 +1046,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             server = null;
         } else {
             if (intent.hasExtra(Intent.EXTRA_STREAM)) {
-                if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                if (getContentResolver().getType((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
                     new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
                 } else {
                     fileUploadTask = new FileUploadTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
@@ -4074,7 +4074,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(type == null)
                     type = "application/octet-stream";
                 fileIn = activity.getContentResolver().openInputStream(mFileUri);
-                total = fileIn.available();
+                Cursor c = getContentResolver().query(mFileUri, new String[] {OpenableColumns.SIZE}, null, null, null);
+                if(c != null && c.moveToFirst()) {
+                    total = c.getInt(0);
+                    c.close();
+                } else {
+                    total = fileIn.available();
+                }
             } catch (Exception e) {
                 Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
                 return null;
@@ -4247,7 +4253,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 sb.append(scanner.next());
             }
 
-            total = 0;
             JSONObject root = new JSONObject(sb.toString());
             if(root.has("success") && root.getBoolean("success"))
                 return root.getString("id");
