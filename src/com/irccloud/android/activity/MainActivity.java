@@ -1041,7 +1041,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             server = null;
         } else {
             if (intent.hasExtra(Intent.EXTRA_STREAM)) {
-                new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
+                if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                    new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
+                } else {
+                    fileUploadTask = new FileUploadTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+                    fileUploadTask.execute((Void) null);
+                }
             }
 
             if (intent.hasExtra(Intent.EXTRA_TEXT)) {
@@ -4056,7 +4061,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             try {
                 while(activity == null)
                     Thread.sleep(100);
-                if(type != null && type.startsWith("image/") && !type.equals("image/gif") && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
+                if(type != null && type.startsWith("image/") && !type.equals("image/gif") && !type.equals("image/png") && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
                     mFileUri = resize(mFileUri);
                 }
                 if(type == null)
