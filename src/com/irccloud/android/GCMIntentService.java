@@ -166,7 +166,7 @@ public class GCMIntentService extends IntentService {
                         editor.putString("gcm_app_build", Build.FINGERPRINT);
                         editor.remove("gcm_registered");
                         editor.commit();
-                        if(oldRegId.length() > 0) {
+                        if(oldRegId.length() > 0 && !oldRegId.equals(regId)) {
                             Log.i("IRCCloud", "Unregistering old ID");
                             scheduleUnregisterTimer(1000, oldRegId, true);
                         }
