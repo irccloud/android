@@ -1400,6 +1400,7 @@ public class NetworkConnection {
 	public void cancel_idle_timer() {
         if(idleTimerTask != null)
             idleTimerTask.cancel();
+        reconnect_timestamp = 0;
 	}
 	
 	public void schedule_idle_timer() {
