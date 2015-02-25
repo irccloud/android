@@ -379,6 +379,7 @@ public class NetworkConnection {
 		public void onReceive(Context context, Intent intent) {
 			ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 			NetworkInfo ni = cm.getActiveNetworkInfo();
+
 			if(ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0) {
                 if(idleTimerTask != null)
                     idleTimerTask.cancel();
@@ -2353,9 +2354,6 @@ public class NetworkConnection {
                 if((object.bid() > -1 || type.equals("backlog_complete")) && !type.equals("makebuffer") && !type.equals("channel_init")) {
                     currentcount++;
                     if(object.bid() != currentBid) {
-                        if(currentBid != -1) {
-                            EventsDataSource.getInstance().pruneEvents(currentBid, firstEid);
-                        }
                         currentBid = object.bid();
                         firstEid = object.eid();
                         currentcount = 0;
@@ -2727,6 +2725,7 @@ public class NetworkConnection {
                             if(bid == -1) {
                                 BuffersDataSource.getInstance().invalidate();
                                 ChannelsDataSource.getInstance().invalidate();
+                                EventsDataSource.getInstance().clear();
                             }
                             int count = 0;
                             while(parser.nextToken() == JsonToken.START_OBJECT) {

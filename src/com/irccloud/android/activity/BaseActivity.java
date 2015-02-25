@@ -82,6 +82,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
             conn.addHandler(this);
             if(conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
                 conn.connect(session);
+            NetworkConnection.getInstance().registerForConnectivity(this);
     	} else {
     		Intent i = new Intent(this, LoginActivity.class);
     		i.addFlags(
@@ -99,6 +100,8 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
     	if(conn != null) {
         	conn.removeHandler(this);
     	}
+
+        NetworkConnection.getInstance().unregisterForConnectivity(this);
     }
 
     public void onIRCEvent(int what, Object obj) {

@@ -983,23 +983,6 @@ public class EventsDataSource {
         return 0L;
     }
 
-	public void pruneEvents(int bid, long min_eid) {
-		synchronized(events) {
-			if(events.containsKey(bid)) {
-				ArrayList<Event> eventsToDelete = new ArrayList<Event>();
-				for(Event e : events.get(bid).values()) {
-					if(e.eid < min_eid)
-						eventsToDelete.add(e);
-					else
-						break;
-				}
-				for(Event e : eventsToDelete) {
-					events.get(bid).remove(e.eid);
-				}
-			}
-		}
-	}
-
     public void pruneEvents(int bid) {
         synchronized(events) {
             TreeMap<Long,Event> e = events.get(bid);
