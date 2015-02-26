@@ -695,13 +695,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     	((ListView)v.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
 
 			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-				if(pos > 1 && pos <= adapter.data.size()) {
-					longPressOverride = mListener.onMessageLongClicked(adapter.data.get(pos - 1));
+			public boolean onItemLongClick(AdapterView<?> list, View v, int pos, long id) {
+				try {
+					longPressOverride = mListener.onMessageLongClicked((EventsDataSource.Event)list.getItemAtPosition(pos));
 					return longPressOverride;
-				} else {
-					return false;
+				} catch(Exception e) {
 				}
+                return false;
 			}
     	});
         spinner = (ProgressBar)v.findViewById(R.id.spinner);
