@@ -2281,12 +2281,15 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if(!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
-                    JsonNode users = object.getJsonNode("users");
-                    for(int i = 0; i < users.size(); i++) {
-                        JsonNode user = users.get(i);
-                        u.updateHostmask(object.bid(), user.get("nick").asText(), user.get("usermask").asText());
-                        u.updateAway(object.bid(), user.get("nick").asText(), user.get("away").asBoolean()?1:0);
+                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(object.cid(), object.getString("subject"));
+                    if(b != null) {
+                        UsersDataSource u = UsersDataSource.getInstance();
+                        JsonNode users = object.getJsonNode("users");
+                        for (int i = 0; i < users.size(); i++) {
+                            JsonNode user = users.get(i);
+                            u.updateHostmask(b.bid, user.get("nick").asText(), user.get("usermask").asText());
+                            u.updateAway(b.bid, user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
+                        }
                     }
                     notifyHandlers(EVENT_WHOLIST, object);
                 }
