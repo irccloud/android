@@ -85,8 +85,10 @@ public class ChannelOptionsFragment extends DialogFragment {
 			try {
 				if(NetworkConnection.getInstance().getUserInfo() != null) {
                     prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                    if (prefs == null)
+                    if (prefs == null) {
                         prefs = new JSONObject();
+                        Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
+                    }
 
                     prefs = updatePref(prefs, members, "channel-hiddenMembers");
                     prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
