@@ -3943,7 +3943,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             mFileUri = fileUri;
             type = getContentResolver().getType(mFileUri);
             if(type == null)
-                type = "image/jpeg";
+                type = "application/octet-stream";
 
             if(Build.VERSION.SDK_INT < 16) {
                 original_filename = fileUri.getLastPathSegment();
@@ -4071,8 +4071,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(type != null && type.startsWith("image/") && !type.equals("image/gif") && !type.equals("image/png") && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
                     mFileUri = resize(mFileUri);
                 }
-                if(type == null)
-                    type = "application/octet-stream";
                 fileIn = activity.getContentResolver().openInputStream(mFileUri);
                 Cursor c = getContentResolver().query(mFileUri, new String[] {OpenableColumns.SIZE}, null, null, null);
                 if(c != null && c.moveToFirst()) {
@@ -4083,6 +4081,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } catch (Exception e) {
                 Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        show_alert("Upload Failed", "Unable to open input file stream");
+                    }
+                });
+                return null;
+            }
+
+            if(total > 15000000) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        show_alert("Upload Failed", "Sorry, you can’t upload files larger than 15 MB");
+                    }
+                });
                 return null;
             }
 
@@ -4107,13 +4121,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             try {
                 String boundary = UUID.randomUUID().toString();
                 http = (HttpURLConnection) new URL("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/upload").openConnection();
+                http.setReadTimeout(60000);
+                http.setConnectTimeout(60000);
                 http.setDoOutput(true);
                 http.setFixedLengthStreamingMode(total + (boundary.length() * 2) + original_filename.length() + type.length() + 88);
                 http.setRequestProperty("User-Agent", NetworkConnection.getInstance().useragent);
                 http.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
                 http.setRequestProperty("Cookie", "session=" + NetworkConnection.getInstance().session);
                 http.setRequestProperty("x-irccloud-session", NetworkConnection.getInstance().session);
-                http.setReadTimeout(60000);
 
                 OutputStream out = http.getOutputStream();
                 out.write(("--" + boundary + "\r\n").getBytes());
@@ -4137,21 +4152,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             sb.append(scanner.next());
                         }
                         Crashlytics.log(Log.ERROR, "IRCCloud", "error response: " + sb.toString());
-                        return null;
                     }
                 } else {
                     Log.e("IRCCloud", "Upload cancelled");
-                    return null;
                 }
+            } catch (IOException ex) {
+                ex.printStackTrace();
             } catch (Exception ex) {
-                Crashlytics.log(Log.ERROR, "IRCCloud", "Error during POST: " + ex);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        show_alert("Upload Failed", "Unable to upload file to IRCCloud. Please try again later.");
-                    }
-                });
-                return null;
+                ex.printStackTrace();
+                Crashlytics.logException(ex);
+                error = "An unexpected error occurred. Please try again later.";
             } finally {
                 try {
                     if(responseIn != null)
@@ -4165,12 +4175,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     fileIn.close();
                 } catch (Exception ignore) {}
             }
+            return null;
         }
 
         public void setActivity(Activity a) {
             activity = a;
             if(a != null) {
-                if(total > 0) {
+                if(total > 0 && !uploadFinished) {
                     getSupportActionBar().setTitle("Uploading");
                     getSupportActionBar().setDisplayShowCustomEnabled(false);
                     getSupportActionBar().setDisplayShowTitleEnabled(true);
@@ -4254,10 +4265,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 
             JSONObject root = new JSONObject(sb.toString());
-            if(root.has("success") && root.getBoolean("success"))
+            if(root.has("success") && root.getBoolean("success")) {
                 return root.getString("id");
-            else
+            } else {
                 return null;
+            }
         }
 
         @Override

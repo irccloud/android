@@ -2593,7 +2593,7 @@ public class NetworkConnection {
 
 			if(object.has("prefs") && !object.getString("prefs").equals("null")) {
                 try {
-                    Log.i("IRCCloud", "Prefs: " + object.getString("prefs"));
+                    Crashlytics.log(Log.INFO, "IRCCloud", "Prefs: " + object.getString("prefs"));
                     prefs = new JSONObject(object.getString("prefs"));
                 } catch (JSONException e) {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to parse prefs: " + object.getString("prefs"));
@@ -2682,11 +2682,11 @@ public class NetworkConnection {
                     if(ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
                         Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
                         conn.setConnectTimeout(2500);
-                        conn.setReadTimeout(2500);
+                        conn.setReadTimeout(5000);
                     } else {
                         Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
                         conn.setConnectTimeout(5000);
-                        conn.setReadTimeout(5000);
+                        conn.setReadTimeout(30000);
                     }
                 } catch (Exception e) {
                 }

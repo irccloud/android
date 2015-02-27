@@ -422,6 +422,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 				if(prefs == null) {
 					prefs = new JSONObject();
 					conn.getUserInfo().prefs = prefs;
+                    Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
 				}
 
                 if(preference.getKey().equals("emoji-disableconvert"))
