@@ -978,11 +978,14 @@ public class NetworkConnection {
         incoming_reply_to = null;
         incoming_reply_msg = null;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+        editor.clear();
+        editor.commit();
         try {
             String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
             if(regId.length() > 0) {
                 //Store the old session key so GCM can unregister later
-                editor.putString(regId, IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
+                editor.putString(regId, sk);
+                editor.commit();
                 GCMIntentService.scheduleUnregisterTimer(100, regId, false);
             } else {
                 logout(sk);
@@ -991,29 +994,8 @@ public class NetworkConnection {
             //GCM might not be available on the device
             logout(sk);
         }
-        editor.remove("session_key");
-        editor.remove("path");
-        editor.remove("gcm_registered");
-        editor.remove("mentionTip");
-        editor.remove("userSwipeTip");
-        editor.remove("bufferSwipeTip");
-        editor.remove("longPressTip");
-        editor.remove("imgur_account_username");
-        editor.remove("imgur_access_token");
-        editor.remove("imgur_refresh_token");
-        editor.remove("imgur_token_type");
-        editor.remove("imgur_expires_in");
-        editor.commit();
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-        prefs.remove("name");
-        prefs.remove("email");
-        prefs.remove("highlights");
-        prefs.remove("autoaway");
-        prefs.remove("time-24hr");
-        prefs.remove("time-seconds");
-        prefs.remove("mode-showsymbol");
-        prefs.remove("nick-colors");
-        prefs.remove("emoji-disableconvert");
+        prefs.clear();
         prefs.commit();
         ServersDataSource.getInstance().clear();
         BuffersDataSource.getInstance().clear();
