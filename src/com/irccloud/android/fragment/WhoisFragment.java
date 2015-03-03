@@ -206,7 +206,7 @@ public class WhoisFragment extends DialogFragment {
                 if (event.has("user_logged_in_as") && event.getString("user_logged_in_as").length() > 0) {
                     nametxt += " (authed as " + event.getString("user_logged_in_as") + ")";
                 }
-                name.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(nametxt))));
+                name.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(nametxt)))));
             } else {
                 name.setText("");
             }
@@ -229,7 +229,7 @@ public class WhoisFragment extends DialogFragment {
     			time.setVisibility(View.GONE);
     		}
             if(event.has("away") && event.getString("away").length() > 0) {
-                away.setText(event.getString("away"));
+                away.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("away"))))));
                 awayTitle.setVisibility(View.VISIBLE);
                 away.setVisibility(View.VISIBLE);
             } else {

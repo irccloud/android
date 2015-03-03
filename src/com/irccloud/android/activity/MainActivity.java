@@ -531,7 +531,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     v.findViewById(R.id.setBy).setVisibility(View.VISIBLE);
                     ((TextView)v.findViewById(R.id.setBy)).setText(author);
                 }
-                ((TextView)v.findViewById(R.id.topic)).setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(c.topic_text), true, server));
+                ((TextView)v.findViewById(R.id.topic)).setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text))), true, server));
             } else {
                 ((TextView) v.findViewById(R.id.topic)).setText("No topic set.");
             }
@@ -1337,7 +1337,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    			if(buffer.away_msg != null && buffer.away_msg.length() > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
 	    				if(buffer.away_msg != null && buffer.away_msg.length() > 0) {
-	    					subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(buffer.away_msg))).toString());
+	    					subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(buffer.away_msg)))).toString());
 	    				} else {
 	    					subtitle.setText("Away");
 	    				}
@@ -1346,7 +1346,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if(u != null && u.away > 0) {
                             subtitle.setVisibility(View.VISIBLE);
                             if(u.away_msg != null && u.away_msg.length() > 0) {
-                                subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(u.away_msg))).toString());
+                                subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(u.away_msg)))).toString());
                             } else {
                                 subtitle.setText("Away");
                             }
@@ -1360,7 +1360,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		        	ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
 		        	if(c != null && c.topic_text.length() > 0) {
 		        		subtitle.setVisibility(View.VISIBLE);
-		        		subtitle.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)), false, null).toString());
+		        		subtitle.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)))).toString());
                         subtitle.setContentDescription(".");
 		        	} else {
 		        		subtitle.setVisibility(View.GONE);
@@ -2060,6 +2060,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 });
 				break;
             case NetworkConnection.EVENT_CHANNELMODE:
+            case NetworkConnection.EVENT_CHANNELTOPIC:
                 event = (IRCCloudJSONObject)obj;
                 if(event != null && buffer != null && event.bid() == buffer.bid) {
                     runOnUiThread(new Runnable() {
@@ -2070,54 +2071,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 }
                 break;
-			case NetworkConnection.EVENT_CHANNELTOPIC:
-				event = (IRCCloudJSONObject)obj;
-                if(event != null && buffer != null && event.bid() == buffer.bid) {
-                    final String topic = event.getString("topic");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                if(topic.length() > 0) {
-                                    subtitle.setVisibility(View.VISIBLE);
-                                    subtitle.setText(topic);
-                                } else {
-                                    subtitle.setVisibility(View.GONE);
-                                }
-                            } catch (Exception e1) {
-                                subtitle.setVisibility(View.GONE);
-                                e1.printStackTrace();
-                            }
-                        }
-                    });
-				}
-				break;
 			case NetworkConnection.EVENT_SELFBACK:
+            case NetworkConnection.EVENT_AWAY:
 		    	try {
 					event = (IRCCloudJSONObject)obj;
 					if(event != null && buffer != null && event.cid() == buffer.cid && event.getString("nick").equalsIgnoreCase(buffer.name)) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                subtitle.setVisibility(View.GONE);
-                                subtitle.setText("");
-                            }
-                        });
-					}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-				break;
-			case NetworkConnection.EVENT_AWAY:
-		    	try {
-					event = (IRCCloudJSONObject)obj;
-					if(event != null && buffer != null && event.cid() == buffer.cid && event.getString("nick").equalsIgnoreCase(buffer.name)) {
-                        final String away = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html("Away: " + (event.has("away_msg")?event.getString("away_msg"):event.getString("msg")))).toString();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                subtitle.setVisibility(View.VISIBLE);
-                                subtitle.setText(away);
+                                update_subtitle();
                             }
                         });
 					}
