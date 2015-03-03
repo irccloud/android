@@ -1702,7 +1702,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(adapter != null) {
             try {
                 int markerPos = adapter.getLastSeenEIDPosition();
-                if(markerPos >= 0 && first > (markerPos + 1)) {
+                if(markerPos >= 0 && first > (markerPos + 1) && buffer.unread > 0) {
                     if(shouldTrackUnread()) {
                         int highlights = adapter.getUnreadHighlightsAbovePosition(first);
                         int count = (first - markerPos - 1) - highlights;
