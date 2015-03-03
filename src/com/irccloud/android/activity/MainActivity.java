@@ -1040,7 +1040,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             server = null;
         } else {
             if (intent.hasExtra(Intent.EXTRA_STREAM)) {
-                if (getContentResolver().getType((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
+                String type = getContentResolver().getType((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+                if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
                     new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
                 } else {
                     fileUploadTask = new FileUploadTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
