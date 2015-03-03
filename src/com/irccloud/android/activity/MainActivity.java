@@ -422,12 +422,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         	buffer = BuffersDataSource.getInstance().getBuffer(savedInstanceState.getInt("bid"));
         	backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
         }
-        if(getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && checkPlayServices()) {
-            final String regId = GCMIntentService.getRegistrationId(this);
-            if (regId.equals("") || !getSharedPreferences("prefs", 0).contains("gcm_registered")) {
-                GCMIntentService.scheduleRegisterTimer(100);
-            }
-        }
 
         if(savedInstanceState != null && savedInstanceState.containsKey("imagecaptureuri"))
             imageCaptureURI = Uri.parse(savedInstanceState.getString("imagecaptureuri"));
@@ -1857,6 +1851,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if(getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && checkPlayServices()) {
+                            final String regId = GCMIntentService.getRegistrationId(MainActivity.this);
+                            GCMIntentService.scheduleRegisterTimer(100);
+                        }
                         updateUsersListFragmentVisibility();
                         supportInvalidateOptionsMenu();
                         if (refreshUpIndicatorTask != null)

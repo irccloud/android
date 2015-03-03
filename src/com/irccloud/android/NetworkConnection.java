@@ -978,10 +978,10 @@ public class NetworkConnection {
         incoming_reply_to = null;
         incoming_reply_msg = null;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-        editor.clear();
-        editor.commit();
         try {
             String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
+            editor.clear();
+            editor.commit();
             if(regId.length() > 0) {
                 //Store the old session key so GCM can unregister later
                 editor.putString(regId, sk);
@@ -992,6 +992,8 @@ public class NetworkConnection {
             }
         } catch (Exception e) {
             //GCM might not be available on the device
+            editor.clear();
+            editor.commit();
             logout(sk);
         }
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();

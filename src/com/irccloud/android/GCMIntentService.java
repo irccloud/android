@@ -177,10 +177,6 @@ public class GCMIntentService extends IntentService {
                         return;
                     }
                 }
-                if(IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("gcm_registered")) {
-                    Log.d("IRCCloud", "GCM ID already sent to IRCCloud");
-                    return;
-                }
                 Log.i("IRCCloud", "Sending GCM ID to IRCCloud");
 				try {
 					JSONObject result = NetworkConnection.getInstance().registerGCM(getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()), IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
