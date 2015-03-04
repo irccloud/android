@@ -663,6 +663,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             }
+
+            if(Build.VERSION.SDK_INT >= 14 && text.startsWith(":") && text.length() > 1) {
+                String q = text.toLowerCase().substring(1);
+                for (String emocode : ColorFormatter.emojiMap.keySet()) {
+                    if(emocode.startsWith(q)) {
+                        String emoji = ColorFormatter.emojiMap.get(emocode);
+                        if(!sugs_set.contains(emoji)) {
+                            sugs_set.add(emoji);
+                            sugs.add(emoji);
+                        }
+                    }
+                }
+            }
+
             if(sugs.size() > 0) {
                 if(suggestionsAdapter.activePos == -1) {
                     suggestionsAdapter.clear();
@@ -756,7 +770,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(text.lastIndexOf(' ') > 0) {
                 messageTxt.setText(text.substring(0,text.lastIndexOf(' ') + 1) + nick);
             } else {
-                if(nick.startsWith("#"))
+                if(nick.startsWith("#") || text.startsWith(":"))
                     messageTxt.setText(nick);
                 else
                     messageTxt.setText(nick + ":");
@@ -1141,7 +1155,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(text.lastIndexOf(' ') > 0) {
                     messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
                 } else {
-                    if(nick.startsWith("#"))
+                    if(nick.startsWith("#") || text.startsWith(":"))
                         messageTxt.setText(nick + " ");
                     else
                         messageTxt.setText(nick + ": ");
