@@ -2721,7 +2721,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 					messageTxt.setSelection(newtext.length());
 			} else {
 				if(oldPosition == text.length() - 1) {
-					text += " " + from;
+					text += " " + from + " ";
 				} else {
 					String newtext = text.substring(0, oldPosition);
 					if(!newtext.endsWith(" "))
@@ -2732,7 +2732,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 					newtext += text.substring(oldPosition, text.length());
 					if(newtext.endsWith(" "))
 						newtext = newtext.substring(0, newtext.length() - 1);
-					text = newtext;
+					text = newtext + " ";
 				}
 				messageTxt.setText(text);
 				if(text.length() > 0) {
