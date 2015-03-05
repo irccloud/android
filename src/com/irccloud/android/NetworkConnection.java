@@ -207,12 +207,6 @@ public class NetworkConnection {
 	public boolean ready = false;
 	public String globalMsg = null;
 
-    public String incoming_reply_msg = null;
-    public String incoming_reply_to = null;
-    public int incoming_reply_cid = -1;
-    public int incoming_reply_bid = -1;
-    public int incoming_reply_reqid = -1;
-
     private HashMap<Integer, OOBIncludeTask> oobTasks = new HashMap<Integer, OOBIncludeTask>();
 
     private PrivateKey SSLAuthKey;
@@ -974,9 +968,6 @@ public class NetworkConnection {
         ready = false;
         streamId = null;
         accrued = 0;
-        incoming_reply_cid = -1;
-        incoming_reply_to = null;
-        incoming_reply_msg = null;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         try {
             String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
@@ -1088,8 +1079,19 @@ public class NetworkConnection {
 			return -1;
 		}
 	}
-	
-	public int join(int cid, String channel, String key) {
+
+    public JSONObject say(int cid, String to, String message, String sk) throws IOException {
+        String postdata = "cid="+cid+"&to="+URLEncoder.encode(to, "UTF-8")+"&msg="+URLEncoder.encode(message, "UTF-8")+"&session="+sk;
+        try {
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/say"), postdata, sk, null);
+            return new JSONObject(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public int join(int cid, String channel, String key) {
 		try {
 			JSONObject o = new JSONObject();
 			o.put("cid", cid);
@@ -1603,16 +1605,6 @@ public class NetworkConnection {
                     failCount = 0;
                     ready = true;
                     notifyHandlers(EVENT_BACKLOG_END, null);
-                    if(incoming_reply_cid != -1 && incoming_reply_to != null && incoming_reply_msg != null) {
-                        incoming_reply_reqid = say(incoming_reply_cid, incoming_reply_to, incoming_reply_msg);
-                        incoming_reply_cid = -1;
-                        incoming_reply_to = null;
-                        incoming_reply_msg = null;
-                        removeHandler(null);
-                    } else {
-                        incoming_reply_bid = -1;
-                        incoming_reply_reqid = -1;
-                    }
                 }
             }
         });
@@ -1620,28 +1612,7 @@ public class NetworkConnection {
         //Misc. popup alerts
         put("bad_channel_key", new BroadcastParser(EVENT_BADCHANNELKEY));
         put("invalid_nick", new BroadcastParser(EVENT_INVALIDNICK));
-        Parser alert = new Parser() {
-            @Override
-            public void parse(IRCCloudJSONObject object) throws JSONException {
-                if(handlers.size() == 0 && incoming_reply_reqid != -1) {
-                    String title = "IRCCloud";
-                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(incoming_reply_bid);
-                    if(b != null) {
-                        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(b.cid);
-                        if(s != null)
-                            title = (s.name != null && s.name.length() > 0)?s.name:s.hostname;
-                        else
-                            title = b.name;
-                    }
-
-                    Notifications.getInstance().alert(incoming_reply_bid, title, object.getString("msg"));
-                    incoming_reply_reqid = -1;
-                    incoming_reply_bid = -1;
-                }
-                if(!backlog)
-                    notifyHandlers(EVENT_ALERT, object);
-            }
-        };
+        Parser alert = new BroadcastParser(EVENT_ALERT);
         String[] alerts = {"too_many_channels",
                 "no_such_channel",
                 "no_such_nick",
@@ -2315,11 +2286,6 @@ public class NetworkConnection {
 			if(object.has("success") && !object.getBoolean("success") && object.has("message")) {
                 Crashlytics.log(Log.ERROR, TAG, "Error: " + object);
 				notifyHandlers(EVENT_FAILURE_MSG, object);
-                if(handlers.size() == 0 && object.has("_reqid") && object.getInt("_reqid") == incoming_reply_reqid) {
-                    Notifications.getInstance().alert(incoming_reply_bid, "Message Failed", "The message could not be sent.");
-                    incoming_reply_reqid = -1;
-                    incoming_reply_bid = -1;
-                }
 			} else if(object.has("success")) {
 				notifyHandlers(EVENT_SUCCESS, object);
 			}

@@ -25,6 +25,8 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 
+import org.json.JSONObject;
+
 public class RemoteInputService extends IntentService {
     public static final String ACTION_REPLY = IRCCloudApplication.getInstance().getApplicationContext().getString(R.string.ACTION_REPLY);
     public RemoteInputService() {
@@ -33,7 +35,9 @@ public class RemoteInputService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if (intent != null && getSharedPreferences("prefs", 0).getString("session_key", "").length() > 0) {
+        boolean success = false;
+        String sk = getSharedPreferences("prefs", 0).getString("session_key", "");
+        if (intent != null && sk.length() > 0) {
             final String action = intent.getAction();
             if (ACTION_REPLY.equals(action)) {
                 Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
@@ -41,21 +45,19 @@ public class RemoteInputService extends IntentService {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Got reply from RemoteInput");
                     String reply = remoteInput.getCharSequence("extra_reply").toString();
                     if(reply.length() > 0 && !reply.startsWith("/")) {
-                        if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
-                            NetworkConnection.getInstance().incoming_reply_bid = intent.getIntExtra("bid", -1);
-                            NetworkConnection.getInstance().incoming_reply_reqid = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply);
-                        } else {
-                            NetworkConnection.getInstance().incoming_reply_cid = intent.getIntExtra("cid", -1);
-                            NetworkConnection.getInstance().incoming_reply_bid = intent.getIntExtra("bid", -1);
-                            NetworkConnection.getInstance().incoming_reply_to = intent.getStringExtra("to");
-                            NetworkConnection.getInstance().incoming_reply_msg = (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply;
-                            NetworkConnection.getInstance().connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
+                        try {
+                            JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply, sk);
+                            success = o.getBoolean("success");
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (intent.getLongExtra("eid", 0) / 1000));
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(intent.getIntExtra("bid", 0));
                     Notifications.getInstance().dismiss(intent.getIntExtra("bid", 0), intent.getLongExtra("eid", 0));
                     Notifications.getInstance().showNotifications(null);
+                    if(!success)
+                       Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", "Your message was not sent. Please try again shortly.");
                 } else {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "RemoteInputService received no remoteinput");
                 }
