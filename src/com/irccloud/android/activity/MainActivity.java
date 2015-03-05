@@ -2361,14 +2361,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         public void onDrawerSlide(View view, float slideOffset) {
-            if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT)
-                upDrawable.setProgress(slideOffset);
         }
 
         @Override
         public void onDrawerOpened(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
-                upDrawable.setProgress(1);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
@@ -2385,7 +2382,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         public void onDrawerClosed(View view) {
             if(((DrawerLayout.LayoutParams)view.getLayoutParams()).gravity == Gravity.LEFT) {
-                upDrawable.setProgress(0);
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                 updateUsersListFragmentVisibility();
             } else {
