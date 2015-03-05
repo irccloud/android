@@ -14,53 +14,39 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:background="@drawable/actionbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"/>
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="-7dp"
-            android:indeterminate="true"
-            android:max="1000"
-            android:layout_gravity="bottom"
-            android:visibility="gone" />
-    </FrameLayout>
-
-    <android.support.v4.widget.DrawerLayout
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/drawerLayout"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <fragment
-            android:id="@+id/BuffersList"
-            android:name="com.irccloud.android.fragment.BuffersListFragment"
-            android:layout_width="@dimen/drawer_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="left"
-            tools:layout="@layout/bufferslist" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:background="@drawable/actionbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"/>
 
-        <fragment
-            android:id="@+id/usersListFragment"
-            android:name="com.irccloud.android.fragment.UsersListFragment"
-            android:layout_width="@dimen/userlist_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="right"
-            tools:layout="@layout/userslist" />
+            <ProgressBar
+                android:id="@+id/progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-7dp"
+                android:indeterminate="true"
+                android:max="1000"
+                android:layout_gravity="bottom"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <LinearLayout
             android:id="@+id/messageContainer"
@@ -137,5 +123,44 @@
                     android:src="@drawable/ic_action_send" />
             </LinearLayout>
         </LinearLayout>
-    </android.support.v4.widget.DrawerLayout>
-</LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="@dimen/drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:fitsSystemWindows="true"
+        android:background="@color/dark_blue"
+        android:orientation="vertical" >
+
+        <fragment
+            android:id="@+id/BuffersList"
+            android:name="com.irccloud.android.fragment.BuffersListFragment"
+            android:layout_width="@dimen/drawer_width"
+            android:layout_height="match_parent"
+            tools:layout="@layout/bufferslist" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="@dimen/userlist_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:fitsSystemWindows="true"
+        android:background="@color/dark_blue"
+        android:orientation="vertical" >
+
+        <fragment
+            android:id="@+id/usersListFragment"
+            android:name="com.irccloud.android.fragment.UsersListFragment"
+            android:layout_width="@dimen/userlist_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
+            tools:layout="@layout/userslist" />
+
+    </LinearLayout>
+
+
+
+</android.support.v4.widget.DrawerLayout>

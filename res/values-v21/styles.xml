@@ -40,6 +40,8 @@
         <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
         <item name="actionModeBackground">@drawable/actionbar</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">#66527DFF</item>
     </style>
     <style name="PrefsTheme" parent="AppTheme">
         <item name="android:windowNoTitle">false</item>
