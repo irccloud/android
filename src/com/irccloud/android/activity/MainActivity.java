@@ -406,8 +406,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     refreshUpIndicatorTask.cancel(true);
                 refreshUpIndicatorTask = new RefreshUpIndicatorTask();
                 refreshUpIndicatorTask.execute((Void) null);
-            } else {
-                ((Toolbar)findViewById(R.id.toolbar)).setNavigationIcon(R.drawable.ic_launcher);
             }
         }
 		messageTxt.setDrawerLayout(drawerLayout);

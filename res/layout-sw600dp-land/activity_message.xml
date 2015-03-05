@@ -14,139 +14,133 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:background="@drawable/actionbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"/>
-
-        <ProgressBar
-            android:id="@+id/progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="-7dp"
-            android:indeterminate="true"
-            android:max="1000"
-            android:layout_gravity="bottom"
-            android:visibility="gone" />
-    </FrameLayout>
-
-
-    <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/drawerLayout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <fragment
-            android:id="@+id/usersListFragment2"
-            android:name="com.irccloud.android.fragment.UsersListFragment"
-            android:layout_width="@dimen/userlist_width"
-            android:layout_height="match_parent"
-            android:layout_gravity="right"
-            tools:layout="@layout/userslist" />
+    <fragment
+        android:id="@+id/BuffersList"
+        android:name="com.irccloud.android.fragment.BuffersListFragment"
+        android:layout_width="@dimen/drawer_width"
+        android:layout_height="match_parent"
+        tools:layout="@layout/bufferslist" />
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:background="@drawable/actionbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"/>
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="-7dp"
+                android:indeterminate="true"
+                android:max="1000"
+                android:layout_gravity="bottom"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/errorMsg"
+            android:background="@drawable/bg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="6dp"
+            android:visibility="gone" />
 
         <fragment
-            android:id="@+id/BuffersList"
-            android:name="com.irccloud.android.fragment.BuffersListFragment"
-            android:layout_width="@dimen/drawer_width"
-            android:layout_height="match_parent"
-            tools:layout="@layout/bufferslist" />
-
-        <LinearLayout
+            android:id="@+id/messageViewFragment"
+            android:name="com.irccloud.android.fragment.MessageViewFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="vertical" >
+            tools:layout="@layout/messageview" />
 
-            <TextView
-                android:id="@+id/errorMsg"
-                android:background="@drawable/bg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:padding="6dp"
-                android:visibility="gone" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/compose_bar_bg"
+            android:padding="4dp"
+            android:paddingTop="2dp" >
 
-            <fragment
-                android:id="@+id/messageViewFragment"
-                android:name="com.irccloud.android.fragment.MessageViewFragment"
-                android:layout_width="match_parent"
+            <ImageButton
+                style="@style/Widget.Styled.ImageButton"
+                android:id="@+id/photoBtn"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                tools:layout="@layout/messageview" />
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:paddingBottom="4dp"
+                android:scaleType="fitEnd"
+                android:contentDescription="Insert Photo"
+                android:src="@drawable/ic_action_photo" />
 
+            <!-- Dummy item to prevent ActionEditText from receiving focus on launch -->
             <LinearLayout
+                android:focusable="true" android:focusableInTouchMode="true"
+                android:layout_width="0px" android:layout_height="0px"/>
+
+            <com.irccloud.android.ActionEditText
+                android:id="@+id/messageTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/compose_bar_bg"
-                android:padding="4dp"
-                android:paddingTop="2dp" >
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="Message"
+                android:enabled="false"
+                android:nextFocusLeft="@id/photoBtn"
+                android:imeOptions="flagNoExtractUi|actionSend"
+                android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
+                android:layout_margin="0dp"/>
 
-                <ImageButton
-                    style="@style/Widget.Styled.ImageButton"
-                    android:id="@+id/photoBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:paddingLeft="6dp"
-                    android:paddingRight="6dp"
-                    android:paddingBottom="4dp"
-                    android:scaleType="fitEnd"
-                    android:contentDescription="Insert Photo"
-                    android:src="@drawable/ic_action_photo" />
-
-                <!-- Dummy item to prevent ActionEditText from receiving focus on launch -->
-                <LinearLayout
-                    android:focusable="true" android:focusableInTouchMode="true"
-                    android:layout_width="0px" android:layout_height="0px"/>
-
-                <com.irccloud.android.ActionEditText
-                    android:id="@+id/messageTxt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:layout_weight="1"
-                    android:ems="10"
-                    android:hint="Message"
-                    android:enabled="false"
-                    android:nextFocusLeft="@id/photoBtn"
-                    android:imeOptions="flagNoExtractUi|actionSend"
-                    android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
-                    android:layout_margin="0dp"/>
-
-                <ImageButton
-                    style="@style/Widget.Styled.ImageButton"
-                    android:id="@+id/sendBtn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:paddingLeft="6dp"
-                    android:paddingRight="6dp"
-                    android:paddingBottom="4dp"
-                    android:scaleType="fitEnd"
-                    android:contentDescription="Send"
-                    android:src="@drawable/ic_action_send" />
-            </LinearLayout>
+            <ImageButton
+                style="@style/Widget.Styled.ImageButton"
+                android:id="@+id/sendBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:paddingBottom="4dp"
+                android:scaleType="fitEnd"
+                android:contentDescription="Send"
+                android:src="@drawable/ic_action_send" />
         </LinearLayout>
+    </LinearLayout>
 
-        <fragment
-            android:id="@+id/usersListFragment"
-            android:name="com.irccloud.android.fragment.UsersListFragment"
-            android:layout_width="@dimen/userlist_width"
-            android:layout_height="match_parent"
-            tools:layout="@layout/userslist" />
-        </LinearLayout>
-    </android.support.v4.widget.DrawerLayout>
-</LinearLayout>
+    <fragment
+        android:id="@+id/usersListFragment"
+        android:name="com.irccloud.android.fragment.UsersListFragment"
+        android:layout_width="@dimen/userlist_width"
+        android:layout_height="match_parent"
+        tools:layout="@layout/userslist" />
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/usersListFragment2"
+        android:name="com.irccloud.android.fragment.UsersListFragment"
+        android:layout_width="@dimen/userlist_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        tools:layout="@layout/userslist" />
+
+</android.support.v4.widget.DrawerLayout>
