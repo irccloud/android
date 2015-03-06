@@ -1317,6 +1317,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 } else {
                                                     conn.say(buffer.cid, null, "/query " + e.from);
                                                 }
+                                            } else if(e.failed) {
+                                                mListener.onFailedMessageClicked(e);
                                             } else {
                                                 long group = e.group_eid;
                                                 if (expandedSectionEids.contains(group))
@@ -2292,5 +2294,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		public void onMessageViewReady();
 		public boolean onMessageLongClicked(EventsDataSource.Event event);
 		public void onMessageDoubleClicked(EventsDataSource.Event event);
+        public void onFailedMessageClicked(EventsDataSource.Event event);
 	}
 }

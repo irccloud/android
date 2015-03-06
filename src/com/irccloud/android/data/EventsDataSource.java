@@ -23,6 +23,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TimerTask;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -71,6 +72,7 @@ public class EventsDataSource {
         public Spanned formatted;
         public String contentDescription;
         public JsonNode entities;
+        public TimerTask expiration_timer;
 
         public String toString() {
             return "{"+

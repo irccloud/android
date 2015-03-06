@@ -916,6 +916,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(e != null && e.reqid != -1) {
 				messageTxt.setText("");
                 BuffersDataSource.getInstance().updateDraft(e.bid, null);
+                e.expiration_timer = new TimerTask() {
+                    @Override
+                    public void run() {
+                        if(pendingEvents.containsKey(e.reqid)) {
+                            pendingEvents.remove(e.reqid);
+                            e.failed = true;
+                            e.bg_color = R.color.error;
+                            e.expiration_timer = null;
+                            conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+                        }
+                    }
+                };
+                countdownTimer.schedule(e.expiration_timer, 60000);
 			} else {
                 sendBtn.setEnabled(true);
                 if(Build.VERSION.SDK_INT >= 11)
@@ -1549,9 +1562,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(conn != null) {
 					if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
 						for(EventsDataSource.Event e : pendingEvents.values()) {
-							EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+                            e.failed = true;
+                            e.bg_color = R.color.error;
 						}
-						pendingEvents.clear();
 			    		if(drawerLayout != null && NetworkConnection.getInstance().ready) {
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -2138,6 +2151,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 						pendingEvents.remove(event.getInt("_reqid"));
                         e.failed = true;
                         e.bg_color = R.color.error;
+                        if(e.expiration_timer != null)
+                            e.expiration_timer.cancel();
 						conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
 					}
 				} else {
@@ -2221,11 +2236,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if(e.from.equalsIgnoreCase(buffer.name)) {
                             for(EventsDataSource.Event e1 : pendingEvents.values()) {
                                 EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
+                                if(e1.expiration_timer != null)
+                                    e1.expiration_timer.cancel();
                             }
                             pendingEvents.clear();
                         } else if(pendingEvents.containsKey(e.reqid)) {
-                            e = pendingEvents.get(e.reqid);
-                            EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
+                            EventsDataSource.Event e1 = pendingEvents.get(e.reqid);
+                            if(e1.expiration_timer != null)
+                                e1.expiration_timer.cancel();
+                            if(e1.eid != e.eid)
+                                EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
                             pendingEvents.remove(e.reqid);
                         }
                     }
@@ -2942,7 +2962,58 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 		return true;
     }
 
-	@Override
+    @Override
+    public void onFailedMessageClicked(EventsDataSource.Event event) {
+        final EventsDataSource.Event e = event;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+        builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+        builder.setMessage("This message could not be sent");
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    dialog.dismiss();
+                } catch (IllegalArgumentException e) {
+                }
+            }
+        });
+        builder.setPositiveButton("Try Again", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    pendingEvents.remove(e.reqid);
+                    e.pending = true;
+                    e.failed = false;
+                    e.bg_color = R.color.self;
+                    e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command);
+                    if(e.reqid >= 0) {
+                        pendingEvents.put(e.reqid, e);
+                        e.expiration_timer = new TimerTask() {
+                            @Override
+                            public void run() {
+                                if(pendingEvents.containsKey(e.reqid)) {
+                                    pendingEvents.remove(e.reqid);
+                                    e.failed = true;
+                                    e.bg_color = R.color.error;
+                                    e.expiration_timer = null;
+                                    conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+                                }
+                            }
+                        };
+                        countdownTimer.schedule(e.expiration_timer, 60000);
+                    }
+                    dialog.dismiss();
+                } catch (IllegalArgumentException e) {
+                }
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.setOwnerActivity(this);
+        dialog.show();
+    }
+
+    @Override
 	public void onUserSelected(int c, String chan, String nick) {
 		UsersDataSource u = UsersDataSource.getInstance();
         showUserPopup(u.getUser(buffer.bid, nick), null);
