@@ -855,11 +855,52 @@ public class Notifications {
                                 .build()));
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), builder.build());
                     }
+
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext());
+
+                    Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
+                    replyIntent.putExtra("cid", n.cid);
+                    replyIntent.putExtra("bid", n.bid);
+                    replyIntent.putExtra("eid", n.eid);
+                    if (n.buffer_type.equals("channel")) {
+                        replyIntent.putExtra("to", n.chan);
+                        replyIntent.putExtra("nick", n.nick);
+                    } else {
+                        replyIntent.putExtra("to", n.nick);
+                    }
+
+                    RemoteInput remoteInput = new RemoteInput.Builder("extra_reply").setLabel("Reply").build();
+                    PendingIntent pendingReplyIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), (int) (n.eid / 1000), replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+
+                    String convTitle = n.nick;
+
+                    if(n.buffer_type.equals("channel")) {
+                        convTitle = n.nick + " in " + n.chan;
+                    }
+
+                    Intent dismiss = new Intent(IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.DISMISS_NOTIFICATION));
+                    dismiss.setData(Uri.parse("irccloud-dismiss://" + n.bid));
+                    dismiss.putExtra("bid", n.bid);
+                    dismiss.putExtra("eids", n.eid);
+
+                    NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
+                            new NotificationCompat.CarExtender.UnreadConversation.Builder(convTitle)
+                                    .setReplyAction(pendingReplyIntent, remoteInput)
+                                    .setReadPendingIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
+
+                    unreadConvBuilder.addMessage(n.message);
+
+                    builder.setContentTitle(n.nick);
+                    builder.extend(new NotificationCompat.CarExtender()
+                            .setUnreadConversation(unreadConvBuilder.build()));
+
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), builder.build());
                 }
 	        	eids[count++] = n.eid;
 	        	last = n;
 	        }
-	        if(show) {
+
+            if(show) {
 				if(count == 1) {
 					if(last.nick != null && last.nick.length() > 0) {
 						title = last.nick;
