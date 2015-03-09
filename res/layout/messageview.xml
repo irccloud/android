@@ -92,7 +92,7 @@
                 android:layout_height="wrap_content"
                 android:text="Dismiss"
                 android:textColor="#fff"
-                android:background="#56A4F7"
+                android:background="@drawable/dismiss_bg"
                 android:minHeight="32dp"
                 android:padding="4dp" />
         </LinearLayout>
