@@ -130,7 +130,7 @@
     <fragment
         android:id="@+id/usersListFragment"
         android:name="com.irccloud.android.fragment.UsersListFragment"
-        android:layout_width="@dimen/userlist_width"
+        android:layout_width="@dimen/drawer_width"
         android:layout_height="match_parent"
         tools:layout="@layout/userslist" />
     </LinearLayout>
