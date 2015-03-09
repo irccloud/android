@@ -113,19 +113,19 @@ public class Notifications {
 
 		if(prefs.contains("notifications_json")) {
 			try {
-				JSONArray array = new JSONArray(prefs.getString("networks_json", "{}"));
+				JSONArray array = new JSONArray(prefs.getString("networks_json", "[]"));
 				for(int i = 0; i < array.length(); i++) {
 					JSONObject o = array.getJSONObject(i);
 					mNetworks.put(o.getInt("cid"), o.getString("network"));
 				}
 				
-				array = new JSONArray(prefs.getString("lastseeneids_json", "{}"));
+				array = new JSONArray(prefs.getString("lastseeneids_json", "[]"));
 				for(int i = 0; i < array.length(); i++) {
 					JSONObject o = array.getJSONObject(i);
 					mLastSeenEIDs.put(o.getInt("bid"), o.getLong("eid"));
 				}
 				
-				array = new JSONArray(prefs.getString("dismissedeids_json", "{}"));
+				array = new JSONArray(prefs.getString("dismissedeids_json", "[]"));
 				for(int i = 0; i < array.length(); i++) {
 					JSONObject o = array.getJSONObject(i);
 					int bid = o.getInt("bid");
@@ -138,7 +138,7 @@ public class Notifications {
 				}
 				
 				synchronized(mNotifications) {
-					array = new JSONArray(prefs.getString("notifications_json", "{}"));
+					array = new JSONArray(prefs.getString("notifications_json", "[]"));
 					for(int i = 0; i < array.length(); i++) {
 						JSONObject o = array.getJSONObject(i);
 						Notification n = new Notification();
@@ -920,7 +920,7 @@ public class Notifications {
 
         try {
             ContentValues cv = new ContentValues();
-            cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/com.irccloud.android.MainActivity");
+            cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getLaunchIntentForPackage(IRCCloudApplication.getInstance().getApplicationContext().getPackageName()).getComponent().flattenToString());
             cv.put("count", count);
             IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
         } catch (IllegalArgumentException ex) {
