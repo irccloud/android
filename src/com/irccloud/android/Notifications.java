@@ -285,6 +285,7 @@ public class Notifications {
         editor.remove("lastseeneids_json");
         editor.remove("dismissedeids_json");
         editor.commit();
+        updateTeslaUnreadCount();
 	}
 
     public void clearNetworks() {
@@ -329,6 +330,7 @@ public class Notifications {
 		save();
         if(IRCCloudApplication.getInstance() != null)
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+        updateTeslaUnreadCount();
 	}
 	
 	public synchronized void addNetwork(int cid, String network) {
@@ -428,6 +430,7 @@ public class Notifications {
                     NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(),com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[] {String.valueOf(bid)});
             } catch (Exception e) {
             }
+            updateTeslaUnreadCount();
         }
 	}
 	
@@ -460,6 +463,7 @@ public class Notifications {
         } catch (Exception e) {
             //User has probably uninstalled Sony Liveware
         }
+        updateTeslaUnreadCount();
 	}
 	
 	private boolean isMessage(String type) {
@@ -557,6 +561,7 @@ public class Notifications {
                     showOtherNotifications();
                     mTicker = null;
                     IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+                    updateTeslaUnreadCount();
                 }
             };
             mNotificationTimer.schedule(mNotificationTimerTask, 5000);
@@ -899,5 +904,28 @@ public class Notifications {
         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(bid, builder.build());
 
         return builder;
+    }
+
+    public void updateTeslaUnreadCount() {
+        int count = 0;
+
+        synchronized(mNotifications) {
+            for(int i = 0; i < mNotifications.size(); i++) {
+                Notification n = mNotifications.get(i);
+                if(n.bid != excludeBid) {
+                    count++;
+                }
+            }
+        }
+
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/com.irccloud.android.MainActivity");
+            cv.put("count", count);
+            IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
+        } catch (IllegalArgumentException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 }
