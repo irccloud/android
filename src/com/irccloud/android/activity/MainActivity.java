@@ -4027,11 +4027,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
                     final EditText fileinput = (EditText) view.findViewById(R.id.filename);
                     final EditText messageinput = (EditText) view.findViewById(R.id.message);
+                    messageinput.setText(buffer.draft);
+                    buffer.draft = "";
+                    messageTxt.setText("");
                     fileSize = (TextView)view.findViewById(R.id.filesize);
                     fileSize.setText("Calculating size… • " + type);
 
                     fileinput.setText(original_filename);
-                    fileinput.setSelection(0, original_filename.lastIndexOf("."));
                     fileinput.setOnEditorActionListener(new OnEditorActionListener() {
                         public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                             if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -4073,12 +4075,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             fileUploadTask = null;
                             dialog.dismiss();
                             hide_progress();
+                            if(buffer != null)
+                                buffer.draft = messageinput.getText().toString();
+                            if(messageTxt != null)
+                                messageTxt.setText(messageinput.getText());
                         }
                     });
                     metadataDialog = builder.create();
                     fileinput.setTag(metadataDialog);
                     metadataDialog.setOwnerActivity(MainActivity.this);
-                    metadataDialog.getWindow().setSoftInputMode (WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     metadataDialog.show();
                 }
             });

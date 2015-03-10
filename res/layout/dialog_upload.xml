@@ -35,10 +35,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:lines="1"
-        android:inputType="textUri">
+        android:nextFocusDown="@+id/message"
+        android:inputType="textUri"/>
 
-        <requestFocus />
-    </EditText>
+    <!-- Dummy item to prevent EditText from receiving focus on launch -->
+    <LinearLayout
+        android:focusable="true" android:focusableInTouchMode="true"
+        android:layout_width="0px" android:layout_height="0px"><requestFocus/></LinearLayout>
 
     <TextView
         android:id="@+id/filesize"
@@ -58,10 +61,11 @@
         android:layout_marginTop="6dp" />
 
     <EditText
-        android:id="@+id/message"
+        android:id="@id/message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:lines="0"
+        android:nextFocusUp="@id/filename"
         android:inputType="text" />
 
 </LinearLayout>
