@@ -3541,6 +3541,69 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return true;
     }
 
+    private int getOrientation(Context context, Uri photoUri) {
+        int orientation = -1;
+        Cursor cursor = context.getContentResolver().query(photoUri,
+                new String[] { MediaStore.Images.ImageColumns.ORIENTATION }, null, null, null);
+
+        if (cursor != null) {
+            cursor.moveToFirst();
+            orientation = cursor.getInt(0);
+            cursor.close();
+        }
+
+        return orientation;
+    }
+
+    private Bitmap loadThumbnail(Context context, Uri photoUri) throws IOException {
+        InputStream is = context.getContentResolver().openInputStream(photoUri);
+        BitmapFactory.Options dbo = new BitmapFactory.Options();
+        dbo.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(is, null, dbo);
+        is.close();
+
+        int rotatedWidth, rotatedHeight;
+        int orientation = getOrientation(context, photoUri);
+
+        if (orientation == 90 || orientation == 270) {
+            rotatedWidth = dbo.outHeight;
+            rotatedHeight = dbo.outWidth;
+        } else {
+            rotatedWidth = dbo.outWidth;
+            rotatedHeight = dbo.outHeight;
+        }
+
+        Bitmap srcBitmap;
+        is = context.getContentResolver().openInputStream(photoUri);
+        if (rotatedWidth > 1024 || rotatedHeight > 1024) {
+            float widthRatio = ((float) rotatedWidth) / ((float) 1024);
+            float heightRatio = ((float) rotatedHeight) / ((float) 1024);
+            float maxRatio = Math.max(widthRatio, heightRatio);
+
+            // Create the bitmap from file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = (int) maxRatio;
+            srcBitmap = BitmapFactory.decodeStream(is, null, options);
+        } else {
+            srcBitmap = BitmapFactory.decodeStream(is);
+        }
+        is.close();
+
+    /*
+     * if the orientation is not 0 (or -1, which means we don't know), we
+     * have to do a rotation.
+     */
+        if (orientation > 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(orientation);
+
+            srcBitmap = Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(),
+                    srcBitmap.getHeight(), matrix, true);
+        }
+
+        return srcBitmap;
+    }
+
     private Uri resize(Uri in) {
         Uri out = null;
         try {
@@ -3982,8 +4045,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             mBuffer = buffer;
             mFileUri = fileUri;
             type = getContentResolver().getType(mFileUri);
-            if(type == null)
-                type = "application/octet-stream";
 
             if(Build.VERSION.SDK_INT < 16) {
                 original_filename = fileUri.getLastPathSegment();
@@ -3999,6 +4060,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     original_filename = String.valueOf(System.currentTimeMillis());
                 }
             }
+
+            if(type == null) {
+                String lower = original_filename.toLowerCase();
+                if(lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
+                    type = "image/jpeg";
+                else if(lower.endsWith(".png"))
+                    type = "image/png";
+                else if(lower.endsWith(".bmp"))
+                    type = "image/bmp";
+                else
+                    type = "application/octet-stream";
+            }
+
             if(!original_filename.contains("."))
                 original_filename += "." + type.substring(type.indexOf("/") + 1);
 
@@ -4027,9 +4101,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
                     final EditText fileinput = (EditText) view.findViewById(R.id.filename);
                     final EditText messageinput = (EditText) view.findViewById(R.id.message);
+                    final ImageView thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
                     messageinput.setText(buffer.draft);
                     buffer.draft = "";
                     messageTxt.setText("");
+
+                    if(type.startsWith("image/")) {
+                        try {
+                            thumbnail.setImageBitmap(loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), mFileUri));
+                            thumbnail.setVisibility(View.VISIBLE);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        thumbnail.setVisibility(View.GONE);
+                    }
+
                     fileSize = (TextView)view.findViewById(R.id.filesize);
                     fileSize.setText("Calculating size… • " + type);
 

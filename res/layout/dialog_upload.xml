@@ -22,34 +22,61 @@
     android:paddingRight="6dp"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:textColor="#000"
-        android:text="Choose a file name"
-        android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-    <EditText
-        android:id="@+id/filename"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:lines="1"
-        android:nextFocusDown="@+id/message"
-        android:inputType="textUri"/>
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:textColor="#000"
+                android:text="Choose a file name"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+            <EditText
+                android:id="@+id/filename"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:nextFocusDown="@+id/message"
+                android:inputType="textUri"/>
+
+            <TextView
+                android:id="@+id/filesize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:textColor="#000"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/thumbnail"
+            android:scaleType="fitCenter"
+            android:layout_margin="6dp"
+            android:maxWidth="120dp"
+            android:maxHeight="80dp"
+            android:layout_weight="0"
+            android:layout_gravity="center"
+            android:adjustViewBounds="true" />
+
+    </LinearLayout>
 
     <!-- Dummy item to prevent EditText from receiving focus on launch -->
+
     <LinearLayout
         android:focusable="true" android:focusableInTouchMode="true"
         android:layout_width="0px" android:layout_height="0px"><requestFocus/></LinearLayout>
-
-    <TextView
-        android:id="@+id/filesize"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:textColor="#000"
-        android:textAppearance="?android:attr/textAppearanceSmall"/>
 
     <TextView
         android:layout_width="wrap_content"
