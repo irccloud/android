@@ -4157,6 +4157,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
                             if(fileUploadTask != null)
                                 fileUploadTask.cancel(true);
                             fileUploadTask = null;

@@ -38,7 +38,7 @@
                 android:layout_height="wrap_content"
                 android:padding="4dp"
                 android:textColor="#000"
-                android:text="Choose a file name"
+                android:text="File name"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
 
             <EditText
@@ -83,7 +83,7 @@
         android:layout_height="wrap_content"
         android:padding="4dp"
         android:textColor="#000"
-        android:text="Add a message (optional)"
+        android:text="Message (optional)"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_marginTop="6dp" />
 
