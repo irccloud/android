@@ -29,4 +29,5 @@
     <dimen name="scrollbar_size">2dp</dimen>
     <integer name="default_text_size">14</integer>
     <dimen name="message_row_spacing">0dp</dimen>
+    <integer name="max_input_lines">4</integer>
 </resources>

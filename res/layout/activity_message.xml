@@ -20,22 +20,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <fragment
-        android:id="@+id/BuffersList"
-        android:name="com.irccloud.android.fragment.BuffersListFragment"
-        android:layout_width="@dimen/drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="left"
-        tools:layout="@layout/bufferslist" />
-
-    <fragment
-        android:id="@+id/usersListFragment"
-        android:name="com.irccloud.android.fragment.UsersListFragment"
-        android:layout_width="@dimen/userlist_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        tools:layout="@layout/userslist" />
-
     <LinearLayout
         android:id="@+id/messageContainer"
         android:layout_width="match_parent"
@@ -113,6 +97,7 @@
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:ems="10"
+                android:maxLines="@integer/max_input_lines"
                 android:hint="Message"
                 android:enabled="false"
                 android:nextFocusLeft="@id/photoBtn"
@@ -132,4 +117,20 @@
                 android:src="@drawable/ic_action_send" />
         </LinearLayout>
     </LinearLayout>
+
+    <fragment
+        android:id="@+id/BuffersList"
+        android:name="com.irccloud.android.fragment.BuffersListFragment"
+        android:layout_width="@dimen/drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        tools:layout="@layout/bufferslist" />
+
+    <fragment
+        android:id="@+id/usersListFragment"
+        android:name="com.irccloud.android.fragment.UsersListFragment"
+        android:layout_width="@dimen/userlist_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        tools:layout="@layout/userslist" />
 </android.support.v4.widget.DrawerLayout>

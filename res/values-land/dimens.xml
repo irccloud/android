@@ -15,10 +15,5 @@
   -->
 
 <resources>
-    <dimen name="unread_top_txt_size">16sp</dimen>
-    <dimen name="unread_bottom_txt_size">16sp</dimen>
-    <dimen name="unread_bubble_size">28dp</dimen>
-    <integer name="default_text_size">16</integer>
-    <dimen name="message_row_spacing">4dp</dimen>
-    <integer name="max_input_lines">6</integer>
+    <integer name="max_input_lines">2</integer>
 </resources>
