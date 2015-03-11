@@ -46,15 +46,22 @@ public class RemoteInputService extends IntentService {
                     String reply = remoteInput.getCharSequence("extra_reply").toString();
                     if(reply.length() > 0 && !reply.startsWith("/")) {
                         try {
-                            JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), (intent.hasExtra("nick") ? intent.getStringExtra("nick") + ": " : "") + reply, sk);
+                            JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);
                             success = o.getBoolean("success");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (intent.getLongExtra("eid", 0) / 1000));
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(intent.getIntExtra("bid", 0));
-                    Notifications.getInstance().dismiss(intent.getIntExtra("bid", 0), intent.getLongExtra("eid", 0));
+                    if(intent.hasExtra("eids")) {
+                        int bid = intent.getIntExtra("bid", -1);
+                        long[] eids = intent.getLongArrayExtra("eids");
+                        for(int j = 0; j < eids.length; j++) {
+                            if(eids[j] > 0) {
+                                Notifications.getInstance().dismiss(bid, eids[j]);
+                            }
+                        }
+                    }
                     Notifications.getInstance().showNotifications(null);
                     if(!success)
                        Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", "Your message was not sent. Please try again shortly.");
