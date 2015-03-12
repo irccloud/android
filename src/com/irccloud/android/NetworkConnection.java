@@ -1488,6 +1488,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 userInfo = new UserInfo(object);
+                Crashlytics.setUserIdentifier("uid" + userInfo.id);
                 SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
                 prefs.putString("name", userInfo.name);
                 prefs.putString("email", userInfo.email);
@@ -1508,7 +1509,6 @@ public class NetworkConnection {
                 }
                 prefs.commit();
                 EventsDataSource.getInstance().clearCaches();
-                Crashlytics.setUserIdentifier("uid" + userInfo.id);
                 notifyHandlers(EVENT_USERINFO, userInfo);
             }
         });
@@ -2529,6 +2529,8 @@ public class NetworkConnection {
 
 		public UserInfo(IRCCloudJSONObject object) {
             id = object.getInt("id");
+            Crashlytics.log(Log.INFO, "IRCCloud", "Setting UserInfo for uid" + id);
+
 			name = object.getString("name");
 			email = object.getString("email");
 			verified = object.getBoolean("verified");
@@ -2552,7 +2554,7 @@ public class NetworkConnection {
                     prefs = null;
                 }
             } else {
-                Crashlytics.log("User prefs not set");
+                Crashlytics.log(Log.INFO, "IRCCloud", "User prefs not set");
                 prefs = null;
             }
 			
