@@ -459,7 +459,10 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
                 }
                 break;
             case NetworkConnection.EVENT_USERINFO:
-                dismiss();
+                try {
+                    dismiss();
+                } catch (Exception e) {
+                }
                 break;
             default:
                 break;

@@ -1600,7 +1600,8 @@ public class NetworkConnection {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
                     streamId = null;
-                    client.disconnect();
+                    if(client != null)
+                        client.disconnect();
                 } else {
                     failCount = 0;
                     ready = true;

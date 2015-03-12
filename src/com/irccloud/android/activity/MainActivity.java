@@ -924,7 +924,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             e.failed = true;
                             e.bg_color = R.color.error;
                             e.expiration_timer = null;
-                            conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+                            if(conn != null)
+                                conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
                         }
                     }
                 };
@@ -2275,20 +2276,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onPrepareOptionsMenu (Menu menu) {
-        //Hacky fix for miscolored overflow menu, see https://code.google.com/p/android/issues/detail?id=78289
-        Toolbar t = (Toolbar)findViewById(R.id.toolbar);
-        for(int i = 0; i < t.getChildCount(); i++) {
-            if(t.getChildAt(i) instanceof ActionMenuView) {
-                ActionMenuView v = (ActionMenuView)t.getChildAt(i);
-                for(int j = 0; j < v.getChildCount(); j++) {
-                    if(v.getChildAt(j) instanceof TintImageView) {
-                        TintImageView v1 = (TintImageView)v.getChildAt(j);
-                        v1.setImageResource(R.drawable.abc_ic_menu_moreoverflow_mtrl_alpha);
-                    }
-                }
-            }
-        }
-
         if(menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
         	if(buffer.archived == 0) {
                 if(menu.findItem(R.id.menu_archive) != null)
@@ -2523,7 +2510,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
 	        case R.id.menu_whois:
-	        	conn.whois(buffer.cid, buffer.name, null);
+	        	NetworkConnection.getInstance().whois(buffer.cid, buffer.name, null);
 	        	break;
 	        case R.id.menu_identify:
 	        	NickservFragment nsFragment = new NickservFragment();
@@ -2567,19 +2554,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	            ignoreList.show(getSupportFragmentManager(), "ignorelist");
                 return true;
             case R.id.menu_ban_list:
-            	conn.mode(buffer.cid, buffer.name, "b");
+                NetworkConnection.getInstance().mode(buffer.cid, buffer.name, "b");
                 return true;
             case R.id.menu_leave:
             	if(ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid) == null)
-            		conn.join(buffer.cid, buffer.name, null);
+                    NetworkConnection.getInstance().join(buffer.cid, buffer.name, null);
             	else
-            		conn.part(buffer.cid, buffer.name, null);
+                    NetworkConnection.getInstance().part(buffer.cid, buffer.name, null);
             	return true;
             case R.id.menu_archive:
             	if(buffer.archived == 0)
-            		conn.archiveBuffer(buffer.cid, buffer.bid);
+                    NetworkConnection.getInstance().archiveBuffer(buffer.cid, buffer.bid);
             	else
-            		conn.unarchiveBuffer(buffer.cid, buffer.bid);
+                    NetworkConnection.getInstance().unarchiveBuffer(buffer.cid, buffer.bid);
             	return true;
             case R.id.menu_delete:
             	builder = new AlertDialog.Builder(MainActivity.this);
@@ -2633,9 +2620,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             	return true;
             case R.id.menu_disconnect:
                 if(server != null && server.status != null && (server.status.equalsIgnoreCase("waiting_to_retry")) || (server.status.contains("connected") && !server.status.startsWith("dis"))) {
-        			conn.disconnect(buffer.cid, null);
+                    NetworkConnection.getInstance().disconnect(buffer.cid, null);
         		} else {
-        			conn.reconnect(buffer.cid);
+                    NetworkConnection.getInstance().reconnect(buffer.cid);
         		}
         		return true;
         }
