@@ -606,8 +606,8 @@ public class Notifications {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
-		.setContentTitle(title)
-		.setContentText(Html.fromHtml(text + ((network != null)?("<br/>(" + network + ")"):"")))
+		.setContentTitle(title + ((network != null)?(" (" + network + ")"):""))
+		.setContentText(Html.fromHtml(text + ((count > 1)?("<br/><br/><font color='#a3a3a3'>+" + (count - 1) + " more</font>"):"")))
         .setTicker(ticker)
         .setWhen(eids[0] / 1000)
         .setSmallIcon(R.drawable.ic_stat_notify)
