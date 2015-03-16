@@ -1471,14 +1471,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 try {
                     events = (TreeMap<Long, EventsDataSource.Event>) evs.clone();
                 } catch (Exception e) {
+                    e.printStackTrace();
                     return null;
                 }
                 if(isCancelled())
                     return null;
 
-                if(events != null && events.size() > 0) {
+                if(events != null) {
                     try {
-                        if (MessageViewFragment.this.adapter != null && MessageViewFragment.this.adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
+                        if (events.size() > 0 && MessageViewFragment.this.adapter != null && MessageViewFragment.this.adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
                             if (oldPosition > 0 && oldPosition == MessageViewFragment.this.adapter.data.size())
                                 oldPosition--;
                             EventsDataSource.Event e = MessageViewFragment.this.adapter.data.get(oldPosition);
@@ -1583,6 +1584,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
 
                             update_unread();
+                        }
+                        if(adapter.getCount() == 0 && buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                            Log.d("IRCCloud", "All buffer events were hidden, requesting more");
+                            requestingBacklog = true;
+                            conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
                         }
                     }
                     new FormatTask().execute((Void)null);
