@@ -25,6 +25,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
 
+import com.crashlytics.android.Crashlytics;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -238,6 +239,7 @@ public class Notifications {
                     else
                         editor.commit();
                 } catch (ConcurrentModificationException e) {
+                    save();
                 } catch (OutOfMemoryError e) {
                     editor.remove("notifications_json");
                     editor.remove("networks_json");
@@ -250,7 +252,7 @@ public class Notifications {
                 }
             }
         };
-		mSaveTimer.schedule(mSaveTimerTask, 60000);
+		mSaveTimer.schedule(mSaveTimerTask, 100);
 	}
 	
 	public void clearDismissed() {
@@ -260,7 +262,6 @@ public class Notifications {
 	
 	public void clear() {
 		try {
-            NotificationManager nm = (NotificationManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 			synchronized(mNotifications) {
 				if(mNotifications.size() > 0) {
 			        for(Notification n : mNotifications) {
@@ -345,6 +346,7 @@ public class Notifications {
 	
 	public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
 		if(isDismissed(bid, eid)) {
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Refusing to add notification for dismissed eid: " + eid);
 			return;
 		}
 		long last_eid = getLastSeenEid(bid);
@@ -423,6 +425,7 @@ public class Notifications {
 				}
 			}
 		}
+        save();
         if(changed) {
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             try {

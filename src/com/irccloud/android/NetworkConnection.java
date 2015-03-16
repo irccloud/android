@@ -1594,7 +1594,9 @@ public class NetworkConnection {
                 ChannelsDataSource.getInstance().purgeInvalidChannels();
                 if(Notifications.getInstance().count() == 0) {
                     Log.d("IRCCloud", "Tidying up notifications");
-                    Notifications.getInstance().clear();
+                    for(BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+                        Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
+                    }
                 }
                 if(userInfo.connections > 0 && (ServersDataSource.getInstance().count() == 0 || BuffersDataSource.getInstance().count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
