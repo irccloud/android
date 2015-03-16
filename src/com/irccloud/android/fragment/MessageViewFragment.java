@@ -1585,11 +1585,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                             update_unread();
                         }
-                        if(adapter.getCount() == 0 && buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                            Log.d("IRCCloud", "All buffer events were hidden, requesting more");
-                            requestingBacklog = true;
-                            conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
-                        }
                     }
                     new FormatTask().execute((Void)null);
                 } catch (IllegalStateException e) {
@@ -1611,6 +1606,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if(mListener != null && !ready)
                             mListener.onMessageViewReady();
                         ready = true;
+                        try {
+                            ListView v = getListView();
+                            mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
+                        } catch(Exception e) {
+                        }
                     }
                 }, 250);
                 //Debug.stopMethodTracing();
