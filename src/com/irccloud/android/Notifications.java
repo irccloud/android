@@ -23,6 +23,7 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.SQLException;
 
 import com.crashlytics.android.Crashlytics;
@@ -897,6 +898,12 @@ public class Notifications {
     }
 
     public void updateTeslaUnreadCount() {
+        try {
+            IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getPackageInfo("com.teslacoilsw.notifier", PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            return;
+        }
+
         int count = 0;
 
         synchronized(mNotifications) {
