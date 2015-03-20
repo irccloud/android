@@ -149,6 +149,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.OnEditorActionListener;
@@ -4085,13 +4086,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 public void run() {
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                    View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
+                    final View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
                     final EditText fileinput = (EditText) view.findViewById(R.id.filename);
                     final EditText messageinput = (EditText) view.findViewById(R.id.message);
                     final ImageView thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
                     messageinput.setText(buffer.draft);
                     buffer.draft = "";
                     messageTxt.setText("");
+
+                    view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            if(fileinput.hasFocus() || messageinput.hasFocus()) {
+                                view.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        view.scrollTo(0, view.getBottom());
+                                    }
+                                });
+                            }
+                        }
+                    });
 
                     if(type.startsWith("image/")) {
                         try {
@@ -4126,7 +4141,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                     builder.setTitle("Upload A File To " + mBuffer.name);
                     builder.setView(view);
-                    builder.setPositiveButton("Upload", new DialogInterface.OnClickListener() {
+                    builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             try {
@@ -4164,6 +4179,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     metadataDialog = builder.create();
                     fileinput.setTag(metadataDialog);
                     metadataDialog.setOwnerActivity(MainActivity.this);
+                    metadataDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                     metadataDialog.show();
                 }
             });
