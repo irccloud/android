@@ -807,14 +807,14 @@ public class Notifications {
 
                 if(n.buffer_type.equals("conversation")) {
                     if (n.message_type.equals("buffer_me_msg"))
-                        auto_messages[count] = "— " + n.nick + " " + n.message;
+                        auto_messages[count] = "— " + n.nick + " " + Html.fromHtml(n.message).toString();
                     else
-                        auto_messages[count] = n.message;
+                        auto_messages[count] = Html.fromHtml(n.message).toString();
                 } else {
                     if (n.message_type.equals("buffer_me_msg"))
-                        auto_messages[count] = "— " + n.nick + " " + n.message;
+                        auto_messages[count] = "— " + n.nick + " " + Html.fromHtml(n.message).toString();
                     else
-                        auto_messages[count] = n.nick + " said: " + n.message;
+                        auto_messages[count] = n.nick + " said: " + Html.fromHtml(n.message).toString();
                 }
 
                 if(!n.shown) {
