@@ -233,6 +233,8 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+        <meta-data android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${CRASHLYTICS_KEY}" />

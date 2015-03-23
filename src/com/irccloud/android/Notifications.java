@@ -598,7 +598,7 @@ public class Notifications {
 						text = n.message;
 						ticker = n.message;
 					}
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, Html.fromHtml(text), 1, null, null, title));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, Html.fromHtml(text), 1, null, null, title, null));
 			        n.shown = true;
 	        	}
 	        }
@@ -606,7 +606,7 @@ public class Notifications {
 	}
 	
 	@SuppressLint("NewApi")
-	private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, Spanned big_text, int count, Intent replyIntent, Spanned wear_text, String network) {
+	private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, Spanned big_text, int count, Intent replyIntent, Spanned wear_text, String network, String auto_messages[]) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
@@ -651,25 +651,45 @@ public class Notifications {
 		dismiss.setData(Uri.parse("irccloud-dismiss://" + bid));
     	dismiss.putExtra("bid", bid);
 		dismiss.putExtra("eids", eids);
+
+        PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+
         builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
-		builder.setDeleteIntent(PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT));
+		builder.setDeleteIntent(dismissPendingIntent);
 
         WearableExtender extender = new WearableExtender();
         if(replyIntent != null)
             extender.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_reply,
-                "Reply", PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT))
+                "Reply", replyPendingIntent)
                 .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply").build()).build());
 
         if(count > 1 && wear_text != null)
             extender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(wear_text).extend(new WearableExtender().setStartScrollBottom(true)).build());
 
-        android.app.Notification notification = builder.extend(extender).build();
+        NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
+                new NotificationCompat.CarExtender.UnreadConversation.Builder(title + ((network != null)?(" (" + network + ")"):""))
+                        .setReadPendingIntent(dismissPendingIntent)
+                        .setReplyAction(replyPendingIntent, new RemoteInput.Builder("extra_reply").setLabel("Reply").build());
+
+        if(auto_messages != null) {
+            for(String m : auto_messages) {
+                if(m != null && m.length() > 0) {
+                    unreadConvBuilder.addMessage(m);
+                }
+            }
+        } else {
+            unreadConvBuilder.addMessage(text);
+        }
+        unreadConvBuilder.setLatestTimestamp(eids[count - 1] / 1000);
+
+        android.app.Notification notification = builder.extend(extender).extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build())).build();
 		RemoteViews contentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification);
         contentView.setTextViewText(R.id.title, title + " (" + network + ")");
         contentView.setTextViewText(R.id.text, (count == 1)?Html.fromHtml(text):(count + " unread highlights."));
         contentView.setLong(R.id.time, "setTime", eids[0]/1000);
 		notification.contentView = contentView;
-		
+
 		if(Build.VERSION.SDK_INT >= 16 && big_text != null) {
 			RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
 			bigContentView.setTextViewText(R.id.title, title + (!title.equals(network)?(" (" + network + ")"):""));
@@ -721,6 +741,7 @@ public class Notifications {
 			int lastbid = notifications.get(0).bid;
 			int count = 0;
 			long[] eids = new long[notifications.size()];
+            String[] auto_messages = new String[notifications.size()];
 			Notification last = null;
 			count = 0;
     		boolean show = false;
@@ -755,7 +776,7 @@ public class Notifications {
                                 body = last.message;
                         }
 
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
 	        		}
 	        		lastbid = n.bid;
 	        		text = "";
@@ -763,6 +784,7 @@ public class Notifications {
 					count = 0;
 					eids = new long[notifications.size()];
 					show = false;
+                    auto_messages = new String[notifications.size()];
 	        	}
                 if(count < 3) {
                     if (text.length() > 0)
@@ -782,6 +804,19 @@ public class Notifications {
                     weartext += "<b>— " + n.nick + "</b> " + n.message;
                 else
                     weartext += "<b>&lt;" + n.nick + "&gt;</b> " + n.message;
+
+                if(n.buffer_type.equals("conversation")) {
+                    if (n.message_type.equals("buffer_me_msg"))
+                        auto_messages[count] = "— " + n.nick + " " + n.message;
+                    else
+                        auto_messages[count] = n.message;
+                } else {
+                    if (n.message_type.equals("buffer_me_msg"))
+                        auto_messages[count] = "— " + n.nick + " " + n.message;
+                    else
+                        auto_messages[count] = n.nick + " said: " + n.message;
+                }
+
                 if(!n.shown) {
 	        		n.shown = true;
 	        		show = true;
@@ -872,7 +907,7 @@ public class Notifications {
                     else
                         body = last.message;
                 }
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network));
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
 	        }
 		}
 	}

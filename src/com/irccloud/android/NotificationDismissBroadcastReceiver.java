@@ -19,6 +19,7 @@ package com.irccloud.android;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
@@ -31,8 +32,10 @@ public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
 			for(int j = 0; j < eids.length; j++) {
 				if(eids[j] > 0) {
 					Notifications.getInstance().dismiss(bid, eids[j]);
-				}
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int)(eids[j]/1000));
+                }
 			}
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
 		}
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
 	}
