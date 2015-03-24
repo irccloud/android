@@ -653,37 +653,39 @@ public class Notifications {
 		dismiss.putExtra("eids", eids);
 
         PendingIntent dismissPendingIntent = PendingIntent.getBroadcast(IRCCloudApplication.getInstance().getApplicationContext(), 0, dismiss, PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
 
         builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 		builder.setDeleteIntent(dismissPendingIntent);
 
-        WearableExtender extender = new WearableExtender();
-        if(replyIntent != null)
+        if(replyIntent != null) {
+            WearableExtender extender = new WearableExtender();
+            PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
             extender.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_reply,
-                "Reply", replyPendingIntent)
-                .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply").build()).build());
+                    "Reply", replyPendingIntent)
+                    .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply").build()).build());
 
-        if(count > 1 && wear_text != null)
-            extender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(wear_text).extend(new WearableExtender().setStartScrollBottom(true)).build());
+            if (count > 1 && wear_text != null)
+                extender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(wear_text).extend(new WearableExtender().setStartScrollBottom(true)).build());
 
-        NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
-                new NotificationCompat.CarExtender.UnreadConversation.Builder(title + ((network != null)?(" (" + network + ")"):""))
-                        .setReadPendingIntent(dismissPendingIntent)
-                        .setReplyAction(replyPendingIntent, new RemoteInput.Builder("extra_reply").setLabel("Reply").build());
+            NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
+                    new NotificationCompat.CarExtender.UnreadConversation.Builder(title + ((network != null) ? (" (" + network + ")") : ""))
+                            .setReadPendingIntent(dismissPendingIntent)
+                            .setReplyAction(replyPendingIntent, new RemoteInput.Builder("extra_reply").setLabel("Reply").build());
 
-        if(auto_messages != null) {
-            for(String m : auto_messages) {
-                if(m != null && m.length() > 0) {
-                    unreadConvBuilder.addMessage(m);
+            if (auto_messages != null) {
+                for (String m : auto_messages) {
+                    if (m != null && m.length() > 0) {
+                        unreadConvBuilder.addMessage(m);
+                    }
                 }
+            } else {
+                unreadConvBuilder.addMessage(text);
             }
-        } else {
-            unreadConvBuilder.addMessage(text);
-        }
-        unreadConvBuilder.setLatestTimestamp(eids[count - 1] / 1000);
+            unreadConvBuilder.setLatestTimestamp(eids[count - 1] / 1000);
 
-        android.app.Notification notification = builder.extend(extender).extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build())).build();
+            builder.extend(extender).extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));
+        }
+        android.app.Notification notification = builder.build();
 		RemoteViews contentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification);
         contentView.setTextViewText(R.id.title, title + " (" + network + ")");
         contentView.setTextViewText(R.id.text, (count == 1)?Html.fromHtml(text):(count + " unread highlights."));
