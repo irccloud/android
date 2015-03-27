@@ -722,6 +722,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             }
         });
+        ((ListView)v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
         return v;
     }
 
