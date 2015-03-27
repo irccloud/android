@@ -25,6 +25,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -272,14 +273,14 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     private void loadImage(String urlStr) {
         try {
             URL url = new URL(urlStr);
-            mImage.loadDataWithBaseURL(null,"<!DOCTYPE html>\n" +
+            mImage.loadDataWithBaseURL(null, "<!DOCTYPE html>\n" +
                     "<html><head><style>html, body, table { height: 100%; width: 100%; background-color: #000;}</style></head>\n" +
                     "<body>\n" +
                     "<table><tr><td>" +
                     "<img src='" + url.toString() + "' width='100%' onerror='Android.imageFailed()' onclick='Android.imageClicked()'/>\n" +
                     "</td></tr></table>" +
                     "</body>\n" +
-                    "</html>", "text/html", "UTF-8",null);
+                    "</html>", "text/html", "UTF-8", null);
 
             try {
                 if (Build.VERSION.SDK_INT >= 16) {
@@ -348,6 +349,9 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http"));
+            intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
+            intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
 
             MenuItem shareItem = menu.findItem(R.id.action_share);
             ShareActionProviderHax share = (ShareActionProviderHax)MenuItemCompat.getActionProvider(shareItem);
