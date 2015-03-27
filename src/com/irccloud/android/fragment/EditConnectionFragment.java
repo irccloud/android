@@ -435,7 +435,10 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
                 obj = (IRCCloudJSONObject)o;
                 if(obj.getInt("_reqid") == reqid) {
                     NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
-                    dismiss();
+                    try {
+                        dismiss();
+                    } catch (Exception e) {
+                    }
                 }
                 break;
             case NetworkConnection.EVENT_FAILURE_MSG:

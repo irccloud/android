@@ -45,7 +45,12 @@ public class BufferOptionsFragment extends DialogFragment {
 	int cid;
 	int bid;
 	String type;
-	
+
+    public BufferOptionsFragment() {
+        cid = bid = -1;
+        type = null;
+    }
+
     public BufferOptionsFragment(int cid, int bid, String type) {
 		this.cid = cid;
 		this.bid = bid;
@@ -172,7 +177,13 @@ public class BufferOptionsFragment extends DialogFragment {
         } else {
             expandDisco.setVisibility(View.GONE);
         }
-    	
+
+        if(savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
+            bid = savedInstanceState.getInt("bid");
+            cid = savedInstanceState.getInt("cid");
+            type = savedInstanceState.getString("type");
+        }
+
     	return new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("Display Options")
@@ -185,5 +196,14 @@ public class BufferOptionsFragment extends DialogFragment {
 					}
                 })
                 .create();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt("bid", bid);
+        outState.putInt("cid", cid);
+        outState.putString("type", type);
     }
 }

@@ -434,7 +434,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 		
 		@Override
 		public int getCount() {
-			return data.size();
+            if(ctx != null)
+    			return data.size();
+            else
+                return 0;
 		}
 
 		@Override
@@ -474,6 +477,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+            if(position >= data.size() || ctx == null)
+                return null;
+
 			EventsDataSource.Event e = data.get(position);
             synchronized (e) {
                 View row = convertView;

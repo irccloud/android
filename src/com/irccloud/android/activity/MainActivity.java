@@ -1222,8 +1222,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(fileUploadTask != null)
             fileUploadTask.setActivity(null);
 
-        if(showNotificationsTask != null)
-			showNotificationsTask.cancel(true);
+        try {
+            if (showNotificationsTask != null)
+                showNotificationsTask.cancel(true);
+        } catch (Exception e) {
+        }
 		showNotificationsTask = new ShowNotificationsTask();
 		showNotificationsTask.execute(-1);
 		if(channelsListDialog != null)
@@ -3077,8 +3080,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 	    			    clipboard.setText(text_to_copy);
 	    			} else {
 	    			    @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-	    			    android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message",text_to_copy);
-	    			    clipboard.setPrimaryClip(clip);
+                        if(clipboard != null) {
+                            android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message", text_to_copy);
+                            clipboard.setPrimaryClip(clip);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Unable to copy message. Please try again.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 	    			}
                     Toast.makeText(MainActivity.this, "Message copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if(items[item].equals("Copy Hostmask")) {

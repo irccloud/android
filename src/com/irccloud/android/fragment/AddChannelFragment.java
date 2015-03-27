@@ -48,16 +48,19 @@ public class AddChannelFragment extends DialogFragment {
     class DoneClickListener implements DialogInterface.OnClickListener {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-			int cid = servers.valueAt(spinner.getSelectedItemPosition()).cid;
-			String[] splitchannels = channels.getText().toString().split(",");
-			for(int i = 0; i < splitchannels.length; i++) {
-				String[] channelandkey = splitchannels[i].split(" ");
-				if(channelandkey.length > 1)
-					NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), channelandkey[1]);
-				else
-					NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), "");
-			}
-			dismiss();
+            int pos = spinner.getSelectedItemPosition();
+            if(pos >= 0 && pos < servers.size()) {
+                int cid = servers.valueAt(spinner.getSelectedItemPosition()).cid;
+                String[] splitchannels = channels.getText().toString().split(",");
+                for (int i = 0; i < splitchannels.length; i++) {
+                    String[] channelandkey = splitchannels[i].split(" ");
+                    if (channelandkey.length > 1)
+                        NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), channelandkey[1]);
+                    else
+                        NetworkConnection.getInstance().join(cid, channelandkey[0].trim(), "");
+                }
+                dismiss();
+            }
 		}
     }
 
