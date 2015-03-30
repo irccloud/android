@@ -2484,7 +2484,7 @@ public class NetworkConnection {
 	}
 
     public boolean uploadsAvailable() {
-        return Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB && userInfo != null && !userInfo.uploads_disabled;
+        return userInfo != null && !userInfo.uploads_disabled;
     }
 
 	public boolean isVisible() {

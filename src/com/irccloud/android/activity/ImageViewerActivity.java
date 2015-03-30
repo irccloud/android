@@ -41,6 +41,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -272,7 +273,14 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
 
     private void loadImage(String urlStr) {
         try {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && urlStr.startsWith("https://")) {
+                GingerbreadImageProxy proxy = new GingerbreadImageProxy();
+                proxy.init();
+                proxy.start();
+                urlStr = String.format("http://127.0.0.1:%d/%s",proxy.getPort(), urlStr);
+            }
             URL url = new URL(urlStr);
+
             mImage.loadDataWithBaseURL(null, "<!DOCTYPE html>\n" +
                     "<html><head><style>html, body, table { height: 100%; width: 100%; background-color: #000;}</style></head>\n" +
                     "<body>\n" +
