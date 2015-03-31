@@ -29,7 +29,7 @@ public class ChannelsDataSource {
         public String param;
     }
 
-	public static class Channel {
+    public static class Channel {
         public int cid;
         public int bid;
         public String name;
@@ -45,9 +45,9 @@ public class ChannelsDataSource {
         public boolean key;
 
         public synchronized void addMode(String mode, String param, boolean init) {
-            if(!init)
+            if (!init)
                 removeMode(mode);
-            if(mode.equals("k"))
+            if (mode.equals("k"))
                 key = true;
             Mode m = new Mode();
             m.mode = mode;
@@ -56,10 +56,10 @@ public class ChannelsDataSource {
         }
 
         public synchronized void removeMode(String mode) {
-            if(mode.equals("k"))
+            if (mode.equals("k"))
                 key = false;
-            for(Mode m : modes) {
-                if(m.mode.equals(mode)) {
+            for (Mode m : modes) {
+                if (m.mode.equals(mode)) {
                     modes.remove(m);
                     return;
                 }
@@ -67,8 +67,8 @@ public class ChannelsDataSource {
         }
 
         public synchronized boolean hasMode(String mode) {
-            for(Mode m : modes) {
-                if(m.mode.equals(mode)) {
+            for (Mode m : modes) {
+                if (m.mode.equals(mode)) {
                     return true;
                 }
             }
@@ -76,106 +76,106 @@ public class ChannelsDataSource {
         }
 
         public synchronized String paramForMode(String mode) {
-            for(Mode m : modes) {
-                if(m.mode.equals(mode)) {
+            for (Mode m : modes) {
+                if (m.mode.equals(mode)) {
                     return m.param;
                 }
             }
             return null;
         }
     }
-	
-	private SparseArray<Channel> channels;
 
-	private static ChannelsDataSource instance = null;
-	
-	public synchronized static ChannelsDataSource getInstance() {
-		if(instance == null)
-			instance = new ChannelsDataSource();
-		return instance;
-	}
+    private SparseArray<Channel> channels;
 
-	public ChannelsDataSource() {
-		channels = new SparseArray<Channel>();
-	}
+    private static ChannelsDataSource instance = null;
 
-	public synchronized void clear() {
-		channels.clear();
-	}
-	
-	public synchronized Channel createChannel(int cid, int bid, String name, String topic_text, long topic_time, String topic_author, String type, long timestamp) {
-		Channel c = getChannelForBuffer(bid);
-		if(c == null) {
-			c = new Channel();
-			channels.put(bid, c);
-		}
-		c.cid = cid;
-		c.bid = bid;
-		c.name = name;
-		c.topic_author = topic_author;
+    public synchronized static ChannelsDataSource getInstance() {
+        if (instance == null)
+            instance = new ChannelsDataSource();
+        return instance;
+    }
+
+    public ChannelsDataSource() {
+        channels = new SparseArray<Channel>();
+    }
+
+    public synchronized void clear() {
+        channels.clear();
+    }
+
+    public synchronized Channel createChannel(int cid, int bid, String name, String topic_text, long topic_time, String topic_author, String type, long timestamp) {
+        Channel c = getChannelForBuffer(bid);
+        if (c == null) {
+            c = new Channel();
+            channels.put(bid, c);
+        }
+        c.cid = cid;
+        c.bid = bid;
+        c.name = name;
+        c.topic_author = topic_author;
         c.topic_text = ColorFormatter.emojify(topic_text);
-		c.topic_time = topic_time;
-		c.type = type;
-		c.timestamp = timestamp;
+        c.topic_time = topic_time;
+        c.type = type;
+        c.timestamp = timestamp;
         c.valid = 1;
         c.key = false;
         c.mode = "";
         c.modes = new ArrayList<Mode>();
-		return c;
-	}
+        return c;
+    }
 
-	public synchronized void deleteChannel(int bid) {
+    public synchronized void deleteChannel(int bid) {
         channels.remove(bid);
-	}
+    }
 
-	public synchronized void updateTopic(int bid, String topic_text, long topic_time, String topic_author) {
-		Channel c = getChannelForBuffer(bid);
-		if(c != null) {
-			c.topic_text = ColorFormatter.emojify(topic_text);
-			c.topic_time = topic_time;
-			c.topic_author = topic_author;
-		}
-	}
-	
-	public synchronized void updateMode(int bid, String mode, JsonNode ops, boolean init) {
-		Channel c = getChannelForBuffer(bid);
-		if(c != null) {
+    public synchronized void updateTopic(int bid, String topic_text, long topic_time, String topic_author) {
+        Channel c = getChannelForBuffer(bid);
+        if (c != null) {
+            c.topic_text = ColorFormatter.emojify(topic_text);
+            c.topic_time = topic_time;
+            c.topic_author = topic_author;
+        }
+    }
+
+    public synchronized void updateMode(int bid, String mode, JsonNode ops, boolean init) {
+        Channel c = getChannelForBuffer(bid);
+        if (c != null) {
             c.key = false;
             JsonNode add = ops.get("add");
-            for(int i = 0; i < add.size(); i++) {
+            for (int i = 0; i < add.size(); i++) {
                 JsonNode m = add.get(i);
                 c.addMode(m.get("mode").asText(), m.get("param").asText(), init);
             }
             JsonNode remove = ops.get("remove");
-            for(int i = 0; i < remove.size(); i++) {
+            for (int i = 0; i < remove.size(); i++) {
                 JsonNode m = remove.get(i);
                 c.removeMode(m.get("mode").asText());
             }
-			c.mode = mode;
-		}
-	}
-	
-	public synchronized void updateURL(int bid, String url) {
-		Channel c = getChannelForBuffer(bid);
-		if(c != null) {
-			c.url = url;
-		}
-	}
-	
-	public synchronized void updateTimestamp(int bid, long timestamp) {
-		Channel c = getChannelForBuffer(bid);
-		if(c != null) {
-			c.timestamp = timestamp;
-		}
-	}
-	
-	public synchronized Channel getChannelForBuffer(int bid) {
+            c.mode = mode;
+        }
+    }
+
+    public synchronized void updateURL(int bid, String url) {
+        Channel c = getChannelForBuffer(bid);
+        if (c != null) {
+            c.url = url;
+        }
+    }
+
+    public synchronized void updateTimestamp(int bid, long timestamp) {
+        Channel c = getChannelForBuffer(bid);
+        if (c != null) {
+            c.timestamp = timestamp;
+        }
+    }
+
+    public synchronized Channel getChannelForBuffer(int bid) {
         return channels.get(bid);
-	}
+    }
 
     public synchronized ArrayList<Channel> getChannels() {
         ArrayList<Channel> list = new ArrayList<Channel>();
-        for(int i = 0; i < channels.size(); i++) {
+        for (int i = 0; i < channels.size(); i++) {
             Channel c = channels.valueAt(i);
             list.add(c);
         }
@@ -183,7 +183,7 @@ public class ChannelsDataSource {
     }
 
     public synchronized void invalidate() {
-        for(int i = 0; i < channels.size(); i++) {
+        for (int i = 0; i < channels.size(); i++) {
             Channel c = channels.valueAt(i);
             c.valid = 0;
         }
@@ -191,12 +191,12 @@ public class ChannelsDataSource {
 
     public synchronized void purgeInvalidChannels() {
         ArrayList<Channel> channelsToRemove = new ArrayList<Channel>();
-        for(int i = 0; i < channels.size(); i++) {
+        for (int i = 0; i < channels.size(); i++) {
             Channel c = channels.valueAt(i);
-            if(c.valid == 0)
+            if (c.valid == 0)
                 channelsToRemove.add(c);
         }
-        for(Channel c : channelsToRemove) {
+        for (Channel c : channelsToRemove) {
             UsersDataSource.getInstance().deleteUsersForBuffer(c.bid);
             channels.remove(c.bid);
         }

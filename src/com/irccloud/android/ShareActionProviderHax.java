@@ -17,10 +17,7 @@
 package com.irccloud.android;
 
 import android.content.Context;
-import android.support.v7.internal.widget.ActivityChooserView;
 import android.support.v7.widget.ShareActionProvider;
-import android.view.SubMenu;
-import android.view.View;
 
 /**
  * Created by sam on 2/12/14.
@@ -29,13 +26,13 @@ import android.view.View;
 public class ShareActionProviderHax extends ShareActionProvider {
     public OnShareActionProviderSubVisibilityChangedListener onShareActionProviderSubVisibilityChangedListener;
 
-    public ShareActionProviderHax (Context context) {
+    public ShareActionProviderHax(Context context) {
         super(context);
     }
 
     //Expose the submenu visibility change to the parent activity
     public void subUiVisibilityChanged(boolean visible) {
-        if(onShareActionProviderSubVisibilityChangedListener != null)
+        if (onShareActionProviderSubVisibilityChangedListener != null)
             onShareActionProviderSubVisibilityChangedListener.onShareActionProviderSubVisibilityChanged(visible);
     }
 

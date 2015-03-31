@@ -17,7 +17,6 @@ package com.irccloud.android;
 
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -93,6 +92,7 @@ public class DrawerArrowDrawable extends Drawable {
         return ViewCompat.getLayoutDirection(mContext.getWindow().getDecorView())
                 == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
+
     /**
      * If set, canvas is flipped when progress reached to end and going back to start.
      */

@@ -16,26 +16,35 @@
 
 package com.irccloud.android.activity;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
-import android.preference.*;
+import android.os.Bundle;
+import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.BuildConfig;
 import com.irccloud.android.DashClock;
-import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.Notifications;
@@ -47,36 +56,26 @@ import com.sonyericsson.extras.liveware.extension.util.notification.Notification
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
-import android.widget.Toast;
-
 public class PreferencesActivity extends PreferenceActivity implements NetworkConnection.IRCEventHandler {
-	NetworkConnection conn;
-	SaveSettingsTask saveSettingsTask = null;
-	SavePreferencesTask savePreferencesTask = null;
-	int save_prefs_reqid = -1;
-	int save_settings_reqid = -1;
-	
-	@SuppressWarnings("deprecation")
-	@Override
-	public void onCreate(Bundle icicle) {
+    NetworkConnection conn;
+    SaveSettingsTask saveSettingsTask = null;
+    SavePreferencesTask savePreferencesTask = null;
+    int save_prefs_reqid = -1;
+    int save_settings_reqid = -1;
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void onCreate(Bundle icicle) {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
-        if(Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
             cloud.recycle();
         }
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.actionbar_prefs);
 
-        Toolbar toolbar = (Toolbar)findViewById(R.id.actionbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.actionbar);
         toolbar.setTitle(getTitle());
         toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -86,34 +85,34 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             }
         });
 
-        if(Build.VERSION.SDK_INT >= 11)
+        if (Build.VERSION.SDK_INT >= 11)
             toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
 
-        if(Build.VERSION.SDK_INT >= 21)
+        if (Build.VERSION.SDK_INT >= 21)
             toolbar.setElevation(0);
 
-		conn = NetworkConnection.getInstance();
-		addPreferencesFromResource(R.xml.preferences_account);
-		addPreferencesFromResource(R.xml.preferences_display);
-		addPreferencesFromResource(R.xml.preferences_device);
+        conn = NetworkConnection.getInstance();
+        addPreferencesFromResource(R.xml.preferences_account);
+        addPreferencesFromResource(R.xml.preferences_display);
+        addPreferencesFromResource(R.xml.preferences_device);
         addPreferencesFromResource(R.xml.preferences_photos);
-		addPreferencesFromResource(R.xml.preferences_notifications);
+        addPreferencesFromResource(R.xml.preferences_notifications);
         addPreferencesFromResource(R.xml.preferences_dashclock);
         findPreference("dashclock_showmsgs").setOnPreferenceChangeListener(dashclocktoggle);
         try {
             int pebbleVersion = getPackageManager().getPackageInfo("com.getpebble.android", 0).versionCode;
-            if(pebbleVersion < 553)
+            if (pebbleVersion < 553)
                 addPreferencesFromResource(R.xml.preferences_pebble);
         } catch (Exception e) {
         }
-        boolean foundSony=false;
+        boolean foundSony = false;
         try {
             getPackageManager().getPackageInfo("com.sonyericsson.extras.liveware", 0);
             addPreferencesFromResource(R.xml.preferences_sony);
             foundSony = true;
         } catch (Exception e) {
         }
-        if(!foundSony) {
+        if (!foundSony) {
             try {
                 getPackageManager().getPackageInfo("com.sonyericsson.extras.smartwatch", 0);
                 addPreferencesFromResource(R.xml.preferences_sony);
@@ -121,7 +120,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             } catch (Exception e) {
             }
         }
-        if(!foundSony) {
+        if (!foundSony) {
             try {
                 getPackageManager().getPackageInfo("com.sonyericsson.extras.liveview", 0);
                 addPreferencesFromResource(R.xml.preferences_sony);
@@ -129,83 +128,83 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             } catch (Exception e) {
             }
         }
-        if(foundSony)
+        if (foundSony)
             findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
-		addPreferencesFromResource(R.xml.preferences_about);
-		findPreference("name").setOnPreferenceChangeListener(settingstoggle);
+        addPreferencesFromResource(R.xml.preferences_about);
+        findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 
-		findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
-		findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
-		findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
-		findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
-        if(findPreference("emoji-disableconvert") != null) {
+        findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
+        findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
+        if (findPreference("emoji-disableconvert") != null) {
             findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
         }
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
-		findPreference("faq").setOnPreferenceClickListener(urlClick);
-		findPreference("feedback").setOnPreferenceClickListener(urlClick);
+        findPreference("faq").setOnPreferenceClickListener(urlClick);
+        findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
         findPreference("imageviewer").setOnPreferenceChangeListener(imageviewertoggle);
         findPreference("imgur_account_username").setOnPreferenceClickListener(imgurClick);
-		//findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
-		//findPreference("changes").setOnPreferenceClickListener(urlClick);
-		findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
+        //findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
+        //findPreference("changes").setOnPreferenceClickListener(urlClick);
+        findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
         findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
         findPreference("photo_size").setOnPreferenceChangeListener(photosizetoggle);
 
         imgurPreference = findPreference("imgur_account_username");
-        if(NetworkConnection.getInstance().uploadsAvailable()) {
-            if(!PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
-                PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+        if (NetworkConnection.getInstance().uploadsAvailable()) {
+            if (!PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
+                PreferenceCategory c = (PreferenceCategory) findPreference("photos");
                 c.removePreference(imgurPreference);
             }
             findPreference("image_service").setOnPreferenceChangeListener(imageservicetoggle);
         } else {
-            PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+            PreferenceCategory c = (PreferenceCategory) findPreference("photos");
             c.removePreference(findPreference("image_service"));
         }
 
-		try {
+        try {
             final String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             findPreference("version").setSummary(version);
             findPreference("version").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    if(Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                         clipboard.setText(version);
                     } else {
                         @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Version",version);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Version", version);
                         clipboard.setPrimaryClip(clip);
                     }
                     Toast.makeText(PreferencesActivity.this, "Version number copied to clipboard", Toast.LENGTH_SHORT).show();
                     return false;
                 }
             });
-		} catch (NameNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+        } catch (NameNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	switch (item.getItemId()) {
-        case android.R.id.home:
-            finish();
-            return true;
-    	}
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
         return super.onOptionsItemSelected(item);
     }
-	
+
     @Override
     public void onResume() {
-    	super.onResume();
+        super.onResume();
 
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-        if(session != null && session.length() > 0) {
+        if (session != null && session.length() > 0) {
 
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
@@ -271,9 +270,9 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                 findPreference("notify_ringtone").setEnabled(false);
                 findPreference("notify_led_color").setEnabled(false);
             }
-            if(findPreference("imgur_account_username") != null)
+            if (findPreference("imgur_account_username") != null)
                 findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
-            if(findPreference("image_service") != null)
+            if (findPreference("image_service") != null)
                 findPreference("image_service").setSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud"));
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
@@ -281,17 +280,17 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
         }
 
         //Reset the up indicator as the color tint may have been lost
-        Toolbar toolbar = (Toolbar)findViewById(R.id.actionbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.actionbar);
         toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
     }
 
     @Override
     public void onPause() {
-    	super.onPause();
+        super.onPause();
 
-    	if(conn != null) {
-        	conn.removeHandler(this);
-    	}
+        if (conn != null) {
+            conn.removeHandler(this);
+        }
 
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
@@ -300,93 +299,93 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
     public void onIRCEvent(int what, Object obj) {
         IRCCloudJSONObject o;
 
-        switch(what) {
-			case NetworkConnection.EVENT_SUCCESS:
-				o = (IRCCloudJSONObject)obj;
-				if(o.has("_reqid")) {
-					if(o.getInt("_reqid") == save_settings_reqid) {
-						save_settings_reqid = -1;
-					} else if(o.getInt("_reqid") == save_prefs_reqid) {
-						save_prefs_reqid = -1;
-					}
-				}
-				break;
-			case NetworkConnection.EVENT_FAILURE_MSG:
-				o = (IRCCloudJSONObject)obj;
-				if(o.has("_reqid")) {
-					if(o.getInt("_reqid") == save_settings_reqid) {
-						save_settings_reqid = -1;
-						Log.e("IRCCloud", "Settings not updated: " + o.getString("message"));
-					} else if(o.getInt("_reqid") == save_prefs_reqid) {
-						save_prefs_reqid = -1;
-						Log.e("IRCCloud", "Prefs not updated: " + o.getString("message"));
-					}
+        switch (what) {
+            case NetworkConnection.EVENT_SUCCESS:
+                o = (IRCCloudJSONObject) obj;
+                if (o.has("_reqid")) {
+                    if (o.getInt("_reqid") == save_settings_reqid) {
+                        save_settings_reqid = -1;
+                    } else if (o.getInt("_reqid") == save_prefs_reqid) {
+                        save_prefs_reqid = -1;
+                    }
+                }
+                break;
+            case NetworkConnection.EVENT_FAILURE_MSG:
+                o = (IRCCloudJSONObject) obj;
+                if (o.has("_reqid")) {
+                    if (o.getInt("_reqid") == save_settings_reqid) {
+                        save_settings_reqid = -1;
+                        Log.e("IRCCloud", "Settings not updated: " + o.getString("message"));
+                    } else if (o.getInt("_reqid") == save_prefs_reqid) {
+                        save_prefs_reqid = -1;
+                        Log.e("IRCCloud", "Prefs not updated: " + o.getString("message"));
+                    }
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
                         }
                     });
-				}
-				break;
-			case NetworkConnection.EVENT_USERINFO:
-				final NetworkConnection.UserInfo userInfo = conn.getUserInfo();
-				if(userInfo != null) {
-					final JSONObject prefs = userInfo.prefs;
+                }
+                break;
+            case NetworkConnection.EVENT_USERINFO:
+                final NetworkConnection.UserInfo userInfo = conn.getUserInfo();
+                if (userInfo != null) {
+                    final JSONObject prefs = userInfo.prefs;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ((EditTextPreference)findPreference("name")).setText(userInfo.name);
+                            ((EditTextPreference) findPreference("name")).setText(userInfo.name);
                             findPreference("name").setSummary(userInfo.name);
-                            ((EditTextPreference)findPreference("email")).setText(userInfo.email);
+                            ((EditTextPreference) findPreference("email")).setText(userInfo.email);
                             findPreference("email").setSummary(userInfo.email);
-                            ((EditTextPreference)findPreference("highlights")).setText(userInfo.highlights);
+                            ((EditTextPreference) findPreference("highlights")).setText(userInfo.highlights);
                             findPreference("highlights").setSummary(userInfo.highlights);
-                            ((CheckBoxPreference)findPreference("autoaway")).setChecked(userInfo.auto_away);
-                            if(prefs != null) {
+                            ((CheckBoxPreference) findPreference("autoaway")).setChecked(userInfo.auto_away);
+                            if (prefs != null) {
                                 try {
-                                    ((CheckBoxPreference)findPreference("time-24hr")).setChecked(prefs.has("time-24hr")?prefs.getBoolean("time-24hr"):false);
-                                    ((CheckBoxPreference)findPreference("time-seconds")).setChecked(prefs.has("time-seconds")?prefs.getBoolean("time-seconds"):false);
-                                    ((CheckBoxPreference)findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol")?prefs.getBoolean("mode-showsymbol"):false);
-                                    if(findPreference("emoji-disableconvert") != null)
-                                        ((CheckBoxPreference)findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert")?prefs.getBoolean("emoji-disableconvert"):false));
+                                    ((CheckBoxPreference) findPreference("time-24hr")).setChecked(prefs.has("time-24hr") ? prefs.getBoolean("time-24hr") : false);
+                                    ((CheckBoxPreference) findPreference("time-seconds")).setChecked(prefs.has("time-seconds") ? prefs.getBoolean("time-seconds") : false);
+                                    ((CheckBoxPreference) findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol") ? prefs.getBoolean("mode-showsymbol") : false);
+                                    if (findPreference("emoji-disableconvert") != null)
+                                        ((CheckBoxPreference) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") ? prefs.getBoolean("emoji-disableconvert") : false));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
                         }
                     });
-				}
-				break;
+                }
+                break;
         }
     }
 
-	Preference.OnPreferenceChangeListener settingstoggle = new Preference.OnPreferenceChangeListener() {
-		public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(conn == null || conn.getUserInfo() == null) {
+    Preference.OnPreferenceChangeListener settingstoggle = new Preference.OnPreferenceChangeListener() {
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if (conn == null || conn.getUserInfo() == null) {
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-			if(preference.getKey().equals("name")) {
-				conn.getUserInfo().name = (String)newValue;
-				findPreference("name").setSummary((String)newValue);
-			} else if(preference.getKey().equals("email")) {
-				conn.getUserInfo().email = (String)newValue;
-				findPreference("email").setSummary((String)newValue);
-			} else if(preference.getKey().equals("highlights")) {
-				conn.getUserInfo().highlights = (String)newValue;
-				findPreference("highlights").setSummary((String)newValue);
-			} else if(preference.getKey().equals("autoaway")) {
-				conn.getUserInfo().auto_away = (Boolean)newValue;
-			}
-			if(saveSettingsTask != null)
-				saveSettingsTask.cancel(true);
-			saveSettingsTask = new SaveSettingsTask();
-			saveSettingsTask.execute((Void)null);
-			return true;
-		}
-	};
+            if (preference.getKey().equals("name")) {
+                conn.getUserInfo().name = (String) newValue;
+                findPreference("name").setSummary((String) newValue);
+            } else if (preference.getKey().equals("email")) {
+                conn.getUserInfo().email = (String) newValue;
+                findPreference("email").setSummary((String) newValue);
+            } else if (preference.getKey().equals("highlights")) {
+                conn.getUserInfo().highlights = (String) newValue;
+                findPreference("highlights").setSummary((String) newValue);
+            } else if (preference.getKey().equals("autoaway")) {
+                conn.getUserInfo().auto_away = (Boolean) newValue;
+            }
+            if (saveSettingsTask != null)
+                saveSettingsTask.cancel(true);
+            saveSettingsTask = new SaveSettingsTask();
+            saveSettingsTask.execute((Void) null);
+            return true;
+        }
+    };
 
     Preference.OnPreferenceChangeListener imageviewertoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -404,7 +403,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
 
     Preference.OnPreferenceChangeListener sonytoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(!(Boolean)newValue) {
+            if (!(Boolean) newValue) {
                 NotificationUtil.deleteAllEvents(PreferencesActivity.this);
             }
             return true;
@@ -412,70 +411,70 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
     };
 
     Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
-		public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(conn == null || conn.getUserInfo() == null) {
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if (conn == null || conn.getUserInfo() == null) {
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;
             }
-			JSONObject prefs = conn.getUserInfo().prefs;
-			try {
-				if(prefs == null) {
-					prefs = new JSONObject();
-					conn.getUserInfo().prefs = prefs;
+            JSONObject prefs = conn.getUserInfo().prefs;
+            try {
+                if (prefs == null) {
+                    prefs = new JSONObject();
+                    conn.getUserInfo().prefs = prefs;
                     Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
-				}
+                }
 
-                if(preference.getKey().equals("emoji-disableconvert"))
-                    prefs.put(preference.getKey(), !(Boolean)newValue);
+                if (preference.getKey().equals("emoji-disableconvert"))
+                    prefs.put(preference.getKey(), !(Boolean) newValue);
                 else
-                    prefs.put(preference.getKey(), (Boolean)newValue);
+                    prefs.put(preference.getKey(), (Boolean) newValue);
 
-                if(savePreferencesTask != null)
+                if (savePreferencesTask != null)
                     savePreferencesTask.cancel(true);
                 savePreferencesTask = new SavePreferencesTask();
-                savePreferencesTask.execute((Void)null);
-			} catch (JSONException e) {
+                savePreferencesTask.execute((Void) null);
+            } catch (JSONException e) {
                 Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: " + preference.getKey());
                 Crashlytics.logException(e);
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;
             }
-			return true;
-		}
-	};
-	
-	Preference.OnPreferenceChangeListener notificationstoggle = new Preference.OnPreferenceChangeListener() {
-		@SuppressWarnings("deprecation")
-		public boolean onPreferenceChange(Preference preference, Object newValue) {
-			switch(Integer.parseInt((String)newValue)) {
-			case 0:
-				findPreference("notify_type").setSummary("Disabled");
-				break;
-			case 1:
-				findPreference("notify_type").setSummary("Enabled");
-				break;
-			case 2:
-				findPreference("notify_type").setSummary("Only while active");
-				break;
-			}
-			if(Integer.parseInt((String)newValue) > 0) {
-				findPreference("notify_vibrate").setEnabled(true);
-				findPreference("notify_ringtone").setEnabled(true);
-				findPreference("notify_led_color").setEnabled(true);
-			} else {
-				findPreference("notify_vibrate").setEnabled(false);
-				findPreference("notify_ringtone").setEnabled(false);
-				findPreference("notify_led_color").setEnabled(false);
-				Notifications.getInstance().clear();
-			}
-			return true;
-		}
-	};
+            return true;
+        }
+    };
+
+    Preference.OnPreferenceChangeListener notificationstoggle = new Preference.OnPreferenceChangeListener() {
+        @SuppressWarnings("deprecation")
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+            switch (Integer.parseInt((String) newValue)) {
+                case 0:
+                    findPreference("notify_type").setSummary("Disabled");
+                    break;
+                case 1:
+                    findPreference("notify_type").setSummary("Enabled");
+                    break;
+                case 2:
+                    findPreference("notify_type").setSummary("Only while active");
+                    break;
+            }
+            if (Integer.parseInt((String) newValue) > 0) {
+                findPreference("notify_vibrate").setEnabled(true);
+                findPreference("notify_ringtone").setEnabled(true);
+                findPreference("notify_led_color").setEnabled(true);
+            } else {
+                findPreference("notify_vibrate").setEnabled(false);
+                findPreference("notify_ringtone").setEnabled(false);
+                findPreference("notify_led_color").setEnabled(false);
+                Notifications.getInstance().clear();
+            }
+            return true;
+        }
+    };
 
     Preference.OnPreferenceChangeListener ledtoggle = new Preference.OnPreferenceChangeListener() {
         @SuppressWarnings("deprecation")
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            switch(Integer.parseInt((String)newValue)) {
+            switch (Integer.parseInt((String) newValue)) {
                 case 0:
                     findPreference("notify_led_color").setSummary("Disabled");
                     break;
@@ -493,7 +492,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
     Preference.OnPreferenceChangeListener photosizetoggle = new Preference.OnPreferenceChangeListener() {
         @SuppressWarnings("deprecation")
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            switch(Integer.parseInt((String)newValue)) {
+            switch (Integer.parseInt((String) newValue)) {
                 case 512:
                     findPreference("photo_size").setSummary("Small");
                     break;
@@ -516,63 +515,67 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
     Preference.OnPreferenceChangeListener imageservicetoggle = new Preference.OnPreferenceChangeListener() {
         @SuppressWarnings("deprecation")
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(newValue.equals("imgur")) {
-                PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+            if (newValue.equals("imgur")) {
+                PreferenceCategory c = (PreferenceCategory) findPreference("photos");
                 c.addPreference(imgurPreference);
             } else {
-                PreferenceCategory c = (PreferenceCategory)findPreference("photos");
+                PreferenceCategory c = (PreferenceCategory) findPreference("photos");
                 c.removePreference(imgurPreference);
             }
-            findPreference("image_service").setSummary((String)newValue);
+            findPreference("image_service").setSummary((String) newValue);
             return true;
         }
     };
 
     private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
 
-		@Override
-		protected Void doInBackground(Void... params) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-			if(!isCancelled() && conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
-				save_prefs_reqid = conn.set_prefs(conn.getUserInfo().prefs.toString());
-			else
-				save_prefs_reqid = -1;
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+            if (!isCancelled() && conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
+                save_prefs_reqid = conn.set_prefs(conn.getUserInfo().prefs.toString());
+            else
+                save_prefs_reqid = -1;
             EventsDataSource.getInstance().clearCaches();
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			savePreferencesTask = null;
-		}
-		
-	};
-	
-	private class SaveSettingsTask extends AsyncTaskEx<Void, Void, Void> {
+            return null;
+        }
 
-		@Override
-		protected Void doInBackground(Void... params) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-			}
-			if(!isCancelled()) {
-				NetworkConnection.UserInfo userInfo = conn.getUserInfo();
-				if(userInfo != null)
-					save_settings_reqid = conn.set_user_settings(userInfo.email, userInfo.name, userInfo.highlights, userInfo.auto_away);
-			}
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			saveSettingsTask = null;
-		}
-		
-	};
+        @Override
+        protected void onPostExecute(Void result) {
+            savePreferencesTask = null;
+        }
+
+    }
+
+    ;
+
+    private class SaveSettingsTask extends AsyncTaskEx<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+            if (!isCancelled()) {
+                NetworkConnection.UserInfo userInfo = conn.getUserInfo();
+                if (userInfo != null)
+                    save_settings_reqid = conn.set_user_settings(userInfo.email, userInfo.name, userInfo.highlights, userInfo.auto_away);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            saveSettingsTask = null;
+        }
+
+    }
+
+    ;
 
     Preference.OnPreferenceClickListener imgurClick = new Preference.OnPreferenceClickListener() {
 
@@ -595,7 +598,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
 
             View v = getLayoutInflater().inflate(R.layout.dialog_licenses, null);
-            TextView tv = (TextView)v.findViewById(R.id.licenses);
+            TextView tv = (TextView) v.findViewById(R.id.licenses);
             tv.setText("IRCCloud\n" +
                     "Copyright (C) 2013 IRCCloud, Ltd.\n" +
                     "\n" +
@@ -673,7 +676,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                     "CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n" +
                     "OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n" +
                     "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n" +
-                    "\n\n"+
+                    "\n\n" +
                     "AsyncTaskEx\n" +
                     "Copyright (c) 2008-2009 CommonsWare, LLC\n" +
                     "Portions (c) 2009 Google, Inc.\n" +
@@ -731,26 +734,27 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
         }
     };
 
-	Preference.OnPreferenceClickListener urlClick = new Preference.OnPreferenceClickListener() {
+    Preference.OnPreferenceClickListener urlClick = new Preference.OnPreferenceClickListener() {
 
-		public boolean onPreferenceClick(Preference preference) {
-			Intent i = null;
-			if (preference.getKey().equals("faq"))
-				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/faq"));
-			if (preference.getKey().equals("feedback")) {
-				ServersDataSource.Server s = ServersDataSource.getInstance().getServer("irc.irccloud.com");
-				if(s != null && s.ssl > 0)
-					i = new Intent(Intent.ACTION_VIEW, Uri.parse("ircs://irc.irccloud.com/%23feedback"));
-				else
-					i = new Intent(Intent.ACTION_VIEW, Uri.parse("irc://irc.irccloud.com/%23feedback"));
-			} if (preference.getKey().equals("subscriptions"))
-				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/#?/upgrade"));
-			if (preference.getKey().equals("changes"))
-				i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/android-changelog.txt"));
+        public boolean onPreferenceClick(Preference preference) {
+            Intent i = null;
+            if (preference.getKey().equals("faq"))
+                i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/faq"));
+            if (preference.getKey().equals("feedback")) {
+                ServersDataSource.Server s = ServersDataSource.getInstance().getServer("irc.irccloud.com");
+                if (s != null && s.ssl > 0)
+                    i = new Intent(Intent.ACTION_VIEW, Uri.parse("ircs://irc.irccloud.com/%23feedback"));
+                else
+                    i = new Intent(Intent.ACTION_VIEW, Uri.parse("irc://irc.irccloud.com/%23feedback"));
+            }
+            if (preference.getKey().equals("subscriptions"))
+                i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/#?/upgrade"));
+            if (preference.getKey().equals("changes"))
+                i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/android-changelog.txt"));
 
-			if (i != null)
-				startActivity(i);
-			return false;
-		}
-	};
+            if (i != null)
+                startActivity(i);
+            return false;
+        }
+    };
 }

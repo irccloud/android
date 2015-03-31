@@ -18,18 +18,17 @@ package com.irccloud.android.data;
 
 import android.util.SparseArray;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.Notifications;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 public class ServersDataSource {
-	public static class Server implements Comparable<Server> {
-		public int cid;
+    public static class Server implements Comparable<Server> {
+        public int cid;
         public String name;
         public String hostname;
         public int port;
@@ -47,7 +46,7 @@ public class ServersDataSource {
         public String mode;
         public ObjectNode isupport;
         public JsonNode raw_ignores;
-		public ArrayList<String> ignores;
+        public ArrayList<String> ignores;
         public int order;
         public String CHANTYPES;
         public ObjectNode PREFIX;
@@ -59,127 +58,127 @@ public class ServersDataSource {
 
         @Override
         public int compareTo(Server another) {
-            if(order != another.order)
+            if (order != another.order)
                 return Integer.valueOf(order).compareTo(another.order);
             return Integer.valueOf(cid).compareTo(another.cid);
         }
     }
 
-	private SparseArray<Server> servers;
-	
-	private static ServersDataSource instance = null;
-	
-	public synchronized static ServersDataSource getInstance() {
-		if(instance == null)
-			instance = new ServersDataSource();
-		return instance;
-	}
+    private SparseArray<Server> servers;
 
-	public ServersDataSource() {
-		servers = new SparseArray<Server>();
-	}
+    private static ServersDataSource instance = null;
 
-	public void clear() {
-		servers.clear();
-	}
-	
-	public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order) {
-		Server s = getServer(cid);
-		if(s == null) {
-			s = new Server();
-			servers.put(cid, s);
-		}
-		s.cid = cid;
-		s.name = name;
-		s.hostname = hostname;
-		s.port = port;
-		s.nick = nick;
-		s.status = status;
-		s.lag = lag;
-		s.ssl = ssl;
-		s.realname = realname;
-		s.server_pass = server_pass;
-		s.nickserv_pass = nickserv_pass;
-		s.join_commands = join_commands;
-		s.fail_info = fail_info;
-		s.away = away;
-		s.usermask = "";
-		s.mode = "";
+    public synchronized static ServersDataSource getInstance() {
+        if (instance == null)
+            instance = new ServersDataSource();
+        return instance;
+    }
+
+    public ServersDataSource() {
+        servers = new SparseArray<Server>();
+    }
+
+    public void clear() {
+        servers.clear();
+    }
+
+    public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order) {
+        Server s = getServer(cid);
+        if (s == null) {
+            s = new Server();
+            servers.put(cid, s);
+        }
+        s.cid = cid;
+        s.name = name;
+        s.hostname = hostname;
+        s.port = port;
+        s.nick = nick;
+        s.status = status;
+        s.lag = lag;
+        s.ssl = ssl;
+        s.realname = realname;
+        s.server_pass = server_pass;
+        s.nickserv_pass = nickserv_pass;
+        s.join_commands = join_commands;
+        s.fail_info = fail_info;
+        s.away = away;
+        s.usermask = "";
+        s.mode = "";
         s.order = order;
         s.isupport = new ObjectMapper().createObjectNode();
-        if(s.name == null || s.name.length() == 0)
+        if (s.name == null || s.name.length() == 0)
             s.name = s.hostname;
-        if(ignores != null)
+        if (ignores != null)
             updateIgnores(cid, ignores);
-		return s;
-	}
-	
-	public int count() {
-		return servers.size();
-	}
-	
-	public void updateLag(int cid, long lag) {
-		Server s = getServer(cid);
-		if(s != null) {
-			s.lag = lag;
-		}
-	}
+        return s;
+    }
 
-	public void updateNick(int cid, String nick) {
-		Server s = getServer(cid);
-		if(s != null) {
-			s.nick = nick;
-		}
-	}
+    public int count() {
+        return servers.size();
+    }
 
-	public void updateStatus(int cid, String status, ObjectNode fail_info) {
-		Server s = getServer(cid);
-		if(s != null) {
-			s.status = status;
-			s.fail_info = fail_info;
-		}
-	}
+    public void updateLag(int cid, long lag) {
+        Server s = getServer(cid);
+        if (s != null) {
+            s.lag = lag;
+        }
+    }
 
-	public void updateAway(int cid, String away) {
-		Server s = getServer(cid);
-		if(s != null) {
-			s.away = away;
-		}
-	}
+    public void updateNick(int cid, String nick) {
+        Server s = getServer(cid);
+        if (s != null) {
+            s.nick = nick;
+        }
+    }
 
-	public void updateUsermask(int cid, String usermask) {
-		Server s = getServer(cid);
-		if(s != null) {
-			s.usermask = usermask;
-		}
-	}
+    public void updateStatus(int cid, String status, ObjectNode fail_info) {
+        Server s = getServer(cid);
+        if (s != null) {
+            s.status = status;
+            s.fail_info = fail_info;
+        }
+    }
 
-	public void updateMode(int cid, String mode) {
-		Server s = getServer(cid);
-		if(s != null) {
-			s.mode = mode;
-		}
-	}
+    public void updateAway(int cid, String away) {
+        Server s = getServer(cid);
+        if (s != null) {
+            s.away = away;
+        }
+    }
+
+    public void updateUsermask(int cid, String usermask) {
+        Server s = getServer(cid);
+        if (s != null) {
+            s.usermask = usermask;
+        }
+    }
+
+    public void updateMode(int cid, String mode) {
+        Server s = getServer(cid);
+        if (s != null) {
+            s.mode = mode;
+        }
+    }
 
     public void updateUserModes(int cid, String modes) {
-        if(modes != null && modes.length() == 5 && modes.charAt(0) != 'q') {
+        if (modes != null && modes.length() == 5 && modes.charAt(0) != 'q') {
             Server s = getServer(cid);
-            if(s != null) {
+            if (s != null) {
                 s.MODE_OWNER = modes.substring(0, 1);
             }
         }
     }
 
-	public void updateIsupport(int cid, ObjectNode params) {
-		Server s = getServer(cid);
-		if(s != null) {
-            if(params != null && !params.isArray())
+    public void updateIsupport(int cid, ObjectNode params) {
+        Server s = getServer(cid);
+        if (s != null) {
+            if (params != null && !params.isArray())
                 s.isupport.putAll(params);
             else
                 s.isupport = new ObjectMapper().createObjectNode();
 
-            if(s.isupport.has("PREFIX")) {
-                s.PREFIX = (ObjectNode)s.isupport.get("PREFIX");
+            if (s.isupport.has("PREFIX")) {
+                s.PREFIX = (ObjectNode) s.isupport.get("PREFIX");
             } else {
                 s.PREFIX = new ObjectMapper().createObjectNode();
                 s.PREFIX.put(s.MODE_OWNER, "~");
@@ -188,19 +187,19 @@ public class ServersDataSource {
                 s.PREFIX.put(s.MODE_HALFOP, "%");
                 s.PREFIX.put(s.MODE_VOICED, "+");
             }
-            if(s.isupport.has("CHANTYPES"))
+            if (s.isupport.has("CHANTYPES"))
                 s.CHANTYPES = s.isupport.get("CHANTYPES").asText();
             else
                 s.CHANTYPES = null;
-		}
-	}
+        }
+    }
 
-	public void updateIgnores(int cid, JsonNode ignores) {
-		Server s = getServer(cid);
-		if(s != null) {
+    public void updateIgnores(int cid, JsonNode ignores) {
+        Server s = getServer(cid);
+        if (s != null) {
             s.raw_ignores = ignores;
             s.ignores = new ArrayList<String>();
-            for(int i = 0; i < ignores.size(); i++) {
+            for (int i = 0; i < ignores.size(); i++) {
                 String mask = ignores.get(i).asText().toLowerCase()
                         .replace("\\", "\\\\")
                         .replace("(", "\\(")
@@ -220,80 +219,80 @@ public class ServersDataSource {
                         .replace("#", "\\#")
                         .replace("*", ".*")
                         .replace("!~", "!");
-                if(!mask.contains("!"))
-                    if(mask.contains("@"))
+                if (!mask.contains("!"))
+                    if (mask.contains("@"))
                         mask = ".*!" + mask;
                     else
                         mask += "!.*";
-                if(!mask.contains("@"))
-                    if(mask.contains("!"))
+                if (!mask.contains("@"))
+                    if (mask.contains("!"))
                         mask = mask.replace("!", "!.*@");
                     else
                         mask += "@.*";
-                if(mask.equals(".*!.*@.*"))
+                if (mask.equals(".*!.*@.*"))
                     continue;
                 s.ignores.add(mask);
             }
-		}
-	}
+        }
+    }
 
-	public void deleteServer(int cid) {
+    public void deleteServer(int cid) {
         servers.remove(cid);
-	}
+    }
 
-	public void deleteAllDataForServer(int cid) {
-		Server s = getServer(cid);
-		if(s != null) {
-			ArrayList<BuffersDataSource.Buffer> buffersToRemove = new ArrayList<BuffersDataSource.Buffer>();
-			
-			Iterator<BuffersDataSource.Buffer> i = BuffersDataSource.getInstance().getBuffersForServer(cid).iterator();
-			while(i.hasNext()) {
-				BuffersDataSource.Buffer b = i.next();
-				buffersToRemove.add(b);
-			}
-			
-			i=buffersToRemove.iterator();
-			while(i.hasNext()) {
-				BuffersDataSource.Buffer b = i.next();
-				BuffersDataSource.getInstance().deleteAllDataForBuffer(b.bid);
-				Notifications.getInstance().deleteNotificationsForBid(b.bid);
-			}
-			servers.remove(cid);
-		}
-	}
+    public void deleteAllDataForServer(int cid) {
+        Server s = getServer(cid);
+        if (s != null) {
+            ArrayList<BuffersDataSource.Buffer> buffersToRemove = new ArrayList<BuffersDataSource.Buffer>();
 
-	public synchronized SparseArray<Server> getServers() {
-		return servers;
-	}
+            Iterator<BuffersDataSource.Buffer> i = BuffersDataSource.getInstance().getBuffersForServer(cid).iterator();
+            while (i.hasNext()) {
+                BuffersDataSource.Buffer b = i.next();
+                buffersToRemove.add(b);
+            }
 
-	public Server getServer(int cid) {
+            i = buffersToRemove.iterator();
+            while (i.hasNext()) {
+                BuffersDataSource.Buffer b = i.next();
+                BuffersDataSource.getInstance().deleteAllDataForBuffer(b.bid);
+                Notifications.getInstance().deleteNotificationsForBid(b.bid);
+            }
+            servers.remove(cid);
+        }
+    }
+
+    public synchronized SparseArray<Server> getServers() {
+        return servers;
+    }
+
+    public Server getServer(int cid) {
         return servers.get(cid);
-	}
+    }
 
-	public Server getServer(String hostname) {
-        for(int i = 0; i < servers.size(); i++) {
+    public Server getServer(String hostname) {
+        for (int i = 0; i < servers.size(); i++) {
             Server s = servers.valueAt(i);
-            if(s.hostname.equalsIgnoreCase(hostname))
+            if (s.hostname.equalsIgnoreCase(hostname))
                 return s;
         }
-		return null;
-	}
+        return null;
+    }
 
-	public Server getServer(String hostname, int port) {
-        for(int i = 0; i < servers.size(); i++) {
+    public Server getServer(String hostname, int port) {
+        for (int i = 0; i < servers.size(); i++) {
             Server s = servers.valueAt(i);
-            if(s.hostname.equalsIgnoreCase(hostname) && s.port == port)
+            if (s.hostname.equalsIgnoreCase(hostname) && s.port == port)
                 return s;
         }
-		return null;
-	}
+        return null;
+    }
 
-	public Server getServer(String hostname, boolean ssl) {
-        for(int i = 0; i < servers.size(); i++) {
+    public Server getServer(String hostname, boolean ssl) {
+        for (int i = 0; i < servers.size(); i++) {
             Server s = servers.valueAt(i);
-            if(s.hostname.equalsIgnoreCase(hostname) && ((!ssl && s.ssl == 0) || (ssl && s.ssl > 0)))
+            if (s.hostname.equalsIgnoreCase(hostname) && ((!ssl && s.ssl == 0) || (ssl && s.ssl > 0)))
                 return s;
         }
-		return null;
-	}
+        return null;
+    }
 }

@@ -16,22 +16,21 @@
 
 package com.irccloud.android;
 
-import org.json.JSONObject;
-
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
 public class IRCCloudJSONObject {
-	JsonNode o;
-	int cid = -1;
-	int bid = -1;
-	long eid = -1;
-	String type = null;
+    JsonNode o;
+    int cid = -1;
+    int bid = -1;
+    long eid = -1;
+    String type = null;
 
     public IRCCloudJSONObject() {
         o = new ObjectMapper().createObjectNode();
@@ -41,7 +40,7 @@ public class IRCCloudJSONObject {
         o = object;
     }
 
-	public IRCCloudJSONObject(String message) {
+    public IRCCloudJSONObject(String message) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             o = mapper.readValue(message, JsonNode.class);
@@ -49,7 +48,7 @@ public class IRCCloudJSONObject {
             e.printStackTrace();
         }
     }
-	
+
     public IRCCloudJSONObject(JSONObject object) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -58,58 +57,58 @@ public class IRCCloudJSONObject {
             e.printStackTrace();
         }
     }
-	
-	public int cid() {
-		if(cid == -1 && o.has("cid"))
-			cid = o.get("cid").asInt();
-		return cid;
-	}
-	
-	public int bid() {
-		if(bid == -1 && o.has("bid"))
-			bid = o.get("bid").asInt();
-		return bid;
-	}
 
-	public long eid() {
-		if(eid == -1 && o.has("eid"))
-			eid = o.get("eid").asLong();
-		return eid;
-	}
-	
-	public String type() {
-		if(type == null) {
-			if(o.has("type"))
-				type = o.get("type").asText();
-			else
-				type = "undefined";
-		}
-		return type;
-	}
+    public int cid() {
+        if (cid == -1 && o.has("cid"))
+            cid = o.get("cid").asInt();
+        return cid;
+    }
 
-	public boolean has(String name) {
-		return o.has(name) && !o.get(name).isNull();
-	}
-	
-	public boolean getBoolean(String name) {
-		return o.path(name).asBoolean(false);
-	}
-	
-	public int getInt(String name) {
-		return o.path(name).asInt(-1);
-	}
-	
-	public long getLong(String name) {
-		return o.path(name).asLong(-1);
-	}
-	
-	public String getString(String name) {
-		return o.path(name).asText();
-	}
-	
-	public JsonNode getJsonNode(String name) {
-		return o.path(name);
-	}
+    public int bid() {
+        if (bid == -1 && o.has("bid"))
+            bid = o.get("bid").asInt();
+        return bid;
+    }
+
+    public long eid() {
+        if (eid == -1 && o.has("eid"))
+            eid = o.get("eid").asLong();
+        return eid;
+    }
+
+    public String type() {
+        if (type == null) {
+            if (o.has("type"))
+                type = o.get("type").asText();
+            else
+                type = "undefined";
+        }
+        return type;
+    }
+
+    public boolean has(String name) {
+        return o.has(name) && !o.get(name).isNull();
+    }
+
+    public boolean getBoolean(String name) {
+        return o.path(name).asBoolean(false);
+    }
+
+    public int getInt(String name) {
+        return o.path(name).asInt(-1);
+    }
+
+    public long getLong(String name) {
+        return o.path(name).asLong(-1);
+    }
+
+    public String getString(String name) {
+        return o.path(name).asText();
+    }
+
+    public JsonNode getJsonNode(String name) {
+        return o.path(name);
+    }
 
     public ObjectNode getJsonObject(String name) {
         try {
@@ -120,11 +119,11 @@ public class IRCCloudJSONObject {
     }
 
     public JsonNode getObject() {
-		return o;
-	}
-	
-	public String toString() {
-		ObjectMapper mapper = new ObjectMapper();
+        return o;
+    }
+
+    public String toString() {
+        ObjectMapper mapper = new ObjectMapper();
         StringWriter writer = new StringWriter();
         try {
             mapper.writeValue(writer, o);

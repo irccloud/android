@@ -38,129 +38,129 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
 public class WhoListFragment extends DialogFragment {
-	JsonNode users;
-	UsersAdapter adapter;
-	NetworkConnection conn;
-	ListView listView;
-	IRCCloudJSONObject event;
-	
-	private class UsersAdapter extends BaseAdapter {
-		private DialogFragment ctx;
-		
-		private class ViewHolder {
-			int position;
-			TextView nick;
-			TextView name;
-			TextView server;
-			TextView mask;
-		}
-	
-		public UsersAdapter(DialogFragment context) {
-			ctx = context;
-		}
-		
-		@Override
-		public int getCount() {
-			return users.size();
-		}
+    JsonNode users;
+    UsersAdapter adapter;
+    NetworkConnection conn;
+    ListView listView;
+    IRCCloudJSONObject event;
 
-		@Override
-		public Object getItem(int pos) {
-			try {
-				return users.get(pos);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
+    private class UsersAdapter extends BaseAdapter {
+        private DialogFragment ctx;
 
-		@Override
-		public long getItemId(int pos) {
-			return pos;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View row = convertView;
-			ViewHolder holder;
-
-			if(row != null && ((ViewHolder)row.getTag()).position != position)
-				row = null;
-			
-			if (row == null) {
-				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				row = inflater.inflate(R.layout.row_who, null);
-
-				holder = new ViewHolder();
-				holder.position = position;
-				holder.nick = (TextView) row.findViewById(R.id.nick);
-				holder.name = (TextView) row.findViewById(R.id.name);
-				holder.server = (TextView) row.findViewById(R.id.server);
-				holder.mask = (TextView) row.findViewById(R.id.mask);
-
-				row.setTag(holder);
-			} else {
-				holder = (ViewHolder) row.getTag();
-			}
-			
-			try {
-				holder.nick.setText(users.get(position).get("nick").asText());
-				holder.name.setText(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).get("realname").asText())) + ")"));
-				holder.server.setText("Connected via " + users.get(position).get("ircserver").asText());
-				holder.mask.setText(users.get(position).get("usermask").asText());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			return row;
-		}
-	}
-	
-	@Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-		Context ctx = getActivity();
-
-		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View v = inflater.inflate(R.layout.ignorelist, null);
-    	listView = (ListView)v.findViewById(android.R.id.list);
-    	TextView empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("No results found.");
-    	listView.setEmptyView(empty);
-        if(savedInstanceState != null && savedInstanceState.containsKey("event")) {
-        	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-        	users = event.getJsonNode("users");
-        	adapter = new UsersAdapter(this);
-        	listView.setAdapter(adapter);
+        private class ViewHolder {
+            int position;
+            TextView nick;
+            TextView name;
+            TextView server;
+            TextView mask;
         }
-    	Dialog d = new AlertDialog.Builder(ctx)
-        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-        .setTitle("WHO response for " + event.getString("subject"))
-        .setView(v)
-        .setNegativeButton("Close", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-        })
-        .create();
-    	return d;
+
+        public UsersAdapter(DialogFragment context) {
+            ctx = context;
+        }
+
+        @Override
+        public int getCount() {
+            return users.size();
+        }
+
+        @Override
+        public Object getItem(int pos) {
+            try {
+                return users.get(pos);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public long getItemId(int pos) {
+            return pos;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            ViewHolder holder;
+
+            if (row != null && ((ViewHolder) row.getTag()).position != position)
+                row = null;
+
+            if (row == null) {
+                LayoutInflater inflater = ctx.getLayoutInflater(null);
+                row = inflater.inflate(R.layout.row_who, null);
+
+                holder = new ViewHolder();
+                holder.position = position;
+                holder.nick = (TextView) row.findViewById(R.id.nick);
+                holder.name = (TextView) row.findViewById(R.id.name);
+                holder.server = (TextView) row.findViewById(R.id.server);
+                holder.mask = (TextView) row.findViewById(R.id.mask);
+
+                row.setTag(holder);
+            } else {
+                holder = (ViewHolder) row.getTag();
+            }
+
+            try {
+                holder.nick.setText(users.get(position).get("nick").asText());
+                holder.name.setText(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).get("realname").asText())) + ")"));
+                holder.server.setText("Connected via " + users.get(position).get("ircserver").asText());
+                holder.mask.setText(users.get(position).get("usermask").asText());
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return row;
+        }
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Context ctx = getActivity();
+
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.ignorelist, null);
+        listView = (ListView) v.findViewById(android.R.id.list);
+        TextView empty = (TextView) v.findViewById(android.R.id.empty);
+        empty.setText("No results found.");
+        listView.setEmptyView(empty);
+        if (savedInstanceState != null && savedInstanceState.containsKey("event")) {
+            event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
+            users = event.getJsonNode("users");
+            adapter = new UsersAdapter(this);
+            listView.setAdapter(adapter);
+        }
+        Dialog d = new AlertDialog.Builder(ctx)
+                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+                .setTitle("WHO response for " + event.getString("subject"))
+                .setView(v)
+                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        return d;
     }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-    	state.putString("event", event.toString());
+        state.putString("event", event.toString());
     }
-	
+
     @Override
     public void setArguments(Bundle args) {
-    	event = new IRCCloudJSONObject(args.getString("event"));
-    	users = event.getJsonNode("users");
-    	if(getActivity() != null && listView != null) {
+        event = new IRCCloudJSONObject(args.getString("event"));
+        users = event.getJsonNode("users");
+        if (getActivity() != null && listView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(adapter == null) {
+                    if (adapter == null) {
                         adapter = new UsersAdapter(WhoListFragment.this);
                         listView.setAdapter(adapter);
                     } else {
@@ -168,21 +168,21 @@ public class WhoListFragment extends DialogFragment {
                     }
                 }
             });
-    	}
+        }
     }
-    
-    public void onResume() {
-    	super.onResume();
-    	conn = NetworkConnection.getInstance();
 
-    	if(users != null) {
-        	adapter = new UsersAdapter(this);
-        	listView.setAdapter(adapter);
-    	}
+    public void onResume() {
+        super.onResume();
+        conn = NetworkConnection.getInstance();
+
+        if (users != null) {
+            adapter = new UsersAdapter(this);
+            listView.setAdapter(adapter);
+        }
     }
-    
+
     @Override
     public void onPause() {
-    	super.onPause();
+        super.onPause();
     }
 }

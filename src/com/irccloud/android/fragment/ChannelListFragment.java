@@ -16,8 +16,6 @@
 
 package com.irccloud.android.fragment;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -37,139 +35,141 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 
+import java.util.ArrayList;
+
 public class ChannelListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
-	ArrayList<ChannelsAdapter.Channel> channels;
-	ChannelsAdapter adapter;
-	NetworkConnection conn;
-	ListView listView;
-	TextView empty;
-	ServersDataSource.Server server;
-	
-	private class ChannelsAdapter extends BaseAdapter {
-		private ListFragment ctx;
-		
-		private class ViewHolder {
-			TextView channel;
-			TextView topic;
-		}
+    ArrayList<ChannelsAdapter.Channel> channels;
+    ChannelsAdapter adapter;
+    NetworkConnection conn;
+    ListView listView;
+    TextView empty;
+    ServersDataSource.Server server;
 
-		private class Channel {
-			Spanned channel;
-			Spanned topic;
-		}
-		
-		public ChannelsAdapter(ListFragment context) {
-			ctx = context;
-		}
-		
-		public void set(JsonNode json) {
-			channels = new ArrayList<Channel>(json.size());
-			
-			for(int i = 0; i < json.size(); i++) {
-				Channel c = new Channel();
-				JsonNode o = json.get(i);
-				String channel = o.get("name").asText() + " (" + o.get("num_members").asInt() + " member";
-				if(o.get("num_members").asInt() != 1)
-					channel += "s";
-				channel += ")";
-				c.channel = ColorFormatter.html_to_spanned(channel, true, server);
-				
-				String topic = o.get("topic").asText();
-				if(topic.length() > 0) {
-					c.topic = ColorFormatter.html_to_spanned(topic, true, server);
-				} else {
-					c.topic = null;
-				}
-				channels.add(c);
-			}
-		}
-		
-		@Override
-		public int getCount() {
-			if(channels == null)
-				return 0;
-			else
-				return channels.size();
-		}
+    private class ChannelsAdapter extends BaseAdapter {
+        private ListFragment ctx;
 
-		@Override
-		public Object getItem(int pos) {
-			try {
-				return channels.get(pos);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
+        private class ViewHolder {
+            TextView channel;
+            TextView topic;
+        }
 
-		@Override
-		public long getItemId(int pos) {
-			return pos;
-		}
+        private class Channel {
+            Spanned channel;
+            Spanned topic;
+        }
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View row = convertView;
-			ViewHolder holder;
+        public ChannelsAdapter(ListFragment context) {
+            ctx = context;
+        }
 
-			if (row == null) {
-				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				row = inflater.inflate(R.layout.row_channel, null);
+        public void set(JsonNode json) {
+            channels = new ArrayList<Channel>(json.size());
 
-				holder = new ViewHolder();
-				holder.channel = (TextView) row.findViewById(R.id.channel);
-				holder.topic = (TextView) row.findViewById(R.id.topic);
+            for (int i = 0; i < json.size(); i++) {
+                Channel c = new Channel();
+                JsonNode o = json.get(i);
+                String channel = o.get("name").asText() + " (" + o.get("num_members").asInt() + " member";
+                if (o.get("num_members").asInt() != 1)
+                    channel += "s";
+                channel += ")";
+                c.channel = ColorFormatter.html_to_spanned(channel, true, server);
 
-				holder.channel.setMovementMethod(LinkMovementMethod.getInstance());
-				holder.topic.setMovementMethod(LinkMovementMethod.getInstance());
+                String topic = o.get("topic").asText();
+                if (topic.length() > 0) {
+                    c.topic = ColorFormatter.html_to_spanned(topic, true, server);
+                } else {
+                    c.topic = null;
+                }
+                channels.add(c);
+            }
+        }
 
-				row.setTag(holder);
-			} else {
-				holder = (ViewHolder) row.getTag();
-			}
-			
-			try {
-				Channel c = channels.get(position);
-				holder.channel.setText(c.channel);
-				if(c.topic != null && c.topic.length() > 0) {
-					holder.topic.setText(c.topic);
-					holder.topic.setVisibility(View.VISIBLE);
-				} else {
-					holder.topic.setText("");
-					holder.topic.setVisibility(View.GONE);
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			return row;
-		}
-	}
-	
-	@Override
+        @Override
+        public int getCount() {
+            if (channels == null)
+                return 0;
+            else
+                return channels.size();
+        }
+
+        @Override
+        public Object getItem(int pos) {
+            try {
+                return channels.get(pos);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public long getItemId(int pos) {
+            return pos;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            ViewHolder holder;
+
+            if (row == null) {
+                LayoutInflater inflater = ctx.getLayoutInflater(null);
+                row = inflater.inflate(R.layout.row_channel, null);
+
+                holder = new ViewHolder();
+                holder.channel = (TextView) row.findViewById(R.id.channel);
+                holder.topic = (TextView) row.findViewById(R.id.topic);
+
+                holder.channel.setMovementMethod(LinkMovementMethod.getInstance());
+                holder.topic.setMovementMethod(LinkMovementMethod.getInstance());
+
+                row.setTag(holder);
+            } else {
+                holder = (ViewHolder) row.getTag();
+            }
+
+            try {
+                Channel c = channels.get(position);
+                holder.channel.setText(c.channel);
+                if (c.topic != null && c.topic.length() > 0) {
+                    holder.topic.setText(c.topic);
+                    holder.topic.setVisibility(View.VISIBLE);
+                } else {
+                    holder.topic.setText("");
+                    holder.topic.setVisibility(View.GONE);
+                }
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return row;
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater i, ViewGroup container, Bundle savedInstanceState) {
-    	conn = NetworkConnection.getInstance();
-    	conn.addHandler(this);
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
 
-    	Context ctx = getActivity();
-		if(ctx == null)
-			return null;
-		
-		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View v = inflater.inflate(R.layout.ignorelist, null);
-    	listView = (ListView)v.findViewById(android.R.id.list);
-    	empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("Loading channel list…");
-    	listView.setEmptyView(empty);
-    	return v;
+        Context ctx = getActivity();
+        if (ctx == null)
+            return null;
+
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.ignorelist, null);
+        listView = (ListView) v.findViewById(android.R.id.list);
+        empty = (TextView) v.findViewById(android.R.id.empty);
+        empty.setText("Loading channel list…");
+        listView.setEmptyView(empty);
+        return v;
     }
 
     @Override
     public void setArguments(Bundle args) {
-    	server = ServersDataSource.getInstance().getServer(args.getInt("cid", -1));
-    	channels = null;
-    	if(listView != null && getActivity() != null) {
+        server = ServersDataSource.getInstance().getServer(args.getInt("cid", -1));
+        channels = null;
+        if (listView != null && getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -178,36 +178,36 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
                     listView.setAdapter(adapter);
                 }
             });
-    	}
+        }
     }
-    
+
     public void onResume() {
-    	super.onResume();
-    	if(conn == null) {
-	    	conn = NetworkConnection.getInstance();
-	    	conn.addHandler(this);
-    	}
-    	
-    	if(adapter == null) {
-        	adapter = new ChannelsAdapter(this);
-        	listView.setAdapter(adapter);
-    	}
+        super.onResume();
+        if (conn == null) {
+            conn = NetworkConnection.getInstance();
+            conn.addHandler(this);
+        }
+
+        if (adapter == null) {
+            adapter = new ChannelsAdapter(this);
+            listView.setAdapter(adapter);
+        }
     }
-    
+
     @Override
     public void onPause() {
-    	super.onPause();
-    	if(conn != null)
-    		conn.removeHandler(this);
-    	conn = null;
+        super.onPause();
+        if (conn != null)
+            conn.removeHandler(this);
+        conn = null;
     }
 
     public void onIRCEvent(int what, Object obj) {
         final IRCCloudJSONObject o;
         switch (what) {
-			case NetworkConnection.EVENT_LISTRESPONSE:
-				o = (IRCCloudJSONObject)obj;
-                if(getActivity() != null)
+            case NetworkConnection.EVENT_LISTRESPONSE:
+                o = (IRCCloudJSONObject) obj;
+                if (getActivity() != null)
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -215,18 +215,18 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
                             adapter.notifyDataSetChanged();
                         }
                     });
-				break;
-			case NetworkConnection.EVENT_LISTRESPONSETOOMANY:
-                if(getActivity() != null)
+                break;
+            case NetworkConnection.EVENT_LISTRESPONSETOOMANY:
+                if (getActivity() != null)
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-            				empty.setText("Too many channels to list");
+                            empty.setText("Too many channels to list");
                         }
                     });
-				break;
-			default:
-				break;
+                break;
+            default:
+                break;
         }
     }
 }

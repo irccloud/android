@@ -16,6 +16,62 @@
 
 package com.irccloud.android.fragment;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.graphics.Typeface;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.support.v4.app.ListFragment;
+import android.support.v4.widget.DrawerLayout;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.crashlytics.android.Crashlytics;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.CollapsedEventsList;
+import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.Ignore;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,210 +83,163 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import android.content.ActivityNotFoundException;
-import android.content.res.Resources;
-import android.preference.PreferenceManager;
-import android.os.Build;
-import android.support.v4.app.ListFragment;
-import android.support.v4.widget.DrawerLayout;
-import android.text.Html;
-import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.animation.AlphaAnimation;
-import android.widget.*;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.os.Handler;
-import android.text.Spannable;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-
-import com.crashlytics.android.Crashlytics;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.IRCCloudApplication;
-import com.irccloud.android.data.BuffersDataSource;
-import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
-import com.irccloud.android.CollapsedEventsList;
-import com.irccloud.android.ColorFormatter;
-import com.irccloud.android.data.EventsDataSource;
-import com.irccloud.android.IRCCloudJSONObject;
-import com.irccloud.android.Ignore;
-import com.irccloud.android.NetworkConnection;
-import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
-
 public class MessageViewFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
-	private NetworkConnection conn;
-	private TextView statusView;
-	private View headerViewContainer;
-	private View headerView;
+    private NetworkConnection conn;
+    private TextView statusView;
+    private View headerViewContainer;
+    private View headerView;
     private TextView backlogFailed;
     private Button loadBacklogButton;
-	private TextView unreadTopLabel;
-	private TextView unreadBottomLabel;
-	private View unreadTopView;
-	private View unreadBottomView;
-	private TextView highlightsTopLabel;
-	private TextView highlightsBottomLabel;
+    private TextView unreadTopLabel;
+    private TextView unreadBottomLabel;
+    private View unreadTopView;
+    private View unreadBottomView;
+    private TextView highlightsTopLabel;
+    private TextView highlightsBottomLabel;
     public BuffersDataSource.Buffer buffer;
     private ServersDataSource.Server server;
-	private long earliest_eid;
-	private long backlog_eid = 0;
-	private boolean requestingBacklog = false;
-	private float avgInsertTime = 0;
-	private int newMsgs = 0;
-	private long newMsgTime = 0;
-	private int newHighlights = 0;
-	private MessageViewListener mListener;
-	private View awayView = null;
-	private TextView awayTxt = null;
-	private int timestamp_width = -1;
+    private long earliest_eid;
+    private long backlog_eid = 0;
+    private boolean requestingBacklog = false;
+    private float avgInsertTime = 0;
+    private int newMsgs = 0;
+    private long newMsgTime = 0;
+    private int newHighlights = 0;
+    private MessageViewListener mListener;
+    private View awayView = null;
+    private TextView awayTxt = null;
+    private int timestamp_width = -1;
     private float textSize = 14.0f;
-	private View globalMsgView = null;
-	private TextView globalMsg = null;
+    private View globalMsgView = null;
+    private TextView globalMsg = null;
     private ProgressBar spinner = null;
-	private final Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler();
 
-	public static final int ROW_MESSAGE = 0;
-	public static final int ROW_TIMESTAMP = 1;
-	public static final int ROW_BACKLOGMARKER = 2;
-	public static final int ROW_SOCKETCLOSED = 3;
-	public static final int ROW_LASTSEENEID = 4;
-	private static final String TYPE_TIMESTAMP = "__timestamp__";
-	private static final String TYPE_BACKLOGMARKER = "__backlog__";
-	private static final String TYPE_LASTSEENEID = "__lastseeneid__";
-	
-	private MessageAdapter adapter;
+    public static final int ROW_MESSAGE = 0;
+    public static final int ROW_TIMESTAMP = 1;
+    public static final int ROW_BACKLOGMARKER = 2;
+    public static final int ROW_SOCKETCLOSED = 3;
+    public static final int ROW_LASTSEENEID = 4;
+    private static final String TYPE_TIMESTAMP = "__timestamp__";
+    private static final String TYPE_BACKLOGMARKER = "__backlog__";
+    private static final String TYPE_LASTSEENEID = "__lastseeneid__";
 
-	private long currentCollapsedEid = -1;
+    private MessageAdapter adapter;
+
+    private long currentCollapsedEid = -1;
     private long lastCollapsedEid = -1;
-	private CollapsedEventsList collapsedEvents = new CollapsedEventsList();
-	private int lastCollapsedDay = -1;
-	private HashSet<Long> expandedSectionEids = new HashSet<Long>();
-	private RefreshTask refreshTask = null;
-	private HeartbeatTask heartbeatTask = null;
-	private Ignore ignore = new Ignore();
-	private static final Timer tapTimer = new Timer("message-tap-timer");
+    private CollapsedEventsList collapsedEvents = new CollapsedEventsList();
+    private int lastCollapsedDay = -1;
+    private HashSet<Long> expandedSectionEids = new HashSet<Long>();
+    private RefreshTask refreshTask = null;
+    private HeartbeatTask heartbeatTask = null;
+    private Ignore ignore = new Ignore();
+    private static final Timer tapTimer = new Timer("message-tap-timer");
     private TimerTask tapTimerTask = null;
-	public boolean longPressOverride = false;
-	private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
-	public boolean ready = false;
+    public boolean longPressOverride = false;
+    private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
+    public boolean ready = false;
     private final Object adapterLock = new Object();
 
     public View suggestionsContainer = null;
     public GridView suggestions = null;
 
-	private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
-		@Override
-	    public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
-			if(!longPressOverride && event.getAction() == MotionEvent.ACTION_UP) {
+    private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
+        @Override
+        public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
+            if (!longPressOverride && event.getAction() == MotionEvent.ACTION_UP) {
                 try {
                     return super.onTouchEvent(widget, buffer, event);
                 } catch (ActivityNotFoundException e) {
                     // No app installed to handle this URL
                 }
-			}
+            }
             return false;
-		}
-	}
-	
-	private class MessageAdapter extends BaseAdapter {
-		ArrayList<EventsDataSource.Event> data;
-		private ListFragment ctx;
-		private long max_eid = 0;
-		private long min_eid = 0;
-		private int lastDay = -1;
-		private int lastSeenEidMarkerPosition = -1;
-		private int currentGroupPosition = -1;
-		private TreeSet<Integer> unseenHighlightPositions;
-		
-		private class ViewHolder {
-			int type;
-			TextView timestamp;
-			TextView message;
+        }
+    }
+
+    private class MessageAdapter extends BaseAdapter {
+        ArrayList<EventsDataSource.Event> data;
+        private ListFragment ctx;
+        private long max_eid = 0;
+        private long min_eid = 0;
+        private int lastDay = -1;
+        private int lastSeenEidMarkerPosition = -1;
+        private int currentGroupPosition = -1;
+        private TreeSet<Integer> unseenHighlightPositions;
+
+        private class ViewHolder {
+            int type;
+            TextView timestamp;
+            TextView message;
             ImageView expandable;
             ImageView failed;
-		}
-	
-		public MessageAdapter(ListFragment context) {
-			ctx = context;
-			data = new ArrayList<EventsDataSource.Event>();
-			unseenHighlightPositions = new TreeSet<Integer>(Collections.reverseOrder());
-		}
-		
-		public void clear() {
-			max_eid = 0;
-			min_eid = 0;
-			lastDay = -1;
-			lastSeenEidMarkerPosition = -1;
-			currentGroupPosition = -1;
-			data.clear();
-			unseenHighlightPositions.clear();
-		}
-		
-		public void clearPending() {
-			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).reqid != -1 && data.get(i).color == R.color.timestamp) {
-					data.remove(i);
-					i--;
-				}
-			}
-		}
+        }
 
-		public void removeItem(long eid) {
-			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).eid == eid) {
-					data.remove(i);
-					i--;
-				}
-			}
-		}
+        public MessageAdapter(ListFragment context) {
+            ctx = context;
+            data = new ArrayList<>();
+            unseenHighlightPositions = new TreeSet<>(Collections.reverseOrder());
+        }
 
-		public int getBacklogMarkerPosition() {
+        public void clear() {
+            max_eid = 0;
+            min_eid = 0;
+            lastDay = -1;
+            lastSeenEidMarkerPosition = -1;
+            currentGroupPosition = -1;
+            data.clear();
+            unseenHighlightPositions.clear();
+        }
+
+        public void clearPending() {
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i).reqid != -1 && data.get(i).color == R.color.timestamp) {
+                    data.remove(i);
+                    i--;
+                }
+            }
+        }
+
+        public void removeItem(long eid) {
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i).eid == eid) {
+                    data.remove(i);
+                    i--;
+                }
+            }
+        }
+
+        public int getBacklogMarkerPosition() {
             try {
-                for(int i = 0; data != null && i < data.size(); i++) {
+                for (int i = 0; data != null && i < data.size(); i++) {
                     EventsDataSource.Event e = data.get(i);
-                    if(e != null && e.row_type == ROW_BACKLOGMARKER) {
+                    if (e != null && e.row_type == ROW_BACKLOGMARKER) {
                         return i;
                     }
                 }
             } catch (Exception e) {
             }
-			return -1;
-		}
+            return -1;
+        }
 
-		public int insertLastSeenEIDMarker() {
-            if(buffer == null)
+        public int insertLastSeenEIDMarker() {
+            if (buffer == null)
                 return -1;
 
-            if(min_eid > 0 && buffer.last_seen_eid > 0 && min_eid >= buffer.last_seen_eid) {
-				lastSeenEidMarkerPosition = 0;
-			} else {
-				for(int i = data.size() - 1; i >= 0; i--) {
-					if(data.get(i).eid <= buffer.last_seen_eid && data.get(i).row_type != ROW_LASTSEENEID) {
-						lastSeenEidMarkerPosition = i;
-						break;
-					}
-				}
-				if(lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
-					if(data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
-						lastSeenEidMarkerPosition--;
-					if(lastSeenEidMarkerPosition > 0) {
+            if (min_eid > 0 && buffer.last_seen_eid > 0 && min_eid >= buffer.last_seen_eid) {
+                lastSeenEidMarkerPosition = 0;
+            } else {
+                for (int i = data.size() - 1; i >= 0; i--) {
+                    if (data.get(i).eid <= buffer.last_seen_eid && data.get(i).row_type != ROW_LASTSEENEID) {
+                        lastSeenEidMarkerPosition = i;
+                        break;
+                    }
+                }
+                if (lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
+                    if (data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
+                        lastSeenEidMarkerPosition--;
+                    if (lastSeenEidMarkerPosition > 0) {
                         EventsDataSource.Event e = new EventsDataSource.Event();
                         e.bid = buffer.bid;
                         e.cid = buffer.cid;
@@ -240,76 +249,76 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         e.bg_color = R.drawable.socketclosed_bg;
                         data.add(lastSeenEidMarkerPosition + 1, e);
                         EventsDataSource.getInstance().addEvent(e);
-                        for(int i = 0; i < data.size(); i++) {
-                            if(data.get(i).row_type == ROW_LASTSEENEID && data.get(i) != e) {
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(i).row_type == ROW_LASTSEENEID && data.get(i) != e) {
                                 EventsDataSource.getInstance().deleteEvent(data.get(i).eid, buffer.bid);
                                 data.remove(i);
                             }
                         }
                     }
-				} else {
-					lastSeenEidMarkerPosition = -1;
-				}
-			}
-            if(lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition <= currentGroupPosition)
+                } else {
+                    lastSeenEidMarkerPosition = -1;
+                }
+            }
+            if (lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition <= currentGroupPosition)
                 currentGroupPosition++;
 
-            if(lastSeenEidMarkerPosition == -1) {
-                for(int i = data.size() - 1; i >= 0; i--) {
-                    if(data.get(i).row_type == ROW_LASTSEENEID) {
+            if (lastSeenEidMarkerPosition == -1) {
+                for (int i = data.size() - 1; i >= 0; i--) {
+                    if (data.get(i).row_type == ROW_LASTSEENEID) {
                         lastSeenEidMarkerPosition = i;
                         break;
                     }
                 }
             }
-			return lastSeenEidMarkerPosition;
-		}
-		
-		public void clearLastSeenEIDMarker() {
-			for(int i = 0; i < data.size(); i++) {
-				if(data.get(i).row_type == ROW_LASTSEENEID) {
-                    EventsDataSource.getInstance().deleteEvent(data.get(i).eid, buffer.bid);
-					data.remove(i);
-				}
-			}
-            if(lastSeenEidMarkerPosition > 0)
-    			lastSeenEidMarkerPosition = -1;
-		}
-		
-		public int getLastSeenEIDPosition() {
-			return lastSeenEidMarkerPosition;
-		}
-		
-		public int getUnreadHighlightsAbovePosition(int pos) {
-			int count = 0;
+            return lastSeenEidMarkerPosition;
+        }
 
-			Iterator<Integer> i = unseenHighlightPositions.iterator();
-			while(i.hasNext()) {
-				Integer p = i.next();
-				if(p < pos)
-					break;
-				count++;
-			}
-			
-			return unseenHighlightPositions.size() - count;
-		}
+        public void clearLastSeenEIDMarker() {
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i).row_type == ROW_LASTSEENEID) {
+                    EventsDataSource.getInstance().deleteEvent(data.get(i).eid, buffer.bid);
+                    data.remove(i);
+                }
+            }
+            if (lastSeenEidMarkerPosition > 0)
+                lastSeenEidMarkerPosition = -1;
+        }
+
+        public int getLastSeenEIDPosition() {
+            return lastSeenEidMarkerPosition;
+        }
+
+        public int getUnreadHighlightsAbovePosition(int pos) {
+            int count = 0;
+
+            Iterator<Integer> i = unseenHighlightPositions.iterator();
+            while (i.hasNext()) {
+                Integer p = i.next();
+                if (p < pos)
+                    break;
+                count++;
+            }
+
+            return unseenHighlightPositions.size() - count;
+        }
 
         public synchronized void addItem(long eid, EventsDataSource.Event e) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTimeInMillis(eid / 1000);
-			int insert_pos = -1;
-			SimpleDateFormat formatter = null;
-            if(e.timestamp == null || e.timestamp.length() == 0) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeInMillis(eid / 1000);
+            int insert_pos = -1;
+            SimpleDateFormat formatter = null;
+            if (e.timestamp == null || e.timestamp.length() == 0) {
                 formatter = new SimpleDateFormat("h:mm a");
-                if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                if (conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                     try {
                         JSONObject prefs = conn.getUserInfo().prefs;
-                        if(prefs.has("time-24hr") && prefs.getBoolean("time-24hr")) {
-                            if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+                        if (prefs.has("time-24hr") && prefs.getBoolean("time-24hr")) {
+                            if (prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
                                 formatter = new SimpleDateFormat("H:mm:ss");
                             else
                                 formatter = new SimpleDateFormat("H:mm");
-                        } else if(prefs.has("time-seconds") && prefs.getBoolean("time-seconds")) {
+                        } else if (prefs.has("time-seconds") && prefs.getBoolean("time-seconds")) {
                             formatter = new SimpleDateFormat("h:mm:ss a");
                         }
                     } catch (JSONException e1) {
@@ -318,148 +327,148 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 e.timestamp = formatter.format(calendar.getTime());
             }
-			e.group_eid = currentCollapsedEid;
-			if(e.group_msg != null && e.html == null)
-				e.html = e.group_msg;
+            e.group_eid = currentCollapsedEid;
+            if (e.group_msg != null && e.html == null)
+                e.html = e.group_msg;
 
 			/*if(e.html != null) {
-				e.html = ColorFormatter.irc_to_html(e.html);
+                e.html = ColorFormatter.irc_to_html(e.html);
                 e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
 			}*/
 
-            if(e.day < 1) {
+            if (e.day < 1) {
                 e.day = calendar.get(Calendar.DAY_OF_YEAR);
             }
 
-			if(currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
-				calendar.setTimeInMillis(e.eid / 1000);
-				lastDay = e.day;
-				data.remove(currentGroupPosition);
-				data.add(currentGroupPosition, e);
-				insert_pos = currentGroupPosition;
-			} else if(eid > max_eid || data.size() == 0 || eid > data.get(data.size()-1).eid) { //Message at the bottom
-				if(data.size() > 0) {
-					lastDay = data.get(data.size()-1).day;
-				} else {
-					lastDay = 0;
-				}
-				max_eid = eid;
-				data.add(e);
-				insert_pos = data.size() - 1;
-			} else if(min_eid > eid) { //Message goes on top
-				if(data.size() > 1) {
-					lastDay = data.get(1).day;
-					if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
-						data.add(0, e);
-						insert_pos = 0;
-					} else { //Insert below the dateline
-						data.add(1, e);
-						insert_pos = 1;
-					}
-				} else {
-					data.add(0, e);
-					insert_pos = 0;
-				}
-			} else {
-				int i = 0;
-				for(EventsDataSource.Event e1 : data) {
-                    if(e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid && e1.group_eid != eid) { //Insert the message
-						if(i > 0 && data.get(i-1).row_type != ROW_TIMESTAMP) {
-							lastDay = data.get(i-1).day;
-							data.add(i, e);
-							insert_pos = i;
-							break;
-						} else { //There was a date line above our insertion point
-							lastDay = e1.day;
-							if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
-								if(i > 1) {
-									lastDay = data.get(i-2).day;
-								} else {
-									//We're above the first dateline, so we'll need to put a new one on top!
-									lastDay = 0;
-								}
-								data.add(i-1, e);
-								insert_pos = i-1;
-							} else { //Insert below the dateline
-								data.add(i, e);
-								insert_pos = i;
-							}
-							break;
-						}
-					} else if(e1.row_type != ROW_TIMESTAMP && (e1.eid == eid || e1.group_eid == eid)) { //Replace the message
-						lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-						data.remove(i);
-						data.add(i, e);
-						insert_pos = i;
-						break;
-					}
-					i++;
-				}
-			}
+            if (currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
+                calendar.setTimeInMillis(e.eid / 1000);
+                lastDay = e.day;
+                data.remove(currentGroupPosition);
+                data.add(currentGroupPosition, e);
+                insert_pos = currentGroupPosition;
+            } else if (eid > max_eid || data.size() == 0 || eid > data.get(data.size() - 1).eid) { //Message at the bottom
+                if (data.size() > 0) {
+                    lastDay = data.get(data.size() - 1).day;
+                } else {
+                    lastDay = 0;
+                }
+                max_eid = eid;
+                data.add(e);
+                insert_pos = data.size() - 1;
+            } else if (min_eid > eid) { //Message goes on top
+                if (data.size() > 1) {
+                    lastDay = data.get(1).day;
+                    if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+                        data.add(0, e);
+                        insert_pos = 0;
+                    } else { //Insert below the dateline
+                        data.add(1, e);
+                        insert_pos = 1;
+                    }
+                } else {
+                    data.add(0, e);
+                    insert_pos = 0;
+                }
+            } else {
+                int i = 0;
+                for (EventsDataSource.Event e1 : data) {
+                    if (e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid && e1.group_eid != eid) { //Insert the message
+                        if (i > 0 && data.get(i - 1).row_type != ROW_TIMESTAMP) {
+                            lastDay = data.get(i - 1).day;
+                            data.add(i, e);
+                            insert_pos = i;
+                            break;
+                        } else { //There was a date line above our insertion point
+                            lastDay = e1.day;
+                            if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+                                if (i > 1) {
+                                    lastDay = data.get(i - 2).day;
+                                } else {
+                                    //We're above the first dateline, so we'll need to put a new one on top!
+                                    lastDay = 0;
+                                }
+                                data.add(i - 1, e);
+                                insert_pos = i - 1;
+                            } else { //Insert below the dateline
+                                data.add(i, e);
+                                insert_pos = i;
+                            }
+                            break;
+                        }
+                    } else if (e1.row_type != ROW_TIMESTAMP && (e1.eid == eid || e1.group_eid == eid)) { //Replace the message
+                        lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+                        data.remove(i);
+                        data.add(i, e);
+                        insert_pos = i;
+                        break;
+                    }
+                    i++;
+                }
+            }
 
-			if(insert_pos == -1) {
-				Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
-				return;
-			}
-			
-			if(eid > buffer.last_seen_eid && e.highlight)
-				unseenHighlightPositions.add(insert_pos);
-			
-			if(eid < min_eid || min_eid == 0)
-				min_eid = eid;
-			
-			if(eid == currentCollapsedEid && e.eid == eid) {
-				currentGroupPosition = insert_pos;
-			} else if(currentCollapsedEid == -1) {
-				currentGroupPosition = -1;
-			}
+            if (insert_pos == -1) {
+                Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
+                return;
+            }
 
-			if(calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
-                if(formatter == null)
-    				formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
+            if (eid > buffer.last_seen_eid && e.highlight)
+                unseenHighlightPositions.add(insert_pos);
+
+            if (eid < min_eid || min_eid == 0)
+                min_eid = eid;
+
+            if (eid == currentCollapsedEid && e.eid == eid) {
+                currentGroupPosition = insert_pos;
+            } else if (currentCollapsedEid == -1) {
+                currentGroupPosition = -1;
+            }
+
+            if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
+                if (formatter == null)
+                    formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
                 else
                     formatter.applyPattern("EEEE, MMMM dd, yyyy");
-				EventsDataSource.Event d = new EventsDataSource.Event();
-				d.type = TYPE_TIMESTAMP;
-				d.row_type = ROW_TIMESTAMP;
-				d.eid = eid;
-				d.timestamp = formatter.format(calendar.getTime());
-				d.bg_color = R.drawable.row_timestamp_bg;
+                EventsDataSource.Event d = new EventsDataSource.Event();
+                d.type = TYPE_TIMESTAMP;
+                d.row_type = ROW_TIMESTAMP;
+                d.eid = eid;
+                d.timestamp = formatter.format(calendar.getTime());
+                d.bg_color = R.drawable.row_timestamp_bg;
                 d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-				data.add(insert_pos, d);
-				if(currentGroupPosition > -1)
-					currentGroupPosition++;
-			}
-		}
-		
-		@Override
-		public int getCount() {
-            if(ctx != null)
-    			return data.size();
+                data.add(insert_pos, d);
+                if (currentGroupPosition > -1)
+                    currentGroupPosition++;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            if (ctx != null)
+                return data.size();
             else
                 return 0;
-		}
+        }
 
-		@Override
-		public Object getItem(int position) {
-			if(position < data.size())
+        @Override
+        public Object getItem(int position) {
+            if (position < data.size())
                 return data.get(position);
             else
                 return null;
-		}
+        }
 
-		@Override
-		public long getItemId(int position) {
-			if(position < data.size())
+        @Override
+        public long getItemId(int position) {
+            if (position < data.size())
                 return data.get(position).eid;
             else
                 return -1;
-		}
-		
+        }
+
         public void format() {
-            for(int i = 0; i < data.size(); i++) {
+            for (int i = 0; i < data.size(); i++) {
                 EventsDataSource.Event e = data.get(i);
-                if(e != null) {
+                if (e != null) {
                     synchronized (e) {
                         if (e.html != null) {
                             try {
@@ -475,31 +484,31 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         }
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-            if(position >= data.size() || ctx == null)
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (position >= data.size() || ctx == null)
                 return null;
 
-			EventsDataSource.Event e = data.get(position);
+            EventsDataSource.Event e = data.get(position);
             synchronized (e) {
                 View row = convertView;
                 ViewHolder holder;
 
-                if(row != null && ((ViewHolder)row.getTag()).type != e.row_type)
+                if (row != null && ((ViewHolder) row.getTag()).type != e.row_type)
                     row = null;
 
                 if (row == null) {
                     LayoutInflater inflater = ctx.getLayoutInflater(null);
-                    if(e.row_type == ROW_BACKLOGMARKER)
-                        row = inflater.inflate(R.layout.row_backlogmarker, null);
-                    else if(e.row_type == ROW_TIMESTAMP)
-                        row = inflater.inflate(R.layout.row_timestamp, null);
-                    else if(e.row_type == ROW_SOCKETCLOSED)
-                        row = inflater.inflate(R.layout.row_socketclosed, null);
-                    else if(e.row_type == ROW_LASTSEENEID)
-                        row = inflater.inflate(R.layout.row_lastseeneid, null);
+                    if (e.row_type == ROW_BACKLOGMARKER)
+                        row = inflater.inflate(R.layout.row_backlogmarker, parent, false);
+                    else if (e.row_type == ROW_TIMESTAMP)
+                        row = inflater.inflate(R.layout.row_timestamp, parent, false);
+                    else if (e.row_type == ROW_SOCKETCLOSED)
+                        row = inflater.inflate(R.layout.row_socketclosed, parent, false);
+                    else if (e.row_type == ROW_LASTSEENEID)
+                        row = inflater.inflate(R.layout.row_lastseeneid, parent, false);
                     else
-                        row = inflater.inflate(R.layout.row_message, null);
+                        row = inflater.inflate(R.layout.row_message, parent, false);
 
                     holder = new ViewHolder();
                     holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
@@ -515,25 +524,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 row.setOnClickListener(new OnItemClickListener(position));
 
-                if(e.html != null && e.formatted == null) {
+                if (e.html != null && e.formatted == null) {
                     e.html = ColorFormatter.emojify(ColorFormatter.irc_to_html(e.html));
                     e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, e.entities);
-                    if(e.msg != null && e.msg.length() > 0)
+                    if (e.msg != null && e.msg.length() > 0)
                         e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                 }
 
-                if(e.row_type == ROW_MESSAGE) {
-                    if(e.bg_color == R.color.message_bg)
+                if (e.row_type == ROW_MESSAGE) {
+                    if (e.bg_color == R.color.message_bg)
                         row.setBackgroundDrawable(null);
                     else
                         row.setBackgroundResource(e.bg_color);
-                    if(e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
+                    if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
                         row.setContentDescription("Message from " + e.from + " at " + e.timestamp + ": " + e.contentDescription);
                     }
                 }
 
-                if(holder.timestamp != null) {
-                    if(e.row_type == ROW_TIMESTAMP) {
+                if (holder.timestamp != null) {
+                    if (e.row_type == ROW_TIMESTAMP) {
                         holder.timestamp.setTextSize(textSize);
                     } else {
                         holder.timestamp.setTextSize(textSize - 2);
@@ -555,14 +564,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                         holder.timestamp.setMinWidth(timestamp_width);
                     }
-                    if(e.highlight && !e.self)
+                    if (e.highlight && !e.self)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.highlight_timestamp));
-                    else if(e.row_type != ROW_TIMESTAMP)
+                    else if (e.row_type != ROW_TIMESTAMP)
                         holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
                     holder.timestamp.setText(e.timestamp);
                 }
-                if(e.row_type == ROW_SOCKETCLOSED) {
-                    if(e.msg.length() > 0) {
+                if (e.row_type == ROW_SOCKETCLOSED) {
+                    if (e.msg != null && e.msg.length() > 0) {
                         holder.timestamp.setVisibility(View.VISIBLE);
                         holder.message.setVisibility(View.VISIBLE);
                     } else {
@@ -571,10 +580,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(holder.message != null && e.html != null) {
+                if (holder.message != null && e.html != null) {
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
-                    if(e.msg != null && e.msg.startsWith("<pre>"))
+                    if (e.msg != null && e.msg.startsWith("<pre>"))
                         holder.message.setTypeface(Typeface.MONOSPACE);
                     else
                         holder.message.setTypeface(Typeface.DEFAULT);
@@ -583,21 +592,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     } catch (Exception e1) {
 
                     }
-                    if(e.color == R.color.timestamp || e.pending)
+                    if (e.color == R.color.timestamp || e.pending)
                         holder.message.setLinkTextColor(getSafeResources().getColor(R.color.lightLinkColor));
                     else
                         holder.message.setLinkTextColor(getSafeResources().getColor(R.color.linkColor));
                     holder.message.setText(e.formatted);
-                    if(e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
+                    if (e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
                         holder.message.setContentDescription(e.from + ": " + e.contentDescription);
                     }
                     holder.message.setTextSize(textSize);
                 }
 
-                if(holder.expandable != null) {
-                    if(e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
-                        if(expandedSectionEids.contains(e.group_eid)) {
-                            if(e.group_eid == e.eid + 1) {
+                if (holder.expandable != null) {
+                    if (e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
+                        if (expandedSectionEids.contains(e.group_eid)) {
+                            if (e.group_eid == e.eid + 1) {
                                 holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
                                 row.setBackgroundResource(R.drawable.status_bg);
                             } else {
@@ -613,114 +622,114 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(holder.failed != null)
-                    holder.failed.setVisibility(e.failed?View.VISIBLE:View.GONE);
+                if (holder.failed != null)
+                    holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
 
                 return row;
             }
         }
-	}
-	
+    }
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	final View v = inflater.inflate(R.layout.messageview, container, false);
-    	statusView = (TextView)v.findViewById(R.id.statusView);
-    	statusView.setOnClickListener(new OnClickListener() {
+        final View v = inflater.inflate(R.layout.messageview, container, false);
+        statusView = (TextView) v.findViewById(R.id.statusView);
+        statusView.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				if(buffer != null && conn != null && server != null && server.status != null && server.status.equalsIgnoreCase("disconnected")) {
-					conn.reconnect(buffer.cid);
-				}
-			}
-    		
-    	});
-    	
-    	awayView = v.findViewById(R.id.away);
-    	awayView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (buffer != null && conn != null && server != null && server.status != null && server.status.equalsIgnoreCase("disconnected")) {
+                    conn.reconnect(buffer.cid);
+                }
+            }
 
-			@Override
-			public void onClick(View v) {
-				conn.back(buffer.cid);
-			}
-    		
-    	});
-    	awayTxt = (TextView)v.findViewById(R.id.awayTxt);
-    	unreadBottomView = v.findViewById(R.id.unreadBottom);
-    	unreadBottomView.setOnClickListener(new OnClickListener() {
+        });
 
-			@Override
-			public void onClick(View v) {
-				getListView().setSelection(adapter.getCount() - 1);
-			}
-    		
-    	});
-    	unreadBottomLabel = (TextView)v.findViewById(R.id.unread);
-    	highlightsBottomLabel = (TextView)v.findViewById(R.id.highlightsBottom);
+        awayView = v.findViewById(R.id.away);
+        awayView.setOnClickListener(new OnClickListener() {
 
-    	unreadTopView = v.findViewById(R.id.unreadTop);
-		unreadTopView.setVisibility(View.GONE);
-    	unreadTopView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                conn.back(buffer.cid);
+            }
 
-			@Override
-			public void onClick(View v) {
-				if(adapter.getLastSeenEIDPosition() > 0) {
-                    if(heartbeatTask != null)
+        });
+        awayTxt = (TextView) v.findViewById(R.id.awayTxt);
+        unreadBottomView = v.findViewById(R.id.unreadBottom);
+        unreadBottomView.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                getListView().setSelection(adapter.getCount() - 1);
+            }
+
+        });
+        unreadBottomLabel = (TextView) v.findViewById(R.id.unread);
+        highlightsBottomLabel = (TextView) v.findViewById(R.id.highlightsBottom);
+
+        unreadTopView = v.findViewById(R.id.unreadTop);
+        unreadTopView.setVisibility(View.GONE);
+        unreadTopView.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (adapter.getLastSeenEIDPosition() > 0) {
+                    if (heartbeatTask != null)
                         heartbeatTask.cancel(true);
                     heartbeatTask = new HeartbeatTask();
-                    heartbeatTask.execute((Void)null);
+                    heartbeatTask.execute((Void) null);
                     hideView(unreadTopView);
-				}
-				getListView().setSelection(adapter.getLastSeenEIDPosition());
-			}
-    		
-    	});
-    	unreadTopLabel = (TextView)v.findViewById(R.id.unreadTopText);
-    	highlightsTopLabel = (TextView)v.findViewById(R.id.highlightsTop);
-    	Button b = (Button)v.findViewById(R.id.markAsRead);
-    	b.setOnClickListener(new OnClickListener() {
-    		@Override
-    		public void onClick(View v) {
+                }
+                getListView().setSelection(adapter.getLastSeenEIDPosition());
+            }
+
+        });
+        unreadTopLabel = (TextView) v.findViewById(R.id.unreadTopText);
+        highlightsTopLabel = (TextView) v.findViewById(R.id.highlightsTop);
+        Button b = (Button) v.findViewById(R.id.markAsRead);
+        b.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 hideView(unreadTopView);
-                if(heartbeatTask != null)
+                if (heartbeatTask != null)
                     heartbeatTask.cancel(true);
                 heartbeatTask = new HeartbeatTask();
-                heartbeatTask.execute((Void)null);
-    		}
-    	});
-    	globalMsgView = v.findViewById(R.id.globalMessageView);
-    	globalMsg = (TextView)v.findViewById(R.id.globalMessageTxt);
-    	b = (Button)v.findViewById(R.id.dismissGlobalMessage);
-    	b.setOnClickListener(new OnClickListener() {
-    		@Override
-    		public void onClick(View v) {
-    			if(conn != null)
-    				conn.globalMsg = null;
-    			update_global_msg();
-    		}
-    	});
-    	((ListView)v.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
+                heartbeatTask.execute((Void) null);
+            }
+        });
+        globalMsgView = v.findViewById(R.id.globalMessageView);
+        globalMsg = (TextView) v.findViewById(R.id.globalMessageTxt);
+        b = (Button) v.findViewById(R.id.dismissGlobalMessage);
+        b.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (conn != null)
+                    conn.globalMsg = null;
+                update_global_msg();
+            }
+        });
+        ((ListView) v.findViewById(android.R.id.list)).setOnItemLongClickListener(new OnItemLongClickListener() {
 
-			@Override
-			public boolean onItemLongClick(AdapterView<?> list, View v, int pos, long id) {
-				try {
-					longPressOverride = mListener.onMessageLongClicked((EventsDataSource.Event)list.getItemAtPosition(pos));
-					return longPressOverride;
-				} catch(Exception e) {
-				}
+            @Override
+            public boolean onItemLongClick(AdapterView<?> list, View v, int pos, long id) {
+                try {
+                    longPressOverride = mListener.onMessageLongClicked((EventsDataSource.Event) list.getItemAtPosition(pos));
+                    return longPressOverride;
+                } catch (Exception e) {
+                }
                 return false;
-			}
-    	});
-        spinner = (ProgressBar)v.findViewById(R.id.spinner);
+            }
+        });
+        spinner = (ProgressBar) v.findViewById(R.id.spinner);
         suggestionsContainer = v.findViewById(R.id.suggestionsContainer);
-        suggestions = (GridView)v.findViewById(R.id.suggestions);
+        suggestions = (GridView) v.findViewById(R.id.suggestions);
         headerViewContainer = getLayoutInflater(null).inflate(R.layout.messageview_header, null);
         headerView = headerViewContainer.findViewById(R.id.progress);
-        backlogFailed = (TextView)headerViewContainer.findViewById(R.id.backlogFailed);
-        loadBacklogButton = (Button)headerViewContainer.findViewById(R.id.loadBacklogButton);
+        backlogFailed = (TextView) headerViewContainer.findViewById(R.id.backlogFailed);
+        loadBacklogButton = (Button) headerViewContainer.findViewById(R.id.loadBacklogButton);
         loadBacklogButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(conn != null && buffer != null) {
+                if (conn != null && buffer != null) {
                     backlogFailed.setVisibility(View.GONE);
                     loadBacklogButton.setVisibility(View.GONE);
                     headerView.setVisibility(View.VISIBLE);
@@ -728,13 +737,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             }
         });
-        ((ListView)v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
+        ((ListView) v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
         return v;
     }
 
     public void showSpinner(boolean show) {
-        if(show) {
-            if(Build.VERSION.SDK_INT < 16) {
+        if (show) {
+            if (Build.VERSION.SDK_INT < 16) {
                 AlphaAnimation anim = new AlphaAnimation(0, 1);
                 anim.setDuration(150);
                 anim.setFillAfter(true);
@@ -745,7 +754,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
             spinner.setVisibility(View.VISIBLE);
         } else {
-            if(Build.VERSION.SDK_INT < 16) {
+            if (Build.VERSION.SDK_INT < 16) {
                 AlphaAnimation anim = new AlphaAnimation(1, 0);
                 anim.setDuration(150);
                 anim.setFillAfter(true);
@@ -778,7 +787,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private void hideView(final View v) {
-        if(v.getVisibility() != View.GONE) {
+        if (v.getVisibility() != View.GONE) {
             if (Build.VERSION.SDK_INT >= 16) {
                 v.animate().alpha(0).setDuration(100).withEndAction(new Runnable() {
                     @Override
@@ -793,7 +802,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private void showView(final View v) {
-        if(v.getVisibility() != View.VISIBLE) {
+        if (v.getVisibility() != View.VISIBLE) {
             if (Build.VERSION.SDK_INT >= 16) {
                 v.setAlpha(0);
                 v.animate().alpha(1).setDuration(100);
@@ -811,71 +820,71 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
-		@Override
-		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if(!ready || buffer == null || !conn.ready || adapter == null || requestingBacklog)
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (!ready || buffer == null || !conn.ready || adapter == null || requestingBacklog)
                 return;
 
-            if(headerView != null && buffer.min_eid > 0 && conn.ready) {
-				if(firstVisibleItem == 0 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-					requestingBacklog = true;
-					conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
+            if (headerView != null && buffer.min_eid > 0) {
+                if (firstVisibleItem == 0 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    requestingBacklog = true;
+                    conn.request_backlog(buffer.cid, buffer.bid, earliest_eid);
                     return;
-				}
-			}
-			
-			if(unreadBottomView != null && adapter != null && adapter.data.size() > 0) {
-				if(firstVisibleItem + visibleItemCount == totalItemCount) {
-                    unreadBottomView.setVisibility(View.GONE);
-					if(unreadTopView.getVisibility() == View.GONE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-	    				if(heartbeatTask != null)
-	    					heartbeatTask.cancel(true);
-	    				heartbeatTask = new HeartbeatTask();
-	    				heartbeatTask.execute((Void)null);
-					}
-					newMsgs = 0;
-					newMsgTime = 0;
-					newHighlights = 0;
-				}
-			}
-			if(firstVisibleItem + visibleItemCount < totalItemCount) {
-                View v = view.getChildAt(0);
-				buffer.scrolledUp = true;
-                buffer.scrollPosition = firstVisibleItem;
-                buffer.scrollPositionOffset = (v == null)?0:v.getTop();
-            } else {
-                buffer.scrolledUp = false;
-                buffer.scrollPosition = -1;
+                }
             }
-			if(adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
-                update_top_unread(firstVisibleItem);
-				int markerPos = -1;
-				if(adapter != null)
-					markerPos = adapter.getLastSeenEIDPosition();
-	    		if(markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
-                    unreadTopView.setVisibility(View.GONE);
-                    if(conn.getState() == NetworkConnection.STATE_CONNECTED) {
+
+            if (unreadBottomView != null && adapter.data.size() > 0) {
+                if (firstVisibleItem + visibleItemCount == totalItemCount) {
+                    unreadBottomView.setVisibility(View.GONE);
+                    if (unreadTopView.getVisibility() == View.GONE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         if (heartbeatTask != null)
                             heartbeatTask.cancel(true);
                         heartbeatTask = new HeartbeatTask();
                         heartbeatTask.execute((Void) null);
                     }
-	    		}
-			}
-		}
+                    newMsgs = 0;
+                    newMsgTime = 0;
+                    newHighlights = 0;
+                }
+            }
+            if (firstVisibleItem + visibleItemCount < totalItemCount) {
+                View v = view.getChildAt(0);
+                buffer.scrolledUp = true;
+                buffer.scrollPosition = firstVisibleItem;
+                buffer.scrollPositionOffset = (v == null) ? 0 : v.getTop();
+            } else {
+                buffer.scrolledUp = false;
+                buffer.scrollPosition = -1;
+            }
+            if (adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
+                update_top_unread(firstVisibleItem);
+                int markerPos = -1;
+                if (adapter != null)
+                    markerPos = adapter.getLastSeenEIDPosition();
+                if (markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
+                    unreadTopView.setVisibility(View.GONE);
+                    if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                        if (heartbeatTask != null)
+                            heartbeatTask.cancel(true);
+                        heartbeatTask = new HeartbeatTask();
+                        heartbeatTask.execute((Void) null);
+                    }
+                }
+            }
+        }
 
-		@Override
-		public void onScrollStateChanged(AbsListView view, int scrollState) {
-		}
-		
-	};
-    
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
+
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         conn = NetworkConnection.getInstance();
     }
-    
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -885,46 +894,46 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             throw new ClassCastException(activity.toString() + " must implement MessageViewListener");
         }
     }
-    
+
     @Override
     public void setArguments(Bundle args) {
         ready = false;
-        if(heartbeatTask != null)
+        if (heartbeatTask != null)
             heartbeatTask.cancel(true);
         heartbeatTask = null;
-    	if(tapTimerTask != null)
-    		tapTimerTask.cancel();
-    	tapTimerTask = null;
-        if(buffer != null && buffer.bid != args.getInt("bid", -1) && adapter != null)
+        if (tapTimerTask != null)
+            tapTimerTask.cancel();
+        tapTimerTask = null;
+        if (buffer != null && buffer.bid != args.getInt("bid", -1) && adapter != null)
             adapter.clearLastSeenEIDMarker();
         buffer = BuffersDataSource.getInstance().getBuffer(args.getInt("bid", -1));
-        if(buffer != null) {
+        if (buffer != null) {
             server = ServersDataSource.getInstance().getServer(buffer.cid);
             Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: switched to bid: " + buffer.bid);
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
         }
-		requestingBacklog = false;
-		avgInsertTime = 0;
-		newMsgs = 0;
-		newMsgTime = 0;
-		newHighlights = 0;
-		earliest_eid = 0;
-		backlog_eid = 0;
+        requestingBacklog = false;
+        avgInsertTime = 0;
+        newMsgs = 0;
+        newMsgTime = 0;
+        newHighlights = 0;
+        earliest_eid = 0;
+        backlog_eid = 0;
         currentCollapsedEid = -1;
         lastCollapsedDay = -1;
-    	if(server != null) {
-    		ignore.setIgnores(server.ignores);
-    		if(server.away != null && server.away.length() > 0) {
-    			awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
-    			awayView.setVisibility(View.VISIBLE);
-    		} else {
-    			awayView.setVisibility(View.GONE);
-    		}
+        if (server != null) {
+            ignore.setIgnores(server.ignores);
+            if (server.away != null && server.away.length() > 0) {
+                awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
+                awayView.setVisibility(View.VISIBLE);
+            } else {
+                awayView.setVisibility(View.GONE);
+            }
             collapsedEvents.setServer(server);
-			update_status(server.status, server.fail_info);
-    	}
-		if(unreadTopView != null)
+            update_status(server.status, server.fail_info);
+        }
+        if (unreadTopView != null)
             unreadTopView.setVisibility(View.GONE);
         backlogFailed.setVisibility(View.GONE);
         loadBacklogButton.setVisibility(View.GONE);
@@ -934,32 +943,32 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         } catch (IllegalStateException e) {
         }
-        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)headerView.getLayoutParams();
+        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
         lp.topMargin = 0;
         headerView.setLayoutParams(lp);
-        lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
+        lp = (ViewGroup.MarginLayoutParams) backlogFailed.getLayoutParams();
         lp.topMargin = 0;
         backlogFailed.setLayoutParams(lp);
-        if(buffer != null && EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
+        if (buffer != null && EventsDataSource.getInstance().getEventsForBuffer(buffer.bid) != null) {
             requestingBacklog = true;
-            if(refreshTask != null)
+            if (refreshTask != null)
                 refreshTask.cancel(true);
             refreshTask = new RefreshTask();
-            if(args.getBoolean("fade")) {
+            if (args.getBoolean("fade")) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents in the background");
-                refreshTask.execute((Void)null);
+                refreshTask.execute((Void) null);
             } else {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: Loading message contents");
                 refreshTask.onPreExecute();
                 refreshTask.onPostExecute(refreshTask.doInBackground());
             }
         } else {
-            if(buffer == null || buffer.min_eid == 0 || earliest_eid == buffer.min_eid || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
+            if (buffer == null || buffer.min_eid == 0 || earliest_eid == buffer.min_eid || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
                 headerView.setVisibility(View.GONE);
             } else {
                 headerView.setVisibility(View.VISIBLE);
             }
-            if(adapter != null) {
+            if (adapter != null) {
                 adapter.clear();
                 adapter.notifyDataSetInvalidated();
             }
@@ -969,7 +978,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private void runOnUiThread(Runnable r) {
-        if(getActivity() != null)
+        if (getActivity() != null)
             getActivity().runOnUiThread(r);
     }
 
@@ -983,15 +992,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
+    private JSONObject hiddenMap = null;
+    private JSONObject expandMap = null;
+
     private synchronized void insertEvent(final MessageAdapter adapter, EventsDataSource.Event event, boolean backlog, boolean nextIsGrouped) {
-        synchronized(adapterLock) {
+        synchronized (adapterLock) {
             try {
                 boolean colors = false;
-                if(!event.self && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("nick-colors") && conn.getUserInfo().prefs.getBoolean("nick-colors"))
+                if (!event.self && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("nick-colors") && conn.getUserInfo().prefs.getBoolean("nick-colors"))
                     colors = true;
 
                 long start = System.currentTimeMillis();
-                if(event.eid <= buffer.min_eid) {
+                if (event.eid <= buffer.min_eid) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1001,48 +1013,50 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                     });
                 }
-                if(earliest_eid == 0 || event.eid < earliest_eid)
+                if (earliest_eid == 0 || event.eid < earliest_eid)
                     earliest_eid = event.eid;
 
                 String type = event.type;
                 long eid = event.eid;
 
-                if(type.startsWith("you_"))
+                if (type.startsWith("you_"))
                     type = type.substring(4);
 
-                if(type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
+                if (type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
                     boolean shouldExpand = false;
                     collapsedEvents.showChan = !buffer.type.equals("channel");
-                    if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                        JSONObject hiddenMap = null;
-                        if(buffer.type.equals("channel")) {
-                            if(conn.getUserInfo().prefs.has("channel-hideJoinPart"))
-                                hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
-                        } else {
-                            if(conn.getUserInfo().prefs.has("buffer-hideJoinPart"))
-                                hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
+                    if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                        if (hiddenMap == null) {
+                            if (buffer.type.equals("channel")) {
+                                if (conn.getUserInfo().prefs.has("channel-hideJoinPart"))
+                                    hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
+                            } else {
+                                if (conn.getUserInfo().prefs.has("buffer-hideJoinPart"))
+                                    hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
+                            }
                         }
 
-                        if(hiddenMap != null && hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid))) {
+                        if (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid))) {
                             adapter.removeItem(event.eid);
-                            if(!backlog)
+                            if (!backlog)
                                 adapter.notifyDataSetChanged();
                             return;
                         }
 
-                        JSONObject expandMap = null;
-                        if(buffer.type.equals("channel")) {
-                            if(conn.getUserInfo().prefs.has("channel-expandJoinPart"))
-                                expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
-                        } else if(buffer.type.equals("console")) {
-                            if(conn.getUserInfo().prefs.has("buffer-expandDisco"))
-                                expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandDisco");
-                        } else {
-                            if(conn.getUserInfo().prefs.has("buffer-expandJoinPart"))
-                                expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
+                        if (expandMap == null) {
+                            if (buffer.type.equals("channel")) {
+                                if (conn.getUserInfo().prefs.has("channel-expandJoinPart"))
+                                    expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
+                            } else if (buffer.type.equals("console")) {
+                                if (conn.getUserInfo().prefs.has("buffer-expandDisco"))
+                                    expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandDisco");
+                            } else {
+                                if (conn.getUserInfo().prefs.has("buffer-expandJoinPart"))
+                                    expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
+                            }
                         }
 
-                        if(expandMap != null && expandMap.has(String.valueOf(buffer.bid)) && expandMap.getBoolean(String.valueOf(buffer.bid))) {
+                        if (expandMap != null && expandMap.has(String.valueOf(buffer.bid)) && expandMap.getBoolean(String.valueOf(buffer.bid))) {
                             shouldExpand = true;
                         }
                     }
@@ -1050,32 +1064,32 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(eid / 1000);
 
-                    if(shouldExpand)
+                    if (shouldExpand)
                         expandedSectionEids.clear();
 
-                    if(event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
+                    if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
                         EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
-                        if(last != null && !last.type.equals("socket_closed") && !last.type.equals("connecting_failed") && !last.type.equals("connecting_cancelled"))
+                        if (last != null && !last.type.equals("socket_closed") && !last.type.equals("connecting_failed") && !last.type.equals("connecting_cancelled"))
                             currentCollapsedEid = -1;
                     } else {
                         EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
-                        if(last != null && (last.type.equals("socket_closed") || last.type.equals("connecting_failed") || last.type.equals("connecting_cancelled")))
+                        if (last != null && (last.type.equals("socket_closed") || last.type.equals("connecting_failed") || last.type.equals("connecting_cancelled")))
                             currentCollapsedEid = -1;
                     }
 
-                    if(currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
+                    if (currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
                         collapsedEvents.clear();
                         currentCollapsedEid = eid;
                         lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
                     }
 
-                    if(!collapsedEvents.showChan)
+                    if (!collapsedEvents.showChan)
                         event.chan = buffer.name;
 
-                    if(!collapsedEvents.addEvent(event))
+                    if (!collapsedEvents.addEvent(event))
                         collapsedEvents.clear();
 
-                    if((currentCollapsedEid == event.eid || shouldExpand) && type.equals("user_channel_mode")) {
+                    if ((currentCollapsedEid == event.eid || shouldExpand) && type.equals("user_channel_mode")) {
                         event.color = R.color.row_message_label;
                         event.bg_color = R.color.status_bg;
                     } else {
@@ -1084,19 +1098,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     String msg;
-                    if(expandedSectionEids.contains(currentCollapsedEid)) {
+                    if (expandedSectionEids.contains(currentCollapsedEid)) {
                         CollapsedEventsList c = new CollapsedEventsList();
                         c.showChan = collapsedEvents.showChan;
                         c.setServer(server);
                         c.addEvent(event);
                         msg = c.getCollapsedMessage();
-                        if(!nextIsGrouped) {
+                        if (!nextIsGrouped) {
                             String group_msg = collapsedEvents.getCollapsedMessage();
-                            if(group_msg == null && type.equals("nickchange")) {
+                            if (group_msg == null && type.equals("nickchange")) {
                                 group_msg = event.old_nick + " → <b>" + event.nick + "</b>";
                             }
-                            if(group_msg == null && type.equals("user_channel_mode")) {
-                                if(event.from != null && event.from.length() > 0)
+                            if (group_msg == null && type.equals("user_channel_mode")) {
+                                if (event.from != null && event.from.length() > 0)
                                     msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b>";
                                 else
                                     msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
@@ -1112,30 +1126,30 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             heading.bg_color = R.color.message_bg;
                             heading.linkify = false;
                             adapter.addItem(currentCollapsedEid - 1, heading);
-                            if(event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
+                            if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
                                 EventsDataSource.Event last = EventsDataSource.getInstance().getEvent(lastCollapsedEid, buffer.bid);
-                                if(last != null)
+                                if (last != null)
                                     last.row_type = ROW_MESSAGE;
                                 event.row_type = ROW_SOCKETCLOSED;
                             }
                         }
                         event.timestamp = null;
                     } else {
-                        msg = (nextIsGrouped && currentCollapsedEid != event.eid)?"":collapsedEvents.getCollapsedMessage();
+                        msg = (nextIsGrouped && currentCollapsedEid != event.eid) ? "" : collapsedEvents.getCollapsedMessage();
                     }
 
-                    if(msg == null && type.equals("nickchange")) {
+                    if (msg == null && type.equals("nickchange")) {
                         msg = event.old_nick + " → <b>" + event.nick + "</b>";
                     }
-                    if(msg == null && type.equals("user_channel_mode")) {
-                        if(event.from != null && event.from.length() > 0)
+                    if (msg == null && type.equals("user_channel_mode")) {
+                        if (event.from != null && event.from.length() > 0)
                             msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by <b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b>";
                         else
                             msg = collapsedEvents.formatNick(event.nick, event.target_mode, false) + " was set to <b>" + event.diff + "</b> by the server <b>" + event.server + "</b>";
                         currentCollapsedEid = eid;
                     }
-                    if(!expandedSectionEids.contains(currentCollapsedEid)) {
-                        if(eid != currentCollapsedEid) {
+                    if (!expandedSectionEids.contains(currentCollapsedEid)) {
+                        if (eid != currentCollapsedEid) {
                             event.color = R.color.timestamp;
                             event.bg_color = R.color.message_bg;
                         }
@@ -1146,7 +1160,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     event.formatted = null;
                     event.linkify = false;
                     lastCollapsedEid = event.eid;
-                    if(buffer.type.equals("console") && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
+                    if (buffer.type.equals("console") && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
                         currentCollapsedEid = -1;
                         lastCollapsedEid = -1;
                         collapsedEvents.clear();
@@ -1155,10 +1169,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentCollapsedEid = -1;
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
-                    if(event.html == null) {
-                        if(event.from != null && event.from.length() > 0)
+                    if (event.html == null) {
+                        if (event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, colors) + "</b> " + event.msg;
-                        else if(event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
+                        else if (event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + event.msg;
                         else
                             event.html = event.msg;
@@ -1166,87 +1180,94 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 String from = event.from;
-                if(from == null || from.length() == 0)
+                if (from == null || from.length() == 0)
                     from = event.nick;
 
-                if(from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer.type != null && !buffer.type.equals("conversation")) {
+                if (from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer.type != null && !buffer.type.equals("conversation")) {
                     String usermask = from + "!" + event.hostmask;
-                    if(ignore.match(usermask)) {
-                        if(unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
-                            if(heartbeatTask != null)
+                    if (ignore.match(usermask)) {
+                        if (unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
+                            if (heartbeatTask != null)
                                 heartbeatTask.cancel(true);
                             heartbeatTask = new HeartbeatTask();
-                            heartbeatTask.execute((Void)null);
+                            heartbeatTask.execute((Void) null);
                         }
                         return;
                     }
                 }
 
-                if(type.equals("channel_mode")) {
-                    if(event.nick != null && event.nick.length() > 0)
-                        event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
-                    else if(event.server != null && event.server.length() > 0)
-                        event.html = event.msg + " by the server <b>" + event.server + "</b>";
-                } else if(type.equals("buffer_me_msg")) {
-                    event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, colors) + "</b> " + event.msg + "</i>";
-                } else if(type.equals("notice")) {
-                    if(event.from != null && event.from.length() > 0)
-                        event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
-                    else
-                        event.html = "";
-                    if(buffer.type.equals("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
-                        event.html += event.chan + "&#xfe55; " + event.msg;
-                    } else {
-                        event.html += event.msg;
-                    }
-                } else if(type.equals("kicked_channel")) {
-                    event.html = "← ";
-                    if(event.type.startsWith("you_"))
-                        event.html += "You";
-                    else
-                        event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b>";
-                    if(event.type.startsWith("you_"))
-                        event.html += " were";
-                    else
-                        event.html += " was";
-                    if(event.hostmask != null && event.hostmask.length() > 0)
-                        event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> (" + event.hostmask + ")";
-                    else
-                        event.html += " kicked by the server <b>" + event.nick + "</b>";
-                    if(event.msg != null && event.msg.length() > 0)
-                        event.html += ": " + event.msg;
-                } else if(type.equals("callerid")) {
-                    event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ("+ event.hostmask + ") " + event.msg + " Tap to accept.";
-                } else if(type.equals("channel_mode_list_change")) {
-                    if(event.from.length() == 0) {
-                        if(event.nick != null && event.nick.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> " + event.msg;
-                        else if(event.server != null && event.server.length() > 0)
-                            event.html = "The server <b>" + event.server + "</b> " + event.msg;
-                    }
+                switch (type) {
+                    case "channel_mode":
+                        if (event.nick != null && event.nick.length() > 0)
+                            event.html = event.msg + " by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
+                        else if (event.server != null && event.server.length() > 0)
+                            event.html = event.msg + " by the server <b>" + event.server + "</b>";
+                        break;
+                    case "buffer_me_msg":
+                        event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, colors) + "</b> " + event.msg + "</i>";
+                        break;
+                    case "notice":
+                        if (event.from != null && event.from.length() > 0)
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
+                        else
+                            event.html = "";
+                        if (buffer.type.equals("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
+                            event.html += event.chan + "&#xfe55; " + event.msg;
+                        } else {
+                            event.html += event.msg;
+                        }
+                        break;
+                    case "kicked_channel":
+                        event.html = "← ";
+                        if (event.type.startsWith("you_"))
+                            event.html += "You";
+                        else
+                            event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b>";
+                        if (event.type.startsWith("you_"))
+                            event.html += " were";
+                        else
+                            event.html += " was";
+                        if (event.hostmask != null && event.hostmask.length() > 0)
+                            event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> (" + event.hostmask + ")";
+                        else
+                            event.html += " kicked by the server <b>" + event.nick + "</b>";
+                        if (event.msg != null && event.msg.length() > 0)
+                            event.html += ": " + event.msg;
+                        break;
+                    case "callerid":
+                        event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> (" + event.hostmask + ") " + event.msg + " Tap to accept.";
+                        break;
+                    case "channel_mode_list_change":
+                        if (event.from.length() == 0) {
+                            if (event.nick != null && event.nick.length() > 0)
+                                event.html = "<b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> " + event.msg;
+                            else if (event.server != null && event.server.length() > 0)
+                                event.html = "The server <b>" + event.server + "</b> " + event.msg;
+                        }
+                        break;
                 }
 
                 adapter.addItem(eid, event);
-                if(!backlog)
+                if (!backlog)
                     adapter.notifyDataSetChanged();
 
                 long time = (System.currentTimeMillis() - start);
-                if(avgInsertTime == 0)
+                if (avgInsertTime == 0)
                     avgInsertTime = time;
                 avgInsertTime += time;
                 avgInsertTime /= 2.0;
                 //Log.i("IRCCloud", "Average insert time: " + avgInsertTime);
-                if(!backlog && buffer.scrolledUp && !event.self && event.isImportant(type)) {
-                    if(newMsgTime == 0)
+                if (!backlog && buffer.scrolledUp && !event.self && event.isImportant(type)) {
+                    if (newMsgTime == 0)
                         newMsgTime = System.currentTimeMillis();
                     newMsgs++;
-                    if(event.highlight)
+                    if (event.highlight)
                         newHighlights++;
                     update_unread();
                     adapter.insertLastSeenEIDMarker();
                     adapter.notifyDataSetChanged();
                 }
-                if(!backlog && !buffer.scrolledUp) {
+                if (!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
                     tapTimer.schedule(new TimerTask() {
                         @Override
@@ -1265,15 +1286,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }, 200);
                 }
 
-                if(!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
+                if (!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
                     Toast.makeText(getActivity(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
                     SharedPreferences.Editor editor = getActivity().getSharedPreferences("prefs", 0).edit();
                     editor.putBoolean("mentionTip", true);
                     editor.commit();
                 }
-                if(!backlog) {
+                if (!backlog) {
                     int markerPos = adapter.getLastSeenEIDPosition();
-                    if(markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
+                    if (markerPos > 0 && getListView().getFirstVisiblePosition() > markerPos) {
                         unreadTopLabel.setText((getListView().getFirstVisiblePosition() - markerPos) + " unread messages");
                     }
                 }
@@ -1283,26 +1304,27 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         }
     }
-    
+
     private class OnItemClickListener implements OnClickListener {
         private int pos;
-        OnItemClickListener(int position){
+
+        OnItemClickListener(int position) {
             pos = position;
         }
-        
+
         @Override
         public void onClick(View arg0) {
-        	longPressOverride = false;
-        	
-	    	if(pos < 0 || pos >= adapter.data.size())
-	    		return;
+            longPressOverride = false;
 
-	    	if(adapter != null) {
-	    		if(tapTimerTask != null) {
-	    			tapTimerTask.cancel();
-	    			tapTimerTask = null;
-	    			mListener.onMessageDoubleClicked(adapter.data.get(pos));
-	    		} else {
+            if (pos < 0 || pos >= adapter.data.size())
+                return;
+
+            if (adapter != null) {
+                if (tapTimerTask != null) {
+                    tapTimerTask.cancel();
+                    tapTimerTask = null;
+                    mListener.onMessageDoubleClicked(adapter.data.get(pos));
+                } else {
                     tapTimerTask = new TimerTask() {
                         int position = pos;
 
@@ -1324,7 +1346,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                 } else {
                                                     conn.say(buffer.cid, null, "/query " + e.from);
                                                 }
-                                            } else if(e.failed) {
+                                            } else if (e.failed) {
                                                 mListener.onFailedMessageClicked(e);
                                             } else {
                                                 long group = e.group_eid;
@@ -1347,25 +1369,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             tapTimerTask = null;
                         }
                     };
-	    			tapTimer.schedule(tapTimerTask, 300);
-	    		}
-	    	}
-    	}
+                    tapTimer.schedule(tapTimerTask, 300);
+                }
+            }
+        }
     }
-    
+
     @SuppressWarnings("unchecked")
-	public void onResume() {
-    	super.onResume();
-    	conn.addHandler(this);
+    public void onResume() {
+        super.onResume();
+        conn.addHandler(this);
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
-    	update_global_msg();
-        if(buffer != null && adapter != null && buffer.unread == 0 && !buffer.scrolledUp) {
+        update_global_msg();
+        if (buffer != null && adapter != null && buffer.unread == 0 && !buffer.scrolledUp) {
             adapter.clearLastSeenEIDMarker();
             adapter.notifyDataSetChanged();
         }
     }
-    
+
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {
         BuffersDataSource.Buffer b;
 
@@ -1376,17 +1398,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             Thread.dumpStack();*/
         }
 
-		@Override
-		protected Void doInBackground(Void... params) {
-			try {
-				Thread.sleep(250);
-			} catch (InterruptedException e) {
-			}
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+            }
 
-			if(isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null || !ready || requestingBacklog)
-				return null;
+            if (isCancelled() || !conn.ready || conn.getState() != NetworkConnection.STATE_CONNECTED || b == null || !ready || requestingBacklog)
+                return null;
 
-            if(getActivity() != null) {
+            if (getActivity() != null) {
                 try {
                     DrawerLayout drawerLayout = (DrawerLayout) getActivity().findViewById(R.id.drawerLayout);
 
@@ -1396,16 +1418,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             }
 
-            if(unreadTopView.getVisibility() == View.VISIBLE || unreadBottomView.getVisibility() == View.VISIBLE)
+            if (unreadTopView.getVisibility() == View.VISIBLE || unreadBottomView.getVisibility() == View.VISIBLE)
                 return null;
 
             try {
                 TreeMap<Long, EventsDataSource.Event> events = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
-                if(events != null && events.size() > 0) {
+                if (events != null && events.size() > 0) {
                     Long eid = events.get(events.lastKey()).eid;
 
-                    if(eid >= b.last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                        if(getActivity() != null && getActivity().getIntent() != null)
+                    if (eid >= b.last_seen_eid && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                        if (getActivity() != null && getActivity().getIntent() != null)
                             getActivity().getIntent().putExtra("last_seen_eid", eid);
                         NetworkConnection.getInstance().heartbeat(b.cid, b.bid, eid);
                         BuffersDataSource.getInstance().updateLastSeenEid(b.bid, eid);
@@ -1416,14 +1438,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             } catch (Exception e) {
             }
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			if(!isCancelled())
-				heartbeatTask = null;
-		}
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (!isCancelled())
+                heartbeatTask = null;
+        }
     }
 
     private class FormatTask extends AsyncTaskEx<Void, Void, Void> {
@@ -1446,7 +1468,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
         private MessageAdapter adapter;
 
-        TreeMap<Long,EventsDataSource.Event> events;
+        TreeMap<Long, EventsDataSource.Event> events;
         BuffersDataSource.Buffer buffer;
         int oldPosition = -1;
         int topOffset = -1;
@@ -1467,24 +1489,24 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         @SuppressWarnings("unchecked")
-		@Override
-		protected Void doInBackground(Void... params) {
-            TreeMap<Long,EventsDataSource.Event> evs = null;
-			long time = System.currentTimeMillis();
-            if(buffer != null)
-    			evs = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
-			Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
-			if(!isCancelled() && evs != null && evs.size() > 0) {
+        @Override
+        protected Void doInBackground(Void... params) {
+            TreeMap<Long, EventsDataSource.Event> evs = null;
+            long time = System.currentTimeMillis();
+            if (buffer != null)
+                evs = EventsDataSource.getInstance().getEventsForBuffer(buffer.bid);
+            Log.i("IRCCloud", "Loaded data in " + (System.currentTimeMillis() - time) + "ms");
+            if (!isCancelled() && evs != null && evs.size() > 0) {
                 try {
                     events = (TreeMap<Long, EventsDataSource.Event>) evs.clone();
                 } catch (Exception e) {
                     e.printStackTrace();
                     return null;
                 }
-                if(isCancelled())
+                if (isCancelled())
                     return null;
 
-                if(events != null) {
+                if (events != null) {
                     try {
                         if (events.size() > 0 && MessageViewFragment.this.adapter != null && MessageViewFragment.this.adapter.data.size() > 0 && earliest_eid > events.firstKey()) {
                             if (oldPosition > 0 && oldPosition == MessageViewFragment.this.adapter.data.size())
@@ -1516,7 +1538,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         return null;
                     }
                 }
-            } else if(buffer != null && buffer.min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !isCancelled()) {
+            } else if (buffer != null && buffer.min_eid > 0 && conn.ready && conn.getState() == NetworkConnection.STATE_CONNECTED && !isCancelled()) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1540,49 +1562,50 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         adapter = new MessageAdapter(MessageViewFragment.this);
                         setListAdapter(adapter);
                         MessageViewFragment.this.adapter = adapter;
-                    }});
+                    }
+                });
             }
-			return null;
-		}
+            return null;
+        }
 
-		@Override
-		protected void onPostExecute(Void result) {
-            if(!isCancelled() && adapter != null) {
+        @Override
+        protected void onPostExecute(Void result) {
+            if (!isCancelled() && adapter != null) {
                 try {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
-                    if(adapter.getLastSeenEIDPosition() == 0)
-                        lp.topMargin = (int)getSafeResources().getDimension(R.dimen.top_bar_height);
+                    if (adapter.getLastSeenEIDPosition() == 0)
+                        lp.topMargin = (int) getSafeResources().getDimension(R.dimen.top_bar_height);
                     else
                         lp.topMargin = 0;
                     headerView.setLayoutParams(lp);
-                    lp = (ViewGroup.MarginLayoutParams)backlogFailed.getLayoutParams();
-                    if(adapter.getLastSeenEIDPosition() == 0)
-                        lp.topMargin = (int)getSafeResources().getDimension(R.dimen.top_bar_height);
+                    lp = (ViewGroup.MarginLayoutParams) backlogFailed.getLayoutParams();
+                    if (adapter.getLastSeenEIDPosition() == 0)
+                        lp.topMargin = (int) getSafeResources().getDimension(R.dimen.top_bar_height);
                     else
                         lp.topMargin = 0;
                     backlogFailed.setLayoutParams(lp);
                     setListAdapter(adapter);
                     MessageViewFragment.this.adapter = adapter;
-                    if(events != null && events.size() > 0) {
+                    if (events != null && events.size() > 0) {
                         int markerPos = adapter.getBacklogMarkerPosition();
-                        if(markerPos != -1 && requestingBacklog)
+                        if (markerPos != -1 && requestingBacklog)
                             getListView().setSelectionFromTop(oldPosition + markerPos + 1, headerViewContainer.getHeight());
-                        else if(!buffer.scrolledUp)
+                        else if (!buffer.scrolledUp)
                             getListView().setSelection(adapter.getCount() - 1);
                         else {
                             getListView().setSelectionFromTop(buffer.scrollPosition, buffer.scrollPositionOffset);
 
-                            if(adapter.getLastSeenEIDPosition() > buffer.scrollPosition) {
+                            if (adapter.getLastSeenEIDPosition() > buffer.scrollPosition) {
                                 newMsgs = 0;
                                 newHighlights = 0;
 
-                                for(int i = adapter.data.size() - 1; i >= 0; i--) {
+                                for (int i = adapter.data.size() - 1; i >= 0; i--) {
                                     EventsDataSource.Event e = adapter.data.get(i);
-                                    if(e.eid <= buffer.last_seen_eid)
+                                    if (e.eid <= buffer.last_seen_eid)
                                         break;
 
-                                    if(e.isImportant(buffer.type)) {
-                                        if(e.highlight)
+                                    if (e.isImportant(buffer.type)) {
+                                        if (e.highlight)
                                             newHighlights++;
                                         else
                                             newMsgs++;
@@ -1593,7 +1616,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             update_unread();
                         }
                     }
-                    new FormatTask().execute((Void)null);
+                    new FormatTask().execute((Void) null);
                 } catch (IllegalStateException e) {
                     //The list view isn't on screen anymore
                     e.printStackTrace();
@@ -1608,36 +1631,39 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } catch (IllegalStateException e) {
                             //List view not ready yet
                         }
-                        if(server != null)
+                        if (server != null)
                             update_status(server.status, server.fail_info);
-                        if(mListener != null && !ready)
+                        if (mListener != null && !ready)
                             mListener.onMessageViewReady();
                         ready = true;
                         try {
                             ListView v = getListView();
                             mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
-                        } catch(Exception e) {
+                        } catch (Exception e) {
                         }
                     }
                 }, 250);
                 //Debug.stopMethodTracing();
             }
         }
-	}
+    }
 
-	private synchronized void refresh(MessageAdapter adapter, TreeMap<Long,EventsDataSource.Event> events) {
+    private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, EventsDataSource.Event> events) {
         synchronized (adapterLock) {
-            if(getActivity() != null)
+            hiddenMap = null;
+            expandMap = null;
+
+            if (getActivity() != null)
                 textSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("textSize", getActivity().getResources().getInteger(R.integer.default_text_size));
             timestamp_width = -1;
-            if(conn.getReconnectTimestamp() == 0)
+            if (conn.getReconnectTimestamp() == 0)
                 conn.cancel_idle_timer(); //This may take a while...
             collapsedEvents.clear();
             currentCollapsedEid = -1;
             lastCollapsedDay = -1;
 
-            if(events == null || (events.size() == 0 && buffer.min_eid > 0)) {
-                if(buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+            if (events == null || (events.size() == 0 && buffer.min_eid > 0)) {
+                if (buffer != null && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     requestingBacklog = true;
                     runOnUiThread(new Runnable() {
                         @Override
@@ -1655,15 +1681,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                     });
                 }
-            } else if(events.size() > 0) {
-                if(server != null) {
+            } else if (events.size() > 0) {
+                if (server != null) {
                     ignore.setIgnores(server.ignores);
                 } else {
                     ignore.setIgnores(null);
                 }
                 collapsedEvents.setServer(server);
                 earliest_eid = events.firstKey();
-                if(events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                if (events.firstKey() > buffer.min_eid && buffer.min_eid > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1682,19 +1708,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
                     });
                 }
-                if(events.size() > 0) {
+                if (events.size() > 0) {
                     avgInsertTime = 0;
                     //Debug.startMethodTracing("refresh");
                     long start = System.currentTimeMillis();
                     Iterator<EventsDataSource.Event> i = events.values().iterator();
                     EventsDataSource.Event next = i.next();
                     Calendar calendar = Calendar.getInstance();
-                    while(next != null) {
+                    while (next != null) {
                         EventsDataSource.Event e = next;
-                        next = i.hasNext()?i.next():null;
-                        String type = (next == null)?"":next.type;
+                        next = i.hasNext() ? i.next() : null;
+                        String type = (next == null) ? "" : next.type;
 
-                        if(next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
+                        if (next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
                             calendar.setTimeInMillis(next.eid / 1000);
                             insertEvent(adapter, e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);
                         } else {
@@ -1708,76 +1734,76 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     //adapter.notifyDataSetChanged();
                 }
             }
-            if(conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
+            if (conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)
                 conn.schedule_idle_timer();
         }
-	}
+    }
 
-	private void update_top_unread(int first) {
-        if(adapter != null) {
+    private void update_top_unread(int first) {
+        if (adapter != null) {
             try {
                 int markerPos = adapter.getLastSeenEIDPosition();
-                if(markerPos >= 0 && first > (markerPos + 1) && buffer.unread > 0) {
-                    if(shouldTrackUnread()) {
+                if (markerPos >= 0 && first > (markerPos + 1) && buffer.unread > 0) {
+                    if (shouldTrackUnread()) {
                         int highlights = adapter.getUnreadHighlightsAbovePosition(first);
                         int count = (first - markerPos - 1) - highlights;
-                        String txt = "";
-                        if(highlights > 0) {
-                            if(highlights == 1)
-                                txt = "mention";
-                            else if(highlights > 0)
-                                txt = "mentions";
+                        StringBuilder txt = new StringBuilder();
+                        if (highlights > 0) {
+                            if (highlights == 1)
+                                txt.append("mention");
+                            else if (highlights > 0)
+                                txt.append("mentions");
                             highlightsTopLabel.setText(String.valueOf(highlights));
                             highlightsTopLabel.setVisibility(View.VISIBLE);
 
-                            if(count > 0)
-                                txt += " and ";
+                            if (count > 0)
+                                txt.append(" and ");
                         } else {
                             highlightsTopLabel.setVisibility(View.GONE);
                         }
-                        if(markerPos == 0) {
-                            long seconds = (long)Math.ceil((earliest_eid - buffer.last_seen_eid) / 1000000.0);
-                            if(seconds < 0) {
-                                if(count < 0) {
+                        if (markerPos == 0) {
+                            long seconds = (long) Math.ceil((earliest_eid - buffer.last_seen_eid) / 1000000.0);
+                            if (seconds < 0) {
+                                if (count < 0) {
                                     hideView(unreadTopView);
                                     return;
                                 } else {
-                                    if(count == 1)
-                                        txt += count + " unread message";
-                                    else if(count > 0)
-                                        txt += count + " unread messages";
+                                    if (count == 1)
+                                        txt.append(count).append(" unread message");
+                                    else if (count > 0)
+                                        txt.append(count).append(" unread messages");
                                 }
                             } else {
-                                int minutes = (int)Math.ceil(seconds / 60.0);
-                                int hours = (int)Math.ceil(seconds / 60.0 / 60.0);
-                                int days = (int)Math.ceil(seconds / 60.0 / 60.0 / 24.0);
-                                if(hours >= 24) {
-                                    if(days == 1)
-                                        txt += days + " day of unread messages";
+                                int minutes = (int) Math.ceil(seconds / 60.0);
+                                int hours = (int) Math.ceil(seconds / 60.0 / 60.0);
+                                int days = (int) Math.ceil(seconds / 60.0 / 60.0 / 24.0);
+                                if (hours >= 24) {
+                                    if (days == 1)
+                                        txt.append(days).append(" day of unread messages");
                                     else
-                                        txt += days + " days of unread messages";
-                                } else if(hours > 0) {
-                                    if(hours == 1)
-                                        txt += hours + " hour of unread messages";
+                                        txt.append(days).append(" days of unread messages");
+                                } else if (hours > 0) {
+                                    if (hours == 1)
+                                        txt.append(hours).append(" hour of unread messages");
                                     else
-                                        txt += hours + " hours of unread messages";
-                                } else if(minutes > 0) {
-                                    if(minutes == 1)
-                                        txt += minutes + " minute of unread messages";
+                                        txt.append(hours).append(" hours of unread messages");
+                                } else if (minutes > 0) {
+                                    if (minutes == 1)
+                                        txt.append(minutes).append(" minute of unread messages");
                                     else
-                                        txt += minutes + " minutes of unread messages";
+                                        txt.append(minutes).append(" minutes of unread messages");
                                 } else {
-                                    if(seconds == 1)
-                                        txt += seconds + " second of unread messages";
+                                    if (seconds == 1)
+                                        txt.append(seconds).append(" second of unread messages");
                                     else
-                                        txt += seconds + " seconds of unread messages";
+                                        txt.append(seconds).append(" seconds of unread messages");
                                 }
                             }
                         } else {
-                            if(count == 1)
-                                txt += count + " unread message";
-                            else if(count > 0)
-                                txt += count + " unread messages";
+                            if (count == 1)
+                                txt.append(count).append(" unread message");
+                            else if (count > 0)
+                                txt.append(count).append(" unread messages");
                         }
                         unreadTopLabel.setText(txt);
                         showView(unreadTopView);
@@ -1785,13 +1811,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         hideView(unreadTopView);
                     }
                 } else {
-                    if(markerPos > 0) {
+                    if (markerPos > 0) {
                         hideView(unreadTopView);
-                        if(adapter.data.size() > 0 && ready) {
-                            if(heartbeatTask != null)
+                        if (adapter.data.size() > 0 && ready) {
+                            if (heartbeatTask != null)
                                 heartbeatTask.cancel(true);
                             heartbeatTask = new HeartbeatTask();
-                            heartbeatTask.execute((Void)null);
+                            heartbeatTask.execute((Void) null);
                         }
                     }
                 }
@@ -1802,38 +1828,38 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-	private boolean shouldTrackUnread() {
-		if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
-			try {
-				JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-				if(disabledMap.has(String.valueOf(buffer.bid)) && disabledMap.getBoolean(String.valueOf(buffer.bid))) {
-					return false;
-				}
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return true;
-	}
-	
-	private class UnreadRefreshRunnable implements Runnable {
-		@Override
-		public void run() {
-			update_unread();
-		}
-	}
-	
-	UnreadRefreshRunnable unreadRefreshRunnable = null;
+    private boolean shouldTrackUnread() {
+        if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
+            try {
+                JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+                if (disabledMap.has(String.valueOf(buffer.bid)) && disabledMap.getBoolean(String.valueOf(buffer.bid))) {
+                    return false;
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return true;
+    }
 
-	private void update_unread() {
-		if(unreadRefreshRunnable != null) {
-			mHandler.removeCallbacks(unreadRefreshRunnable);
-			unreadRefreshRunnable = null;
-		}
+    private class UnreadRefreshRunnable implements Runnable {
+        @Override
+        public void run() {
+            update_unread();
+        }
+    }
 
-		if(newMsgs > 0) {
-			/*int minutes = (int)((System.currentTimeMillis() - newMsgTime)/60000);
+    UnreadRefreshRunnable unreadRefreshRunnable = null;
+
+    private void update_unread() {
+        if (unreadRefreshRunnable != null) {
+            mHandler.removeCallbacks(unreadRefreshRunnable);
+            unreadRefreshRunnable = null;
+        }
+
+        if (newMsgs > 0) {
+            /*int minutes = (int)((System.currentTimeMillis() - newMsgTime)/60000);
 			
 			if(minutes < 1)
 				unreadBottomLabel.setText("Less than a minute of chatter (");
@@ -1845,51 +1871,51 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 				unreadBottomLabel.setText(unreadBottomLabel.getText() + "1 message)");
 			else
 				unreadBottomLabel.setText(unreadBottomLabel.getText() + (newMsgs + " messages)"));*/
-			
-			String txt = "";
-			int msgCnt = newMsgs - newHighlights;
-			if(newHighlights > 0) {
-				if(newHighlights == 1)
-					txt = "mention";
-				else
-					txt = "mentions";
-				if(msgCnt > 0)
-					txt += " and ";
-				highlightsBottomLabel.setText(String.valueOf(newHighlights));
-				highlightsBottomLabel.setVisibility(View.VISIBLE);
-			} else {
-				highlightsBottomLabel.setVisibility(View.GONE);
-			}
-			if(msgCnt == 1)
-				txt += msgCnt + " unread message";
-			else if(msgCnt > 0)
-				txt += msgCnt + " unread messages";
-			unreadBottomLabel.setText(txt);
-            showView(unreadBottomView);
-			unreadRefreshRunnable = new UnreadRefreshRunnable();
-			mHandler.postDelayed(unreadRefreshRunnable, 10000);
-		}
-	}
-	
-	private class StatusRefreshRunnable implements Runnable {
-		String status;
-		JsonNode fail_info;
-		
-		public StatusRefreshRunnable(String status, JsonNode fail_info) {
-			this.status = status;
-			this.fail_info = fail_info;
-		}
 
-		@Override
-		public void run() {
-			update_status(status, fail_info);
-		}
-	}
-	
-	StatusRefreshRunnable statusRefreshRunnable = null;
+            String txt = "";
+            int msgCnt = newMsgs - newHighlights;
+            if (newHighlights > 0) {
+                if (newHighlights == 1)
+                    txt = "mention";
+                else
+                    txt = "mentions";
+                if (msgCnt > 0)
+                    txt += " and ";
+                highlightsBottomLabel.setText(String.valueOf(newHighlights));
+                highlightsBottomLabel.setVisibility(View.VISIBLE);
+            } else {
+                highlightsBottomLabel.setVisibility(View.GONE);
+            }
+            if (msgCnt == 1)
+                txt += msgCnt + " unread message";
+            else if (msgCnt > 0)
+                txt += msgCnt + " unread messages";
+            unreadBottomLabel.setText(txt);
+            showView(unreadBottomView);
+            unreadRefreshRunnable = new UnreadRefreshRunnable();
+            mHandler.postDelayed(unreadRefreshRunnable, 10000);
+        }
+    }
+
+    private class StatusRefreshRunnable implements Runnable {
+        String status;
+        JsonNode fail_info;
+
+        public StatusRefreshRunnable(String status, JsonNode fail_info) {
+            this.status = status;
+            this.fail_info = fail_info;
+        }
+
+        @Override
+        public void run() {
+            update_status(status, fail_info);
+        }
+    }
+
+    StatusRefreshRunnable statusRefreshRunnable = null;
 
     public static String ordinal(int i) {
-        String[] sufixes = new String[] { "th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th" };
+        String[] sufixes = new String[]{"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
         switch (i % 100) {
             case 11:
             case 12:
@@ -1903,199 +1929,227 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private String reason_txt(String reason) {
         String r = reason;
-        if(reason.equalsIgnoreCase("pool_lost")) {
-            r = "Connection pool failed";
-        } else if(reason.equalsIgnoreCase("no_pool")) {
-            r = "No available connection pools";
-        } else if(reason.equalsIgnoreCase("enetdown")) {
-            r = "Network down";
-        } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
-            r = "Timed out";
-        } else if(reason.equalsIgnoreCase("ehostunreach")) {
-            r = "Host unreachable";
-        } else if(reason.equalsIgnoreCase("econnrefused")) {
-            r = "Connection refused";
-        } else if(reason.equalsIgnoreCase("nxdomain") || reason.equalsIgnoreCase("einval")) {
-            r = "Invalid hostname";
-        } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
-            r = "PING timeout";
-        } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
-            r = "SSL certificate error";
-        } else if(reason.equalsIgnoreCase("ssl_error")) {
-            r = "SSL error";
-        } else if(reason.equalsIgnoreCase("crash")) {
-            r = "Connection crashed";
-        } else if(reason.equalsIgnoreCase("networks")) {
-            r = "You've exceeded the connection limit for free accounts.";
-        } else if(reason.equalsIgnoreCase("passworded_servers")) {
-            r = "You can't connect to passworded servers with free accounts.";
-        } else if(reason.equalsIgnoreCase("unverified")) {
-            r = "You can’t connect to external servers until you confirm your email address.";
+        switch (reason.toLowerCase()) {
+            case "pool_lost":
+                r = "Connection pool failed";
+            case "no_pool":
+                r = "No available connection pools";
+                break;
+            case "enetdown":
+                r = "Network down";
+                break;
+            case "etimedout":
+            case "timeout":
+                r = "Timed out";
+                break;
+            case "ehostunreach":
+                r = "Host unreachable";
+                break;
+            case "econnrefused":
+                r = "Connection refused";
+                break;
+            case "nxdomain":
+            case "einval":
+                r = "Invalid hostname";
+                break;
+            case "server_ping_timeout":
+                r = "PING timeout";
+                break;
+            case "ssl_certificate_error":
+                r = "SSL certificate error";
+                break;
+            case "ssl_error":
+                r = "SSL error";
+                break;
+            case "crash":
+                r = "Connection crashed";
+                break;
+            case "networks":
+                r = "You've exceeded the connection limit for free accounts.";
+                break;
+            case "passworded_servers":
+                r = "You can't connect to passworded servers with free accounts.";
+                break;
+            case "unverified":
+                r = "You can’t connect to external servers until you confirm your email address.";
+                break;
         }
         return r;
     }
 
-	private void update_status(String status, JsonNode fail_info) {
-		if(statusRefreshRunnable != null) {
-			mHandler.removeCallbacks(statusRefreshRunnable);
-			statusRefreshRunnable = null;
-		}
-		
-    	if(status.equals("connected_ready")) {
-    		if(server != null && server.lag >= 2*1000*1000) {
-	    		statusView.setVisibility(View.VISIBLE);
-	    		statusView.setText("Slow ping response from " + server.hostname + " (" + (server.lag / 1000 / 1000) + "s)");
-    		} else {
-	    		statusView.setVisibility(View.GONE);
-	    		statusView.setText("");
-    		}
-    	} else if(status.equals("quitting")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Disconnecting");
-    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
-    	} else if(status.equals("disconnected")) {
-            statusView.setVisibility(View.VISIBLE);
-            if(fail_info.has("type") && fail_info.get("type").asText().length() > 0) {
-                String text = "Disconnected: ";
-                if(fail_info.get("type").asText().equals("connecting_restricted")) {
-                    text = reason_txt(fail_info.get("reason").asText());
-                    if(text.equals(fail_info.get("reason").asText()))
-                        text = "You can’t connect to this server with a free account.";
-                } else if(fail_info.get("type").asText().equals("connection_blocked")) {
-                    text = "Disconnected - Connections to this server have been blocked";
+    private void update_status(String status, JsonNode fail_info) {
+        if (statusRefreshRunnable != null) {
+            mHandler.removeCallbacks(statusRefreshRunnable);
+            statusRefreshRunnable = null;
+        }
+
+        switch (status) {
+            case "connected_ready":
+                if (server != null && server.lag >= 2 * 1000 * 1000) {
+                    statusView.setVisibility(View.VISIBLE);
+                    statusView.setText("Slow ping response from " + server.hostname + " (" + (server.lag / 1000 / 1000) + "s)");
                 } else {
-                    if(fail_info.has("type") && fail_info.get("type").asText().equals("killed"))
-                        text = "Disconnected - Killed: ";
-                    else if(fail_info.has("type") && fail_info.get("type").asText().equals("connecting_failed"))
-                        text = "Disconnected: Failed to connect - ";
-                    if(fail_info.has("reason"))
-                        text += reason_txt(fail_info.get("reason").asText());
+                    statusView.setVisibility(View.GONE);
+                    statusView.setText("");
                 }
-                statusView.setText(text);
-                statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-                statusView.setBackgroundResource(R.drawable.status_fail_bg);
-            } else {
-                statusView.setText("Disconnected. Tap to reconnect.");
+                break;
+            case "quitting":
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("Disconnecting");
                 statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
                 statusView.setBackgroundResource(R.drawable.background_blue);
-            }
-    	} else if(status.equals("queued")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Connection queued");
-    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
-    	} else if(status.equals("connecting")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Connecting");
-    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
-    	} else if(status.equals("connected")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Connected");
-    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
-    	} else if(status.equals("connected_joining")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Connected: Joining Channels");
-    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
-    	} else if(status.equals("pool_unavailable")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Connection temporarily unavailable");
-    		statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
-    	} else if(status.equals("waiting_to_retry")) {
-    		try {
-	    		statusView.setVisibility(View.VISIBLE);
-	    		long seconds = (fail_info.get("timestamp").asLong() + fail_info.get("retry_timeout").asLong() - conn.clockOffset) - System.currentTimeMillis()/1000;
-	    		if(seconds > 0) {
-		    		String text = "Disconnected";
-		    		if(fail_info.has("reason") && fail_info.get("reason").asText().length() > 0) {
-                        String reason = fail_info.get("reason").asText();
-                        reason = reason_txt(reason);
-		    			text += ": " + reason + ". ";
-                    } else
-		    			text += "; ";
-                    text += "Reconnecting in ";
-                    int minutes = (int)(seconds / 60.0);
-                    int hours = (int)(seconds / 60.0 / 60.0);
-                    int days = (int)(seconds / 60.0 / 60.0 / 24.0);
-                    if(days > 0) {
-                        if(days == 1)
-                            text += days + " day.";
-                        else
-                            text += days + " days.";
-                    } else if(hours > 0) {
-                        if(hours == 1)
-                            text += hours + " hour.";
-                        else
-                            text += hours + " hours.";
-                    } else if(minutes > 0) {
-                        if(minutes == 1)
-                            text += minutes + " minute.";
-                        else
-                            text += minutes + " minutes.";
+                break;
+            case "disconnected":
+                statusView.setVisibility(View.VISIBLE);
+                if (fail_info.has("type") && fail_info.get("type").asText().length() > 0) {
+                    String text = "Disconnected: ";
+                    if (fail_info.get("type").asText().equals("connecting_restricted")) {
+                        text = reason_txt(fail_info.get("reason").asText());
+                        if (text.equals(fail_info.get("reason").asText()))
+                            text = "You can’t connect to this server with a free account.";
+                    } else if (fail_info.get("type").asText().equals("connection_blocked")) {
+                        text = "Disconnected - Connections to this server have been blocked";
                     } else {
-                        if(seconds == 1)
-                            text += seconds + " second.";
-                        else
-                            text += seconds + " seconds.";
+                        if (fail_info.has("type") && fail_info.get("type").asText().equals("killed"))
+                            text = "Disconnected - Killed: ";
+                        else if (fail_info.has("type") && fail_info.get("type").asText().equals("connecting_failed"))
+                            text = "Disconnected: Failed to connect - ";
+                        if (fail_info.has("reason"))
+                            text += reason_txt(fail_info.get("reason").asText());
                     }
-                    int attempts = fail_info.get("attempts").asInt();
-                    if(attempts > 1)
-                        text += " (" + ordinal(attempts) + " attempt)";
-		    		statusView.setText(text);
-		    		statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-		    		statusView.setBackgroundResource(R.drawable.status_fail_bg);
-		    		statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
-	    		} else {
-	        		statusView.setVisibility(View.VISIBLE);
-	        		statusView.setText("Ready to connect, waiting our turn…");
-	        		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-	        		statusView.setBackgroundResource(R.drawable.background_blue);
-	    		}
-	    		mHandler.postDelayed(statusRefreshRunnable, 500);
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
-    	} else if(status.equals("ip_retry")) {
-    		statusView.setVisibility(View.VISIBLE);
-    		statusView.setText("Trying another IP address");
-    		statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-    		statusView.setBackgroundResource(R.drawable.background_blue);
-    	}
-	}
+                    statusView.setText(text);
+                    statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
+                    statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                } else {
+                    statusView.setText("Disconnected. Tap to reconnect.");
+                    statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
+                    statusView.setBackgroundResource(R.drawable.background_blue);
+                }
+                break;
+            case "queued":
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("Connection queued");
+                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
+                statusView.setBackgroundResource(R.drawable.background_blue);
+                break;
+            case "connecting":
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("Connecting");
+                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
+                statusView.setBackgroundResource(R.drawable.background_blue);
+                break;
+            case "connected":
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("Connected");
+                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
+                statusView.setBackgroundResource(R.drawable.background_blue);
+                break;
+            case "connected_joining":
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("Connected: Joining Channels");
+                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
+                statusView.setBackgroundResource(R.drawable.background_blue);
+                break;
+            case "pool_unavailable":
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("Connection temporarily unavailable");
+                statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
+                statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                break;
+            case "waiting_to_retry":
+                try {
+                    statusView.setVisibility(View.VISIBLE);
+                    long seconds = (fail_info.get("timestamp").asLong() + fail_info.get("retry_timeout").asLong() - conn.clockOffset) - System.currentTimeMillis() / 1000;
+                    if (seconds > 0) {
+                        String text = "Disconnected";
+                        if (fail_info.has("reason") && fail_info.get("reason").asText().length() > 0) {
+                            String reason = fail_info.get("reason").asText();
+                            reason = reason_txt(reason);
+                            text += ": " + reason + ". ";
+                        } else
+                            text += "; ";
+                        text += "Reconnecting in ";
+                        int minutes = (int) (seconds / 60.0);
+                        int hours = (int) (seconds / 60.0 / 60.0);
+                        int days = (int) (seconds / 60.0 / 60.0 / 24.0);
+                        if (days > 0) {
+                            if (days == 1)
+                                text += days + " day.";
+                            else
+                                text += days + " days.";
+                        } else if (hours > 0) {
+                            if (hours == 1)
+                                text += hours + " hour.";
+                            else
+                                text += hours + " hours.";
+                        } else if (minutes > 0) {
+                            if (minutes == 1)
+                                text += minutes + " minute.";
+                            else
+                                text += minutes + " minutes.";
+                        } else {
+                            if (seconds == 1)
+                                text += seconds + " second.";
+                            else
+                                text += seconds + " seconds.";
+                        }
+                        int attempts = fail_info.get("attempts").asInt();
+                        if (attempts > 1)
+                            text += " (" + ordinal(attempts) + " attempt)";
+                        statusView.setText(text);
+                        statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
+                        statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                        statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
+                    } else {
+                        statusView.setVisibility(View.VISIBLE);
+                        statusView.setText("Ready to connect, waiting our turn…");
+                        statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
+                        statusView.setBackgroundResource(R.drawable.background_blue);
+                    }
+                    mHandler.postDelayed(statusRefreshRunnable, 500);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case "ip_retry":
+                statusView.setVisibility(View.VISIBLE);
+                statusView.setText("Trying another IP address");
+                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
+                statusView.setBackgroundResource(R.drawable.background_blue);
+                break;
+        }
 
-	private void update_global_msg() {
-		if(globalMsgView != null) {
-			if(conn != null && conn.globalMsg != null) {
-				globalMsg.setText(Html.fromHtml(conn.globalMsg));
-				globalMsgView.setVisibility(View.VISIBLE);
-			} else {
-				globalMsgView.setVisibility(View.GONE);
-			}
-		}
-	}
-	
-	@Override
+    }
+
+    private void update_global_msg() {
+        if (globalMsgView != null) {
+            if (conn != null && conn.globalMsg != null) {
+                globalMsg.setText(Html.fromHtml(conn.globalMsg));
+                globalMsgView.setVisibility(View.VISIBLE);
+            } else {
+                globalMsgView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    @Override
     public void onPause() {
-    	super.onPause();
-		if(statusRefreshRunnable != null) {
-			mHandler.removeCallbacks(statusRefreshRunnable);
-			statusRefreshRunnable = null;
-		}
-    	if(conn != null)
-    		conn.removeHandler(this);
-		try {
-			getListView().setOnScrollListener(null);
-		} catch (Exception e) {
-		}
+        super.onPause();
+        if (statusRefreshRunnable != null) {
+            mHandler.removeCallbacks(statusRefreshRunnable);
+            statusRefreshRunnable = null;
+        }
+        if (conn != null)
+            conn.removeHandler(this);
+        try {
+            getListView().setOnScrollListener(null);
+        } catch (Exception e) {
+        }
         ready = false;
-   	}
+    }
 
     public void onIRCEvent(int what, final Object obj) {
-		IRCCloudJSONObject e;
+        IRCCloudJSONObject e;
 
         switch (what) {
             case NetworkConnection.EVENT_BACKLOG_FAILED:
@@ -2112,19 +2166,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_CONNECTIVITY:
             case NetworkConnection.EVENT_USERINFO:
                 runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                        if(refreshTask != null)
+                    @Override
+                    public void run() {
+                        if (refreshTask != null)
                             refreshTask.cancel(true);
                         refreshTask = new RefreshTask();
-                        refreshTask.execute((Void)null);
-                            }
+                        refreshTask.execute((Void) null);
+                    }
                 });
                 break;
             case NetworkConnection.EVENT_CONNECTIONLAG:
                 try {
-                    IRCCloudJSONObject object = (IRCCloudJSONObject)obj;
-                    if(server != null && buffer != null && object.cid() == buffer.cid) {
+                    IRCCloudJSONObject object = (IRCCloudJSONObject) obj;
+                    if (server != null && buffer != null && object.cid() == buffer.cid) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -2138,8 +2192,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
                 try {
-                    final IRCCloudJSONObject object = (IRCCloudJSONObject)obj;
-                    if(buffer != null && object.cid() == buffer.cid) {
+                    final IRCCloudJSONObject object = (IRCCloudJSONObject) obj;
+                    if (buffer != null && object.cid() == buffer.cid) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -2152,15 +2206,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 break;
             case NetworkConnection.EVENT_SETIGNORES:
-                e = (IRCCloudJSONObject)obj;
-                if(buffer != null && e.cid() == buffer.cid) {
+                e = (IRCCloudJSONObject) obj;
+                if (buffer != null && e.cid() == buffer.cid) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(refreshTask != null)
+                            if (refreshTask != null)
                                 refreshTask.cancel(true);
                             refreshTask = new RefreshTask();
-                            refreshTask.execute((Void)null);
+                            refreshTask.execute((Void) null);
                         }
                     });
                 }
@@ -2190,34 +2244,34 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_SELFDETAILS:
             case NetworkConnection.EVENT_USERMODE:
             case NetworkConnection.EVENT_USERCHANNELMODE:
-                e = (IRCCloudJSONObject)obj;
-                if(buffer != null && e.bid() == buffer.bid) {
+                e = (IRCCloudJSONObject) obj;
+                if (buffer != null && e.bid() == buffer.bid) {
                     final EventsDataSource.Event event = EventsDataSource.getInstance().getEvent(e.eid(), e.bid());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(adapter != null)
+                            if (adapter != null)
                                 insertEvent(adapter, event, false, false);
                         }
                     });
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
-                final EventsDataSource.Event event = (EventsDataSource.Event)obj;
-                if(buffer != null && event.bid == buffer.bid) {
-                    if(event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
+                final EventsDataSource.Event event = (EventsDataSource.Event) obj;
+                if (buffer != null && event.bid == buffer.bid) {
+                    if (event.from != null && event.from.equalsIgnoreCase(buffer.name) && event.reqid == -1) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(adapter != null)
+                                if (adapter != null)
                                     adapter.clearPending();
                             }
                         });
-                    } else if(event.reqid != -1) {
+                    } else if (event.reqid != -1) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(adapter != null && adapter.data != null) {
+                                if (adapter != null && adapter.data != null) {
                                     for (int i = 0; i < adapter.data.size(); i++) {
                                         EventsDataSource.Event e = adapter.data.get(i);
                                         if (e.reqid == event.reqid && e.pending) {
@@ -2242,7 +2296,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             insertEvent(adapter, event, false, false);
                         }
                     });
-                    if(event.pending && event.self && adapter != null && getListView() != null) {
+                    if (event.pending && event.self && adapter != null && getListView() != null) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -2252,10 +2306,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
                 BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(event.bid);
-                if(b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200) {
+                if (b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200) {
                     EventsDataSource.getInstance().pruneEvents(b.bid);
-                    if(buffer != null && b.bid == buffer.bid) {
-                        if(b.last_seen_eid < event.eid && unreadTopView.getVisibility() == View.GONE)
+                    if (buffer != null && b.bid == buffer.bid) {
+                        if (b.last_seen_eid < event.eid && unreadTopView.getVisibility() == View.GONE)
                             b.last_seen_eid = event.eid;
 
                         runOnUiThread(new Runnable() {
@@ -2272,11 +2326,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 break;
             case NetworkConnection.EVENT_AWAY:
             case NetworkConnection.EVENT_SELFBACK:
-                if(server != null) {
+                if (server != null) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(server.away != null && server.away.length() > 0) {
+                            if (server.away != null && server.away.length() > 0) {
                                 awayTxt.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode("Away (" + server.away + ")"))).toString());
                                 awayView.setVisibility(View.VISIBLE);
                             } else {
@@ -2299,14 +2353,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    public Resources getSafeResources() {
+    public static Resources getSafeResources() {
         return IRCCloudApplication.getInstance().getApplicationContext().getResources();
     }
 
     public interface MessageViewListener extends OnBufferSelectedListener {
-		public void onMessageViewReady();
-		public boolean onMessageLongClicked(EventsDataSource.Event event);
-		public void onMessageDoubleClicked(EventsDataSource.Event event);
+        public void onMessageViewReady();
+
+        public boolean onMessageLongClicked(EventsDataSource.Event event);
+
+        public void onMessageDoubleClicked(EventsDataSource.Event event);
+
         public void onFailedMessageClicked(EventsDataSource.Event event);
-	}
+    }
 }

@@ -37,69 +37,69 @@ public class NickservFragment extends DialogFragment {
     ServersDataSource.Server server;
     EditText pass;
     TextView nick;
-	
+
     class SaveClickListener implements DialogInterface.OnClickListener {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			if(pass.getText() != null && pass.getText().length() > 0) {
-				NetworkConnection.getInstance().set_nspass(server.cid, pass.getText().toString());
-				dismiss();
-			}
-		}
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            if (pass.getText() != null && pass.getText().length() > 0) {
+                NetworkConnection.getInstance().set_nspass(server.cid, pass.getText().toString());
+                dismiss();
+            }
+        }
     }
 
     class InstructionsClickListener implements DialogInterface.OnClickListener {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			NetworkConnection.getInstance().ns_help_register(server.cid);
-			dismiss();
-		}
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            NetworkConnection.getInstance().ns_help_register(server.cid);
+            dismiss();
+        }
     }
 
     public void setCid(int cid) {
-    	server = ServersDataSource.getInstance().getServer(cid);
-    	if(nick != null && server != null) {
-	    	nick.setText("Password for " + server.nick);
-	    	if(server.nickserv_pass != null)
-	    		pass.setText(server.nickserv_pass);
-    	}
+        server = ServersDataSource.getInstance().getServer(cid);
+        if (nick != null && server != null) {
+            nick.setText("Password for " + server.nick);
+            if (server.nickserv_pass != null)
+                pass.setText(server.nickserv_pass);
+        }
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if(server == null)
+        if (server == null)
             return null;
 
-		Context ctx = getActivity();
-		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	
-    	View v = inflater.inflate(R.layout.dialog_nickserv,null);
-    	nick = (TextView)v.findViewById(R.id.nickname);
-    	pass = (EditText)v.findViewById(R.id.password);
+        Context ctx = getActivity();
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View v = inflater.inflate(R.layout.dialog_nickserv, null);
+        nick = (TextView) v.findViewById(R.id.nickname);
+        pass = (EditText) v.findViewById(R.id.password);
         nick.setText("Password for " + server.nick);
-        if(server.nickserv_pass != null)
+        if (server.nickserv_pass != null)
             pass.setText(server.nickserv_pass);
 
-    	String title = "Identify your nickname on ";
-    	if(server.name != null && server.name.length() > 0)
-    		title += server.name;
-    	else
-    		title += server.hostname;
-    	
-    	AlertDialog d = new AlertDialog.Builder(ctx)
+        String title = "Identify your nickname on ";
+        if (server.name != null && server.name.length() > 0)
+            title += server.name;
+        else
+            title += server.hostname;
+
+        AlertDialog d = new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle(title)
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())
                 .setNeutralButton("Instructions", new InstructionsClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
                 })
                 .create();
-	    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-	    return d;
+        d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        return d;
     }
 }

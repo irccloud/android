@@ -16,37 +16,31 @@
 
 package com.irccloud.android.activity;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-import android.app.ActivityManager;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
-import android.net.Uri;
-import android.os.Build;
-import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.view.inputmethod.EditorInfo;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -66,25 +60,31 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class LoginActivity extends FragmentActivity {
-	private View login = null;
-	private AutoCompleteTextView email;
-	private EditText password;
+    private View login = null;
+    private AutoCompleteTextView email;
+    private EditText password;
     private EditText host;
     private EditText name;
-	private Button loginBtn;
+    private Button loginBtn;
     private Button signupBtn;
     private Button nextBtn;
     private Button sendAccessLinkBtn;
-	private TextView connectingMsg = null;
+    private TextView connectingMsg = null;
     private TextView TOS = null;
     private TextView forgotPassword = null;
     private TextView enterpriseLearnMore = null;
     private TextView EnterYourEmail = null;
     private TextView hostHint = null;
     private LinearLayout notAProblem = null;
-	private ProgressBar progressBar = null;
-	private View connecting = null;
+    private ProgressBar progressBar = null;
+    private View connecting = null;
     private LinearLayout loginHint = null;
     private LinearLayout signupHint = null;
     private LinearLayout enterpriseHint = null;
@@ -95,7 +95,7 @@ public class LoginActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xff0b2e60));
             cloud.recycle();
@@ -106,109 +106,109 @@ public class LoginActivity extends FragmentActivity {
         setContentView(R.layout.activity_login);
 
         connecting = findViewById(R.id.connecting);
-		connectingMsg = (TextView)findViewById(R.id.connectingMsg);
-		progressBar = (ProgressBar)findViewById(R.id.connectingProgress);
+        connectingMsg = (TextView) findViewById(R.id.connectingMsg);
+        progressBar = (ProgressBar) findViewById(R.id.connectingProgress);
 
-        loginHint = (LinearLayout)findViewById(R.id.loginHint);
-        signupHint = (LinearLayout)findViewById(R.id.signupHint);
-        hostHint = (TextView)findViewById(R.id.hostHint);
+        loginHint = (LinearLayout) findViewById(R.id.loginHint);
+        signupHint = (LinearLayout) findViewById(R.id.signupHint);
+        hostHint = (TextView) findViewById(R.id.hostHint);
 
         login = findViewById(R.id.login);
-        name = (EditText)findViewById(R.id.name);
-        if(savedInstanceState != null && savedInstanceState.containsKey("name"))
+        name = (EditText) findViewById(R.id.name);
+        if (savedInstanceState != null && savedInstanceState.containsKey("name"))
             name.setText(savedInstanceState.getString("name"));
-        email = (AutoCompleteTextView)findViewById(R.id.email);
-        if(BuildConfig.ENTERPRISE)
+        email = (AutoCompleteTextView) findViewById(R.id.email);
+        if (BuildConfig.ENTERPRISE)
             email.setHint(R.string.email_enterprise);
         ArrayList<String> accounts = new ArrayList<String>();
-        AccountManager am = (AccountManager)getSystemService(Context.ACCOUNT_SERVICE);
-        for(Account a : am.getAccounts()) {
-        	if(a.name.contains("@") && !accounts.contains(a.name))
-        		accounts.add(a.name);
+        AccountManager am = (AccountManager) getSystemService(Context.ACCOUNT_SERVICE);
+        for (Account a : am.getAccounts()) {
+            if (a.name.contains("@") && !accounts.contains(a.name))
+                accounts.add(a.name);
         }
-        if(accounts.size() > 0)
-        	email.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts.toArray(new String[accounts.size()])));
+        if (accounts.size() > 0)
+            email.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts.toArray(new String[accounts.size()])));
 
-        if(savedInstanceState != null && savedInstanceState.containsKey("email"))
-        	email.setText(savedInstanceState.getString("email"));
-        
-        password = (EditText)findViewById(R.id.password);
+        if (savedInstanceState != null && savedInstanceState.containsKey("email"))
+            email.setText(savedInstanceState.getString("email"));
+
+        password = (EditText) findViewById(R.id.password);
         password.setOnEditorActionListener(new OnEditorActionListener() {
-			public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
-				if (actionId == EditorInfo.IME_ACTION_DONE) {
-					new LoginTask().execute((Void)null);
-					return true;
-				}
-				return false;
-			}
+            public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    new LoginTask().execute((Void) null);
+                    return true;
+                }
+                return false;
+            }
         });
-        if(savedInstanceState != null && savedInstanceState.containsKey("password"))
-        	password.setText(savedInstanceState.getString("password"));
+        if (savedInstanceState != null && savedInstanceState.containsKey("password"))
+            password.setText(savedInstanceState.getString("password"));
 
-        host = (EditText)findViewById(R.id.host);
-        if(BuildConfig.ENTERPRISE)
+        host = (EditText) findViewById(R.id.host);
+        if (BuildConfig.ENTERPRISE)
             host.setText(NetworkConnection.IRCCLOUD_HOST);
         else
             host.setVisibility(View.GONE);
         host.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    new LoginTask().execute((Void)null);
+                    new LoginTask().execute((Void) null);
                     return true;
                 }
                 return false;
             }
         });
-        if(savedInstanceState != null && savedInstanceState.containsKey("host"))
+        if (savedInstanceState != null && savedInstanceState.containsKey("host"))
             host.setText(savedInstanceState.getString("host"));
         else
             host.setText(getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST));
 
-        if(host.getText().toString().equals("api.irccloud.com") || host.getText().toString().equals("www.irccloud.com"))
+        if (host.getText().toString().equals("api.irccloud.com") || host.getText().toString().equals("www.irccloud.com"))
             host.setText("");
 
-        loginBtn = (Button)findViewById(R.id.loginBtn);
+        loginBtn = (Button) findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				new LoginTask().execute((Void)null);
-			}
+            @Override
+            public void onClick(View v) {
+                new LoginTask().execute((Void) null);
+            }
         });
         loginBtn.setFocusable(true);
-    	loginBtn.requestFocus();
+        loginBtn.requestFocus();
 
-        sendAccessLinkBtn = (Button)findViewById(R.id.sendAccessLink);
+        sendAccessLinkBtn = (Button) findViewById(R.id.sendAccessLink);
         sendAccessLinkBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ResetPasswordTask().execute((Void)null);
+                new ResetPasswordTask().execute((Void) null);
             }
         });
 
-        nextBtn = (Button)findViewById(R.id.nextBtn);
+        nextBtn = (Button) findViewById(R.id.nextBtn);
         nextBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(host.getText().length() > 0) {
+                if (host.getText().length() > 0) {
                     NetworkConnection.IRCCLOUD_HOST = host.getText().toString();
                     trimHost();
 
-                    new EnterpriseConfigTask().execute((Void)null);
+                    new EnterpriseConfigTask().execute((Void) null);
                 }
             }
         });
 
-        TOS = (TextView)findViewById(R.id.TOS);
+        TOS = (TextView) findViewById(R.id.TOS);
         TOS.setMovementMethod(new LinkMovementMethod());
 
-        forgotPassword = (TextView)findViewById(R.id.forgotPassword);
+        forgotPassword = (TextView) findViewById(R.id.forgotPassword);
         forgotPassword.setOnClickListener(forgotPasswordClickListener);
 
-        enterpriseLearnMore = (TextView)findViewById(R.id.enterpriseLearnMore);
+        enterpriseLearnMore = (TextView) findViewById(R.id.enterpriseLearnMore);
         enterpriseLearnMore.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isPackageInstalled("com.irccloud.android", LoginActivity.this)) {
+                if (isPackageInstalled("com.irccloud.android", LoginActivity.this)) {
                     startActivity(getPackageManager().getLaunchIntentForPackage("com.irccloud.android"));
                 } else {
                     try {
@@ -229,67 +229,67 @@ public class LoginActivity extends FragmentActivity {
                 }
             }
         });
-        enterpriseHint = (LinearLayout)findViewById(R.id.enterpriseHint);
+        enterpriseHint = (LinearLayout) findViewById(R.id.enterpriseHint);
 
-        EnterYourEmail = (TextView)findViewById(R.id.enterYourEmail);
+        EnterYourEmail = (TextView) findViewById(R.id.enterYourEmail);
 
         signupHint.setOnClickListener(signupHintClickListener);
         loginHint.setOnClickListener(loginHintClickListener);
 
-        signupBtn = (Button)findViewById(R.id.signupBtn);
+        signupBtn = (Button) findViewById(R.id.signupBtn);
         signupBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-            new LoginTask().execute((Void)null);
+                new LoginTask().execute((Void) null);
             }
         });
 
-        TextView version = (TextView)findViewById(R.id.version);
+        TextView version = (TextView) findViewById(R.id.version);
         try {
             version.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-		} catch (NameNotFoundException e) {
-			version.setVisibility(View.GONE);
-		}
+        } catch (NameNotFoundException e) {
+            version.setVisibility(View.GONE);
+        }
 
         Typeface LatoRegular = Typeface.createFromAsset(getAssets(), "Lato-Regular.ttf");
         Typeface LatoLightItalic = Typeface.createFromAsset(getAssets(), "Lato-LightItalic.ttf");
 
-        for (int i=0; i < signupHint.getChildCount(); i++){
+        for (int i = 0; i < signupHint.getChildCount(); i++) {
             View v = signupHint.getChildAt(i);
-            if(v instanceof TextView) {
-                ((TextView)v).setTypeface(LatoRegular);
+            if (v instanceof TextView) {
+                ((TextView) v).setTypeface(LatoRegular);
             }
         }
 
-        for (int i=0; i < loginHint.getChildCount(); i++){
+        for (int i = 0; i < loginHint.getChildCount(); i++) {
             View v = loginHint.getChildAt(i);
-            if(v instanceof TextView) {
-                ((TextView)v).setTypeface(LatoRegular);
+            if (v instanceof TextView) {
+                ((TextView) v).setTypeface(LatoRegular);
             }
         }
 
-        LinearLayout IRCCloud = (LinearLayout)findViewById(R.id.IRCCloud);
-        for (int i=0; i < IRCCloud.getChildCount(); i++){
+        LinearLayout IRCCloud = (LinearLayout) findViewById(R.id.IRCCloud);
+        for (int i = 0; i < IRCCloud.getChildCount(); i++) {
             View v = IRCCloud.getChildAt(i);
-            if(v instanceof TextView) {
-                ((TextView)v).setTypeface(LatoRegular);
+            if (v instanceof TextView) {
+                ((TextView) v).setTypeface(LatoRegular);
             }
         }
 
-        notAProblem = (LinearLayout)findViewById(R.id.notAProblem);
-        for (int i=0; i < notAProblem.getChildCount(); i++){
+        notAProblem = (LinearLayout) findViewById(R.id.notAProblem);
+        for (int i = 0; i < notAProblem.getChildCount(); i++) {
             View v = notAProblem.getChildAt(i);
-            if(v instanceof TextView) {
-                ((TextView)v).setTypeface((i==0)?LatoRegular:LatoLightItalic);
+            if (v instanceof TextView) {
+                ((TextView) v).setTypeface((i == 0) ? LatoRegular : LatoLightItalic);
             }
         }
 
-        loginSignupHint = (LinearLayout)findViewById(R.id.loginSignupHint);
-        for (int i=0; i < loginSignupHint.getChildCount(); i++){
+        loginSignupHint = (LinearLayout) findViewById(R.id.loginSignupHint);
+        for (int i = 0; i < loginSignupHint.getChildCount(); i++) {
             View v = loginSignupHint.getChildAt(i);
-            if(v instanceof TextView) {
-                ((TextView)v).setTypeface(LatoRegular);
-                ((TextView)v).setOnClickListener((i==0)?loginHintClickListener:signupHintClickListener);
+            if (v instanceof TextView) {
+                ((TextView) v).setTypeface(LatoRegular);
+                ((TextView) v).setOnClickListener((i == 0) ? loginHintClickListener : signupHintClickListener);
             }
         }
 
@@ -303,7 +303,7 @@ public class LoginActivity extends FragmentActivity {
         EnterYourEmail.setTypeface(LatoRegular);
         hostHint.setTypeface(LatoLightItalic);
 
-        if(BuildConfig.ENTERPRISE) {
+        if (BuildConfig.ENTERPRISE) {
             name.setVisibility(View.GONE);
             email.setVisibility(View.GONE);
             password.setVisibility(View.GONE);
@@ -325,15 +325,15 @@ public class LoginActivity extends FragmentActivity {
             host.requestFocus();
         }
 
-        if(savedInstanceState != null && savedInstanceState.containsKey("signup") && savedInstanceState.getBoolean("signup")) {
+        if (savedInstanceState != null && savedInstanceState.containsKey("signup") && savedInstanceState.getBoolean("signup")) {
             signupHintClickListener.onClick(null);
         }
 
-        if(savedInstanceState != null && savedInstanceState.containsKey("login") && savedInstanceState.getBoolean("login")) {
+        if (savedInstanceState != null && savedInstanceState.containsKey("login") && savedInstanceState.getBoolean("login")) {
             loginHintClickListener.onClick(null);
         }
 
-        if(savedInstanceState != null && savedInstanceState.containsKey("forgotPassword") && savedInstanceState.getBoolean("forgotPassword")) {
+        if (savedInstanceState != null && savedInstanceState.containsKey("forgotPassword") && savedInstanceState.getBoolean("forgotPassword")) {
             forgotPasswordClickListener.onClick(null);
         }
     }
@@ -386,7 +386,7 @@ public class LoginActivity extends FragmentActivity {
             enterpriseLearnMore.setVisibility(View.GONE);
             enterpriseHint.setVisibility(View.GONE);
             hostHint.setVisibility(View.GONE);
-            if(loginSignupHint.getChildAt(1).getVisibility() == View.VISIBLE)
+            if (loginSignupHint.getChildAt(1).getVisibility() == View.VISIBLE)
                 signupHint.setVisibility(View.VISIBLE);
             else
                 enterpriseHint.setVisibility(View.VISIBLE);
@@ -419,53 +419,53 @@ public class LoginActivity extends FragmentActivity {
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-    	super.onSaveInstanceState(state);
-    	if(login != null && login.getVisibility() == View.VISIBLE) {
-	    	if(email != null)
-	    		state.putString("email", email.getText().toString());
-	    	if(password != null)
-	    		state.putString("password", password.getText().toString());
-            if(host != null)
+        super.onSaveInstanceState(state);
+        if (login != null && login.getVisibility() == View.VISIBLE) {
+            if (email != null)
+                state.putString("email", email.getText().toString());
+            if (password != null)
+                state.putString("password", password.getText().toString());
+            if (host != null)
                 state.putString("host", host.getText().toString());
-            if(name != null)
+            if (name != null)
                 state.putString("name", name.getText().toString());
-            if(signupBtn != null)
+            if (signupBtn != null)
                 state.putBoolean("signup", signupBtn.getVisibility() == View.VISIBLE);
-            if(loginBtn != null)
+            if (loginBtn != null)
                 state.putBoolean("login", loginBtn.getVisibility() == View.VISIBLE);
-            if(sendAccessLinkBtn != null)
+            if (sendAccessLinkBtn != null)
                 state.putBoolean("forgotPassword", sendAccessLinkBtn.getVisibility() == View.VISIBLE);
-    	}
+        }
     }
 
     @Override
     public void onResume() {
-    	super.onResume();
+        super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if(prefs.getBoolean("screenlock", false)) {
+        if (prefs.getBoolean("screenlock", false)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
-        if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
+        if (NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
             NetworkConnection.getInstance().logout();
             new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1", "") + "&format=json");
             setIntent(new Intent(this, LoginActivity.class));
-        } else if(getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("referral")) {
+        } else if (getIntent() != null && getIntent().getData() != null && getIntent().getData().getHost().equals("referral")) {
             new ImpressionTask().execute(getIntent().getDataString().substring(getIntent().getData().getScheme().length() + getIntent().getData().getHost().length() + 4));
-            if(getSharedPreferences("prefs", 0).contains("session_key")) {
+            if (getSharedPreferences("prefs", 0).contains("session_key")) {
                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(i);
                 finish();
                 return;
             }
-        } else if(getSharedPreferences("prefs", 0).contains("session_key")) {
+        } else if (getSharedPreferences("prefs", 0).contains("session_key")) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
-            if(getIntent() != null) {
-                if(getIntent().getData() != null)
+            if (getIntent() != null) {
+                if (getIntent().getData() != null)
                     i.setData(getIntent().getData());
-                if(getIntent().getExtras() != null)
+                if (getIntent().getExtras() != null)
                     i.putExtras(getIntent().getExtras());
             }
             startActivity(i);
@@ -475,36 +475,36 @@ public class LoginActivity extends FragmentActivity {
             connecting.setVisibility(View.GONE);
             login.setVisibility(View.VISIBLE);
             checkPlayServices();
-    	}
+        }
     }
 
     private class LoginTask extends AsyncTaskEx<Void, Void, JSONObject> {
-		@Override
-		public void onPreExecute() {
+        @Override
+        public void onPreExecute() {
             name.setEnabled(false);
-			email.setEnabled(false);
-			password.setEnabled(false);
+            email.setEnabled(false);
+            password.setEnabled(false);
             host.setEnabled(false);
             loginHint.setEnabled(false);
             signupHint.setEnabled(false);
             SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
             editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
             editor.commit();
-			loginBtn.setEnabled(false);
+            loginBtn.setEnabled(false);
             signupBtn.setEnabled(false);
-            if(name.getVisibility() == View.VISIBLE)
-    			connectingMsg.setText("Creating Account");
+            if (name.getVisibility() == View.VISIBLE)
+                connectingMsg.setText("Creating Account");
             else
                 connectingMsg.setText("Signing in");
-			progressBar.setIndeterminate(true);
-			connecting.setVisibility(View.VISIBLE);
+            progressBar.setIndeterminate(true);
+            connecting.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
-		}
-		
-		@Override
-		protected JSONObject doInBackground(Void... arg0) {
+        }
+
+        @Override
+        protected JSONObject doInBackground(Void... arg0) {
             try {
-                if(!BuildConfig.ENTERPRISE)
+                if (!BuildConfig.ENTERPRISE)
                     NetworkConnection.IRCCLOUD_HOST = BuildConfig.HOST;
                 JSONObject config = NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
                 NetworkConnection.IRCCLOUD_HOST = config.getString("api_host");
@@ -512,9 +512,9 @@ public class LoginActivity extends FragmentActivity {
             } catch (Exception e) {
                 return null;
             }
-            if(name.getVisibility() == View.VISIBLE) {
+            if (name.getVisibility() == View.VISIBLE) {
                 if (name.getText() != null && name.getText().length() > 0 && email.getText() != null && email.getText().length() > 0 && password.getText() != null && password.getText().length() > 0)
-                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString(), (impression_id != null)?impression_id:"");
+                    return NetworkConnection.getInstance().signup(name.getText().toString(), email.getText().toString(), password.getText().toString(), (impression_id != null) ? impression_id : "");
                 else
                     return null;
             } else {
@@ -523,113 +523,113 @@ public class LoginActivity extends FragmentActivity {
                 else
                     return null;
             }
-		}
+        }
 
-		@Override
-		public void onPostExecute(JSONObject result) {
-			if(result != null && result.has("session")) {
-				try {
-					SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-					editor.putString("session_key", result.getString("session"));
-                    if(result.has("websocket_host")) {
+        @Override
+        public void onPostExecute(JSONObject result) {
+            if (result != null && result.has("session")) {
+                try {
+                    SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                    editor.putString("session_key", result.getString("session"));
+                    if (result.has("websocket_host")) {
                         NetworkConnection.IRCCLOUD_HOST = result.getString("websocket_host");
                         NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
                     }
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
-					editor.commit();
+                    editor.commit();
 
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                         i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                    if(getIntent() != null) {
-                        if(getIntent().getData() != null)
+                    if (getIntent() != null) {
+                        if (getIntent().getData() != null)
                             i.setData(getIntent().getData());
-                        if(getIntent().getExtras() != null)
+                        if (getIntent().getExtras() != null)
                             i.putExtras(getIntent().getExtras());
                     }
                     startActivity(i);
                     finish();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			} else {
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
                 name.setEnabled(true);
-				email.setEnabled(true);
-				password.setEnabled(true);
+                email.setEnabled(true);
+                password.setEnabled(true);
                 host.setEnabled(true);
-				loginBtn.setEnabled(true);
+                loginBtn.setEnabled(true);
                 signupBtn.setEnabled(true);
                 loginHint.setEnabled(true);
                 signupHint.setEnabled(true);
                 connecting.setVisibility(View.GONE);
                 login.setVisibility(View.VISIBLE);
-				AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                 builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                if(name.getVisibility() == View.VISIBLE)
-    				builder.setTitle("Sign Up Failed");
+                if (name.getVisibility() == View.VISIBLE)
+                    builder.setTitle("Sign Up Failed");
                 else
                     builder.setTitle("Login Failed");
-				String message = "Unable to connect to IRCCloud.  Please try again later.";
-				if(result != null) {
-					try {
-                        if(result.has("message")) {
+                String message = "Unable to connect to IRCCloud.  Please try again later.";
+                if (result != null) {
+                    try {
+                        if (result.has("message")) {
                             message = result.getString("message");
-                            if(message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
-                                if(name.getVisibility() == View.VISIBLE)
+                            if (message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
+                                if (name.getVisibility() == View.VISIBLE)
                                     message = "Invalid email address or password.  Please try again.";
                                 else
                                     message = "Incorrect username or password.  Please try again.";
-                            else if(message.equals("json_error"))
+                            else if (message.equals("json_error"))
                                 message = "Invalid response received from the server.  Please try again shortly.";
-                            else if(message.equals("invalid_response"))
+                            else if (message.equals("invalid_response"))
                                 message = "Unexpected response received from the server.  Check your network settings and try again shortly.";
-                            else if(message.equals("empty_response"))
+                            else if (message.equals("empty_response"))
                                 message = "The server did not respond.  Check your network settings and try again shortly.";
-                            else if(message.equals("realname"))
+                            else if (message.equals("realname"))
                                 message = "Please enter a valid name and try again.";
-                            else if(message.equals("email_exists"))
+                            else if (message.equals("email_exists"))
                                 message = "This email address is already in use, please sign in or try another.";
-                            else if(message.equals("rate_limited"))
+                            else if (message.equals("rate_limited"))
                                 message = "Rate limited, please try again in a few minutes.";
-                            else if(message.equals("password_error"))
+                            else if (message.equals("password_error"))
                                 message = "Invalid password, try again.";
-                            else if(message.equals("banned") || message.equals("ip_banned"))
+                            else if (message.equals("banned") || message.equals("ip_banned"))
                                 message = "Signup server unavailable, please try again later.";
-                            else if(message.equals("bad_email"))
+                            else if (message.equals("bad_email"))
                                 message = "No signups allowed from that domain.";
-                            else if(message.equals("tor_blocked"))
+                            else if (message.equals("tor_blocked"))
                                 message = "No signups allowed from TOR exit nodes";
-                            else if(message.equals("signup_ip_blocked"))
+                            else if (message.equals("signup_ip_blocked"))
                                 message = "Your IP address has been blacklisted";
                             else
                                 message = "Error: " + message;
                         }
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				} else if((name.getVisibility() == View.VISIBLE && (name.getText() == null || name.getText().length() == 0)) || email.getText() == null || email.getText().length() == 0 || password.getText() == null || password.getText().length() == 0) {
-                    if(name.getVisibility() == View.VISIBLE)
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else if ((name.getVisibility() == View.VISIBLE && (name.getText() == null || name.getText().length() == 0)) || email.getText() == null || email.getText().length() == 0 || password.getText() == null || password.getText().length() == 0) {
+                    if (name.getVisibility() == View.VISIBLE)
                         message = "Please enter your name, email address, and password.";
                     else
                         message = "Please enter your username and password.";
                 }
-				builder.setMessage(message);
-				builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-				AlertDialog dialog = builder.create();
-				dialog.setOwnerActivity(LoginActivity.this);
-				try {
-					dialog.show();
-				} catch (WindowManager.BadTokenException e) {
-				}
-			}
-		}
+                builder.setMessage(message);
+                builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.setOwnerActivity(LoginActivity.this);
+                try {
+                    dialog.show();
+                } catch (WindowManager.BadTokenException e) {
+                }
+            }
+        }
     }
 
     private class ImpressionTask extends AsyncTaskEx<String, Void, JSONObject> {
@@ -648,9 +648,9 @@ public class LoginActivity extends FragmentActivity {
 
         @Override
         public void onPostExecute(JSONObject result) {
-            if(result != null && result.has("success")) {
+            if (result != null && result.has("success")) {
                 try {
-                    if(result.getBoolean("success")) {
+                    if (result.getBoolean("success")) {
                         impression_id = result.getString("id");
                     }
                 } catch (JSONException e) {
@@ -688,11 +688,11 @@ public class LoginActivity extends FragmentActivity {
 
         @Override
         public void onPostExecute(JSONObject result) {
-            if(result != null && result.has("session")) {
+            if (result != null && result.has("session")) {
                 try {
                     SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                     editor.putString("session_key", result.getString("session"));
-                    if(result.has("websocket_host")) {
+                    if (result.has("websocket_host")) {
                         NetworkConnection.IRCCLOUD_HOST = result.getString("websocket_host");
                         NetworkConnection.IRCCLOUD_PATH = result.getString("websocket_path");
                     }
@@ -700,10 +700,10 @@ public class LoginActivity extends FragmentActivity {
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.commit();
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                    if(getIntent() != null) {
-                        if(getIntent().getData() != null)
+                    if (getIntent() != null) {
+                        if (getIntent().getData() != null)
                             i.setData(getIntent().getData());
-                        if(getIntent().getExtras() != null)
+                        if (getIntent().getExtras() != null)
                             i.putExtras(getIntent().getExtras());
                     }
                     startActivity(i);
@@ -808,11 +808,11 @@ public class LoginActivity extends FragmentActivity {
     }
 
     private void trimHost() {
-        if(NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
+        if (NetworkConnection.IRCCLOUD_HOST.startsWith("http://"))
             NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(7);
-        if(NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
+        if (NetworkConnection.IRCCLOUD_HOST.startsWith("https://"))
             NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(8);
-        if(NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
+        if (NetworkConnection.IRCCLOUD_HOST.endsWith("/"))
             NetworkConnection.IRCCLOUD_HOST = NetworkConnection.IRCCLOUD_HOST.substring(0, NetworkConnection.IRCCLOUD_HOST.length() - 1);
     }
 
@@ -851,17 +851,17 @@ public class LoginActivity extends FragmentActivity {
                     editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                     editor.commit();
 
-                    if(result.getString("auth_mechanism").equals("internal"))
+                    if (result.getString("auth_mechanism").equals("internal"))
                         loginSignupHint.getChildAt(1).setVisibility(View.VISIBLE);
                     else
                         loginSignupHint.getChildAt(1).setVisibility(View.GONE);
 
-                    if(((JSONObject) result.get("enterprise")).has("fullname"))
-                        ((TextView)findViewById(R.id.enterpriseHintText)).setText(((JSONObject) result.get("enterprise")).getString("fullname"));
+                    if (((JSONObject) result.get("enterprise")).has("fullname"))
+                        ((TextView) findViewById(R.id.enterpriseHintText)).setText(((JSONObject) result.get("enterprise")).getString("fullname"));
 
-                    if(NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
+                    if (NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
                         NetworkConnection.getInstance().logout();
-                        new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1","") + "&format=json");
+                        new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1", "") + "&format=json");
                         setIntent(new Intent(LoginActivity.this, LoginActivity.class));
                     } else {
                         loginHintClickListener.onClick(null);

@@ -1,4 +1,3 @@
-
 /*
 Copyright (c) 2011, Sony Ericsson Mobile Communications AB
 
@@ -31,19 +30,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 package com.irccloud.android;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.irccloud.android.activity.MainActivity;
 import com.sonyericsson.extras.liveware.aef.notification.Notification;
 import com.sonyericsson.extras.liveware.extension.util.ExtensionService;
 import com.sonyericsson.extras.liveware.extension.util.registration.RegistrationInformation;
-
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * The sample extension service handles extension registration and inserts
@@ -158,7 +156,7 @@ public class SonyExtensionService extends ExtensionService {
     public void onRegisterResult(boolean result) {
         super.onRegisterResult(result);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-        if(prefs.getBoolean("notify_sony",true)) {
+        if (prefs.getBoolean("notify_sony", true)) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("notify_sony", true);
             editor.commit();

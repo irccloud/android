@@ -17,27 +17,24 @@
 package com.irccloud.android.data;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.TimerTask;
-import java.util.TreeMap;
-
 import com.fasterxml.jackson.databind.JsonNode;
-import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.R;
 import com.irccloud.android.fragment.MessageViewFragment;
 
+import java.util.HashMap;
+import java.util.TimerTask;
+import java.util.TreeMap;
+
 @SuppressLint("UseSparseArrays")
 public class EventsDataSource {
 
-	public static class Event {
-		public int cid;
+    public static class Event {
+        public int cid;
         public int bid;
         public long eid;
         public String timestamp;
@@ -47,7 +44,7 @@ public class EventsDataSource {
         public String from;
         public String from_mode;
         public String nick;
-		public String old_nick;
+        public String old_nick;
         public String server;
         public String diff;
         public String html;
@@ -75,7 +72,7 @@ public class EventsDataSource {
         public TimerTask expiration_timer;
 
         public String toString() {
-            return "{"+
+            return "{" +
                     "cid: " + cid +
                     " bid: " + bid +
                     " eid: " + eid +
@@ -91,31 +88,31 @@ public class EventsDataSource {
         }
 
         public synchronized boolean isImportant(String buffer_type) {
-            if(self)
+            if (self)
                 return false;
-            if(type == null) {
+            if (type == null) {
                 return false;
             }
 
             Ignore ignore = new Ignore();
             ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-            if(s != null) {
+            if (s != null) {
                 ignore.setIgnores(s.ignores);
                 String from = this.from;
-                if(from == null || from.length() == 0)
+                if (from == null || from.length() == 0)
                     from = this.nick;
-                if(ignore.match(from + "!" + hostmask))
+                if (ignore.match(from + "!" + hostmask))
                     return false;
             }
 
-            if (type.equals("notice") || type.equalsIgnoreCase("channel_invite") ) {
+            if (type.equals("notice") || type.equalsIgnoreCase("channel_invite")) {
                 // Notices sent from the server (with no nick sender) aren't important
                 // e.g. *** Looking up your hostname...
                 if (from == null || from.length() == 0)
                     return false;
 
                 // Notices and invites sent to a buffer shouldn't notify in the server buffer
-                if(buffer_type.equalsIgnoreCase("console") && (to_chan || to_buffer))
+                if (buffer_type.equalsIgnoreCase("console") && (to_chan || to_buffer))
                     return false;
             }
             return (type.equals("buffer_msg") ||
@@ -126,36 +123,36 @@ public class EventsDataSource {
                     type.equals("wallops"));
         }
     }
-	
-	private final HashMap<Integer,TreeMap<Long, Event>> events;
-	private static EventsDataSource instance = null;
-	public long highest_eid = -1;
-	
-	public synchronized static EventsDataSource getInstance() {
-		if(instance == null)
-			instance = new EventsDataSource();
-		return instance;
-	}
 
-	public EventsDataSource() {
-		events = new HashMap<Integer,TreeMap<Long, Event>>();
-	}
+    private final HashMap<Integer, TreeMap<Long, Event>> events;
+    private static EventsDataSource instance = null;
+    public long highest_eid = -1;
 
-	public void clear() {
-		synchronized(events) {
-			events.clear();
-			highest_eid = -1;
-		}
-	}
-	
-	public void addEvent(Event event) {
-		synchronized(events) {
-			if(!events.containsKey(event.bid))
-				events.put(event.bid, new TreeMap<Long,Event>());
-			
-			events.get(event.bid).put(event.eid, event);
-		}
-	}
+    public synchronized static EventsDataSource getInstance() {
+        if (instance == null)
+            instance = new EventsDataSource();
+        return instance;
+    }
+
+    public EventsDataSource() {
+        events = new HashMap<>();
+    }
+
+    public void clear() {
+        synchronized (events) {
+            events.clear();
+            highest_eid = -1;
+        }
+    }
+
+    public void addEvent(Event event) {
+        synchronized (events) {
+            if (!events.containsKey(event.bid))
+                events.put(event.bid, new TreeMap<Long, Event>());
+
+            events.get(event.bid).put(event.eid, event);
+        }
+    }
 
     public interface Formatter {
         public void format(IRCCloudJSONObject event, Event e);
@@ -169,13 +166,13 @@ public class EventsDataSource {
                 e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
                 e.color = R.color.timestamp;
                 e.linkify = false;
-                if(event.has("pool_lost"))
+                if (event.has("pool_lost"))
                     e.msg = "Connection pool lost";
-                else if(event.has("server_ping_timeout"))
+                else if (event.has("server_ping_timeout"))
                     e.msg = "Server PING timed out";
-                else if(event.has("reason") && event.getString("reason").length() > 0)
+                else if (event.has("reason") && event.getString("reason").length() > 0)
                     e.msg = "Connection lost: " + reason(event.getString("reason"));
-                else if(event.has("abnormal"))
+                else if (event.has("abnormal"))
                     e.msg = "Connection closed unexpectedly";
                 else
                     e.msg = "";
@@ -211,13 +208,14 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                e.msg = "";
-                if(event.has("command"))
-                    e.msg = event.getString("command") + " ";
-                if(event.has("raw"))
-                    e.msg += event.getString("raw");
+                StringBuilder msg = new StringBuilder();
+                if (event.has("command"))
+                    msg.append(event.getString("command")).append(" ");
+                if (event.has("raw"))
+                    msg.append(event.getString("raw"));
                 else
-                    e.msg += event.getString("msg");
+                    msg.append(event.getString("msg"));
+                e.msg = msg.toString();
                 e.bg_color = R.color.error;
             }
         });
@@ -240,7 +238,7 @@ public class EventsDataSource {
                 e.from = "";
                 e.linkify = false;
                 String reason = reason(event.getString("reason"));
-                if(reason != null) {
+                if (reason != null) {
                     e.msg = "Failed to connect: " + reason;
                 } else {
                     e.msg = "Failed to connect.";
@@ -272,13 +270,14 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                e.msg = "Host: " + event.getString("server") + "\n";
-                e.msg += "IRCd: " + event.getString("version") + "\n";
-                e.msg += "User modes: " + event.getString("user_modes") + "\n";
-                e.msg += "Channel modes: " + event.getString("channel_modes") + "\n";
-                if(event.has("rest") && event.getString("rest").length() > 0)
-                    e.msg += "Parametric channel modes: " + event.getString("rest") + "\n";
-                e.msg = "<pre>" + TextUtils.htmlEncode(e.msg) + "</pre>";
+                StringBuilder msg = new StringBuilder();
+                msg.append("Host: ").append(event.getString("server")).append("\n");
+                msg.append("IRCd: ").append(event.getString("version")).append("\n");
+                msg.append("User modes: ").append(event.getString("user_modes")).append("\n");
+                msg.append("Channel modes: ").append(event.getString("channel_modes")).append("\n");
+                if (event.has("rest") && event.getString("rest").length() > 0)
+                    msg.append("Parametric channel modes: ").append(event.getString("rest")).append("\n");
+                e.msg = "<pre>" + TextUtils.htmlEncode(msg.toString()) + "</pre>";
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
             }
@@ -307,11 +306,11 @@ public class EventsDataSource {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "You were killed";
-                if(event.has("from"))
+                if (event.has("from"))
                     e.msg += " by " + event.getString("from");
-                if(event.has("killer_hostmask"))
+                if (event.has("killer_hostmask"))
                     e.msg += " (" + event.getString("killer_hostmask") + ")";
-                if(event.has("reason"))
+                if (event.has("reason"))
                     e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
@@ -323,9 +322,9 @@ public class EventsDataSource {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "You were banned";
-                if(event.has("server"))
+                if (event.has("server"))
                     e.msg += " from " + event.getString("server");
-                if(event.has("reason"))
+                if (event.has("reason"))
                     e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
@@ -335,11 +334,11 @@ public class EventsDataSource {
         put("channel_topic", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                if(event.has("author"))
+                if (event.has("author"))
                     e.from = event.getString("author");
                 else
                     e.from = event.getString("server");
-                if(event.getString("topic") != null && event.getString("topic").length() > 0)
+                if (event.getString("topic") != null && event.getString("topic").length() > 0)
                     e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
                 else
                     e.msg = "cleared the topic";
@@ -362,7 +361,7 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                if(event.getString("diff") != null && event.getString("diff").length() > 0)
+                if (event.getString("diff") != null && event.getString("diff").length() > 0)
                     e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
                 else
                     e.msg = "No channel mode";
@@ -381,7 +380,7 @@ public class EventsDataSource {
                 e.hostmask = event.getString("kicker_hostmask");
                 e.color = R.color.timestamp;
                 e.linkify = false;
-                if(e.self)
+                if (e.self)
                     e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
             }
         });
@@ -392,22 +391,22 @@ public class EventsDataSource {
             public void format(IRCCloudJSONObject event, Event e) {
                 boolean unknown = true;
                 JsonNode ops = event.getJsonObject("ops");
-                if(ops != null) {
+                if (ops != null) {
                     JsonNode add = ops.get("add");
-                    if(add != null && add.size() > 0) {
+                    if (add != null && add.size() > 0) {
                         JsonNode op = add.get(0);
-                        if(op.get("mode").asText().equals("b")) {
+                        if (op.get("mode").asText().equals("b")) {
                             e.nick = e.from;
                             e.from = "";
                             e.msg = "banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>+b</font>)";
                             unknown = false;
-                        } else if(op.get("mode").asText().equals("e")) {
+                        } else if (op.get("mode").asText().equals("e")) {
                             e.nick = e.from;
                             e.from = "";
                             e.msg = "exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>+e</font>)";
                             unknown = false;
-                        } else if(op.get("mode").asText().equals("q")) {
-                            if(op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
+                        } else if (op.get("mode").asText().equals("q")) {
+                            if (op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
                                 e.nick = e.from;
                                 e.from = "";
                                 e.msg = "quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>+q</font>)";
@@ -417,7 +416,7 @@ public class EventsDataSource {
                                 e.nick = op.get("param").asText();
                             }
                             unknown = false;
-                        } else if(op.get("mode").asText().equals("I")) {
+                        } else if (op.get("mode").asText().equals("I")) {
                             e.nick = e.from;
                             e.from = "";
                             e.msg = "added <b>" + op.get("param").asText() + "</b> to the invite list (<font color=#808080>+I</font>)";
@@ -425,20 +424,20 @@ public class EventsDataSource {
                         }
                     }
                     JsonNode remove = ops.get("remove");
-                    if(remove != null && remove.size() > 0) {
+                    if (remove != null && remove.size() > 0) {
                         JsonNode op = remove.get(0);
-                        if(op.get("mode").asText().equals("b")) {
+                        if (op.get("mode").asText().equals("b")) {
                             e.nick = e.from;
                             e.from = "";
                             e.msg = "un-banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>-b</font>)";
                             unknown = false;
-                        } else if(op.get("mode").asText().equals("e")) {
+                        } else if (op.get("mode").asText().equals("e")) {
                             e.nick = e.from;
                             e.from = "";
                             e.msg = "un-exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>-e</font>)";
                             unknown = false;
-                        } else if(op.get("mode").asText().equals("q")) {
-                            if(op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
+                        } else if (op.get("mode").asText().equals("q")) {
+                            if (op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
                                 e.nick = e.from;
                                 e.from = "";
                                 e.msg = "un-quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>-q</font>)";
@@ -448,7 +447,7 @@ public class EventsDataSource {
                                 e.nick = op.get("param").asText();
                             }
                             unknown = false;
-                        } else if(op.get("mode").asText().equals("I")) {
+                        } else if (op.get("mode").asText().equals("I")) {
                             e.nick = e.from;
                             e.from = "";
                             e.msg = "removed <b>" + op.get("param").asText() + "</b> from the invite list (<font color=#808080>-I</font>)";
@@ -456,7 +455,7 @@ public class EventsDataSource {
                         }
                     }
                 }
-                if(unknown) {
+                if (unknown) {
                     e.nick = e.from;
                     e.from = "";
                     e.msg = "set channel mode: <b>" + event.getString("diff") + "</b>";
@@ -472,11 +471,11 @@ public class EventsDataSource {
             public void format(IRCCloudJSONObject event, Event e) {
                 JsonNode lines = event.getJsonNode("lines");
                 e.from = "";
-                if(lines != null) {
+                if (lines != null) {
                     StringBuilder builder = new StringBuilder("<pre>");
-                    if(event.has("start"))
+                    if (event.has("start"))
                         builder.append(event.getString("start")).append("<br/>");
-                    for(int i = 0; i < lines.size(); i++) {
+                    for (int i = 0; i < lines.size(); i++) {
                         builder.append(TextUtils.htmlEncode(lines.get(i).asText()).replace("  ", " &nbsp;")).append("<br/>");
                     }
                     builder.append("</pre>");
@@ -534,9 +533,9 @@ public class EventsDataSource {
         put("knock", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                if(e.nick != null && e.nick.length() > 0) {
+                if (e.nick != null && e.nick.length() > 0) {
                     e.from = e.nick;
-                    if(e.hostmask != null && e.hostmask.length() > 0)
+                    if (e.hostmask != null && e.hostmask.length() > 0)
                         e.msg += " (" + e.hostmask + ")";
                 } else {
                     e.msg = event.getString("userhost") + " " + e.msg;
@@ -606,8 +605,8 @@ public class EventsDataSource {
         put("link_channel", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                if(event.has("invalid_chan")) {
-                    if(event.has("valid_chan")) {
+                if (event.has("invalid_chan")) {
+                    if (event.has("valid_chan")) {
                         e.msg = event.getString("invalid_chan") + " → " + event.getString("valid_chan") + " " + e.msg;
                     } else {
                         e.msg = event.getString("invalid_chan") + " " + e.msg;
@@ -653,11 +652,11 @@ public class EventsDataSource {
                 e.bg_color = R.color.status_bg;
                 e.msg = "<pre>" + e.msg + "</pre>";
                 e.from = "";
-                if(!e.type.equals("server_motd") && !e.type.equals("zurna_motd"))
+                if (!e.type.equals("server_motd") && !e.type.equals("zurna_motd"))
                     e.linkify = false;
             }
         };
-        for(String status : statuses)
+        for (String status : statuses)
             put(status, statusFormatter);
 
         String[] stats = {
@@ -667,14 +666,14 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                if(event.has("parts") && event.getString("parts").length() > 0)
+                if (event.has("parts") && event.getString("parts").length() > 0)
                     e.msg = event.getString("parts") + ": " + e.msg;
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
                 e.msg = "<pre>" + e.msg + "</pre>";
             }
         };
-        for(String stat : stats)
+        for (String stat : stats)
             put(stat, statsFormatter);
 
         String[] caps = {
@@ -686,16 +685,22 @@ public class EventsDataSource {
                 e.from = "";
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
-                if(e.type.equals("cap_ls"))
-                    e.msg = "<b>CAP</b> Server supports: ";
-                else if(e.type.equals("cap_req"))
-                    e.msg = "<b>CAP</b> Requesting: ";
-                else if(e.type.equals("cap_ack"))
-                    e.msg = "<b>CAP</b> Acknowledged: ";
-                else if(e.type.equals("cap_raw"))
-                    e.msg = "<b>CAP</b> " + event.getString("line");
+                switch (e.type) {
+                    case "cap_ls":
+                        e.msg = "<b>CAP</b> Server supports: ";
+                        break;
+                    case "cap_req":
+                        e.msg = "<b>CAP</b> Requesting: ";
+                        break;
+                    case "cap_ack":
+                        e.msg = "<b>CAP</b> Acknowledged: ";
+                        break;
+                    case "cap_raw":
+                        e.msg = "<b>CAP</b> " + event.getString("line");
+                        break;
+                }
                 JsonNode caps = event.getJsonNode("caps");
-                if(caps != null) {
+                if (caps != null) {
                     for (int i = 0; i < caps.size(); i++) {
                         if (i > 0)
                             e.msg += " | ";
@@ -705,7 +710,7 @@ public class EventsDataSource {
                 e.msg = "<pre>" + e.msg + "</pre>";
             }
         };
-        for(String cap : caps)
+        for (String cap : caps)
             put(cap, capsFormatter);
 
         String[] helps = {
@@ -719,7 +724,7 @@ public class EventsDataSource {
                 e.from = "";
             }
         };
-        for(String help : helps)
+        for (String help : helps)
             put(help, helpsFormatter);
 
         String[] errors = {
@@ -732,7 +737,7 @@ public class EventsDataSource {
                 e.bg_color = R.color.error;
             }
         };
-        for(String error : errors)
+        for (String error : errors)
             put(error, errorFormatter);
 
         put("version", new Formatter() {
@@ -757,7 +762,7 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                if(event.has("flag"))
+                if (event.has("flag"))
                     e.msg = "<b>" + event.getString("flag") + "</b> " + e.msg;
                 e.bg_color = R.color.error;
             }
@@ -800,7 +805,7 @@ public class EventsDataSource {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.bg_color = R.color.status_bg;
                 e.msg = "<pre>" + event.getString("time_string");
-                if(event.has("time_stamp") && event.getString("time_stamp").length() > 0)
+                if (event.has("time_stamp") && event.getString("time_stamp").length() > 0)
                     e.msg += " (" + event.getString("time_stamp") + ")";
                 e.msg += " — <b>" + event.getString("time_server") + "</b></pre>";
                 e.linkify = false;
@@ -827,158 +832,158 @@ public class EventsDataSource {
         });
 
     }};
-    
+
     private String reason(String reason) {
-        if(reason != null) {
-            if(reason.equalsIgnoreCase("pool_lost")) {
+        if (reason != null) {
+            if (reason.equalsIgnoreCase("pool_lost")) {
                 return "Connection pool failed";
-            } else if(reason.equalsIgnoreCase("no_pool")) {
+            } else if (reason.equalsIgnoreCase("no_pool")) {
                 return "No available connection pools";
-            } else if(reason.equalsIgnoreCase("enetdown")) {
+            } else if (reason.equalsIgnoreCase("enetdown")) {
                 return "Network down";
-            } else if(reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
+            } else if (reason.equalsIgnoreCase("etimedout") || reason.equalsIgnoreCase("timeout")) {
                 return "Timed out";
-            } else if(reason.equalsIgnoreCase("ehostunreach")) {
+            } else if (reason.equalsIgnoreCase("ehostunreach")) {
                 return "Host unreachable";
-            } else if(reason.equalsIgnoreCase("econnrefused")) {
+            } else if (reason.equalsIgnoreCase("econnrefused")) {
                 return "Connection refused";
-            } else if(reason.equalsIgnoreCase("nxdomain")) {
+            } else if (reason.equalsIgnoreCase("nxdomain")) {
                 return "Invalid hostname";
-            } else if(reason.equalsIgnoreCase("server_ping_timeout")) {
+            } else if (reason.equalsIgnoreCase("server_ping_timeout")) {
                 return "PING timeout";
-            } else if(reason.equalsIgnoreCase("ssl_certificate_error")) {
+            } else if (reason.equalsIgnoreCase("ssl_certificate_error")) {
                 return "SSL certificate error";
-            } else if(reason.equalsIgnoreCase("ssl_error")) {
+            } else if (reason.equalsIgnoreCase("ssl_error")) {
                 return "SSL error";
-            } else if(reason.equalsIgnoreCase("crash")) {
+            } else if (reason.equalsIgnoreCase("crash")) {
                 return "Connection crashed";
             }
         }
         return reason;
     }
 
-	public Event addEvent(IRCCloudJSONObject event) {
-		synchronized(events) {
-			if(!events.containsKey(event.bid()))
-				events.put(event.bid(), new TreeMap<Long,Event>());
-			
-			Event e = getEvent(event.eid(), event.bid());
-			if(e == null) {
-				e = new Event();
-				events.get(event.bid()).put(event.eid(), e);
-			}
-			e.cid = event.cid();
-			e.bid = event.bid();
-			e.eid = event.eid();
-			e.type = event.type();
-			e.msg = event.getString("msg");
-			e.hostmask = event.getString("hostmask");
-			e.from = event.getString("from");
-			e.from_mode = event.getString("from_mode");
+    public Event addEvent(IRCCloudJSONObject event) {
+        synchronized (events) {
+            if (!events.containsKey(event.bid()))
+                events.put(event.bid(), new TreeMap<Long, Event>());
+
+            Event e = getEvent(event.eid(), event.bid());
+            if (e == null) {
+                e = new Event();
+                events.get(event.bid()).put(event.eid(), e);
+            }
+            e.cid = event.cid();
+            e.bid = event.bid();
+            e.eid = event.eid();
+            e.type = event.type();
+            e.msg = event.getString("msg");
+            e.hostmask = event.getString("hostmask");
+            e.from = event.getString("from");
+            e.from_mode = event.getString("from_mode");
             e.chan = event.getString("chan");
-			if(event.has("newnick"))
-				e.nick = event.getString("newnick");
-			else if(event.has("nick"))
-				e.nick = event.getString("nick");
-			else
-				e.nick = null;
-			e.old_nick = event.getString("oldnick");
-			e.server = event.getString("server");
-			e.diff = event.getString("diff");
-			e.highlight = event.getBoolean("highlight");
-			e.self = event.getBoolean("self");
-			e.to_chan = event.getBoolean("to_chan");
+            if (event.has("newnick"))
+                e.nick = event.getString("newnick");
+            else if (event.has("nick"))
+                e.nick = event.getString("nick");
+            else
+                e.nick = null;
+            e.old_nick = event.getString("oldnick");
+            e.server = event.getString("server");
+            e.diff = event.getString("diff");
+            e.highlight = event.getBoolean("highlight");
+            e.self = event.getBoolean("self");
+            e.to_chan = event.getBoolean("to_chan");
             e.to_buffer = event.getBoolean("to_buffer");
-			e.ops = event.getJsonNode("ops");
-			e.color = R.color.row_message_label;
-	    	e.bg_color = R.color.message_bg;
-	    	e.row_type = 0;
-	    	e.html = null;
-	    	e.group_msg = null;
-	    	e.linkify = true;
-	    	e.target_mode = null;
-	    	e.pending = false;
+            e.ops = event.getJsonNode("ops");
+            e.color = R.color.row_message_label;
+            e.bg_color = R.color.message_bg;
+            e.row_type = 0;
+            e.html = null;
+            e.group_msg = null;
+            e.linkify = true;
+            e.target_mode = null;
+            e.pending = false;
             e.failed = false;
             e.command = null;
             e.day = -1;
             e.entities = event.getJsonNode("entities");
 
-	    	if(event.has("reqid"))
-	    		e.reqid = event.getInt("reqid");
-	    	else
-	    		e.reqid = -1;
+            if (event.has("reqid"))
+                e.reqid = event.getInt("reqid");
+            else
+                e.reqid = -1;
 
-			if(e.from != null)
-				e.from = TextUtils.htmlEncode(e.from);
-			
-			if(e.msg != null)
-				e.msg = TextUtils.htmlEncode(e.msg);
+            if (e.from != null)
+                e.from = TextUtils.htmlEncode(e.from);
+
+            if (e.msg != null)
+                e.msg = TextUtils.htmlEncode(e.msg);
 
             Formatter f = formatterMap.get(e.type);
-            if(f != null)
+            if (f != null)
                 f.format(event, e);
 
-	    	if(event.has("value") && !event.type().startsWith("cap_")) {
-	    		e.msg = "<pre>" + event.getString("value") + " " + e.msg + "</pre>";
-	    	}
+            if (event.has("value") && !event.type().startsWith("cap_")) {
+                e.msg = "<pre>" + event.getString("value") + " " + e.msg + "</pre>";
+            }
 
-	    	if(e.highlight)
-	    		e.bg_color = R.color.highlight;
-	    	
-	    	if(e.self)
-	    		e.bg_color = R.color.self;
-			
-			if(highest_eid < event.eid())
-				highest_eid = event.eid();
+            if (e.highlight)
+                e.bg_color = R.color.highlight;
 
-			return e;
-		}
-	}
+            if (e.self)
+                e.bg_color = R.color.self;
+
+            if (highest_eid < event.eid())
+                highest_eid = event.eid();
+
+            return e;
+        }
+    }
 
     public int getSizeOfBuffer(int bid) {
-        synchronized(events) {
-            if(events.containsKey(bid))
+        synchronized (events) {
+            if (events.containsKey(bid))
                 return events.get(bid).size();
         }
         return 0;
     }
 
     public Event getEvent(long eid, int bid) {
-		synchronized(events) {
-			if(events.containsKey(bid))
-				return events.get(bid).get(eid);
-		}
-		return null;
-	}
-	
-	public void deleteEvent(long eid, int bid) {
-		synchronized(events) {
-			if(events.containsKey(bid) && events.get(bid).containsKey(eid))
-				events.get(bid).remove(eid);
-		}
-	}
+        synchronized (events) {
+            if (events.containsKey(bid))
+                return events.get(bid).get(eid);
+        }
+        return null;
+    }
 
-	public void deleteEventsForBuffer(int bid) {
-		synchronized(events) {
-			if(events.containsKey(bid))
-				events.remove(bid);
-		}
-	}
+    public void deleteEvent(long eid, int bid) {
+        synchronized (events) {
+            if (events.containsKey(bid) && events.get(bid).containsKey(eid))
+                events.get(bid).remove(eid);
+        }
+    }
 
-	public TreeMap<Long,Event> getEventsForBuffer(int bid) {
-		synchronized(events) {
-			if(events.containsKey(bid)) {
-				return events.get(bid);
-			}
-		}
-		return null;
-	}
+    public void deleteEventsForBuffer(int bid) {
+        synchronized (events) {
+            if (events.containsKey(bid))
+                events.remove(bid);
+        }
+    }
+
+    public TreeMap<Long, Event> getEventsForBuffer(int bid) {
+        synchronized (events) {
+            if (events.containsKey(bid)) {
+                return events.get(bid);
+            }
+        }
+        return null;
+    }
 
     public Long lastEidForBuffer(int bid) {
-        synchronized(events) {
-            if(events.containsKey(bid)) {
+        synchronized (events) {
+            if (events.containsKey(bid)) {
                 Long[] eids = events.get(bid).keySet().toArray(new Long[events.get(bid).keySet().size()]);
-                if(eids.length > 0)
+                if (eids.length > 0)
                     return eids[eids.length - 1];
             }
         }
@@ -986,19 +991,19 @@ public class EventsDataSource {
     }
 
     public void pruneEvents(int bid) {
-        synchronized(events) {
-            TreeMap<Long,Event> e = events.get(bid);
-            while(e != null && e.size() > 50 && e.firstKey() != null) {
+        synchronized (events) {
+            TreeMap<Long, Event> e = events.get(bid);
+            while (e != null && e.size() > 50 && e.firstKey() != null) {
                 e.remove(e.firstKey());
             }
         }
     }
 
     public synchronized void clearCaches() {
-        synchronized(events) {
-            for(int bid : events.keySet()) {
-                if(events.containsKey(bid)) {
-                    for(Event e : events.get(bid).values()) {
+        synchronized (events) {
+            for (int bid : events.keySet()) {
+                if (events.containsKey(bid)) {
+                    for (Event e : events.get(bid).values()) {
                         e.timestamp = null;
                         e.html = null;
                         e.formatted = null;

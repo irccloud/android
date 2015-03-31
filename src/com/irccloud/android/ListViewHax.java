@@ -29,18 +29,15 @@ public class ListViewHax extends ListView {
     private int bottomPos = -1;
     private int bottomOffset = 0;
 
-    public ListViewHax(Context context)
-    {
+    public ListViewHax(Context context) {
         super(context);
     }
 
-    public ListViewHax(Context context, AttributeSet attrs)
-    {
+    public ListViewHax(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public ListViewHax(Context context, AttributeSet attrs, int defStyle)
-    {
+    public ListViewHax(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -48,7 +45,7 @@ public class ListViewHax extends ListView {
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
         View v = getChildAt(getLastVisiblePosition() - getFirstVisiblePosition());
-        if(v != null) {
+        if (v != null) {
             bottomPos = getLastVisiblePosition();
             bottomOffset = getHeight() - v.getTop();
         }
@@ -57,8 +54,8 @@ public class ListViewHax extends ListView {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if(oldw > 0 && oldh > 0) {
-            if(bottomPos != -1 && bottomOffset > 0)
+        if (oldw > 0 && oldh > 0) {
+            if (bottomPos != -1 && bottomOffset > 0)
                 setSelectionFromTop(bottomPos, h - bottomOffset);
             else
                 setSelection(getCount() - 1);
@@ -66,7 +63,7 @@ public class ListViewHax extends ListView {
     }
 
     @Override
-    public void onInitializeAccessibilityNodeInfoForItem (View view, int position, AccessibilityNodeInfo info) {
+    public void onInitializeAccessibilityNodeInfoForItem(View view, int position, AccessibilityNodeInfo info) {
         try {
             super.onInitializeAccessibilityNodeInfoForItem(view, position, info);
         } catch (Exception e) {

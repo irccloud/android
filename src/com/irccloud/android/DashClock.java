@@ -16,13 +16,15 @@
 
 package com.irccloud.android;
 
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.preference.PreferenceManager;
 import android.text.Html;
 
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
-import com.irccloud.android.activity.LoginActivity;
 import com.irccloud.android.activity.MainActivity;
 
 import java.util.ArrayList;
@@ -67,12 +69,12 @@ public class DashClock extends DashClockExtension {
     @Override
     protected void onUpdateData(int reason) {
         int count = Notifications.getInstance().count();
-        if(count > 0) {
-            if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("dashclock_showmsgs", false)) {
+        if (count > 0) {
+            if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("dashclock_showmsgs", false)) {
                 String msg = "";
                 ArrayList<Notifications.Notification> msgs = Notifications.getInstance().getMessageNotifications();
-                for(Notifications.Notification n : msgs) {
-                    if(n.message_type.equals("buffer_me_msg"))
+                for (Notifications.Notification n : msgs) {
+                    if (n.message_type.equals("buffer_me_msg"))
                         msg += "— " + n.nick + " " + Html.fromHtml(n.message) + "\n";
                     else
                         msg += "<" + n.nick + "> " + Html.fromHtml(n.message) + "\n";
@@ -89,7 +91,7 @@ public class DashClock extends DashClockExtension {
                         .visible(true)
                         .icon(R.drawable.ic_stat_notify)
                         .status(String.valueOf(count))
-                        .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1)?"s":""))
+                        .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1) ? "s" : ""))
                         .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
             }
         } else {

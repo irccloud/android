@@ -16,15 +16,6 @@
 
 package com.irccloud.android;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Map.Entry;
-
-import org.json.JSONObject;
-
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
@@ -42,6 +33,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.irccloud.android.data.BuffersDataSource;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class GCMIntentService extends IntentService {
 
     public GCMIntentService() {
@@ -50,7 +49,7 @@ public class GCMIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        if(intent != null) {
+        if (intent != null) {
             Bundle extras = intent.getExtras();
             GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
             String messageType = gcm.getMessageType(intent);
@@ -76,11 +75,11 @@ public class GCMIntentService extends IntentService {
                                 JsonParser parser = mapper.getFactory().createParser(intent.getStringExtra("seenEids"));
                                 JsonNode seenEids = mapper.readTree(parser);
                                 Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
-                                while(iterator.hasNext()) {
+                                while (iterator.hasNext()) {
                                     Map.Entry<String, JsonNode> entry = iterator.next();
                                     JsonNode eids = entry.getValue();
                                     Iterator<Map.Entry<String, JsonNode>> j = eids.fields();
-                                    while(j.hasNext()) {
+                                    while (j.hasNext()) {
                                         Map.Entry<String, JsonNode> eidentry = j.next();
                                         String bid = eidentry.getKey();
                                         long eid = eidentry.getValue().asLong();
@@ -120,12 +119,12 @@ public class GCMIntentService extends IntentService {
                                 if (from == null || from.length() == 0)
                                     Notifications.getInstance().showNotifications(server_name + ": " + msg);
                                 else if (buffer_type.equals("channel")) {
-                                    if(type.equals("buffer_me_msg"))
+                                    if (type.equals("buffer_me_msg"))
                                         Notifications.getInstance().showNotifications(chan + ": — " + from + " " + msg);
                                     else
                                         Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
                                 } else {
-                                    if(type.equals("buffer_me_msg"))
+                                    if (type.equals("buffer_me_msg"))
                                         Notifications.getInstance().showNotifications("— " + from + " " + msg);
                                     else
                                         Notifications.getInstance().showNotifications(from + ": " + msg);
@@ -140,21 +139,21 @@ public class GCMIntentService extends IntentService {
             }
             GCMBroadcastReceiver.completeWakefulIntent(intent);
         }
-	}
+    }
 
     private static final Timer GCMTimer = new Timer("GCM-Registration-Timer");
 
-	public static void scheduleRegisterTimer(int delay) {
-        final int retrydelay = (delay<500)?500:delay;
+    public static void scheduleRegisterTimer(int delay) {
+        final int retrydelay = (delay < 500) ? 500 : delay;
 
         GCMTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				if(!IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("session_key")) {
-					return;
-				}
-				boolean success = false;
-                if(getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() == 0) {
+            @Override
+            public void run() {
+                if (!IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).contains("session_key")) {
+                    return;
+                }
+                boolean success = false;
+                if (getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() == 0) {
                     try {
                         String oldRegId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", "");
                         String regId = GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).register(BuildConfig.GCM_ID);
@@ -166,48 +165,48 @@ public class GCMIntentService extends IntentService {
                         editor.putString("gcm_app_build", Build.FINGERPRINT);
                         editor.remove("gcm_registered");
                         editor.commit();
-                        if(oldRegId.length() > 0 && !oldRegId.equals(regId)) {
+                        if (oldRegId.length() > 0 && !oldRegId.equals(regId)) {
                             Log.i("IRCCloud", "Unregistering old ID");
                             scheduleUnregisterTimer(1000, oldRegId, true);
                         }
                     } catch (IOException ex) {
                         ex.printStackTrace();
-                        Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
+                        Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay * 2) / 1000) + " seconds");
                         scheduleRegisterTimer(retrydelay * 2);
                         return;
                     }
                 }
                 Log.i("IRCCloud", "Sending GCM ID to IRCCloud");
-				try {
-					JSONObject result = NetworkConnection.getInstance().registerGCM(getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()), IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
-					if(result.has("success"))
-						success = result.getBoolean("success");
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				if(success) {
-					SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-					editor.putBoolean("gcm_registered", true);
-					editor.commit();
+                try {
+                    JSONObject result = NetworkConnection.getInstance().registerGCM(getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()), IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", ""));
+                    if (result.has("success"))
+                        success = result.getBoolean("success");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (success) {
+                    SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                    editor.putBoolean("gcm_registered", true);
+                    editor.commit();
                     Log.d("IRCCloud", "Device successfully registered");
-				} else {
-					Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay*2)/1000) + " seconds");
-					scheduleRegisterTimer(retrydelay * 2);
-				}
-			}
+                } else {
+                    Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay * 2) / 1000) + " seconds");
+                    scheduleRegisterTimer(retrydelay * 2);
+                }
+            }
 
-		}, delay);
+        }, delay);
 
-	}
-	
-	public static void scheduleUnregisterTimer(int delay, final String regId, final boolean serverOnly) {
-		final int retrydelay = (delay<500)?500:delay;
+    }
+
+    public static void scheduleUnregisterTimer(int delay, final String regId, final boolean serverOnly) {
+        final int retrydelay = (delay < 500) ? 500 : delay;
 
         GCMTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				boolean success = false;
-                if(!serverOnly) {
+            @Override
+            public void run() {
+                boolean success = false;
+                if (!serverOnly) {
                     try {
                         GoogleCloudMessaging.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).unregister();
                     } catch (IOException e) {
@@ -218,39 +217,39 @@ public class GCMIntentService extends IntentService {
                 }
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                 String session = null;
-				try {
-					session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString(regId, "");
-                    if(session.length() > 0) {
+                try {
+                    session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString(regId, "");
+                    if (session.length() > 0) {
                         JSONObject result = NetworkConnection.getInstance().unregisterGCM(regId, session);
-                        if(result.has("message") && result.getString("message").equals("auth"))
+                        if (result.has("message") && result.getString("message").equals("auth"))
                             success = true;
-                        else if(result.has("success"))
+                        else if (result.has("success"))
                             success = result.getBoolean("success");
-                        if(success)
+                        if (success)
                             NetworkConnection.getInstance().logout(session);
                     } else {
                         success = true;
                     }
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				if(success) {
-					editor.remove(regId);
-                    if(session != null && session.length() > 0 && regId.equals(IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", ""))) {
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                if (success) {
+                    editor.remove(regId);
+                    if (session != null && session.length() > 0 && regId.equals(IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_reg_id", ""))) {
                         editor.remove("gcm_registered");
                         editor.remove("gcm_reg_id");
                         editor.remove("gcm_app_version");
                     }
                     Log.d("IRCCloud", "Device successfully unregistered");
-				} else {
-					Log.w("IRCCloud", "Failed to unregister device ID from IRCCloud, will retry in " + ((retrydelay*2)/1000) + " seconds");
-					scheduleUnregisterTimer(retrydelay * 2, regId, true);
-				}
+                } else {
+                    Log.w("IRCCloud", "Failed to unregister device ID from IRCCloud, will retry in " + ((retrydelay * 2) / 1000) + " seconds");
+                    scheduleUnregisterTimer(retrydelay * 2, regId, true);
+                }
                 editor.commit();
-			}
-		}, delay);
-	}
+            }
+        }, delay);
+    }
 
     private static int getAppVersion() {
         try {
@@ -267,7 +266,7 @@ public class GCMIntentService extends IntentService {
     public static String getRegistrationId(Context context) {
         final SharedPreferences prefs = context.getSharedPreferences("prefs", 0);
         String registrationId = prefs.getString("gcm_reg_id", "");
-        if(registrationId.length() == 0) {
+        if (registrationId.length() == 0) {
             Log.i("IRCCloud", "Registration not found.");
             return "";
         }
@@ -281,7 +280,7 @@ public class GCMIntentService extends IntentService {
             return "";
         }
         String build = prefs.getString("gcm_app_build", "");
-        if(!Build.FINGERPRINT.equals(build)) {
+        if (!Build.FINGERPRINT.equals(build)) {
             Log.i("IRCCloud", "OS version changed.");
             return "";
         }

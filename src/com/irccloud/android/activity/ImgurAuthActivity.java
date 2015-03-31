@@ -18,8 +18,8 @@ package com.irccloud.android.activity;
 
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,7 +43,7 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
         setContentView(R.layout.activity_imageviewer);
         findViewById(R.id.toolbar).setVisibility(View.GONE);
         findViewById(R.id.progress).setVisibility(View.GONE);
-        mWebView = (WebView)findViewById(R.id.image);
+        mWebView = (WebView) findViewById(R.id.image);
         CookieSyncManager.createInstance(this);
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.removeAllCookie();
@@ -65,14 +65,14 @@ public class ImgurAuthActivity extends ActionBarActivity implements NetworkConne
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if(url.startsWith("https://imgur.com/")) {
-                    if(url.endsWith("?error=access_denied")) {
+                if (url.startsWith("https://imgur.com/")) {
+                    if (url.endsWith("?error=access_denied")) {
                         finish();
                         return true;
-                    } else if(url.startsWith("https://imgur.com/#access_token=")) {
+                    } else if (url.startsWith("https://imgur.com/#access_token=")) {
                         SharedPreferences.Editor prefs = getSharedPreferences("prefs", 0).edit();
                         String args[] = url.substring(19).split("&");
-                        for(String arg : args) {
+                        for (String arg : args) {
                             String param[] = arg.split("=");
                             prefs.putString("imgur_" + param[0], param[1]);
                         }

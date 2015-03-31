@@ -16,9 +16,6 @@
 
 package com.irccloud.android.fragment;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,15 +33,18 @@ import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 @SuppressLint("ValidFragment")
 public class BufferOptionsFragment extends DialogFragment {
-	CheckBox unread;
-	CheckBox joinpart;
+    CheckBox unread;
+    CheckBox joinpart;
     CheckBox collapse;
     CheckBox expandDisco;
-	int cid;
-	int bid;
-	String type;
+    int cid;
+    int bid;
+    String type;
 
     public BufferOptionsFragment() {
         cid = bid = -1;
@@ -52,36 +52,36 @@ public class BufferOptionsFragment extends DialogFragment {
     }
 
     public BufferOptionsFragment(int cid, int bid, String type) {
-		this.cid = cid;
-		this.bid = bid;
-		this.type = type;
-	}
-	
-	public JSONObject updatePref(JSONObject prefs, CheckBox control, String key) throws JSONException {
-		if(!control.isChecked()) {
-			JSONObject map;
-			if(prefs.has(key))
-				map = prefs.getJSONObject(key);
-			else
-				map = new JSONObject();
-			map.put(String.valueOf(bid), true);
-			prefs.put(key, map);
-		} else {
-			if(prefs.has(key)) {
-				JSONObject map = prefs.getJSONObject(key);
-				map.remove(String.valueOf(bid));
-				prefs.put(key, map);
-			}
-		}
-		return prefs;
-	}
-	
+        this.cid = cid;
+        this.bid = bid;
+        this.type = type;
+    }
+
+    public JSONObject updatePref(JSONObject prefs, CheckBox control, String key) throws JSONException {
+        if (!control.isChecked()) {
+            JSONObject map;
+            if (prefs.has(key))
+                map = prefs.getJSONObject(key);
+            else
+                map = new JSONObject();
+            map.put(String.valueOf(bid), true);
+            prefs.put(key, map);
+        } else {
+            if (prefs.has(key)) {
+                JSONObject map = prefs.getJSONObject(key);
+                map.remove(String.valueOf(bid));
+                prefs.put(key, map);
+            }
+        }
+        return prefs;
+    }
+
     class SaveClickListener implements DialogInterface.OnClickListener {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			JSONObject prefs = null;
-			try {
-				if(NetworkConnection.getInstance().getUserInfo() != null) {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            JSONObject prefs = null;
+            try {
+                if (NetworkConnection.getInstance().getUserInfo() != null) {
                     prefs = NetworkConnection.getInstance().getUserInfo().prefs;
                     if (prefs == null) {
                         prefs = new JSONObject();
@@ -99,101 +99,101 @@ public class BufferOptionsFragment extends DialogFragment {
                 } else {
                     Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 }
-			} catch (Exception e) {
+            } catch (Exception e) {
                 Crashlytics.logException(e);
                 Toast.makeText(getActivity(), "An error occurred while saving preferences.  Please try again shortly", Toast.LENGTH_SHORT).show();
-			}
-			dismiss();
-		}
+            }
+            dismiss();
+        }
     }
 
     @Override
     public void onResume() {
-    	super.onResume();
-    	try {
-	    	if(NetworkConnection.getInstance().getUserInfo() != null) {
-		    	JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-		    	if(prefs != null) {
-		    		if(prefs.has("buffer-hideJoinPart")) {
-				    	JSONObject hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
-						if(hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
-							joinpart.setChecked(false);
-						else
-							joinpart.setChecked(true);
-		    		} else {
-						joinpart.setChecked(true);
-		    		}
-		    		if(prefs.has("buffer-disableTrackUnread")) {
-				    	JSONObject unreadMap = prefs.getJSONObject("buffer-disableTrackUnread");
-						if(unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
-							unread.setChecked(false);
-						else
-							unread.setChecked(true);
-		    		} else {
-						unread.setChecked(true);
-		    		}
-                    if(prefs.has("buffer-expandJoinPart")) {
+        super.onResume();
+        try {
+            if (NetworkConnection.getInstance().getUserInfo() != null) {
+                JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                if (prefs != null) {
+                    if (prefs.has("buffer-hideJoinPart")) {
+                        JSONObject hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
+                        if (hiddenMap.has(String.valueOf(bid)) && hiddenMap.getBoolean(String.valueOf(bid)))
+                            joinpart.setChecked(false);
+                        else
+                            joinpart.setChecked(true);
+                    } else {
+                        joinpart.setChecked(true);
+                    }
+                    if (prefs.has("buffer-disableTrackUnread")) {
+                        JSONObject unreadMap = prefs.getJSONObject("buffer-disableTrackUnread");
+                        if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
+                            unread.setChecked(false);
+                        else
+                            unread.setChecked(true);
+                    } else {
+                        unread.setChecked(true);
+                    }
+                    if (prefs.has("buffer-expandJoinPart")) {
                         JSONObject expandMap = prefs.getJSONObject("buffer-expandJoinPart");
-                        if(expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
+                        if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
                             collapse.setChecked(false);
                         else
                             collapse.setChecked(true);
                     } else {
                         collapse.setChecked(true);
                     }
-                    if(prefs.has("buffer-expandDisco")) {
+                    if (prefs.has("buffer-expandDisco")) {
                         JSONObject expandMap = prefs.getJSONObject("buffer-expandDisco");
-                        if(expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
+                        if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
                             expandDisco.setChecked(false);
                         else
                             expandDisco.setChecked(true);
                     } else {
                         expandDisco.setChecked(true);
                     }
-		    	} else {
+                } else {
                     joinpart.setChecked(true);
                     unread.setChecked(true);
                     collapse.setChecked(true);
                     expandDisco.setChecked(true);
                 }
-	    	}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-		Context ctx = getActivity();
-		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View v = inflater.inflate(R.layout.dialog_buffer_options,null);
-    	unread = (CheckBox)v.findViewById(R.id.unread);
-    	joinpart = (CheckBox)v.findViewById(R.id.joinpart);
-        collapse = (CheckBox)v.findViewById(R.id.collapse);
-        expandDisco = (CheckBox)v.findViewById(R.id.expandDisco);
-    	if(type.equalsIgnoreCase("console")) {
-    		joinpart.setVisibility(View.GONE);
+        Context ctx = getActivity();
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.dialog_buffer_options, null);
+        unread = (CheckBox) v.findViewById(R.id.unread);
+        joinpart = (CheckBox) v.findViewById(R.id.joinpart);
+        collapse = (CheckBox) v.findViewById(R.id.collapse);
+        expandDisco = (CheckBox) v.findViewById(R.id.expandDisco);
+        if (type.equalsIgnoreCase("console")) {
+            joinpart.setVisibility(View.GONE);
             collapse.setVisibility(View.GONE);
         } else {
             expandDisco.setVisibility(View.GONE);
         }
 
-        if(savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
+        if (savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
             bid = savedInstanceState.getInt("bid");
             cid = savedInstanceState.getInt("cid");
             type = savedInstanceState.getString("type");
         }
 
-    	return new AlertDialog.Builder(ctx)
+        return new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("Display Options")
                 .setView(v)
                 .setPositiveButton("Save", new SaveClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
                 })
                 .create();
     }

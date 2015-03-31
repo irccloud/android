@@ -19,23 +19,23 @@ package com.irccloud.android;
 import java.util.ArrayList;
 
 public class Ignore {
-	private ArrayList<String> ignores = new ArrayList<String>();
-	
-	public synchronized void setIgnores(ArrayList<String> ignores) {
+    private ArrayList<String> ignores = new ArrayList<String>();
+
+    public synchronized void setIgnores(ArrayList<String> ignores) {
         this.ignores = ignores;
     }
 
-	public synchronized void addMask(String usermask) {
-		ignores.add(usermask);
-	}
-	
-	public synchronized boolean match(String usermask) {
-		if(ignores != null && ignores.size() > 0) {
-            for(String ignore : ignores) {
-				if(usermask.replace("!~","!").toLowerCase().matches(ignore))
-					return true;
-			}
-		}
-		return false;
-	}
+    public synchronized void addMask(String usermask) {
+        ignores.add(usermask);
+    }
+
+    public synchronized boolean match(String usermask) {
+        if (ignores != null && ignores.size() > 0) {
+            for (String ignore : ignores) {
+                if (usermask.replace("!~", "!").toLowerCase().matches(ignore))
+                    return true;
+            }
+        }
+        return false;
+    }
 }

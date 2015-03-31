@@ -84,7 +84,7 @@ public class GingerbreadImageProxy implements Runnable {
 
     public void init() {
         try {
-            socket = new ServerSocket(port, 0, InetAddress.getByAddress(new byte[] {127,0,0,1}));
+            socket = new ServerSocket(port, 0, InetAddress.getByAddress(new byte[]{127, 0, 0, 1}));
             socket.setSoTimeout(5000);
             port = socket.getLocalPort();
         } catch (UnknownHostException e) {
@@ -127,7 +127,7 @@ public class GingerbreadImageProxy implements Runnable {
                     continue;
                 }
                 HttpRequest request = readRequest(client);
-                if(isRunning)
+                if (isRunning)
                     processRequest(request, client);
             } catch (SocketTimeoutException e) {
                 // Do nothing
@@ -153,13 +153,13 @@ public class GingerbreadImageProxy implements Runnable {
 
             do {
                 line = reader.readLine();
-                if(line != null && line.toLowerCase().startsWith("range: ")) {
+                if (line != null && line.toLowerCase().startsWith("range: ")) {
                     range = line.substring(7);
                 }
-                if(line != null && line.toLowerCase().startsWith("user-agent: ")) {
+                if (line != null && line.toLowerCase().startsWith("user-agent: ")) {
                     ua = line.substring(12);
                 }
-            } while(line != null && reader.ready());
+            } while (line != null && reader.ready());
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error parsing request", e);
             return request;
@@ -174,10 +174,10 @@ public class GingerbreadImageProxy implements Runnable {
         String method = st.nextToken();
         String uri = st.nextToken();
         String realUri = uri.substring(1);
-        request = new BasicHttpRequest(method, realUri, new ProtocolVersion("HTTP", 1,1));
-        if(range != null)
+        request = new BasicHttpRequest(method, realUri, new ProtocolVersion("HTTP", 1, 1));
+        if (range != null)
             request.addHeader("Range", range);
-        if(ua != null)
+        if (ua != null)
             request.addHeader("User-Agent", ua);
         return request;
     }
@@ -213,7 +213,7 @@ public class GingerbreadImageProxy implements Runnable {
             return;
         }
 
-        if(!isRunning)
+        if (!isRunning)
             return;
 
         InputStream data = realResponse.getEntity().getContent();
@@ -251,6 +251,7 @@ public class GingerbreadImageProxy implements Runnable {
 
     private class IcyLineParser extends BasicLineParser {
         private static final String ICY_PROTOCOL_NAME = "ICY";
+
         private IcyLineParser() {
             super();
         }
@@ -386,7 +387,7 @@ public class GingerbreadImageProxy implements Runnable {
         @Override
         public boolean isSecure(Socket s) throws IllegalArgumentException {
             if (s instanceof SSLSocket)
-                return ((SSLSocket)s).isConnected();
+                return ((SSLSocket) s).isConnected();
             return false;
         }
 
@@ -402,7 +403,7 @@ public class GingerbreadImageProxy implements Runnable {
 
             // create and connect SSL socket, but don't do hostname/certificate verification yet
             SSLCertificateSocketFactory sslSocketFactory = (SSLCertificateSocketFactory) SSLCertificateSocketFactory.getDefault(0);
-            SSLSocket ssl = (SSLSocket)sslSocketFactory.createSocket(InetAddress.getByName(host), port);
+            SSLSocket ssl = (SSLSocket) sslSocketFactory.createSocket(InetAddress.getByName(host), port);
 
             // enable TLSv1.1/1.2 if available
             // (see https://github.com/rfc2822/davdroid/issues/229)

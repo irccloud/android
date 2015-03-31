@@ -29,10 +29,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
-import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.fragment.EditConnectionFragment;
 
@@ -43,54 +43,54 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
             cloud.recycle();
         }
         setContentView(R.layout.activity_edit_connection);
-        
+
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
-		getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);
+        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
+        getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);
         getSupportActionBar().setElevation(0);
 
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final EditConnectionFragment newFragment = new EditConnectionFragment();
-        if(getIntent() != null && getIntent().hasExtra("cid")) {
-        	newFragment.setCid(getIntent().getIntExtra("cid", -1));
+        if (getIntent() != null && getIntent().hasExtra("cid")) {
+            newFragment.setCid(getIntent().getIntExtra("cid", -1));
             cid = getIntent().getIntExtra("cid", -1);
         }
-        if(getIntent() != null && getIntent().hasExtra("hostname"))
-        	newFragment.default_hostname = getIntent().getStringExtra("hostname");
-        if(getIntent() != null && getIntent().hasExtra("channels"))
-        	newFragment.default_channels = getIntent().getStringExtra("channels");
-    	newFragment.default_port = getIntent().getIntExtra("port", 6667);
+        if (getIntent() != null && getIntent().hasExtra("hostname"))
+            newFragment.default_hostname = getIntent().getStringExtra("hostname");
+        if (getIntent() != null && getIntent().hasExtra("channels"))
+            newFragment.default_channels = getIntent().getStringExtra("channels");
+        newFragment.default_port = getIntent().getIntExtra("port", 6667);
         ft.replace(R.id.EditConnectionFragment, newFragment);
         ft.commit();
 
         getSupportActionBar().getCustomView().findViewById(R.id.action_cancel).setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-                if(ServersDataSource.getInstance().count() < 1) {
+            @Override
+            public void onClick(View v) {
+                if (ServersDataSource.getInstance().count() < 1) {
                     NetworkConnection.getInstance().logout();
                     Intent i = new Intent(EditConnectionActivity.this, LoginActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
                 }
-				finish();
-			}
-        	
+                finish();
+            }
+
         });
 
         getSupportActionBar().getCustomView().findViewById(R.id.action_done).setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				reqid = newFragment.save();
-			}
-        	
+            @Override
+            public void onClick(View v) {
+                reqid = newFragment.save();
+            }
+
         });
         NetworkConnection.getInstance().addHandler(this);
     }
@@ -106,8 +106,8 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
         BuffersDataSource.Buffer buffer;
         switch (what) {
             case NetworkConnection.EVENT_MAKEBUFFER:
-                buffer = (BuffersDataSource.Buffer)o;
-                if(buffer.cid == cidToOpen) {
+                buffer = (BuffersDataSource.Buffer) o;
+                if (buffer.cid == cidToOpen) {
                     Intent i = new Intent(EditConnectionActivity.this, MainActivity.class);
                     i.putExtra("bid", buffer.bid);
                     startActivity(i);
@@ -115,26 +115,26 @@ public class EditConnectionActivity extends ActionBarActivity implements Network
                 }
                 break;
             case NetworkConnection.EVENT_SUCCESS:
-                obj = (IRCCloudJSONObject)o;
-                if(obj.getInt("_reqid") == reqid) {
-                    if(cid != -1)
+                obj = (IRCCloudJSONObject) o;
+                if (obj.getInt("_reqid") == reqid) {
+                    if (cid != -1)
                         finish();
                     else
                         cidToOpen = obj.cid();
                 }
                 break;
             case NetworkConnection.EVENT_FAILURE_MSG:
-                obj = (IRCCloudJSONObject)o;
-                if(obj.getInt("_reqid") == reqid) {
+                obj = (IRCCloudJSONObject) o;
+                if (obj.getInt("_reqid") == reqid) {
                     final String message = obj.getString("message");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(message.equals("passworded_servers"))
+                            if (message.equals("passworded_servers"))
                                 Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
-                            else if(message.equals("networks"))
+                            else if (message.equals("networks"))
                                 Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
-                            else if(message.equals("unverified"))
+                            else if (message.equals("unverified"))
                                 Toast.makeText(EditConnectionActivity.this, "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_SHORT).show();
                             else
                                 Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();

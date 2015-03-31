@@ -31,14 +31,14 @@
 
 package com.irccloud.android;
 
+import android.content.ContentValues;
+import android.content.Context;
+
 import com.irccloud.android.activity.PreferencesActivity;
 import com.sonyericsson.extras.liveware.aef.notification.Notification;
 import com.sonyericsson.extras.liveware.aef.registration.Registration;
 import com.sonyericsson.extras.liveware.extension.util.ExtensionUtils;
 import com.sonyericsson.extras.liveware.extension.util.registration.RegistrationInformation;
-
-import android.content.ContentValues;
-import android.content.Context;
 
 import java.util.ArrayList;
 import java.util.List;

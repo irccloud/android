@@ -16,21 +16,11 @@
 
 package com.irccloud.android.fragment;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Map;
-
-import android.content.res.Resources;
-import android.os.Build;
-import android.support.v4.app.ListFragment;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -41,8 +31,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -55,123 +45,132 @@ import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.IRCCloudApplication;
-import com.irccloud.android.data.BuffersDataSource;
-import com.irccloud.android.data.ChannelsDataSource;
-import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.data.ChannelsDataSource;
+import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Map;
+
 public class BuffersListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
-	private static final int TYPE_SERVER = 0;
-	private static final int TYPE_CHANNEL = 1;
-	private static final int TYPE_CONVERSATION = 2;
-	private static final int TYPE_ARCHIVES_HEADER = 3;
+    private static final int TYPE_SERVER = 0;
+    private static final int TYPE_CHANNEL = 1;
+    private static final int TYPE_CONVERSATION = 2;
+    private static final int TYPE_ARCHIVES_HEADER = 3;
     private static final int TYPE_JOIN_CHANNEL = 4;
     private static final int TYPE_ADD_NETWORK = 5;
     private static final int TYPE_REORDER = 6;
 
-	NetworkConnection conn;
-	BufferListAdapter adapter;
-	OnBufferSelectedListener mListener;
-	View view;
-	ListView listView = null;
-	LinearLayout topUnreadIndicator = null;
-	LinearLayout topUnreadIndicatorColor = null;
+    NetworkConnection conn;
+    BufferListAdapter adapter;
+    OnBufferSelectedListener mListener;
+    View view;
+    ListView listView = null;
+    LinearLayout topUnreadIndicator = null;
+    LinearLayout topUnreadIndicatorColor = null;
     LinearLayout topUnreadIndicatorBorder = null;
-	LinearLayout bottomUnreadIndicator = null;
-	LinearLayout bottomUnreadIndicatorColor = null;
+    LinearLayout bottomUnreadIndicator = null;
+    LinearLayout bottomUnreadIndicatorColor = null;
     LinearLayout bottomUnreadIndicatorBorder = null;
-	int selected_bid = -1;
-	RefreshTask refreshTask = null;
-	private boolean ready = false;
-	public boolean readOnly = false;
+    int selected_bid = -1;
+    RefreshTask refreshTask = null;
+    private boolean ready = false;
+    public boolean readOnly = false;
 
-	int firstUnreadPosition = -1;
-	int lastUnreadPosition= -1;
-	int firstHighlightPosition = -1;
-	int lastHighlightPosition= -1;
+    int firstUnreadPosition = -1;
+    int lastUnreadPosition = -1;
+    int firstHighlightPosition = -1;
+    int lastHighlightPosition = -1;
     int firstFailurePosition = -1;
     int lastFailurePosition = -1;
-	
-	SparseBooleanArray mExpandArchives = new SparseBooleanArray();
-	
-	private static class BufferListEntry implements Serializable {
-		private static final long serialVersionUID = 1848168221883194028L;
-		int cid;
-		int bid;
-		int type;
-		int unread;
-		int highlights;
-		int key;
-		long last_seen_eid;
-		long min_eid;
-		int joined;
-		int archived;
-		int timeout;
-		String name;
-		String status;
+
+    SparseBooleanArray mExpandArchives = new SparseBooleanArray();
+
+    private static class BufferListEntry implements Serializable {
+        private static final long serialVersionUID = 1848168221883194028L;
+        int cid;
+        int bid;
+        int type;
+        int unread;
+        int highlights;
+        int key;
+        long last_seen_eid;
+        long min_eid;
+        int joined;
+        int archived;
+        int timeout;
+        String name;
+        String status;
         JsonNode fail_info;
         int ssl;
         int count;
         String contentDescription;
-	}
+    }
 
-	private class BufferListAdapter extends BaseAdapter {
-		ArrayList<BufferListEntry> data;
-		private ListFragment ctx;
-		int progressRow = -1;
-		
-		private class ViewHolder {
-			int type;
-			TextView label;
-			TextView highlights;
-			LinearLayout unread;
-			LinearLayout bufferbg;
-			ImageView icon;
-			ProgressBar progress;
-			ImageButton addBtn;
-		}
+    private class BufferListAdapter extends BaseAdapter {
+        ArrayList<BufferListEntry> data;
+        private ListFragment ctx;
+        int progressRow = -1;
 
-		public void showProgress(int row) {
-			progressRow = row;
-			notifyDataSetChanged();
-		}
-		
-		public int positionForBid(int bid) {
-			for(int i = 0; i < data.size(); i++) {
-				BufferListEntry e = data.get(i);
-				if(e.bid == bid)
-					return i;
-			}
-			return -1;
-		}
+        private class ViewHolder {
+            int type;
+            TextView label;
+            TextView highlights;
+            LinearLayout unread;
+            LinearLayout bufferbg;
+            ImageView icon;
+            ProgressBar progress;
+            ImageButton addBtn;
+        }
+
+        public void showProgress(int row) {
+            progressRow = row;
+            notifyDataSetChanged();
+        }
+
+        public int positionForBid(int bid) {
+            for (int i = 0; i < data.size(); i++) {
+                BufferListEntry e = data.get(i);
+                if (e.bid == bid)
+                    return i;
+            }
+            return -1;
+        }
 
         private int eightdp = 0;
 
-		public BufferListAdapter(ListFragment context) {
-			ctx = context;
-			data = new ArrayList<BufferListEntry>();
-            eightdp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getSafeResources().getDisplayMetrics());
-		}
-		
-		public void setItems(ArrayList<BufferListEntry> items) {
-			data = items;
-		}
+        public BufferListAdapter(ListFragment context) {
+            ctx = context;
+            data = new ArrayList<BufferListEntry>();
+            eightdp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getSafeResources().getDisplayMetrics());
+        }
+
+        public void setItems(ArrayList<BufferListEntry> items) {
+            data = items;
+        }
 
         public void updateBuffer(BuffersDataSource.Buffer b) {
             int pos = positionForBid(b.bid);
-            if(pos >= 0 && data != null && pos < data.size()) {
+            if (pos >= 0 && data != null && pos < data.size()) {
                 BufferListEntry e = data.get(pos);
 
                 JSONObject channelDisabledMap = null;
                 JSONObject bufferDisabledMap = null;
-                if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                     try {
-                        if(conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
+                        if (conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
                             channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-                        if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
+                        if (conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
                             bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
                     } catch (JSONException e1) {
                         // TODO Auto-generated catch block
@@ -181,20 +180,20 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
                 int unread = 0;
                 int highlights = 0;
-                if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+                if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
                     unread = b.unread;
                     highlights = b.highlights;
                 }
                 try {
-                    if(b.type.equalsIgnoreCase("channel")) {
-                        if(b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
+                    if (b.type.equalsIgnoreCase("channel")) {
+                        if (b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
                             unread = 0;
-                        if(b.bid == selected_bid)
+                        if (b.bid == selected_bid)
                             highlights = 0;
                     } else {
-                        if(b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                        if (b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
                             unread = 0;
-                        if(b.bid == selected_bid || (b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))))
+                        if (b.bid == selected_bid || (b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))))
                             highlights = 0;
                     }
                 } catch (JSONException e1) {
@@ -205,7 +204,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 e.highlights = highlights;
 
                 ServersDataSource.Server s = ServersDataSource.getInstance().getServer(e.cid);
-                if(s != null) {
+                if (s != null) {
                     e.status = s.status;
                     e.fail_info = s.fail_info;
                 }
@@ -223,25 +222,25 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 }
 
 
-                if(unread > 0) {
-                    if(firstUnreadPosition == -1 || firstUnreadPosition > pos)
+                if (unread > 0) {
+                    if (firstUnreadPosition == -1 || firstUnreadPosition > pos)
                         firstUnreadPosition = pos;
-                    if(lastUnreadPosition == -1 || lastUnreadPosition < pos)
+                    if (lastUnreadPosition == -1 || lastUnreadPosition < pos)
                         lastUnreadPosition = pos;
                 } else {
-                    if(firstUnreadPosition == pos) {
+                    if (firstUnreadPosition == pos) {
                         firstUnreadPosition = -1;
-                        for(int i = 0; i < data.size(); i++) {
-                            if(data.get(i).unread > 0) {
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(i).unread > 0) {
                                 firstUnreadPosition = i;
                                 break;
                             }
                         }
                     }
-                    if(lastUnreadPosition == pos) {
+                    if (lastUnreadPosition == pos) {
                         lastUnreadPosition = -1;
-                        for(int i = pos; i >= 0; i--) {
-                            if(data.get(i).unread > 0) {
+                        for (int i = pos; i >= 0; i--) {
+                            if (data.get(i).unread > 0) {
                                 lastUnreadPosition = i;
                                 break;
                             }
@@ -249,25 +248,25 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(highlights > 0) {
-                    if(firstHighlightPosition == -1 || firstHighlightPosition > pos)
+                if (highlights > 0) {
+                    if (firstHighlightPosition == -1 || firstHighlightPosition > pos)
                         firstHighlightPosition = pos;
-                    if(lastHighlightPosition == -1 || lastHighlightPosition < pos)
+                    if (lastHighlightPosition == -1 || lastHighlightPosition < pos)
                         lastHighlightPosition = pos;
                 } else {
-                    if(firstHighlightPosition == pos) {
+                    if (firstHighlightPosition == pos) {
                         firstHighlightPosition = -1;
-                        for(int i = 0; i < data.size(); i++) {
-                            if(data.get(i).highlights > 0) {
+                        for (int i = 0; i < data.size(); i++) {
+                            if (data.get(i).highlights > 0) {
                                 firstHighlightPosition = i;
                                 break;
                             }
                         }
                     }
-                    if(lastHighlightPosition == pos) {
+                    if (lastHighlightPosition == pos) {
                         lastHighlightPosition = -1;
-                        for(int i = pos; i >= 0; i--) {
-                            if(data.get(i).highlights > 0) {
+                        for (int i = pos; i >= 0; i--) {
+                            if (data.get(i).highlights > 0) {
                                 lastHighlightPosition = i;
                                 break;
                             }
@@ -275,28 +274,28 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(e.type == TYPE_SERVER) {
-                    if(e.fail_info != null && e.fail_info.has("type")) {
-                        if(firstFailurePosition == -1 || firstFailurePosition > pos)
+                if (e.type == TYPE_SERVER) {
+                    if (e.fail_info != null && e.fail_info.has("type")) {
+                        if (firstFailurePosition == -1 || firstFailurePosition > pos)
                             firstFailurePosition = pos;
-                        if(lastFailurePosition == -1 || lastFailurePosition < pos)
+                        if (lastFailurePosition == -1 || lastFailurePosition < pos)
                             lastFailurePosition = pos;
                     } else {
-                        if(firstFailurePosition == pos) {
+                        if (firstFailurePosition == pos) {
                             firstFailurePosition = -1;
-                            for(int i = 0; i < data.size(); i++) {
+                            for (int i = 0; i < data.size(); i++) {
                                 BufferListEntry j = data.get(i);
-                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("type")) {
+                                if (j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("type")) {
                                     firstFailurePosition = i;
                                     break;
                                 }
                             }
                         }
-                        if(lastFailurePosition == pos) {
+                        if (lastFailurePosition == pos) {
                             lastFailurePosition = -1;
-                            for(int i = pos; i >= 0; i--) {
+                            for (int i = pos; i >= 0; i--) {
                                 BufferListEntry j = data.get(i);
-                                if(j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("type")) {
+                                if (j.type == TYPE_SERVER && j.fail_info != null && j.fail_info.has("type")) {
                                     lastFailurePosition = i;
                                     break;
                                 }
@@ -305,18 +304,18 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(BuffersListFragment.this.getActivity() != null) {
+                if (BuffersListFragment.this.getActivity() != null) {
                     BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             notifyDataSetChanged();
-                            if(listView != null)
+                            if (listView != null)
                                 updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
                         }
                     });
                 }
             } else {
-                if(BuffersListFragment.this.getActivity() != null) {
+                if (BuffersListFragment.this.getActivity() != null) {
                     BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -327,180 +326,180 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             }
         }
 
-		int unreadPositionAbove(int pos) {
-            if(pos > 0) {
-                for(int i = pos-1; i >= 0; i--) {
+        int unreadPositionAbove(int pos) {
+            if (pos > 0) {
+                for (int i = pos - 1; i >= 0; i--) {
                     BufferListEntry e = data.get(i);
-                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
+                    if (e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
                         return i;
                 }
             }
-			return 0;
-		}
-		
-		int unreadPositionBelow(int pos) {
-            if(pos >= 0) {
-                for(int i = pos; i < data.size(); i++) {
+            return 0;
+        }
+
+        int unreadPositionBelow(int pos) {
+            if (pos >= 0) {
+                for (int i = pos; i < data.size(); i++) {
                     BufferListEntry e = data.get(i);
-                    if(e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
+                    if (e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
                         return i;
                 }
             }
-			return data.size() - 1;
-		}
-		
-		public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count, String contentDescription, JsonNode fail_info) {
-			BufferListEntry e = new BufferListEntry();
-			e.cid = cid;
-			e.bid = bid;
-			e.type = type;
-			e.name = name;
-			e.key = key;
-			e.unread = unread;
-			e.highlights = highlights;
-			e.last_seen_eid = last_seen_eid;
-			e.min_eid = min_eid;
-			e.joined = joined;
-			e.archived = archived;
-			e.status = status;
-			e.timeout = timeout;
+            return data.size() - 1;
+        }
+
+        public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count, String contentDescription, JsonNode fail_info) {
+            BufferListEntry e = new BufferListEntry();
+            e.cid = cid;
+            e.bid = bid;
+            e.type = type;
+            e.name = name;
+            e.key = key;
+            e.unread = unread;
+            e.highlights = highlights;
+            e.last_seen_eid = last_seen_eid;
+            e.min_eid = min_eid;
+            e.joined = joined;
+            e.archived = archived;
+            e.status = status;
+            e.timeout = timeout;
             e.ssl = ssl;
             e.count = count;
             e.contentDescription = contentDescription;
             e.fail_info = fail_info;
-			return e;
-		}
-		
-		@Override
-		public int getCount() {
-			return data.size();
-		}
+            return e;
+        }
 
-		@Override
-		public Object getItem(int position) {
-			if(position < data.size())
+        @Override
+        public int getCount() {
+            return data.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            if (position < data.size())
                 return data.get(position);
             else
                 return null;
-		}
+        }
 
-		@Override
-		public long getItemId(int position) {
-            if(position < data.size()) {
+        @Override
+        public long getItemId(int position) {
+            if (position < data.size()) {
                 BufferListEntry e = data.get(position);
                 return e.bid;
             } else {
                 return -1;
             }
-		}
+        }
 
-		@SuppressWarnings("deprecation")
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			BufferListEntry e = data.get(position);
-			View row = convertView;
-			ViewHolder holder;
+        @SuppressWarnings("deprecation")
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            BufferListEntry e = data.get(position);
+            View row = convertView;
+            ViewHolder holder;
 
-			if (row == null) {
-				LayoutInflater inflater = ctx.getLayoutInflater(null);
+            if (row == null) {
+                LayoutInflater inflater = ctx.getLayoutInflater(null);
                 row = inflater.inflate(R.layout.row_buffer, null);
 
-				holder = new ViewHolder();
-				holder.label = (TextView) row.findViewById(R.id.label);
-				holder.highlights = (TextView) row.findViewById(R.id.highlights);
-				holder.unread = (LinearLayout) row.findViewById(R.id.unread);
-				holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
-				holder.icon = (ImageView) row.findViewById(R.id.icon);
-				holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
-				holder.addBtn = (ImageButton) row.findViewById(R.id.addBtn);
-				holder.type = e.type;
+                holder = new ViewHolder();
+                holder.label = (TextView) row.findViewById(R.id.label);
+                holder.highlights = (TextView) row.findViewById(R.id.highlights);
+                holder.unread = (LinearLayout) row.findViewById(R.id.unread);
+                holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
+                holder.icon = (ImageView) row.findViewById(R.id.icon);
+                holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
+                holder.addBtn = (ImageButton) row.findViewById(R.id.addBtn);
+                holder.type = e.type;
 
-				row.setTag(holder);
-			} else {
-				holder = (ViewHolder) row.getTag();
-			}
+                row.setTag(holder);
+            } else {
+                holder = (ViewHolder) row.getTag();
+            }
 
             row.setContentDescription(e.contentDescription);
-			holder.label.setText(e.name);
-			if(e.type == TYPE_ARCHIVES_HEADER) {
-				holder.label.setTypeface(null);
-				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archives_heading));
-				holder.unread.setBackgroundDrawable(null);
-            } else if(e.type == TYPE_JOIN_CHANNEL) {
+            holder.label.setText(e.name);
+            if (e.type == TYPE_ARCHIVES_HEADER) {
+                holder.label.setTypeface(null);
+                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archives_heading));
+                holder.unread.setBackgroundDrawable(null);
+            } else if (e.type == TYPE_JOIN_CHANNEL) {
                 holder.label.setTypeface(null);
                 holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_join));
                 holder.unread.setBackgroundDrawable(null);
-			} else if(e.archived == 1 && holder.bufferbg != null) {
-				holder.label.setTypeface(null);
-				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archived));
-				holder.unread.setBackgroundDrawable(null);
-			} else if((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
-                if(selected_bid == e.bid) {
+            } else if (e.archived == 1 && holder.bufferbg != null) {
+                holder.label.setTypeface(null);
+                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archived));
+                holder.unread.setBackgroundDrawable(null);
+            } else if ((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
+                if (selected_bid == e.bid) {
                     holder.label.setTypeface(null, Typeface.BOLD);
                     holder.unread.setBackgroundResource(R.drawable.selected_blue);
                 } else {
                     holder.label.setTypeface(null);
                     holder.unread.setBackgroundDrawable(null);
                 }
-				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
-			} else if((e.unread > 0 && !readOnly) || selected_bid == e.bid) {
-				holder.label.setTypeface(null, Typeface.BOLD);
-				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_unread));
-				holder.unread.setBackgroundResource(R.drawable.selected_blue);
+                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
+            } else if ((e.unread > 0 && !readOnly) || selected_bid == e.bid) {
+                holder.label.setTypeface(null, Typeface.BOLD);
+                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_unread));
+                holder.unread.setBackgroundResource(R.drawable.selected_blue);
                 row.setContentDescription(row.getContentDescription() + ", unread");
-			} else {
-				holder.label.setTypeface(null);
-				holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label));
-				holder.unread.setBackgroundDrawable(null);
-			}
+            } else {
+                holder.label.setTypeface(null);
+                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label));
+                holder.unread.setBackgroundDrawable(null);
+            }
 
-			if(holder.icon != null) {
-                if(e.type == TYPE_JOIN_CHANNEL) {
+            if (holder.icon != null) {
+                if (e.type == TYPE_JOIN_CHANNEL) {
                     holder.icon.setImageResource(R.drawable.add);
                     holder.icon.setVisibility(View.VISIBLE);
-                } else if(e.type == TYPE_ADD_NETWORK) {
-                        holder.icon.setImageResource(R.drawable.world_add);
+                } else if (e.type == TYPE_ADD_NETWORK) {
+                    holder.icon.setImageResource(R.drawable.world_add);
                     holder.icon.setVisibility(View.VISIBLE);
-                } else if(e.type == TYPE_REORDER) {
+                } else if (e.type == TYPE_REORDER) {
                     holder.icon.setImageResource(R.drawable.move);
                     holder.icon.setVisibility(View.VISIBLE);
-                } else if(e.type == TYPE_SERVER) {
-                    if(e.ssl > 0)
+                } else if (e.type == TYPE_SERVER) {
+                    if (e.ssl > 0)
                         holder.icon.setImageResource(R.drawable.world_shield);
                     else
                         holder.icon.setImageResource(R.drawable.world);
                     holder.icon.setVisibility(View.VISIBLE);
                 } else {
-                    if(e.key > 0) {
+                    if (e.key > 0) {
                         holder.icon.setImageResource(R.drawable.lock);
                         holder.icon.setVisibility(View.VISIBLE);
                     } else {
                         holder.icon.setVisibility(View.INVISIBLE);
                     }
                 }
-			}
-			
-			if(holder.progress != null) {
-				if(progressRow == position || e.timeout > 0 || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
-					if(selected_bid == -1 || progressRow != position) {
-						holder.progress.setVisibility(View.VISIBLE);
-						if(holder.bufferbg != null)
-							holder.bufferbg.setSelected(false);
-					} else {
-						if(holder.bufferbg != null)
-							holder.bufferbg.setSelected(true);
-						holder.progress.setVisibility(View.GONE);
-					}
-				} else {
-					holder.progress.setVisibility(View.GONE);
-					if(e.type != TYPE_ARCHIVES_HEADER && holder.bufferbg != null)
-						holder.bufferbg.setSelected(false);
-				}
-			}
-			
-			if(holder.bufferbg != null) {
-                if(e.type == TYPE_ARCHIVES_HEADER) {
-                    if(mExpandArchives.get(e.cid, false)) {
+            }
+
+            if (holder.progress != null) {
+                if (progressRow == position || e.timeout > 0 || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
+                    if (selected_bid == -1 || progressRow != position) {
+                        holder.progress.setVisibility(View.VISIBLE);
+                        if (holder.bufferbg != null)
+                            holder.bufferbg.setSelected(false);
+                    } else {
+                        if (holder.bufferbg != null)
+                            holder.bufferbg.setSelected(true);
+                        holder.progress.setVisibility(View.GONE);
+                    }
+                } else {
+                    holder.progress.setVisibility(View.GONE);
+                    if (e.type != TYPE_ARCHIVES_HEADER && holder.bufferbg != null)
+                        holder.bufferbg.setSelected(false);
+                }
+            }
+
+            if (holder.bufferbg != null) {
+                if (e.type == TYPE_ARCHIVES_HEADER) {
+                    if (mExpandArchives.get(e.cid, false)) {
                         holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
                         holder.bufferbg.setSelected(true);
                         row.setContentDescription(e.contentDescription + ". Double-tap to collapse.");
@@ -509,50 +508,50 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                         holder.bufferbg.setSelected(false);
                         row.setContentDescription(e.contentDescription + ". Double-tap to expand.");
                     }
-                } else if(e.type == TYPE_SERVER) {
-                    if(e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable") ||
+                } else if (e.type == TYPE_SERVER) {
+                    if (e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable") ||
                             ((e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("type")))) {
                         holder.bufferbg.setBackgroundResource(R.drawable.row_failed_bg);
                         holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_failed));
-                        if(e.bid == selected_bid)
+                        if (e.bid == selected_bid)
                             holder.unread.setBackgroundResource(R.drawable.status_fail_bg);
                     } else {
                         holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
-                        if(e.status.equals("connected_ready"))
+                        if (e.status.equals("connected_ready"))
                             holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label));
                         else
                             holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
                     }
-                } else if(e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
+                } else if (e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
                     holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
-                } else if(e.type == TYPE_JOIN_CHANNEL) {
+                } else if (e.type == TYPE_JOIN_CHANNEL) {
                     holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_join);
-                } else if(e.archived == 1) {
+                } else if (e.archived == 1) {
                     holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
                 } else {
                     holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
                 }
-			}
-			
-			if(holder.highlights != null) {
-				if(e.highlights > 0) {
-					holder.highlights.setVisibility(View.VISIBLE);
-					holder.highlights.setText(String.valueOf(e.highlights));
+            }
+
+            if (holder.highlights != null) {
+                if (e.highlights > 0) {
+                    holder.highlights.setVisibility(View.VISIBLE);
+                    holder.highlights.setText(String.valueOf(e.highlights));
                     row.setContentDescription(row.getContentDescription() + ", " + e.highlights + " highlights");
-				} else {
-					holder.highlights.setVisibility(View.GONE);
-					holder.highlights.setText("");
-				}
-			}
-			
-			if(holder.addBtn != null) {
-                if(e.count > 1 && !readOnly) {
+                } else {
+                    holder.highlights.setVisibility(View.GONE);
+                    holder.highlights.setText("");
+                }
+            }
+
+            if (holder.addBtn != null) {
+                if (e.count > 1 && !readOnly) {
                     holder.addBtn.setVisibility(View.VISIBLE);
                     holder.addBtn.setTag(e);
                     holder.addBtn.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            BufferListEntry e = (BufferListEntry)v.getTag();
+                            BufferListEntry e = (BufferListEntry) v.getTag();
                             AddChannelFragment newFragment = new AddChannelFragment();
                             newFragment.setDefaultCid(e.cid);
                             newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
@@ -562,113 +561,113 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 } else {
                     holder.addBtn.setVisibility(View.GONE);
                 }
-			}
+            }
 
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams)holder.unread.getLayoutParams();
-            if(lp != null) {
-                if(e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
-                    lp.setMargins(0, eightdp, eightdp,0);
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) holder.unread.getLayoutParams();
+            if (lp != null) {
+                if (e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
+                    lp.setMargins(0, eightdp, eightdp, 0);
                     row.setMinimumHeight(eightdp * 7);
                 } else {
-                    lp.setMargins(0,0, eightdp,0);
+                    lp.setMargins(0, 0, eightdp, 0);
                     row.setMinimumHeight(eightdp * 6);
                 }
                 holder.unread.setLayoutParams(lp);
             }
 
-			return row;
-		}
-	}
-	
-	private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-		ArrayList<BufferListEntry> entries = new ArrayList<BufferListEntry>();
+            return row;
+        }
+    }
+
+    private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
+        ArrayList<BufferListEntry> entries = new ArrayList<BufferListEntry>();
 
         @Override
-		protected synchronized Void doInBackground(Void... params) {
-			if(!ready || isCancelled()) {
+        protected synchronized Void doInBackground(Void... params) {
+            if (!ready || isCancelled()) {
                 Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment not ready or cancelled");
                 return null;
             }
 
-			SparseArray<ServersDataSource.Server> serversArray = ServersDataSource.getInstance().getServers();
+            SparseArray<ServersDataSource.Server> serversArray = ServersDataSource.getInstance().getServers();
             ArrayList<ServersDataSource.Server> servers = new ArrayList<ServersDataSource.Server>();
 
-            for(int i = 0; i < serversArray.size(); i++) {
+            for (int i = 0; i < serversArray.size(); i++) {
                 servers.add(serversArray.valueAt(i));
             }
             Collections.sort(servers);
-			if(adapter == null) {
+            if (adapter == null) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Created new BufferListAdapter");
-				adapter = new BufferListAdapter(BuffersListFragment.this);
-			}
+                adapter = new BufferListAdapter(BuffersListFragment.this);
+            }
 
-			firstUnreadPosition = -1;
-			lastUnreadPosition = -1;
-			firstHighlightPosition = -1;
-			lastHighlightPosition = -1;
+            firstUnreadPosition = -1;
+            lastUnreadPosition = -1;
+            firstHighlightPosition = -1;
+            lastHighlightPosition = -1;
             firstFailurePosition = -1;
             lastFailurePosition = -1;
-			int position = 0;
-			
-			JSONObject channelDisabledMap = null;
-			JSONObject bufferDisabledMap = null;
-			if(conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-				try {
-					if(conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
-						channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-					if(conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
-						bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
-				} catch (JSONException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-			for(ServersDataSource.Server s : servers) {
-				if(isCancelled())
-					return null;
+            int position = 0;
 
-				int archiveCount = 0;
-				ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
-				for(int j = 0; j < buffers.size(); j++) {
-					if(isCancelled())
-						return null;
+            JSONObject channelDisabledMap = null;
+            JSONObject bufferDisabledMap = null;
+            if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                try {
+                    if (conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
+                        channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+                    if (conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
+                        bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                } catch (JSONException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
 
-					BuffersDataSource.Buffer b = buffers.get(j);
-					if(b.type.equalsIgnoreCase("console")) {
-						int unread = 0;
-						int highlights = 0;
-						if(conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-							unread = b.unread;
-							highlights = b.highlights;
-						}
-						if(s.name.length() == 0)
-							s.name = s.hostname;
-						try {
-							if(b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-								unread = 0;
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-						entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl, buffers.size(), "Network " + s.name, s.fail_info));
-						if(unread > 0 && firstUnreadPosition == -1)
-							firstUnreadPosition = position;
-						if(unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
-							lastUnreadPosition = position;
-						if(highlights > 0 && firstHighlightPosition == -1)
-							firstHighlightPosition = position;
-						if(highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
-							lastHighlightPosition = position;
-                        if(s.fail_info != null && s.fail_info.has("type")) {
-                            if(firstFailurePosition == -1)
+            for (ServersDataSource.Server s : servers) {
+                if (isCancelled())
+                    return null;
+
+                int archiveCount = 0;
+                ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
+                for (int j = 0; j < buffers.size(); j++) {
+                    if (isCancelled())
+                        return null;
+
+                    BuffersDataSource.Buffer b = buffers.get(j);
+                    if (b.type.equalsIgnoreCase("console")) {
+                        int unread = 0;
+                        int highlights = 0;
+                        if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+                            unread = b.unread;
+                            highlights = b.highlights;
+                        }
+                        if (s.name.length() == 0)
+                            s.name = s.hostname;
+                        try {
+                            if (b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
+                                unread = 0;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl, buffers.size(), "Network " + s.name, s.fail_info));
+                        if (unread > 0 && firstUnreadPosition == -1)
+                            firstUnreadPosition = position;
+                        if (unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+                            lastUnreadPosition = position;
+                        if (highlights > 0 && firstHighlightPosition == -1)
+                            firstHighlightPosition = position;
+                        if (highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+                            lastHighlightPosition = position;
+                        if (s.fail_info != null && s.fail_info.has("type")) {
+                            if (firstFailurePosition == -1)
                                 firstFailurePosition = position;
-                            if(lastFailurePosition == -1 || lastFailurePosition < position)
+                            if (lastFailurePosition == -1 || lastFailurePosition < position)
                                 lastFailurePosition = position;
                         }
-						position++;
-						break;
-					}
-				}
+                        position++;
+                        break;
+                    }
+                }
                 for (BuffersDataSource.Buffer b : buffers) {
                     if (isCancelled())
                         return null;
@@ -723,10 +722,10 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                         archiveCount++;
                     }
                 }
-				if(archiveCount > 0) {
-					entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Archives", null));
-					position++;
-					if(mExpandArchives.get(s.cid, false)) {
+                if (archiveCount > 0) {
+                    entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Archives", null));
+                    position++;
+                    if (mExpandArchives.get(s.cid, false)) {
                         for (BuffersDataSource.Buffer b : buffers) {
                             int type = -1;
                             String contentDescription = null;
@@ -745,76 +744,76 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                                 }
                             }
                         }
-					}
-				}
-                if(buffers.size() == 1 && !readOnly) {
+                    }
+                }
+                if (buffers.size() == 1 && !readOnly) {
                     entries.add(adapter.buildItem(s.cid, 0, TYPE_JOIN_CHANNEL, "Join a channel…", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Join a channel", null));
                 }
-			}
+            }
 
-            if(!readOnly) {
+            if (!readOnly) {
                 entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Add a network", null));
                 entries.add(adapter.buildItem(0, 0, TYPE_REORDER, "Reorder", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Reorder", null));
             }
 
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffers list adapter contains " + entries.size() + " entries");
             return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			if(isCancelled()) {
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            if (isCancelled()) {
                 Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment: OnPostExecute: This refresh task was cancelled");
-				return;
+                return;
             }
-			
-			refreshTask = null;
 
-			if(adapter == null)
-				return;
+            refreshTask = null;
 
-			adapter.setItems(entries);
-			
-			if(getListAdapter() == null && entries.size() > 0) {
-				setListAdapter(adapter);
-			} else
-				adapter.notifyDataSetChanged();
-			
-			if(listView != null)
-				updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
-			else {//The activity view isn't ready yet, try again
+            if (adapter == null)
+                return;
+
+            adapter.setItems(entries);
+
+            if (getListAdapter() == null && entries.size() > 0) {
+                setListAdapter(adapter);
+            } else
+                adapter.notifyDataSetChanged();
+
+            if (listView != null)
+                updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
+            else {//The activity view isn't ready yet, try again
                 Crashlytics.log(Log.WARN, "IRCCloud", "BuffersListFragment: OnPostExecute: The activity isn't ready yet, will retry");
-				refreshTask = new RefreshTask();
-				refreshTask.execute((Void)null);
-			}
-			
-			if(selected_bid > 0)
-				adapter.showProgress(adapter.positionForBid(selected_bid));
-		}
-	}
+                refreshTask = new RefreshTask();
+                refreshTask.execute((Void) null);
+            }
 
-	public void setSelectedBid(int bid) {
+            if (selected_bid > 0)
+                adapter.showProgress(adapter.positionForBid(selected_bid));
+        }
+    }
+
+    public void setSelectedBid(int bid) {
         int last_bid = selected_bid;
-		selected_bid = bid;
-		if(adapter != null) {
+        selected_bid = bid;
+        if (adapter != null) {
             BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(last_bid);
-            if(b != null)
+            if (b != null)
                 adapter.updateBuffer(b);
             b = BuffersDataSource.getInstance().getBuffer(bid);
-            if(b != null)
+            if (b != null)
                 adapter.updateBuffer(b);
-			adapter.showProgress(adapter.positionForBid(bid));
+            adapter.showProgress(adapter.positionForBid(bid));
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
             RefreshTask t = new RefreshTask();
-            t.doInBackground((Void)null);
+            t.doInBackground((Void) null);
             t.onPostExecute(null);
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Done");
         }
-	}
-	
-	private void updateUnreadIndicators(int first, int last) {
-        if(readOnly) {
+    }
+
+    private void updateUnreadIndicators(int first, int last) {
+        if (readOnly) {
             if (topUnreadIndicator != null)
                 topUnreadIndicator.setVisibility(View.GONE);
             if (bottomUnreadIndicator != null)
@@ -861,120 +860,120 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 }
             }
         }
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, 
-	        Bundle savedInstanceState) {
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         conn = NetworkConnection.getInstance();
-		view = inflater.inflate(R.layout.bufferslist, null);
-		topUnreadIndicator = (LinearLayout)view.findViewById(R.id.topUnreadIndicator);
-		topUnreadIndicator.setOnClickListener(new OnClickListener() {
+        view = inflater.inflate(R.layout.bufferslist, null);
+        topUnreadIndicator = (LinearLayout) view.findViewById(R.id.topUnreadIndicator);
+        topUnreadIndicator.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				int scrollTo = adapter.unreadPositionAbove(getListView().getFirstVisiblePosition());
-				if(scrollTo > 0)
-					getListView().setSelection(scrollTo-1);
-				else
-					getListView().setSelection(0);
+            @Override
+            public void onClick(View v) {
+                int scrollTo = adapter.unreadPositionAbove(getListView().getFirstVisiblePosition());
+                if (scrollTo > 0)
+                    getListView().setSelection(scrollTo - 1);
+                else
+                    getListView().setSelection(0);
 
-				updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
-			}
-			
-		});
-		topUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.topUnreadIndicatorColor);
-        topUnreadIndicatorBorder = (LinearLayout)view.findViewById(R.id.topUnreadIndicatorBorder);
-		bottomUnreadIndicator = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicator);
-		bottomUnreadIndicator.setOnClickListener(new OnClickListener() {
+                updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+            }
 
-			@Override
-			public void onClick(View v) {
-				int offset = getListView().getLastVisiblePosition() - getListView().getFirstVisiblePosition();
-				int scrollTo = adapter.unreadPositionBelow(getListView().getLastVisiblePosition()) - offset + 2;
-				if(scrollTo < adapter.getCount())
-					getListView().setSelection(scrollTo);
-				else
-					getListView().setSelection(adapter.getCount() - 1);
-				
-				updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
-			}
-			
-		});
-		bottomUnreadIndicatorColor = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicatorColor);
-        bottomUnreadIndicatorBorder = (LinearLayout)view.findViewById(R.id.bottomUnreadIndicatorBorder);
-		listView = (ListView)view.findViewById(android.R.id.list);
-		listView.setOnScrollListener(new OnScrollListener() {
-			@Override
-			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-				updateUnreadIndicators(firstVisibleItem, firstVisibleItem+visibleItemCount-1);
-			}
+        });
+        topUnreadIndicatorColor = (LinearLayout) view.findViewById(R.id.topUnreadIndicatorColor);
+        topUnreadIndicatorBorder = (LinearLayout) view.findViewById(R.id.topUnreadIndicatorBorder);
+        bottomUnreadIndicator = (LinearLayout) view.findViewById(R.id.bottomUnreadIndicator);
+        bottomUnreadIndicator.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onScrollStateChanged(AbsListView view, int scrollState) {
-			}
-		});
-    	listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+            @Override
+            public void onClick(View v) {
+                int offset = getListView().getLastVisiblePosition() - getListView().getFirstVisiblePosition();
+                int scrollTo = adapter.unreadPositionBelow(getListView().getLastVisiblePosition()) - offset + 2;
+                if (scrollTo < adapter.getCount())
+                    getListView().setSelection(scrollTo);
+                else
+                    getListView().setSelection(adapter.getCount() - 1);
 
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-				return mListener.onBufferLongClicked(BuffersDataSource.getInstance().getBuffer(adapter.data.get(pos).bid));
-			}
-    		
-    	});
+                updateUnreadIndicators(getListView().getFirstVisiblePosition(), getListView().getLastVisiblePosition());
+            }
 
-    	ready = NetworkConnection.getInstance().ready;
+        });
+        bottomUnreadIndicatorColor = (LinearLayout) view.findViewById(R.id.bottomUnreadIndicatorColor);
+        bottomUnreadIndicatorBorder = (LinearLayout) view.findViewById(R.id.bottomUnreadIndicatorBorder);
+        listView = (ListView) view.findViewById(android.R.id.list);
+        listView.setOnScrollListener(new OnScrollListener() {
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                updateUnreadIndicators(firstVisibleItem, firstVisibleItem + visibleItemCount - 1);
+            }
 
-        if(ready) {
-            if(savedInstanceState != null && savedInstanceState.containsKey("expandedArchives")) {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+        });
+        listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+            @Override
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
+                return mListener.onBufferLongClicked(BuffersDataSource.getInstance().getBuffer(adapter.data.get(pos).bid));
+            }
+
+        });
+
+        ready = NetworkConnection.getInstance().ready;
+
+        if (ready) {
+            if (savedInstanceState != null && savedInstanceState.containsKey("expandedArchives")) {
                 ArrayList<Integer> expandedArchives = savedInstanceState.getIntegerArrayList("expandedArchives");
                 Iterator<Integer> i = expandedArchives.iterator();
-                while(i.hasNext()) {
+                while (i.hasNext()) {
                     Integer cid = i.next();
                     mExpandArchives.put(cid, true);
                 }
             }
             refreshTask = new RefreshTask();
-            refreshTask.doInBackground((Void)null);
+            refreshTask.doInBackground((Void) null);
             refreshTask.onPostExecute(null);
-            if(savedInstanceState != null && savedInstanceState.containsKey("scrollPosition"))
+            if (savedInstanceState != null && savedInstanceState.containsKey("scrollPosition"))
                 listView.setSelection(savedInstanceState.getInt("scrollPosition"));
         }
-		return view;
-	}
-	
+        return view;
+    }
+
     @Override
     public void onSaveInstanceState(Bundle state) {
-    	if(adapter != null && adapter.data != null && adapter.data.size() > 0) {
-    		ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
-    		SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
-            for(int i = 0; i < servers.size(); i++) {
-    			ServersDataSource.Server s = servers.valueAt(i);
-    			if(mExpandArchives.get(s.cid, false))
-    				expandedArchives.add(s.cid);
-    		}
-    		state.putIntegerArrayList("expandedArchives", expandedArchives);
-    		if(listView != null)
-    			state.putInt("scrollPosition", listView.getFirstVisiblePosition());
-    	}
+        if (adapter != null && adapter.data != null && adapter.data.size() > 0) {
+            ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
+            SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+            for (int i = 0; i < servers.size(); i++) {
+                ServersDataSource.Server s = servers.valueAt(i);
+                if (mExpandArchives.get(s.cid, false))
+                    expandedArchives.add(s.cid);
+            }
+            state.putIntegerArrayList("expandedArchives", expandedArchives);
+            if (listView != null)
+                state.putInt("scrollPosition", listView.getFirstVisiblePosition());
+        }
     }
-	
+
     public void onResume() {
-    	super.onResume();
-    	conn.addHandler(this);
-    	ready = conn.ready;
-		if(adapter != null)
-			adapter.showProgress(-1);
+        super.onResume();
+        conn.addHandler(this);
+        ready = conn.ready;
+        if (adapter != null)
+            adapter.showProgress(-1);
 
         refresh();
-   }
-    
+    }
+
     @Override
     public void onPause() {
-    	super.onPause();
-    	if(conn != null)
-    		conn.removeHandler(this);
+        super.onPause();
+        if (conn != null)
+            conn.removeHandler(this);
     }
 
     @Override
@@ -986,51 +985,51 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             throw new ClassCastException(activity.toString() + " must implement OnBufferSelectedListener");
         }
     }
-    
+
     public void onListItemClick(ListView l, View v, int position, long id) {
-    	BufferListEntry e = (BufferListEntry)adapter.getItem(position);
-    	switch(e.type) {
-        case TYPE_ADD_NETWORK:
-            mListener.addNetwork();
-            return;
-        case TYPE_REORDER:
-            mListener.reorder();
-            return;
-    	case TYPE_ARCHIVES_HEADER:
-    		mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
-            refresh();
-    		return;
-        case TYPE_JOIN_CHANNEL:
-            AddChannelFragment newFragment = new AddChannelFragment();
-            newFragment.setDefaultCid(e.cid);
-            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
-            mListener.addButtonPressed(e.cid);
-            return;
-    	}
-    	adapter.showProgress(position);
-    	mListener.onBufferSelected(e.bid);
+        BufferListEntry e = (BufferListEntry) adapter.getItem(position);
+        switch (e.type) {
+            case TYPE_ADD_NETWORK:
+                mListener.addNetwork();
+                return;
+            case TYPE_REORDER:
+                mListener.reorder();
+                return;
+            case TYPE_ARCHIVES_HEADER:
+                mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
+                refresh();
+                return;
+            case TYPE_JOIN_CHANNEL:
+                AddChannelFragment newFragment = new AddChannelFragment();
+                newFragment.setDefaultCid(e.cid);
+                newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+                mListener.addButtonPressed(e.cid);
+                return;
+        }
+        adapter.showProgress(position);
+        mListener.onBufferSelected(e.bid);
     }
 
     public void onIRCEvent(int what, Object obj) {
         BuffersDataSource.Buffer b;
         IRCCloudJSONObject object = null;
         try {
-            object = (IRCCloudJSONObject)obj;
+            object = (IRCCloudJSONObject) obj;
         } catch (ClassCastException e) {
         }
         EventsDataSource.Event event = null;
         try {
-            event = (EventsDataSource.Event)obj;
+            event = (EventsDataSource.Event) obj;
         } catch (ClassCastException e) {
         }
         switch (what) {
             case NetworkConnection.EVENT_CHANNELMODE:
                 b = BuffersDataSource.getInstance().getBuffer(object.bid());
-                if(b != null && adapter != null)
+                if (b != null && adapter != null)
                     adapter.updateBuffer(b);
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
-                if(adapter != null) {
+                if (adapter != null) {
                     ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(object.cid());
                     for (BuffersDataSource.Buffer buffer : buffers) {
                         adapter.updateBuffer(buffer);
@@ -1038,7 +1037,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
-                if(adapter != null) {
+                if (adapter != null) {
                     if (event.bid != selected_bid) {
                         b = BuffersDataSource.getInstance().getBuffer(event.bid);
                         if (b != null && event.isImportant(b.type))
@@ -1047,7 +1046,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 }
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
-                if(adapter != null) {
+                if (adapter != null) {
                     JsonNode seenEids = object.getJsonNode("seenEids");
                     Iterator<Map.Entry<String, JsonNode>> iterator = seenEids.fields();
                     int count = 0;
@@ -1064,11 +1063,11 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                             count++;
                         }
                     }
-                    if(count > 1) {
+                    if (count > 1) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                            refresh();
+                                refresh();
                             }
                         });
                     }
@@ -1078,7 +1077,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_PART:
             case NetworkConnection.EVENT_QUIT:
             case NetworkConnection.EVENT_KICK:
-                if(object.type().startsWith("you_") && getActivity() != null) {
+                if (object.type().startsWith("you_") && getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1119,41 +1118,41 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_PROGRESS:
             case NetworkConnection.EVENT_ALERT:
             case NetworkConnection.EVENT_DEBUG:
-				break;
-			case NetworkConnection.EVENT_CONNECTIVITY:
-                if(getActivity() != null) {
+                break;
+            case NetworkConnection.EVENT_CONNECTIVITY:
+                if (getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(adapter != null)
+                            if (adapter != null)
                                 adapter.notifyDataSetChanged();
                         }
                     });
                 }
-				break;
-			case NetworkConnection.EVENT_BACKLOG_START:
-	            if(refreshTask != null)
-	            	refreshTask.cancel(true);
-	            break;
-			case NetworkConnection.EVENT_BACKLOG_END:
-				ready = true;
-                if(obj != null && adapter != null) {
-                    Integer bid = (Integer)obj;
+                break;
+            case NetworkConnection.EVENT_BACKLOG_START:
+                if (refreshTask != null)
+                    refreshTask.cancel(true);
+                break;
+            case NetworkConnection.EVENT_BACKLOG_END:
+                ready = true;
+                if (obj != null && adapter != null) {
+                    Integer bid = (Integer) obj;
                     b = BuffersDataSource.getInstance().getBuffer(bid);
-                    if(b != null) {
+                    if (b != null) {
                         adapter.updateBuffer(b);
                         break;
                     }
                 } else {
-                    if(getActivity() != null) {
+                    if (getActivity() != null) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if(refreshTask != null)
+                                if (refreshTask != null)
                                     refreshTask.cancel(true);
                                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Refreshing buffers list");
                                 RefreshTask t = new RefreshTask();
-                                t.doInBackground((Void)null);
+                                t.doInBackground((Void) null);
                                 t.onPostExecute(null);
                                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Done");
                             }
@@ -1161,9 +1160,9 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     }
                 }
                 break;
-			default:
+            default:
                 Crashlytics.log(Log.WARN, "IRCCloud", "Slow event: " + what);
-                if(getActivity() != null) {
+                if (getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1171,15 +1170,15 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                         }
                     });
                 }
-				break;
+                break;
         }
     }
 
     public void refresh() {
-        if(refreshTask != null)
+        if (refreshTask != null)
             refreshTask.cancel(true);
         refreshTask = new RefreshTask();
-        refreshTask.execute((Void)null);
+        refreshTask.execute((Void) null);
     }
 
     public Resources getSafeResources() {
@@ -1187,10 +1186,14 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     }
 
     public interface OnBufferSelectedListener {
-		public void onBufferSelected(int bid);
-		public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
-		public void addButtonPressed(int cid);
+        public void onBufferSelected(int bid);
+
+        public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
+
+        public void addButtonPressed(int cid);
+
         public void addNetwork();
+
         public void reorder();
-	}
+    }
 }

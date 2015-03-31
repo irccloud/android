@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 public class RemoteInputService extends IntentService {
     public static final String ACTION_REPLY = IRCCloudApplication.getInstance().getApplicationContext().getString(R.string.ACTION_REPLY);
+
     public RemoteInputService() {
         super("RemoteInputService");
     }
@@ -41,10 +42,10 @@ public class RemoteInputService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_REPLY.equals(action)) {
                 Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-                if(remoteInput != null) {
+                if (remoteInput != null) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Got reply from RemoteInput");
                     String reply = remoteInput.getCharSequence("extra_reply").toString();
-                    if(reply.length() > 0 && !reply.startsWith("/")) {
+                    if (reply.length() > 0 && !reply.startsWith("/")) {
                         try {
                             JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);
                             success = o.getBoolean("success");
@@ -53,18 +54,18 @@ public class RemoteInputService extends IntentService {
                         }
                     }
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(intent.getIntExtra("bid", 0));
-                    if(intent.hasExtra("eids")) {
+                    if (intent.hasExtra("eids")) {
                         int bid = intent.getIntExtra("bid", -1);
                         long[] eids = intent.getLongArrayExtra("eids");
-                        for(int j = 0; j < eids.length; j++) {
-                            if(eids[j] > 0) {
+                        for (int j = 0; j < eids.length; j++) {
+                            if (eids[j] > 0) {
                                 Notifications.getInstance().dismiss(bid, eids[j]);
                             }
                         }
                     }
                     Notifications.getInstance().showNotifications(null);
-                    if(!success)
-                       Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", "Your message was not sent. Please try again shortly.");
+                    if (!success)
+                        Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", "Your message was not sent. Please try again shortly.");
                 } else {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "RemoteInputService received no remoteinput");
                 }

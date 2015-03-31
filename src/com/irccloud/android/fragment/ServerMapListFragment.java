@@ -36,120 +36,120 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
 public class ServerMapListFragment extends DialogFragment {
-	JsonNode servers;
-	ServersAdapter adapter;
-	NetworkConnection conn;
-	ListView listView;
-	IRCCloudJSONObject event;
-	
-	private class ServersAdapter extends BaseAdapter {
-		private DialogFragment ctx;
+    JsonNode servers;
+    ServersAdapter adapter;
+    NetworkConnection conn;
+    ListView listView;
+    IRCCloudJSONObject event;
 
-		private class ViewHolder {
-			int position;
-			TextView server;
-		}
+    private class ServersAdapter extends BaseAdapter {
+        private DialogFragment ctx;
 
-		public ServersAdapter(DialogFragment context) {
-			ctx = context;
-		}
-
-		@Override
-		public int getCount() {
-			return servers.size();
-		}
-
-		@Override
-		public Object getItem(int pos) {
-			try {
-				return servers.get(pos);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		public long getItemId(int pos) {
-			return pos;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View row = convertView;
-			ViewHolder holder;
-
-			if(row != null && ((ViewHolder)row.getTag()).position != position)
-				row = null;
-
-			if (row == null) {
-				LayoutInflater inflater = ctx.getLayoutInflater(null);
-				row = inflater.inflate(R.layout.row_servermaplist, null);
-
-				holder = new ViewHolder();
-				holder.position = position;
-				holder.server = (TextView) row.findViewById(R.id.server);
-				row.setTag(holder);
-			} else {
-				holder = (ViewHolder) row.getTag();
-			}
-
-			try {
-				holder.server.setText(servers.get(position).asText());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			return row;
-		}
-	}
-
-	@Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-		Context ctx = getActivity();
-
-		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	View v = inflater.inflate(R.layout.ignorelist, null);
-    	listView = (ListView)v.findViewById(android.R.id.list);
-    	TextView empty = (TextView)v.findViewById(android.R.id.empty);
-    	empty.setText("No results found.");
-    	listView.setEmptyView(empty);
-        listView.setDividerHeight(0);
-        if(savedInstanceState != null && savedInstanceState.containsKey("event")) {
-        	event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
-        	servers = event.getJsonNode("servers");
-        	adapter = new ServersAdapter(this);
-        	listView.setAdapter(adapter);
+        private class ViewHolder {
+            int position;
+            TextView server;
         }
-    	Dialog d = new AlertDialog.Builder(ctx)
-        .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-        .setTitle("Server Map")
-        .setView(v)
-        .setNegativeButton("Close", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-        })
-        .create();
-    	return d;
+
+        public ServersAdapter(DialogFragment context) {
+            ctx = context;
+        }
+
+        @Override
+        public int getCount() {
+            return servers.size();
+        }
+
+        @Override
+        public Object getItem(int pos) {
+            try {
+                return servers.get(pos);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public long getItemId(int pos) {
+            return pos;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            ViewHolder holder;
+
+            if (row != null && ((ViewHolder) row.getTag()).position != position)
+                row = null;
+
+            if (row == null) {
+                LayoutInflater inflater = ctx.getLayoutInflater(null);
+                row = inflater.inflate(R.layout.row_servermaplist, null);
+
+                holder = new ViewHolder();
+                holder.position = position;
+                holder.server = (TextView) row.findViewById(R.id.server);
+                row.setTag(holder);
+            } else {
+                holder = (ViewHolder) row.getTag();
+            }
+
+            try {
+                holder.server.setText(servers.get(position).asText());
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return row;
+        }
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Context ctx = getActivity();
+
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.ignorelist, null);
+        listView = (ListView) v.findViewById(android.R.id.list);
+        TextView empty = (TextView) v.findViewById(android.R.id.empty);
+        empty.setText("No results found.");
+        listView.setEmptyView(empty);
+        listView.setDividerHeight(0);
+        if (savedInstanceState != null && savedInstanceState.containsKey("event")) {
+            event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
+            servers = event.getJsonNode("servers");
+            adapter = new ServersAdapter(this);
+            listView.setAdapter(adapter);
+        }
+        Dialog d = new AlertDialog.Builder(ctx)
+                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+                .setTitle("Server Map")
+                .setView(v)
+                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+        return d;
     }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-    	state.putString("event", event.toString());
+        state.putString("event", event.toString());
     }
-	
+
     @Override
     public void setArguments(Bundle args) {
-    	event = new IRCCloudJSONObject(args.getString("event"));
-    	servers = event.getJsonNode("servers");
-    	if(getActivity() != null && listView != null) {
+        event = new IRCCloudJSONObject(args.getString("event"));
+        servers = event.getJsonNode("servers");
+        if (getActivity() != null && listView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if(adapter == null) {
+                    if (adapter == null) {
                         adapter = new ServersAdapter(ServerMapListFragment.this);
                         listView.setAdapter(adapter);
                     } else {
@@ -157,21 +157,21 @@ public class ServerMapListFragment extends DialogFragment {
                     }
                 }
             });
-    	}
+        }
     }
-    
-    public void onResume() {
-    	super.onResume();
-    	conn = NetworkConnection.getInstance();
 
-    	if(servers != null) {
-        	adapter = new ServersAdapter(this);
-        	listView.setAdapter(adapter);
-    	}
+    public void onResume() {
+        super.onResume();
+        conn = NetworkConnection.getInstance();
+
+        if (servers != null) {
+            adapter = new ServersAdapter(this);
+            listView.setAdapter(adapter);
+        }
     }
-    
+
     @Override
     public void onPause() {
-    	super.onPause();
+        super.onPause();
     }
 }

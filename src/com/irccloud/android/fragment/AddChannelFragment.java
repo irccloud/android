@@ -16,8 +16,6 @@
 
 package com.irccloud.android.fragment;
 
-import java.util.ArrayList;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -34,22 +32,24 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.irccloud.android.activity.EditConnectionActivity;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.activity.EditConnectionActivity;
 import com.irccloud.android.data.ServersDataSource;
+
+import java.util.ArrayList;
 
 public class AddChannelFragment extends DialogFragment {
     SparseArray<ServersDataSource.Server> servers;
     Spinner spinner;
     TextView channels;
     int defaultCid = -1;
-	
+
     class DoneClickListener implements DialogInterface.OnClickListener {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
             int pos = spinner.getSelectedItemPosition();
-            if(pos >= 0 && pos < servers.size()) {
+            if (pos >= 0 && pos < servers.size()) {
                 int cid = servers.valueAt(spinner.getSelectedItemPosition()).cid;
                 String[] splitchannels = channels.getText().toString().split(",");
                 for (int i = 0; i < splitchannels.length; i++) {
@@ -61,65 +61,65 @@ public class AddChannelFragment extends DialogFragment {
                 }
                 dismiss();
             }
-		}
+        }
     }
 
     public void setDefaultCid(int cid) {
-    	defaultCid = cid;
+        defaultCid = cid;
     }
-    
+
     @Override
     public void onResume() {
-    	int pos = 0;
-    	super.onResume();
-    	servers = ServersDataSource.getInstance().getServers();
-    	
-    	ArrayList<String> servernames = new ArrayList<String>();
-    	for(int i = 0; i < servers.size(); i++) {
-    		servernames.add(servers.valueAt(i).name);
-    		if(servers.valueAt(i).cid == defaultCid)
-    			pos = i;
-    	}
-    	ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_spinner_item, android.R.id.text1, servernames.toArray(new String[servernames.size()]));
-    	adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    	spinner.setAdapter(adapter);
-    	spinner.setSelection(pos);
+        int pos = 0;
+        super.onResume();
+        servers = ServersDataSource.getInstance().getServers();
+
+        ArrayList<String> servernames = new ArrayList<String>();
+        for (int i = 0; i < servers.size(); i++) {
+            servernames.add(servers.valueAt(i).name);
+            if (servers.valueAt(i).cid == defaultCid)
+                pos = i;
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, android.R.id.text1, servernames.toArray(new String[servernames.size()]));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(pos);
     }
-    
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-		Context ctx = getActivity();
-		LayoutInflater inflater = (LayoutInflater)ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    	
-    	View v = inflater.inflate(R.layout.dialog_add_channel,null);
-    	spinner = (Spinner)v.findViewById(R.id.networkSpinner);
-    	channels = (TextView)v.findViewById(R.id.channels);
+        Context ctx = getActivity();
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View v = inflater.inflate(R.layout.dialog_add_channel, null);
+        spinner = (Spinner) v.findViewById(R.id.networkSpinner);
+        channels = (TextView) v.findViewById(R.id.channels);
         channels.setText("");
         channels.append("#");
-    	Button b = (Button)v.findViewById(R.id.addBtn);
-    	b.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!getActivity().getResources().getBoolean(R.bool.isTablet)) {
-					Intent i = new Intent(getActivity(), EditConnectionActivity.class);
-					startActivity(i);
-				} else {
-		        	EditConnectionFragment newFragment = new EditConnectionFragment();
-		            newFragment.show(getActivity().getSupportFragmentManager(), "editconnection");
-				}
-			}
-    	});
-    	
-    	return new AlertDialog.Builder(ctx)
+        Button b = (Button) v.findViewById(R.id.addBtn);
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!getActivity().getResources().getBoolean(R.bool.isTablet)) {
+                    Intent i = new Intent(getActivity(), EditConnectionActivity.class);
+                    startActivity(i);
+                } else {
+                    EditConnectionFragment newFragment = new EditConnectionFragment();
+                    newFragment.show(getActivity().getSupportFragmentManager(), "editconnection");
+                }
+            }
+        });
+
+        return new AlertDialog.Builder(ctx)
                 .setTitle("Join A Channel")
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setView(v)
                 .setPositiveButton("Join", new DoneClickListener())
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
                 })
                 .create();
     }

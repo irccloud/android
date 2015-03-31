@@ -16,17 +16,8 @@
 
 package com.irccloud.android;
 
-import io.fabric.sdk.android.Fabric;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import android.app.Application;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
@@ -40,108 +31,116 @@ import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import io.fabric.sdk.android.Fabric;
+
 @SuppressWarnings("unused")
 public class IRCCloudApplication extends Application {
-	private static final int RINGTONE_VERSION = 1;
-	
-	private static IRCCloudApplication instance = null;
-	private NetworkConnection conn = null;
-	private ServersDataSource s = null;
-	private BuffersDataSource b = null;
-	private ChannelsDataSource c = null;
-	private UsersDataSource u = null;
-	private EventsDataSource e = null;
-	
-	public static IRCCloudApplication getInstance() {
-		if(instance != null) {
-			return instance;
-		} else {
-			return new IRCCloudApplication();
-		}
-	}
+    private static final int RINGTONE_VERSION = 1;
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
+    private static IRCCloudApplication instance = null;
+    private NetworkConnection conn = null;
+    private ServersDataSource s = null;
+    private BuffersDataSource b = null;
+    private ChannelsDataSource c = null;
+    private UsersDataSource u = null;
+    private EventsDataSource e = null;
+
+    public static IRCCloudApplication getInstance() {
+        if (instance != null) {
+            return instance;
+        } else {
+            return new IRCCloudApplication();
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
         instance = this;
         Fabric.with(this, new Crashlytics());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
         System.setProperty("http.keepAlive", "false");
 
-		//Allocate all the shared objects at launch
-		conn = NetworkConnection.getInstance();
-		s = ServersDataSource.getInstance();
-		b = BuffersDataSource.getInstance();
-		c = ChannelsDataSource.getInstance();
-		u = UsersDataSource.getInstance();
-		e = EventsDataSource.getInstance();
+        //Allocate all the shared objects at launch
+        conn = NetworkConnection.getInstance();
+        s = ServersDataSource.getInstance();
+        b = BuffersDataSource.getInstance();
+        c = ChannelsDataSource.getInstance();
+        u = UsersDataSource.getInstance();
+        e = EventsDataSource.getInstance();
         ColorFormatter.init();
 
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        if(prefs.contains("notify")) {
-			SharedPreferences.Editor editor = prefs.edit();
-			editor.putString("notify_type", prefs.getBoolean("notify", true)?"1":"0");
-			editor.remove("notify");
-			editor.commit();
-		}
-
-		if(prefs.contains("notify_sound")) {
-			SharedPreferences.Editor editor = prefs.edit();
-			if(!prefs.getBoolean("notify_sound", true))
-				editor.putString("notify_ringtone", "");
-			editor.remove("notify_sound");
-			editor.commit();
-		}
-
-        if(prefs.contains("notify_lights")) {
+        if (prefs.contains("notify")) {
             SharedPreferences.Editor editor = prefs.edit();
-            if(!prefs.getBoolean("notify_lights", true))
+            editor.putString("notify_type", prefs.getBoolean("notify", true) ? "1" : "0");
+            editor.remove("notify");
+            editor.commit();
+        }
+
+        if (prefs.contains("notify_sound")) {
+            SharedPreferences.Editor editor = prefs.edit();
+            if (!prefs.getBoolean("notify_sound", true))
+                editor.putString("notify_ringtone", "");
+            editor.remove("notify_sound");
+            editor.commit();
+        }
+
+        if (prefs.contains("notify_lights")) {
+            SharedPreferences.Editor editor = prefs.edit();
+            if (!prefs.getBoolean("notify_lights", true))
                 editor.putString("notify_led_color", "0");
             editor.remove("notify_lights");
             editor.commit();
         }
 
-		if(prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {
-			File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS);
-			File file = new File(path, "IRCCloud.mp3");
-			try {
-				path.mkdirs();
-				InputStream is = getResources().openRawResource(R.raw.digit);
-		        OutputStream os = new FileOutputStream(file);
-		        byte[] data = new byte[is.available()];
-		        is.read(data);
-		        os.write(data);
-		        is.close();
-		        os.close();
-		        MediaScannerConnection.scanFile(this,
-		                new String[] { file.toString() }, null,
-		                new MediaScannerConnection.OnScanCompletedListener() {
-					@Override
-		            public void onScanCompleted(String path, Uri uri) {
-						SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-						SharedPreferences.Editor editor = prefs.edit();
-						if(!prefs.contains("notify_ringtone")) {
-							editor.putString("notify_ringtone", uri.toString());
-						}
-						editor.putInt("ringtone_version", RINGTONE_VERSION);
-						editor.commit();
-		            }
-		        });
-			} catch (IOException e) {
-				if(!prefs.contains("notify_ringtone")) {
-					SharedPreferences.Editor editor = prefs.edit();
-					editor.putString("notify_ringtone", "content://settings/system/notification_sound");
-					editor.commit();
-				}
-		    }
-		}
+        if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {
+            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS);
+            File file = new File(path, "IRCCloud.mp3");
+            try {
+                path.mkdirs();
+                InputStream is = getResources().openRawResource(R.raw.digit);
+                OutputStream os = new FileOutputStream(file);
+                byte[] data = new byte[is.available()];
+                is.read(data);
+                os.write(data);
+                is.close();
+                os.close();
+                MediaScannerConnection.scanFile(this,
+                        new String[]{file.toString()}, null,
+                        new MediaScannerConnection.OnScanCompletedListener() {
+                            @Override
+                            public void onScanCompleted(String path, Uri uri) {
+                                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                SharedPreferences.Editor editor = prefs.edit();
+                                if (!prefs.contains("notify_ringtone")) {
+                                    editor.putString("notify_ringtone", uri.toString());
+                                }
+                                editor.putInt("ringtone_version", RINGTONE_VERSION);
+                                editor.commit();
+                            }
+                        });
+            } catch (IOException e) {
+                if (!prefs.contains("notify_ringtone")) {
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("notify_ringtone", "content://settings/system/notification_sound");
+                    editor.commit();
+                }
+            }
+        }
 
-        if(prefs.contains("notify_pebble")) {
+        if (prefs.contains("notify_pebble")) {
             try {
                 int pebbleVersion = getPackageManager().getPackageInfo("com.getpebble.android", 0).versionCode;
-                if(pebbleVersion >= 553) {
+                if (pebbleVersion >= 553) {
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.remove("notify_pebble");
                     editor.commit();
@@ -150,20 +149,20 @@ public class IRCCloudApplication extends Application {
             }
         }
 
-        if(prefs.contains("acra.enable")) {
+        if (prefs.contains("acra.enable")) {
             SharedPreferences.Editor editor = prefs.edit();
             editor.remove("acra.enable");
             editor.commit();
         }
 
         prefs = getSharedPreferences("prefs", 0);
-        if(prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
+        if (prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("path", "/websocket/" + prefs.getString("session_key", "").charAt(0));
             editor.commit();
         }
-        if(prefs.contains("host") && prefs.getString("host", "").equals("www.irccloud.com")) {
+        if (prefs.contains("host") && prefs.getString("host", "").equals("www.irccloud.com")) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating host");
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString("host", "api.irccloud.com");
@@ -177,7 +176,7 @@ public class IRCCloudApplication extends Application {
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        if(!NetworkConnection.getInstance().isVisible()) {
+        if (!NetworkConnection.getInstance().isVisible()) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the background, cleaning backlog in all buffers");
             for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
                 if (!b.scrolledUp)
