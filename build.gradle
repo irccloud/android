@@ -55,7 +55,7 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 29
+        versionCode 30
         versionName "1.20"
         minSdkVersion 9
         targetSdkVersion 21

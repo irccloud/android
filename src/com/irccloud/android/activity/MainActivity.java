@@ -941,7 +941,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                 };
-                countdownTimer.schedule(e.expiration_timer, 60000);
+                try {
+                    countdownTimer.schedule(e.expiration_timer, 60000);
+                } catch (IllegalStateException e) {
+                    //Timer has already expired
+                }
             } else {
                 sendBtn.setEnabled(true);
                 if (Build.VERSION.SDK_INT >= 11)
