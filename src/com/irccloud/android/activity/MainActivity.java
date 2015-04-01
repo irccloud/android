@@ -1272,8 +1272,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             launchURI = null;
             ServersDataSource.Server s = null;
             try {
-                if (Integer.parseInt(uri.getHost()) > 0) {
-                    s = ServersDataSource.getInstance().getServer(Integer.parseInt(uri.getHost()));
+                if (uri.getHost().equals("cid")) {
+                    s = ServersDataSource.getInstance().getServer(Integer.parseInt(uri.getPathSegments().get(0)));
                 }
             } catch (NumberFormatException e) {
 
@@ -1290,7 +1290,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (s != null) {
                 if (uri.getPath() != null && uri.getPath().length() > 1) {
                     String key = null;
-                    String channel = uri.getPath().substring(1);
+                    String channel = uri.getLastPathSegment();
                     if (channel.contains(",")) {
                         key = channel.substring(channel.indexOf(",") + 1);
                         channel = channel.substring(0, channel.indexOf(","));
@@ -3124,8 +3124,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
                         url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
                         if (server != null) {
-                            url = url.replace("ircs://" + server.cid + "/", "ircs://" + server.hostname + ":" + server.port + "/");
-                            url = url.replace("irc://" + server.cid + "/", ((server.ssl > 0) ? "ircs://" : "irc://") + server.hostname + ":" + server.port + "/");
+                            url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.cid + "/", ((server.ssl>0)?"ircs://":"irc://") + server.hostname + ":" + server.port + "/");
                         }
                         urlListItems.add(url);
                     }

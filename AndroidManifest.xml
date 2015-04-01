@@ -60,6 +60,12 @@
                 <data android:scheme="irc" />
                 <data android:scheme="ircs" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/IRCCLOUD_SCHEME" android:host="cid"/>
+            </intent-filter>
         </activity>
 
         <activity-alias
