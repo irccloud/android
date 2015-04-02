@@ -11,7 +11,9 @@ buildscript {
     }
 }
 apply plugin: 'com.android.application'
-apply plugin: 'io.fabric'
+if(rootProject.file('private.properties').exists()) {
+    apply plugin: 'io.fabric'
+}
 
 tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
