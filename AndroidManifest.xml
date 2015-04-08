@@ -101,7 +101,7 @@
             android:name=".activity.EditConnectionActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity android:name=".activity.ServerReorderActivity" >
+        <activity android:name=".activity.ServerReorderActivity">
         </activity>
         <activity
             android:name=".activity.ImageViewerActivity"

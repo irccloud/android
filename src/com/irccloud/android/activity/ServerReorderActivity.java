@@ -40,6 +40,8 @@ public class ServerReorderActivity extends ActionBarActivity {
         setContentView(R.layout.activity_reorder_servers);
         getSupportActionBar().setTitle("Connections");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
+        getSupportActionBar().setElevation(0);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final ServerReorderFragment newFragment = new ServerReorderFragment();
