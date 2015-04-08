@@ -38,6 +38,7 @@
             android:adjustViewBounds="true" />
 
         <TextView
+            android:id="@+id/filename_heading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="4dp"
@@ -52,14 +53,6 @@
             android:lines="1"
             android:nextFocusDown="@+id/message"
             android:inputType="textUri"/>
-
-        <TextView
-            android:id="@+id/filesize"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:textColor="#000"
-            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <!-- Dummy item to prevent EditText from receiving focus on launch -->
 
@@ -83,5 +76,14 @@
             android:lines="0"
             android:nextFocusUp="@id/filename"
             android:inputType="text" />
+
+        <TextView
+            android:id="@+id/filesize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textColor="#000"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+
     </LinearLayout>
 </ScrollView>

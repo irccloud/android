@@ -57,6 +57,18 @@
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
     </style>
+    <style name="DialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:dialogTheme">@style/AppDialogTheme</item>
+        <item name="android:alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+    </style>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>

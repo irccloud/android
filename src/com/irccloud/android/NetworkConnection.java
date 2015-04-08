@@ -22,6 +22,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -52,6 +54,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -736,6 +739,16 @@ public class NetworkConnection {
         return null;
     }
 
+    public JSONObject files(int page) throws IOException {
+        try {
+            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/files?page="+page), null, session, null);
+            return new JSONObject(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void logout(final String sk) {
         idleTimer.schedule(new TimerTask() {
             @Override
@@ -1166,6 +1179,17 @@ public class NetworkConnection {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
             return send("delete-connection", o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public int deleteFile(String id) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("file", id);
+            return send("delete-file", o);
         } catch (JSONException e) {
             e.printStackTrace();
             return -1;
@@ -2433,6 +2457,82 @@ public class NetworkConnection {
             sb.append(line).append('\n');
         }
         return sb.toString();
+    }
+
+    public Bitmap fetchImage(URL url, boolean cacheOnly) throws Exception {
+        HttpURLConnection conn = null;
+
+        Proxy proxy = null;
+        String host = null;
+        int port = -1;
+
+        if (Build.VERSION.SDK_INT < 11) {
+            Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
+            if (ctx != null) {
+                host = android.net.Proxy.getHost(ctx);
+                port = android.net.Proxy.getPort(ctx);
+            }
+        } else {
+            host = System.getProperty("http.proxyHost", null);
+            try {
+                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+            } catch (NumberFormatException e) {
+                port = -1;
+            }
+        }
+
+        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+            InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+            proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+        }
+
+        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url + " via proxy: " + host);
+        } else {
+            Crashlytics.log(Log.DEBUG, TAG, "Requesting: " + url);
+        }
+
+        if (url.getProtocol().toLowerCase().equals("https")) {
+            HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+            if (url.getHost().equals(IRCCLOUD_HOST))
+                https.setSSLSocketFactory(IRCCloudSocketFactory);
+            conn = https;
+        } else {
+            conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+        }
+
+        conn.setConnectTimeout(30000);
+        conn.setReadTimeout(30000);
+        conn.setUseCaches(true);
+        conn.setRequestProperty("User-Agent", useragent);
+        if(cacheOnly)
+            conn.addRequestProperty("Cache-Control", "only-if-cached");
+        Bitmap bitmap = null;
+
+        try {
+            ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo ni = cm.getActiveNetworkInfo();
+            if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
+                Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
+            } else {
+                Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            if (conn.getInputStream() != null) {
+                bitmap = BitmapFactory.decodeStream(conn.getInputStream());
+            }
+        } catch (FileNotFoundException e) {
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        conn.disconnect();
+        return bitmap;
     }
 
     public synchronized void addHandler(IRCEventHandler handler) {

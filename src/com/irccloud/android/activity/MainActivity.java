@@ -142,6 +142,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -2472,6 +2473,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     fileUploadTask = new FileUploadTask(selectedFile);
                     fileUploadTask.execute((Void) null);
                 }
+            } else if (requestCode == 4 && resultCode == RESULT_OK) {
+                buffer.draft = "";
+                messageTxt.setText("");
             }
         }
     }
@@ -2482,6 +2486,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
         String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing"} : new String[]{"Take a Photo", "Choose Existing Photo", "Choose Existing Document"};
+        if(NetworkConnection.getInstance().uploadsAvailable()) {
+            items = Arrays.copyOf(items, items.length + 1);
+            items[items.length - 1] = "IRCCloud Files";
+        }
+
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -2506,6 +2515,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     i.addCategory(Intent.CATEGORY_OPENABLE);
                     i.setType("*/*");
                     startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
+                } else {
+                    Intent i = new Intent(MainActivity.this, UploadsActivity.class);
+                    i.putExtra("cid", buffer.cid);
+                    i.putExtra("to", buffer.name);
+                    i.putExtra("msg", messageTxt.getText().toString());
+                    startActivityForResult(i, 4);
                 }
                 dialog.dismiss();
             }

@@ -136,6 +136,10 @@
                 <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
             </intent-filter>
         </activity>
+        <activity android:name="com.irccloud.android.activity.UploadsActivity"
+            android:theme="@style/DialogWhenLargeTheme"
+            android:label="@string/title_activity_uploads">
+        </activity>
 
         <receiver
             android:name=".GCMBroadcastReceiver"

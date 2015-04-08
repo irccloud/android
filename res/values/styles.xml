@@ -48,6 +48,13 @@
         <item name="android:padding">0px</item>
     </style>
     <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog"/>
+    <style name="DialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorAccent">#888</item>
+        <item name="colorPrimaryDark">#000</item>
+    </style>
     <style name="ImgurAuthTheme" parent="Theme.AppCompat">
         <item name="colorAccent">#888</item>
         <item name="colorPrimaryDark">#000</item>

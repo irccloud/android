@@ -47,4 +47,5 @@
     <string name="TOS">By signing up, you agree to our <a href="https://www.irccloud.com/terms">Terms\u00A0of\u00A0Service</a></string>
     <string name="forgotPassword">Forgotten your password? <a href="#">Get\u00A0an\u00A0access\u00A0link</a></string>
     <string name="enterpriseLearnMore">Looking for the Standard Edition? <a href="#">Get\u00A0it\u00A0here</a></string>
+    <string name="title_activity_uploads">IRCCloud Files</string>
 </resources>

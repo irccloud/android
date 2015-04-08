@@ -42,6 +42,14 @@
         <item name="colorAccent">#fff</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
     </style>
+    <style name="DialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorAccent">#ff33b5e5</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+    </style>
     <style name="messageTxt">
         <item name="android:imeOptions">flagNoExtractUi|actionSend</item>
     </style>
