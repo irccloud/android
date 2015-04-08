@@ -151,12 +151,6 @@ public class UploadsActivity extends BaseActivity {
             files.add(f);
 
             try {
-                if(Build.VERSION.SDK_INT >= 14 && f.image == null && f.mime_type.startsWith("image/")) {
-                    HttpResponseCache cache = HttpResponseCache.getInstalled();
-                    if (cache != null) {
-                        f.image = NetworkConnection.getInstance().fetchImage(new URL(f.url_template.replace(":modifiers", "w320")), true);
-                    }
-                }
                 if(f.image == null && f.mime_type.startsWith("image/")) {
                     mDownloadThreadPool.execute(new Runnable() {
                         @Override
@@ -387,6 +381,15 @@ public class UploadsActivity extends BaseActivity {
             page = savedInstanceState.getInt("page");
             File[] files = (File[])savedInstanceState.getSerializable("adapter");
             for(File f : files) {
+                if(Build.VERSION.SDK_INT >= 14 && f.image == null && f.mime_type.startsWith("image/")) {
+                    HttpResponseCache cache = HttpResponseCache.getInstalled();
+                    if (cache != null) {
+                        try {
+                            f.image = NetworkConnection.getInstance().fetchImage(new URL(f.url_template.replace(":modifiers", "w320")), true);
+                        } catch (Exception e) {
+                        }
+                    }
+                }
                 adapter.addFile(f);
             }
             adapter.notifyDataSetChanged();

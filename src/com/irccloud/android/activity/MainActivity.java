@@ -3020,7 +3020,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     e.failed = true;
                                     e.bg_color = R.color.error;
                                     e.expiration_timer = null;
-                                    conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+                                    NetworkConnection.getInstance().notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
                                 }
                             }
                         };
@@ -4155,6 +4155,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         try {
                             thumbnail.setImageBitmap(loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), mFileUri));
                             thumbnail.setVisibility(View.VISIBLE);
+                        } catch (OutOfMemoryError e) {
+                            thumbnail.setVisibility(View.GONE);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -4265,22 +4267,32 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } catch (Exception e) {
                 Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        show_alert("Upload Failed", "Unable to open input file stream");
-                    }
-                });
+                if(activity != null) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            show_alert("Upload Failed", "Unable to open input file stream");
+                        }
+                    });
+                } else {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+                    Notifications.getInstance().alert(mBuffer.bid, "Upload Failed", "Unable to upload file to IRCCloud.");
+                }
                 return null;
             }
 
             if (total > 15000000) {
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        show_alert("Upload Failed", "Sorry, you can’t upload files larger than 15 MB");
-                    }
-                });
+                if(activity != null) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            show_alert("Upload Failed", "Sorry, you can’t upload files larger than 15 MB");
+                        }
+                    });
+                } else {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+                    Notifications.getInstance().alert(mBuffer.bid, "Upload Failed", "Unable to upload file to IRCCloud.");
+                }
                 return null;
             }
 

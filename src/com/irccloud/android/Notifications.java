@@ -255,7 +255,11 @@ public class Notifications {
                 }
             }
         };
-        mSaveTimer.schedule(mSaveTimerTask, 100);
+        try {
+            mSaveTimer.schedule(mSaveTimerTask, 100);
+        } catch (IllegalStateException e) {
+            //Timer is already cancelled
+        }
     }
 
     public void clearDismissed() {
@@ -486,7 +490,7 @@ public class Notifications {
         synchronized (mNotifications) {
             for (int i = 0; i < mNotifications.size(); i++) {
                 Notification n = mNotifications.get(i);
-                if (n.bid != excludeBid && isMessage(n.message_type)) {
+                if (n != null && n.bid != excludeBid && isMessage(n.message_type)) {
                     if (n.network == null)
                         n.network = getNetwork(n.cid);
                     notifications.add(n);
@@ -502,7 +506,7 @@ public class Notifications {
         synchronized (mNotifications) {
             for (int i = 0; i < mNotifications.size(); i++) {
                 Notification n = mNotifications.get(i);
-                if (n.bid != excludeBid && !isMessage(n.message_type)) {
+                if (n != null && n.bid != excludeBid && !isMessage(n.message_type)) {
                     if (n.network == null)
                         n.network = getNetwork(n.cid);
                     notifications.add(n);
