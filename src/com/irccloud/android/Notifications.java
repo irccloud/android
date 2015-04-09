@@ -164,8 +164,8 @@ public class Notifications {
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+                Crashlytics.logException(e);
             }
-
         }
     }
 
@@ -263,11 +263,13 @@ public class Notifications {
     }
 
     public void clearDismissed() {
+        Crashlytics.log("Clearing dismissed notifications");
         mDismissedEIDs.clear();
         save();
     }
 
     public void clear() {
+        Crashlytics.log("Clearing notifications");
         try {
             synchronized (mNotifications) {
                 if (mNotifications.size() > 0) {
@@ -278,8 +280,12 @@ public class Notifications {
                 }
             }
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-            if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                NotificationUtil.deleteAllEvents(IRCCloudApplication.getInstance().getApplicationContext());
+            try {
+                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+                    NotificationUtil.deleteAllEvents(IRCCloudApplication.getInstance().getApplicationContext());
+            } catch (Exception e) {
+                //Sony LiveWare was probably removed
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -297,6 +303,7 @@ public class Notifications {
     }
 
     public void clearNetworks() {
+        Crashlytics.log("Clearing networks");
         mNetworks.clear();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         editor.remove("networks_json");
@@ -326,6 +333,7 @@ public class Notifications {
     }
 
     public synchronized void dismiss(int bid, long eid) {
+        Crashlytics.log("Dismissed notification: " + eid);
         if (mDismissedEIDs.get(bid) == null)
             mDismissedEIDs.put(bid, new HashSet<Long>());
 
@@ -353,11 +361,12 @@ public class Notifications {
 
     public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
         if (isDismissed(bid, eid)) {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Refusing to add notification for dismissed eid: " + eid);
+            Crashlytics.log("Refusing to add notification for dismissed eid: " + eid);
             return;
         }
         long last_eid = getLastSeenEid(bid);
         if (eid <= last_eid) {
+            Crashlytics.log("Refusing to add notification for seen eid: " + eid);
             return;
         }
 
@@ -395,6 +404,7 @@ public class Notifications {
     }
 
     public void deleteOldNotifications(int bid, long last_seen_eid) {
+        Crashlytics.log("Deleting old notifications for bid" + bid);
         boolean changed = false;
         if (mNotificationTimerTask != null) {
             mNotificationTimerTask.cancel();
@@ -445,6 +455,7 @@ public class Notifications {
     }
 
     public void deleteNotificationsForBid(int bid) {
+        Crashlytics.log("Delete all notifications for bid" + bid);
         ArrayList<Notification> notifications = getOtherNotifications();
 
         if (notifications.size() > 0) {
@@ -460,7 +471,6 @@ public class Notifications {
                 if (n.bid == bid) {
                     mNotifications.remove(n);
                     i--;
-                    continue;
                 }
             }
         }
@@ -535,6 +545,7 @@ public class Notifications {
     }
 
     public synchronized void excludeBid(int bid) {
+        Crashlytics.log("Exclude BID: " + bid);
         excludeBid = -1;
         ArrayList<Notification> notifications = getOtherNotifications();
 
@@ -576,7 +587,8 @@ public class Notifications {
             };
             mNotificationTimer.schedule(mNotificationTimerTask, 5000);
         } catch (Exception e) {
-
+            e.printStackTrace();
+            Crashlytics.logException(e);
         }
     }
 
@@ -833,37 +845,39 @@ public class Notifications {
                         long time = System.currentTimeMillis();
                         long sourceId = NotificationUtil.getSourceId(IRCCloudApplication.getInstance().getApplicationContext(), SonyExtensionService.EXTENSION_SPECIFIC_ID);
                         if (sourceId == NotificationUtil.INVALID_ID) {
-                            Log.e("IRCCloud", "SONY: Failed to insert data");
-                            return;
-                        }
+                            Crashlytics.log(Log.ERROR, "IRCCloud", "Sony LiveWare Manager not configured, disabling Sony notifications");
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putBoolean("notify_sony", false);
+                            editor.commit();
+                        } else {
+                            ContentValues eventValues = new ContentValues();
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.EVENT_READ_STATUS, false);
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.DISPLAY_NAME, n.nick);
 
-                        ContentValues eventValues = new ContentValues();
-                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.EVENT_READ_STATUS, false);
-                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.DISPLAY_NAME, n.nick);
+                            if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.chan);
+                            else
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network);
 
-                        if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.chan);
-                        else
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network);
+                            if (n.message_type.equals("buffer_me_msg"))
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.message).toString());
+                            else
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, Html.fromHtml(n.message).toString());
 
-                        if (n.message_type.equals("buffer_me_msg"))
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.message).toString());
-                        else
-                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, Html.fromHtml(n.message).toString());
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PERSONAL, 1);
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PUBLISHED_TIME, time);
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.SOURCE_ID, sourceId);
+                            eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY, String.valueOf(n.bid));
 
-                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PERSONAL, 1);
-                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.PUBLISHED_TIME, time);
-                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.SOURCE_ID, sourceId);
-                        eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY, String.valueOf(n.bid));
-
-                        try {
-                            IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(com.sonyericsson.extras.liveware.aef.notification.Notification.Event.URI, eventValues);
-                        } catch (IllegalArgumentException e) {
-                            Log.e("IRCCloud", "Failed to insert event", e);
-                        } catch (SecurityException e) {
-                            Log.e("IRCCloud", "Failed to insert event, is Live Ware Manager installed?", e);
-                        } catch (SQLException e) {
-                            Log.e("IRCCloud", "Failed to insert event", e);
+                            try {
+                                IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(com.sonyericsson.extras.liveware.aef.notification.Notification.Event.URI, eventValues);
+                            } catch (IllegalArgumentException e) {
+                                Log.e("IRCCloud", "Failed to insert event", e);
+                            } catch (SecurityException e) {
+                                Log.e("IRCCloud", "Failed to insert event, is Live Ware Manager installed?", e);
+                            } catch (SQLException e) {
+                                Log.e("IRCCloud", "Failed to insert event", e);
+                            }
                         }
                     }
 
@@ -887,6 +901,7 @@ public class Notifications {
                 eids[count++] = n.eid;
                 last = n;
             }
+
             if (show) {
                 String title = last.chan;
                 if (title == null || title.length() == 0)
