@@ -53,5 +53,11 @@
             android:layout_height="wrap_content"
             android:text="Collapse nick changes, joins, and parts" />
 
+        <CheckBox
+            android:id="@+id/autosuggest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Suggest nicknames as you type" />
+
     </LinearLayout>
 </ScrollView>

@@ -164,7 +164,6 @@ public class Notifications {
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
-                Crashlytics.logException(e);
             }
         }
     }
@@ -227,13 +226,15 @@ public class Notifications {
                         JSONArray a = new JSONArray();
                         int bid = mDismissedEIDs.keyAt(i);
                         HashSet<Long> eids = mDismissedEIDs.get(bid);
-                        for (long eid : eids) {
-                            a.put(eid);
+                        if(eids.size() > 0) {
+                            for (long eid : eids) {
+                                a.put(eid);
+                            }
+                            JSONObject o = new JSONObject();
+                            o.put("bid", bid);
+                            o.put("eids", a);
+                            array.put(o);
                         }
-                        JSONObject o = new JSONObject();
-                        o.put("bid", bid);
-                        o.put("eids", a);
-                        array.put(o);
                     }
                     editor.putString("dismissedeids_json", array.toString());
 
@@ -307,6 +308,14 @@ public class Notifications {
         mNetworks.clear();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         editor.remove("networks_json");
+        editor.commit();
+    }
+
+    public void clearLastSeenEIDs() {
+        Crashlytics.log("Clearing lastSeenEIDs");
+        mLastSeenEIDs.clear();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+        editor.remove("lastseeneids_json");
         editor.commit();
     }
 

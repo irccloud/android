@@ -43,6 +43,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     CheckBox joinpart;
     CheckBox collapse;
     CheckBox notifyAll;
+    CheckBox autosuggest;
     int cid;
     int bid;
 
@@ -95,6 +96,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
                     prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
                     prefs = updatePref(prefs, notifyAll, "channel-notifications-all");
+                    prefs = updatePref(prefs, autosuggest, "channel-disableAutoSuggest");
 
                     NetworkConnection.getInstance().set_prefs(prefs.toString());
                 } else {
@@ -160,12 +162,22 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         notifyAll.setChecked(false);
                     }
+                    if (prefs.has("channel-disableAutoSuggest")) {
+                        JSONObject suggestMap = prefs.getJSONObject("channel-disableAutoSuggest");
+                        if (suggestMap.has(String.valueOf(bid)) && suggestMap.getBoolean(String.valueOf(bid)))
+                            autosuggest.setChecked(false);
+                        else
+                            autosuggest.setChecked(true);
+                    } else {
+                        autosuggest.setChecked(true);
+                    }
                 } else {
                     notifyAll.setChecked(false);
                     joinpart.setChecked(true);
                     unread.setChecked(true);
                     members.setChecked(true);
                     collapse.setChecked(true);
+                    autosuggest.setChecked(true);
                 }
             } else {
                 notifyAll.setChecked(false);
@@ -173,6 +185,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                 unread.setChecked(true);
                 members.setChecked(true);
                 collapse.setChecked(true);
+                autosuggest.setChecked(true);
             }
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
                 members.setVisibility(View.GONE);
@@ -195,6 +208,7 @@ public class ChannelOptionsFragment extends DialogFragment {
         notifyAll = (CheckBox) v.findViewById(R.id.notifyAll);
         joinpart = (CheckBox) v.findViewById(R.id.joinpart);
         collapse = (CheckBox) v.findViewById(R.id.collapse);
+        autosuggest = (CheckBox) v.findViewById(R.id.autosuggest);
 
         return new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)

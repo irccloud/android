@@ -31,6 +31,7 @@ public class UsersDataSource {
         public int bid;
         public String nick;
         public String old_nick = null;
+        public String nick_lowercase;
         public String hostmask;
         public String mode;
         public int away;
@@ -79,6 +80,7 @@ public class UsersDataSource {
         u.cid = cid;
         u.bid = bid;
         u.nick = nick;
+        u.nick_lowercase = nick.toLowerCase();
         u.hostmask = hostmask;
         u.mode = mode;
         u.away = away;
@@ -105,6 +107,7 @@ public class UsersDataSource {
         User u = getUser(bid, old_nick);
         if (u != null) {
             u.nick = new_nick;
+            u.nick_lowercase = new_nick.toLowerCase();
             u.old_nick = old_nick;
             users.get(bid).remove(old_nick.toLowerCase());
             users.get(bid).put(new_nick.toLowerCase(), u);

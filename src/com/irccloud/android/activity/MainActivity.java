@@ -349,12 +349,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     suggestionsTimerTask = new TimerTask() {
                         @Override
                         public void run() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    update_suggestions(false);
-                                }
-                            });
+                            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                            update_suggestions(false);
                         }
                     };
                     suggestionsTimer.schedule(suggestionsTimerTask, 250);
@@ -614,15 +610,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private void update_suggestions(boolean force) {
         if (suggestionsContainer != null && messageTxt != null && messageTxt.getText() != null) {
-            String text = messageTxt.getText().toString().toLowerCase();
+            String text = messageTxt.getText().toString();
             if (text.lastIndexOf(' ') > 0 && text.lastIndexOf(' ') < text.length() - 1) {
                 text = text.substring(text.lastIndexOf(' ') + 1);
             }
             if (text.endsWith(":"))
                 text = text.substring(0, text.length() - 1);
-            ArrayList<String> sugs = new ArrayList<String>();
+            text = text.toLowerCase();
+            final ArrayList<String> sugs = new ArrayList<String>();
             HashSet<String> sugs_set = new HashSet<String>();
-            if (text.length() > 1 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
+            if (text.length() > 2 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
                 if (sortedChannels == null) {
                     sortedChannels = ChannelsDataSource.getInstance().getChannels();
                     if (sortedChannels == null)
@@ -646,7 +643,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
 
-                if (sortedUsers == null && buffer != null) {
+                JSONObject disableAutoSuggest = null;
+                if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
+                    try {
+                        if (NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableAutoSuggest"))
+                            disableAutoSuggest = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableAutoSuggest");
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+                boolean disabled;
+                try {
+                    disabled = disableAutoSuggest != null && disableAutoSuggest.has(String.valueOf(buffer.bid)) && disableAutoSuggest.getBoolean(String.valueOf(buffer.bid));
+                } catch (JSONException e) {
+                    disabled = false;
+                }
+
+                if (sortedUsers == null && buffer != null && (force || !disabled)) {
                     sortedUsers = UsersDataSource.getInstance().getUsersForBuffer(buffer.bid);
                     if (sortedUsers != null) {
                         Collections.sort(sortedUsers, new Comparator<UsersDataSource.User>() {
@@ -663,11 +678,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if (sortedUsers != null) {
                     for (UsersDataSource.User user : sortedUsers) {
-                        String nick = user.nick;
+                        String nick = user.nick_lowercase;
                         if (text.matches("^[a-zA-Z0-9]+.*"))
                             nick = nick.replaceFirst("^[^a-zA-Z0-9]+", "");
 
-                        if (nick.toLowerCase().startsWith(text) && !sugs_set.contains(user.nick)) {
+                        if (nick.startsWith(text) && !sugs_set.contains(user.nick)) {
                             sugs_set.add(user.nick);
                             sugs.add(user.nick);
                         }
@@ -688,77 +703,85 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
 
-            if (sugs.size() > 0) {
-                if (suggestionsAdapter.activePos == -1) {
-                    suggestionsAdapter.clear();
-                    for (String s : sugs) {
-                        suggestionsAdapter.add(s);
-                    }
-                    suggestionsAdapter.notifyDataSetChanged();
-                    suggestions.smoothScrollToPosition(0);
-                }
-                if (suggestionsContainer.getVisibility() == View.INVISIBLE) {
-                    if (Build.VERSION.SDK_INT < 16) {
-                        AlphaAnimation anim = new AlphaAnimation(0, 1);
-                        anim.setDuration(250);
-                        anim.setFillAfter(true);
-                        suggestionsContainer.startAnimation(anim);
-                    } else {
-                        suggestionsContainer.setAlpha(0);
-                        suggestionsContainer.setTranslationY(1000);
-                        suggestionsContainer.animate().alpha(1).translationY(0).setInterpolator(new DecelerateInterpolator());
-                    }
-                    suggestionsContainer.setVisibility(View.VISIBLE);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (suggestionsContainer.getHeight() < 48) {
-                                getSupportActionBar().hide();
+            if(sugs.size() == 0 && suggestionsContainer.getVisibility() == View.INVISIBLE)
+                return;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (sugs.size() > 0) {
+                        if (suggestionsAdapter.activePos == -1) {
+                            suggestionsAdapter.clear();
+                            for (String s : sugs) {
+                                suggestionsAdapter.add(s);
                             }
+                            suggestionsAdapter.notifyDataSetChanged();
+                            suggestions.smoothScrollToPosition(0);
                         }
-                    });
-                }
-            } else {
-                if (suggestionsContainer.getVisibility() == View.VISIBLE) {
-                    if (Build.VERSION.SDK_INT < 16) {
-                        AlphaAnimation anim = new AlphaAnimation(1, 0);
-                        anim.setDuration(250);
-                        anim.setFillAfter(true);
-                        anim.setAnimationListener(new Animation.AnimationListener() {
-                            @Override
-                            public void onAnimationStart(Animation animation) {
-
+                        if (suggestionsContainer.getVisibility() == View.INVISIBLE) {
+                            if (Build.VERSION.SDK_INT < 16) {
+                                AlphaAnimation anim = new AlphaAnimation(0, 1);
+                                anim.setDuration(250);
+                                anim.setFillAfter(true);
+                                suggestionsContainer.startAnimation(anim);
+                            } else {
+                                suggestionsContainer.setAlpha(0);
+                                suggestionsContainer.setTranslationY(1000);
+                                suggestionsContainer.animate().alpha(1).translationY(0).setInterpolator(new DecelerateInterpolator());
                             }
-
-                            @Override
-                            public void onAnimationEnd(Animation animation) {
-                                suggestionsContainer.setVisibility(View.INVISIBLE);
-                                suggestionsAdapter.clear();
-                                suggestionsAdapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void onAnimationRepeat(Animation animation) {
-
-                            }
-                        });
-                        suggestionsContainer.startAnimation(anim);
+                            suggestionsContainer.setVisibility(View.VISIBLE);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (suggestionsContainer.getHeight() < 48) {
+                                        getSupportActionBar().hide();
+                                    }
+                                }
+                            });
+                        }
                     } else {
-                        suggestionsContainer.animate().alpha(1).translationY(1000).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
-                            @Override
-                            public void run() {
-                                suggestionsContainer.setVisibility(View.INVISIBLE);
-                                suggestionsAdapter.clear();
-                                suggestionsAdapter.notifyDataSetChanged();
+                        if (suggestionsContainer.getVisibility() == View.VISIBLE) {
+                            if (Build.VERSION.SDK_INT < 16) {
+                                AlphaAnimation anim = new AlphaAnimation(1, 0);
+                                anim.setDuration(250);
+                                anim.setFillAfter(true);
+                                anim.setAnimationListener(new Animation.AnimationListener() {
+                                    @Override
+                                    public void onAnimationStart(Animation animation) {
+
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animation animation) {
+                                        suggestionsContainer.setVisibility(View.INVISIBLE);
+                                        suggestionsAdapter.clear();
+                                        suggestionsAdapter.notifyDataSetChanged();
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animation animation) {
+
+                                    }
+                                });
+                                suggestionsContainer.startAnimation(anim);
+                            } else {
+                                suggestionsContainer.animate().alpha(1).translationY(1000).setInterpolator(new AccelerateInterpolator()).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        suggestionsContainer.setVisibility(View.INVISIBLE);
+                                        suggestionsAdapter.clear();
+                                        suggestionsAdapter.notifyDataSetChanged();
+                                    }
+                                });
                             }
-                        });
+                            sortedUsers = null;
+                            sortedChannels = null;
+                            if (!getSupportActionBar().isShowing())
+                                getSupportActionBar().show();
+                        }
                     }
-                    sortedUsers = null;
-                    sortedChannels = null;
-                    if (!getSupportActionBar().isShowing())
-                        getSupportActionBar().show();
                 }
-            }
+            });
         }
     }
 
@@ -4090,6 +4113,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } catch (Exception e) {
                     original_filename = String.valueOf(System.currentTimeMillis());
                 }
+                if(cursor != null)
+                    cursor.close();
             }
 
             if (type == null) {

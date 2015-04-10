@@ -1481,6 +1481,7 @@ public class NetworkConnection {
                 if (!(object.has("resumed") && object.getBoolean("resumed"))) {
                     Log.d("IRCCloud", "Socket was not resumed");
                     Notifications.getInstance().clearNetworks();
+                    Notifications.getInstance().clearLastSeenEIDs();
                 }
             }
         });
@@ -2685,6 +2686,7 @@ public class NetworkConnection {
         @Override
         protected Boolean doInBackground(URL... url) {
             try {
+                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                 long totalTime = System.currentTimeMillis();
                 long totalParseTime = 0;
                 long totalJSONTime = 0;

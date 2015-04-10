@@ -155,6 +155,7 @@ public class UploadsActivity extends BaseActivity {
                     mDownloadThreadPool.execute(new Runnable() {
                         @Override
                         public void run() {
+                            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                             try {
                                 f.image = NetworkConnection.getInstance().fetchImage(new URL(f.url_template.replace(":modifiers", "w320")), false);
                                 if (f.image == null)
@@ -305,6 +306,7 @@ public class UploadsActivity extends BaseActivity {
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
+                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                 return NetworkConnection.getInstance().files(++page);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -381,15 +383,6 @@ public class UploadsActivity extends BaseActivity {
             page = savedInstanceState.getInt("page");
             File[] files = (File[])savedInstanceState.getSerializable("adapter");
             for(File f : files) {
-                if(Build.VERSION.SDK_INT >= 14 && f.image == null && f.mime_type.startsWith("image/")) {
-                    HttpResponseCache cache = HttpResponseCache.getInstalled();
-                    if (cache != null) {
-                        try {
-                            f.image = NetworkConnection.getInstance().fetchImage(new URL(f.url_template.replace(":modifiers", "w320")), true);
-                        } catch (Exception e) {
-                        }
-                    }
-                }
                 adapter.addFile(f);
             }
             adapter.notifyDataSetChanged();
