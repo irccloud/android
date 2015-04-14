@@ -393,9 +393,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         if (drawerLayout != null) {
             if (findViewById(R.id.usersListFragment2) == null) {
                 upDrawable = new DrawerArrowDrawable(this);
@@ -415,6 +412,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         subtitle = (TextView) v.findViewById(R.id.subtitle);
         key = (ImageView) v.findViewById(R.id.key);
         getSupportActionBar().setCustomView(v);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
@@ -840,12 +839,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             while (backStack != null && backStack.size() > 0) {
                 Integer bid = backStack.get(0);
                 backStack.remove(0);
-                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
-                if (b != null) {
-                    onBufferSelected(bid);
-                    if (backStack.size() > 0)
-                        backStack.remove(0);
-                    return true;
+                if(bid != buffer.bid) {
+                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+                    if (b != null) {
+                        onBufferSelected(bid);
+                        if (backStack.size() > 0)
+                            backStack.remove(0);
+                        return true;
+                    }
                 }
             }
         }
@@ -1089,10 +1090,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         if (intent.getData() != null && intent.getData().getScheme() != null && intent.getData().getScheme().startsWith("irc")) {
-            if (open_uri(intent.getData()))
+            if (open_uri(intent.getData())) {
                 return;
-            else
+            } else {
                 launchURI = intent.getData();
+                buffer = null;
+                server = null;
+            }
         } else if (intent.hasExtra("cid")) {
             if (buffer == null) {
                 buffer = BuffersDataSource.getInstance().getBufferByName(intent.getIntExtra("cid", 0), intent.getStringExtra("name"));
@@ -1277,6 +1281,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         progressBar.setVisibility(View.GONE);
         errorMsg.setVisibility(View.GONE);
         error = null;
+        if(buffer != null)
+            backStack.add(0, buffer.bid);
     }
 
     public static class ConfigInstance {
@@ -1324,6 +1330,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         server = null;
                         return open_bid(b.bid);
                     } else {
+                        onBufferSelected(-1);
+                        title.setText(channel);
+                        getSupportActionBar().setTitle(channel);
+                        bufferToOpen = channel;
                         conn.join(s.cid, channel, key);
                     }
                     return true;
@@ -1373,7 +1383,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private void update_subtitle() {
         if (server == null || buffer == null) {
-            title.setText(null);
+            title.setText(bufferToOpen);
             subtitle.setVisibility(View.GONE);
         } else {
             if (buffer.type.equals("console")) {
