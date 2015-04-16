@@ -109,7 +109,7 @@ android {
                 buildConfigField "String", "GRAB_SECRET", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
-            buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
+            buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
@@ -124,7 +124,7 @@ android {
 
         release {
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
-            buildConfigField "String", "SSL_FP", "\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\""
+            buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
             buildConfigField "boolean", "ENTERPRISE", "false"
             if(rootProject.file('private.properties').exists()) {
                 def props = new Properties()
@@ -183,7 +183,7 @@ android {
                 buildConfigField "String", "GRAB_SECRET", "\"\""
             }
             buildConfigField "String", "SSL_CN", "\"\""
-            buildConfigField "String", "SSL_FP", "\"\""
+            buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
@@ -219,7 +219,7 @@ android {
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String", "SSL_CN", "\"\""
-            buildConfigField "String", "SSL_FP", "\"\""
+            buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"

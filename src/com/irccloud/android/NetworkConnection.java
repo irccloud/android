@@ -485,7 +485,7 @@ public class NetworkConnection {
                     throw new CertificateException("Incorrect CN in cert chain");
                 }
 
-                if (BuildConfig.SSL_FP.length() > 0) {
+                if (BuildConfig.SSL_FPS != null && BuildConfig.SSL_FPS.length > 0) {
                     try {
                         MessageDigest md = MessageDigest.getInstance("SHA-1");
                         byte[] sha1 = md.digest(chain[0].getEncoded());
@@ -497,7 +497,15 @@ public class NetworkConnection {
                             hexChars[j * 2] = hexArray[v >>> 4];
                             hexChars[j * 2 + 1] = hexArray[v & 0x0F];
                         }
-                        if (!BuildConfig.SSL_FP.equals(new String(hexChars)))
+                        String hexCharsStr = new String(hexChars);
+                        boolean matched = false;
+                        for(String fp : BuildConfig.SSL_FPS) {
+                            if(fp.equals(hexCharsStr)) {
+                                matched = true;
+                                break;
+                            }
+                        }
+                        if (!matched)
                             throw new CertificateException("Incorrect CN in cert chain");
                     } catch (NoSuchAlgorithmException e) {
                         e.printStackTrace();
