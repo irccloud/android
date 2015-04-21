@@ -72,14 +72,14 @@
 			        android:padding="4dp"
 			        android:textColor="#fff"
 			        android:textStyle="bold" />
-			    
-   			    <ProgressBar
+
+				<ProgressBar
    			        android:id="@+id/progressBar"
    			        android:layout_width="wrap_content"
    			        android:layout_height="wrap_content"
    			        android:layout_weight="0"
    			        android:padding="4dp"
-   			        style="@android:style/Widget.ProgressBar.Small"
+   			        style="?android:attr/progressBarStyleSmall"
    			        android:visibility="gone" />
 
                 <ImageButton

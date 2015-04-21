@@ -22,10 +22,11 @@
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="colorPrimary">@color/dark_blue</item>
         <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:dialogTheme">@style/AppDialogTheme</item>
@@ -34,10 +35,11 @@
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="colorPrimary">@color/dark_blue</item>
         <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
         <item name="actionModeBackground">@drawable/actionbar</item>
         <item name="windowActionModeOverlay">true</item>
     </style>
@@ -48,6 +50,9 @@
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="colorPrimary">@color/dark_blue</item>
         <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
@@ -56,6 +61,9 @@
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
     </style>
     <style name="DialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
         <item name="android:dialogTheme">@style/AppDialogTheme</item>
@@ -64,10 +72,12 @@
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="colorPrimary">@color/dark_blue</item>
         <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
     </style>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
@@ -75,6 +85,8 @@
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
         <item name="android:navigationBarColor">#4480FA</item>
         <item name="android:colorPrimaryDark">#0b2e60</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="colorPrimaryDark">#0b2e60</item>
     </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
@@ -88,11 +100,17 @@
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
     </style>
     <style name="AppAlertTheme" parent="android:Theme.Material.Light.Dialog.Alert">
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
     </style>
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Material.Light.ImageButton">
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
