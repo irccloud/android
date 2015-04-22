@@ -372,14 +372,14 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 builder.setTitle("Logout");
                 builder.setMessage("Would you like to logout of IRCCloud?");
 
-                builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
-                builder.setNeutralButton("Logout", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton("Logout", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

@@ -24,6 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -210,7 +211,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
     Spinner presets;
     EditText hostname;
     EditText port;
-    CheckBox ssl;
+    SwitchCompat ssl;
     EditText nickname;
     EditText realname;
     EditText channels;
@@ -230,7 +231,7 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
         presets = (Spinner) v.findViewById(R.id.presets);
         hostname = (EditText) v.findViewById(R.id.hostname);
         port = (EditText) v.findViewById(R.id.port);
-        ssl = (CheckBox) v.findViewById(R.id.ssl);
+        ssl = (SwitchCompat) v.findViewById(R.id.ssl);
         nickname = (EditText) v.findViewById(R.id.nickname);
         realname = (EditText) v.findViewById(R.id.realname);
         channels = (EditText) v.findViewById(R.id.channels);
