@@ -17,16 +17,16 @@
 package com.irccloud.android.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -38,12 +38,12 @@ import org.json.JSONObject;
 
 @SuppressLint("ValidFragment")
 public class ChannelOptionsFragment extends DialogFragment {
-    CheckBox members;
-    CheckBox unread;
-    CheckBox joinpart;
-    CheckBox collapse;
-    CheckBox notifyAll;
-    CheckBox autosuggest;
+    SwitchCompat members;
+    SwitchCompat unread;
+    SwitchCompat joinpart;
+    SwitchCompat collapse;
+    SwitchCompat notifyAll;
+    SwitchCompat autosuggest;
     int cid;
     int bid;
 
@@ -57,7 +57,7 @@ public class ChannelOptionsFragment extends DialogFragment {
         this.bid = bid;
     }
 
-    public JSONObject updatePref(JSONObject prefs, CheckBox control, String key) throws JSONException {
+    public JSONObject updatePref(JSONObject prefs, SwitchCompat control, String key) throws JSONException {
         boolean checked = control.isChecked();
         if (control == notifyAll)
             checked = !checked;
@@ -203,12 +203,12 @@ public class ChannelOptionsFragment extends DialogFragment {
         Context ctx = getActivity();
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_channel_options, null);
-        members = (CheckBox) v.findViewById(R.id.members);
-        unread = (CheckBox) v.findViewById(R.id.unread);
-        notifyAll = (CheckBox) v.findViewById(R.id.notifyAll);
-        joinpart = (CheckBox) v.findViewById(R.id.joinpart);
-        collapse = (CheckBox) v.findViewById(R.id.collapse);
-        autosuggest = (CheckBox) v.findViewById(R.id.autosuggest);
+        members = (SwitchCompat) v.findViewById(R.id.members);
+        unread = (SwitchCompat) v.findViewById(R.id.unread);
+        notifyAll = (SwitchCompat) v.findViewById(R.id.notifyAll);
+        joinpart = (SwitchCompat) v.findViewById(R.id.joinpart);
+        collapse = (SwitchCompat) v.findViewById(R.id.collapse);
+        autosuggest = (SwitchCompat) v.findViewById(R.id.autosuggest);
 
         return new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)

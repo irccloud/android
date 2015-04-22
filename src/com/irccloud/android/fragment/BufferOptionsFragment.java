@@ -17,16 +17,16 @@
 package com.irccloud.android.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
@@ -38,10 +38,10 @@ import org.json.JSONObject;
 
 @SuppressLint("ValidFragment")
 public class BufferOptionsFragment extends DialogFragment {
-    CheckBox unread;
-    CheckBox joinpart;
-    CheckBox collapse;
-    CheckBox expandDisco;
+    SwitchCompat unread;
+    SwitchCompat joinpart;
+    SwitchCompat collapse;
+    SwitchCompat expandDisco;
     int cid;
     int bid;
     String type;
@@ -57,7 +57,7 @@ public class BufferOptionsFragment extends DialogFragment {
         this.type = type;
     }
 
-    public JSONObject updatePref(JSONObject prefs, CheckBox control, String key) throws JSONException {
+    public JSONObject updatePref(JSONObject prefs, SwitchCompat control, String key) throws JSONException {
         if (!control.isChecked()) {
             JSONObject map;
             if (prefs.has(key))
@@ -167,10 +167,10 @@ public class BufferOptionsFragment extends DialogFragment {
         Context ctx = getActivity();
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_buffer_options, null);
-        unread = (CheckBox) v.findViewById(R.id.unread);
-        joinpart = (CheckBox) v.findViewById(R.id.joinpart);
-        collapse = (CheckBox) v.findViewById(R.id.collapse);
-        expandDisco = (CheckBox) v.findViewById(R.id.expandDisco);
+        unread = (SwitchCompat) v.findViewById(R.id.unread);
+        joinpart = (SwitchCompat) v.findViewById(R.id.joinpart);
+        collapse = (SwitchCompat) v.findViewById(R.id.collapse);
+        expandDisco = (SwitchCompat) v.findViewById(R.id.expandDisco);
         if (type.equalsIgnoreCase("console")) {
             joinpart.setVisibility(View.GONE);
             collapse.setVisibility(View.GONE);

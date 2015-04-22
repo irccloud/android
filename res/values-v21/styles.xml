@@ -27,6 +27,8 @@
         <item name="colorPrimary">@color/dark_blue</item>
         <item name="colorAccent">@color/dark_blue</item>
         <item name="colorPrimaryDark">#000</item>
+        <item name="dialogTheme">@style/AppDialogTheme</item>
+        <item name="alertDialogTheme">@style/AppAlertTheme</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:dialogTheme">@style/AppDialogTheme</item>
@@ -42,20 +44,8 @@
         <item name="colorPrimaryDark">#000</item>
         <item name="actionModeBackground">@drawable/actionbar</item>
         <item name="windowActionModeOverlay">true</item>
-    </style>
-    <style name="PrefsTheme" parent="AppTheme">
-        <item name="android:windowNoTitle">false</item>
-        <item name="android:windowTitleSize">?attr/actionBarSize</item>
-        <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-        <item name="android:colorPrimary">@color/dark_blue</item>
-        <item name="android:colorAccent">@color/dark_blue</item>
-        <item name="android:colorPrimaryDark">#000</item>
-        <item name="android:colorControlNormal">@color/dark_blue</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
+        <item name="dialogTheme">@style/AppDialogTheme</item>
+        <item name="alertDialogTheme">@style/AppAlertTheme</item>
     </style>
     <style name="DialogTheme" parent="@android:style/Theme.Material.Light.Dialog">
         <item name="android:colorPrimary">@color/dark_blue</item>
@@ -96,21 +86,29 @@
     <style name="messageTxt">
         <item name="android:imeOptions">flagNoExtractUi|actionSend</item>
     </style>
-    <style name="AppDialogTheme" parent="android:Theme.Material.Light.Dialog">
+    <style name="AppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
         <item name="android:colorControlNormal">@color/dark_blue</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="colorControlNormal">@color/dark_blue</item>
     </style>
-    <style name="AppAlertTheme" parent="android:Theme.Material.Light.Dialog.Alert">
+    <style name="AppAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:colorPrimary">@color/dark_blue</item>
         <item name="android:colorAccent">@color/dark_blue</item>
         <item name="android:colorPrimaryDark">#000</item>
         <item name="android:colorControlNormal">@color/dark_blue</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="colorControlNormal">@color/dark_blue</item>
     </style>
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Material.Light.ImageButton">
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>

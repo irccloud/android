@@ -24,7 +24,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
@@ -36,7 +36,7 @@ import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.fragment.EditConnectionFragment;
 
-public class EditConnectionActivity extends ActionBarActivity implements NetworkConnection.IRCEventHandler {
+public class EditConnectionActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
     int reqid = -1;
     int cidToOpen = -1;
     int cid = -1;

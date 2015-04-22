@@ -20,15 +20,15 @@ import android.content.Context;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-import android.widget.EditText;
 
 // An EditText that lets you use actions ("Done", "Go", etc.) on multi-line edits.
 // From: http://stackoverflow.com/a/12570003/1406639
-public class ActionEditText extends EditText {
+public class ActionEditText extends AppCompatEditText {
     private DrawerLayout mDrawerLayout = null;
 
     public ActionEditText(Context context) {

@@ -19,7 +19,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory android:title="Sony SmartWatch">
-        <CheckBoxPreference
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
                 android:key="notify_sony"
                 android:defaultValue="false"
                 android:summaryOn="Notifications will be displayed on SmartWatch"

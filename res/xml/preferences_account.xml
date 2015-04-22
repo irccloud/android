@@ -28,7 +28,7 @@
 		<EditTextPreference
 			android:key="highlights"
 			android:title="Highlight words"/>
-		<CheckBoxPreference
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="autoaway"
 			android:defaultValue="true"
 			android:summary="Set your away status when you leave the app" android:title="Auto-away"/>

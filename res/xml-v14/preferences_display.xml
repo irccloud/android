@@ -20,23 +20,23 @@
     xmlns:robobunny="http://robobunny.com">
 
 	<PreferenceCategory android:title="Display">
-		<CheckBoxPreference
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="time-24hr"
 			android:defaultValue="false"
 			android:title="24-hour clock"/>
-		<CheckBoxPreference
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="time-seconds"
 			android:defaultValue="false"
 			android:title="Show seconds"/>
-		<CheckBoxPreference
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="mode-showsymbol"
 			android:defaultValue="false"
 			android:summary="\@, +, etc." android:title="Show usermode symbols"/>
-        <CheckBoxPreference
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="emoji-disableconvert"
             android:defaultValue="true"
             android:title="Convert :emocodes: to emoji"/>
-        <CheckBoxPreference
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>

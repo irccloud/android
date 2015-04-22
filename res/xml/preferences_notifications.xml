@@ -27,9 +27,8 @@
 			android:key="notify_ringtone" android:title="Notification ringtone"
 			android:defaultValue="content://settings/system/notification_sound"
 			android:summary="Choose an alert ringtone"
-			android:ringtoneType="notification">
-		 </RingtonePreference>
-	    <CheckBoxPreference
+			android:ringtoneType="notification"/>
+	    <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="notify_vibrate"
 			android:defaultValue="true"
 			android:summaryOn="Your device will vibrate\n(if available)"

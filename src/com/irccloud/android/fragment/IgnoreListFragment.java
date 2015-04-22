@@ -16,12 +16,12 @@
 
 package com.irccloud.android.fragment;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -145,7 +145,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             listView.setAdapter(adapter);
         }
         Dialog d = new AlertDialog.Builder(ctx)
-                .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("Ignore list for " + ServersDataSource.getInstance().getServer(cid).name)
                 .setView(v)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)

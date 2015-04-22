@@ -22,13 +22,13 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.irccloud.android.R;
 import com.irccloud.android.fragment.ServerReorderFragment;
 
-public class ServerReorderActivity extends ActionBarActivity {
+public class ServerReorderActivity extends AppCompatActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

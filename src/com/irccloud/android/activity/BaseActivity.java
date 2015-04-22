@@ -16,14 +16,14 @@
 
 package com.irccloud.android.activity;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -45,7 +45,7 @@ import com.irccloud.android.data.ServersDataSource;
 
 import java.lang.reflect.Field;
 
-public class BaseActivity extends ActionBarActivity implements NetworkConnection.IRCEventHandler {
+public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
     NetworkConnection conn;
     private View dialogTextPrompt;
 
@@ -423,7 +423,7 @@ public class BaseActivity extends ActionBarActivity implements NetworkConnection
                 menuKeyField.setAccessible(true);
                 menuKeyField.setBoolean(config, false);
             }
-        } catch (IllegalAccessException | NoSuchFieldException e) {
+        } catch (Exception e) {
             Log.w("IRCCloud", "Failed to force overflow menu.");
         }
     }

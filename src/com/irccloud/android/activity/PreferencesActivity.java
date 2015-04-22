@@ -19,6 +19,7 @@ package com.irccloud.android.activity;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,7 +35,13 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatCallback;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,18 +63,40 @@ import com.sonyericsson.extras.liveware.extension.util.notification.Notification
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PreferencesActivity extends PreferenceActivity implements NetworkConnection.IRCEventHandler {
+public class PreferencesActivity extends PreferenceActivity implements AppCompatCallback, NetworkConnection.IRCEventHandler {
     NetworkConnection conn;
     SaveSettingsTask saveSettingsTask = null;
     SavePreferencesTask savePreferencesTask = null;
     int save_prefs_reqid = -1;
     int save_settings_reqid = -1;
+    private AppCompatDelegate appCompatDelegate;
+
+    private AppCompatDelegate getDelegate() {
+        if(appCompatDelegate == null) {
+            appCompatDelegate = AppCompatDelegate.create(this, this);
+        }
+        return appCompatDelegate;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getDelegate().onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getDelegate().onDestroy();
+    }
 
     @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle icicle) {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
+        getDelegate().installViewFactory();
+        getDelegate().onCreate(icicle);
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
@@ -85,8 +114,7 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             }
         });
 
-        if (Build.VERSION.SDK_INT >= 11)
-            toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
+        toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
 
         if (Build.VERSION.SDK_INT >= 21)
             toolbar.setElevation(0);
@@ -278,10 +306,6 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
         }
-
-        //Reset the up indicator as the color tint may have been lost
-        Toolbar toolbar = (Toolbar) findViewById(R.id.actionbar);
-        toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
     }
 
     @Override
@@ -527,6 +551,16 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
         }
     };
 
+    @Override
+    public void onSupportActionModeStarted(ActionMode mode) {
+
+    }
+
+    @Override
+    public void onSupportActionModeFinished(ActionMode mode) {
+
+    }
+
     private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
 
         @Override
@@ -719,8 +753,31 @@ public class PreferencesActivity extends PreferenceActivity implements NetworkCo
                     "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
                     "See the License for the specific language governing permissions and\n" +
                     "limitations under the License.\n\n" +
-                    "SeekBarPreference by RoboBunny\n");
+                    "SeekBarPreference by RoboBunny\n\n" +
+                    "SwitchPreferenceCompat by Christian Gollner\n\n" +
+                    "The MIT License (MIT)\n" +
+                    "\n" +
+                    "Copyright (c) 2014 Andrew Chen\n" +
+                    "\n" +
+                    "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
+                    "of this software and associated documentation files (the \"Software\"), to deal\n" +
+                    "in the Software without restriction, including without limitation the rights\n" +
+                    "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
+                    "copies of the Software, and to permit persons to whom the Software is\n" +
+                    "furnished to do so, subject to the following conditions:\n" +
+                    "\n" +
+                    "The above copyright notice and this permission notice shall be included in all\n" +
+                    "copies or substantial portions of the Software.\n" +
+                    "\n" +
+                    "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
+                    "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
+                    "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
+                    "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
+                    "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
+                    "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
+                    "SOFTWARE.\n");
             builder.setView(v);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

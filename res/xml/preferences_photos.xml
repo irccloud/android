@@ -22,7 +22,7 @@
             android:title="Image Service" android:key="image_service"
             android:entryValues="@array/pref_image_service_values"
             android:defaultValue="IRCCloud" />
-        <CheckBoxPreference
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="keep_photos"
             android:defaultValue="false"
             android:summaryOn="Camera photos will be saved"

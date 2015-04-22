@@ -16,46 +16,47 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content" >
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="6dp"
         android:orientation="vertical">
 
-        <CheckBox
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/members"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Show members" />
 
-        <CheckBox
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/unread"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Track unread messages" />
 
-        <CheckBox
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/notifyAll"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Notify on all messages" />
 
-        <CheckBox
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/joinpart"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Show nick changes, joins, and parts" />
 
-        <CheckBox
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/collapse"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Collapse nick changes, joins, and parts" />
 
-        <CheckBox
+        <android.support.v7.widget.SwitchCompat
             android:id="@+id/autosuggest"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Suggest nicknames as you type" />
 
