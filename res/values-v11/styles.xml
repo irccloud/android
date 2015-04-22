@@ -67,4 +67,9 @@
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Holo.Light.ImageButton">
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
+    <style name="SeekBarmain" parent="android:Widget.Holo.Light.SeekBar">
+        <item name="android:progressDrawable">@drawable/main_scrubber_progress_horizontal_holo_light</item>
+        <item name="android:indeterminateDrawable">@drawable/main_scrubber_progress_horizontal_holo_light</item>
+        <item name="android:thumb">@drawable/main_scrubber_control_selector_holo_light</item>
+    </style>
 </resources>
