@@ -839,7 +839,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             while (backStack != null && backStack.size() > 0) {
                 Integer bid = backStack.get(0);
                 backStack.remove(0);
-                if(bid != buffer.bid) {
+                if(buffer == null || bid != buffer.bid) {
                     BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
                     if (b != null) {
                         onBufferSelected(bid);
