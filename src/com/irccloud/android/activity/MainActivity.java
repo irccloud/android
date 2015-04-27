@@ -2994,6 +2994,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (user == null && event.html == null)
             return false;
 
+        if (event.hostmask != null && event.hostmask.length() > 0)
+            user.hostmask = event.hostmask;
+
         if (event.html != null) {
             String html = event.html;
 
