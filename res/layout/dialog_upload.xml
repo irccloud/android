@@ -22,8 +22,10 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="6dp"
-        android:paddingRight="6dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
         android:orientation="vertical" >
 
         <ImageView
@@ -67,7 +69,7 @@
             android:textColor="#000"
             android:text="Message (optional)"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_marginTop="6dp" />
+            android:layout_marginTop="@dimen/activity_vertical_margin" />
 
         <EditText
             android:id="@id/message"

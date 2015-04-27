@@ -41,6 +41,7 @@ import android.view.View;
 import android.widget.RemoteViews;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.activity.QuickReplyActivity;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 import org.json.JSONArray;
@@ -638,7 +639,8 @@ public class Notifications {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
                 .setContentTitle(title + ((network != null) ? (" (" + network + ")") : ""))
-                .setContentText(Html.fromHtml(text + ((count > 1) ? ("<br/><br/><font color='#a3a3a3'>+" + (count - 1) + " more</font>") : "")))
+                .setContentText(Html.fromHtml(text + ((count > 1) ? ("<br/>\n<br/>\n<font color='#a3a3a3'>+" + (count - 1) + " more</font>") : "")))
+                .setAutoCancel(true)
                 .setTicker(ticker)
                 .setWhen(eids[0] / 1000)
                 .setSmallIcon(R.drawable.ic_stat_notify)
@@ -712,12 +714,21 @@ public class Notifications {
 
             builder.extend(extender).extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));
         }
-        android.app.Notification notification = builder.build();
+
+        if(replyIntent != null) {
+            i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
+            i.setData(Uri.parse("irccloud-bid://" + bid));
+            i.putExtras(replyIntent);
+            PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_action_reply, "Reply", quickReplyIntent);
+        }
+
         RemoteViews contentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification);
         contentView.setTextViewText(R.id.title, title + " (" + network + ")");
         contentView.setTextViewText(R.id.text, (count == 1) ? Html.fromHtml(text) : (count + " unread highlights."));
         contentView.setLong(R.id.time, "setTime", eids[0] / 1000);
-        notification.contentView = contentView;
+        builder.setContent(contentView);
+        android.app.Notification notification = builder.build();
 
         if (Build.VERSION.SDK_INT >= 16 && big_text != null) {
             RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
@@ -725,12 +736,19 @@ public class Notifications {
             bigContentView.setTextViewText(R.id.text, big_text);
             bigContentView.setLong(R.id.time, "setTime", eids[0] / 1000);
             if (count > 3) {
-                bigContentView.setViewVisibility(R.id.divider, View.VISIBLE);
                 bigContentView.setViewVisibility(R.id.more, View.VISIBLE);
                 bigContentView.setTextViewText(R.id.more, "+" + (count - 3) + " more");
             } else {
-                bigContentView.setViewVisibility(R.id.divider, View.GONE);
                 bigContentView.setViewVisibility(R.id.more, View.GONE);
+            }
+            if(replyIntent != null) {
+                bigContentView.setViewVisibility(R.id.actions, View.VISIBLE);
+                bigContentView.setViewVisibility(R.id.action_divider, View.VISIBLE);
+                i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
+                i.setData(Uri.parse("irccloud-bid://" + bid));
+                i.putExtras(replyIntent);
+                PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                bigContentView.setOnClickPendingIntent(R.id.action_reply, quickReplyIntent);
             }
             notification.bigContentView = bigContentView;
         }
@@ -787,6 +805,7 @@ public class Notifications {
                         replyIntent.putExtra("bid", last.bid);
                         replyIntent.putExtra("cid", last.cid);
                         replyIntent.putExtra("eids", eids);
+                        replyIntent.putExtra("network", last.network);
                         if (last.buffer_type.equals("channel"))
                             replyIntent.putExtra("to", last.chan);
                         else
@@ -921,6 +940,7 @@ public class Notifications {
                 Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
                 replyIntent.putExtra("bid", last.bid);
                 replyIntent.putExtra("cid", last.cid);
+                replyIntent.putExtra("network", last.network);
                 replyIntent.putExtra("eids", eids);
                 if (last.buffer_type.equals("channel"))
                     replyIntent.putExtra("to", last.chan);

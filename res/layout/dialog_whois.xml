@@ -23,12 +23,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="6dp" >
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
             android:text="Name"
             android:textStyle="bold" />
 
@@ -41,7 +43,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Away"
             android:id="@+id/awayTitle"
             android:textStyle="bold" />
@@ -55,7 +57,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="User Mask"
             android:textStyle="bold" />
 
@@ -68,7 +70,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="IRC Server"
             android:textStyle="bold" />
 
@@ -82,7 +84,7 @@
             android:id="@+id/timeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Online Time"
             android:textStyle="bold" />
 
@@ -97,7 +99,7 @@
             android:textColorLink="@color/dialogLinkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:visibility="gone"
             android:textStyle="bold" />
 
@@ -105,7 +107,7 @@
             android:id="@+id/ownerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Owner In"
             android:textStyle="bold" />
 
@@ -120,7 +122,7 @@
             android:id="@+id/adminTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Admin In"
             android:textStyle="bold" />
 
@@ -135,7 +137,7 @@
             android:id="@+id/opTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Operator In"
             android:textStyle="bold" />
 
@@ -150,7 +152,7 @@
             android:id="@+id/halfopTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Half-Operator In"
             android:textStyle="bold" />
 
@@ -165,7 +167,7 @@
             android:id="@+id/voicedTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Voiced In"
             android:textStyle="bold" />
 
@@ -180,7 +182,7 @@
             android:id="@+id/channelsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/activity_vertical_margin"
             android:text="Member Of"
             android:textStyle="bold" />
 

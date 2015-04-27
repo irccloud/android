@@ -49,22 +49,50 @@
             android:ellipsize="end"
             android:maxLines="10" />
 
-		<ImageView
-            android:layout_width="match_parent"
-            android:layout_height="1dip"
-            android:layout_marginBottom="4dp"
-            android:id="@+id/divider"
-            android:background="?android:attr/dividerHorizontal" />
-
-		<TextView
+        <TextView
             android:id="@+id/more"
             style="@style/NotificationText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
             android:ellipsize="end"
+            android:visibility="gone"
             android:maxLines="1" />
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:layout_marginTop="-1px"
+            android:id="@+id/action_divider"
+            android:background="?android:attr/dividerHorizontal" />
+
+        <LinearLayout
+            android:id="@+id/actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:showDividers="middle"
+            android:divider="?android:attr/listDivider"
+            android:visibility="gone"
+            android:dividerPadding="12dp">
+            <Button
+                style="?android:attr/borderlessButtonStyle"
+                android:id="@+id/action_reply"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:gravity="start|center_vertical"
+                android:drawablePadding="8dp"
+                android:drawableLeft="@drawable/ic_action_reply"
+                android:paddingLeft="8dp"
+                android:textColor="#ccc"
+                android:textSize="14dp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="Reply"
+                android:paddingRight="8dp" />
         </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

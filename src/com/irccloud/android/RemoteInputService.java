@@ -42,9 +42,9 @@ public class RemoteInputService extends IntentService {
             final String action = intent.getAction();
             if (ACTION_REPLY.equals(action)) {
                 Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-                if (remoteInput != null) {
+                if (remoteInput != null || intent.hasExtra("reply")) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Got reply from RemoteInput");
-                    String reply = remoteInput.getCharSequence("extra_reply").toString();
+                    String reply = remoteInput != null?remoteInput.getCharSequence("extra_reply").toString():intent.getStringExtra("reply");
                     if (reply.length() > 0 && !reply.startsWith("/")) {
                         try {
                             JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);

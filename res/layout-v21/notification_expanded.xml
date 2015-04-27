@@ -33,7 +33,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
         android:gravity="left|top"
         android:layout_gravity="center_vertical"
@@ -49,13 +48,6 @@
             android:ellipsize="end"
             android:maxLines="10" />
 
-		<ImageView
-            android:layout_width="match_parent"
-            android:layout_height="1dip"
-            android:layout_marginBottom="4dp"
-            android:id="@+id/divider"
-            android:background="?android:attr/dividerHorizontal" />
-
 		<TextView
             android:id="@+id/more"
             style="@android:style/TextAppearance.Material.Notification"
@@ -65,6 +57,41 @@
             android:ellipsize="end"
             android:maxLines="1" />
 
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:id="@+id/action_divider"
+            android:layout_marginTop="-1px"
+            android:background="#29000000"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/actions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone">
+            <Button
+                android:id="@+id/action_reply"
+                style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                android:tint="#0f0"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_margin="0dp"
+                android:gravity="start|center_vertical"
+                android:drawablePadding="8dp"
+                android:paddingStart="8dp"
+                android:textSize="13sp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:drawableLeft="@drawable/ic_action_reply_tinted"
+                android:text="Reply"
+                android:textColor="#8a000000"
+                android:background="?android:attr/colorControlHighlight"
+                android:paddingEnd="8dp" />
         </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

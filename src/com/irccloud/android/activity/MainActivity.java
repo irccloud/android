@@ -565,7 +565,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             builder.setView(v);
-            builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -581,7 +581,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
 
             if (canEditTopic) {
-                builder.setNeutralButton("Edit Topic", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton("Edit Topic", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

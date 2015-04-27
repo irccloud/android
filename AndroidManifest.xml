@@ -244,6 +244,15 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.QuickReplyActivity"
+            android:theme="@style/DialogTheme"
+            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:launchMode="singleInstance"
+            android:clearTaskOnLaunch="true"
+            android:excludeFromRecents="true">
+        </activity>
         <meta-data android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
         <meta-data
