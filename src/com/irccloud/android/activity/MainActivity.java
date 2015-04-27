@@ -2758,6 +2758,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.append(from + ": ");
         } else {
             int oldPosition = messageTxt.getSelectionStart();
+            if(oldPosition < 0)
+                oldPosition = 0;
             String text = messageTxt.getText().toString();
             int start = oldPosition - 1;
             if (start > 0 && text.charAt(start) == ' ')
@@ -2795,7 +2797,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (oldPosition == text.length() - 1) {
                     text += " " + from + " ";
                 } else {
-                    String newtext = text.substring(0, oldPosition);
+                    String newtext = oldPosition > 0?text.substring(0, oldPosition):"";
                     if (!newtext.endsWith(" "))
                         from = " " + from;
                     if (!text.substring(oldPosition, text.length()).startsWith(" "))
@@ -4126,6 +4128,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(cursor != null)
                     cursor.close();
             }
+
+            if(original_filename == null || original_filename.length() == 0)
+                original_filename = "file";
 
             if (type == null) {
                 String lower = original_filename.toLowerCase();

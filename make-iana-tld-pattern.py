@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# From: https://android.googlesource.com/platform/frameworks/ex/+/master/common/tools/make-iana-tld-pattern.py
+
 from urllib2 import urlopen
 
 TLD_PREFIX = r"""
