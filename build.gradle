@@ -100,16 +100,13 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
-                buildConfigField "String", "GRAB_SECRET", "\"" + props['GRAB_SECRET'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
-                buildConfigField "String", "GRAB_SECRET", "\"\""
             }
-            buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
             buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
@@ -135,16 +132,13 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
-                buildConfigField "String", "GRAB_SECRET", "\"" + props['GRAB_SECRET'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
-                buildConfigField "String", "GRAB_SECRET", "\"\""
             }
-            buildConfigField "String", "SSL_CN", "\"CN=*.irccloud.com,\""
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
@@ -174,16 +168,13 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
-                buildConfigField "String", "GRAB_SECRET", "\"" + props['GRAB_SECRET'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
-                buildConfigField "String", "GRAB_SECRET", "\"\""
             }
-            buildConfigField "String", "SSL_CN", "\"\""
             buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
@@ -210,16 +201,13 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
-                buildConfigField "String", "GRAB_SECRET", "\"" + props['GRAB_SECRET'] + "\""
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
-                buildConfigField "String", "GRAB_SECRET", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
-            buildConfigField "String", "SSL_CN", "\"\""
             buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"

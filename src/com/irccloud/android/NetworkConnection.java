@@ -48,6 +48,7 @@ import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
+import org.apache.http.conn.ssl.StrictHostnameVerifier;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -479,10 +480,6 @@ public class NetworkConnection {
                     throw new CertificateException(e);
                 } catch (NoSuchAlgorithmException e) {
                     throw new CertificateException(e);
-                }
-
-                if (BuildConfig.SSL_CN.length() > 0 && !chain[0].getSubjectDN().getName().startsWith(BuildConfig.SSL_CN)) {
-                    throw new CertificateException("Incorrect CN in cert chain");
                 }
 
                 if (BuildConfig.SSL_FPS != null && BuildConfig.SSL_FPS.length > 0) {
