@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.view.KeyEvent;
@@ -45,7 +46,7 @@ public class QuickReplyActivity extends AppCompatActivity {
             TextView message;
         }
 
-        private JSONArray msgs;
+        private JSONArray msgs = new JSONArray();
 
         public void loadMessages(int cid, int bid) {
             JSONArray notifications;
@@ -156,7 +157,7 @@ public class QuickReplyActivity extends AppCompatActivity {
         message.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if(actionId == EditorInfo.IME_ACTION_SEND && message.getText() != null && message.getText().length() > 0)
+                if (actionId == EditorInfo.IME_ACTION_SEND && message.getText() != null && message.getText().length() > 0)
                     send.performClick();
                 return true;
             }
@@ -164,7 +165,7 @@ public class QuickReplyActivity extends AppCompatActivity {
         message.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent event) {
-                if(event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER && message.getText() != null && message.getText().length() > 0)
+                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER && message.getText() != null && message.getText().length() > 0)
                     send.performClick();
                 return false;
             }
@@ -172,16 +173,17 @@ public class QuickReplyActivity extends AppCompatActivity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(RemoteInputService.ACTION_REPLY);
-                i.setComponent(new ComponentName(getPackageName(), RemoteInputService.class.getName()));
-                i.putExtras(getIntent());
-                i.putExtra("reply", message.getText().toString());
-                startService(i);
-                finish();
+                if(message.getText() != null && message.getText().length() > 0) {
+                    Intent i = new Intent(RemoteInputService.ACTION_REPLY);
+                    i.setComponent(new ComponentName(getPackageName(), RemoteInputService.class.getName()));
+                    i.putExtras(getIntent());
+                    i.putExtra("reply", message.getText().toString());
+                    startService(i);
+                    finish();
+                }
             }
         });
 
-        adapter.loadMessages(cid, bid);
         ListView listView = (ListView) findViewById(R.id.conversation);
         listView.setAdapter(adapter);
     }
@@ -200,6 +202,9 @@ public class QuickReplyActivity extends AppCompatActivity {
         } else if (prefs.getBoolean("time-seconds", false)) {
             formatter = new SimpleDateFormat("h:mm:ss a");
         }
+        adapter.loadMessages(cid, bid);
+
+        NotificationManagerCompat.from(this).cancel(bid);
     }
 
     @Override
