@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,8 +23,10 @@ import android.widget.TextView;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.Notifications;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
+import com.irccloud.android.data.ServersDataSource;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,7 +41,8 @@ public class QuickReplyActivity extends AppCompatActivity {
     SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
     CollapsedEventsList collapsedEventsList = new CollapsedEventsList();
     boolean nickColors;
-    int timestamp_width;
+    ServersDataSource.Server server;
+    int timestamp_width = -1;
 
     private class MessagesAdapter extends BaseAdapter {
         private class ViewHolder {
@@ -117,9 +121,16 @@ public class QuickReplyActivity extends AppCompatActivity {
                    Calendar calendar = Calendar.getInstance();
                    calendar.setTimeInMillis(msg.getLong("eid") / 1000);
 
+                   if (timestamp_width == -1) {
+                       String s = "888:888 888";
+                       timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
+                   }
+                   holder.timestamp.setMinWidth(timestamp_width);
                    holder.timestamp.setText(formatter.format(calendar.getTime()));
                }
-               holder.message.setText(Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(msg.getString("nick"), null, nickColors)) + "</b> " + msg.getString("message")));
+               holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(msg.getString("nick"), null, nickColors)) + "</b> " + msg.getString("message"), true, server));
+               holder.message.setMovementMethod(LinkMovementMethod.getInstance());
+               holder.message.setLinkTextColor(getResources().getColor(R.color.linkColor));
            } catch (JSONException e) {
                e.printStackTrace();
            }
@@ -145,6 +156,8 @@ public class QuickReplyActivity extends AppCompatActivity {
             cid = getIntent().getIntExtra("cid", -1);
             bid = getIntent().getIntExtra("bid", -1);
             to = getIntent().getStringExtra("to");
+            server = new ServersDataSource.Server();
+            server.cid = cid;
 
             setTitle("Reply to " + to + " (" + getIntent().getStringExtra("network") + ")");
         } else {
@@ -205,11 +218,13 @@ public class QuickReplyActivity extends AppCompatActivity {
         adapter.loadMessages(cid, bid);
 
         NotificationManagerCompat.from(this).cancel(bid);
+        Notifications.getInstance().excludeBid(bid);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).unregisterOnSharedPreferenceChangeListener(prefslistener);
+        Notifications.getInstance().excludeBid(-1);
     }
 }

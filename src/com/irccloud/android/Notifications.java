@@ -633,7 +633,7 @@ public class Notifications {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
                 .setContentTitle(title + ((network != null) ? (" (" + network + ")") : ""))
-                .setContentText(Html.fromHtml(text + ((count > 1) ? ("<br/>\n<br/>\n<font color='#a3a3a3'>+" + (count - 1) + " more</font>") : "")))
+                .setContentText(Html.fromHtml(text))
                 .setAutoCancel(true)
                 .setTicker(ticker)
                 .setWhen(eids[0] / 1000)
