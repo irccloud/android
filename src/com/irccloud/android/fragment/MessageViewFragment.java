@@ -408,7 +408,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             if (insert_pos == -1) {
                 Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
-                return;
+                data.add(e);
+                insert_pos = data.size() - 1;
             }
 
             if (eid > buffer.last_seen_eid && e.highlight)
@@ -431,7 +432,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 EventsDataSource.Event d = new EventsDataSource.Event();
                 d.type = TYPE_TIMESTAMP;
                 d.row_type = ROW_TIMESTAMP;
-                d.eid = eid;
+                d.eid = eid - 1;
                 d.timestamp = formatter.format(calendar.getTime());
                 d.bg_color = R.drawable.row_timestamp_bg;
                 d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);

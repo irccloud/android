@@ -185,17 +185,19 @@ public class Notifications {
                     JSONArray array = new JSONArray();
                     synchronized (mNotifications) {
                         for (Notification n : mNotifications) {
-                            JSONObject o = new JSONObject();
-                            o.put("cid", n.cid);
-                            o.put("bid", n.bid);
-                            o.put("eid", n.eid);
-                            o.put("nick", n.nick);
-                            o.put("message", n.message);
-                            o.put("chan", n.chan);
-                            o.put("buffer_type", n.buffer_type);
-                            o.put("message_type", n.message_type);
-                            o.put("shown", n.shown);
-                            array.put(o);
+                            if(n != null) {
+                                JSONObject o = new JSONObject();
+                                o.put("cid", n.cid);
+                                o.put("bid", n.bid);
+                                o.put("eid", n.eid);
+                                o.put("nick", n.nick);
+                                o.put("message", n.message);
+                                o.put("chan", n.chan);
+                                o.put("buffer_type", n.buffer_type);
+                                o.put("message_type", n.message_type);
+                                o.put("shown", n.shown);
+                                array.put(o);
+                            }
                         }
                         editor.putString("notifications_json", array.toString());
                     }
@@ -265,13 +267,11 @@ public class Notifications {
     }
 
     public void clearDismissed() {
-        Crashlytics.log("Clearing dismissed notifications");
         mDismissedEIDs.clear();
         save();
     }
 
     public void clear() {
-        Crashlytics.log("Clearing notifications");
         try {
             synchronized (mNotifications) {
                 if (mNotifications.size() > 0) {
@@ -305,7 +305,6 @@ public class Notifications {
     }
 
     public void clearNetworks() {
-        Crashlytics.log("Clearing networks");
         mNetworks.clear();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         editor.remove("networks_json");
@@ -313,7 +312,6 @@ public class Notifications {
     }
 
     public void clearLastSeenEIDs() {
-        Crashlytics.log("Clearing lastSeenEIDs");
         mLastSeenEIDs.clear();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         editor.remove("lastseeneids_json");
@@ -343,7 +341,6 @@ public class Notifications {
     }
 
     public synchronized void dismiss(int bid, long eid) {
-        Crashlytics.log("Dismissed notification: " + eid);
         if (mDismissedEIDs.get(bid) == null)
             mDismissedEIDs.put(bid, new HashSet<Long>());
 
@@ -414,7 +411,6 @@ public class Notifications {
     }
 
     public void deleteOldNotifications(int bid, long last_seen_eid) {
-        Crashlytics.log("Deleting old notifications for bid" + bid);
         boolean changed = false;
         if (mNotificationTimerTask != null) {
             mNotificationTimerTask.cancel();
@@ -465,7 +461,6 @@ public class Notifications {
     }
 
     public void deleteNotificationsForBid(int bid) {
-        Crashlytics.log("Delete all notifications for bid" + bid);
         ArrayList<Notification> notifications = getOtherNotifications();
 
         if (notifications.size() > 0) {
@@ -555,7 +550,6 @@ public class Notifications {
     }
 
     public synchronized void excludeBid(int bid) {
-        Crashlytics.log("Exclude BID: " + bid);
         excludeBid = -1;
         ArrayList<Notification> notifications = getOtherNotifications();
 

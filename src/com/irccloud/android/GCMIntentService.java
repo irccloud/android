@@ -174,6 +174,9 @@ public class GCMIntentService extends IntentService {
                         Log.w("IRCCloud", "Failed to register device ID, will retry in " + ((retrydelay * 2) / 1000) + " seconds");
                         scheduleRegisterTimer(retrydelay * 2);
                         return;
+                    } catch (SecurityException e) {
+                        //User has blocked GCM via AppOps
+                        return;
                     }
                 }
                 Log.i("IRCCloud", "Sending GCM ID to IRCCloud");
@@ -213,6 +216,8 @@ public class GCMIntentService extends IntentService {
                         Log.w("IRCCloud", "Failed to unregister device ID from GCM, will retry in " + ((retrydelay * 2) / 1000) + " seconds");
                         scheduleUnregisterTimer(retrydelay * 2, regId, false);
                         return;
+                    } catch (SecurityException e) {
+                        //User has blocked GCM via AppOps
                     }
                 }
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();

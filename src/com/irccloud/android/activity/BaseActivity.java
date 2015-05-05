@@ -68,7 +68,11 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             openOptionsMenu();
             return true;
         }
-        return super.onKeyUp(keyCode, event);
+        try {
+            return super.onKeyUp(keyCode, event);
+        } catch (IllegalStateException e) {
+            return false;
+        }
     }
 
     public View getDialogTextPrompt() {

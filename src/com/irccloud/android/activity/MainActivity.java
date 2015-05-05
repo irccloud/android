@@ -247,8 +247,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
+            if(cloud != null) {
+                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+                cloud.recycle();
+            }
         }
         setContentView(R.layout.activity_message);
         try {
@@ -2514,6 +2516,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void insertPhoto() {
+        if(buffer == null)
+            return;
+
         AlertDialog.Builder builder;
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
@@ -2527,33 +2532,35 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
-                    try {
-                        File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
-                        imageDir.mkdirs();
-                        new File(imageDir, ".nomedia").createNewFile();
-                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
-                        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                        startActivityForResult(i, 1);
-                    } catch (IOException e) {
+                if(buffer != null) {
+                    if (which == 0) {
+                        try {
+                            File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                            imageDir.mkdirs();
+                            new File(imageDir, ".nomedia").createNewFile();
+                            imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
+                            Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                            startActivityForResult(i, 1);
+                        } catch (IOException e) {
+                        }
+                    } else if (which == 1) {
+                        Intent i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        i.addCategory(Intent.CATEGORY_OPENABLE);
+                        i.setType("image/*");
+                        startActivityForResult(Intent.createChooser(i, "Select Picture"), 2);
+                    } else if (which == 2 && Build.VERSION.SDK_INT >= 19) {
+                        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                        i.addCategory(Intent.CATEGORY_OPENABLE);
+                        i.setType("*/*");
+                        startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
+                    } else {
+                        Intent i = new Intent(MainActivity.this, UploadsActivity.class);
+                        i.putExtra("cid", buffer.cid);
+                        i.putExtra("to", buffer.name);
+                        i.putExtra("msg", messageTxt.getText().toString());
+                        startActivityForResult(i, 4);
                     }
-                } else if (which == 1) {
-                    Intent i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    i.addCategory(Intent.CATEGORY_OPENABLE);
-                    i.setType("image/*");
-                    startActivityForResult(Intent.createChooser(i, "Select Picture"), 2);
-                } else if (which == 2 && Build.VERSION.SDK_INT >= 19) {
-                    Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                    i.addCategory(Intent.CATEGORY_OPENABLE);
-                    i.setType("*/*");
-                    startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
-                } else {
-                    Intent i = new Intent(MainActivity.this, UploadsActivity.class);
-                    i.putExtra("cid", buffer.cid);
-                    i.putExtra("to", buffer.name);
-                    i.putExtra("msg", messageTxt.getText().toString());
-                    startActivityForResult(i, 4);
                 }
                 dialog.dismiss();
             }
@@ -4118,8 +4125,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (Build.VERSION.SDK_INT < 16) {
                 original_filename = fileUri.getLastPathSegment();
             } else {
-                Cursor cursor = getContentResolver().query(fileUri, null, null, null, null, null);
+                Cursor cursor = null;
                 try {
+                    cursor = getContentResolver().query(fileUri, null, null, null, null, null);
                     if (cursor != null && cursor.moveToFirst()) {
                         original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     } else {

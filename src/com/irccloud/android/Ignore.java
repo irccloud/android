@@ -22,7 +22,7 @@ public class Ignore {
     private ArrayList<String> ignores = new ArrayList<String>();
 
     public synchronized void setIgnores(ArrayList<String> ignores) {
-        this.ignores = ignores;
+        this.ignores = new ArrayList<String>(ignores);
     }
 
     public synchronized void addMask(String usermask) {

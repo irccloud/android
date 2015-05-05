@@ -171,17 +171,18 @@ public class BufferOptionsFragment extends DialogFragment {
         joinpart = (SwitchCompat) v.findViewById(R.id.joinpart);
         collapse = (SwitchCompat) v.findViewById(R.id.collapse);
         expandDisco = (SwitchCompat) v.findViewById(R.id.expandDisco);
-        if (type.equalsIgnoreCase("console")) {
-            joinpart.setVisibility(View.GONE);
-            collapse.setVisibility(View.GONE);
-        } else {
-            expandDisco.setVisibility(View.GONE);
-        }
 
         if (savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
             bid = savedInstanceState.getInt("bid");
             cid = savedInstanceState.getInt("cid");
             type = savedInstanceState.getString("type");
+        }
+
+        if (type != null && type.equalsIgnoreCase("console")) {
+            joinpart.setVisibility(View.GONE);
+            collapse.setVisibility(View.GONE);
+        } else {
+            expandDisco.setVisibility(View.GONE);
         }
 
         return new AlertDialog.Builder(ctx)

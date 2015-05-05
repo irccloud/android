@@ -249,8 +249,18 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         i.putExtra("bid", bid);
         if (getIntent() != null && getIntent().getData() != null)
             i.setData(getIntent().getData());
-        if (getIntent() != null && getIntent().getExtras() != null)
-            i.putExtras(getIntent().getExtras());
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            for(String key : getIntent().getExtras().keySet()) {
+                try {
+                    if(key.equals(Intent.EXTRA_STREAM))
+                        i.putExtra(key, getIntent().getParcelableExtra(key));
+                    else
+                        i.putExtra(key, getIntent().getStringExtra(key));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         startActivity(i);
         finish();
     }
