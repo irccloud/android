@@ -35,10 +35,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 public class AcceptListFragment extends DialogFragment {
     JsonNode acceptList;
@@ -242,4 +244,9 @@ public class AcceptListFragment extends DialogFragment {
         }
     }
 
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+    }
 }

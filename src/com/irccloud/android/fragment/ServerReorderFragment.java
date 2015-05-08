@@ -41,6 +41,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
 import com.mobeta.android.dslv.DragSortListView;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -282,5 +283,11 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
             default:
                 break;
         }
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 }

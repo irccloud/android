@@ -40,6 +40,7 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
 
@@ -57,7 +58,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     private int cid = -1;
     private int bid = -1;
     private String channel;
-    private static final Timer tapTimer = new Timer("users-tap-timer");
+    private static Timer tapTimer;
     private TimerTask tapTimerTask = null;
 
     private class UserListAdapter extends BaseAdapter {
@@ -319,6 +320,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        tapTimer = new Timer("users-tap-timer");
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
@@ -339,6 +341,14 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         conn.addHandler(this);
         ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(bid);
         refresh(users);
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        tapTimer.cancel();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+        tapTimer.cancel();
     }
 
     @Override

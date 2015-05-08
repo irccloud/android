@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -30,6 +31,8 @@ import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
+import com.squareup.leakcanary.LeakCanary;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -59,9 +62,16 @@ public class IRCCloudApplication extends Application {
         }
     }
 
+    public static RefWatcher getRefWatcher(Context context) {
+        return getInstance().refWatcher;
+    }
+
+    private RefWatcher refWatcher;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        refWatcher = LeakCanary.install(this);
         instance = this;
         Fabric.with(this, new Crashlytics());
 

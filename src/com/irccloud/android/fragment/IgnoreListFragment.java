@@ -35,10 +35,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     JsonNode ignores;
@@ -236,6 +238,13 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
         super.onPause();
         if (conn != null)
             conn.removeHandler(this);
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+        refWatcher.watch(adapter);
     }
 
     public void onIRCEvent(int what, Object obj) {

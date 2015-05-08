@@ -48,6 +48,7 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -395,6 +396,12 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
                 nickname.setText(nick.toLowerCase());
             }
         }
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 
     @Override

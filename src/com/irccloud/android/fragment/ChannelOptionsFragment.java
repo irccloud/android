@@ -30,8 +30,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -229,5 +231,11 @@ public class ChannelOptionsFragment extends DialogFragment {
         super.onSaveInstanceState(state);
         state.putInt("cid", cid);
         state.putInt("bid", bid);
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 }

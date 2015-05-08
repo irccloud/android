@@ -129,7 +129,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     ProgressBar mSpinner;
     ProgressBar mProgress;
     Toolbar toolbar;
-    private static final Timer mHideTimer = new Timer("actionbar-hide-timer");
+    private static Timer mHideTimer;
     TimerTask mHideTimerTask = null;
 
     public class JSInterface {
@@ -173,6 +173,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mHideTimer = new Timer("actionbar-hide-timer");
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_imageviewer);
@@ -314,6 +315,12 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
         super.onResume();
         if (mSpinner != null && mSpinner.getVisibility() == View.GONE)
             hide_actionbar();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHideTimer.cancel();
     }
 
     private void hide_actionbar() {

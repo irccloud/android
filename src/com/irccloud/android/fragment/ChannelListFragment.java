@@ -30,10 +30,12 @@ import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 
@@ -200,6 +202,13 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
         if (conn != null)
             conn.removeHandler(this);
         conn = null;
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+        refWatcher.watch(channels);
     }
 
     public void onIRCEvent(int what, Object obj) {

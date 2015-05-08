@@ -29,9 +29,11 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 public class NickservFragment extends DialogFragment {
     ServersDataSource.Server server;
@@ -101,5 +103,11 @@ public class NickservFragment extends DialogFragment {
                 .create();
         d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return d;
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 }

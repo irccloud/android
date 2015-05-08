@@ -779,20 +779,19 @@ public class NetworkConnection {
         return null;
     }
 
-    public void registerForConnectivity(Context ctx) {
+    public void registerForConnectivity() {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            if (ctx != null)
-                ctx.registerReceiver(connectivityListener, intentFilter);
+            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void unregisterForConnectivity(Context ctx) {
+    public void unregisterForConnectivity() {
         try {
-            ctx.unregisterReceiver(connectivityListener);
+            IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
         } catch (IllegalArgumentException e) {
             //The broadcast receiver hasn't been registered yet
         }
@@ -1618,11 +1617,8 @@ public class NetworkConnection {
                 Log.d("IRCCloud", "Cleaning up invalid BIDs");
                 BuffersDataSource.getInstance().purgeInvalidBIDs();
                 ChannelsDataSource.getInstance().purgeInvalidChannels();
-                if (Notifications.getInstance().count() == 0) {
-                    Log.d("IRCCloud", "Tidying up notifications");
-                    for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
-                        Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
-                    }
+                for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+                    Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
                 }
                 if (userInfo.connections > 0 && (ServersDataSource.getInstance().count() == 0 || BuffersDataSource.getInstance().count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
@@ -2895,5 +2891,4 @@ public class NetworkConnection {
             return false;
         }
     }
-
 }

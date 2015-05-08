@@ -45,7 +45,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     private TextView errorMsg = null;
     private TextView connectingMsg = null;
     private ProgressBar progressBar = null;
-    private static final Timer countdownTimer = new Timer("main-countdown-timer");
+    private static Timer countdownTimer;
     private TimerTask countdownTimerTask = null;
     private String error = null;
     private View connecting = null;
@@ -55,6 +55,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        countdownTimer = new Timer("share-chooser-countdown-timer");
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
@@ -107,6 +108,12 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         super.onPause();
         if (conn != null)
             conn.removeHandler(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        countdownTimer.cancel();
     }
 
     private void updateReconnecting() {

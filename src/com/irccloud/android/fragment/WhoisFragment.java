@@ -32,9 +32,11 @@ import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 public class WhoisFragment extends DialogFragment {
     IRCCloudJSONObject event;
@@ -260,5 +262,11 @@ public class WhoisFragment extends DialogFragment {
             title.setVisibility(View.GONE);
             channels.setVisibility(View.GONE);
         }
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 }

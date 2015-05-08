@@ -31,9 +31,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.squareup.leakcanary.RefWatcher;
 
 public class NamesListFragment extends DialogFragment {
     JsonNode users;
@@ -185,5 +187,11 @@ public class NamesListFragment extends DialogFragment {
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 }

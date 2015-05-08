@@ -183,7 +183,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private Uri imageCaptureURI = null;
     private ProgressBar progressBar;
     private TextView errorMsg = null;
-    private static final Timer countdownTimer = new Timer("messsage-countdown-timer");
+    private static Timer countdownTimer;
     private TimerTask countdownTimerTask = null;
     private String error = null;
 
@@ -222,7 +222,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private SuggestionsAdapter suggestionsAdapter;
     private View suggestionsContainer;
     private GridView suggestions;
-    private static final Timer suggestionsTimer = new Timer("suggestions-timer");
+    private static Timer suggestionsTimer;
     private TimerTask suggestionsTimerTask = null;
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
@@ -241,6 +241,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        suggestionsTimer = new Timer("suggestions-timer");
+        countdownTimer = new Timer("messsage-countdown-timer");
+
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenReceiver, filter);
@@ -444,6 +447,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(screenReceiver);
+        countdownTimer.cancel();
+        suggestionsTimer.cancel();
     }
 
     private void updateReconnecting() {

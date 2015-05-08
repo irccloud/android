@@ -68,6 +68,7 @@ import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -134,7 +135,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private RefreshTask refreshTask = null;
     private HeartbeatTask heartbeatTask = null;
     private Ignore ignore = new Ignore();
-    private static final Timer tapTimer = new Timer("message-tap-timer");
+    private static Timer tapTimer;
     private TimerTask tapTimerTask = null;
     public boolean longPressOverride = false;
     private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
@@ -883,6 +884,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        tapTimer = new Timer("message-tap-timer");
         conn = NetworkConnection.getInstance();
     }
 
@@ -1387,6 +1389,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             adapter.clearLastSeenEIDMarker();
             adapter.notifyDataSetChanged();
         }
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+        refWatcher.watch(adapter.data);
+        refWatcher.watch(adapter);
+        tapTimer.cancel();
     }
 
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {

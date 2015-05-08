@@ -52,6 +52,7 @@ import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
+import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -967,6 +968,12 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             adapter.showProgress(-1);
 
         refresh();
+    }
+
+    @Override public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 
     @Override
