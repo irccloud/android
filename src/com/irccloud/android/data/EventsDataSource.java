@@ -354,6 +354,7 @@ public class EventsDataSource {
                 e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
                 e.bg_color = R.color.status_bg;
                 e.linkify = false;
+                e.self = false;
             }
         });
 
