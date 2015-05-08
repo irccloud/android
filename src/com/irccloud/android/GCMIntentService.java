@@ -141,19 +141,7 @@ public class GCMIntentService extends IntentService {
         }
     }
 
-    private static Timer GCMTimer;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        GCMTimer = new Timer("GCM-Registration-Timer");
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        GCMTimer.cancel();
-    }
+    private static final Timer GCMTimer = new Timer("GCM-Registration-Timer");
 
     public static void scheduleRegisterTimer(int delay) {
         final int retrydelay = (delay < 500) ? 500 : delay;
