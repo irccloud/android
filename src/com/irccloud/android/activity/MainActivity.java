@@ -4122,7 +4122,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private NotificationCompat.Builder notification;
 
         public FileUploadTask(Uri fileUri) {
-            NetworkConnection.getInstance().addHandler(this);
             mBuffer = buffer;
             mFileUri = fileUri;
             type = getContentResolver().getType(mFileUri);
@@ -4291,6 +4290,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private void finalize_upload() {
             if (uploadFinished && filenameSet && !isCancelled()) {
                 if (file_id != null && file_id.length() > 0) {
+                    NetworkConnection.getInstance().addHandler(this);
                     reqid = NetworkConnection.getInstance().finalize_upload(file_id, filename, original_filename);
                 } else {
                     if (activity != null)
