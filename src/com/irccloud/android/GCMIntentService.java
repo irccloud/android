@@ -141,7 +141,13 @@ public class GCMIntentService extends IntentService {
         }
     }
 
-    private static final Timer GCMTimer = new Timer("GCM-Registration-Timer");
+    private static Timer GCMTimer;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        GCMTimer = new Timer("GCM-Registration-Timer");
+    }
 
     @Override
     public void onDestroy() {
