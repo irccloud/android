@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.content.Context;
+import android.support.v7.internal.view.ContextThemeWrapper;
 import android.support.v7.widget.ShareActionProvider;
 
 /**
@@ -27,7 +28,7 @@ public class ShareActionProviderHax extends ShareActionProvider {
     public OnShareActionProviderSubVisibilityChangedListener onShareActionProviderSubVisibilityChangedListener;
 
     public ShareActionProviderHax(Context context) {
-        super(context);
+        super(new ContextThemeWrapper(context.getApplicationContext(), R.style.ImageViewerTheme));
     }
 
     //Expose the submenu visibility change to the parent activity

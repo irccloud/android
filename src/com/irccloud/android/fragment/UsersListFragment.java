@@ -345,10 +345,10 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
     @Override public void onDestroy() {
         super.onDestroy();
-        tapTimer.cancel();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         refWatcher.watch(this);
         tapTimer.cancel();
+        tapTimer = null;
     }
 
     @Override
@@ -356,6 +356,8 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         cid = args.getInt("cid", 0);
         bid = args.getInt("bid", 0);
         channel = args.getString("name");
+        if(tapTimer == null)
+            tapTimer = new Timer("users-tap-timer");
 
         tapTimer.schedule(new TimerTask() {
             @Override
