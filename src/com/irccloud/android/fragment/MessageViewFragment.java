@@ -1395,8 +1395,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         refWatcher.watch(this);
-        refWatcher.watch(adapter.data);
-        refWatcher.watch(adapter);
         tapTimer.cancel();
     }
 
