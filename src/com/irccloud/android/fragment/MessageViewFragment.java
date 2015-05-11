@@ -135,7 +135,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private RefreshTask refreshTask = null;
     private HeartbeatTask heartbeatTask = null;
     private Ignore ignore = new Ignore();
-    private static Timer tapTimer;
+    private static Timer tapTimer = null;
     private TimerTask tapTimerTask = null;
     public boolean longPressOverride = false;
     private LinkMovementMethodNoLongPress linkMovementMethodNoLongPress = new LinkMovementMethodNoLongPress();
@@ -1272,21 +1272,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 if (!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
-                    tapTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        getListView().setSelection(adapter.getCount() - 1);
-                                    } catch (Exception e) {
-                                        //List view isn't ready yet
+                    if(tapTimer != null) {
+                        tapTimer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            getListView().setSelection(adapter.getCount() - 1);
+                                        } catch (Exception e) {
+                                            //List view isn't ready yet
+                                        }
                                     }
-                                }
-                            });
-                        }
-                    }, 200);
+                                });
+                            }
+                        }, 200);
+                    }
                 }
 
                 if (!backlog && event.highlight && !getActivity().getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
@@ -1322,7 +1324,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (pos < 0 || pos >= adapter.data.size())
                 return;
 
-            if (adapter != null) {
+            if (adapter != null && tapTimer != null) {
                 if (tapTimerTask != null) {
                     tapTimerTask.cancel();
                     tapTimerTask = null;
@@ -1396,6 +1398,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         refWatcher.watch(this);
         tapTimer.cancel();
+        tapTimer = null;
     }
 
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {

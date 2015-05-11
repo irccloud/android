@@ -45,7 +45,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     private TextView errorMsg = null;
     private TextView connectingMsg = null;
     private ProgressBar progressBar = null;
-    private static Timer countdownTimer;
+    private static Timer countdownTimer = null;
     private TimerTask countdownTimerTask = null;
     private String error = null;
     private View connecting = null;
@@ -114,6 +114,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     protected void onDestroy() {
         super.onDestroy();
         countdownTimer.cancel();
+        countdownTimer = null;
     }
 
     private void updateReconnecting() {
@@ -136,21 +137,23 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                         errorMsg.setVisibility(View.VISIBLE);
                     }
                 }
-                if (countdownTimerTask != null)
-                    countdownTimerTask.cancel();
-                countdownTimerTask = new TimerTask() {
-                    public void run() {
-                        if (conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    updateReconnecting();
-                                }
-                            });
+                if(countdownTimer != null) {
+                    if (countdownTimerTask != null)
+                        countdownTimerTask.cancel();
+                    countdownTimerTask = new TimerTask() {
+                        public void run() {
+                            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateReconnecting();
+                                    }
+                                });
+                            }
                         }
-                    }
-                };
-                countdownTimer.schedule(countdownTimerTask, 1000);
+                    };
+                    countdownTimer.schedule(countdownTimerTask, 1000);
+                }
             } else {
                 connectingMsg.setText("Connecting");
                 error = null;

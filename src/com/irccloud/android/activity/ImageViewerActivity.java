@@ -129,7 +129,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     ProgressBar mSpinner;
     ProgressBar mProgress;
     Toolbar toolbar;
-    private static Timer mHideTimer;
+    private static Timer mHideTimer = null;
     TimerTask mHideTimerTask = null;
 
     public class JSInterface {
@@ -321,32 +321,39 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     protected void onDestroy() {
         super.onDestroy();
         mHideTimer.cancel();
+        mHideTimer = null;
+        mImage.setWebViewClient(null);
+        mImage.setWebChromeClient(null);
+        if(Build.VERSION.SDK_INT >= 11)
+            mImage.removeJavascriptInterface("Android");
     }
 
     private void hide_actionbar() {
-        if (mHideTimerTask != null)
-            mHideTimerTask.cancel();
-        mHideTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                ImageViewerActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (Build.VERSION.SDK_INT > 16) {
-                            toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
-                                @Override
-                                public void run() {
-                                    toolbar.setVisibility(View.GONE);
-                                }
-                            });
-                        } else {
-                            toolbar.setVisibility(View.GONE);
+        if(mHideTimer != null) {
+            if (mHideTimerTask != null)
+                mHideTimerTask.cancel();
+            mHideTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    ImageViewerActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (Build.VERSION.SDK_INT > 16) {
+                                toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        toolbar.setVisibility(View.GONE);
+                                    }
+                                });
+                            } else {
+                                toolbar.setVisibility(View.GONE);
+                            }
                         }
-                    }
-                });
-            }
-        };
-        mHideTimer.schedule(mHideTimerTask, 3000);
+                    });
+                }
+            };
+            mHideTimer.schedule(mHideTimerTask, 3000);
+        }
     }
 
     @Override

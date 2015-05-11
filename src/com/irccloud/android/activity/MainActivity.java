@@ -183,7 +183,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private Uri imageCaptureURI = null;
     private ProgressBar progressBar;
     private TextView errorMsg = null;
-    private static Timer countdownTimer;
+    private static Timer countdownTimer = null;
     private TimerTask countdownTimerTask = null;
     private String error = null;
 
@@ -222,7 +222,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private SuggestionsAdapter suggestionsAdapter;
     private View suggestionsContainer;
     private GridView suggestions;
-    private static Timer suggestionsTimer;
+    private static Timer suggestionsTimer = null;
     private TimerTask suggestionsTimerTask = null;
     private ArrayList<UsersDataSource.User> sortedUsers = null;
     private ArrayList<ChannelsDataSource.Channel> sortedChannels = null;
@@ -349,16 +349,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    if (suggestionsTimerTask != null)
-                        suggestionsTimerTask.cancel();
-                    suggestionsTimerTask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                            update_suggestions(false);
-                        }
-                    };
-                    suggestionsTimer.schedule(suggestionsTimerTask, 250);
+                    if(suggestionsTimer != null) {
+                        if (suggestionsTimerTask != null)
+                            suggestionsTimerTask.cancel();
+                        suggestionsTimerTask = new TimerTask() {
+                            @Override
+                            public void run() {
+                                Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                                update_suggestions(false);
+                            }
+                        };
+                        suggestionsTimer.schedule(suggestionsTimerTask, 250);
+                    }
                 }
             }
 
@@ -448,7 +450,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         super.onDestroy();
         unregisterReceiver(screenReceiver);
         countdownTimer.cancel();
+        countdownTimer = null;
         suggestionsTimer.cancel();
+        suggestionsTimer = null;
     }
 
     private void updateReconnecting() {
@@ -489,21 +493,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     error = null;
                 }
                 try {
-                    if (countdownTimerTask != null)
-                        countdownTimerTask.cancel();
-                    countdownTimerTask = new TimerTask() {
-                        public void run() {
-                            if (conn != null) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        updateReconnecting();
-                                    }
-                                });
+                    if(countdownTimer != null) {
+                        if (countdownTimerTask != null)
+                            countdownTimerTask.cancel();
+                        countdownTimerTask = new TimerTask() {
+                            public void run() {
+                                if (conn != null) {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            updateReconnecting();
+                                        }
+                                    });
+                                }
                             }
-                        }
-                    };
-                    countdownTimer.schedule(countdownTimerTask, 1000);
+                        };
+                        countdownTimer.schedule(countdownTimerTask, 1000);
+                    }
                 } catch (Exception e) {
                 }
             } else {
@@ -974,7 +980,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 };
                 try {
-                    countdownTimer.schedule(e.expiration_timer, 60000);
+                    if(countdownTimer != null)
+                        countdownTimer.schedule(e.expiration_timer, 30000);
                 } catch (IllegalStateException e) {
                     //Timer has already expired
                 }
@@ -3074,7 +3081,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 }
                             }
                         };
-                        countdownTimer.schedule(e.expiration_timer, 60000);
+                        if(countdownTimer != null)
+                            countdownTimer.schedule(e.expiration_timer, 30000);
                     }
                     dialog.dismiss();
                 } catch (IllegalArgumentException e) {
@@ -4062,7 +4070,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     mBuffer.draft += " ";
                 mBuffer.draft += s;
             } else {
-                suggestionsTimer.schedule(new TimerTask() {
+                if(suggestionsTimer != null)
+                    suggestionsTimer.schedule(new TimerTask() {
 
                     @Override
                     public void run() {

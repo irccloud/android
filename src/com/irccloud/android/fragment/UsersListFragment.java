@@ -58,7 +58,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     private int cid = -1;
     private int bid = -1;
     private String channel;
-    private static Timer tapTimer;
+    private static Timer tapTimer = null;
     private TimerTask tapTimerTask = null;
 
     private class UserListAdapter extends BaseAdapter {
@@ -320,7 +320,8 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tapTimer = new Timer("users-tap-timer");
+        if(tapTimer == null)
+            tapTimer = new Timer("users-tap-timer");
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
@@ -445,7 +446,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
             if (pos < 0)
                 return;
 
-            if (adapter != null) {
+            if (adapter != null && tapTimer != null) {
                 if (tapTimerTask != null) {
                     tapTimerTask.cancel();
                     tapTimerTask = null;
