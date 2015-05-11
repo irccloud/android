@@ -717,12 +717,13 @@ public class Notifications {
             builder.addAction(R.drawable.ic_action_reply, "Reply", quickReplyIntent);
         }
 
+        android.app.Notification notification = builder.build();
+
         RemoteViews contentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification);
         contentView.setTextViewText(R.id.title, title + " (" + network + ")");
         contentView.setTextViewText(R.id.text, (count == 1) ? Html.fromHtml(text) : (count + " unread highlights."));
         contentView.setLong(R.id.time, "setTime", eids[0] / 1000);
-        builder.setContent(contentView);
-        android.app.Notification notification = builder.build();
+        notification.contentView = contentView;
 
         if (Build.VERSION.SDK_INT >= 16 && big_text != null) {
             RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
