@@ -1027,20 +1027,21 @@ public class EventsDataSource {
 
 
     public synchronized void clearPendingEvents(int bid) {
+        Event[] i;
         synchronized (events) {
-            Collection<Event> i = events.get(bid).values();
-            for (Event e : i) {
-                if(e.pending) {
-                    if(e.expiration_timer != null) {
-                        try {
-                            e.expiration_timer.cancel();
-                        } catch (Exception e1) {
-                            //Timer already cancelled
-                        }
-                        e.expiration_timer = null;
+            i = events.get(bid).values().toArray(new Event[events.get(bid).values().size()]);
+        }
+        for (Event e : i) {
+            if(e.pending || e.failed) {
+                if(e.expiration_timer != null) {
+                    try {
+                        e.expiration_timer.cancel();
+                    } catch (Exception e1) {
+                        //Timer already cancelled
                     }
-                    deleteEvent(e.eid, e.bid);
+                    e.expiration_timer = null;
                 }
+                deleteEvent(e.eid, e.bid);
             }
         }
     }
