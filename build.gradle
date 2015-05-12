@@ -38,7 +38,7 @@ dependencies {
     compile 'com.infstory:switch-preference-compat:1.0.+'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
-    compile('com.crashlytics.sdk.android:crashlytics:2.2.3@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.2.4@aar') {
         transitive = true;
     }
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.3'
