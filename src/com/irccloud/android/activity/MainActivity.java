@@ -453,6 +453,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         countdownTimer = null;
         suggestionsTimer.cancel();
         suggestionsTimer = null;
+        if(messageTxt != null)
+            messageTxt.setDrawerLayout(null);
     }
 
     private void updateReconnecting() {
