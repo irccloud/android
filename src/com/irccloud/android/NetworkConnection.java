@@ -1891,6 +1891,22 @@ public class NetworkConnection {
                 if (handlers.size() == 0 && b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200)
                     EventsDataSource.getInstance().pruneEvents(b.bid);
 
+                if (event.reqid >= 0) {
+                    EventsDataSource.Event pending = EventsDataSource.getInstance().findPendingEventForReqid(event.bid, event.reqid);
+                    if(pending != null) {
+                        try {
+                            if (pending.expiration_timer != null)
+                                pending.expiration_timer.cancel();
+                        } catch (Exception e1) {
+                            //Timer already cancelled
+                        }
+                        if(pending.eid != event.eid)
+                            EventsDataSource.getInstance().deleteEvent(pending.eid, pending.bid);
+                    }
+                } else if(event.self && b != null && b.type.equals("conversation")) {
+                    EventsDataSource.getInstance().clearPendingEvents(event.bid);
+                }
+
                 if (!backlog)
                     notifyHandlers(EVENT_BUFFERMSG, event);
             }

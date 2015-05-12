@@ -26,6 +26,7 @@ import com.irccloud.android.Ignore;
 import com.irccloud.android.R;
 import com.irccloud.android.fragment.MessageViewFragment;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.TimerTask;
 import java.util.TreeMap;
@@ -1009,6 +1010,36 @@ public class EventsDataSource {
                         e.html = null;
                         e.formatted = null;
                     }
+                }
+            }
+        }
+    }
+
+    public synchronized Event findPendingEventForReqid(int bid, int reqid) {
+        synchronized (events) {
+            for (Event e : events.get(bid).values()) {
+                if(e.reqid == reqid && (e.pending || e.failed))
+                    return e;
+            }
+        }
+        return null;
+    }
+
+
+    public synchronized void clearPendingEvents(int bid) {
+        synchronized (events) {
+            Collection<Event> i = events.get(bid).values();
+            for (Event e : i) {
+                if(e.pending) {
+                    if(e.expiration_timer != null) {
+                        try {
+                            e.expiration_timer.cancel();
+                        } catch (Exception e1) {
+                            //Timer already cancelled
+                        }
+                        e.expiration_timer = null;
+                    }
+                    deleteEvent(e.eid, e.bid);
                 }
             }
         }

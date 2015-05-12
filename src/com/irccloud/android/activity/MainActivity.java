@@ -186,6 +186,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private static Timer countdownTimer = null;
     private TimerTask countdownTimerTask = null;
     private String error = null;
+    private TextWatcher textWatcher = null;
 
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
@@ -319,7 +320,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
             }
         });
-        messageTxt.addTextChangedListener(new TextWatcher() {
+        textWatcher = new TextWatcher() {
             public void afterTextChanged(Editable s) {
                 Object[] spans = s.getSpans(0, s.length(), Object.class);
                 for (Object o : spans) {
@@ -369,7 +370,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
-        });
+        };
+        messageTxt.addTextChangedListener(textWatcher);
         sendBtn = findViewById(R.id.sendBtn);
         sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
@@ -453,8 +455,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         countdownTimer = null;
         suggestionsTimer.cancel();
         suggestionsTimer = null;
-        if(messageTxt != null)
+        if(messageTxt != null) {
             messageTxt.setDrawerLayout(null);
+            if(textWatcher != null)
+                messageTxt.removeTextChangedListener(textWatcher);
+            messageTxt.setText(null);
+        }
+        textWatcher = null;
+        for (EventsDataSource.Event e : pendingEvents.values()) {
+            try {
+                if(e.expiration_timer != null)
+                    e.expiration_timer.cancel();
+            } catch (Exception ex) {
+                //Task already cancelled
+            }
+            e.expiration_timer = null;
+            e.failed = true;
+            e.bg_color = R.color.error;
+        }
+        pendingEvents.clear();
     }
 
     private void updateReconnecting() {
@@ -623,7 +642,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void update_suggestions(boolean force) {
-        if (suggestionsContainer != null && messageTxt != null && messageTxt.getText() != null) {
+        if (buffer != null && suggestionsContainer != null && messageTxt != null && messageTxt.getText() != null) {
             String text = messageTxt.getText().toString();
             if (text.lastIndexOf(' ') > 0 && text.lastIndexOf(' ') < text.length() - 1) {
                 text = text.substring(text.lastIndexOf(' ') + 1);
@@ -1632,6 +1651,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (conn != null) {
                     if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         for (EventsDataSource.Event e : pendingEvents.values()) {
+                            try {
+                                e.expiration_timer.cancel();
+                            } catch (Exception ex) {
+                                //Task already cancellled
+                            }
+                            e.expiration_timer = null;
                             e.failed = true;
                             e.bg_color = R.color.error;
                         }
@@ -2304,18 +2329,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         }
                         if (e.from.equalsIgnoreCase(buffer.name)) {
-                            for (EventsDataSource.Event e1 : pendingEvents.values()) {
-                                EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
-                                if (e1.expiration_timer != null)
-                                    e1.expiration_timer.cancel();
-                            }
                             pendingEvents.clear();
                         } else if (pendingEvents.containsKey(e.reqid)) {
-                            EventsDataSource.Event e1 = pendingEvents.get(e.reqid);
-                            if (e1.expiration_timer != null)
-                                e1.expiration_timer.cancel();
-                            if (e1.eid != e.eid)
-                                EventsDataSource.getInstance().deleteEvent(e1.eid, e1.bid);
                             pendingEvents.remove(e.reqid);
                         }
                     }
