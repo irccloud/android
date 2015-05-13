@@ -19,8 +19,10 @@ package com.irccloud.android.activity;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.net.http.HttpResponseCache;
 import android.os.Build;
 import android.os.Bundle;
@@ -99,7 +101,7 @@ public class UploadsActivity extends BaseActivity {
         Date date;
         String date_formatted;
         String metadata;
-        Bitmap image;
+        transient Bitmap image;
         boolean image_failed;
     }
 
@@ -277,6 +279,7 @@ public class UploadsActivity extends BaseActivity {
                     } else {
                         holder.extension.setVisibility(View.GONE);
                         holder.image.setVisibility(View.GONE);
+                        holder.image.setImageBitmap(null);
                         holder.progress.setVisibility(View.VISIBLE);
                     }
                 } else {
@@ -449,6 +452,15 @@ public class UploadsActivity extends BaseActivity {
                     try {
                         thumbnail.setImageBitmap(f.image);
                         thumbnail.setVisibility(View.VISIBLE);
+                        thumbnail.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent i = new Intent(UploadsActivity.this, ImageViewerActivity.class);
+                                i.setData(Uri.parse(f.url));
+                                startActivity(i);
+                            }
+                        });
+                        thumbnail.setClickable(true);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -511,13 +523,13 @@ public class UploadsActivity extends BaseActivity {
     public void onPause() {
         super.onPause();
         NetworkConnection.getInstance().removeHandler(this);
-        mDownloadThreadPool.shutdownNow();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         adapter.clear();
+        mDownloadThreadPool.shutdownNow();
         if(Build.VERSION.SDK_INT >= 14) {
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if (cache != null) {
@@ -563,7 +575,7 @@ public class UploadsActivity extends BaseActivity {
                 break;
             case NetworkConnection.EVENT_FAILURE_MSG:
                 obj = (IRCCloudJSONObject) o;
-                if (obj.getInt("_reqid") == reqid) {
+                if (reqid != -1 && obj.getInt("_reqid") == reqid) {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "Delete failed: " + obj.toString());
                     reqid = -1;
                     runOnUiThread(new Runnable() {
@@ -572,7 +584,7 @@ public class UploadsActivity extends BaseActivity {
                             AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
                             builder.setTitle("Error");
                             builder.setMessage("Unable to delete file.  Please try again shortly.");
-                            builder.setNeutralButton("Close", null);
+                            builder.setPositiveButton("Close", null);
                             builder.show();
                         }
                     });
