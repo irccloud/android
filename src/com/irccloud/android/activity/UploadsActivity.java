@@ -212,6 +212,8 @@ public class UploadsActivity extends BaseActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         reqid = NetworkConnection.getInstance().deleteFile(fileToDelete.id);
+                        files.remove(fileToDelete);
+                        notifyDataSetChanged();
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -347,6 +349,7 @@ public class UploadsActivity extends BaseActivity {
                     e.printStackTrace();
                 }
             } else {
+                page--;
                 canLoadMore = true;
                 new FetchFilesTask().execute((Void) null);
             }
