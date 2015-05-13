@@ -2555,7 +2555,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing"} : new String[]{"Take a Photo", "Choose Existing Photo", "Choose Existing Document"};
         if(NetworkConnection.getInstance().uploadsAvailable()) {
             items = Arrays.copyOf(items, items.length + 1);
-            items[items.length - 1] = "IRCCloud Files";
+            items[items.length - 1] = "File Uploads";
         }
 
         builder.setItems(items, new DialogInterface.OnClickListener() {
