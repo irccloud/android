@@ -320,12 +320,16 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mHideTimer.cancel();
-        mHideTimer = null;
-        mImage.setWebViewClient(null);
-        mImage.setWebChromeClient(null);
-        if(Build.VERSION.SDK_INT >= 11)
-            mImage.removeJavascriptInterface("Android");
+        if(mHideTimer != null) {
+            mHideTimer.cancel();
+            mHideTimer = null;
+        }
+        if(mImage != null) {
+            mImage.setWebViewClient(null);
+            mImage.setWebChromeClient(null);
+            if (Build.VERSION.SDK_INT >= 11)
+                mImage.removeJavascriptInterface("Android");
+        }
     }
 
     private void hide_actionbar() {

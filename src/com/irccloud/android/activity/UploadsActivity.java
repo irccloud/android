@@ -531,8 +531,11 @@ public class UploadsActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        adapter.clear();
-        mDownloadThreadPool.shutdownNow();
+        if(adapter != null)
+            adapter.clear();
+
+        if(mDownloadThreadPool != null)
+            mDownloadThreadPool.shutdownNow();
         if(Build.VERSION.SDK_INT >= 14) {
             HttpResponseCache cache = HttpResponseCache.getInstalled();
             if (cache != null) {

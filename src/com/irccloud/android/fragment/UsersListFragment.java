@@ -348,9 +348,10 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         refWatcher.watch(this);
-        if(tapTimer != null)
+        if(tapTimer != null) {
             tapTimer.cancel();
-        tapTimer = null;
+            tapTimer = null;
+        }
     }
 
     @Override

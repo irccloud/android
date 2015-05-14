@@ -50,6 +50,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.EventAttributes;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -551,6 +553,13 @@ public class LoginActivity extends FragmentActivity {
                     }
                     startActivity(i);
                     finish();
+
+                    if(!BuildConfig.ENTERPRISE) {
+                        if (name.getVisibility() == View.VISIBLE)
+                            Answers.getInstance().logEvent("signup", new EventAttributes().put("method", "email"));
+                        else
+                            Answers.getInstance().logEvent("login", new EventAttributes().put("method", "email"));
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -708,6 +717,8 @@ public class LoginActivity extends FragmentActivity {
                     }
                     startActivity(i);
                     finish();
+                    if(!BuildConfig.ENTERPRISE)
+                        Answers.getInstance().logEvent("login", new EventAttributes().put("method", "access-link"));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

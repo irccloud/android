@@ -1397,8 +1397,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         refWatcher.watch(this);
-        tapTimer.cancel();
-        tapTimer = null;
+        if(tapTimer != null) {
+            tapTimer.cancel();
+            tapTimer = null;
+        }
     }
 
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {

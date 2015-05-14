@@ -451,10 +451,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(screenReceiver);
-        countdownTimer.cancel();
-        countdownTimer = null;
-        suggestionsTimer.cancel();
-        suggestionsTimer = null;
+        if(countdownTimer != null) {
+            countdownTimer.cancel();
+            countdownTimer = null;
+        }
+        if(suggestionsTimer != null) {
+            suggestionsTimer.cancel();
+            suggestionsTimer = null;
+        }
         if(messageTxt != null) {
             messageTxt.setDrawerLayout(null);
             if(textWatcher != null)

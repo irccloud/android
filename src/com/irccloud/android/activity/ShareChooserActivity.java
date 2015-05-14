@@ -113,8 +113,10 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        countdownTimer.cancel();
-        countdownTimer = null;
+        if(countdownTimer != null) {
+            countdownTimer.cancel();
+            countdownTimer = null;
+        }
     }
 
     private void updateReconnecting() {
