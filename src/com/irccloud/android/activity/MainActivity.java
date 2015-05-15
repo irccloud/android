@@ -647,7 +647,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private void update_suggestions(boolean force) {
         if (buffer != null && suggestionsContainer != null && messageTxt != null && messageTxt.getText() != null) {
-            String text = messageTxt.getText().toString();
+            String text;
+            try {
+                text = messageTxt.getText().toString();
+            } catch (Exception e) {
+                text = "";
+            }
             if (text.lastIndexOf(' ') > 0 && text.lastIndexOf(' ') < text.length() - 1) {
                 text = text.substring(text.lastIndexOf(' ') + 1);
             }
