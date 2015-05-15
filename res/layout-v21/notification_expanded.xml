@@ -32,11 +32,11 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:layout_marginRight="8dp"
         android:gravity="left|top"
         android:layout_gravity="center_vertical"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:layout_marginTop="4dp">
 
         <include layout="@layout/notification_title" />
 
@@ -53,7 +53,6 @@
             style="@android:style/TextAppearance.Material.Notification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
             android:ellipsize="end"
             android:maxLines="1" />
 
@@ -61,17 +60,18 @@
             android:layout_width="match_parent"
             android:layout_height="1dip"
             android:id="@+id/action_divider"
-            android:layout_marginTop="-1px"
             android:background="#29000000"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:layout_marginTop="4dp" />
 
         <LinearLayout
             android:id="@+id/actions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone">
+            android:layout_marginBottom="4dp"
+            android:visibility="gone"
+            android:background="@null">
             <Button
                 android:id="@+id/action_reply"
                 style="@android:style/Widget.Material.Light.Button.Borderless.Small"
@@ -87,10 +87,10 @@
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:drawableLeft="@drawable/ic_action_reply_tinted"
-                android:text="Reply"
+                android:text="Quick Reply"
                 android:textColor="#8a000000"
-                android:background="?android:attr/colorControlHighlight"
-                android:paddingEnd="8dp" />
+                android:paddingEnd="8dp"
+                android:background="@drawable/notification_action_bg" />
         </LinearLayout>
     </LinearLayout>
 

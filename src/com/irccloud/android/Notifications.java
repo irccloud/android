@@ -714,7 +714,7 @@ public class Notifications {
             i.setData(Uri.parse("irccloud-bid://" + bid));
             i.putExtras(replyIntent);
             PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(R.drawable.ic_action_reply, "Reply", quickReplyIntent);
+            builder.addAction(R.drawable.ic_action_reply, "Quick Reply", quickReplyIntent);
         }
 
         android.app.Notification notification = builder.build();
