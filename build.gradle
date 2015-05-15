@@ -37,8 +37,8 @@ android {
     testBuildType 'debugTest'
 
     defaultConfig {
-        versionCode 32
-        versionName "1.21"
+        versionCode 33
+        versionName "1.22"
         minSdkVersion 9
         targetSdkVersion 22
         applicationId "com.irccloud.android"
