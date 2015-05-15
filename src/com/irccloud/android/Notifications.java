@@ -709,7 +709,7 @@ public class Notifications {
             builder.extend(extender).extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));
         }
 
-        if(replyIntent != null) {
+        if(replyIntent != null && prefs.getBoolean("notify_quickreply", true)) {
             i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
             i.setData(Uri.parse("irccloud-bid://" + bid));
             i.putExtras(replyIntent);
@@ -736,7 +736,7 @@ public class Notifications {
             } else {
                 bigContentView.setViewVisibility(R.id.more, View.GONE);
             }
-            if(replyIntent != null) {
+            if(replyIntent != null && prefs.getBoolean("notify_quickreply", true)) {
                 bigContentView.setViewVisibility(R.id.actions, View.VISIBLE);
                 bigContentView.setViewVisibility(R.id.action_divider, View.VISIBLE);
                 i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);

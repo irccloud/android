@@ -62,7 +62,8 @@
             android:layout_height="1dip"
             android:layout_marginTop="4dp"
             android:id="@+id/action_divider"
-            android:background="?android:attr/dividerHorizontal" />
+            android:background="?android:attr/dividerHorizontal"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/actions"
