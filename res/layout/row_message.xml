@@ -18,7 +18,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="22dp"
     android:orientation="horizontal">
 
     <TextView
@@ -27,6 +26,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal|top"
         android:textColor="@color/timestamp"
+        android:includeFontPadding="false"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp" />
 
@@ -48,8 +48,10 @@
         android:gravity="top"
         android:linksClickable="true"
         android:lineSpacingExtra="4dp"
+        android:lineSpacingMultiplier="1.0"
         android:paddingRight="8dp"
-        android:layout_marginBottom="@dimen/message_row_spacing"
+        android:includeFontPadding="false"
+        android:paddingBottom="@dimen/message_row_spacing"
         android:layout_weight="1" />
 
     <ImageView
