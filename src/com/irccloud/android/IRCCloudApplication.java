@@ -31,6 +31,9 @@ import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
+import com.squareup.leakcanary.AndroidExcludedRefs;
+import com.squareup.leakcanary.DisplayLeakService;
+import com.squareup.leakcanary.ExcludedRefs;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -71,7 +74,11 @@ public class IRCCloudApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        refWatcher = LeakCanary.install(this);
+        ExcludedRefs excludedRefs = AndroidExcludedRefs.createAndroidDefaults()
+                .thread("WebViewCoreThread")
+                .instanceField("android.webkit.WebViewCore", "mContext")
+                .build();
+        refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
         instance = this;
         Fabric.with(this, new Crashlytics());
 

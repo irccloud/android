@@ -258,6 +258,8 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${CRASHLYTICS_KEY}" />
+
+        <service android:name=".CrashlyticsLeakService"/>
     </application>
 
 </manifest>
