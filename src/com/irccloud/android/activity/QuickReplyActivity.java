@@ -122,7 +122,16 @@ public class QuickReplyActivity extends AppCompatActivity {
                    calendar.setTimeInMillis(msg.getLong("eid") / 1000);
 
                    if (timestamp_width == -1) {
-                       String s = "888:888 888";
+                       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+                       String s = "88:88 88";
+                       if (prefs.getBoolean("time-24hr", false)) {
+                           if (prefs.getBoolean("time-seconds", false))
+                               s = "88:88:88";
+                           else
+                               s = "88:88";
+                       } else if (prefs.getBoolean("time-seconds", false)) {
+                           s = "88:88:88 88";
+                       }
                        timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
                    }
                    holder.timestamp.setMinWidth(timestamp_width);
