@@ -75,6 +75,11 @@ public class CrashlyticsLeakService extends AbstractAnalysisResultService {
         afterDefaultHandling(heapDump, result, leakInfo);
     }
 
+    private static String classSimpleName(String className) {
+        int separator = className.lastIndexOf('.');
+        return separator == -1 ? className : className.substring(separator + 1);
+    }
+
     protected void afterDefaultHandling(HeapDump heapDump, AnalysisResult result, String leakInfo) {
         if (!result.leakFound || result.excludedLeak) {
             return;
@@ -83,6 +88,12 @@ public class CrashlyticsLeakService extends AbstractAnalysisResultService {
         for(String s : leakInfo.split("\n")) {
             Crashlytics.log(s);
         }
-        Crashlytics.logException(new Exception("Memory Leak Detected"));
+        Crashlytics.log("*******************");
+
+        String name = classSimpleName(result.className);
+        if (!heapDump.referenceName.equals("")) {
+            name += "(" + heapDump.referenceName + ")";
+        }
+        Crashlytics.logException(new Exception(name + " has leaked"));
     }
 }

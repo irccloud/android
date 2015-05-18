@@ -247,15 +247,12 @@ public class Notifications {
                         editor.commit();
                 } catch (ConcurrentModificationException e) {
                     save();
-                } catch (OutOfMemoryError e) {
+                } catch (OutOfMemoryError|Exception e) {
                     editor.remove("notifications_json");
                     editor.remove("networks_json");
                     editor.remove("lastseeneids_json");
                     editor.remove("dismissedeids_json");
                     editor.commit();
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                 }
             }
         };
@@ -591,8 +588,6 @@ public class Notifications {
             };
             mNotificationTimer.schedule(mNotificationTimerTask, 5000);
         } catch (Exception e) {
-            e.printStackTrace();
-            Crashlytics.logException(e);
         }
     }
 
