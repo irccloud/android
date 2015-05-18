@@ -106,6 +106,14 @@ public class CollapsedEventsTests extends TestCase {
         assertEquals("<b>\u0004BA1719\u0002•\u000F sam</b> was opped (\u0004BA1719+o\u000F) by the server <b>irc.example.net</b>", list.getCollapsedMessage());
     }
 
+    public void testOpDeop() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        addMode(list, "o", "sam", "james");
+        removeMode(list, "o", "sam", "ChanServ");
+
+        assertEquals("<b>\u0004BA1719\u0002•\u000F sam</b> was de-opped (\u0004BA1719-o\u000F) by \u0004E7AA00\u0002•\u000F ChanServ", list.getCollapsedMessage());
+    }
+
     public void testJoin() {
 		CollapsedEventsList list = new CollapsedEventsList();
 		list.addEvent(eid++, CollapsedEventsList.TYPE_JOIN, "sam", null, "sam@example.net", null, null, null);

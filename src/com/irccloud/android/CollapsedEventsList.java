@@ -149,7 +149,7 @@ public class CollapsedEventsList {
                 return false;
             }
             if (modeCount() == 0)
-                return addMode(mode);
+                return removeMode(mode);
             return true;
         }
 
