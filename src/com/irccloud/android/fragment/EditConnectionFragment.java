@@ -400,6 +400,8 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
 
     @Override public void onDestroy() {
         super.onDestroy();
+        if(presets != null)
+            presets.setOnItemSelectedListener(null);
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         refWatcher.watch(this);
     }

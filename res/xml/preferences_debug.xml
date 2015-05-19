@@ -18,32 +18,7 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="About">
-		<Preference
-			android:title="Send Feedback"
-			android:summary="Join us in #feedback"
-			android:key="feedback"
-			/>
-	    <Preference
-			android:title="FAQ"
-			android:key="faq"
-			/>
-		<!-- <Preference
-			android:title="Subscriptions"
-			android:key="subscriptions"
-			/>
-		<Preference
-			android:title="ChangeLog"
-			android:key="changes"
-			/>-->
-        <Preference
-                android:title="Open Source Licenses"
-                android:key="licenses"
-                />
-		<Preference
-			android:title="Version"
-			android:key="version"
-			/>
+	<PreferenceCategory android:title="Debugging">
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="detect_leaks"
 			android:defaultValue="true"

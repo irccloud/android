@@ -1401,6 +1401,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             tapTimer.cancel();
             tapTimer = null;
         }
+        mListener = null;
+        heartbeatTask = null;
     }
 
     private class HeartbeatTask extends AsyncTaskEx<Void, Void, Void> {

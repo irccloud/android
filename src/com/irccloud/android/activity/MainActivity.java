@@ -466,6 +466,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             messageTxt.setText(null);
         }
         textWatcher = null;
+        fileUploadTask = null;
+        imgurTask = null;
         for (EventsDataSource.Event e : pendingEvents.values()) {
             try {
                 if(e.expiration_timer != null)
@@ -1158,7 +1160,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
                     new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
                 } else {
-                    fileUploadTask = new FileUploadTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+                    fileUploadTask = new FileUploadTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), this);
                     fileUploadTask.execute((Void) null);
                 }
             }
@@ -1294,9 +1296,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (imgurTask != null)
             imgurTask.setActivity(this);
 
-        if (fileUploadTask != null)
+        if (fileUploadTask != null) {
             fileUploadTask.setActivity(this);
-
+            if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet)
+                fileUploadTask.show_dialog();
+        }
         messageTxt.clearFocus();
         messageTxt.setEnabled(true);
     }
@@ -1338,6 +1342,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         ConfigInstance config = new ConfigInstance();
         config.imgurUploadTask = imgurTask;
         config.fileUploadTask = fileUploadTask;
+        if(fileUploadTask != null) {
+            if(fileUploadTask.metadataDialog != null)
+                fileUploadTask.metadataDialog.dismiss();
+            fileUploadTask.metadataDialog = null;
+            fileUploadTask.fileSize = null;
+        }
         return config;
     }
 
@@ -2520,7 +2530,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
                         new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
                     } else {
-                        fileUploadTask = new FileUploadTask(imageCaptureURI);
+                        fileUploadTask = new FileUploadTask(imageCaptureURI, this);
                         fileUploadTask.execute((Void) null);
                     }
 
@@ -2536,14 +2546,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
                         new ImgurRefreshTask(selectedImage).execute((Void) null);
                     } else {
-                        fileUploadTask = new FileUploadTask(selectedImage);
+                        fileUploadTask = new FileUploadTask(selectedImage, this);
                         fileUploadTask.execute((Void) null);
                     }
                 }
             } else if (requestCode == 3 && resultCode == RESULT_OK) {
                 Uri selectedFile = imageReturnedIntent.getData();
                 if (selectedFile != null) {
-                    fileUploadTask = new FileUploadTask(selectedFile);
+                    fileUploadTask = new FileUploadTask(selectedFile, this);
                     fileUploadTask.execute((Void) null);
                 }
             } else if (requestCode == 4 && resultCode == RESULT_OK) {
@@ -4136,15 +4146,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    public class FileUploadTask extends AsyncTaskEx<Void, Float, String> implements NetworkConnection.IRCEventHandler {
+    public static class FileUploadTask extends AsyncTaskEx<Void, Float, String> implements NetworkConnection.IRCEventHandler {
         private HttpURLConnection http = null;
         private Uri mFileUri;  // local Uri to upload
         private int total = 0;
         private TextView fileSize;
         private AlertDialog metadataDialog;
-        public Activity activity;
+        public MainActivity activity;
         public BuffersDataSource.Buffer mBuffer;
         public int reqid = -1;
+        private String error;
 
         public String filename;
         public String original_filename;
@@ -4156,17 +4167,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         private NotificationCompat.Builder notification;
 
-        public FileUploadTask(Uri fileUri) {
-            mBuffer = buffer;
+        public FileUploadTask(Uri fileUri, final MainActivity activity) {
+            mBuffer = activity.buffer;
             mFileUri = fileUri;
-            type = getContentResolver().getType(mFileUri);
+            type = activity.getContentResolver().getType(mFileUri);
 
             if (Build.VERSION.SDK_INT < 16) {
                 original_filename = fileUri.getLastPathSegment();
             } else {
                 Cursor cursor = null;
                 try {
-                    cursor = getContentResolver().query(fileUri, null, null, null, null, null);
+                    cursor = activity.getContentResolver().query(fileUri, null, null, null, null, null);
                     if (cursor != null && cursor.moveToFirst()) {
                         original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                     } else {
@@ -4197,7 +4208,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (!original_filename.contains("."))
                 original_filename += "." + type.substring(type.indexOf("/") + 1);
 
-            setActivity(MainActivity.this);
+            setActivity(activity);
 
             notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
                     .setContentTitle("Uploading File")
@@ -4214,18 +4225,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             i.setData(Uri.parse("bid://" + mBuffer.bid));
             notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 
-            runOnUiThread(new Runnable() {
+            show_dialog();
+
+            Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + original_filename + " " + type);
+        }
+
+        public void show_dialog() {
+            activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                    final View view = getLayoutInflater().inflate(R.layout.dialog_upload, null);
+                    final View view = activity.getLayoutInflater().inflate(R.layout.dialog_upload, null);
                     final EditText fileinput = (EditText) view.findViewById(R.id.filename);
                     final EditText messageinput = (EditText) view.findViewById(R.id.message);
                     final ImageView thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-                    messageinput.setText(buffer.draft);
-                    buffer.draft = "";
-                    messageTxt.setText("");
+                    messageinput.setText(activity.buffer.draft);
+                    activity.buffer.draft = "";
+                    activity.messageTxt.setText("");
 
                     view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -4243,7 +4260,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                     if (type.startsWith("image/")) {
                         try {
-                            thumbnail.setImageBitmap(loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), mFileUri));
+                            thumbnail.setImageBitmap(activity.loadThumbnail(IRCCloudApplication.getInstance().getApplicationContext(), mFileUri));
                             thumbnail.setVisibility(View.VISIBLE);
                         } catch (OutOfMemoryError e) {
                             thumbnail.setVisibility(View.GONE);
@@ -4255,7 +4272,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
 
                     fileSize = (TextView) view.findViewById(R.id.filesize);
-                    fileSize.setText("Calculating size… • " + type);
+                    String filesize;
+                    if (total == 0) {
+                        fileSize.setText("Calculating size… • " + type);
+                    } else if (total < 1024) {
+                        filesize = total + " B";
+                        fileSize.setText(filesize + " • " + type);
+                    } else {
+                        int exp = (int) (Math.log(total) / Math.log(1024));
+                        filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+                        fileSize.setText(filesize + " • " + type);
+                    }
 
                     fileinput.setText(original_filename);
                     fileinput.setOnEditorActionListener(new OnEditorActionListener() {
@@ -4289,37 +4316,38 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 e.printStackTrace();
                             }
                             dialog.dismiss();
+                            metadataDialog = null;
                         }
                     });
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.cancel();
+                            metadataDialog = null;
                         }
                     });
                     builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
-                            if (fileUploadTask != null)
-                                fileUploadTask.cancel(true);
-                            fileUploadTask = null;
+                            if (activity.fileUploadTask != null)
+                                activity.fileUploadTask.cancel(true);
+                            activity.fileUploadTask = null;
                             dialog.dismiss();
                             hide_progress();
-                            if (buffer != null)
-                                buffer.draft = messageinput.getText().toString();
-                            if (messageTxt != null)
-                                messageTxt.setText(messageinput.getText());
+                            if (activity.buffer != null)
+                                activity.buffer.draft = messageinput.getText().toString();
+                            if (activity.messageTxt != null)
+                                activity.messageTxt.setText(messageinput.getText());
+                            metadataDialog = null;
                         }
                     });
                     metadataDialog = builder.create();
                     fileinput.setTag(metadataDialog);
-                    metadataDialog.setOwnerActivity(MainActivity.this);
+                    metadataDialog.setOwnerActivity(activity);
                     metadataDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                     metadataDialog.show();
                 }
             });
-
-            Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + original_filename + " " + type);
         }
 
         private void finalize_upload() {
@@ -4346,10 +4374,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 while (activity == null)
                     Thread.sleep(100);
                 if (type != null && type.startsWith("image/") && !type.equals("image/gif") && !type.equals("image/png") && Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(activity).getString("photo_size", "1024")) > 0) {
-                    mFileUri = resize(mFileUri);
+                    mFileUri = activity.resize(mFileUri);
                 }
                 fileIn = activity.getContentResolver().openInputStream(mFileUri);
-                Cursor c = getContentResolver().query(mFileUri, new String[]{OpenableColumns.SIZE}, null, null, null);
+                Cursor c = activity.getContentResolver().query(mFileUri, new String[]{OpenableColumns.SIZE}, null, null, null);
                 if (c != null && c.moveToFirst()) {
                     total = c.getInt(0);
                     c.close();
@@ -4387,7 +4415,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return null;
             }
 
-            runOnUiThread(new Runnable() {
+            activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     String filesize;
@@ -4468,21 +4496,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             return null;
         }
 
-        public void setActivity(Activity a) {
+        public void setActivity(MainActivity a) {
             activity = a;
             if (a != null) {
                 if (total > 0 && !uploadFinished) {
-                    getSupportActionBar().setTitle("Uploading");
-                    getSupportActionBar().setDisplayShowCustomEnabled(false);
-                    getSupportActionBar().setDisplayShowTitleEnabled(true);
-                    progressBar.setProgress(0);
-                    progressBar.setIndeterminate(true);
-                    if (progressBar.getVisibility() != View.VISIBLE) {
+                    activity.getSupportActionBar().setTitle("Uploading");
+                    activity.getSupportActionBar().setDisplayShowCustomEnabled(false);
+                    activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
+                    activity.progressBar.setProgress(0);
+                    activity.progressBar.setIndeterminate(true);
+                    if (activity.progressBar.getVisibility() != View.VISIBLE) {
                         if (Build.VERSION.SDK_INT >= 16) {
-                            progressBar.setAlpha(0);
-                            progressBar.animate().alpha(1).setDuration(200);
+                            activity.progressBar.setAlpha(0);
+                            activity.progressBar.animate().alpha(1).setDuration(200);
                         }
-                        progressBar.setVisibility(View.VISIBLE);
+                        activity.progressBar.setVisibility(View.VISIBLE);
                     }
                 }
             }
@@ -4498,21 +4526,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             if (activity != null) {
                 try {
-                    if (progressBar.getVisibility() != View.VISIBLE) {
-                        getSupportActionBar().setTitle("Uploading");
-                        getSupportActionBar().setDisplayShowCustomEnabled(false);
-                        getSupportActionBar().setDisplayShowTitleEnabled(true);
+                    if (activity.progressBar.getVisibility() != View.VISIBLE) {
+                        activity.getSupportActionBar().setTitle("Uploading");
+                        activity.getSupportActionBar().setDisplayShowCustomEnabled(false);
+                        activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
                         if (Build.VERSION.SDK_INT >= 16) {
-                            progressBar.setAlpha(0);
-                            progressBar.animate().alpha(1).setDuration(200);
+                            activity.progressBar.setAlpha(0);
+                            activity.progressBar.animate().alpha(1).setDuration(200);
                         }
-                        progressBar.setVisibility(View.VISIBLE);
+                        activity.progressBar.setVisibility(View.VISIBLE);
                     }
                     if (values[0] < 1.0f) {
-                        progressBar.setIndeterminate(false);
-                        progressBar.setProgress((int) (values[0] * 1000));
+                        activity.progressBar.setIndeterminate(false);
+                        activity.progressBar.setProgress((int) (values[0] * 1000));
                     } else {
-                        progressBar.setIndeterminate(true);
+                        activity.progressBar.setIndeterminate(true);
                     }
                 } catch (Exception e) {
                 }
@@ -4565,26 +4593,26 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         protected void onCancelled() {
             super.onCancelled();
-            fileUploadTask = null;
+            activity.fileUploadTask = null;
             NetworkConnection.getInstance().removeHandler(this);
             hide_progress();
         }
 
         private void hide_progress() {
-            if (progressBar != null && progressBar.getVisibility() == View.VISIBLE) {
+            if (activity.progressBar != null && activity.progressBar.getVisibility() == View.VISIBLE) {
                 if (Build.VERSION.SDK_INT >= 16) {
-                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                    activity.progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
                         @Override
                         public void run() {
-                            progressBar.setVisibility(View.GONE);
+                            activity.progressBar.setVisibility(View.GONE);
                         }
                     });
                 } else {
-                    progressBar.setVisibility(View.GONE);
+                    activity.progressBar.setVisibility(View.GONE);
                 }
             }
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+            activity.getSupportActionBar().setDisplayShowCustomEnabled(true);
+            activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
         }
 
@@ -4600,11 +4628,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         else
                             message += " ";
                         message += event.getJsonObject("file").get("url").asText();
-                        NetworkConnection.getInstance().say(buffer.cid, buffer.name, message);
-                        fileUploadTask = null;
+                        NetworkConnection.getInstance().say(activity.buffer.cid, activity.buffer.name, message);
+                        activity.fileUploadTask = null;
                         NetworkConnection.getInstance().removeHandler(this);
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
-                        runOnUiThread(new Runnable() {
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 hide_progress();
@@ -4615,14 +4643,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 case NetworkConnection.EVENT_FAILURE_MSG:
                     event = (IRCCloudJSONObject) obj;
                     if (event.getInt("_reqid") == reqid) {
-                        runOnUiThread(new Runnable() {
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 hide_progress();
                                 show_alert("Upload Failed", "Unable to upload file to IRCCloud: " + event.getString("message"));
                             }
                         });
-                        fileUploadTask = null;
+                        activity.fileUploadTask = null;
                         NetworkConnection.getInstance().removeHandler(this);
                     }
                     break;
@@ -4639,7 +4667,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     Looper.prepare();
                 hide_progress();
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                 builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                 builder.setTitle(title);
                 builder.setMessage(message);
@@ -4653,7 +4681,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 AlertDialog dialog = builder.create();
-                dialog.setOwnerActivity(MainActivity.this);
+                dialog.setOwnerActivity(activity);
                 dialog.show();
 
                 metadataDialog.dismiss();

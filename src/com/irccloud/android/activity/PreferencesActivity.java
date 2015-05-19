@@ -47,6 +47,7 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.DashClock;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -154,6 +155,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         }
         if (foundSony)
             findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
+        if(BuildConfig.DEBUG)
+            addPreferencesFromResource(R.xml.preferences_debug);
         addPreferencesFromResource(R.xml.preferences_about);
         findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 

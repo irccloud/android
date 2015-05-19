@@ -74,11 +74,20 @@ public class IRCCloudApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        ExcludedRefs excludedRefs = AndroidExcludedRefs.createAndroidDefaults()
-                .thread("WebViewCoreThread")
-                .instanceField("android.webkit.WebViewCore", "mContext")
-                .build();
-        refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        if(BuildConfig.DEBUG && prefs.getBoolean("detect_leaks", true)) {
+            ExcludedRefs excludedRefs = AndroidExcludedRefs.createAndroidDefaults()
+                    .thread("WebViewCoreThread")
+                    .thread("CookieSyncManager")
+                    .instanceField("android.webkit.WebViewCore", "mContext")
+                    .instanceField("android.sec.clipboard.ClipboardUIManager", "mContext")
+                    .instanceField("android.widget.Editor$Blink", "this$0")
+                    .build();
+            refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
+        } else {
+            refWatcher = RefWatcher.DISABLED;
+        }
         instance = this;
         Fabric.with(this, new Crashlytics());
 
@@ -93,8 +102,6 @@ public class IRCCloudApplication extends Application {
         u = UsersDataSource.getInstance();
         e = EventsDataSource.getInstance();
         ColorFormatter.init();
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         if (prefs.contains("notify")) {
             SharedPreferences.Editor editor = prefs.edit();
