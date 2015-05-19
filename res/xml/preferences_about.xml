@@ -44,11 +44,5 @@
 			android:title="Version"
 			android:key="version"
 			/>
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="detect_leaks"
-			android:defaultValue="true"
-			android:summaryOn="Memory leaks will be caught and automatically reported via Crashlytics"
-			android:summaryOff="Memory leaks will be ignored"
-			android:title="Detect Memory Leaks"/>
 	</PreferenceCategory>
 </PreferenceScreen>
