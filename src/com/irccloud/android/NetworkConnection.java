@@ -48,7 +48,6 @@ import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
 
-import org.apache.http.conn.ssl.StrictHostnameVerifier;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -550,11 +549,11 @@ public class NetworkConnection {
 
     public JSONObject login(String email, String password) {
         try {
-            String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
+            String tokenResponse = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
             JSONObject token = new JSONObject(tokenResponse);
             if (token.has("token")) {
                 String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token");
-                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null, token.getString("token"));
+                String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/login"), postdata, null, token.getString("token"));
                 if (response.length() < 1) {
                     JSONObject o = new JSONObject();
                     o.put("message", "empty_response");
@@ -590,11 +589,11 @@ public class NetworkConnection {
 
     public JSONObject signup(String realname, String email, String password, String impression) {
         try {
-            String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
+            String tokenResponse = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
             JSONObject token = new JSONObject(tokenResponse);
             if (token.has("token")) {
                 String postdata = "realname=" + URLEncoder.encode(realname, "UTF-8") + "&email=" + URLEncoder.encode(email, "UTF-8") + "&password=" + URLEncoder.encode(password, "UTF-8") + "&token=" + token.getString("token") + "&android_impression=" + URLEncoder.encode(impression, "UTF-8");
-                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/signup"), postdata, null, token.getString("token"));
+                String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/signup"), postdata, null, token.getString("token"));
                 if (response.length() < 1) {
                     JSONObject o = new JSONObject();
                     o.put("message", "empty_response");
@@ -630,11 +629,11 @@ public class NetworkConnection {
 
     public JSONObject request_password(String email) {
         try {
-            String tokenResponse = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
+            String tokenResponse = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/auth-formtoken"), "", null, null);
             JSONObject token = new JSONObject(tokenResponse);
             if (token.has("token")) {
                 String postdata = "email=" + URLEncoder.encode(email, "UTF-8") + "&token=" + token.getString("token") + "&mobile=1";
-                String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/request-access-link"), postdata, null, token.getString("token"));
+                String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/request-access-link"), postdata, null, token.getString("token"));
                 if (response.length() < 1) {
                     JSONObject o = new JSONObject();
                     o.put("message", "empty_response");
@@ -671,7 +670,7 @@ public class NetworkConnection {
     public JSONObject impression(String adid, String referrer, String sk) {
         try {
             String postdata = "adid=" + URLEncoder.encode(adid, "UTF-8") + "&referrer=" + URLEncoder.encode(referrer, "UTF-8") + "&session=" + sk;
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/android-impressions"), postdata, sk, null);
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/android-impressions"), postdata, sk, null);
             if (response.length() < 1) {
                 JSONObject o = new JSONObject();
                 o.put("message", "empty_response");
@@ -704,7 +703,7 @@ public class NetworkConnection {
 
     public JSONObject fetchJSON(String url) throws IOException {
         try {
-            String response = doFetch(new URL(url), null, null, null);
+            String response = fetch(new URL(url), null, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -714,7 +713,7 @@ public class NetworkConnection {
 
     public JSONObject fetchJSON(String url, String postdata) throws IOException {
         try {
-            String response = doFetch(new URL(url), postdata, null, null);
+            String response = fetch(new URL(url), postdata, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -725,7 +724,7 @@ public class NetworkConnection {
     public JSONObject registerGCM(String regId, String sk) throws IOException {
         String postdata = "device_id=" + regId + "&session=" + sk;
         try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk, null);
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk, null);
             return new JSONObject(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -736,7 +735,7 @@ public class NetworkConnection {
     public JSONObject unregisterGCM(String regId, String sk) throws IOException {
         String postdata = "device_id=" + regId + "&session=" + sk;
         try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk, null);
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk, null);
             return new JSONObject(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -746,7 +745,7 @@ public class NetworkConnection {
 
     public JSONObject files(int page) throws IOException {
         try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/files?page="+page), null, session, null);
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/files?page=" + page), null, session, null);
             return new JSONObject(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -760,7 +759,7 @@ public class NetworkConnection {
             public void run() {
                 try {
                     Log.i("IRCCloud", "Invalidating session");
-                    doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session=" + sk, sk, null);
+                    fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session=" + sk, sk, null);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -770,7 +769,7 @@ public class NetworkConnection {
 
     public JSONArray networkPresets() throws IOException {
         try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/static/networks.json"), null, null, null);
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/static/networks.json"), null, null, null);
             JSONObject o = new JSONObject(response);
             return o.getJSONArray("networks");
         } catch (Exception e) {
@@ -1096,7 +1095,7 @@ public class NetworkConnection {
     public JSONObject say(int cid, String to, String message, String sk) throws IOException {
         String postdata = "cid=" + cid + "&to=" + URLEncoder.encode(to, "UTF-8") + "&msg=" + URLEncoder.encode(message, "UTF-8") + "&session=" + sk;
         try {
-            String response = doFetch(new URL("https://" + IRCCLOUD_HOST + "/chat/say"), postdata, sk, null);
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/say"), postdata, sk, null);
             return new JSONObject(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -2370,7 +2369,7 @@ public class NetworkConnection {
             schedule_idle_timer();
     }
 
-    private String doFetch(URL url, String postdata, String sk, String token) throws Exception {
+    public String fetch(URL url, String postdata, String sk, String token) throws Exception {
         HttpURLConnection conn = null;
 
         Proxy proxy = null;

@@ -1378,6 +1378,17 @@ public class ColorFormatter {
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
                         }
                     }
+
+                    if (entities != null && entities.has("pastes")) {
+                        for (JsonNode paste : entities.get("pastes")) {
+                            if(url.equals(paste.get("url").asText())) {
+                                if (url.toLowerCase().startsWith("http://"))
+                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + url.substring(7);
+                                else
+                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + url.substring(8);
+                            }
+                        }
+                    }
                     return url;
                 }
             });

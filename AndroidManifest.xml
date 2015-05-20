@@ -121,6 +121,15 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activity.PastebinViewerActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/PASTE_SCHEME" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".activity.PreferencesActivity"
             android:label="@string/menu_settings"
             android:theme="@style/PrefsTheme" >
