@@ -25,6 +25,7 @@
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>

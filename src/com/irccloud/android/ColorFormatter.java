@@ -1381,11 +1381,11 @@ public class ColorFormatter {
 
                     if (entities != null && entities.has("pastes")) {
                         for (JsonNode paste : entities.get("pastes")) {
-                            if(url.equals(paste.get("url").asText())) {
+                            if(url.startsWith(paste.get("url").asText())) {
                                 if (url.toLowerCase().startsWith("http://"))
-                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + url.substring(7);
+                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste.get("url").asText().substring(7) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean()?"1":"0");
                                 else
-                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + url.substring(8);
+                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste.get("url").asText().substring(8) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean()?"1":"0");
                             }
                         }
                     }

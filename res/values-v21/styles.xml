@@ -29,6 +29,8 @@
         <item name="colorPrimaryDark">#000</item>
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:dialogTheme">@style/AppDialogTheme</item>

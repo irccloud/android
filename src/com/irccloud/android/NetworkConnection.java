@@ -1394,6 +1394,17 @@ public class NetworkConnection {
         }
     }
 
+    public int delete_paste(String id) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("id", id);
+            return send("delete-pastebin", o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     public void request_backlog(int cid, int bid, long beforeId) {
         try {
             if (oobTasks.containsKey(bid)) {

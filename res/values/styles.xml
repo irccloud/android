@@ -23,6 +23,7 @@
         <item name="colorPrimaryDark">#000</item>
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
@@ -154,5 +155,9 @@
         <item name="android:thumbOffset">16dip</item>
         <item name="android:paddingLeft">16dip</item>
         <item name="android:paddingRight">16dip</item>
+    </style>
+
+    <style name="CustomShareIcon">
+        <item name="actionModeShareDrawable">@drawable/ic_action_share</item>
     </style>
 </resources>

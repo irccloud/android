@@ -210,6 +210,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
             MenuItem shareItem = menu.findItem(R.id.action_share);
             ShareActionProvider share = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
+            share.setShareHistoryFileName(null);
             share.setShareIntent(intent);
         }
         return true;
@@ -217,6 +218,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        if(!Uri.parse(url).getQueryParameter("own_paste").equals("1"))
+            menu.findItem(R.id.delete).setVisible(false);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -226,6 +229,12 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             finish();
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
+        } else if(item.getItemId() == R.id.delete) {
+            if(Uri.parse(url).getQueryParameter("own_paste").equals("1")) {
+                NetworkConnection.getInstance().delete_paste(Uri.parse(url).getQueryParameter("id"));
+                finish();
+                Toast.makeText(PastebinViewerActivity.this, "Pastebin deleted", Toast.LENGTH_SHORT).show();
+            }
         } else if(item.getItemId() == R.id.action_linenumbers) {
             item.setChecked(!item.isChecked());
             mWebView.loadUrl("javascript:$('a.lines').click()");
