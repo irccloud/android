@@ -23,7 +23,6 @@
         <item name="colorPrimaryDark">#000</item>
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
@@ -33,6 +32,7 @@
         <item name="colorPrimaryDark">#000</item>
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
     </style>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>

@@ -69,6 +69,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                         "</style></head>").replace("</body>", "<script>" +
                         "window.PASTEVIEW.on('rendered', _.bind(function () {\n" +
                         "window.PASTEVIEW.ace.container.style.height = \"100%\";\n" +
+                        "Android.ready();\n" +
                         "}, window.PASTEVIEW));\n</script></body>");
             } catch (Exception e) {
             }
@@ -88,10 +89,21 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
     WebView mWebView;
     ProgressBar mSpinner;
-    ProgressBar mProgress;
     Toolbar toolbar;
     String html;
     String url;
+
+    public class JSInterface {
+        @JavascriptInterface
+        public void ready() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSpinner.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -99,11 +111,10 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
-        setContentView(R.layout.activity_imageviewer);
+        setContentView(R.layout.activity_pastebin);
+        mSpinner = (ProgressBar) findViewById(R.id.spinner);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setVisibility(View.GONE);
-
-        findViewById(R.id.frame).setBackgroundResource(R.color.background_material_light);
+        setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle("Pastebin");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -114,27 +125,12 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         if (Integer.parseInt(Build.VERSION.SDK) >= 19)
             mWebView.getSettings().setDisplayZoomControls(false);
         mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.addJavascriptInterface(new JSInterface(), "Android");
         mWebView.getSettings().setLoadWithOverviewMode(false);
         mWebView.getSettings().setUseWideViewPort(false);
-        mWebView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                mProgress.setProgress(newProgress);
-            }
-
-            public boolean onConsoleMessage(android.webkit.ConsoleMessage cm) {
-                android.util.Log.d("IRCCloud", cm.message() + " -- From line "
-                        + cm.lineNumber() + " of "
-                        + cm.sourceId());
-                return true;
-            }
-        });
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
-                mSpinner.setVisibility(View.GONE);
-                mProgress.setVisibility(View.GONE);
-                mWebView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -146,8 +142,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             public void onLoadResource(WebView view, String url) {
             }
         });
-        mSpinner = (ProgressBar) findViewById(R.id.spinner);
-        mProgress = (ProgressBar) findViewById(R.id.progress);
 
         if(savedInstanceState != null && savedInstanceState.containsKey("url")) {
             url = savedInstanceState.getString("url");
