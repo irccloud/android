@@ -1381,6 +1381,19 @@ public class NetworkConnection {
         }
     }
 
+    public int paste(String name, String contents) {
+        try {
+            JSONObject o = new JSONObject();
+            if(name != null && name.length() > 0)
+                o.put("name", name);
+            o.put("contents", contents);
+            return send("paste", o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     public void request_backlog(int cid, int bid, long beforeId) {
         try {
             if (oobTasks.containsKey(bid)) {
@@ -1524,12 +1537,14 @@ public class NetworkConnection {
                     prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("mode-showsymbol"));
                     prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("nick-colors"));
                     prefs.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("emoji-disableconvert")));
+                    prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("pastebin-disableprompt")));
                 } else {
                     prefs.putBoolean("time-24hr", false);
                     prefs.putBoolean("time-seconds", false);
                     prefs.putBoolean("mode-showsymbol", false);
                     prefs.putBoolean("nick-colors", false);
                     prefs.putBoolean("emoji-disableconvert", true);
+                    prefs.putBoolean("pastebin-disableprompt", true);
                 }
                 prefs.commit();
                 EventsDataSource.getInstance().clearCaches();

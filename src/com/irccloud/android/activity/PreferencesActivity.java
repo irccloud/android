@@ -45,6 +45,7 @@ import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
@@ -164,6 +165,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("pastebin-disableprompt").setOnPreferenceChangeListener(prefstoggle);
         if (findPreference("emoji-disableconvert") != null) {
             findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
@@ -367,11 +369,12 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                             ((CheckBoxPreference) findPreference("autoaway")).setChecked(userInfo.auto_away);
                             if (prefs != null) {
                                 try {
-                                    ((CheckBoxPreference) findPreference("time-24hr")).setChecked(prefs.has("time-24hr") ? prefs.getBoolean("time-24hr") : false);
-                                    ((CheckBoxPreference) findPreference("time-seconds")).setChecked(prefs.has("time-seconds") ? prefs.getBoolean("time-seconds") : false);
-                                    ((CheckBoxPreference) findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol") ? prefs.getBoolean("mode-showsymbol") : false);
+                                    ((SwitchPreferenceCompat) findPreference("time-24hr")).setChecked(prefs.has("time-24hr") && prefs.get("time-24hr").getClass().equals(Boolean.class) && prefs.getBoolean("time-24hr"));
+                                    ((SwitchPreferenceCompat) findPreference("time-seconds")).setChecked(prefs.has("time-seconds") && prefs.get("time-seconds").getClass().equals(Boolean.class) && prefs.getBoolean("time-seconds"));
+                                    ((SwitchPreferenceCompat) findPreference("mode-showsymbol")).setChecked(prefs.has("mode-showsymbol") && prefs.get("mode-showsymbol").getClass().equals(Boolean.class) && prefs.getBoolean("mode-showsymbol"));
+                                    ((SwitchPreferenceCompat) findPreference("pastebin-disableprompt")).setChecked(!(prefs.has("pastebin-disableprompt") && prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && prefs.getBoolean("pastebin-disableprompt")));
                                     if (findPreference("emoji-disableconvert") != null)
-                                        ((CheckBoxPreference) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") ? prefs.getBoolean("emoji-disableconvert") : false));
+                                        ((SwitchPreferenceCompat) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -447,7 +450,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
                 }
 
-                if (preference.getKey().equals("emoji-disableconvert"))
+                if (preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else
                     prefs.put(preference.getKey(), (Boolean) newValue);

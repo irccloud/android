@@ -40,6 +40,12 @@
             android:key="nick-colors"
             android:defaultValue="false"
             android:title="Colourise nicknames"/>
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="pastebin-disableprompt"
+            android:defaultValue="true"
+            android:summaryOn="Prompt before sending multi-line messages"
+            android:summaryOff="Always send multi-line messages as text"
+            android:title="Ask to pastebin"/>
         <com.robobunny.SeekBarPreference
             android:key="textSize"
             android:title="Text Size"

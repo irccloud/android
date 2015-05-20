@@ -83,6 +83,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -553,6 +555,76 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
+    int pastereqid = -1;
+    String pastemsg = null;
+    String pastefilename = null;
+    String pastecontents = null;
+
+    private void show_pastebin_prompt() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+        final View v = getLayoutInflater().inflate(R.layout.dialog_pastebinprompt, null);
+        ((CheckBox)v.findViewById(R.id.alwaysSend)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (conn == null || conn.getUserInfo() == null) {
+                    Toast.makeText(MainActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                }
+                JSONObject prefs = conn.getUserInfo().prefs;
+                try {
+                    if (prefs == null) {
+                        prefs = new JSONObject();
+                        conn.getUserInfo().prefs = prefs;
+                        Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
+                    }
+
+                    prefs.put("pastebin-disableprompt", b);
+
+                    conn.set_prefs(prefs.toString());
+                } catch (JSONException e) {
+                    Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: pastebin-disableprompt");
+                    Crashlytics.logException(e);
+                    Toast.makeText(MainActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setView(v);
+        builder.setTitle("Pastebin");
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setPositiveButton("Pastebin", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                sendBtn.setEnabled(false);
+                if (Build.VERSION.SDK_INT >= 11)
+                    sendBtn.setAlpha(0.5f);
+                pastecontents = messageTxt.getText().toString();
+                messageTxt.setText("");
+                pastefilename = ((EditText)v.findViewById(R.id.filename)).getText().toString();
+                pastemsg = ((EditText)v.findViewById(R.id.message)).getText().toString();
+                pastereqid = NetworkConnection.getInstance().paste(pastefilename, pastecontents);
+                dialog.dismiss();
+            }
+        });
+        builder.setNeutralButton("Send as Text", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SendTask t = new SendTask();
+                t.forceText = true;
+                t.execute((Void)null);
+                dialog.dismiss();
+            }
+        });
+        final AlertDialog dialog = builder.create();
+        dialog.setOwnerActivity(MainActivity.this);
+        dialog.show();
+    }
+
     private void show_topic_popup() {
         ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
         if (c != null) {
@@ -899,7 +971,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
+        boolean forceText = false;
         EventsDataSource.Event e = null;
+
+        public SendTask() {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+            forceText = !prefs.getBoolean("pastebin-disableprompt", true);
+        }
 
         @Override
         protected void onPreExecute() {
@@ -907,6 +985,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 sendBtn.setEnabled(false);
                 if (Build.VERSION.SDK_INT >= 11)
                     sendBtn.setAlpha(0.5f);
+                String msg = messageTxt.getText().toString();
+                if (msg.startsWith("//"))
+                    msg = msg.substring(1);
+                else if (msg.startsWith("/") && !msg.startsWith("/me "))
+                    msg = null;
+
+                if(!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1)) {
+                    show_pastebin_prompt();
+                    return;
+                }
                 UsersDataSource.User u = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
                 e = new EventsDataSource.Event();
                 e.command = messageTxt.getText().toString();
@@ -922,11 +1010,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     e.chan = buffer.name;
                 if (u != null)
                     e.from_mode = u.mode;
-                String msg = messageTxt.getText().toString();
-                if (msg.startsWith("//"))
-                    msg = msg.substring(1);
-                else if (msg.startsWith("/") && !msg.startsWith("/me "))
-                    msg = null;
                 e.msg = msg;
                 if (msg != null && msg.toLowerCase().startsWith("/me ")) {
                     e.type = "buffer_me_msg";
@@ -2259,7 +2342,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 event = (IRCCloudJSONObject) obj;
                 if (event != null && event.has("_reqid")) {
                     int reqid = event.getInt("_reqid");
-                    if (pendingEvents.containsKey(reqid)) {
+                    if(reqid == pastereqid) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                sendBtn.setEnabled(true);
+                                if (Build.VERSION.SDK_INT >= 11)
+                                    sendBtn.setAlpha(1.0f);
+                                messageTxt.setText(pastecontents);
+                                pastecontents = null;
+                                pastemsg = null;
+                                pastefilename = null;
+                                pastereqid = -1;
+                            }
+                        });
+                    } else if (pendingEvents.containsKey(reqid)) {
                         EventsDataSource.Event e = pendingEvents.get(reqid);
                         EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
                         pendingEvents.remove(event.getInt("_reqid"));
@@ -2304,6 +2401,30 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                }
+                break;
+            case NetworkConnection.EVENT_SUCCESS:
+                event = (IRCCloudJSONObject) obj;
+                if (event != null && event.has("_reqid")) {
+                    int reqid = event.getInt("_reqid");
+                    if (reqid == pastereqid) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(pastemsg != null && pastemsg.length() > 0)
+                                    messageTxt.setText(pastemsg + " " + event.getString("url"));
+                                else
+                                    messageTxt.setText(event.getString("url"));
+                                SendTask t = new SendTask();
+                                t.forceText = true;
+                                t.execute((Void)null);
+                                pastecontents = null;
+                                pastemsg = null;
+                                pastefilename = null;
+                                pastereqid = -1;
+                            }
+                        });
+                    }
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
