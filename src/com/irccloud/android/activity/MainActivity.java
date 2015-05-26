@@ -564,6 +564,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
         final View v = getLayoutInflater().inflate(R.layout.dialog_pastebinprompt, null);
+        pastecontents = messageTxt.getText().toString();
+        ((EditText)v.findViewById(R.id.paste)).setText(pastecontents);
         ((CheckBox)v.findViewById(R.id.alwaysSend)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -602,10 +604,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 sendBtn.setEnabled(false);
                 if (Build.VERSION.SDK_INT >= 11)
                     sendBtn.setAlpha(0.5f);
-                pastecontents = messageTxt.getText().toString();
+                pastecontents = ((EditText) v.findViewById(R.id.paste)).getText().toString();
                 messageTxt.setText("");
-                pastefilename = ((EditText)v.findViewById(R.id.filename)).getText().toString();
-                pastemsg = ((EditText)v.findViewById(R.id.message)).getText().toString();
+                pastefilename = ((EditText) v.findViewById(R.id.filename)).getText().toString();
+                pastemsg = ((EditText) v.findViewById(R.id.message)).getText().toString();
                 pastereqid = NetworkConnection.getInstance().paste(pastefilename, pastecontents);
                 dialog.dismiss();
             }
@@ -616,13 +618,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onClick(DialogInterface dialog, int which) {
                 SendTask t = new SendTask();
                 t.forceText = true;
-                t.execute((Void)null);
+                t.execute((Void) null);
                 dialog.dismiss();
             }
         });
         final AlertDialog dialog = builder.create();
         dialog.setOwnerActivity(MainActivity.this);
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.show();
+        v.findViewById(R.id.paste).requestFocus();
     }
 
     private void show_topic_popup() {
@@ -991,7 +995,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 else if (msg.startsWith("/") && !msg.startsWith("/me "))
                     msg = null;
 
-                if(!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1)) {
+                if(messageTxt.getText().toString().equals("/paste") || (!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1))) {
+                    if(messageTxt.getText().toString().equals("/paste"))
+                        messageTxt.setText("");
                     show_pastebin_prompt();
                     return;
                 }
@@ -2692,7 +2698,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing"} : new String[]{"Take a Photo", "Choose Existing Photo", "Choose Existing Document"};
+        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Start a pastebin"} : new String[]{"Take a Photo", "Choose Existing Photo", "Choose Existing Document", "Start a pastebin"};
         if(NetworkConnection.getInstance().uploadsAvailable()) {
             items = Arrays.copyOf(items, items.length + 1);
             items[items.length - 1] = "File Uploads";
@@ -2723,6 +2729,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         i.addCategory(Intent.CATEGORY_OPENABLE);
                         i.setType("*/*");
                         startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
+                    } else if (which == 3 || Build.VERSION.SDK_INT < 19) {
+                        show_pastebin_prompt();
                     } else {
                         Intent i = new Intent(MainActivity.this, UploadsActivity.class);
                         i.putExtra("cid", buffer.cid);

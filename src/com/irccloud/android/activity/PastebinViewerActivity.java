@@ -18,7 +18,10 @@ package com.irccloud.android.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -111,6 +114,11 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+            cloud.recycle();
+        }
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
