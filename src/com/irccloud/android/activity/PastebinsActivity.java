@@ -104,6 +104,7 @@ public class PastebinsActivity extends BaseActivity {
         public void addPastebin(String id, String name, String url, int lines, Date date, String body, boolean own_paste) {
             Pastebin p = new Pastebin();
             p.id = id;
+            p.name = name;
             p.url = url;
             p.lines = lines;
             p.date = date;
