@@ -32,26 +32,18 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
 
-import org.json.JSONObject;
-
 import java.net.URL;
-import java.util.Iterator;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
 
@@ -81,6 +73,16 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             if (html != null) {
                 PastebinViewerActivity.this.html = html;
                 mWebView.loadDataWithBaseURL(url, html, "text/html", "UTF-8", null);
+
+                try {
+                    if (Build.VERSION.SDK_INT >= 16) {
+                        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(PastebinViewerActivity.this);
+                        if (nfc != null) {
+                            nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(url)), PastebinViewerActivity.this);
+                        }
+                    }
+                } catch (Exception e) {
+                }
             } else {
                 fail();
             }
