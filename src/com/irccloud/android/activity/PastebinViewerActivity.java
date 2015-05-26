@@ -81,6 +81,12 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                             "window.PASTEVIEW.ace.container.style.height = \"100%\";\n" +
                             "Android.ready();\n" +
                             "}, window.PASTEVIEW));\n" +
+                            "window.PASTEVIEW.model.on('removed', _.bind(function () {\n" +
+                            "Android.ready();\n" +
+                            "}, window.PASTEVIEW.model));\n" +
+                            "window.PASTEVIEW.model.on('fetchError', _.bind(function () {\n" +
+                            "Android.ready();\n" +
+                            "}, window.PASTEVIEW.model));\n" +
                             "</script></body>");
                 }
                 return html;
