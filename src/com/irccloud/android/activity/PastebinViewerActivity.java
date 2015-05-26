@@ -56,16 +56,31 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         protected String doInBackground(Void... params) {
             try {
                 String html = NetworkConnection.getInstance().fetch(new URL(url), null, null, null);
-                return html.replace("</head>", "<style>" +
-                        "html, body, .mainContainer, .pasteContainer { height: 100%; width: 100% }" +
-                        "body, div.paste { background-color: #fafafa; }" +
-                        "h1#title, div#pasteSidebar, div.paste h1 { display: none; }" +
-                        ".mainContainerFull, .mainContent, .mainContentPaste, div.paste { margin: 0px; padding: 0px; border: none; width: 100%; height: 100%; }" +
-                        "</style></head>").replace("</body>", "<script>" +
-                        "window.PASTEVIEW.on('rendered', _.bind(function () {\n" +
-                        "window.PASTEVIEW.ace.container.style.height = \"100%\";\n" +
-                        "Android.ready();\n" +
-                        "}, window.PASTEVIEW));\n</script></body>");
+                if(html != null && html.length() > 0) {
+                    html = html.replace("</head>", "<style>" +
+                            "html, body, .mainContainer, .pasteContainer { height: 100%; width: 100% }" +
+                            "body, div.paste { background-color: #fafafa; }" +
+                            "h1#title, div#pasteSidebar, div.paste h1 { display: none; }" +
+                            ".mainContainerFull, .mainContent, .mainContentPaste, div.paste { margin: 0px; padding: 0px; border: none; width: 100%; height: 100%; }" +
+                            "</style></head>");
+
+                    html = html.replace("https://js.stripe.com/v2", "");
+                    html = html.replace("https://checkout.stripe.com/v3/checkout.js", "");
+                    html = html.replace("https://platform.twitter.com/widgets.js", "");
+                    html = html.replace("https://platform.vine.co/static/scripts/embed.js", "");
+                    html = html.replace("https://connect.facebook.net/en_US/all.js#xfbml=1&status=0&appId=1524400614444110", "");
+                    html = html.replace("https://apis.google.com/js/plusone.js", "");
+                    html = html.replace("//rum-static.pingdom.net/prum.min.js", "");
+                    html = html.replace("window.IRCCloudAppMapSource =", "window.IRCCloudAppMapSourceDisabled =");
+
+                    html = html.replace("</body>", "<script>" +
+                            "window.PASTEVIEW.on('rendered', _.bind(function () {\n" +
+                            "window.PASTEVIEW.ace.container.style.height = \"100%\";\n" +
+                            "Android.ready();\n" +
+                            "Android.setTitle(window.PASTEVIEW.model.get('name'));\n" +
+                            "}, window.PASTEVIEW));\n</script></body>");
+                }
+                return html;
             } catch (Exception e) {
             }
             return null;
@@ -107,6 +122,19 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                     mSpinner.setVisibility(View.GONE);
                 }
             });
+        }
+
+        @JavascriptInterface
+        public void setTitle(final String title) {
+            if(title != null && title.length() > 0) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (getSupportActionBar() != null)
+                            getSupportActionBar().setTitle(title);
+                    }
+                });
+            }
         }
     }
 
