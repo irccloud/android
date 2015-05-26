@@ -245,26 +245,12 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_pastebin, menu);
-
-        if (getIntent() != null && getIntent().getDataString() != null) {
-            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(url));
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TEXT, url);
-            intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
-            intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-            MenuItem shareItem = menu.findItem(R.id.action_share);
-            ShareActionProvider share = (ShareActionProvider) MenuItemCompat.getActionProvider(shareItem);
-            share.setShareHistoryFileName(null);
-            share.setShareIntent(intent);
-        }
         return true;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if(!Uri.parse(url).getQueryParameter("own_paste").equals("1"))
+        if(Uri.parse(url).getQueryParameter("own_paste") == null || !Uri.parse(url).getQueryParameter("own_paste").equals("1"))
             menu.findItem(R.id.delete).setVisible(false);
         if(mSpinner == null || mSpinner.getVisibility() != View.GONE)
             menu.findItem(R.id.action_linenumbers).setEnabled(false);
@@ -302,6 +288,20 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 clipboard.setPrimaryClip(clip);
             }
             Toast.makeText(PastebinViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+        } else if(item.getItemId() == R.id.action_share) {
+            if (getIntent() != null && getIntent().getDataString() != null) {
+                Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(url));
+                intent.setType("text/plain");
+                if(url.contains("?id="))
+                    intent.putExtra(Intent.EXTRA_TEXT, url.substring(0, url.indexOf("?id=")));
+                else
+                    intent.putExtra(Intent.EXTRA_TEXT, url);
+                intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
+                intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                startActivity(Intent.createChooser(intent, "Share Pastebin"));
+            }
         }
         return super.onOptionsItemSelected(item);
     }

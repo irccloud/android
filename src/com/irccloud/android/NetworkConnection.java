@@ -753,6 +753,16 @@ public class NetworkConnection {
         return null;
     }
 
+    public JSONObject pastebins(int page) throws IOException {
+        try {
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/pastebins?page=" + page), null, session, null);
+            return new JSONObject(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void logout(final String sk) {
         idleTimer.schedule(new TimerTask() {
             @Override

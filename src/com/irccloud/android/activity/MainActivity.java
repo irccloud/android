@@ -2698,45 +2698,59 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Start a pastebin"} : new String[]{"Take a Photo", "Choose Existing Photo", "Choose Existing Document", "Start a pastebin"};
+        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Start a Pastebin", "Your Pastebins"} : new String[]{"Take a Photo", "Choose Existing Photo", "Choose Existing Document", "Start a Pastebin", "Your Pastebins"};
         if(NetworkConnection.getInstance().uploadsAvailable()) {
             items = Arrays.copyOf(items, items.length + 1);
             items[items.length - 1] = "File Uploads";
         }
 
-        builder.setItems(items, new DialogInterface.OnClickListener() {
+        final String[] dialogItems = items;
+
+        builder.setItems(dialogItems, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                Intent i;
                 if(buffer != null) {
-                    if (which == 0) {
-                        try {
-                            File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
-                            imageDir.mkdirs();
-                            new File(imageDir, ".nomedia").createNewFile();
-                            imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
-                            Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                            startActivityForResult(i, 1);
-                        } catch (IOException e) {
-                        }
-                    } else if (which == 1) {
-                        Intent i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                        i.addCategory(Intent.CATEGORY_OPENABLE);
-                        i.setType("image/*");
-                        startActivityForResult(Intent.createChooser(i, "Select Picture"), 2);
-                    } else if (which == 2 && Build.VERSION.SDK_INT >= 19) {
-                        Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                        i.addCategory(Intent.CATEGORY_OPENABLE);
-                        i.setType("*/*");
-                        startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
-                    } else if (which == 3 || Build.VERSION.SDK_INT < 19) {
-                        show_pastebin_prompt();
-                    } else {
-                        Intent i = new Intent(MainActivity.this, UploadsActivity.class);
-                        i.putExtra("cid", buffer.cid);
-                        i.putExtra("to", buffer.name);
-                        i.putExtra("msg", messageTxt.getText().toString());
-                        startActivityForResult(i, 4);
+                    switch(dialogItems[which]) {
+                        case "Take a Photo":
+                            try {
+                                File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                                imageDir.mkdirs();
+                                new File(imageDir, ".nomedia").createNewFile();
+                                imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
+                                i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                startActivityForResult(i, 1);
+                            } catch (IOException e) {
+                            }
+                            break;
+                        case "Choose Existing":
+                        case "Choose Existing Photo":
+                            i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            i.addCategory(Intent.CATEGORY_OPENABLE);
+                            i.setType("image/*");
+                            startActivityForResult(Intent.createChooser(i, "Select Picture"), 2);
+                            break;
+                        case "Choose Existing Document":
+                            i = new Intent(Intent.ACTION_GET_CONTENT);
+                            i.addCategory(Intent.CATEGORY_OPENABLE);
+                            i.setType("*/*");
+                            startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
+                            break;
+                        case "Start a Pastebin":
+                            show_pastebin_prompt();
+                            break;
+                        case "Your Pastebins":
+                            i = new Intent(MainActivity.this, PastebinsActivity.class);
+                            startActivity(i);
+                            break;
+                        case "File Uploads":
+                            i = new Intent(MainActivity.this, UploadsActivity.class);
+                            i.putExtra("cid", buffer.cid);
+                            i.putExtra("to", buffer.name);
+                            i.putExtra("msg", messageTxt.getText().toString());
+                            startActivityForResult(i, 4);
+                            break;
                     }
                 }
                 dialog.dismiss();

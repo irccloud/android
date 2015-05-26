@@ -48,4 +48,6 @@
     <string name="forgotPassword">Forgotten your password? <a href="#">Get\u00A0an\u00A0access\u00A0link</a></string>
     <string name="enterpriseLearnMore">Looking for the Standard Edition? <a href="#">Get\u00A0it\u00A0here</a></string>
     <string name="title_activity_uploads">File Uploads</string>
+    <string name="title_activity_pastebin">Pastebin</string>
+    <string name="title_activity_pastebins">Pastebins</string>
 </resources>
