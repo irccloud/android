@@ -74,11 +74,14 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                     html = html.replace("window.IRCCloudAppMapSource =", "window.IRCCloudAppMapSourceDisabled =");
 
                     html = html.replace("</body>", "<script>" +
+                            "window.PASTEVIEW.model.on('loaded', _.bind(function () {\n" +
+                            "Android.setTitle(window.PASTEVIEW.model.get('name'), window.PASTEVIEW.syntax() + \" • \" + window.PASTEVIEW.lines());\n" +
+                            "}, window.PASTEVIEW.model));\n" +
                             "window.PASTEVIEW.on('rendered', _.bind(function () {\n" +
                             "window.PASTEVIEW.ace.container.style.height = \"100%\";\n" +
                             "Android.ready();\n" +
-                            "Android.setTitle(window.PASTEVIEW.model.get('name'));\n" +
-                            "}, window.PASTEVIEW));\n</script></body>");
+                            "}, window.PASTEVIEW));\n" +
+                            "</script></body>");
                 }
                 return html;
             } catch (Exception e) {
@@ -120,21 +123,26 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 @Override
                 public void run() {
                     mSpinner.setVisibility(View.GONE);
+                    supportInvalidateOptionsMenu();
                 }
             });
         }
 
         @JavascriptInterface
-        public void setTitle(final String title) {
-            if(title != null && title.length() > 0) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
+        public void setTitle(final String title, final String subtitle) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if(title != null && title.length() > 0) {
                         if (getSupportActionBar() != null)
                             getSupportActionBar().setTitle(title);
                     }
-                });
-            }
+                    if(subtitle != null && subtitle.length() > 0) {
+                        if (getSupportActionBar() != null)
+                            getSupportActionBar().setSubtitle(subtitle);
+                    }
+                }
+            });
         }
     }
 
@@ -252,6 +260,9 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     public boolean onPrepareOptionsMenu(Menu menu) {
         if(!Uri.parse(url).getQueryParameter("own_paste").equals("1"))
             menu.findItem(R.id.delete).setVisible(false);
+        if(mSpinner == null || mSpinner.getVisibility() != View.GONE)
+            menu.findItem(R.id.action_linenumbers).setEnabled(false);
+
         return super.onPrepareOptionsMenu(menu);
     }
 

@@ -23,11 +23,6 @@
         app:showAsAction="always"
         app:actionProviderClass="android.support.v7.widget.ShareActionProvider"
         />
-    <item android:id="@+id/delete"
-        android:title="Delete"
-        android:icon="@drawable/ic_action_delete"
-        app:showAsAction="always"
-        />
     <item android:id="@+id/action_linenumbers"
         android:title="Line Numbers"
         android:checkable="true"
@@ -40,6 +35,11 @@
         />
     <item android:id="@+id/action_copy"
         android:title="Copy URL"
+        app:showAsAction="never"
+        />
+    <item android:id="@+id/delete"
+        android:title="Delete"
+        android:icon="@drawable/ic_action_delete"
         app:showAsAction="never"
         />
 </menu>
