@@ -44,6 +44,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.AsyncTaskEx;
@@ -324,13 +325,15 @@ public class PastebinsActivity extends BaseActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final Pastebin p = (Pastebin)adapter.getItem(i);
+                final Pastebin p = (Pastebin) adapter.getItem(i);
 
                 Intent intent = new Intent(PastebinsActivity.this, PastebinViewerActivity.class);
-                intent.setData(Uri.parse(p.url + "?id=" + p.id + "&own_paste=" + (p.own_paste?"1":"0")));
+                intent.setData(Uri.parse(p.url + "?id=" + p.id + "&own_paste=" + (p.own_paste ? "1" : "0")));
                 startActivity(intent);
             }
         });
+
+        Toast.makeText(this, "Tap a pastebin to view full text with syntax highlighting", Toast.LENGTH_LONG).show();
     }
 
     @Override
