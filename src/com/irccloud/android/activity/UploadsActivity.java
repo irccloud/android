@@ -28,6 +28,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -75,7 +76,6 @@ public class UploadsActivity extends BaseActivity {
     private FilesAdapter adapter = new FilesAdapter();
     private boolean canLoadMore = true;
     private View footer;
-    private File fileToDelete = null;
     private URITemplate uri_template = null;
 
     private String to;
@@ -208,27 +208,27 @@ public class UploadsActivity extends BaseActivity {
         private View.OnClickListener deleteClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fileToDelete = (File)getItem((Integer)view.getTag());
+                final File f = (File)getItem((Integer)view.getTag());
                 AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
                 builder.setTitle("Delete File");
-                if(fileToDelete.name != null && fileToDelete.name.length() > 0) {
-                    builder.setMessage("Are you sure you want to delete '" + fileToDelete.name + "'?");
+                if(f.name != null && f.name.length() > 0) {
+                    builder.setMessage("Are you sure you want to delete '" + f.name + "'?");
                 } else {
                     builder.setMessage("Are you sure you want to delete this file?");
                 }
                 builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        reqid = NetworkConnection.getInstance().deleteFile(fileToDelete.id);
-                        files.remove(fileToDelete);
+                        reqid = NetworkConnection.getInstance().deleteFile(f.id);
+                        files.remove(f);
                         notifyDataSetChanged();
+                        checkEmpty();
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         dialogInterface.dismiss();
-                        fileToDelete = null;
                     }
                 });
                 AlertDialog d = builder.create();
@@ -584,15 +584,6 @@ public class UploadsActivity extends BaseActivity {
                 if (obj.getInt("_reqid") == reqid) {
                     Log.d("IRCCloud", "File deleted successfully");
                     reqid = -1;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.files.remove(fileToDelete);
-                            adapter.notifyDataSetChanged();
-                            checkEmpty();
-                            fileToDelete = null;
-                        }
-                    });
                 }
                 break;
             case NetworkConnection.EVENT_FAILURE_MSG:
