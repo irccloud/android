@@ -180,6 +180,10 @@ public class UploadsActivity extends BaseActivity {
                             });
                         }
                     });
+                } else {
+                    if (uri_template != null) {
+                        f.url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("name", f.name).freeze());
+                    }
                 }
             } catch (Exception e) {
                 //Thread pool has shut down
