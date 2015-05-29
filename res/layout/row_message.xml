@@ -38,6 +38,7 @@
             android:layout_gravity="top"
             android:layout_marginTop="2dp"
             android:visibility="gone"
+            android:contentDescription="expand"
             android:scaleType="center"/>
 
     <TextView
@@ -52,6 +53,7 @@
         android:paddingRight="8dp"
         android:includeFontPadding="false"
         android:paddingBottom="@dimen/message_row_spacing"
+        android:clickable="false"
         android:layout_weight="1" />
 
     <ImageView
@@ -61,6 +63,7 @@
             android:src="@drawable/send_fail"
             android:layout_gravity="right|top"
             android:layout_marginRight="4dp"
+            android:contentDescription="failed"
             android:visibility="gone"/>
 
 </LinearLayout>

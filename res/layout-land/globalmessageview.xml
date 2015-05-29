@@ -30,6 +30,7 @@
         android:layout_gravity="center"
         android:layout_weight="1"
         android:gravity="left"
+        android:accessibilityLiveRegion="polite"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button

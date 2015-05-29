@@ -610,13 +610,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (expandedSectionEids.contains(e.group_eid)) {
                             if (e.group_eid == e.eid + 1) {
                                 holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
+                                holder.expandable.setContentDescription("expanded");
                                 row.setBackgroundResource(R.drawable.status_bg);
                             } else {
                                 holder.expandable.setImageResource(R.drawable.tiny_plus);
+                                holder.expandable.setContentDescription("collapse");
                                 row.setBackgroundResource(R.drawable.expanded_row_bg);
                             }
                         } else {
                             holder.expandable.setImageResource(R.drawable.bullet_toggle_plus);
+                            holder.expandable.setContentDescription("expand");
                         }
                         holder.expandable.setVisibility(View.VISIBLE);
                     } else {
@@ -626,7 +629,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (holder.failed != null)
                     holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
-
                 return row;
             }
         }

@@ -94,6 +94,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/delete"
                     android:src="@drawable/ic_action_cancel"
+                    android:contentDescription="delete"
                     android:background="@null" />
             </LinearLayout>
 
