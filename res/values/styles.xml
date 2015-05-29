@@ -40,6 +40,9 @@
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
         <item name="colorPrimaryDark">#0b2e60</item>
     </style>
+    <style name="LoginThemeSpinner" parent="LoginTheme">
+        <item name="colorAccent">#fff</item>
+    </style>
     <style name="PrefsTheme" parent="AppThemeNoActionBar">
         <item name="android:windowNoTitle">false</item>
         <item name="android:windowTitleSize">?attr/actionBarSize</item>

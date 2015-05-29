@@ -15,6 +15,7 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -184,7 +185,7 @@
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:layout_weight="1"
-            android:visibility="visible"
+            android:visibility="gone"
             android:layout_gravity="center_horizontal"
             android:layout_margin="14dp">
 
@@ -408,7 +409,27 @@
                 android:textColor="#fff" />
         </LinearLayout>
 
-        <TextView
+    <LinearLayout
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/logocontainer"
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingTop="24dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical|center_horizontal">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:theme="@style/LoginThemeSpinner"
+            android:theme="@style/LoginThemeSpinner"
+            android:indeterminate="true" />
+    </LinearLayout>
+    <TextView
             android:id="@+id/version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

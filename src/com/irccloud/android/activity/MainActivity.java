@@ -2080,10 +2080,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && checkPlayServices()) {
-                            final String regId = GCMIntentService.getRegistrationId(MainActivity.this);
-                            GCMIntentService.scheduleRegisterTimer(100);
-                        }
                         updateUsersListFragmentVisibility();
                         supportInvalidateOptionsMenu();
                         if (refreshUpIndicatorTask != null)
@@ -3792,17 +3788,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 startActivity(i);
             }
         }
-    }
-
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 9000).show();
-            }
-            return false;
-        }
-        return true;
     }
 
     private int getOrientation(Context context, Uri photoUri) {

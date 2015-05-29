@@ -22,6 +22,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -35,6 +36,7 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.FragmentActivity;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -53,10 +55,21 @@ import android.widget.TextView.OnEditorActionListener;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.EventAttributes;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.credentials.Credential;
+import com.google.android.gms.auth.api.credentials.CredentialRequest;
+import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
+import com.google.android.gms.auth.api.credentials.CredentialsApi;
+import com.google.android.gms.auth.api.credentials.IdentityProviders;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.NetworkConnection;
@@ -68,8 +81,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class LoginActivity extends FragmentActivity {
+public class LoginActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private View login = null;
+    private View loading = null;
     private AutoCompleteTextView email;
     private EditText password;
     private EditText host;
@@ -93,6 +107,12 @@ public class LoginActivity extends FragmentActivity {
     private LinearLayout loginSignupHint = null;
 
     private String impression_id = null;
+    private GoogleApiClient mGoogleApiClient;
+
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
+    private static final int REQUEST_RESOLVE_CREDENTIALS = 1002;
+    private static final int REQUEST_RESOLVE_SAVE_CREDENTIALS = 1003;
+    private boolean mResolvingError = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,6 +126,8 @@ public class LoginActivity extends FragmentActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         setContentView(R.layout.activity_login);
+
+        loading = findViewById(R.id.loading);
 
         connecting = findViewById(R.id.connecting);
         connectingMsg = (TextView) findViewById(R.id.connectingMsg);
@@ -338,6 +360,14 @@ public class LoginActivity extends FragmentActivity {
         if (savedInstanceState != null && savedInstanceState.containsKey("forgotPassword") && savedInstanceState.getBoolean("forgotPassword")) {
             forgotPasswordClickListener.onClick(null);
         }
+
+        mResolvingError = savedInstanceState != null && savedInstanceState.getBoolean("resolving_error", false);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Auth.CREDENTIALS_API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
 
     private OnClickListener signupHintClickListener = new OnClickListener() {
@@ -438,6 +468,7 @@ public class LoginActivity extends FragmentActivity {
             if (sendAccessLinkBtn != null)
                 state.putBoolean("forgotPassword", sendAccessLinkBtn.getVisibility() == View.VISIBLE);
         }
+        state.putBoolean("resolving_error", mResolvingError);
     }
 
     @Override
@@ -449,7 +480,9 @@ public class LoginActivity extends FragmentActivity {
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+    }
 
+    private void login_or_connect() {
         if (NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
             NetworkConnection.getInstance().logout();
             new AccessLinkTask().execute("https://" + NetworkConnection.IRCCLOUD_HOST + "/chat/access-link?" + getIntent().getData().getEncodedQuery().replace("&mobile=1", "") + "&format=json");
@@ -460,7 +493,6 @@ public class LoginActivity extends FragmentActivity {
                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(i);
                 finish();
-                return;
             }
         } else if (getSharedPreferences("prefs", 0).contains("session_key")) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
@@ -472,11 +504,139 @@ public class LoginActivity extends FragmentActivity {
             }
             startActivity(i);
             finish();
-            return;
         } else {
-            connecting.setVisibility(View.GONE);
-            login.setVisibility(View.VISIBLE);
-            checkPlayServices();
+            if(mGoogleApiClient.isConnected()) {
+                Log.e("IRCCloud", "Play Services connected");
+                CredentialRequest request = new CredentialRequest.Builder()
+                        .setAccountTypes("https://" + NetworkConnection.IRCCLOUD_HOST)
+                        .setSupportsPasswordLogin(true)
+                        .build();
+
+                Auth.CredentialsApi.request(mGoogleApiClient, request).setResultCallback(new ResultCallback<CredentialRequestResult>() {
+                    @Override
+                    public void onResult(CredentialRequestResult result) {
+                        if(result.getStatus().isSuccess()) {
+                            Log.e("IRCCloud", "Credentials request succeeded");
+                            email.setText(result.getCredential().getId());
+                            password.setText(result.getCredential().getPassword());
+                            loginHintClickListener.onClick(null);
+                            new LoginTask().execute((Void) null);
+                        } else if(result.getStatus().getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
+                            Log.e("IRCCloud", "Credentials request sign in");
+                            loading.setVisibility(View.GONE);
+                            connecting.setVisibility(View.GONE);
+                            login.setVisibility(View.VISIBLE);
+                        } else if(result.getStatus().hasResolution()) {
+                            Log.e("IRCCloud", "Credentials request requires resolution");
+                            try {
+                                startIntentSenderForResult(result.getStatus().getResolution().getIntentSender(), REQUEST_RESOLVE_CREDENTIALS, null, 0, 0, 0);
+                            } catch (IntentSender.SendIntentException e) {
+                                e.printStackTrace();
+                                loading.setVisibility(View.GONE);
+                                connecting.setVisibility(View.GONE);
+                                login.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            Log.e("IRCCloud", "Credentials request failed");
+                            loading.setVisibility(View.GONE);
+                            connecting.setVisibility(View.GONE);
+                            login.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+            } else {
+                loading.setVisibility(View.GONE);
+                connecting.setVisibility(View.GONE);
+                login.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!mResolvingError) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        login_or_connect();
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        if (mResolvingError) {
+            // Already attempting to resolve an error.
+            return;
+        } else if (result.hasResolution()) {
+            try {
+                mResolvingError = true;
+                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                mGoogleApiClient.connect();
+            }
+        } else {
+            if (GooglePlayServicesUtil.isUserRecoverableError(result.getErrorCode())) {
+                GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, REQUEST_RESOLVE_ERROR).show();
+                mResolvingError = true;
+            }
+            login_or_connect();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_RESOLVE_ERROR) {
+            mResolvingError = false;
+            if (resultCode == RESULT_OK) {
+                if (!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
+                    mGoogleApiClient.connect();
+                }
+            }
+        } else if (requestCode == REQUEST_RESOLVE_CREDENTIALS) {
+            if(resultCode == RESULT_OK && data.hasExtra(Credential.EXTRA_KEY)) {
+                Credential c = data.getParcelableExtra(Credential.EXTRA_KEY);
+                name.setText(c.getName());
+                email.setText(c.getId());
+                password.setText(c.getPassword());
+                loading.setVisibility(View.GONE);
+                login.setVisibility(View.VISIBLE);
+                loginHintClickListener.onClick(null);
+                new LoginTask().execute((Void)null);
+            } else {
+                loading.setVisibility(View.GONE);
+                login.setVisibility(View.VISIBLE);
+            }
+        } else if (requestCode == REQUEST_RESOLVE_SAVE_CREDENTIALS) {
+            if(resultCode == RESULT_OK) {
+                Log.e("IRCCloud", "Credentials result: OK");
+            }
+            Intent i = new Intent(LoginActivity.this, MainActivity.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+                i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+            if (getIntent() != null) {
+                if (getIntent().getData() != null)
+                    i.setData(getIntent().getData());
+                if (getIntent().getExtras() != null)
+                    i.putExtras(getIntent().getExtras());
+            }
+            startActivity(i);
+            finish();
         }
     }
 
@@ -501,6 +661,7 @@ public class LoginActivity extends FragmentActivity {
             progressBar.setIndeterminate(true);
             connecting.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
         }
 
         @Override
@@ -541,7 +702,7 @@ public class LoginActivity extends FragmentActivity {
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.commit();
 
-                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                    final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                         i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
@@ -551,8 +712,34 @@ public class LoginActivity extends FragmentActivity {
                         if (getIntent().getExtras() != null)
                             i.putExtras(getIntent().getExtras());
                     }
-                    startActivity(i);
-                    finish();
+
+                    if(mGoogleApiClient.isConnected()) {
+                        Credential.Builder builder = new Credential.Builder(email.getText().toString()).setPassword(password.getText().toString());
+                        if(name.getText() != null && name.getText().length() > 0)
+                            builder.setName(name.getText().toString());
+                        Auth.CredentialsApi.save(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
+                            @Override
+                            public void onResult(com.google.android.gms.common.api.Status status) {
+                                if(status.isSuccess()) {
+                                    Log.e("IRCCloud", "Credentials saved");
+                                    startActivity(i);
+                                    finish();
+                                } else if(status.hasResolution()) {
+                                    Log.e("IRCCloud", "Credentials require resolution");
+                                    try {
+                                        startIntentSenderForResult(status.getResolution().getIntentSender(), REQUEST_RESOLVE_SAVE_CREDENTIALS, null, 0, 0, 0);
+                                    } catch (IntentSender.SendIntentException e) {
+                                        e.printStackTrace();
+                                        startActivity(i);
+                                        finish();
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        startActivity(i);
+                        finish();
+                    }
 
                     if(!BuildConfig.ENTERPRISE) {
                         if (name.getVisibility() == View.VISIBLE)
@@ -615,6 +802,15 @@ public class LoginActivity extends FragmentActivity {
                             else
                                 message = "Error: " + message;
                         }
+
+                        if(mGoogleApiClient.isConnected()) {
+                            Auth.CredentialsApi.delete(mGoogleApiClient, new Credential.Builder(email.getText().toString()).setPassword(password.getText().toString()).build()).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
+                                @Override
+                                public void onResult(com.google.android.gms.common.api.Status status) {
+                                }
+                            });
+                        }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -684,6 +880,7 @@ public class LoginActivity extends FragmentActivity {
             progressBar.setIndeterminate(true);
             connecting.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
         }
 
         @Override
@@ -762,6 +959,7 @@ public class LoginActivity extends FragmentActivity {
             progressBar.setIndeterminate(true);
             connecting.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
         }
 
         @Override
@@ -835,6 +1033,7 @@ public class LoginActivity extends FragmentActivity {
             progressBar.setIndeterminate(true);
             connecting.setVisibility(View.VISIBLE);
             login.setVisibility(View.GONE);
+            loading.setVisibility(View.GONE);
         }
 
         @Override
@@ -898,16 +1097,5 @@ public class LoginActivity extends FragmentActivity {
             } catch (WindowManager.BadTokenException e) {
             }
         }
-    }
-
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, 9000).show();
-            }
-            return false;
-        }
-        return true;
     }
 }

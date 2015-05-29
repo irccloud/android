@@ -96,6 +96,10 @@
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="colorPrimaryDark">#0b2e60</item>
     </style>
+    <style name="LoginThemeSpinner" parent="LoginTheme">
+        <item name="colorAccent">#fff</item>
+        <item name="android:colorAccent">#fff</item>
+    </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:colorAccent">#fff</item>
         <item name="colorAccent">#fff</item>

@@ -33,6 +33,7 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
@@ -561,6 +562,12 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     @Override
     public void onSupportActionModeFinished(ActionMode mode) {
 
+    }
+
+    @Nullable
+    @Override
+    public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {
+        return null;
     }
 
     private class SavePreferencesTask extends AsyncTaskEx<Void, Void, Void> {
