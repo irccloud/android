@@ -46,6 +46,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
+import com.github.fge.uritemplate.URITemplate;
+import com.github.fge.uritemplate.URITemplateParseException;
+import com.github.fge.uritemplate.vars.VariableMap;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -73,6 +76,7 @@ public class UploadsActivity extends BaseActivity {
     private boolean canLoadMore = true;
     private View footer;
     private File fileToDelete = null;
+    private URITemplate uri_template = null;
 
     private String to;
     private int cid = -1;
@@ -94,7 +98,6 @@ public class UploadsActivity extends BaseActivity {
         String id;
         String name;
         String url;
-        String url_template;
         String mime_type;
         String extension;
         int size;
@@ -133,12 +136,11 @@ public class UploadsActivity extends BaseActivity {
             state.putSerializable("adapter", files.toArray(new File[files.size()]));
         }
 
-        public void addFile(String id, String name, String url, String url_template, String mime_type, String extension, int size, Date date) {
+        public void addFile(String id, String name, String url, String mime_type, String extension, int size, Date date) {
             File f = new File();
             f.id = id;
             f.name = name;
             f.url = url;
-            f.url_template = url_template;
             f.mime_type = mime_type;
             f.extension = extension;
             f.size = size;
@@ -159,7 +161,9 @@ public class UploadsActivity extends BaseActivity {
                         public void run() {
                             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                             try {
-                                f.image = NetworkConnection.getInstance().fetchImage(new URL(f.url_template.replace(":modifiers", "w320")), false);
+                                if(uri_template != null) {
+                                    f.image = NetworkConnection.getInstance().fetchImage(uri_template.toURL(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("modifiers", "w320").freeze()), false);
+                                }
                                 if (f.image == null)
                                     f.image_failed = true;
                             } catch (Exception e) {
@@ -312,6 +316,14 @@ public class UploadsActivity extends BaseActivity {
         protected JSONObject doInBackground(Void... params) {
             try {
                 Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                if(uri_template == null) {
+                    JSONObject config = NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
+                    try {
+                        uri_template = new URITemplate(config.getString("file_uri_template"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 return NetworkConnection.getInstance().files(++page);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -328,7 +340,7 @@ public class UploadsActivity extends BaseActivity {
                         Log.e("IRCCloud", "Got " + files.length() + " files for page " + page);
                         for (int i = 0; i < files.length(); i++) {
                             JSONObject file = files.getJSONObject(i);
-                            adapter.addFile(file.getString("id"), file.getString("name"), file.getString("url"), file.getString("url_template"), file.getString("mime_type"), file.getString("extension"), file.getInt("size"), new Date(file.getLong("date") * 1000L));
+                            adapter.addFile(file.getString("id"), file.getString("name"), file.getString("url"), file.getString("mime_type"), file.getString("extension"), file.getInt("size"), new Date(file.getLong("date") * 1000L));
                         }
                         adapter.notifyDataSetChanged();
                         canLoadMore = files.length() > 0 && adapter.getCount() < jsonObject.getInt("total");

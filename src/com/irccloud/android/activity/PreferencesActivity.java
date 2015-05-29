@@ -784,7 +784,22 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
                     "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
                     "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
-                    "SOFTWARE.\n");
+                    "SOFTWARE.\n" +
+                    "\n" +
+                    "FGE uri-template\n" +
+                    "This software is dual-licensed under:\n" +
+                    "\n" +
+                    "- the Lesser General Public License (LGPL) version 3.0 or, at your option, any\n" +
+                    "  later version;\n" +
+                    "- the Apache Software License (ASL) version 2.0.\n" +
+                    "\n" +
+                    "The text of both licenses is included (under the names LGPL-3.0.txt and\n" +
+                    "ASL-2.0.txt respectively).\n" +
+                    "\n" +
+                    "Direct link to the sources:\n" +
+                    "\n" +
+                    "- LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt\n" +
+                    "- ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt");
             builder.setView(v);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {

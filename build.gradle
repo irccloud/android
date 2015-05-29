@@ -236,6 +236,8 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+        exclude 'META-INF/ASL-2.0.txt'
+        exclude 'META-INF/LGPL-3.0.txt'
     }
 }
 
@@ -275,6 +277,7 @@ dependencies {
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile 'com.infstory:switch-preference-compat:1.0.+'
+    compile 'com.github.fge:uri-template:0.9'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.2.4@aar') {
