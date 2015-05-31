@@ -47,6 +47,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.github.fge.uritemplate.URITemplate;
+import com.github.fge.uritemplate.URITemplateException;
+import com.github.fge.uritemplate.vars.VariableMap;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -69,6 +72,7 @@ public class PastebinsActivity extends BaseActivity {
     private boolean canLoadMore = true;
     private View footer;
     private Pastebin pasteToDelete;
+    private URITemplate uri_template = null;
 
     private static class Pastebin implements Serializable {
         private static final long serialVersionUID = 0L;
@@ -91,7 +95,6 @@ public class PastebinsActivity extends BaseActivity {
         }
 
         private ArrayList<Pastebin> pastebins = new ArrayList<>();
-        private DateFormat dateFormat = DateFormat.getDateTimeInstance();
 
         public void clear() {
             pastebins.clear();
@@ -102,15 +105,19 @@ public class PastebinsActivity extends BaseActivity {
             state.putSerializable("adapter", pastebins.toArray(new Pastebin[pastebins.size()]));
         }
 
-        public void addPastebin(String id, String name, String url, int lines, Date date, String body, boolean own_paste) {
+        public void addPastebin(String id, String name, int lines, Date date, String body, boolean own_paste) {
             Pastebin p = new Pastebin();
             p.id = id;
             p.name = name;
-            p.url = url;
             p.lines = lines;
             p.date = date;
             p.body = body;
             p.own_paste = own_paste;
+            try {
+                p.url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", p.id).addScalarValue("name", p.name).freeze());
+            } catch (URITemplateException e) {
+                e.printStackTrace();
+            }
 
             addPastebin(p);
         }
@@ -221,6 +228,15 @@ public class PastebinsActivity extends BaseActivity {
         protected JSONObject doInBackground(Void... params) {
             try {
                 Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+                if(uri_template == null) {
+                    JSONObject config = NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
+                    try {
+                        uri_template = new URITemplate(config.getString("pastebin_uri_template"));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 return NetworkConnection.getInstance().pastebins(++page);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -237,7 +253,7 @@ public class PastebinsActivity extends BaseActivity {
                         Log.e("IRCCloud", "Got " + pastebins.length() + " pastebins for page " + page);
                         for (int i = 0; i < pastebins.length(); i++) {
                             JSONObject pastebin = pastebins.getJSONObject(i);
-                            adapter.addPastebin(pastebin.getString("id"), pastebin.getString("name"), pastebin.getString("url"), pastebin.getInt("lines"), new Date(pastebin.getLong("date") * 1000L), pastebin.getString("body"), pastebin.getBoolean("own_paste"));
+                            adapter.addPastebin(pastebin.getString("id"), pastebin.getString("name"), pastebin.getInt("lines"), new Date(pastebin.getLong("date") * 1000L), pastebin.getString("body"), pastebin.getBoolean("own_paste"));
                         }
                         adapter.notifyDataSetChanged();
                         canLoadMore = pastebins.length() > 0 && adapter.getCount() < jsonObject.getInt("total");
