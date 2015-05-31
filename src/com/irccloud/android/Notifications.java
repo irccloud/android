@@ -680,7 +680,7 @@ public class Notifications {
             PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
             extender.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_reply,
                     "Reply", replyPendingIntent)
-                    .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply").build()).build());
+                    .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
 
             if (count > 1 && wear_text != null)
                 extender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(wear_text).extend(new WearableExtender().setStartScrollBottom(true)).build());
@@ -688,7 +688,7 @@ public class Notifications {
             NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
                     new NotificationCompat.CarExtender.UnreadConversation.Builder(title + ((network != null) ? (" (" + network + ")") : ""))
                             .setReadPendingIntent(dismissPendingIntent)
-                            .setReplyAction(replyPendingIntent, new RemoteInput.Builder("extra_reply").setLabel("Reply").build());
+                            .setReplyAction(replyPendingIntent, new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build());
 
             if (auto_messages != null) {
                 for (String m : auto_messages) {
@@ -708,6 +708,7 @@ public class Notifications {
             i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
             i.setData(Uri.parse("irccloud-bid://" + bid));
             i.putExtras(replyIntent);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(R.drawable.ic_action_reply, "Quick Reply", quickReplyIntent);
         }
@@ -737,6 +738,7 @@ public class Notifications {
                 i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
                 i.setData(Uri.parse("irccloud-bid://" + bid));
                 i.putExtras(replyIntent);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
                 bigContentView.setOnClickPendingIntent(R.id.action_reply, quickReplyIntent);
             }

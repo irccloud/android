@@ -265,7 +265,7 @@
             android:theme="@style/DialogTheme"
             android:windowSoftInputMode="stateVisible|adjustResize"
             android:launchMode="singleInstance"
-            android:clearTaskOnLaunch="true"
+            android:taskAffinity=""
             android:excludeFromRecents="true">
         </activity>
         <meta-data android:name="com.google.android.gms.car.application"

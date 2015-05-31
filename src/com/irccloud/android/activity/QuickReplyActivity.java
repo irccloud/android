@@ -157,18 +157,24 @@ public class QuickReplyActivity extends AppCompatActivity {
     };
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        cid = intent.getIntExtra("cid", -1);
+        bid = intent.getIntExtra("bid", -1);
+        to = intent.getStringExtra("to");
+        server = new ServersDataSource.Server();
+        server.cid = cid;
+
+        setTitle("Reply to " + to + " (" + intent.getStringExtra("network") + ")");
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quick_reply);
 
         if(getIntent().hasExtra("cid") && getIntent().hasExtra("bid")) {
-            cid = getIntent().getIntExtra("cid", -1);
-            bid = getIntent().getIntExtra("bid", -1);
-            to = getIntent().getStringExtra("to");
-            server = new ServersDataSource.Server();
-            server.cid = cid;
-
-            setTitle("Reply to " + to + " (" + getIntent().getStringExtra("network") + ")");
+            onNewIntent(getIntent());
         } else {
             finish();
             return;
