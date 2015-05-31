@@ -58,10 +58,10 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 String html = NetworkConnection.getInstance().fetch(new URL(url), null, null, null);
                 if(html != null && html.length() > 0) {
                     html = html.replace("</head>", "<style>" +
-                            "html, body, .mainContainer, .pasteContainer { height: 100%; width: 100% }" +
+                            "html, body, .mainContainer, .pasteContainer { width: 100% }" +
                             "body, div.paste { background-color: #fafafa; }" +
                             "h1#title, div#pasteSidebar, div.paste h1 { display: none; }" +
-                            ".mainContainerFull, .mainContent, .mainContentPaste, div.paste { margin: 0px; padding: 0px; border: none; width: 100%; height: 100%; }" +
+                            ".mainContainerFull, .mainContent, .mainContentPaste, div.paste { margin: 0px; padding: 0px; border: none; width: 100%; }" +
                             "</style></head>");
 
                     html = html.replace("https://js.stripe.com/v2", "");
@@ -78,7 +78,10 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                             "Android.setTitle(window.PASTEVIEW.model.get('name'), window.PASTEVIEW.syntax() + \" • \" + window.PASTEVIEW.lines());\n" +
                             "}, window.PASTEVIEW.model));\n" +
                             "window.PASTEVIEW.on('rendered', _.bind(function () {\n" +
-                            "window.PASTEVIEW.ace.container.style.height = \"100%\";\n" +
+                            "var height = window.PASTEVIEW.ace.container.style.height;\n" +
+                            "height = height.substring(0, height.length - 2);\n" +
+                            "if(height < window.innerHeight) { window.PASTEVIEW.ace.container.style.height = window.innerHeight + \"px\"; }\n" +
+                            "$('div.pasteContainer').height(window.PASTEVIEW.ace.container.style.height);\n" +
                             "Android.ready();\n" +
                             "}, window.PASTEVIEW));\n" +
                             "window.PASTEVIEW.model.on('removed', _.bind(function () {\n" +
