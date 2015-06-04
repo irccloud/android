@@ -46,7 +46,7 @@ public class RemoteInputService extends IntentService {
                 if (remoteInput != null || intent.hasExtra("reply")) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Got reply from RemoteInput");
                     String reply = remoteInput != null?remoteInput.getCharSequence("extra_reply").toString():intent.getStringExtra("reply");
-                    if (reply.length() > 0 && !reply.startsWith("/")) {
+                    if (reply.length() > 0 && !reply.contains("\n/") && (!reply.startsWith("/") || reply.toLowerCase().startsWith("/me "))) {
                         try {
                             JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);
                             success = o.getBoolean("success");
@@ -66,7 +66,7 @@ public class RemoteInputService extends IntentService {
                     }
                     Notifications.getInstance().showNotifications(null);
                     if (!success)
-                        Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", "Your message was not sent. Please try again shortly.");
+                        Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/")?"Please launch the IRCCloud app to send this command":"Your message was not sent. Please try again shortly.");
                 } else {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "RemoteInputService received no remoteinput");
                 }
