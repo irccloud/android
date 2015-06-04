@@ -2767,7 +2767,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
                     if (drawerLayout.isDrawerOpen(Gravity.LEFT))
                         drawerLayout.closeDrawer(Gravity.LEFT);
-                    else
+                    else if(drawerLayout.getDrawerLockMode(Gravity.LEFT) == DrawerLayout.LOCK_MODE_UNLOCKED)
                         drawerLayout.openDrawer(Gravity.LEFT);
                     drawerLayout.closeDrawer(Gravity.RIGHT);
                 }
