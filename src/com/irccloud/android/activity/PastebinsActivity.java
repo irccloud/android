@@ -228,15 +228,6 @@ public class PastebinsActivity extends BaseActivity {
         protected JSONObject doInBackground(Void... params) {
             try {
                 Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                if(uri_template == null) {
-                    JSONObject config = NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
-                    try {
-                        uri_template = new URITemplate(config.getString("pastebin_uri_template"));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
                 return NetworkConnection.getInstance().pastebins(++page);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -356,6 +347,11 @@ public class PastebinsActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         NetworkConnection.getInstance().addHandler(this);
+        try {
+            uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("pastebin_uri_template"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

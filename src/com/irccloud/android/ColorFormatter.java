@@ -33,6 +33,9 @@ import android.text.util.Linkify.TransformFilter;
 import android.util.Patterns;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.uritemplate.URITemplate;
+import com.github.fge.uritemplate.URITemplateException;
+import com.github.fge.uritemplate.vars.VariableMap;
 import com.irccloud.android.data.ServersDataSource;
 
 import org.xml.sax.XMLReader;
@@ -1352,12 +1355,27 @@ public class ColorFormatter {
 
                         boolean isImageEnt = false;
                         if (entities != null && entities.has("files")) {
-                            for (JsonNode file : entities.get("files")) {
-                                String u = file.get("url").asText().toLowerCase();
-                                isImageEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && file.get("mime_type").asText().startsWith("image/"));
-                                if (isImageEnt) {
-                                    url = file.get("url").asText();
-                                    break;
+                            URITemplate uri_template = null;
+                            try {
+                                uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("file_uri_template"));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            if(uri_template != null) {
+                                for (JsonNode file : entities.get("files")) {
+                                    String file_url = "";
+                                    String u = "";
+                                    try {
+                                        file_url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", file.get("id").asText()).freeze());
+                                        u = file_url.toLowerCase();
+                                    } catch (URITemplateException e) {
+                                        e.printStackTrace();
+                                    }
+                                    isImageEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && file.get("mime_type").asText().startsWith("image/"));
+                                    if (isImageEnt) {
+                                        url = file_url;
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1380,12 +1398,26 @@ public class ColorFormatter {
                     }
 
                     if (entities != null && entities.has("pastes")) {
-                        for (JsonNode paste : entities.get("pastes")) {
-                            if(url.startsWith(paste.get("url").asText())) {
-                                if (url.toLowerCase().startsWith("http://"))
-                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste.get("url").asText().substring(7) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean()?"1":"0");
-                                else
-                                    return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste.get("url").asText().substring(8) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean()?"1":"0");
+                        URITemplate uri_template = null;
+                        try {
+                            uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("pastebin_uri_template"));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        if(uri_template != null) {
+                            for (JsonNode paste : entities.get("pastes")) {
+                                String paste_url = "";
+                                try {
+                                    paste_url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", paste.get("id").asText()).freeze());
+                                } catch (URITemplateException e) {
+                                    e.printStackTrace();
+                                }
+                                if (url.startsWith(paste_url)) {
+                                    if (url.toLowerCase().startsWith("http://"))
+                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean() ? "1" : "0");
+                                    else
+                                        return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(8) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean() ? "1" : "0");
+                                }
                             }
                         }
                     }

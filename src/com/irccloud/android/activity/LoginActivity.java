@@ -669,7 +669,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             try {
                 if (!BuildConfig.ENTERPRISE)
                     NetworkConnection.IRCCLOUD_HOST = BuildConfig.HOST;
-                JSONObject config = NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
+                JSONObject config = NetworkConnection.getInstance().fetchConfig();
                 NetworkConnection.IRCCLOUD_HOST = config.getString("api_host");
                 trimHost();
             } catch (Exception e) {

@@ -131,6 +131,7 @@ public class NetworkConnection {
     private boolean backlog = false;
     int currentBid = -1;
     long firstEid = -1;
+    public JSONObject config = null;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -409,6 +410,13 @@ public class NetworkConnection {
             if (ni != null)
                 network_type = ni.getTypeName();
         } catch (Exception e) {
+        }
+
+        try {
+            config = new JSONObject(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("config", "{}"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            config = new JSONObject();
         }
 
         useragent = "IRCCloud" + version + " (" + android.os.Build.MODEL + "; " + Locale.getDefault().getCountry().toLowerCase() + "; "
@@ -723,6 +731,21 @@ public class NetworkConnection {
         return null;
     }
 
+    public JSONObject fetchConfig() {
+        try {
+            JSONObject o = fetchJSON("https://" + IRCCLOUD_HOST + "/config");
+            if(o != null) {
+                config = o;
+                SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+                prefs.putString("config", config.toString());
+                prefs.commit();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return config;
+    }
+
     public JSONObject registerGCM(String regId, String sk) throws IOException {
         String postdata = "device_id=" + regId + "&session=" + sk;
         try {
@@ -891,6 +914,7 @@ public class NetworkConnection {
                 Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
                 state = STATE_CONNECTED;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
+                fetchConfig();
             }
 
             @Override

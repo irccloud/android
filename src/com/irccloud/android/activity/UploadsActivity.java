@@ -320,14 +320,6 @@ public class UploadsActivity extends BaseActivity {
         protected JSONObject doInBackground(Void... params) {
             try {
                 Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-                if(uri_template == null) {
-                    JSONObject config = NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
-                    try {
-                        uri_template = new URITemplate(config.getString("file_uri_template"));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
                 return NetworkConnection.getInstance().files(++page);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -535,6 +527,12 @@ public class UploadsActivity extends BaseActivity {
             cid = getIntent().getIntExtra("cid", -1);
             to = getIntent().getStringExtra("to");
             msg = getIntent().getStringExtra("msg");
+        }
+
+        try {
+            uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("file_uri_template"));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
