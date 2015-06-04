@@ -4756,13 +4756,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         else
                             message += " ";
                         message += event.getJsonObject("file").get("url").asText();
-                        NetworkConnection.getInstance().say(activity.buffer.cid, activity.buffer.name, message);
+                        NetworkConnection.getInstance().say(mBuffer.cid, mBuffer.name, message);
                         activity.fileUploadTask = null;
                         NetworkConnection.getInstance().removeHandler(this);
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
                         activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
                                 hide_progress();
                             }
                         });
