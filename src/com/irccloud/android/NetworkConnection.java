@@ -1417,13 +1417,29 @@ public class NetworkConnection {
         }
     }
 
-    public int paste(String name, String contents) {
+    public int paste(String name, String extension, String contents) {
         try {
             JSONObject o = new JSONObject();
             if(name != null && name.length() > 0)
                 o.put("name", name);
             o.put("contents", contents);
+            o.put("extension", extension);
             return send("paste", o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
+    public int edit_paste(String id, String name, String extension, String contents) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("id", id);
+            if(name != null && name.length() > 0)
+                o.put("name", name);
+            o.put("body", contents);
+            o.put("extension", extension);
+            return send("edit-pastebin", o);
         } catch (JSONException e) {
             e.printStackTrace();
             return -1;
@@ -2477,7 +2493,7 @@ public class NetworkConnection {
         conn.setReadTimeout(5000);
         conn.setUseCaches(false);
         conn.setRequestProperty("User-Agent", useragent);
-        conn.setRequestProperty("Accept", "application/json");
+        //conn.setRequestProperty("Accept", "application/json");
         if (sk != null)
             conn.setRequestProperty("Cookie", "session=" + sk);
         if (token != null)

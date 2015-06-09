@@ -64,7 +64,8 @@
             android:textColor="#000"
             android:text="Message (optional)"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_marginTop="@dimen/activity_vertical_margin" />
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:id="@+id/message_prompt" />
 
         <EditText
             android:id="@id/message"
@@ -86,7 +87,8 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="(You can revert this in Settings)"
             android:layout_marginLeft="32dp"
-            android:layout_marginTop="-8dp" />
+            android:layout_marginTop="-8dp"
+            android:id="@+id/alwaysSend_tip" />
 
     </LinearLayout>
 </ScrollView>

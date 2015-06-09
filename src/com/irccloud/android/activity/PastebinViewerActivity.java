@@ -45,10 +45,54 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
+import com.irccloud.android.fragment.PastebinEditorFragment;
 
 import java.net.URL;
 
-public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
+public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener, PastebinEditorFragment.PastebinEditorListener {
+
+    @Override
+    public void onPastebinFailed(String pastecontents) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mSpinner.setVisibility(View.GONE);
+                supportInvalidateOptionsMenu();
+            }
+        });
+    }
+
+    @Override
+    public void onPastebinSaved() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mWebView.clearCache(true);
+                mWebView.reload();
+                getSupportActionBar().setTitle("Pastebin");
+                getSupportActionBar().setSubtitle(null);
+                mSpinner.setVisibility(View.VISIBLE);
+                supportInvalidateOptionsMenu();
+                new FetchPastebinTask().execute();
+            }
+        });
+    }
+
+    @Override
+    public void onPastebinSendAsText(String text) {
+
+    }
+
+    @Override
+    public void onPastebinCancelled() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mSpinner.setVisibility(View.GONE);
+                supportInvalidateOptionsMenu();
+            }
+        });
+    }
 
     private class FetchPastebinTask extends AsyncTaskEx<Void, Void, String> {
 
@@ -183,6 +227,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         mWebView.addJavascriptInterface(new JSInterface(), "Android");
         mWebView.getSettings().setLoadWithOverviewMode(false);
         mWebView.getSettings().setUseWideViewPort(false);
+        mWebView.getSettings().setAppCacheEnabled(false);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -253,8 +298,10 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if(Uri.parse(url).getQueryParameter("own_paste") == null || !Uri.parse(url).getQueryParameter("own_paste").equals("1"))
+        if(Uri.parse(url).getQueryParameter("own_paste") == null || !Uri.parse(url).getQueryParameter("own_paste").equals("1")) {
+            menu.findItem(R.id.action_edit).setVisible(false);
             menu.findItem(R.id.delete).setVisible(false);
+        }
         if(mSpinner == null || mSpinner.getVisibility() != View.GONE)
             menu.findItem(R.id.action_linenumbers).setEnabled(false);
 
@@ -284,10 +331,17 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         } else if (item.getItemId() == R.id.action_copy) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                clipboard.setText(url);
+                if(url.contains("?id="))
+                    clipboard.setText(url.substring(0, url.indexOf("?id=")));
+                else
+                    clipboard.setText(url);
             } else {
                 @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Image URL", Uri.parse(url));
+                android.content.ClipData clip;
+                if(url.contains("?id="))
+                    clip = android.content.ClipData.newRawUri("IRCCloud Pastebin URL", Uri.parse(url.substring(0, url.indexOf("?id="))));
+                else
+                    clip = android.content.ClipData.newRawUri("IRCCloud Pastebin URL", Uri.parse(url));
                 clipboard.setPrimaryClip(clip);
             }
             Toast.makeText(PastebinViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
@@ -304,6 +358,19 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 startActivity(Intent.createChooser(intent, "Share Pastebin"));
+            }
+        } else if(item.getItemId() == R.id.action_edit) {
+            mSpinner.setVisibility(View.VISIBLE);
+            PastebinEditorFragment f = (PastebinEditorFragment) getSupportFragmentManager().findFragmentByTag("editor");
+            if (f == null) {
+                f = new PastebinEditorFragment();
+                f.pasteID = Uri.parse(url).getQueryParameter("id");
+                f.listener = this;
+                try {
+                    f.show(getSupportFragmentManager(), "editor");
+                } catch (IllegalStateException e) {
+                    //App lost focus already
+                }
             }
         }
         return super.onOptionsItemSelected(item);

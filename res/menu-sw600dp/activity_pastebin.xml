@@ -42,4 +42,8 @@
         android:title="Copy URL"
         app:showAsAction="never"
         />
+    <item android:id="@+id/action_edit"
+        android:title="Edit"
+        app:showAsAction="never"
+        />
 </menu>

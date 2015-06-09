@@ -125,6 +125,7 @@ import com.irccloud.android.fragment.IgnoreListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
+import com.irccloud.android.fragment.PastebinEditorFragment;
 import com.irccloud.android.fragment.ServerMapListFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
 import com.irccloud.android.fragment.UsersListFragment;
@@ -158,7 +159,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
+public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler, PastebinEditorFragment.PastebinEditorListener {
     BuffersDataSource.Buffer buffer;
     ServersDataSource.Server server;
     ActionEditText messageTxt;
@@ -555,78 +556,54 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    int pastereqid = -1;
-    String pastemsg = null;
-    String pastefilename = null;
-    String pastecontents = null;
-
     private void show_pastebin_prompt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        final View v = getLayoutInflater().inflate(R.layout.dialog_pastebinprompt, null);
-        pastecontents = messageTxt.getText().toString();
-        ((EditText)v.findViewById(R.id.paste)).setText(pastecontents);
-        ((CheckBox)v.findViewById(R.id.alwaysSend)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (conn == null || conn.getUserInfo() == null) {
-                    Toast.makeText(MainActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                }
-                JSONObject prefs = conn.getUserInfo().prefs;
-                try {
-                    if (prefs == null) {
-                        prefs = new JSONObject();
-                        conn.getUserInfo().prefs = prefs;
-                        Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
-                    }
-
-                    prefs.put("pastebin-disableprompt", b);
-
-                    conn.set_prefs(prefs.toString());
-                } catch (JSONException e) {
-                    Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: pastebin-disableprompt");
-                    Crashlytics.logException(e);
-                    Toast.makeText(MainActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                }
+        PastebinEditorFragment f = (PastebinEditorFragment) getSupportFragmentManager().findFragmentByTag("pastebin");
+        if (f == null) {
+            f = new PastebinEditorFragment();
+            f.pastecontents = messageTxt.getText().toString();
+            f.listener = this;
+            try {
+                f.show(getSupportFragmentManager(), "pastebin");
+            } catch (IllegalStateException e) {
+                //App lost focus already
             }
-        });
-        builder.setView(v);
-        builder.setTitle("Pastebin");
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        }
+    }
+
+    @Override
+    public void onPastebinFailed(final String pastecontents) {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.setPositiveButton("Pastebin", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                sendBtn.setEnabled(false);
+            public void run() {
+                sendBtn.setEnabled(true);
                 if (Build.VERSION.SDK_INT >= 11)
-                    sendBtn.setAlpha(0.5f);
-                pastecontents = ((EditText) v.findViewById(R.id.paste)).getText().toString();
-                messageTxt.setText("");
-                pastefilename = ((EditText) v.findViewById(R.id.filename)).getText().toString();
-                pastemsg = ((EditText) v.findViewById(R.id.message)).getText().toString();
-                pastereqid = NetworkConnection.getInstance().paste(pastefilename, pastecontents);
-                dialog.dismiss();
+                    sendBtn.setAlpha(1.0f);
+                messageTxt.setText(pastecontents);
             }
         });
-        builder.setNeutralButton("Send as Text", new DialogInterface.OnClickListener() {
+    }
 
+    @Override
+    public void onPastebinSendAsText(final String text) {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void run() {
+                messageTxt.setText(text);
                 SendTask t = new SendTask();
                 t.forceText = true;
                 t.execute((Void) null);
-                dialog.dismiss();
             }
         });
-        final AlertDialog dialog = builder.create();
-        dialog.setOwnerActivity(MainActivity.this);
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        dialog.show();
-        v.findViewById(R.id.paste).requestFocus();
+    }
+
+    @Override
+    public void onPastebinSaved() {
+
+    }
+
+    @Override
+    public void onPastebinCancelled() {
+
     }
 
     private void show_topic_popup() {
@@ -2344,21 +2321,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 event = (IRCCloudJSONObject) obj;
                 if (event != null && event.has("_reqid")) {
                     int reqid = event.getInt("_reqid");
-                    if(reqid == pastereqid) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                sendBtn.setEnabled(true);
-                                if (Build.VERSION.SDK_INT >= 11)
-                                    sendBtn.setAlpha(1.0f);
-                                messageTxt.setText(pastecontents);
-                                pastecontents = null;
-                                pastemsg = null;
-                                pastefilename = null;
-                                pastereqid = -1;
-                            }
-                        });
-                    } else if (pendingEvents.containsKey(reqid)) {
+                    if (pendingEvents.containsKey(reqid)) {
                         EventsDataSource.Event e = pendingEvents.get(reqid);
                         EventsDataSource.getInstance().deleteEvent(e.eid, e.bid);
                         pendingEvents.remove(event.getInt("_reqid"));
@@ -2403,30 +2366,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                }
-                break;
-            case NetworkConnection.EVENT_SUCCESS:
-                event = (IRCCloudJSONObject) obj;
-                if (event != null && event.has("_reqid")) {
-                    int reqid = event.getInt("_reqid");
-                    if (reqid == pastereqid) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(pastemsg != null && pastemsg.length() > 0)
-                                    messageTxt.setText(pastemsg + " " + event.getString("url"));
-                                else
-                                    messageTxt.setText(event.getString("url"));
-                                SendTask t = new SendTask();
-                                t.forceText = true;
-                                t.execute((Void)null);
-                                pastecontents = null;
-                                pastemsg = null;
-                                pastefilename = null;
-                                pastereqid = -1;
-                            }
-                        });
-                    }
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
