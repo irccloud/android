@@ -39,14 +39,14 @@ public class RemoteInputService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         boolean success = false;
         String sk = getSharedPreferences("prefs", 0).getString("session_key", "");
-        if (intent != null && sk.length() > 0) {
+        if (intent != null && sk != null && sk.length() > 0) {
             final String action = intent.getAction();
             if (ACTION_REPLY.equals(action)) {
                 Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
                 if (remoteInput != null || intent.hasExtra("reply")) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Got reply from RemoteInput");
                     String reply = remoteInput != null?remoteInput.getCharSequence("extra_reply").toString():intent.getStringExtra("reply");
-                    if (reply.length() > 0 && !reply.contains("\n/") && (!reply.startsWith("/") || reply.toLowerCase().startsWith("/me "))) {
+                    if (reply.length() > 0 && !reply.contains("\n/") && (!reply.startsWith("/") || reply.toLowerCase().startsWith("/me ") || reply.toLowerCase().startsWith("/slap "))) {
                         try {
                             JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);
                             success = o.getBoolean("success");
