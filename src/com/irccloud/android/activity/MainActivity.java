@@ -668,7 +668,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             boolean canEditTopic;
             if (c.hasMode("t")) {
                 UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
-                canEditTopic = (self_user != null && (self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")));
+                canEditTopic = (self_user != null && (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")));
             } else {
                 canEditTopic = true;
             }
@@ -3241,13 +3241,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (buffer.type.equalsIgnoreCase("channel")) {
                 UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(buffer.bid, server.nick);
                 if (self_user != null && self_user.mode != null) {
-                    if (self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o")) {
+                    if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o")) {
                         if (selected_user.mode.contains(server != null ? server.MODE_OP : "o"))
                             itemList.add("Deop");
                         else
                             itemList.add("Op");
                     }
-                    if (self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")) {
+                    if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")) {
                         itemList.add("Kick…");
                         itemList.add("Ban…");
                     }
