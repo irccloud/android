@@ -561,7 +561,7 @@ public class EventsDataSource {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                e.msg = "You invited " + event.getString("recipient") + " to join " + event.getString("channel");
+                e.msg = "<pre>You invited " + event.getString("recipient") + " to join " + event.getString("channel") + "</pre>";
                 e.bg_color = R.color.notice;
             }
         });
