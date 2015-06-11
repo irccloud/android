@@ -50,6 +50,7 @@ public class ServersDataSource {
         public int order;
         public String CHANTYPES;
         public ObjectNode PREFIX;
+        public String MODE_OPER = "Y";
         public String MODE_OWNER = "q";
         public String MODE_ADMIN = "a";
         public String MODE_OP = "o";
@@ -181,6 +182,7 @@ public class ServersDataSource {
                 s.PREFIX = (ObjectNode) s.isupport.get("PREFIX");
             } else {
                 s.PREFIX = new ObjectMapper().createObjectNode();
+                s.PREFIX.put(s.MODE_OPER, "!");
                 s.PREFIX.put(s.MODE_OWNER, "~");
                 s.PREFIX.put(s.MODE_ADMIN, "&");
                 s.PREFIX.put(s.MODE_OP, "@");

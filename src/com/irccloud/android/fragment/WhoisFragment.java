@@ -41,7 +41,7 @@ import com.squareup.leakcanary.RefWatcher;
 public class WhoisFragment extends DialogFragment {
     IRCCloudJSONObject event;
     TextView extra, name, mask, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
-            ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle, awayTitle, away;
+            operChannels, operTitle, ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle, awayTitle, away;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -60,6 +60,15 @@ public class WhoisFragment extends DialogFragment {
         time = (TextView) v.findViewById(R.id.time);
         awayTitle = (TextView) v.findViewById(R.id.awayTitle);
         away = (TextView) v.findViewById(R.id.away);
+        operTitle = (TextView) v.findViewById(R.id.operTitle);
+        operChannels = (TextView) v.findViewById(R.id.operChannels);
+        operChannels.setMovementMethod(LinkMovementMethod.getInstance());
+        operChannels.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDialog().dismiss();
+            }
+        });
         ownerTitle = (TextView) v.findViewById(R.id.ownerTitle);
         ownerChannels = (TextView) v.findViewById(R.id.ownerChannels);
         ownerChannels.setMovementMethod(LinkMovementMethod.getInstance());
@@ -238,6 +247,7 @@ public class WhoisFragment extends DialogFragment {
                 awayTitle.setVisibility(View.GONE);
                 away.setVisibility(View.GONE);
             }
+            buildChannelList("channels_oper", operTitle, operChannels);
             buildChannelList("channels_owner", ownerTitle, ownerChannels);
             buildChannelList("channels_admin", adminTitle, adminChannels);
             buildChannelList("channels_op", opTitle, opChannels);

@@ -202,6 +202,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
 
         ArrayList<UserListAdapter.UserListEntry> entries = new ArrayList<UserListAdapter.UserListEntry>();
+        ArrayList<UsersDataSource.User> opers = new ArrayList<UsersDataSource.User>();
         ArrayList<UsersDataSource.User> owners = new ArrayList<UsersDataSource.User>();
         ArrayList<UsersDataSource.User> admins = new ArrayList<UsersDataSource.User>();
         ArrayList<UsersDataSource.User> ops = new ArrayList<UsersDataSource.User>();
@@ -222,6 +223,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
         if (PREFIX == null) {
             PREFIX = new ObjectMapper().createObjectNode();
+            PREFIX.put(s != null ? s.MODE_OPER : "Y", "!");
             PREFIX.put(s != null ? s.MODE_OWNER : "q", "~");
             PREFIX.put(s != null ? s.MODE_ADMIN : "a", "&");
             PREFIX.put(s != null ? s.MODE_OP : "o", "@");
@@ -235,7 +237,9 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
         for (int i = 0; i < users.size(); i++) {
             UsersDataSource.User user = users.get(i);
-            if (user.mode.contains(s != null ? s.MODE_OWNER : "q") && PREFIX.has(s != null ? s.MODE_OWNER : "q")) {
+            if (user.mode.contains(s != null ? s.MODE_OPER : "Y") && PREFIX.has(s != null ? s.MODE_OPER : "Y")) {
+                opers.add(user);
+            } else if (user.mode.contains(s != null ? s.MODE_OWNER : "q") && PREFIX.has(s != null ? s.MODE_OWNER : "q")) {
                 owners.add(user);
             } else if (user.mode.contains(s != null ? s.MODE_ADMIN : "a") && PREFIX.has(s != null ? s.MODE_ADMIN : "a")) {
                 admins.add(user);
@@ -247,6 +251,17 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
                 voiced.add(user);
             } else {
                 members.add(user);
+            }
+        }
+
+        if (opers.size() > 0) {
+            if (showSymbol) {
+                if (PREFIX.has(s != null ? s.MODE_OPER : "Y"))
+                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", R.color.heading_oper, R.drawable.row_opers_bg, R.drawable.oper_bg);
+                else
+                    addUsersFromList(entries, opers, "OPER", "", R.color.heading_oper, R.drawable.row_opers_bg, R.drawable.oper_bg);
+            } else {
+                addUsersFromList(entries, opers, "OPER", "• ", R.color.heading_oper, R.drawable.row_opers_bg, R.drawable.oper_bg);
             }
         }
 

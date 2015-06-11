@@ -104,6 +104,21 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/operTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:text="Oper In"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/operChannels"
+            android:textColorLink="@color/dialogLinkColor"
+            android:singleLine="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
             android:id="@+id/ownerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

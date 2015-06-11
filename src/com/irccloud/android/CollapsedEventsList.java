@@ -41,19 +41,21 @@ public class CollapsedEventsList {
     public static final int TYPE_NICKCHANGE = 6;
     public static final int TYPE_CONNECTIONSTATUS = 7;
 
-    public static final int MODE_OWNER = 0;
-    public static final int MODE_ADMIN = 1;
-    public static final int MODE_OP = 2;
-    public static final int MODE_HALFOP = 3;
-    public static final int MODE_VOICE = 4;
+    public static final int MODE_OPER = 0;
+    public static final int MODE_OWNER = 1;
+    public static final int MODE_ADMIN = 2;
+    public static final int MODE_OP = 3;
+    public static final int MODE_HALFOP = 4;
+    public static final int MODE_VOICE = 5;
 
-    public static final int MODE_DEOWNER = 5;
-    public static final int MODE_DEADMIN = 6;
-    public static final int MODE_DEOP = 7;
-    public static final int MODE_DEHALFOP = 8;
-    public static final int MODE_DEVOICE = 9;
+    public static final int MODE_DEOPER = 6;
+    public static final int MODE_DEOWNER = 7;
+    public static final int MODE_DEADMIN = 8;
+    public static final int MODE_DEOP = 9;
+    public static final int MODE_DEHALFOP = 10;
+    public static final int MODE_DEVOICE = 11;
 
-    public static final int MODE_COUNT = 10;
+    public static final int MODE_COUNT = 12;
 
     public boolean showChan = false;
 
@@ -86,7 +88,12 @@ public class CollapsedEventsList {
         }
 
         public boolean addMode(String mode) {
-            if (mode.equalsIgnoreCase(server != null ? server.MODE_OWNER : "q")) {
+            if (mode.equalsIgnoreCase(server != null ? server.MODE_OPER : "Y")) {
+                if (modes[MODE_DEOPER])
+                    modes[MODE_DEOPER] = false;
+                else
+                    modes[MODE_OPER] = true;
+            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_OWNER : "q")) {
                 if (modes[MODE_DEOWNER])
                     modes[MODE_DEOWNER] = false;
                 else
@@ -120,7 +127,12 @@ public class CollapsedEventsList {
         }
 
         public boolean removeMode(String mode) {
-            if (mode.equalsIgnoreCase(server != null ? server.MODE_OWNER : "q")) {
+            if (mode.equalsIgnoreCase(server != null ? server.MODE_OPER : "Y")) {
+                if (modes[MODE_OPER])
+                    modes[MODE_OPER] = false;
+                else
+                    modes[MODE_DEOPER] = true;
+            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_OWNER : "q")) {
                 if (modes[MODE_OWNER])
                     modes[MODE_OWNER] = false;
                 else
@@ -155,11 +167,13 @@ public class CollapsedEventsList {
 
         public String getModes(boolean showSymbol) {
             final String[] mode_msgs = {
+                    "promoted to oper",
                     "promoted to owner",
                     "promoted to admin",
                     "opped",
                     "halfopped",
                     "voiced",
+                    "demoted from oper",
                     "demoted from owner",
                     "demoted from admin",
                     "de-opped",
@@ -215,6 +229,7 @@ public class CollapsedEventsList {
         server = s;
         if (server != null) {
             mode_colors = new HashMap<String, String>() {{
+                put(server.MODE_OPER, "E02305");
                 put(server.MODE_OWNER, "E7AA00");
                 put(server.MODE_ADMIN, "6500A5");
                 put(server.MODE_OP, "BA1719");
@@ -222,11 +237,13 @@ public class CollapsedEventsList {
                 put(server.MODE_VOICED, "25B100");
             }};
             mode_modes = new String[]{
+                    "+" + server.MODE_OPER,
                     "+" + server.MODE_OWNER,
                     "+" + server.MODE_ADMIN,
                     "+" + server.MODE_OP,
                     "+" + server.MODE_HALFOP,
                     "+" + server.MODE_VOICED,
+                    "-" + server.MODE_OPER,
                     "-" + server.MODE_OWNER,
                     "-" + server.MODE_ADMIN,
                     "-" + server.MODE_OP,
@@ -235,6 +252,7 @@ public class CollapsedEventsList {
             };
         } else {
             mode_colors = new HashMap<String, String>() {{
+                put("Y", "E02305");
                 put("q", "E7AA00");
                 put("a", "6500A5");
                 put("o", "BA1719");
@@ -242,7 +260,7 @@ public class CollapsedEventsList {
                 put("v", "25B100");
             }};
             mode_modes = new String[]{
-                    "+q", "+a", "+o", "+h", "+v", "-q", "-a", "-o", "-h", "-v"
+                    "+Y", "+q", "+a", "+o", "+h", "+v", "-Y", "-q", "-a", "-o", "-h", "-v"
             };
         }
     }
@@ -515,6 +533,7 @@ public class CollapsedEventsList {
 
         if (PREFIX == null) {
             PREFIX = new ObjectMapper().createObjectNode();
+            PREFIX.put(server != null ? server.MODE_OPER : "Y", "!");
             PREFIX.put(server != null ? server.MODE_OWNER : "q", "~");
             PREFIX.put(server != null ? server.MODE_ADMIN : "a", "&");
             PREFIX.put(server != null ? server.MODE_OP : "o", "@");
@@ -550,7 +569,9 @@ public class CollapsedEventsList {
         }
         String mode = "";
         if (from_mode != null && from_mode.length() > 0) {
-            if (from_mode.contains(server != null ? server.MODE_OWNER : "q"))
+            if (from_mode.contains(server != null ? server.MODE_OPER : "Y"))
+                mode = server != null ? server.MODE_OPER : "Y";
+            else if (from_mode.contains(server != null ? server.MODE_OWNER : "q"))
                 mode = server != null ? server.MODE_OWNER : "q";
             else if (from_mode.contains(server != null ? server.MODE_ADMIN : "a"))
                 mode = server != null ? server.MODE_ADMIN : "a";
