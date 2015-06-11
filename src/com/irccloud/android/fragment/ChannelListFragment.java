@@ -207,8 +207,10 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
     @Override public void onDestroy() {
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        refWatcher.watch(this);
-        refWatcher.watch(channels);
+        if(refWatcher != null) {
+            refWatcher.watch(this);
+            refWatcher.watch(channels);
+        }
     }
 
     public void onIRCEvent(int what, Object obj) {

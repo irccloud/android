@@ -309,9 +309,11 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
     @Override public void onDestroy() {
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        refWatcher.watch(this);
-        refWatcher.watch(data);
-        refWatcher.watch(event);
+        if(refWatcher != null) {
+            refWatcher.watch(this);
+            refWatcher.watch(data);
+            refWatcher.watch(event);
+        }
     }
 
     public void onIRCEvent(int what, Object obj) {

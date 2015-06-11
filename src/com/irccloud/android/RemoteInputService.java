@@ -77,6 +77,7 @@ public class RemoteInputService extends IntentService {
     @Override public void onDestroy() {
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(this);
-        refWatcher.watch(this);
+        if(refWatcher != null)
+            refWatcher.watch(this);
     }
 }

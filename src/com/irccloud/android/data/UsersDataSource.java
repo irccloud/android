@@ -73,7 +73,7 @@ public class UsersDataSource {
         if (u == null) {
             u = new User();
 
-            if (!users.containsKey(bid))
+            if (!users.containsKey(bid) || users.get(bid) == null)
                 users.put(bid, new TreeMap<String, User>(comparator));
             users.get(bid).put(nick.toLowerCase(), u);
         }
@@ -95,7 +95,7 @@ public class UsersDataSource {
     };
 
     public synchronized void deleteUser(int bid, String nick) {
-        if (users.containsKey(bid))
+        if (users.containsKey(bid) && users.get(bid) != null)
             users.get(bid).remove(nick.toLowerCase());
     }
 
@@ -142,7 +142,7 @@ public class UsersDataSource {
 
     public synchronized ArrayList<User> getUsersForBuffer(int bid) {
         ArrayList<User> list = new ArrayList<User>();
-        if (users.containsKey(bid)) {
+        if (users.containsKey(bid) && users.get(bid) != null) {
             for (User u : users.get(bid).values()) {
                 list.add(u);
             }
@@ -151,7 +151,7 @@ public class UsersDataSource {
     }
 
     public synchronized User getUser(int bid, String nick) {
-        if (nick != null && users.containsKey(bid) && users.get(bid).containsKey(nick.toLowerCase())) {
+        if (nick != null && users.containsKey(bid) && users.get(bid) != null && users.get(bid).containsKey(nick.toLowerCase())) {
             return users.get(bid).get(nick.toLowerCase());
         }
         return null;
@@ -159,7 +159,7 @@ public class UsersDataSource {
 
     public synchronized User findUserOnConnection(int cid, String nick) {
         for (Integer bid : users.keySet()) {
-            if (users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid).get(nick.toLowerCase()).cid == cid)
+            if (users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid) != null && users.get(bid).get(nick.toLowerCase()).cid == cid)
                 return users.get(bid).get(nick.toLowerCase());
         }
         return null;

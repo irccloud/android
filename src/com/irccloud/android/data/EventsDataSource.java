@@ -148,7 +148,7 @@ public class EventsDataSource {
 
     public void addEvent(Event event) {
         synchronized (events) {
-            if (!events.containsKey(event.bid))
+            if (!events.containsKey(event.bid) || events.get(event.bid) == null)
                 events.put(event.bid, new TreeMap<Long, Event>());
 
             events.get(event.bid).put(event.eid, event);
@@ -944,7 +944,7 @@ public class EventsDataSource {
 
     public int getSizeOfBuffer(int bid) {
         synchronized (events) {
-            if (events.containsKey(bid))
+            if (events.containsKey(bid) && events.get(bid) != null)
                 return events.get(bid).size();
         }
         return 0;
@@ -952,7 +952,7 @@ public class EventsDataSource {
 
     public Event getEvent(long eid, int bid) {
         synchronized (events) {
-            if (events.containsKey(bid))
+            if (events.containsKey(bid) && events.get(bid) != null)
                 return events.get(bid).get(eid);
         }
         return null;
@@ -960,21 +960,21 @@ public class EventsDataSource {
 
     public void deleteEvent(long eid, int bid) {
         synchronized (events) {
-            if (events.containsKey(bid) && events.get(bid).containsKey(eid))
+            if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).containsKey(eid))
                 events.get(bid).remove(eid);
         }
     }
 
     public void deleteEventsForBuffer(int bid) {
         synchronized (events) {
-            if (events.containsKey(bid))
+            if (events.containsKey(bid) && events.get(bid) != null)
                 events.remove(bid);
         }
     }
 
     public TreeMap<Long, Event> getEventsForBuffer(int bid) {
         synchronized (events) {
-            if (events.containsKey(bid)) {
+            if (events.containsKey(bid) && events.get(bid) != null) {
                 return events.get(bid);
             }
         }
@@ -983,7 +983,7 @@ public class EventsDataSource {
 
     public Long lastEidForBuffer(int bid) {
         synchronized (events) {
-            if (events.containsKey(bid)) {
+            if (events.containsKey(bid) && events.get(bid) != null) {
                 Long[] eids = events.get(bid).keySet().toArray(new Long[events.get(bid).keySet().size()]);
                 if (eids.length > 0)
                     return eids[eids.length - 1];
@@ -1004,7 +1004,7 @@ public class EventsDataSource {
     public synchronized void clearCaches() {
         synchronized (events) {
             for (int bid : events.keySet()) {
-                if (events.containsKey(bid)) {
+                if (events.containsKey(bid) && events.get(bid) != null) {
                     for (Event e : events.get(bid).values()) {
                         e.timestamp = null;
                         e.html = null;

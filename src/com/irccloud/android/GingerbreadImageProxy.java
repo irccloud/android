@@ -129,6 +129,7 @@ public class GingerbreadImageProxy implements Runnable {
                 HttpRequest request = readRequest(client);
                 if (isRunning)
                     processRequest(request, client);
+                client.close();
             } catch (SocketTimeoutException e) {
                 // Do nothing
             } catch (IOException e) {

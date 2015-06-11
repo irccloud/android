@@ -277,6 +277,7 @@ public class WhoisFragment extends DialogFragment {
     @Override public void onDestroy() {
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        refWatcher.watch(this);
+        if(refWatcher != null)
+            refWatcher.watch(this);
     }
 }

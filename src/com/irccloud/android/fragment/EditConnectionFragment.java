@@ -403,7 +403,8 @@ public class EditConnectionFragment extends DialogFragment implements NetworkCon
         if(presets != null)
             presets.setOnItemSelectedListener(null);
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        refWatcher.watch(this);
+        if(refWatcher != null)
+            refWatcher.watch(this);
     }
 
     @Override

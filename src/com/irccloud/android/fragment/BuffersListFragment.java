@@ -973,7 +973,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     @Override public void onDestroy() {
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        refWatcher.watch(this);
+        if(refWatcher != null)
+            refWatcher.watch(this);
     }
 
     @Override
@@ -995,26 +996,28 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
     public void onListItemClick(ListView l, View v, int position, long id) {
         BufferListEntry e = (BufferListEntry) adapter.getItem(position);
-        switch (e.type) {
-            case TYPE_ADD_NETWORK:
-                mListener.addNetwork();
-                return;
-            case TYPE_REORDER:
-                mListener.reorder();
-                return;
-            case TYPE_ARCHIVES_HEADER:
-                mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
-                refresh();
-                return;
-            case TYPE_JOIN_CHANNEL:
-                AddChannelFragment newFragment = new AddChannelFragment();
-                newFragment.setDefaultCid(e.cid);
-                newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
-                mListener.addButtonPressed(e.cid);
-                return;
+        if(e != null) {
+            switch (e.type) {
+                case TYPE_ADD_NETWORK:
+                    mListener.addNetwork();
+                    return;
+                case TYPE_REORDER:
+                    mListener.reorder();
+                    return;
+                case TYPE_ARCHIVES_HEADER:
+                    mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
+                    refresh();
+                    return;
+                case TYPE_JOIN_CHANNEL:
+                    AddChannelFragment newFragment = new AddChannelFragment();
+                    newFragment.setDefaultCid(e.cid);
+                    newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+                    mListener.addButtonPressed(e.cid);
+                    return;
+            }
+            adapter.showProgress(position);
+            mListener.onBufferSelected(e.bid);
         }
-        adapter.showProgress(position);
-        mListener.onBufferSelected(e.bid);
     }
 
     public void onIRCEvent(int what, Object obj) {

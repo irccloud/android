@@ -112,22 +112,23 @@ public class PastebinEditorFragment extends DialogFragment implements NetworkCon
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (NetworkConnection.getInstance().getUserInfo() == null) {
                     Toast.makeText(getActivity(), "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                }
-                JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                try {
-                    if (prefs == null) {
-                        prefs = new JSONObject();
-                        NetworkConnection.getInstance().getUserInfo().prefs = prefs;
-                        Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
+                } else {
+                    JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                    try {
+                        if (prefs == null) {
+                            prefs = new JSONObject();
+                            NetworkConnection.getInstance().getUserInfo().prefs = prefs;
+                            Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
+                        }
+
+                        prefs.put("pastebin-disableprompt", b);
+
+                        NetworkConnection.getInstance().set_prefs(prefs.toString());
+                    } catch (JSONException e) {
+                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: pastebin-disableprompt");
+                        Crashlytics.logException(e);
+                        Toast.makeText(getActivity(), "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                     }
-
-                    prefs.put("pastebin-disableprompt", b);
-
-                    NetworkConnection.getInstance().set_prefs(prefs.toString());
-                } catch (JSONException e) {
-                    Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: pastebin-disableprompt");
-                    Crashlytics.logException(e);
-                    Toast.makeText(getActivity(), "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 }
             }
         });

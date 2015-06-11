@@ -2244,7 +2244,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 startActivity(new Intent(MainActivity.this, EditConnectionActivity.class));
                                 finish();
                             } else {
-                                if (!open_bid(NetworkConnection.getInstance().getUserInfo().last_selected_bid) && !open_bid(BuffersDataSource.getInstance().firstBid()))
+                                if ((NetworkConnection.getInstance().getUserInfo() == null || !open_bid(NetworkConnection.getInstance().getUserInfo().last_selected_bid)) && !open_bid(BuffersDataSource.getInstance().firstBid()))
                                     finish();
                             }
                         }
@@ -4447,10 +4447,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 Cursor c = activity.getContentResolver().query(mFileUri, new String[]{OpenableColumns.SIZE}, null, null, null);
                 if (c != null && c.moveToFirst()) {
                     total = c.getInt(0);
-                    c.close();
                 } else {
                     total = fileIn.available();
                 }
+                if(c != null)
+                    c.close();
             } catch (Exception e) {
                 Crashlytics.log(Log.ERROR, "IRCCloud", "could not open InputStream: " + e);
                 if(activity != null) {
