@@ -93,7 +93,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(IMAGE_URL + params[0], headers);
                 if(o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
-                    if(data.getString("type").startsWith("image/"))
+                    if(data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                         return data.getString("link");
                 }
             } catch (Exception e) {
@@ -124,7 +124,7 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + params[0], headers);
                 if(o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
-                    if(!data.getBoolean("is_album"))
+                    if(data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                         return data.getString("link");
                 }
             } catch (Exception e) {
