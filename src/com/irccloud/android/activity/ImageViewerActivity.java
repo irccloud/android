@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +41,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BuildConfig;
 import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -48,6 +50,7 @@ import com.irccloud.android.ShareActionProviderHax;
 import org.json.JSONObject;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -62,6 +65,68 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
                 if (o.getString("type").equalsIgnoreCase("photo"))
                     return o.getString("url");
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if (url != null) {
+                loadImage(url);
+            } else {
+                fail();
+            }
+        }
+    }
+
+    public class ImgurImageTask extends AsyncTaskEx<String, Void, String> {
+        private final String IMAGE_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/image/" : "https://api.imgur.com/3/image/";
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                HashMap<String, String> headers = new HashMap<>();
+                if (BuildConfig.MASHAPE_KEY.length() > 0)
+                    headers.put("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
+                headers.put("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
+                JSONObject o = NetworkConnection.getInstance().fetchJSON(IMAGE_URL + params[0], headers);
+                if(o.getBoolean("success")) {
+                    JSONObject data = o.getJSONObject("data");
+                    if(data.getString("type").startsWith("image/"))
+                        return data.getString("link");
+                }
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if (url != null) {
+                loadImage(url);
+            } else {
+                fail();
+            }
+        }
+    }
+
+    public class ImgurGalleryTask extends AsyncTaskEx<String, Void, String> {
+        private final String GALLERY_URL = (BuildConfig.MASHAPE_KEY.length() > 0) ? "https://imgur-apiv3.p.mashape.com/3/gallery/" : "https://api.imgur.com/3/gallery/";
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                HashMap<String, String> headers = new HashMap<>();
+                if (BuildConfig.MASHAPE_KEY.length() > 0)
+                    headers.put("X-Mashape-Authorization", BuildConfig.MASHAPE_KEY);
+                headers.put("Authorization", "Client-ID " + BuildConfig.IMGUR_KEY);
+                JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + params[0], headers);
+                if(o.getBoolean("success")) {
+                    JSONObject data = o.getJSONObject("data");
+                    if(!data.getBoolean("is_album"))
+                        return data.getString("link");
+                }
             } catch (Exception e) {
             }
             return null;
@@ -247,7 +312,16 @@ public class ImageViewerActivity extends BaseActivity implements ShareActionProv
             } else if ((lower.startsWith("d.pr/i/") || lower.startsWith("droplr.com/i/")) && !lower.endsWith("+")) {
                 url += "+";
             } else if (lower.startsWith("imgur.com/") || lower.startsWith("www.imgur.com/")) {
-                new OEmbedTask().execute("https://api.imgur.com/oembed.json?url=" + url);
+                String id = url.replace("https://", "").replace("http://", "");
+                id = id.substring(id.indexOf("/") + 1);
+
+                if(!id.contains("/") && id.length() > 0) {
+                    new ImgurImageTask().execute(id);
+                } else if(id.startsWith("gallery/") && id.length() > 8) {
+                    new ImgurGalleryTask().execute(id.substring(8));
+                } else {
+                    fail();
+                }
                 return;
             } else if (lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);

@@ -99,7 +99,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         @Override
         protected String doInBackground(Void... params) {
             try {
-                String html = NetworkConnection.getInstance().fetch(new URL(url), null, null, null);
+                String html = NetworkConnection.getInstance().fetch(new URL(url), null, null, null, null);
                 if(html != null && html.length() > 0) {
                     html = html.replace("</head>", "<style>" +
                             "html, body, .mainContainer, .pasteContainer { width: 100% }" +
