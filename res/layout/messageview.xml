@@ -40,7 +40,6 @@
             android:divider="@null"
             android:cacheColorHint="#fff"
             android:dividerHeight="0dp"
-            android:fastScrollEnabled="true"
             android:transcriptMode="normal"
             android:fadingEdge="none"
             android:scrollbarThumbVertical="@drawable/scrollbar"
