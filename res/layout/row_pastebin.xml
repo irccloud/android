@@ -44,20 +44,29 @@
 
 
             <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:maxLines="1"
+                android:layout_weight="1"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/body"
+                android:maxLines="6"
+                android:ellipsize="end"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
                 android:id="@+id/date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/timestamp"
                 android:maxLines="1"
                 android:layout_weight="1" />
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/body"
-                android:maxLines="12"
-                android:ellipsize="end"
-                android:layout_marginBottom="6dp" />
 
         </LinearLayout>
 

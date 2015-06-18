@@ -64,6 +64,7 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 public class PastebinsActivity extends BaseActivity {
     private int page = 0;
@@ -84,17 +85,131 @@ public class PastebinsActivity extends BaseActivity {
         Date date;
         String date_formatted;
         String body;
+        String extension;
         boolean own_paste;
     }
 
     private class PastebinsAdapter extends BaseAdapter {
         private class ViewHolder {
+            TextView name;
             TextView date;
             TextView body;
             ImageButton delete;
         }
 
         private ArrayList<Pastebin> pastebins = new ArrayList<>();
+        private HashMap<String, String> extensions = new HashMap<>();
+        private HashMap<String, String> fileTypes = new HashMap<String, String>() {{
+            put("ABAP",        "abap");
+            put("ActionScript","as");
+            put("ADA",         "ada|adb");
+            put("Apache Conf", "^htaccess|^htgroups|^htpasswd|^conf|htaccess|htgroups|htpasswd");
+            put("AsciiDoc",    "asciidoc");
+            put("Assembly_x86","asm");
+            put("AutoHotKey",  "ahk");
+            put("BatchFile",   "bat|cmd");
+            put("C9Search",    "c9search_results");
+            put("C/C++",       "cpp|c|cc|cxx|h|hh|hpp");
+            put("Cirru",       "cirru|cr");
+            put("Clojure",     "clj|cljs");
+            put("Cobol",       "cbl|cob");
+            put("CoffeeScript","coffee|cf|cson|^cakefile");
+            put("ColdFusion",  "cfm");
+            put("C#",          "cs");
+            put("CSS",         "css");
+            put("Curly",       "curly");
+            put("D",           "d|di");
+            put("Dart",        "dart");
+            put("Diff",        "diff|patch");
+            put("Dockerfile",  "^dockerfile");
+            put("Dot",         "dot");
+            put("Erlang",      "erl|hrl");
+            put("EJS",         "ejs");
+            put("Forth",       "frt|fs|ldr");
+            put("FreeMarker",  "ftl");
+            put("Gherkin",     "feature");
+            put("Gitignore",   "^.gitignore");
+            put("Glsl",        "glsl|frag|vert");
+            put("Go",          "go");
+            put("Groovy",      "groovy");
+            put("HAML",        "haml");
+            put("Handlebars",  "hbs|handlebars|tpl|mustache");
+            put("Haskell",     "hs");
+            put("haXe",        "hx");
+            put("HTML",        "html|htm|xhtml");
+            put("HTML (Ruby)", "erb|rhtml|html.erb");
+            put("INI",         "ini|conf|cfg|prefs");
+            put("Jack",        "jack");
+            put("Jade",        "jade");
+            put("Java",        "java");
+            put("JavaScript",  "js|jsm");
+            put("JSON",        "json");
+            put("JSONiq",      "jq");
+            put("JSP",         "jsp");
+            put("JSX",         "jsx");
+            put("Julia",       "jl");
+            put("LaTeX",       "tex|latex|ltx|bib");
+            put("LESS",        "less");
+            put("Liquid",      "liquid");
+            put("Lisp",        "lisp");
+            put("LiveScript",  "ls");
+            put("LogiQL",      "logic|lql");
+            put("LSL",         "lsl");
+            put("Lua",         "lua");
+            put("LuaPage",     "lp");
+            put("Lucene",      "lucene");
+            put("Makefile",    "makefile|gnumakefile|ocamlmakefile|make");
+            put("MATLAB",      "matlab");
+            put("Markdown",    "md|markdown");
+            put("MEL",         "mel");
+            put("MySQL",       "mysql");
+            put("MUSHCode",    "mc|mush");
+            put("Nix",         "nix");
+            put("Objective-C", "m|mm");
+            put("OCaml",       "ml|mli");
+            put("Pascal",      "pas|p");
+            put("Perl",        "pl|pm");
+            put("pgSQL",       "pgsql");
+            put("PHP",         "php|phtml");
+            put("Powershell",  "ps1");
+            put("Prolog",      "plg|prolog");
+            put("Properties",  "properties");
+            put("Protobuf",    "proto");
+            put("Python",      "py");
+            put("R",           "r");
+            put("RDoc",        "rd");
+            put("RHTML",       "rhtml");
+            put("Ruby",        "rb|ru|gemspec|rake|^guardfile|^rakefile|^gemfile");
+            put("Rust",        "rs");
+            put("SASS",        "sass");
+            put("SCAD",        "scad");
+            put("Scala",       "scala");
+            put("Smarty",      "smarty|tpl");
+            put("Scheme",      "scm|rkt");
+            put("SCSS",        "scss");
+            put("SH",          "sh|bash|bashrc");
+            put("SJS",         "sjs");
+            put("Space",       "space");
+            put("snippets",    "snippets");
+            put("Soy Template","soy");
+            put("SQL",         "sql");
+            put("Stylus",      "styl|stylus");
+            put("SVG",         "svg");
+            put("Tcl",         "tcl");
+            put("Tex",         "tex");
+            put("Text",        "txt");
+            put("Textile",     "textile");
+            put("Toml",        "toml");
+            put("Twig",        "twig");
+            put("Typescript",  "ts|typescript|str");
+            put("Vala",        "vala");
+            put("VBScript",    "vbs");
+            put("Velocity",    "vm");
+            put("Verilog",     "v|vh|sv|svh");
+            put("XML",         "xml|rdf|rss|wsdl|xslt|atom|mathml|mml|xul|xbl");
+            put("XQuery",      "xq");
+            put("YAML",        "yaml|yml");
+        }};
 
         public void clear() {
             pastebins.clear();
@@ -105,13 +220,14 @@ public class PastebinsActivity extends BaseActivity {
             state.putSerializable("adapter", pastebins.toArray(new Pastebin[pastebins.size()]));
         }
 
-        public void addPastebin(String id, String name, int lines, Date date, String body, boolean own_paste) {
+        public void addPastebin(String id, String name, int lines, Date date, String body, String extension, boolean own_paste) {
             Pastebin p = new Pastebin();
             p.id = id;
             p.name = name;
             p.lines = lines;
             p.date = date;
             p.body = body;
+            p.extension = extension;
             p.own_paste = own_paste;
             try {
                 p.url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", p.id).addScalarValue("name", p.name).freeze());
@@ -183,6 +299,7 @@ public class PastebinsActivity extends BaseActivity {
                 row = inflater.inflate(R.layout.row_pastebin, viewGroup, false);
 
                 holder = new ViewHolder();
+                holder.name = (TextView) row.findViewById(R.id.name);
                 holder.date = (TextView) row.findViewById(R.id.date);
                 holder.body = (TextView) row.findViewById(R.id.body);
                 holder.delete = (ImageButton) row.findViewById(R.id.delete);
@@ -195,16 +312,35 @@ public class PastebinsActivity extends BaseActivity {
             try {
                 Pastebin p = pastebins.get(i);
                 if (p.date_formatted == null) {
-                    p.date_formatted = "";
-                    if(p.name != null && p.name.length() > 0)
-                        p.date_formatted += p.name + " • ";
-                    p.date_formatted += p.lines + " line";
+                    p.date_formatted = DateUtils.getRelativeTimeSpanString(p.date.getTime(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0).toString();
+                    p.date_formatted += " • " + p.lines + " line";
                     if(p.lines != 1)
                         p.date_formatted += "s";
-                    p.date_formatted += " • " + DateUtils.getRelativeTimeSpanString(p.date.getTime(), System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS, 0).toString();
+
+                    String extension = "Text";
+                    if(p.extension != null && p.extension.length() > 0) {
+                        if (extensions.containsKey(p.extension.toLowerCase())) {
+                            extension = extensions.get(p.extension.toLowerCase());
+                        } else {
+                            String lower = p.extension.toLowerCase();
+                            for(String type : fileTypes.keySet()) {
+                                if(lower.matches(fileTypes.get(type))) {
+                                    extension = type;
+                                }
+                            }
+                            extensions.put(lower, extension);
+                        }
+                    }
+                    p.date_formatted += " • " + extension;
                 }
                 holder.date.setText(p.date_formatted);
                 holder.body.setText(p.body);
+                if(p.name != null && p.name.length() > 0) {
+                    holder.name.setText(p.name);
+                    holder.name.setVisibility(View.VISIBLE);
+                } else {
+                    holder.name.setVisibility(View.GONE);
+                }
                 holder.delete.setOnClickListener(deleteClickListener);
                 holder.delete.setTag(i);
             } catch (Exception e) {
@@ -244,7 +380,7 @@ public class PastebinsActivity extends BaseActivity {
                         Log.e("IRCCloud", "Got " + pastebins.length() + " pastebins for page " + page);
                         for (int i = 0; i < pastebins.length(); i++) {
                             JSONObject pastebin = pastebins.getJSONObject(i);
-                            adapter.addPastebin(pastebin.getString("id"), pastebin.getString("name"), pastebin.getInt("lines"), new Date(pastebin.getLong("date") * 1000L), pastebin.getString("body"), pastebin.getBoolean("own_paste"));
+                            adapter.addPastebin(pastebin.getString("id"), pastebin.getString("name"), pastebin.getInt("lines"), new Date(pastebin.getLong("date") * 1000L), pastebin.getString("body"), pastebin.getString("extension"), pastebin.getBoolean("own_paste"));
                         }
                         adapter.notifyDataSetChanged();
                         canLoadMore = pastebins.length() > 0 && adapter.getCount() < jsonObject.getInt("total");
