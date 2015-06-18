@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -99,44 +100,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         @Override
         protected String doInBackground(Void... params) {
             try {
-                String html = NetworkConnection.getInstance().fetch(new URL(url), null, null, null, null);
-                if(html != null && html.length() > 0) {
-                    html = html.replace("</head>", "<style>" +
-                            "html, body, .mainContainer, .pasteContainer { width: 100% }" +
-                            "body, div.paste { background-color: #fafafa; }" +
-                            "h1#title, div#pasteSidebar, div.paste h1 { display: none; }" +
-                            ".mainContainerFull, .mainContent, .mainContentPaste, div.paste { margin: 0px; padding: 0px; border: none; width: 100%; }" +
-                            "</style></head>");
-
-                    html = html.replace("https://js.stripe.com/v2", "");
-                    html = html.replace("https://checkout.stripe.com/v3/checkout.js", "");
-                    html = html.replace("https://platform.twitter.com/widgets.js", "");
-                    html = html.replace("https://platform.vine.co/static/scripts/embed.js", "");
-                    html = html.replace("https://connect.facebook.net/en_US/all.js#xfbml=1&status=0&appId=1524400614444110", "");
-                    html = html.replace("https://apis.google.com/js/plusone.js", "");
-                    html = html.replace("//rum-static.pingdom.net/prum.min.js", "");
-                    html = html.replace("window.IRCCloudAppMapSource =", "window.IRCCloudAppMapSourceDisabled =");
-
-                    html = html.replace("</body>", "<script>" +
-                            "window.PASTEVIEW.model.on('loaded', _.bind(function () {\n" +
-                            "Android.setTitle(window.PASTEVIEW.model.get('name'), window.PASTEVIEW.syntax() + \" • \" + window.PASTEVIEW.lines());\n" +
-                            "}, window.PASTEVIEW.model));\n" +
-                            "window.PASTEVIEW.on('rendered', _.bind(function () {\n" +
-                            "var height = window.PASTEVIEW.ace.container.style.height;\n" +
-                            "height = height.substring(0, height.length - 2);\n" +
-                            "if(height < window.innerHeight) { window.PASTEVIEW.ace.container.style.height = window.innerHeight + \"px\"; }\n" +
-                            "$('div.pasteContainer').height(window.PASTEVIEW.ace.container.style.height);\n" +
-                            "Android.ready();\n" +
-                            "}, window.PASTEVIEW));\n" +
-                            "window.PASTEVIEW.model.on('removed', _.bind(function () {\n" +
-                            "Android.ready();\n" +
-                            "}, window.PASTEVIEW.model));\n" +
-                            "window.PASTEVIEW.model.on('fetchError', _.bind(function () {\n" +
-                            "Android.ready();\n" +
-                            "}, window.PASTEVIEW.model));\n" +
-                            "</script></body>");
-                }
-                return html;
+                return NetworkConnection.getInstance().fetch(new URL(url), null, null, null, null);
             } catch (Exception e) {
             }
             return null;
@@ -250,6 +214,12 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         } else {
             if (getIntent() != null && getIntent().getDataString() != null) {
                 url = getIntent().getDataString().replace(getResources().getString(R.string.PASTE_SCHEME), "https");
+                if(!url.contains("?"))
+                    url += "?";
+                try {
+                    url += "&mobile=android&version=" + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                } catch (PackageManager.NameNotFoundException e) {
+                }
                 new FetchPastebinTask().execute();
             } else {
                 finish();
@@ -322,7 +292,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             }
         } else if(item.getItemId() == R.id.action_linenumbers) {
             item.setChecked(!item.isChecked());
-            mWebView.loadUrl("javascript:$('a.lines').click()");
+            mWebView.loadUrl("javascript:window.PASTEVIEW.doToggleLines()");
         } else if (item.getItemId() == R.id.action_browser) {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
@@ -338,8 +308,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             } else {
                 @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 android.content.ClipData clip;
-                if(url.contains("?id="))
-                    clip = android.content.ClipData.newRawUri("IRCCloud Pastebin URL", Uri.parse(url.substring(0, url.indexOf("?id="))));
+                if(url.contains("?"))
+                    clip = android.content.ClipData.newRawUri("IRCCloud Pastebin URL", Uri.parse(url.substring(0, url.indexOf("?"))));
                 else
                     clip = android.content.ClipData.newRawUri("IRCCloud Pastebin URL", Uri.parse(url));
                 clipboard.setPrimaryClip(clip);
@@ -349,8 +319,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             if (getIntent() != null && getIntent().getDataString() != null) {
                 Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(url));
                 intent.setType("text/plain");
-                if(url.contains("?id="))
-                    intent.putExtra(Intent.EXTRA_TEXT, url.substring(0, url.indexOf("?id=")));
+                if(url.contains("?"))
+                    intent.putExtra(Intent.EXTRA_TEXT, url.substring(0, url.indexOf("?")));
                 else
                     intent.putExtra(Intent.EXTRA_TEXT, url);
                 intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
