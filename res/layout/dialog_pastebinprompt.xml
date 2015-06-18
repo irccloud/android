@@ -75,20 +75,5 @@
             android:nextFocusUp="@id/filename"
             android:inputType="text" />
 
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Always send multi-line input as text"
-            android:id="@+id/alwaysSend" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="(You can revert this in Settings)"
-            android:layout_marginLeft="32dp"
-            android:layout_marginTop="-8dp"
-            android:id="@+id/alwaysSend_tip" />
-
     </LinearLayout>
 </ScrollView>

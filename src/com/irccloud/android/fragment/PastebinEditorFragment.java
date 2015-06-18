@@ -104,34 +104,8 @@ public class PastebinEditorFragment extends DialogFragment implements NetworkCon
         paste = (EditText)v.findViewById(R.id.paste);
         filename = (EditText)v.findViewById(R.id.filename);
         message = (EditText)v.findViewById(R.id.message);
-        CheckBox alwaysSend = (CheckBox)v.findViewById(R.id.alwaysSend);
 
         paste.setText(pastecontents);
-        alwaysSend.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (NetworkConnection.getInstance().getUserInfo() == null) {
-                    Toast.makeText(getActivity(), "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                } else {
-                    JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
-                    try {
-                        if (prefs == null) {
-                            prefs = new JSONObject();
-                            NetworkConnection.getInstance().getUserInfo().prefs = prefs;
-                            Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
-                        }
-
-                        prefs.put("pastebin-disableprompt", b);
-
-                        NetworkConnection.getInstance().set_prefs(prefs.toString());
-                    } catch (JSONException e) {
-                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: pastebin-disableprompt");
-                        Crashlytics.logException(e);
-                        Toast.makeText(getActivity(), "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
         builder.setView(v);
         builder.setTitle("Pastebin");
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -142,9 +116,7 @@ public class PastebinEditorFragment extends DialogFragment implements NetworkCon
         });
         if(pasteID != null) {
             message.setVisibility(View.GONE);
-            alwaysSend.setVisibility(View.GONE);
             v.findViewById(R.id.message_prompt).setVisibility(View.GONE);
-            v.findViewById(R.id.alwaysSend_tip).setVisibility(View.GONE);
             builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
