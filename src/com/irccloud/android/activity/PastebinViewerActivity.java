@@ -294,15 +294,15 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             item.setChecked(!item.isChecked());
             mWebView.loadUrl("javascript:window.PASTEVIEW.doToggleLines()");
         } else if (item.getItemId() == R.id.action_browser) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
             startActivity(intent);
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
                 android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                if(url.contains("?id="))
-                    clipboard.setText(url.substring(0, url.indexOf("?id=")));
+                if(url.contains("?"))
+                    clipboard.setText(url.substring(0, url.indexOf("?")));
                 else
                     clipboard.setText(url);
             } else {
