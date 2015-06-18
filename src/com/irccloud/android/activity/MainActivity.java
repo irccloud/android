@@ -561,6 +561,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (f == null) {
             f = new PastebinEditorFragment();
             f.pastecontents = messageTxt.getText().toString();
+            messageTxt.setText("");
             f.listener = this;
             try {
                 f.show(getSupportFragmentManager(), "pastebin");
@@ -602,8 +603,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     @Override
-    public void onPastebinCancelled() {
-
+    public void onPastebinCancelled(final String pastecontents) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                messageTxt.setText(pastecontents);
+            }
+        });
     }
 
     private void show_topic_popup() {
@@ -972,9 +978,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 else if (msg.startsWith("/") && !msg.startsWith("/me "))
                     msg = null;
 
-                if(messageTxt.getText().toString().equals("/paste") || (!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1))) {
+                if(messageTxt.getText().toString().equals("/paste") || messageTxt.getText().toString().startsWith("/paste ") || (!forceText && msg != null && (msg.length() > 1080 || msg.split("\n").length > 1))) {
                     if(messageTxt.getText().toString().equals("/paste"))
                         messageTxt.setText("");
+                    else if(messageTxt.getText().toString().startsWith("/paste "))
+                        messageTxt.setText(messageTxt.getText().toString().substring(7));
                     show_pastebin_prompt();
                     return;
                 }

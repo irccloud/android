@@ -53,7 +53,7 @@ public class PastebinEditorFragment extends DialogFragment implements NetworkCon
         void onPastebinFailed(String pastecontents);
         void onPastebinSaved();
         void onPastebinSendAsText(String text);
-        void onPastebinCancelled();
+        void onPastebinCancelled(String pastecontents);
     }
 
     private class FetchPastebinTask extends AsyncTaskEx<Void, Void, JSONObject> {
@@ -111,7 +111,9 @@ public class PastebinEditorFragment extends DialogFragment implements NetworkCon
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                if(listener != null)
+                    listener.onPastebinCancelled(pastecontents);
+                dialog.cancel();
             }
         });
         if(pasteID != null) {
@@ -147,13 +149,12 @@ public class PastebinEditorFragment extends DialogFragment implements NetworkCon
         builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialogInterface) {
-                if(listener != null)
-                    listener.onPastebinCancelled();
+                if (listener != null)
+                    listener.onPastebinCancelled(pastecontents);
             }
         });
         final AlertDialog dialog = builder.create();
         dialog.setOwnerActivity(getActivity());
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         return dialog;
     }
 

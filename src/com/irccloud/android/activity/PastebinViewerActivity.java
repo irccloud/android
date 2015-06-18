@@ -85,7 +85,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     }
 
     @Override
-    public void onPastebinCancelled() {
+    public void onPastebinCancelled(String pastecontents) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
