@@ -21,7 +21,17 @@
     <item android:id="@+id/action_share"
         android:title="Share"
         android:icon="@drawable/ic_action_share"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
+        />
+    <item android:id="@+id/action_edit"
+        android:title="Edit"
+        android:icon="@drawable/ic_action_edit"
+        app:showAsAction="ifRoom"
+        />
+    <item android:id="@+id/delete"
+        android:title="Delete"
+        android:icon="@drawable/ic_action_delete"
+        app:showAsAction="ifRoom"
         />
     <item android:id="@+id/action_linenumbers"
         android:title="Line Numbers"
@@ -35,14 +45,6 @@
         />
     <item android:id="@+id/action_copy"
         android:title="Copy URL"
-        app:showAsAction="never"
-        />
-    <item android:id="@+id/action_edit"
-        android:title="Edit"
-        app:showAsAction="never"
-        />
-    <item android:id="@+id/delete"
-        android:title="Delete"
         app:showAsAction="never"
         />
 </menu>
