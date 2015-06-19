@@ -19,6 +19,7 @@ package com.irccloud.android.activity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -32,6 +33,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -287,9 +289,26 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             return true;
         } else if(item.getItemId() == R.id.delete) {
             if(Uri.parse(url).getQueryParameter("own_paste").equals("1")) {
-                NetworkConnection.getInstance().delete_paste(Uri.parse(url).getQueryParameter("id"));
-                finish();
-                Toast.makeText(PastebinViewerActivity.this, "Pastebin deleted", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder builder = new AlertDialog.Builder(PastebinViewerActivity.this);
+                builder.setTitle("Delete Pastebin");
+                builder.setMessage("Are you sure you want to delete this pastebin?");
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        NetworkConnection.getInstance().delete_paste(Uri.parse(url).getQueryParameter("id"));
+                        finish();
+                        Toast.makeText(PastebinViewerActivity.this, "Pastebin deleted", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+                AlertDialog d = builder.create();
+                d.setOwnerActivity(PastebinViewerActivity.this);
+                d.show();
             }
         } else if(item.getItemId() == R.id.action_linenumbers) {
             item.setChecked(!item.isChecked());

@@ -21,17 +21,17 @@
     <item android:id="@+id/action_share"
         android:title="Share"
         android:icon="@drawable/ic_action_share"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         />
     <item android:id="@+id/action_edit"
         android:title="Edit"
         android:icon="@drawable/ic_action_edit"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         />
     <item android:id="@+id/delete"
         android:title="Delete"
         android:icon="@drawable/ic_action_delete"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         />
     <item android:id="@+id/action_linenumbers"
         android:title="Line Numbers"
