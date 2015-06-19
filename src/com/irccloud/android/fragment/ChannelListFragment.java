@@ -209,7 +209,8 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         if(refWatcher != null) {
             refWatcher.watch(this);
-            refWatcher.watch(channels);
+            if(channels != null)
+               refWatcher.watch(channels);
         }
     }
 
@@ -232,7 +233,7 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            empty.setText("Too many channels to list");
+                            empty.setText("Too many channels to list.  Try limiting the list to only respond with channels that have more than e.g. 50 members: /LIST >50");
                         }
                     });
                 break;

@@ -245,7 +245,8 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         if(refWatcher != null) {
             refWatcher.watch(this);
-            refWatcher.watch(adapter);
+            if(adapter != null)
+                refWatcher.watch(adapter);
         }
     }
 

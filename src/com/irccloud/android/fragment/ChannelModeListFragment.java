@@ -311,8 +311,10 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         if(refWatcher != null) {
             refWatcher.watch(this);
-            refWatcher.watch(data);
-            refWatcher.watch(event);
+            if(data != null)
+                refWatcher.watch(data);
+            if(event != null)
+                refWatcher.watch(event);
         }
     }
 
