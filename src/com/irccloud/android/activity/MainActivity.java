@@ -613,6 +613,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void show_topic_popup() {
+        if(buffer == null)
+            return;
         ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
         if (c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -723,26 +725,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             final ArrayList<String> sugs = new ArrayList<String>();
             HashSet<String> sugs_set = new HashSet<String>();
             if (text.length() > 2 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
-                if (sortedChannels == null) {
-                    sortedChannels = ChannelsDataSource.getInstance().getChannels();
-                    if (sortedChannels == null)
-                        return;
-                    Collections.sort(sortedChannels, new Comparator<ChannelsDataSource.Channel>() {
+                ArrayList<ChannelsDataSource.Channel> channels = sortedChannels;
+                if (channels == null) {
+                    channels = ChannelsDataSource.getInstance().getChannels();
+                    Collections.sort(channels, new Comparator<ChannelsDataSource.Channel>() {
                         @Override
                         public int compare(ChannelsDataSource.Channel lhs, ChannelsDataSource.Channel rhs) {
                             return lhs.name.compareTo(rhs.name);
                         }
                     });
+
+                    sortedChannels = channels;
                 }
 
                 if (buffer != null && messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text) && !sugs_set.contains(buffer.name)) {
                     sugs_set.add(buffer.name);
                     sugs.add(buffer.name);
                 }
-                for (ChannelsDataSource.Channel channel : sortedChannels) {
-                    if (text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(channel.name)) {
-                        sugs_set.add(channel.name);
-                        sugs.add(channel.name);
+                if(channels != null) {
+                    for (ChannelsDataSource.Channel channel : channels) {
+                        if (text.length() > 0 && text.charAt(0) == channel.name.charAt(0) && channel.name.toLowerCase().startsWith(text) && !sugs_set.contains(channel.name)) {
+                            sugs_set.add(channel.name);
+                            sugs.add(channel.name);
+                        }
                     }
                 }
 
@@ -764,10 +769,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     disabled = false;
                 }
 
-                if (sortedUsers == null && buffer != null && (force || !disabled)) {
-                    sortedUsers = UsersDataSource.getInstance().getUsersForBuffer(buffer.bid);
-                    if (sortedUsers != null) {
-                        Collections.sort(sortedUsers, new Comparator<UsersDataSource.User>() {
+                ArrayList<UsersDataSource.User> users = sortedUsers;
+                if (users == null && buffer != null && (force || !disabled)) {
+                    users = UsersDataSource.getInstance().getUsersForBuffer(buffer.bid);
+                    if (users != null) {
+                        Collections.sort(users, new Comparator<UsersDataSource.User>() {
                             @Override
                             public int compare(UsersDataSource.User lhs, UsersDataSource.User rhs) {
                                 if (lhs.last_mention > rhs.last_mention)
@@ -778,9 +784,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                         });
                     }
+                    sortedUsers = users;
                 }
-                if (sortedUsers != null) {
-                    for (UsersDataSource.User user : sortedUsers) {
+                if (users != null) {
+                    for (UsersDataSource.User user : users) {
                         String nick = user.nick_lowercase;
                         if (text.matches("^[a-zA-Z0-9]+.*"))
                             nick = nick.replaceFirst("^[^a-zA-Z0-9]+", "");
@@ -4705,29 +4712,33 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             message += " ";
                         message += event.getJsonObject("file").get("url").asText();
                         NetworkConnection.getInstance().say(mBuffer.cid, mBuffer.name, message);
-                        activity.fileUploadTask = null;
                         NetworkConnection.getInstance().removeHandler(this);
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
-                                hide_progress();
-                            }
-                        });
+                        if(activity != null) {
+                            activity.fileUploadTask = null;
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+                                    hide_progress();
+                                }
+                            });
+                        }
                     }
                     break;
                 case NetworkConnection.EVENT_FAILURE_MSG:
                     event = (IRCCloudJSONObject) obj;
                     if (event.getInt("_reqid") == reqid) {
-                        activity.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                hide_progress();
-                                show_alert("Upload Failed", "Unable to upload file to IRCCloud: " + event.getString("message"));
-                            }
-                        });
-                        activity.fileUploadTask = null;
                         NetworkConnection.getInstance().removeHandler(this);
+                        if(activity != null) {
+                            activity.fileUploadTask = null;
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    hide_progress();
+                                    show_alert("Upload Failed", "Unable to upload file to IRCCloud: " + event.getString("message"));
+                                }
+                            });
+                        }
                     }
                     break;
             }

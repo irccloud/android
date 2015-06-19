@@ -209,31 +209,33 @@ public class UploadsActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 final File f = (File)getItem((Integer)view.getTag());
-                AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
-                builder.setTitle("Delete File");
-                if(f.name != null && f.name.length() > 0) {
-                    builder.setMessage("Are you sure you want to delete '" + f.name + "'?");
-                } else {
-                    builder.setMessage("Are you sure you want to delete this file?");
+                if(f != null) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
+                    builder.setTitle("Delete File");
+                    if (f.name != null && f.name.length() > 0) {
+                        builder.setMessage("Are you sure you want to delete '" + f.name + "'?");
+                    } else {
+                        builder.setMessage("Are you sure you want to delete this file?");
+                    }
+                    builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            reqid = NetworkConnection.getInstance().deleteFile(f.id);
+                            files.remove(f);
+                            notifyDataSetChanged();
+                            checkEmpty();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
+                    AlertDialog d = builder.create();
+                    d.setOwnerActivity(UploadsActivity.this);
+                    d.show();
                 }
-                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        reqid = NetworkConnection.getInstance().deleteFile(f.id);
-                        files.remove(f);
-                        notifyDataSetChanged();
-                        checkEmpty();
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                AlertDialog d = builder.create();
-                d.setOwnerActivity(UploadsActivity.this);
-                d.show();
             }
         };
 
