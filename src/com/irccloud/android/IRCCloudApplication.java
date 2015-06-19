@@ -19,11 +19,14 @@ package com.irccloud.android;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.data.BuffersDataSource;
@@ -195,6 +198,11 @@ public class IRCCloudApplication extends Application {
 
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
         NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE))
+                WebView.setWebContentsDebuggingEnabled(true);
+        }
     }
 
     @Override
