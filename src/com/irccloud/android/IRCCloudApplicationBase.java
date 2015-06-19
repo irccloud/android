@@ -17,7 +17,6 @@
 package com.irccloud.android;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.media.MediaScannerConnection;
@@ -34,11 +33,6 @@ import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
 import com.irccloud.android.data.ServersDataSource;
 import com.irccloud.android.data.UsersDataSource;
-import com.squareup.leakcanary.AndroidExcludedRefs;
-import com.squareup.leakcanary.DisplayLeakService;
-import com.squareup.leakcanary.ExcludedRefs;
-import com.squareup.leakcanary.LeakCanary;
-import com.squareup.leakcanary.RefWatcher;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,10 +43,9 @@ import java.io.OutputStream;
 import io.fabric.sdk.android.Fabric;
 
 @SuppressWarnings("unused")
-public class IRCCloudApplication extends Application {
+public class IRCCloudApplicationBase extends Application {
     private static final int RINGTONE_VERSION = 1;
 
-    private static IRCCloudApplication instance = null;
     private NetworkConnection conn = null;
     private ServersDataSource s = null;
     private BuffersDataSource b = null;
@@ -60,38 +53,11 @@ public class IRCCloudApplication extends Application {
     private UsersDataSource u = null;
     private EventsDataSource e = null;
 
-    public static IRCCloudApplication getInstance() {
-        if (instance != null) {
-            return instance;
-        } else {
-            return new IRCCloudApplication();
-        }
-    }
-
-    public static RefWatcher getRefWatcher(Context context) {
-        return getInstance().refWatcher;
-    }
-
-    private RefWatcher refWatcher;
-
     @Override
     public void onCreate() {
         super.onCreate();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        if(BuildConfig.DEBUG && prefs.getBoolean("detect_leaks", true)) {
-            ExcludedRefs excludedRefs = AndroidExcludedRefs.createAndroidDefaults()
-                    .thread("WebViewCoreThread")
-                    .thread("CookieSyncManager")
-                    .instanceField("android.webkit.WebViewCore", "mContext")
-                    .instanceField("android.sec.clipboard.ClipboardUIManager", "mContext")
-                    .instanceField("android.widget.Editor$Blink", "this$0")
-                    .build();
-            refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
-        } else {
-            refWatcher = RefWatcher.DISABLED;
-        }
-        instance = this;
         Fabric.with(this, new Crashlytics());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response

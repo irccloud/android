@@ -224,6 +224,10 @@ android {
         enterpriserelease.res.srcDirs = ['enterprise-res']
         main.res.srcDirs = ['res']
         main.assets.srcDirs = ['assets']
+        debug.java.srcDirs = ['debug-src']
+        enterprisedebug.java.srcDirs = ['debug-src']
+        release.java.srcDirs = ['release-src']
+        enterpriserelease.java.srcDirs = ['release-src']
 
         androidTest {
             java.srcDirs = ['tests/src']
