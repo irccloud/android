@@ -3328,7 +3328,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             clipboard.setText(urlListItems.get(0));
                         } else {
                             @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                            android.content.ClipData clip = android.content.ClipData.newRawUri(urlListItems.get(0), Uri.parse(urlListItems.get(0)));
+                            android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(0), urlListItems.get(0));
                             clipboard.setPrimaryClip(clip);
                         }
                         Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
@@ -3345,7 +3345,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     clipboard.setText(urlListItems.get(i));
                                 } else {
                                     @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                                    android.content.ClipData clip = android.content.ClipData.newRawUri(urlListItems.get(i), Uri.parse(urlListItems.get(i)));
+                                    android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(i), urlListItems.get(i));
                                     clipboard.setPrimaryClip(clip);
                                 }
                                 Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
