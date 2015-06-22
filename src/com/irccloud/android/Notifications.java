@@ -88,7 +88,6 @@ public class Notifications {
     private ArrayList<Notification> mNotifications = null;
     private SparseArray<String> mNetworks = null;
     private SparseArray<Long> mLastSeenEIDs = null;
-    private SparseArray<HashSet<Long>> mDismissedEIDs = null;
 
     private static Notifications instance = null;
     private int excludeBid = -1;
@@ -112,7 +111,6 @@ public class Notifications {
         mNotifications = new ArrayList<Notification>();
         mNetworks = new SparseArray<String>();
         mLastSeenEIDs = new SparseArray<Long>();
-        mDismissedEIDs = new SparseArray<HashSet<Long>>();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 
@@ -128,18 +126,6 @@ public class Notifications {
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject o = array.getJSONObject(i);
                     mLastSeenEIDs.put(o.getInt("bid"), o.getLong("eid"));
-                }
-
-                array = new JSONArray(prefs.getString("dismissedeids_json", "[]"));
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject o = array.getJSONObject(i);
-                    int bid = o.getInt("bid");
-                    mDismissedEIDs.put(bid, new HashSet<Long>());
-
-                    JSONArray eids = o.getJSONArray("eids");
-                    for (int j = 0; j < eids.length(); j++) {
-                        mDismissedEIDs.get(bid).add(eids.getLong(j));
-                    }
                 }
 
                 synchronized (mNotifications) {
@@ -180,80 +166,7 @@ public class Notifications {
 
             @Override
             public void run() {
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-                try {
-                    JSONArray array = new JSONArray();
-                    synchronized (mNotifications) {
-                        for (Notification n : mNotifications) {
-                            if(n != null) {
-                                JSONObject o = new JSONObject();
-                                o.put("cid", n.cid);
-                                o.put("bid", n.bid);
-                                o.put("eid", n.eid);
-                                o.put("nick", n.nick);
-                                o.put("message", n.message);
-                                o.put("chan", n.chan);
-                                o.put("buffer_type", n.buffer_type);
-                                o.put("message_type", n.message_type);
-                                o.put("shown", n.shown);
-                                array.put(o);
-                            }
-                        }
-                        editor.putString("notifications_json", array.toString());
-                    }
-
-                    array = new JSONArray();
-                    for (int i = 0; i < mNetworks.size(); i++) {
-                        int cid = mNetworks.keyAt(i);
-                        String network = mNetworks.get(cid);
-                        JSONObject o = new JSONObject();
-                        o.put("cid", cid);
-                        o.put("network", network);
-                        array.put(o);
-                    }
-                    editor.putString("networks_json", array.toString());
-
-                    array = new JSONArray();
-                    for (int i = 0; i < mLastSeenEIDs.size(); i++) {
-                        int bid = mLastSeenEIDs.keyAt(i);
-                        long eid = mLastSeenEIDs.get(bid);
-                        JSONObject o = new JSONObject();
-                        o.put("bid", bid);
-                        o.put("eid", eid);
-                        array.put(o);
-                    }
-                    editor.putString("lastseeneids_json", array.toString());
-
-                    array = new JSONArray();
-                    for (int i = 0; i < mDismissedEIDs.size(); i++) {
-                        JSONArray a = new JSONArray();
-                        int bid = mDismissedEIDs.keyAt(i);
-                        HashSet<Long> eids = mDismissedEIDs.get(bid);
-                        if(eids.size() > 0) {
-                            for (long eid : eids) {
-                                a.put(eid);
-                            }
-                            JSONObject o = new JSONObject();
-                            o.put("bid", bid);
-                            o.put("eids", a);
-                            array.put(o);
-                        }
-                    }
-                    editor.putString("dismissedeids_json", array.toString());
-
-                    if (Build.VERSION.SDK_INT >= 9)
-                        editor.apply();
-                    else
-                        editor.commit();
-                } catch (ConcurrentModificationException e) {
-                    save();
-                } catch (OutOfMemoryError|Exception e) {
-                    editor.remove("notifications_json");
-                    editor.remove("networks_json");
-                    editor.remove("lastseeneids_json");
-                    editor.remove("dismissedeids_json");
-                    editor.commit();
-                }
+                saveNow();
             }
         };
         try {
@@ -263,9 +176,66 @@ public class Notifications {
         }
     }
 
-    public void clearDismissed() {
-        mDismissedEIDs.clear();
-        save();
+    public void saveNow() {
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
+        try {
+            JSONArray array = new JSONArray();
+            synchronized (mNotifications) {
+                for (Notification n : mNotifications) {
+                    if(n != null) {
+                        JSONObject o = new JSONObject();
+                        o.put("cid", n.cid);
+                        o.put("bid", n.bid);
+                        o.put("eid", n.eid);
+                        o.put("nick", n.nick);
+                        o.put("message", n.message);
+                        o.put("chan", n.chan);
+                        o.put("buffer_type", n.buffer_type);
+                        o.put("message_type", n.message_type);
+                        o.put("shown", n.shown);
+                        array.put(o);
+                    }
+                }
+                editor.putString("notifications_json", array.toString());
+            }
+
+            array = new JSONArray();
+            for (int i = 0; i < mNetworks.size(); i++) {
+                int cid = mNetworks.keyAt(i);
+                String network = mNetworks.get(cid);
+                JSONObject o = new JSONObject();
+                o.put("cid", cid);
+                o.put("network", network);
+                array.put(o);
+            }
+            editor.putString("networks_json", array.toString());
+
+            array = new JSONArray();
+            for (int i = 0; i < mLastSeenEIDs.size(); i++) {
+                int bid = mLastSeenEIDs.keyAt(i);
+                long eid = mLastSeenEIDs.get(bid);
+                JSONObject o = new JSONObject();
+                o.put("bid", bid);
+                o.put("eid", eid);
+                array.put(o);
+            }
+            editor.putString("lastseeneids_json", array.toString());
+
+            editor.remove("dismissedeids_json");
+
+            if (Build.VERSION.SDK_INT >= 9)
+                editor.apply();
+            else
+                editor.commit();
+        } catch (ConcurrentModificationException e) {
+            save();
+        } catch (OutOfMemoryError|Exception e) {
+            editor.remove("notifications_json");
+            editor.remove("networks_json");
+            editor.remove("lastseeneids_json");
+            editor.remove("dismissedeids_json");
+            editor.commit();
+        }
     }
 
     public void clear() {
@@ -292,7 +262,6 @@ public class Notifications {
             mSaveTimerTask.cancel();
         mNotifications.clear();
         mLastSeenEIDs.clear();
-        mDismissedEIDs.clear();
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         editor.remove("notifications_json");
         editor.remove("lastseeneids_json");
@@ -327,21 +296,7 @@ public class Notifications {
         save();
     }
 
-    public synchronized boolean isDismissed(int bid, long eid) {
-        if (mDismissedEIDs.get(bid) != null) {
-            for (Long e : mDismissedEIDs.get(bid)) {
-                if (e == eid)
-                    return true;
-            }
-        }
-        return false;
-    }
-
     public synchronized void dismiss(int bid, long eid) {
-        if (mDismissedEIDs.get(bid) == null)
-            mDismissedEIDs.put(bid, new HashSet<Long>());
-
-        mDismissedEIDs.get(bid).add(eid);
         Notification n = getNotification(eid);
         synchronized (mNotifications) {
             if (n != null)
@@ -364,10 +319,6 @@ public class Notifications {
     }
 
     public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
-        if (isDismissed(bid, eid)) {
-            Crashlytics.log("Refusing to add notification for dismissed eid: " + eid);
-            return;
-        }
         long last_eid = getLastSeenEid(bid);
         if (eid <= last_eid) {
             Crashlytics.log("Refusing to add notification for seen eid: " + eid);
@@ -389,6 +340,7 @@ public class Notifications {
         n.network = network;
 
         synchronized (mNotifications) {
+            //Log.d("IRCCloud", "Add: " + n);
             mNotifications.add(n);
             Collections.sort(mNotifications, new comparator());
         }
@@ -408,9 +360,10 @@ public class Notifications {
     }
 
     public void deleteOldNotifications(int bid, long last_seen_eid) {
-        boolean changed = false;
+        boolean changed = false, pending = false;
         if (mNotificationTimerTask != null) {
             mNotificationTimerTask.cancel();
+            pending = true;
         }
 
         ArrayList<Notification> notifications = getOtherNotifications();
@@ -436,15 +389,6 @@ public class Notifications {
                 }
             }
         }
-        if (mDismissedEIDs.get(bid) != null) {
-            HashSet<Long> eids = mDismissedEIDs.get(bid);
-            Long[] eidsArray = eids.toArray(new Long[eids.size()]);
-            for (int i = 0; i < eidsArray.length; i++) {
-                if (eidsArray[i] <= last_seen_eid) {
-                    eids.remove(eidsArray[i]);
-                }
-            }
-        }
         save();
         if (changed) {
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
@@ -455,6 +399,9 @@ public class Notifications {
             }
             updateTeslaUnreadCount();
         }
+
+        if(pending)
+            showNotifications(mTicker);
     }
 
     public void deleteNotificationsForBid(int bid) {
@@ -476,7 +423,6 @@ public class Notifications {
                 }
             }
         }
-        mDismissedEIDs.remove(bid);
         mLastSeenEIDs.remove(bid);
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         try {
@@ -565,29 +511,30 @@ public class Notifications {
         if (ticker != null)
             mTicker = ColorFormatter.emojify(ticker);
 
-        ArrayList<Notification> notifications = getMessageNotifications();
-        for (Notification n : notifications) {
-            if (isDismissed(n.bid, n.eid)) {
-                deleteNotification(n.cid, n.bid, n.eid);
+        if (mNotificationTimerTask == null) {
+            try {
+                TimerTask task = new TimerTask() {
+                    @Override
+                    public void run() {
+                        mNotificationTimerTask = null;
+                        showMessageNotifications(mTicker);
+                        showOtherNotifications();
+                        mTicker = null;
+                        IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
+                        updateTeslaUnreadCount();
+                    }
+
+                    @Override
+                    public boolean cancel() {
+                        mNotificationTimerTask = null;
+                        return super.cancel();
+                    }
+                };
+                mNotificationTimer.schedule(task, 5000);
+                mNotificationTimerTask = task;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        }
-
-        if (mNotificationTimerTask != null)
-            mNotificationTimerTask.cancel();
-
-        try {
-            mNotificationTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    showMessageNotifications(mTicker);
-                    showOtherNotifications();
-                    mTicker = null;
-                    IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-                    updateTeslaUnreadCount();
-                }
-            };
-            mNotificationTimer.schedule(mNotificationTimerTask, 5000);
-        } catch (Exception e) {
         }
     }
 

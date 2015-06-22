@@ -64,7 +64,6 @@ public class RemoteInputService extends IntentService {
                             }
                         }
                     }
-                    Notifications.getInstance().showNotifications(null);
                     if (!success)
                         Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/")?"Please launch the IRCCloud app to send this command":"Your message was not sent. Please try again shortly.");
                 } else {

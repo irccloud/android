@@ -1662,7 +1662,6 @@ public class NetworkConnection {
                 }
                 if (!backlog) {
                     notifyHandlers(EVENT_HEARTBEATECHO, object);
-                    Notifications.getInstance().showNotifications(null);
                 }
             }
         });
@@ -1801,7 +1800,6 @@ public class NetworkConnection {
                 ServersDataSource s = ServersDataSource.getInstance();
                 s.deleteAllDataForServer(object.cid());
                 Notifications.getInstance().deleteNetwork(object.cid());
-                Notifications.getInstance().showNotifications(null);
                 if (!backlog)
                     notifyHandlers(EVENT_CONNECTIONDELETED, object.cid());
             }
@@ -1879,7 +1877,6 @@ public class NetworkConnection {
                 BuffersDataSource b = BuffersDataSource.getInstance();
                 b.deleteAllDataForBuffer(object.bid());
                 Notifications.getInstance().deleteNotificationsForBid(object.bid());
-                Notifications.getInstance().showNotifications(null);
                 if (!backlog)
                     notifyHandlers(EVENT_DELETEBUFFER, object.bid());
             }
@@ -1925,18 +1922,20 @@ public class NetworkConnection {
                             b.highlights++;
                             b.unread = 1;
                         }
-                        JSONObject bufferDisabledMap = null;
-                        boolean show = true;
-                        if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
-                            bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
-                            if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                        if(!backlog) {
+                            JSONObject bufferDisabledMap = null;
+                            boolean show = true;
+                            if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
+                                bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
+                                if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                    show = false;
+                            }
+                            if (GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() > 0)
                                 show = false;
-                        }
-                        if (show && Notifications.getInstance().getNotification(event.eid) == null) {
-                            String message = ColorFormatter.irc_to_html(event.msg);
-                            message = ColorFormatter.html_to_spanned(message).toString();
-                            Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.name, b.type, event.type);
-                            if (!backlog) {
+                            if (show && Notifications.getInstance().getNotification(event.eid) == null) {
+                                String message = ColorFormatter.irc_to_html(event.msg);
+                                message = ColorFormatter.html_to_spanned(message).toString();
+                                Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.name, b.type, event.type);
                                 switch (b.type) {
                                     case "conversation":
                                         if (event.type.equals("buffer_me_msg"))
@@ -2942,7 +2941,6 @@ public class NetworkConnection {
                                     request_backlog(b.cid, b.bid, 0);
                                 }
                             }
-                            Notifications.getInstance().showNotifications(null);
                             schedule_idle_timer();
                             if (bid > 0) {
                                 notifyHandlers(EVENT_BACKLOG_END, bid);

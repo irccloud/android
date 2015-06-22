@@ -90,12 +90,12 @@ public class GCMIntentService extends IntentService {
                                     }
                                 }
                                 parser.close();
-                                Notifications.getInstance().showNotifications(null);
                             } else {
                                 int cid = Integer.valueOf(intent.getStringExtra("cid"));
                                 int bid = Integer.valueOf(intent.getStringExtra("bid"));
                                 long eid = Long.valueOf(intent.getStringExtra("eid"));
                                 if (Notifications.getInstance().getNotification(eid) != null) {
+                                    Log.e("IRCCloud", "GCM got EID that already exists");
                                     return;
                                 }
                                 String from = intent.getStringExtra("from_nick");

@@ -83,8 +83,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -96,14 +94,11 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.DrawerArrowDrawable;
-import com.irccloud.android.GCMIntentService;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -175,9 +170,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     NetworkConnection conn;
     private boolean shouldFadeIn = false;
     private RefreshUpIndicatorTask refreshUpIndicatorTask = null;
-    private ShowNotificationsTask showNotificationsTask = null;
+    private ExcludeBIDTask excludeBIDTask = null;
     private ArrayList<Integer> backStack = new ArrayList<Integer>();
-    PowerManager.WakeLock screenLock = null;
     private int launchBid = -1;
     private Uri launchURI = null;
     private AlertDialog channelsListDialog;
@@ -1175,14 +1169,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
 
-    private class ShowNotificationsTask extends AsyncTaskEx<Integer, Void, Void> {
+    private class ExcludeBIDTask extends AsyncTaskEx<Integer, Void, Void> {
 
         @Override
         protected Void doInBackground(Integer... params) {
             Notifications.getInstance().excludeBid(params[0]);
-            if (params[0] > 0)
-                Notifications.getInstance().showNotifications(null);
-            showNotificationsTask = null;
+            excludeBIDTask = null;
             return null;
         }
     }
@@ -1199,10 +1191,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersDataSource.getInstance().getBuffer(new_bid) == null) {
                 Crashlytics.log(Log.WARN, "IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
                 Notifications.getInstance().deleteNotificationsForBid(new_bid);
-                if (showNotificationsTask != null)
-                    showNotificationsTask.cancel(true);
-                showNotificationsTask = new ShowNotificationsTask();
-                showNotificationsTask.execute(new_bid);
+                if (excludeBIDTask != null)
+                    excludeBIDTask.cancel(true);
+                excludeBIDTask = new ExcludeBIDTask();
+                excludeBIDTask.execute(new_bid);
                 return;
             } else if (BuffersDataSource.getInstance().getBuffer(new_bid) != null) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Found BID, switching buffers");
@@ -1358,10 +1350,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (NetworkConnection.getInstance().ready && buffer != null) {
             try {
-                if (showNotificationsTask != null)
-                    showNotificationsTask.cancel(true);
-                showNotificationsTask = new ShowNotificationsTask();
-                showNotificationsTask.execute(buffer.bid);
+                if (excludeBIDTask != null)
+                    excludeBIDTask.cancel(true);
+                excludeBIDTask = new ExcludeBIDTask();
+                excludeBIDTask.execute(buffer.bid);
             } catch (Exception e) {
             }
         }
@@ -1395,12 +1387,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             fileUploadTask.setActivity(null);
 
         try {
-            if (showNotificationsTask != null)
-                showNotificationsTask.cancel(true);
+            if (excludeBIDTask != null)
+                excludeBIDTask.cancel(true);
         } catch (Exception e) {
         }
-        showNotificationsTask = new ShowNotificationsTask();
-        showNotificationsTask.execute(-1);
+        excludeBIDTask = new ExcludeBIDTask();
+        excludeBIDTask.execute(-1);
         if (channelsListDialog != null)
             channelsListDialog.dismiss();
         if (conn != null)
@@ -3654,10 +3646,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         updateUsersListFragmentVisibility();
         supportInvalidateOptionsMenu();
-        if (showNotificationsTask != null)
-            showNotificationsTask.cancel(true);
-        showNotificationsTask = new ShowNotificationsTask();
-        showNotificationsTask.execute(bid);
+        if (excludeBIDTask != null)
+            excludeBIDTask.cancel(true);
+        excludeBIDTask = new ExcludeBIDTask();
+        excludeBIDTask.execute(bid);
         if (drawerLayout != null)
             new RefreshUpIndicatorTask().execute((Void) null);
         if (buffer != null && buffer.cid != -1) {

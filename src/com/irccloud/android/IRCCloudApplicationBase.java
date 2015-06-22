@@ -172,6 +172,12 @@ public class IRCCloudApplicationBase extends Application {
     }
 
     @Override
+    public void onTerminate() {
+        Notifications.getInstance().saveNow();
+        super.onTerminate();
+    }
+
+    @Override
     public void onLowMemory() {
         super.onLowMemory();
         if (!NetworkConnection.getInstance().isVisible()) {
