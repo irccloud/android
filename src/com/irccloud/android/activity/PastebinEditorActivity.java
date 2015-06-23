@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
@@ -99,7 +100,6 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null) {
-            getSupportActionBar().setElevation(0);
             if(!getWindow().isFloating()) {
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -152,6 +152,8 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
             filename.setText(getIntent().getStringExtra("filename"));
 
         tabHost = (MaterialTabHost) findViewById(android.R.id.tabhost);
+        ViewCompat.setElevation(toolbar, ViewCompat.getElevation(tabHost));
+        
         if (pasteID != null) {
             tabHost.setVisibility(View.GONE);
             message.setVisibility(View.GONE);
