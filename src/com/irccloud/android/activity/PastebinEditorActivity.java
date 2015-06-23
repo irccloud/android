@@ -149,8 +149,8 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
             findViewById(R.id.message_heading).setVisibility(View.GONE);
         } else {
             tabHost.setType(MaterialTabHost.Type.FullScreenWidth);
-            tabHost.addTab("Pastebin");
-            tabHost.addTab("Messages");
+            tabHost.addTab("PASTEBIN");
+            tabHost.addTab("MESSAGES");
             tabHost.setOnTabChangeListener(new MaterialTabHost.OnTabChangeListener() {
                 @Override
                 public void onTabSelected(int i) {
@@ -181,6 +181,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
         if(pasteID != null) {
             setTitle(R.string.title_activity_pastebin_editor_edit);
+            getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
         } else {
             setTitle(R.string.title_activity_pastebin_editor);
         }
