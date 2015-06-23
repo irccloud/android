@@ -23,12 +23,14 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -77,6 +79,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
     private EditText filename;
     private EditText message;
     private TextView messages_count;
+    private Toolbar toolbar;
     private int pastereqid = -1;
     private String pastecontents;
     private String pasteID;
@@ -91,7 +94,10 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         }
         setContentView(R.layout.activity_pastebineditor);
 
-        if (getSupportActionBar() != null) {
+        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        if(getSupportActionBar() != null) {
             getSupportActionBar().setElevation(0);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -181,7 +187,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
         if(pasteID != null) {
             setTitle(R.string.title_activity_pastebin_editor_edit);
-            getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
+            toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
         } else {
             setTitle(R.string.title_activity_pastebin_editor);
         }

@@ -84,6 +84,8 @@
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
     </style>
     <style name="PastebinEditorTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="colorPrimary">@color/light_blue</item>
