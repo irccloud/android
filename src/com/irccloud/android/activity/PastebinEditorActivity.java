@@ -27,6 +27,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -99,8 +100,10 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
         if(getSupportActionBar() != null) {
             getSupportActionBar().setElevation(0);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if(!getWindow().isFloating()) {
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
         }
 
         paste = (EditText) findViewById(R.id.paste);
