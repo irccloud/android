@@ -18,30 +18,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:gravity="center_vertical">
 
+    <android.support.design.widget.TextInputLayout
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <EditText
         android:id="@+id/hostname"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="6dp"
-        android:layout_weight="5"
         android:hint="Hostname" />
+    </android.support.design.widget.TextInputLayout>
 
+    <android.support.design.widget.TextInputLayout
+        android:layout_weight="3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp">
     <EditText
         android:id="@+id/port"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="6dp"
-        android:layout_weight="1"
         android:hint="Port"
         android:inputType="number" />
+    </android.support.design.widget.TextInputLayout>
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/ssl"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0"
         android:text="SSL" />
 
 </LinearLayout>

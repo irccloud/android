@@ -39,46 +39,40 @@
             android:layout_gravity="center"
             android:adjustViewBounds="true" />
 
-        <TextView
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:id="@+id/filename_heading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:textColor="#000"
-            android:text="File name"
-            android:textAppearance="?android:attr/textAppearanceMedium"/>
-
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
         <EditText
             android:id="@+id/filename"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
+            android:hint="Filename"
             android:nextFocusDown="@+id/message"
             android:inputType="textUri"/>
-
+        </android.support.design.widget.TextInputLayout>
         <!-- Dummy item to prevent EditText from receiving focus on launch -->
 
         <LinearLayout
             android:focusable="true" android:focusableInTouchMode="true"
             android:layout_width="0px" android:layout_height="0px"><requestFocus/></LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:textColor="#000"
-            android:text="Message (optional)"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_marginTop="@dimen/activity_vertical_margin" />
-
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/message_heading"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
         <EditText
             android:id="@id/message"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Message (optional)"
             android:lines="0"
             android:nextFocusUp="@id/filename"
             android:inputType="text" />
-
+        </android.support.design.widget.TextInputLayout>
         <TextView
             android:id="@+id/filesize"
             android:layout_width="wrap_content"

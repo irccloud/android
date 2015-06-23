@@ -43,6 +43,10 @@
 
     </LinearLayout>
 
+    <android.support.design.widget.TextInputLayout
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     <EditText
         android:id="@+id/channels"
         android:layout_width="match_parent"
@@ -53,5 +57,5 @@
 
         <requestFocus />
     </EditText>
-
+    </android.support.design.widget.TextInputLayout>
 </LinearLayout>
