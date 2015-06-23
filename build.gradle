@@ -20,6 +20,7 @@ tasks.withType(JavaCompile) {
 repositories {
     mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'http://yanzm.github.io/MaterialTabHost/repository' }
 }
 
 def getRevision = { ->
@@ -39,7 +40,7 @@ android {
     defaultConfig {
         versionCode 34
         versionName "1.23"
-        minSdkVersion 9
+        minSdkVersion 10
         targetSdkVersion 22
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
@@ -284,6 +285,7 @@ dependencies {
     compile 'com.github.fge:uri-template:0.9'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
+    compile 'net.yanzm:mth:1.0.4'
     compile('com.crashlytics.sdk.android:crashlytics:2.2.4@aar') {
         transitive = true;
     }

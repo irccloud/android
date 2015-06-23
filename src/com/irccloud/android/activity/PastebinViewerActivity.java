@@ -21,7 +21,6 @@ import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -32,9 +31,7 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,55 +46,10 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
-import com.irccloud.android.fragment.PastebinEditorFragment;
 
 import java.net.URL;
 
-public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener, PastebinEditorFragment.PastebinEditorListener {
-
-    @Override
-    public void onPastebinFailed(String pastecontents) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mSpinner.setVisibility(View.GONE);
-                supportInvalidateOptionsMenu();
-            }
-        });
-    }
-
-    @Override
-    public void onPastebinSaved() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mWebView.clearCache(true);
-                mWebView.reload();
-                getSupportActionBar().setTitle("Pastebin");
-                getSupportActionBar().setSubtitle(null);
-                mSpinner.setVisibility(View.VISIBLE);
-                supportInvalidateOptionsMenu();
-                new FetchPastebinTask().execute();
-            }
-        });
-    }
-
-    @Override
-    public void onPastebinSendAsText(String text) {
-
-    }
-
-    @Override
-    public void onPastebinCancelled(String pastecontents) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mSpinner.setVisibility(View.GONE);
-                supportInvalidateOptionsMenu();
-            }
-        });
-    }
-
+public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
     private class FetchPastebinTask extends AsyncTaskEx<Void, Void, String> {
 
         @Override
@@ -351,22 +303,31 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             }
         } else if(item.getItemId() == R.id.action_edit) {
             mSpinner.setVisibility(View.VISIBLE);
-            PastebinEditorFragment f = (PastebinEditorFragment) getSupportFragmentManager().findFragmentByTag("editor");
-            if (f == null) {
-                f = new PastebinEditorFragment();
-                f.pasteID = Uri.parse(url).getQueryParameter("id");
-                f.listener = this;
-                try {
-                    f.show(getSupportFragmentManager(), "editor");
-                } catch (IllegalStateException e) {
-                    //App lost focus already
-                }
-            }
+            Intent i = new Intent(this, PastebinEditorActivity.class);
+            i.putExtra("paste_id", Uri.parse(url).getQueryParameter("id"));
+            startActivityForResult(i, 1);
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onShareActionProviderSubVisibilityChanged(boolean visible) {
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 1) {
+            if(resultCode == RESULT_OK) {
+                mWebView.clearCache(true);
+                mWebView.reload();
+                getSupportActionBar().setTitle("Pastebin");
+                getSupportActionBar().setSubtitle(null);
+                mSpinner.setVisibility(View.VISIBLE);
+                supportInvalidateOptionsMenu();
+                new FetchPastebinTask().execute();
+            } else {
+                mSpinner.setVisibility(View.GONE);
+            }
+        }
     }
 }

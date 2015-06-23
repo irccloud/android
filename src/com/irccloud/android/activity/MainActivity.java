@@ -120,7 +120,6 @@ import com.irccloud.android.fragment.IgnoreListFragment;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.irccloud.android.fragment.NamesListFragment;
 import com.irccloud.android.fragment.NickservFragment;
-import com.irccloud.android.fragment.PastebinEditorFragment;
 import com.irccloud.android.fragment.ServerMapListFragment;
 import com.irccloud.android.fragment.ServerReorderFragment;
 import com.irccloud.android.fragment.UsersListFragment;
@@ -154,7 +153,7 @@ import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.UUID;
 
-public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler, PastebinEditorFragment.PastebinEditorListener {
+public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
     BuffersDataSource.Buffer buffer;
     ServersDataSource.Server server;
     ActionEditText messageTxt;
@@ -184,6 +183,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private TimerTask countdownTimerTask = null;
     private String error = null;
     private TextWatcher textWatcher = null;
+    private Intent pastebinResult = null;
 
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
@@ -551,59 +551,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void show_pastebin_prompt() {
-        PastebinEditorFragment f = (PastebinEditorFragment) getSupportFragmentManager().findFragmentByTag("pastebin");
-        if (f == null) {
-            f = new PastebinEditorFragment();
-            f.pastecontents = messageTxt.getText().toString();
-            messageTxt.setText("");
-            f.listener = this;
-            try {
-                f.show(getSupportFragmentManager(), "pastebin");
-            } catch (IllegalStateException e) {
-                //App lost focus already
-            }
-        }
-    }
-
-    @Override
-    public void onPastebinFailed(final String pastecontents) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                sendBtn.setEnabled(true);
-                if (Build.VERSION.SDK_INT >= 11)
-                    sendBtn.setAlpha(1.0f);
-                messageTxt.setText(pastecontents);
-            }
-        });
-    }
-
-    @Override
-    public void onPastebinSendAsText(final String text) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                messageTxt.setText(text);
-                SendTask t = new SendTask();
-                t.forceText = true;
-                t.execute((Void) null);
-            }
-        });
-    }
-
-    @Override
-    public void onPastebinSaved() {
-
-    }
-
-    @Override
-    public void onPastebinCancelled(final String pastecontents) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                messageTxt.setText(pastecontents);
-            }
-        });
+        Intent i = new Intent(this, PastebinEditorActivity.class);
+        i.putExtra("paste_contents", messageTxt.getText().toString());
+        startActivityForResult(i, REQUEST_PASTEBIN);
     }
 
     private void show_topic_popup() {
@@ -1376,6 +1326,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         messageTxt.clearFocus();
         messageTxt.setEnabled(true);
+
+        if(pastebinResult != null) {
+            String text = "";
+            String url = pastebinResult.getStringExtra("url");
+            String message = pastebinResult.getStringExtra("message");
+            if(url != null && url.length() > 0) {
+                if (message != null && message.length() > 0)
+                    text += message + " ";
+                text += url;
+            } else {
+                text = pastebinResult.getStringExtra("paste_contents");
+            }
+            messageTxt.setText(text);
+            SendTask t = new SendTask();
+            t.forceText = true;
+            t.execute((Void) null);
+            pastebinResult = null;
+        }
     }
 
     @Override
@@ -2591,10 +2559,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private ToggleListener mDrawerListener = new ToggleListener();
 
+    private final int REQUEST_CAMERA = 1;
+    private final int REQUEST_PHOTO = 2;
+    private final int REQUEST_DOCUMENT = 3;
+    private final int REQUEST_UPLOADS = 4;
+    private final int REQUEST_PASTEBIN = 5;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         if (buffer != null) {
-            if (requestCode == 1 && resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CAMERA && resultCode == RESULT_OK) {
                 if (imageCaptureURI != null) {
                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
                         new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
@@ -2609,7 +2583,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, image);
                     }
                 }
-            } else if (requestCode == 2 && resultCode == RESULT_OK) {
+            } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
                 Uri selectedImage = imageReturnedIntent.getData();
                 if (selectedImage != null) {
                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
@@ -2619,15 +2593,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         fileUploadTask.execute((Void) null);
                     }
                 }
-            } else if (requestCode == 3 && resultCode == RESULT_OK) {
+            } else if (requestCode == REQUEST_DOCUMENT && resultCode == RESULT_OK) {
                 Uri selectedFile = imageReturnedIntent.getData();
                 if (selectedFile != null) {
                     fileUploadTask = new FileUploadTask(selectedFile, this);
                     fileUploadTask.execute((Void) null);
                 }
-            } else if (requestCode == 4 && resultCode == RESULT_OK) {
+            } else if (requestCode == REQUEST_UPLOADS && resultCode == RESULT_OK) {
                 buffer.draft = "";
                 messageTxt.setText("");
+            } else if (requestCode == REQUEST_PASTEBIN) {
+                if(resultCode == RESULT_OK) {
+                    pastebinResult = imageReturnedIntent;
+                } else if(resultCode == RESULT_CANCELED) {
+                    buffer.draft = imageReturnedIntent.getStringExtra("paste_contents");
+                    messageTxt.setText(buffer.draft);
+                }
             }
         }
     }
@@ -2662,7 +2643,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
                                 i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                                startActivityForResult(i, 1);
+                                startActivityForResult(i, REQUEST_CAMERA);
                             } catch (IOException e) {
                             }
                             break;
@@ -2671,13 +2652,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                             i.addCategory(Intent.CATEGORY_OPENABLE);
                             i.setType("image/*");
-                            startActivityForResult(Intent.createChooser(i, "Select Picture"), 2);
+                            startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
                             break;
                         case "Choose Existing Document":
                             i = new Intent(Intent.ACTION_GET_CONTENT);
                             i.addCategory(Intent.CATEGORY_OPENABLE);
                             i.setType("*/*");
-                            startActivityForResult(Intent.createChooser(i, "Select A Document"), 3);
+                            startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
                             break;
                         case "Start a Pastebin":
                             show_pastebin_prompt();
@@ -2691,7 +2672,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             i.putExtra("cid", buffer.cid);
                             i.putExtra("to", buffer.name);
                             i.putExtra("msg", messageTxt.getText().toString());
-                            startActivityForResult(i, 4);
+                            startActivityForResult(i, REQUEST_UPLOADS);
                             break;
                     }
                 }

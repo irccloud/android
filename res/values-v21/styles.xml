@@ -86,6 +86,21 @@
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
     </style>
+    <style name="PastebinEditorTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:dialogTheme">@style/AppDialogTheme</item>
+        <item name="android:alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:colorPrimary">@color/light_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="dialogTheme">@style/AppDialogTheme</item>
+        <item name="alertDialogTheme">@style/AppAlertTheme</item>
+    </style>
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>

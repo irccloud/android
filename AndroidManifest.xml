@@ -237,6 +237,17 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activity.PastebinEditorActivity"
+            android:label="@string/title_activity_pastebin_editor"
+            android:theme="@style/PastebinEditorTheme"
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".RemoteInputService"
             android:permission="com.irccloud.android.permission.BROADCAST" >

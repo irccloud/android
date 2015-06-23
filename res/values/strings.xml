@@ -49,4 +49,6 @@
     <string name="title_activity_uploads">File Uploads</string>
     <string name="title_activity_pastebin">Pastebin</string>
     <string name="title_activity_pastebins">Pastebins</string>
+    <string name="title_activity_pastebin_editor">Start a Pastebin</string>
+    <string name="title_activity_pastebin_editor_edit">Edit Pastebin</string>
 </resources>

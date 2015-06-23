@@ -83,6 +83,15 @@
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
     </style>
+    <style name="PastebinEditorTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorAccent">#888</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="dialogTheme">@style/AppDialogTheme</item>
+        <item name="alertDialogTheme">@style/AppAlertTheme</item>
+    </style>
     <style name="ImgurAuthTheme" parent="Theme.AppCompat">
         <item name="colorAccent">#888</item>
         <item name="colorPrimaryDark">#000</item>
