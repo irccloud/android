@@ -4241,6 +4241,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         private NotificationCompat.Builder notification;
 
+        private BroadcastReceiver cancelListener = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                cancel(true);
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+                if(activity != null) {
+                    activity.fileUploadTask = null;
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            hide_progress();
+                        }
+                    });
+                }
+            }
+        };
+
         public FileUploadTask(Uri fileUri, final MainActivity activity) {
             mBuffer = activity.buffer;
             mFileUri = fileUri;
@@ -4284,6 +4301,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             setActivity(activity);
 
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(activity.getPackageName() + ".cancel_upload");
+            IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(cancelListener, intentFilter);
+
             notification = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
                     .setContentTitle("Uploading File")
                     .setContentText("Calculating size… • " + type)
@@ -4291,6 +4312,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     .setLocalOnly(true)
                     .setOngoing(true)
                     .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.dark_blue))
+                    .addAction(R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT))
                     .setSmallIcon(android.R.drawable.stat_sys_upload);
 
             Intent i = new Intent();
@@ -4636,6 +4658,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             file_id = s;
             uploadFinished = true;
             finalize_upload();
+            IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(cancelListener);
+            Log.e("IRCCloud", "FileUploadTask finished");
         }
 
         private int copy(InputStream input, OutputStream output) throws IOException {
@@ -4671,6 +4695,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             activity.fileUploadTask = null;
             NetworkConnection.getInstance().removeHandler(this);
             hide_progress();
+            if(metadataDialog != null)
+                metadataDialog.cancel();
         }
 
         private void hide_progress() {
@@ -4705,12 +4731,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         message += event.getJsonObject("file").get("url").asText();
                         NetworkConnection.getInstance().say(mBuffer.cid, mBuffer.name, message);
                         NetworkConnection.getInstance().removeHandler(this);
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
                         if(activity != null) {
                             activity.fileUploadTask = null;
                             activity.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
                                     hide_progress();
                                 }
                             });
@@ -4721,6 +4747,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     event = (IRCCloudJSONObject) obj;
                     if (event.getInt("_reqid") == reqid) {
                         NetworkConnection.getInstance().removeHandler(this);
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
                         if(activity != null) {
                             activity.fileUploadTask = null;
                             activity.runOnUiThread(new Runnable() {
