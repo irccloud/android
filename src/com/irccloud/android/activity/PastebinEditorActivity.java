@@ -22,17 +22,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,8 +42,6 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-
-import net.yanzm.mth.MaterialTabHost;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,7 +73,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         }
     }
 
-    private MaterialTabHost tabHost;
+    private TabLayout tabHost;
     private EditText paste;
     private EditText filename;
     private EditText message;
@@ -86,6 +83,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
     private String pastecontents;
     private String pasteID;
     private String url;
+    private int current_tab = 0;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,22 +149,23 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         else if (getIntent() != null && getIntent().hasExtra("filename"))
             filename.setText(getIntent().getStringExtra("filename"));
 
-        tabHost = (MaterialTabHost) findViewById(android.R.id.tabhost);
+        tabHost = (TabLayout) findViewById(android.R.id.tabhost);
         ViewCompat.setElevation(toolbar, ViewCompat.getElevation(tabHost));
-        
+
         if (pasteID != null) {
             tabHost.setVisibility(View.GONE);
             message.setVisibility(View.GONE);
             findViewById(R.id.message_heading).setVisibility(View.GONE);
         } else {
-            tabHost.setType(MaterialTabHost.Type.FullScreenWidth);
-            tabHost.addTab("PASTEBIN");
-            tabHost.addTab("MESSAGES");
-            tabHost.setOnTabChangeListener(new MaterialTabHost.OnTabChangeListener() {
+            tabHost.setTabGravity(TabLayout.GRAVITY_FILL);
+            tabHost.setTabMode(TabLayout.MODE_FIXED);
+            tabHost.addTab(tabHost.newTab().setText("Pastebin"));
+            tabHost.addTab(tabHost.newTab().setText("Messages"));
+            tabHost.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
-                public void onTabSelected(int i) {
-                    tabHost.onPageSelected(i);
-                    if (i == 0) {
+                public void onTabSelected(TabLayout.Tab tab) {
+                    current_tab = tab.getPosition();
+                    if (current_tab == 0) {
                         filename.setVisibility(View.VISIBLE);
                         message.setVisibility(View.VISIBLE);
                         messages_count.setVisibility(View.GONE);
@@ -180,9 +179,19 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
                         findViewById(R.id.message_heading).setVisibility(View.GONE);
                     }
                 }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
             });
             if (savedInstanceState != null && savedInstanceState.containsKey("tab"))
-                tabHost.onPageSelected(savedInstanceState.getInt("tab"));
+                tabHost.getTabAt(savedInstanceState.getInt("tab")).select();
         }
 
         NetworkConnection.getInstance().addHandler(this);
@@ -284,7 +293,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
                 break;
             case R.id.action_send:
                 pastecontents = paste.getText().toString();
-                if(tabHost.getCurrentTab() == 0) {
+                if(current_tab == 0) {
                     pastereqid = NetworkConnection.getInstance().paste(filename.getText().toString(), extension(), pastecontents);
                 } else {
                     result(RESULT_OK);
@@ -311,6 +320,6 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         outState.putString("paste_id", pasteID);
         outState.putString("message", message.getText().toString());
         outState.putString("filename", filename.getText().toString());
-        outState.putInt("tab", tabHost.getCurrentTab());
+        outState.putInt("tab", current_tab);
     }
 }

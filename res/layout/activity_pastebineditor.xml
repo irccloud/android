@@ -24,12 +24,15 @@
         android:id="@+id/toolbar"
         android:background="@color/light_blue"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"/>
+        android:layout_height="?attr/actionBarSize"
+        android:elevation="4dp" />
 
-    <net.yanzm.mth.MaterialTabHost
+    <android.support.design.widget.TabLayout
         android:id="@android:id/tabhost"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/light_blue"
+        android:elevation="4dp" />
 
     <ScrollView
         android:layout_width="match_parent"
