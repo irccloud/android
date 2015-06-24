@@ -2774,14 +2774,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 else
                     builder.setMessage("Are you sure you want to clear your history with " + buffer.name + "?");
 
-                builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
-                builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -3065,14 +3065,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     else
                         builder.setMessage("Are you sure you want to clear your history with " + b.name + "?");
 
-                    builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
                     });
-                    builder.setNeutralButton("Delete", new DialogInterface.OnClickListener() {
+                    builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
