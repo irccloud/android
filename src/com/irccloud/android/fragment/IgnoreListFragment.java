@@ -29,8 +29,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,7 +55,7 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
         private class ViewHolder {
             int position;
             TextView label;
-            Button removeBtn;
+            ImageButton removeBtn;
         }
 
         public IgnoresAdapter(DialogFragment context) {
@@ -110,7 +110,7 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
                 holder = new ViewHolder();
                 holder.position = position;
                 holder.label = (TextView) row.findViewById(R.id.label);
-                holder.removeBtn = (Button) row.findViewById(R.id.removeBtn);
+                holder.removeBtn = (ImageButton) row.findViewById(R.id.removeBtn);
 
                 row.setTag(holder);
             } else {

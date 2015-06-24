@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -56,7 +57,7 @@ public class AcceptListFragment extends DialogFragment {
         private class ViewHolder {
             int position;
             TextView user;
-            Button removeBtn;
+            ImageButton removeBtn;
         }
 
         public AcceptListAdapter(DialogFragment context) {
@@ -112,7 +113,7 @@ public class AcceptListFragment extends DialogFragment {
                 holder = new ViewHolder();
                 holder.position = position;
                 holder.user = (TextView) row.findViewById(R.id.nick);
-                holder.removeBtn = (Button) row.findViewById(R.id.removeBtn);
+                holder.removeBtn = (ImageButton) row.findViewById(R.id.removeBtn);
 
                 row.setTag(holder);
             } else {

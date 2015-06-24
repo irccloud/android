@@ -30,38 +30,44 @@
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/members"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Show members" />
+            android:layout_height="48dp"
+            android:text="Show members"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/unread"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Track unread messages" />
+            android:layout_height="48dp"
+            android:text="Track unread messages"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/notifyAll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Notify on all messages" />
+            android:layout_height="48dp"
+            android:text="Notify on all messages"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/joinpart"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Show nick changes, joins, and parts" />
+            android:layout_height="48dp"
+            android:text="Show nick changes, joins, and parts"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/collapse"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Collapse nick changes, joins, and parts" />
+            android:layout_height="48dp"
+            android:text="Collapse nick changes, joins, and parts"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/autosuggest"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Suggest nicknames as you type" />
+            android:layout_height="48dp"
+            android:text="Suggest nicknames as you type"
+            android:textSize="16sp" />
 
     </LinearLayout>
 </ScrollView>

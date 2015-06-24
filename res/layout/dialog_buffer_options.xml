@@ -29,26 +29,30 @@
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/unread"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Track unread messages" />
+            android:layout_height="48dp"
+            android:text="Track unread messages"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/joinpart"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Show nick changes, joins, and parts" />
+            android:layout_height="48dp"
+            android:text="Show nick changes, joins, and parts"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/collapse"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Collapse nick changes, joins, and parts" />
+            android:layout_height="48dp"
+            android:text="Collapse nick changes, joins, and parts"
+            android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/expandDisco"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Group repeated disconnects" />
+            android:layout_height="48dp"
+            android:text="Group repeated disconnects"
+            android:textSize="16sp" />
 
     </LinearLayout>
 </ScrollView>

@@ -21,9 +21,9 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="6dp"
     android:layout_marginRight="6dp"
-    app:contentPaddingLeft="12dp"
-    app:contentPaddingRight="12dp"
-    app:contentPaddingBottom="12dp"
+    app:contentPaddingLeft="16dp"
+    app:contentPaddingRight="16dp"
+    app:contentPaddingBottom="16dp"
     app:contentPaddingTop="6dp"
     app:cardUseCompatPadding="true">
 
@@ -42,7 +42,7 @@
         android:textColor="#000"
         android:textColorLink="@color/dialogLinkColor"
         android:layout_marginBottom="6dp"
-        android:textSize="18sp" />
+        android:textSize="16sp" />
      
      <TextView
          android:id="@+id/topic"

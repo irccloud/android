@@ -33,6 +33,7 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -68,7 +69,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             int position;
             TextView mask;
             TextView setBy;
-            Button removeBtn;
+            ImageButton removeBtn;
         }
 
         public Adapter(DialogFragment context) {
@@ -127,7 +128,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
                 holder.position = position;
                 holder.mask = (TextView) row.findViewById(R.id.mask);
                 holder.setBy = (TextView) row.findViewById(R.id.setBy);
-                holder.removeBtn = (Button) row.findViewById(R.id.removeBtn);
+                holder.removeBtn = (ImageButton) row.findViewById(R.id.removeBtn);
 
                 row.setTag(holder);
             } else {
