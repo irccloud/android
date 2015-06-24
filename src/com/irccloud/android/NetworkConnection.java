@@ -1245,6 +1245,17 @@ public class NetworkConnection {
         }
     }
 
+    public int restoreFile(String id) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("file", id);
+            return send("restore-file", o);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
     public int addServer(String hostname, int port, int ssl, String netname, String nickname, String realname, String server_pass, String nickserv_pass, String joincommands, String channels) {
         try {
             JSONObject o = new JSONObject();

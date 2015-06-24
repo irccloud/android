@@ -96,6 +96,16 @@
                     android:src="@drawable/ic_action_cancel"
                     android:contentDescription="delete"
                     android:background="@null" />
+
+                <ProgressBar
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/deleteProgress"
+                    android:indeterminate="true"
+                    android:visibility="gone"
+                    android:layout_marginRight="6dp" />
+
             </LinearLayout>
 
             <TextView

@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.net.http.HttpResponseCache;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.SparseArray;
@@ -72,7 +73,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UploadsActivity extends BaseActivity {
     private int page = 0;
-    private int reqid = -1;
+    private SparseArray<File> delete_reqids = new SparseArray<>();
     private FilesAdapter adapter = new FilesAdapter();
     private boolean canLoadMore = true;
     private View footer;
@@ -106,6 +107,8 @@ public class UploadsActivity extends BaseActivity {
         String metadata;
         transient Bitmap image;
         boolean image_failed;
+        boolean deleting;
+        int position;
     }
 
     private class FilesAdapter extends BaseAdapter {
@@ -117,6 +120,7 @@ public class UploadsActivity extends BaseActivity {
             TextView metadata;
             ProgressBar progress;
             ImageButton delete;
+            ProgressBar delete_progress;
         }
 
         private ArrayList<File> files = new ArrayList<>();
@@ -151,6 +155,7 @@ public class UploadsActivity extends BaseActivity {
         }
 
         public void addFile(final File f) {
+            f.position = files.size();
             files.add(f);
 
             try {
@@ -190,6 +195,26 @@ public class UploadsActivity extends BaseActivity {
             }
         }
 
+        public void update_positions() {
+            int p = 0;
+            for(File file : files) {
+                file.position = p++;
+            }
+        }
+
+        public void restoreFile(File f) {
+            f.deleting = false;
+            files.add(f.position, f);
+            update_positions();
+            notifyDataSetChanged();
+        }
+
+        public void removeFile(File f) {
+            files.remove(f);
+            update_positions();
+            notifyDataSetChanged();
+        }
+
         @Override
         public int getCount() {
             return files.size();
@@ -204,40 +229,6 @@ public class UploadsActivity extends BaseActivity {
         public long getItemId(int i) {
             return i;
         }
-
-        private View.OnClickListener deleteClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final File f = (File)getItem((Integer)view.getTag());
-                if(f != null) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
-                    builder.setTitle("Delete File");
-                    if (f.name != null && f.name.length() > 0) {
-                        builder.setMessage("Are you sure you want to delete '" + f.name + "'?");
-                    } else {
-                        builder.setMessage("Are you sure you want to delete this file?");
-                    }
-                    builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            reqid = NetworkConnection.getInstance().deleteFile(f.id);
-                            files.remove(f);
-                            notifyDataSetChanged();
-                            checkEmpty();
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
-                        }
-                    });
-                    AlertDialog d = builder.create();
-                    d.setOwnerActivity(UploadsActivity.this);
-                    d.show();
-                }
-            }
-        };
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
@@ -256,6 +247,7 @@ public class UploadsActivity extends BaseActivity {
                 holder.metadata = (TextView) row.findViewById(R.id.metadata);
                 holder.progress = (ProgressBar) row.findViewById(R.id.progress);
                 holder.delete = (ImageButton) row.findViewById(R.id.delete);
+                holder.delete_progress = (ProgressBar) row.findViewById(R.id.deleteProgress);
 
                 row.setTag(holder);
             } else {
@@ -301,6 +293,13 @@ public class UploadsActivity extends BaseActivity {
                 }
                 holder.delete.setOnClickListener(deleteClickListener);
                 holder.delete.setTag(i);
+                if(f.deleting) {
+                    holder.delete.setVisibility(View.GONE);
+                    holder.delete_progress.setVisibility(View.VISIBLE);
+                } else {
+                    holder.delete.setVisibility(View.VISIBLE);
+                    holder.delete_progress.setVisibility(View.GONE);
+                }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -366,6 +365,40 @@ public class UploadsActivity extends BaseActivity {
             checkEmpty();
         }
     }
+
+    private View.OnClickListener deleteClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            final File f = (File)adapter.getItem((Integer) view.getTag());
+            if(f != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
+                builder.setTitle("Delete File");
+                if (f.name != null && f.name.length() > 0) {
+                    builder.setMessage("Are you sure you want to delete '" + f.name + "'?");
+                } else {
+                    builder.setMessage("Are you sure you want to delete this file?");
+                }
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        delete_reqids.put(NetworkConnection.getInstance().deleteFile(f.id), f);
+                        f.deleting = true;
+                        adapter.notifyDataSetChanged();
+                        checkEmpty();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+                AlertDialog d = builder.create();
+                d.setOwnerActivity(UploadsActivity.this);
+                d.show();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -578,27 +611,52 @@ public class UploadsActivity extends BaseActivity {
 
     public void onIRCEvent(int what, Object o) {
         IRCCloudJSONObject obj;
+        final File f;
         switch (what) {
             case NetworkConnection.EVENT_SUCCESS:
                 obj = (IRCCloudJSONObject) o;
-                if (obj.getInt("_reqid") == reqid) {
+                f = delete_reqids.get(obj.getInt("_reqid"));
+                if (f != null) {
                     Log.d("IRCCloud", "File deleted successfully");
-                    reqid = -1;
+                    delete_reqids.remove(obj.getInt("_reqid"));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.removeFile(f);
+                            View.OnClickListener undo = new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    NetworkConnection.getInstance().restoreFile(f.id);
+                                    adapter.restoreFile(f);
+                                }
+                            };
+                            if(f.name != null && f.name.length() > 0)
+                                Snackbar.make(findViewById(android.R.id.list), f.name + " was deleted.", Snackbar.LENGTH_LONG).setAction("UNDO", undo).show();
+                            else
+                                Snackbar.make(findViewById(android.R.id.list), "File was deleted.", Snackbar.LENGTH_LONG).setAction("UNDO", undo).show();
+                        }
+                    });
                 }
                 break;
             case NetworkConnection.EVENT_FAILURE_MSG:
                 obj = (IRCCloudJSONObject) o;
-                if (reqid != -1 && obj.getInt("_reqid") == reqid) {
+                f = delete_reqids.get(obj.getInt("_reqid"));
+                if (f != null) {
+                    delete_reqids.remove(obj.getInt("_reqid"));
                     Crashlytics.log(Log.ERROR, "IRCCloud", "Delete failed: " + obj.toString());
-                    reqid = -1;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
                             builder.setTitle("Error");
-                            builder.setMessage("Unable to delete file.  Please try again shortly.");
+                            if(f.name != null && f.name.length() > 0)
+                                builder.setMessage("Unable to delete '" + f.name + "'.  Please try again shortly.");
+                            else
+                                builder.setMessage("Unable to delete file.  Please try again shortly.");
                             builder.setPositiveButton("Close", null);
                             builder.show();
+                            f.deleting = false;
+                            adapter.notifyDataSetChanged();
                         }
                     });
                 }
