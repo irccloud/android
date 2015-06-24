@@ -201,7 +201,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
         if(pasteID != null) {
             setTitle(R.string.title_activity_pastebin_editor_edit);
-            toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
+            toolbar.setBackgroundResource(R.drawable.actionbar);
         } else {
             setTitle(R.string.title_activity_pastebin_editor);
         }

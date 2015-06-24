@@ -22,17 +22,15 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:background="@color/light_blue"
+        android:background="@drawable/row_bg_blue"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:elevation="4dp" />
+        android:layout_height="?attr/actionBarSize" />
 
     <android.support.design.widget.TabLayout
         android:id="@android:id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/light_blue"
-        android:elevation="4dp" />
+        android:background="@drawable/actionbar" />
 
     <ScrollView
         android:layout_width="match_parent"
