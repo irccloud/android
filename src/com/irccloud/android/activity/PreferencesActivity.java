@@ -48,6 +48,7 @@ import android.widget.Toast;
 
 import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.DashClock;
@@ -643,7 +644,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             View v = getLayoutInflater().inflate(R.layout.dialog_licenses, null);
             TextView tv = (TextView) v.findViewById(R.id.licenses);
             tv.setText("IRCCloud\n" +
-                    "Copyright (C) 2013 IRCCloud, Ltd.\n" +
+                    "Copyright (C) 2015 IRCCloud, Ltd.\n" +
                     "\n" +
                     "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
                     "you may not use this file except in compliance with the License.\n" +
@@ -799,7 +800,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     "Direct link to the sources:\n" +
                     "\n" +
                     "- LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt\n" +
-                    "- ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt");
+                    "- ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt\n" +
+                    "\n" + GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this)
+            );
             builder.setView(v);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
