@@ -505,7 +505,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             startActivity(i);
             finish();
         } else {
-            if(mGoogleApiClient.isConnected()) {
+            if(host.getVisibility() == View.GONE && mGoogleApiClient.isConnected()) {
                 Log.e("IRCCloud", "Play Services connected");
                 CredentialRequest request = new CredentialRequest.Builder()
                         .setAccountTypes("https://" + NetworkConnection.IRCCLOUD_HOST)
@@ -1053,7 +1053,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             connecting.setVisibility(View.GONE);
             login.setVisibility(View.VISIBLE);
             try {
-                if (result != null && result.get("enterprise") instanceof JSONObject) {
+                if (result != null) {
                     NetworkConnection.IRCCLOUD_HOST = result.getString("api_host");
                     trimHost();
 
@@ -1066,7 +1066,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     else
                         loginSignupHint.getChildAt(1).setVisibility(View.GONE);
 
-                    if (((JSONObject) result.get("enterprise")).has("fullname"))
+                    if (result.get("enterprise") instanceof JSONObject && ((JSONObject) result.get("enterprise")).has("fullname"))
                         ((TextView) findViewById(R.id.enterpriseHintText)).setText(((JSONObject) result.get("enterprise")).getString("fullname"));
 
                     if (NetworkConnection.IRCCLOUD_HOST != null && NetworkConnection.IRCCLOUD_HOST.length() > 0 && getIntent() != null && getIntent().getData() != null && getIntent().getData().getPath().endsWith("/access-link")) {
@@ -1075,10 +1075,15 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                         setIntent(new Intent(LoginActivity.this, LoginActivity.class));
                     } else {
                         loginHintClickListener.onClick(null);
+                        loading.setVisibility(View.VISIBLE);
+                        connecting.setVisibility(View.GONE);
+                        login.setVisibility(View.GONE);
+                        login_or_connect();
                     }
                     return;
                 }
             } catch (JSONException e) {
+                e.printStackTrace();
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
