@@ -1761,7 +1761,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                        if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
                             args.putInt("cid", buffer.cid);
                             args.putInt("bid", buffer.bid);
@@ -1792,7 +1792,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                        if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
                             args.putInt("cid", buffer.cid);
                             args.putInt("bid", buffer.bid);
@@ -1823,7 +1823,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                        if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
                             args.putInt("cid", buffer.cid);
                             args.putInt("bid", buffer.bid);
@@ -1854,7 +1854,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.getString("channel").equalsIgnoreCase(buffer.name)) {
+                        if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
                             args.putInt("cid", buffer.cid);
                             args.putInt("bid", buffer.bid);
