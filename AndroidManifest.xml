@@ -4,14 +4,14 @@
     android:installLocation="auto">
 
     <permission
-        android:name="com.irccloud.android.permission.C2D_MESSAGE"
+        android:name="${applicationId}.permission.C2D_MESSAGE"
         android:protectionLevel="signature" />
     <permission
-        android:name="com.irccloud.android.permission.BROADCAST"
+        android:name="${applicationId}.permission.BROADCAST"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.irccloud.android.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.irccloud.android.permission.BROADCAST" />
+    <uses-permission android:name="${applicationId}.permission.C2D_MESSAGE" />
+    <uses-permission android:name="${applicationId}.permission.BROADCAST" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -164,7 +164,7 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.irccloud.android" />
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
@@ -172,7 +172,7 @@
 
         <receiver
             android:name=".NotificationDismissBroadcastReceiver"
-            android:permission="com.irccloud.android.permission.BROADCAST" >
+            android:permission="${applicationId}.permission.BROADCAST" >
             <intent-filter>
                 <action android:name="${applicationId}.DISMISS_NOTIFICATION" />
 
@@ -249,7 +249,7 @@
 
         <service
             android:name=".RemoteInputService"
-            android:permission="com.irccloud.android.permission.BROADCAST" >
+            android:permission="${applicationId}.permission.BROADCAST" >
             <intent-filter>
                 <action android:name="${applicationId}.ACTION_REPLY" />
             </intent-filter>
