@@ -50,7 +50,7 @@ import com.squareup.leakcanary.RefWatcher;
 public class ChannelModeListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     JsonNode data;
     int cid;
-    int bid;
+    int bid = -1;
     IRCCloudJSONObject event;
     Adapter adapter;
     NetworkConnection conn;
@@ -255,8 +255,8 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
 
     @Override
     public void setArguments(Bundle args) {
-        cid = args.getInt("cid", 0);
-        bid = args.getInt("bid", 0);
+        cid = args.getInt("cid", -1);
+        bid = args.getInt("bid", -1);
         event = new IRCCloudJSONObject(args.getString("event"));
         list = args.getString("list");
         mask = args.getString("mask");
@@ -265,8 +265,12 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
         mode = args.getString("mode");
         data = event.getJsonNode(list);
         ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-        UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
-        canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+        if(s != null) {
+            UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+            canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
+        } else {
+            canChangeMode = false;
+        }
         if (getActivity() != null && cid > 0 && listView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override

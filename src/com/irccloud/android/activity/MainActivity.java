@@ -1763,13 +1763,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void run() {
                         if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
-                            args.putInt("cid", buffer.cid);
-                            args.putInt("bid", buffer.bid);
+                            args.putInt("cid", event.cid());
+                            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(event.cid(), event.getString("channel"));
+                            if(b != null)
+                                args.putInt("bid", b.bid);
                             args.putString("mode", "b");
                             args.putString("placeholder", "No bans in effect.\n\nYou can ban someone by tapping their nickname in the user list, long-pressing a message, or by using /ban.");
                             args.putString("mask", "mask");
                             args.putString("list", "bans");
-                            args.putString("title", "Ban list for " + buffer.name);
+                            args.putString("title", "Ban list for " + event.getString("channel"));
                             args.putString("event", event.toString());
                             ChannelModeListFragment channelModeList = (ChannelModeListFragment) getSupportFragmentManager().findFragmentByTag("banlist");
                             if (channelModeList == null) {
@@ -1794,13 +1796,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void run() {
                         if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
-                            args.putInt("cid", buffer.cid);
-                            args.putInt("bid", buffer.bid);
+                            args.putInt("cid", event.cid());
+                            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(event.cid(), event.getString("channel"));
+                            if(b != null)
+                                args.putInt("bid", b.bid);
                             args.putString("mode", "q");
                             args.putString("placeholder", "Empty quiet list.");
                             args.putString("mask", "quiet_mask");
                             args.putString("list", "list");
-                            args.putString("title", "Quiet list for " + buffer.name);
+                            args.putString("title", "Quiet list for " + event.getString("channel"));
                             args.putString("event", event.toString());
                             ChannelModeListFragment channelModeList = (ChannelModeListFragment) getSupportFragmentManager().findFragmentByTag("quietlist");
                             if (channelModeList == null) {
@@ -1825,13 +1829,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void run() {
                         if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
-                            args.putInt("cid", buffer.cid);
-                            args.putInt("bid", buffer.bid);
+                            args.putInt("cid", event.cid());
+                            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(event.cid(), event.getString("channel"));
+                            if(b != null)
+                                args.putInt("bid", b.bid);
                             args.putString("mode", "e");
                             args.putString("placeholder", "Empty exception list.");
                             args.putString("mask", "mask");
                             args.putString("list", "exceptions");
-                            args.putString("title", "Exception list for " + buffer.name);
+                            args.putString("title", "Exception list for " + event.getString("channel"));
                             args.putString("event", event.toString());
                             ChannelModeListFragment channelModeList = (ChannelModeListFragment) getSupportFragmentManager().findFragmentByTag("exceptionlist");
                             if (channelModeList == null) {
@@ -1856,13 +1862,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     public void run() {
                         if (event != null && event.cid() == buffer.cid) {
                             Bundle args = new Bundle();
-                            args.putInt("cid", buffer.cid);
-                            args.putInt("bid", buffer.bid);
+                            args.putInt("cid", event.cid());
+                            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(event.cid(), event.getString("channel"));
+                            if(b != null)
+                                args.putInt("bid", b.bid);
                             args.putString("mode", "I");
                             args.putString("placeholder", "Empty invite list");
                             args.putString("mask", "mask");
                             args.putString("list", "list");
-                            args.putString("title", "Invite list for " + buffer.name);
+                            args.putString("title", "Invite list for " + event.getString("channel"));
                             args.putString("event", event.toString());
                             ChannelModeListFragment channelModeList = (ChannelModeListFragment) getSupportFragmentManager().findFragmentByTag("invitelist");
                             if (channelModeList == null) {
