@@ -223,7 +223,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if(Uri.parse(url).getQueryParameter("own_paste") == null || !Uri.parse(url).getQueryParameter("own_paste").equals("1")) {
+        if(url == null || Uri.parse(url).getQueryParameter("own_paste") == null || !Uri.parse(url).getQueryParameter("own_paste").equals("1")) {
             menu.findItem(R.id.action_edit).setVisible(false);
             menu.findItem(R.id.delete).setVisible(false);
         }
