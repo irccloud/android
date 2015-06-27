@@ -36,9 +36,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.fge.uritemplate.URITemplate;
-import com.github.fge.uritemplate.vars.VariableMap;
+import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -53,8 +53,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         @Override
         protected JSONObject doInBackground(Void... params) {
             try {
-                URITemplate uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("pastebin_uri_template"));
-                return NetworkConnection.getInstance().fetchJSON(uri_template.toString(VariableMap.newBuilder().addScalarValue("id", pasteID).addScalarValue("type", "json").freeze()));
+                return NetworkConnection.getInstance().fetchJSON(UriTemplate.fromTemplate(ColorFormatter.pastebin_uri_template).set("id", pasteID).set("type", "json").expand());
             } catch (Exception e) {
             }
             return null;

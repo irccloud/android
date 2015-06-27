@@ -787,20 +787,13 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
                     "SOFTWARE.\n" +
                     "\n" +
-                    "FGE uri-template\n" +
-                    "This software is dual-licensed under:\n" +
+                    "Handy URI Templates\n" +
+                    "Copyright 2011-2013 Ryan J. McDonough\n" +
                     "\n" +
-                    "- the Lesser General Public License (LGPL) version 3.0 or, at your option, any\n" +
-                    "  later version;\n" +
-                    "- the Apache Software License (ASL) version 2.0.\n" +
+                    "Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n" +
                     "\n" +
-                    "The text of both licenses is included (under the names LGPL-3.0.txt and\n" +
-                    "ASL-2.0.txt respectively).\n" +
-                    "\n" +
-                    "Direct link to the sources:\n" +
-                    "\n" +
-                    "- LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt\n" +
-                    "- ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt\n" +
+                    "http://www.apache.org/licenses/LICENSE-2.0\n" +
+                    "Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.\n" +
                     "\n" + GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this)
             );
             builder.setView(v);

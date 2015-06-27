@@ -42,7 +42,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.fge.uritemplate.URITemplate;
 import com.irccloud.android.data.BuffersDataSource;
 import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
@@ -748,8 +747,8 @@ public class NetworkConnection {
                 SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
                 prefs.putString("config", config.toString());
                 prefs.commit();
-                ColorFormatter.file_uri_template = new URITemplate(config.getString("file_uri_template"));
-                ColorFormatter.pastebin_uri_template = new URITemplate(config.getString("pastebin_uri_template"));
+                ColorFormatter.file_uri_template = config.getString("file_uri_template");
+                ColorFormatter.pastebin_uri_template = config.getString("pastebin_uri_template");
             }
         } catch (Exception e) {
             e.printStackTrace();

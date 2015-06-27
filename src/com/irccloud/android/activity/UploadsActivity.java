@@ -48,8 +48,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
-import com.github.fge.uritemplate.URITemplate;
-import com.github.fge.uritemplate.vars.VariableMap;
+import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -91,6 +90,8 @@ public class UploadsActivity extends BaseActivity {
             KEEP_ALIVE_TIME,
             KEEP_ALIVE_TIME_UNIT,
             mDecodeWorkQueue);
+
+    private UriTemplate template;
 
     private static class File implements Serializable {
         private static final long serialVersionUID = 0L;
@@ -165,8 +166,8 @@ public class UploadsActivity extends BaseActivity {
                             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                             try {
                                 if(ColorFormatter.file_uri_template != null) {
-                                    f.url = ColorFormatter.file_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("name", f.name).freeze());
-                                    f.image = NetworkConnection.getInstance().fetchImage(ColorFormatter.file_uri_template.toURL(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("modifiers", "w320").freeze()), false);
+                                    f.url = template.set("id", f.id).set("name", f.name).expand();
+                                    f.image = NetworkConnection.getInstance().fetchImage(new URL(UriTemplate.fromTemplate(ColorFormatter.file_uri_template).set("id", f.id).set("modifiers", "w320").expand()), false);
                                 }
                                 if (f.image == null)
                                     f.image_failed = true;
@@ -186,7 +187,7 @@ public class UploadsActivity extends BaseActivity {
                     });
                 } else {
                     if (ColorFormatter.file_uri_template != null) {
-                        f.url = ColorFormatter.file_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("name", f.name).freeze());
+                        f.url = template.set("id", f.id).set("name", f.name).expand();
                     }
                 }
             } catch (Exception e) {
@@ -401,6 +402,7 @@ public class UploadsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
@@ -554,6 +556,7 @@ public class UploadsActivity extends BaseActivity {
 
     @Override
     public void onResume() {
+        template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onResume();
         NetworkConnection.getInstance().addHandler(this);
 

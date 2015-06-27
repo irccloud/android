@@ -282,7 +282,7 @@ dependencies {
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile 'com.infstory:switch-preference-compat:1.0.+'
-    compile 'com.github.fge:uri-template:0.9'
+    compile 'com.damnhandy:handy-uri-templates:2.0.2'
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.1'
     compile('com.crashlytics.sdk.android:crashlytics:2.2.4@aar') {

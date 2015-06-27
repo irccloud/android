@@ -32,10 +32,8 @@ import android.text.util.Linkify.MatchFilter;
 import android.text.util.Linkify.TransformFilter;
 import android.util.Patterns;
 
+import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.uritemplate.URITemplate;
-import com.github.fge.uritemplate.URITemplateException;
-import com.github.fge.uritemplate.vars.VariableMap;
 import com.irccloud.android.data.ServersDataSource;
 
 import org.xml.sax.XMLReader;
@@ -47,8 +45,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ColorFormatter {
-    public static URITemplate file_uri_template = null;
-    public static URITemplate pastebin_uri_template = null;
+    public static String file_uri_template = null;
+    public static String pastebin_uri_template = null;
 
     //From: https://github.com/android/platform_frameworks_base/blob/master/core/java/android/util/Patterns.java
     public static final String TOP_LEVEL_DOMAIN_STR_FOR_WEB_URL =
@@ -1359,15 +1357,10 @@ public class ColorFormatter {
                         boolean isImageEnt = false;
                         if (entities != null && entities.has("files")) {
                             if(file_uri_template != null) {
+                                UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
                                 for (JsonNode file : entities.get("files")) {
-                                    String file_url = "";
-                                    String u = "";
-                                    try {
-                                        file_url = file_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", file.get("id").asText()).freeze());
-                                        u = file_url.toLowerCase();
-                                    } catch (URITemplateException e) {
-                                        e.printStackTrace();
-                                    }
+                                    String file_url = template.set("id", file.get("id").asText()).expand();
+                                    String u = file_url.toLowerCase();
                                     isImageEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && file.get("mime_type").asText().startsWith("image/"));
                                     if (isImageEnt) {
                                         url = file_url;
@@ -1396,13 +1389,9 @@ public class ColorFormatter {
 
                     if (entities != null && entities.has("pastes")) {
                         if(pastebin_uri_template != null) {
+                            UriTemplate template = UriTemplate.fromTemplate(pastebin_uri_template);
                             for (JsonNode paste : entities.get("pastes")) {
-                                String paste_url = "";
-                                try {
-                                    paste_url = pastebin_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", paste.get("id").asText()).freeze());
-                                } catch (URITemplateException e) {
-                                    e.printStackTrace();
-                                }
+                                String paste_url = template.set("id", paste.get("id").asText()).expand();
                                 if (url.startsWith(paste_url)) {
                                     if (url.toLowerCase().startsWith("http://"))
                                         return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.PASTE_SCHEME) + "://" + paste_url.substring(7) + "?id=" + paste.get("id").asText() + "&own_paste=" + (paste.has("own_paste") && paste.get("own_paste").asBoolean() ? "1" : "0");

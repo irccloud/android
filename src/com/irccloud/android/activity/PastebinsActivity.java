@@ -42,9 +42,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
-import com.github.fge.uritemplate.URITemplate;
-import com.github.fge.uritemplate.URITemplateException;
-import com.github.fge.uritemplate.vars.VariableMap;
+import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -223,11 +221,7 @@ public class PastebinsActivity extends BaseActivity {
             p.body = body;
             p.extension = extension;
             p.own_paste = own_paste;
-            try {
-                p.url = ColorFormatter.pastebin_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", p.id).addScalarValue("name", p.name).freeze());
-            } catch (URITemplateException e) {
-                e.printStackTrace();
-            }
+            p.url = UriTemplate.fromTemplate(ColorFormatter.pastebin_uri_template).set("id", p.id).set("name", p.name).expand();
 
             addPastebin(p);
         }
