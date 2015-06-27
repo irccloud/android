@@ -23,7 +23,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.net.http.HttpResponseCache;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -34,14 +33,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +46,7 @@ import com.github.fge.uritemplate.URITemplate;
 import com.github.fge.uritemplate.URITemplateException;
 import com.github.fge.uritemplate.vars.VariableMap;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -61,7 +57,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -73,7 +68,6 @@ public class PastebinsActivity extends BaseActivity {
     private boolean canLoadMore = true;
     private View footer;
     private Pastebin pasteToDelete;
-    private URITemplate uri_template = null;
 
     private static class Pastebin implements Serializable {
         private static final long serialVersionUID = 0L;
@@ -230,7 +224,7 @@ public class PastebinsActivity extends BaseActivity {
             p.extension = extension;
             p.own_paste = own_paste;
             try {
-                p.url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", p.id).addScalarValue("name", p.name).freeze());
+                p.url = ColorFormatter.pastebin_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", p.id).addScalarValue("name", p.name).freeze());
             } catch (URITemplateException e) {
                 e.printStackTrace();
             }
@@ -483,11 +477,6 @@ public class PastebinsActivity extends BaseActivity {
     public void onResume() {
         super.onResume();
         NetworkConnection.getInstance().addHandler(this);
-        try {
-            uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("pastebin_uri_template"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

@@ -56,7 +56,6 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.uritemplate.URITemplate;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
@@ -1671,13 +1670,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, EventsDataSource.Event> events) {
         synchronized (adapterLock) {
-            try {
-                ColorFormatter.file_uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("file_uri_template"));
-                ColorFormatter.pastebin_uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("pastebin_uri_template"));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
             hiddenMap = null;
             expandMap = null;
 

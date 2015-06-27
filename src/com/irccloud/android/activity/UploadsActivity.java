@@ -49,9 +49,9 @@ import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.github.fge.uritemplate.URITemplate;
-import com.github.fge.uritemplate.URITemplateParseException;
 import com.github.fge.uritemplate.vars.VariableMap;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -77,7 +77,6 @@ public class UploadsActivity extends BaseActivity {
     private FilesAdapter adapter = new FilesAdapter();
     private boolean canLoadMore = true;
     private View footer;
-    private URITemplate uri_template = null;
 
     private String to;
     private int cid = -1;
@@ -165,9 +164,9 @@ public class UploadsActivity extends BaseActivity {
                         public void run() {
                             Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                             try {
-                                if(uri_template != null) {
-                                    f.url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("name", f.name).freeze());
-                                    f.image = NetworkConnection.getInstance().fetchImage(uri_template.toURL(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("modifiers", "w320").freeze()), false);
+                                if(ColorFormatter.file_uri_template != null) {
+                                    f.url = ColorFormatter.file_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("name", f.name).freeze());
+                                    f.image = NetworkConnection.getInstance().fetchImage(ColorFormatter.file_uri_template.toURL(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("modifiers", "w320").freeze()), false);
                                 }
                                 if (f.image == null)
                                     f.image_failed = true;
@@ -186,8 +185,8 @@ public class UploadsActivity extends BaseActivity {
                         }
                     });
                 } else {
-                    if (uri_template != null) {
-                        f.url = uri_template.toString(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("name", f.name).freeze());
+                    if (ColorFormatter.file_uri_template != null) {
+                        f.url = ColorFormatter.file_uri_template.toString(VariableMap.newBuilder().addScalarValue("id", f.id).addScalarValue("name", f.name).freeze());
                     }
                 }
             } catch (Exception e) {
@@ -562,12 +561,6 @@ public class UploadsActivity extends BaseActivity {
             cid = getIntent().getIntExtra("cid", -1);
             to = getIntent().getStringExtra("to");
             msg = getIntent().getStringExtra("msg");
-        }
-
-        try {
-            uri_template = new URITemplate(NetworkConnection.getInstance().config.getString("file_uri_template"));
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
