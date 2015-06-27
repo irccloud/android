@@ -20,7 +20,6 @@ tasks.withType(JavaCompile) {
 repositories {
     mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
-    maven { url 'http://yanzm.github.io/MaterialTabHost/repository' }
 }
 
 def getRevision = { ->
