@@ -152,7 +152,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
         public BufferListAdapter(ListFragment context) {
             ctx = context;
-            data = new ArrayList<BufferListEntry>();
+            data = new ArrayList<>(BuffersDataSource.getInstance().count() + ServersDataSource.getInstance().count() + 10);
             eightdp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getSafeResources().getDisplayMetrics());
         }
 

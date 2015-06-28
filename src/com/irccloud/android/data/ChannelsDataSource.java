@@ -96,7 +96,7 @@ public class ChannelsDataSource {
     }
 
     public ChannelsDataSource() {
-        channels = new SparseArray<Channel>();
+        channels = new SparseArray<>(100);
     }
 
     public synchronized void clear() {

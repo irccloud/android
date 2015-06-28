@@ -84,7 +84,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
         public UserListAdapter(ListFragment context) {
             ctx = context;
-            data = new ArrayList<UserListEntry>();
+            data = new ArrayList<>(50);
         }
 
         public void setItems(ArrayList<UserListEntry> items) {

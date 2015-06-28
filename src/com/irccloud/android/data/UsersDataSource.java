@@ -52,7 +52,7 @@ public class UsersDataSource {
     }
 
     public UsersDataSource() {
-        users = new HashMap<Integer, TreeMap<String, User>>();
+        users = new HashMap<>(50);
         collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
     }

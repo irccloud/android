@@ -108,8 +108,8 @@ public class BuffersDataSource {
     }
 
     public BuffersDataSource() {
-        buffers = new ArrayList<Buffer>();
-        buffers_indexed = new SparseArray<Buffer>();
+        buffers = new ArrayList<>(100);
+        buffers_indexed = new SparseArray<>(100);
         collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
     }

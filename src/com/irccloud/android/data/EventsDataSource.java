@@ -136,7 +136,7 @@ public class EventsDataSource {
     }
 
     public EventsDataSource() {
-        events = new HashMap<>();
+        events = new HashMap<>(100);
     }
 
     public void clear() {

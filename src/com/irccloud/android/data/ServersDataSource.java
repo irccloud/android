@@ -76,7 +76,7 @@ public class ServersDataSource {
     }
 
     public ServersDataSource() {
-        servers = new SparseArray<Server>();
+        servers = new SparseArray<>(10);
     }
 
     public void clear() {

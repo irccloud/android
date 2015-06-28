@@ -177,9 +177,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             ImageView failed;
         }
 
-        public MessageAdapter(ListFragment context) {
+        public MessageAdapter(ListFragment context, int capacity) {
             ctx = context;
-            data = new ArrayList<>();
+            data = new ArrayList<>(capacity + 10);
             unseenHighlightPositions = new TreeSet<>(Collections.reverseOrder());
         }
 
@@ -1547,7 +1547,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             backlogMarker.bg_color = R.color.message_bg;
                             events.put(backlog_eid, backlogMarker);
                         }
-                        adapter = new MessageAdapter(MessageViewFragment.this);
+                        adapter = new MessageAdapter(MessageViewFragment.this, events.size());
                         refresh(adapter, events);
                     } catch (IllegalStateException e) {
                         //The list view doesn't exist yet
@@ -1565,7 +1565,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         headerView.setVisibility(View.VISIBLE);
                         backlogFailed.setVisibility(View.GONE);
                         loadBacklogButton.setVisibility(View.GONE);
-                        adapter = new MessageAdapter(MessageViewFragment.this);
+                        adapter = new MessageAdapter(MessageViewFragment.this, 0);
                         setListAdapter(adapter);
                         MessageViewFragment.this.adapter = adapter;
                         requestingBacklog = true;
@@ -1579,7 +1579,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         headerView.setVisibility(View.GONE);
                         backlogFailed.setVisibility(View.GONE);
                         loadBacklogButton.setVisibility(View.GONE);
-                        adapter = new MessageAdapter(MessageViewFragment.this);
+                        adapter = new MessageAdapter(MessageViewFragment.this, 0);
                         setListAdapter(adapter);
                         MessageViewFragment.this.adapter = adapter;
                     }

@@ -100,6 +100,12 @@ public class NetworkConnection {
     private static final String TAG = "IRCCloud";
     private static NetworkConnection instance = null;
 
+    private static final ServersDataSource mServers = ServersDataSource.getInstance();
+    private static final BuffersDataSource mBuffers = BuffersDataSource.getInstance();
+    private static final ChannelsDataSource mChannels = ChannelsDataSource.getInstance();
+    private static final UsersDataSource mUsers = UsersDataSource.getInstance();
+    private static final EventsDataSource mEvents = EventsDataSource.getInstance();
+
     public static final int WEBSOCKET_TAG = 0x50C37;
     public static final int BACKLOG_TAG = 0xB4C106;
 
@@ -549,9 +555,9 @@ public class NetworkConnection {
         }
         oobTasks.clear();
         session = null;
-        for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+        for (BuffersDataSource.Buffer b : mBuffers.getBuffers()) {
             if (!b.scrolledUp)
-                EventsDataSource.getInstance().pruneEvents(b.bid);
+                mEvents.pruneEvents(b.bid);
         }
     }
 
@@ -904,8 +910,8 @@ public class NetworkConnection {
         );
 
         String url = "wss://" + IRCCLOUD_HOST + IRCCLOUD_PATH;
-        if (EventsDataSource.getInstance().highest_eid > 0) {
-            url += "?since_id=" + EventsDataSource.getInstance().highest_eid;
+        if (mEvents.highest_eid > 0) {
+            url += "?since_id=" + mEvents.highest_eid;
             if (streamId != null && streamId.length() > 0)
                 url += "&stream_id=" + streamId;
         }
@@ -1048,11 +1054,11 @@ public class NetworkConnection {
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         prefs.clear();
         prefs.commit();
-        ServersDataSource.getInstance().clear();
-        BuffersDataSource.getInstance().clear();
-        ChannelsDataSource.getInstance().clear();
-        UsersDataSource.getInstance().clear();
-        EventsDataSource.getInstance().clear();
+        mServers.clear();
+        mBuffers.clear();
+        mChannels.clear();
+        mUsers.clear();
+        mEvents.clear();
         Notifications.getInstance().clearNetworks();
         Notifications.getInstance().clear();
         userInfo = null;
@@ -1631,7 +1637,7 @@ public class NetworkConnection {
                     prefs.putBoolean("pastebin-disableprompt", true);
                 }
                 prefs.commit();
-                EventsDataSource.getInstance().clearCaches();
+                mEvents.clearCaches();
                 notifyHandlers(EVENT_USERINFO, userInfo);
             }
         });
@@ -1639,7 +1645,7 @@ public class NetworkConnection {
         put("set_ignores", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 s.updateIgnores(object.cid(), object.getJsonNode("masks"));
                 if (!backlog)
                     notifyHandlers(EVENT_SETIGNORES, object);
@@ -1659,11 +1665,11 @@ public class NetworkConnection {
                         Map.Entry<String, JsonNode> eidentry = j.next();
                         int bid = Integer.valueOf(eidentry.getKey());
                         long eid = eidentry.getValue().asLong();
-                        BuffersDataSource.getInstance().updateLastSeenEid(bid, eid);
+                        mBuffers.updateLastSeenEid(bid, eid);
                         Notifications.getInstance().deleteOldNotifications(bid, eid);
                         Notifications.getInstance().updateLastSeenEid(bid, eid);
-                        if (EventsDataSource.getInstance().lastEidForBuffer(bid) <= eid) {
-                            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+                        if (mEvents.lastEidForBuffer(bid) <= eid) {
+                            BuffersDataSource.Buffer b = mBuffers.getBuffer(bid);
                             if (b != null) {
                                 b.unread = 0;
                                 b.highlights = 0;
@@ -1712,12 +1718,12 @@ public class NetworkConnection {
                 accrued = 0;
                 backlog = false;
                 Log.d("IRCCloud", "Cleaning up invalid BIDs");
-                BuffersDataSource.getInstance().purgeInvalidBIDs();
-                ChannelsDataSource.getInstance().purgeInvalidChannels();
-                for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+                mBuffers.purgeInvalidBIDs();
+                mChannels.purgeInvalidChannels();
+                for (BuffersDataSource.Buffer b : mBuffers.getBuffers()) {
                     Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
                 }
-                if (userInfo.connections > 0 && (ServersDataSource.getInstance().count() == 0 || BuffersDataSource.getInstance().count() == 0)) {
+                if (userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
                     streamId = null;
@@ -1785,7 +1791,7 @@ public class NetworkConnection {
         put("makeserver", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 String away = object.getString("away");
                 if (getUserInfo() != null && getUserInfo().auto_away && away.equals("Auto-away"))
                     away = "";
@@ -1808,7 +1814,7 @@ public class NetworkConnection {
         put("connection_deleted", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 s.deleteAllDataForServer(object.cid());
                 Notifications.getInstance().deleteNetwork(object.cid());
                 if (!backlog)
@@ -1818,13 +1824,13 @@ public class NetworkConnection {
         put("status_changed", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 s.updateStatus(object.cid(), object.getString("new_status"), object.getJsonObject("fail_info"));
                 if (!backlog) {
                     if (object.getString("new_status").equals("disconnected")) {
-                        ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(object.cid());
+                        ArrayList<BuffersDataSource.Buffer> buffers = mBuffers.getBuffersForServer(object.cid());
                         for (BuffersDataSource.Buffer b : buffers) {
-                            ChannelsDataSource.getInstance().deleteChannel(b.bid);
+                            mChannels.deleteChannel(b.bid);
                         }
                     }
                     notifyHandlers(EVENT_STATUSCHANGED, object);
@@ -1834,7 +1840,7 @@ public class NetworkConnection {
         put("connection_lag", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 s.updateLag(object.cid(), object.getLong("lag"));
                 if (!backlog)
                     notifyHandlers(EVENT_CONNECTIONLAG, object);
@@ -1843,7 +1849,7 @@ public class NetworkConnection {
         put("isupport_params", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 s.updateUserModes(object.cid(), object.getString("usermodes"));
                 s.updateIsupport(object.cid(), object.getJsonObject("params"));
             }
@@ -1851,7 +1857,7 @@ public class NetworkConnection {
         put("reorder_connections", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 JsonNode order = object.getJsonNode("order");
                 for (int i = 0; i < order.size(); i++) {
                     ServersDataSource.Server server = s.getServer(order.get(i).asInt());
@@ -1866,14 +1872,14 @@ public class NetworkConnection {
         put("makebuffer", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource b = BuffersDataSource.getInstance();
+                BuffersDataSource b = mBuffers;
                 BuffersDataSource.Buffer buffer = b.createBuffer(object.bid(), object.cid(),
                         (object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined")) ? object.getLong("min_eid") : 0,
                         (object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined")) ? object.getLong("last_seen_eid") : -1, object.getString("name"), object.getString("buffer_type"),
                         (object.has("archived") && object.getBoolean("archived")) ? 1 : 0, (object.has("deferred") && object.getBoolean("deferred")) ? 1 : 0, (object.has("timeout") && object.getBoolean("timeout")) ? 1 : 0);
                 Notifications.getInstance().deleteOldNotifications(buffer.bid, buffer.last_seen_eid);
                 Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
-                if (EventsDataSource.getInstance().lastEidForBuffer(buffer.bid) <= buffer.last_seen_eid) {
+                if (mEvents.lastEidForBuffer(buffer.bid) <= buffer.last_seen_eid) {
                     buffer.unread = 0;
                     buffer.highlights = 0;
                 }
@@ -1885,7 +1891,7 @@ public class NetworkConnection {
         put("delete_buffer", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource b = BuffersDataSource.getInstance();
+                BuffersDataSource b = mBuffers;
                 b.deleteAllDataForBuffer(object.bid());
                 Notifications.getInstance().deleteNotificationsForBid(object.bid());
                 if (!backlog)
@@ -1895,7 +1901,7 @@ public class NetworkConnection {
         put("buffer_archived", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource b = BuffersDataSource.getInstance();
+                BuffersDataSource b = mBuffers;
                 b.updateArchived(object.bid(), 1);
                 if (!backlog)
                     notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
@@ -1904,7 +1910,7 @@ public class NetworkConnection {
         put("buffer_unarchived", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource b = BuffersDataSource.getInstance();
+                BuffersDataSource b = mBuffers;
                 b.updateArchived(object.bid(), 0);
                 if (!backlog)
                     notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
@@ -1913,7 +1919,7 @@ public class NetworkConnection {
         put("rename_conversation", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource b = BuffersDataSource.getInstance();
+                BuffersDataSource b = mBuffers;
                 b.updateName(object.bid(), object.getString("new_name"));
                 if (!backlog)
                     notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
@@ -1922,10 +1928,10 @@ public class NetworkConnection {
         Parser msg = new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 boolean newEvent = (e.getEvent(object.eid(), object.bid()) == null);
                 EventsDataSource.Event event = e.addEvent(object);
-                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(object.bid());
+                BuffersDataSource.Buffer b = mBuffers.getBuffer(object.bid());
 
                 if (b != null && event.eid > b.last_seen_eid && event.isImportant(b.type)) {
                     if ((event.highlight || b.type.equals("conversation"))) {
@@ -1956,7 +1962,7 @@ public class NetworkConnection {
                                         break;
                                     case "console":
                                         if (event.from == null || event.from.length() == 0) {
-                                            ServersDataSource.Server s = ServersDataSource.getInstance().getServer(event.cid);
+                                            ServersDataSource.Server s = mServers.getServer(event.cid);
                                             if (s.name != null && s.name.length() > 0)
                                                 Notifications.getInstance().showNotifications(s.name + ": " + message);
                                             else
@@ -1985,11 +1991,11 @@ public class NetworkConnection {
                         client.disconnect();
                 }
 
-                if (handlers.size() == 0 && b != null && !b.scrolledUp && EventsDataSource.getInstance().getSizeOfBuffer(b.bid) > 200)
-                    EventsDataSource.getInstance().pruneEvents(b.bid);
+                if (handlers.size() == 0 && b != null && !b.scrolledUp && mEvents.getSizeOfBuffer(b.bid) > 200)
+                    mEvents.pruneEvents(b.bid);
 
                 if (event.reqid >= 0) {
-                    EventsDataSource.Event pending = EventsDataSource.getInstance().findPendingEventForReqid(event.bid, event.reqid);
+                    EventsDataSource.Event pending = mEvents.findPendingEventForReqid(event.bid, event.reqid);
                     if(pending != null) {
                         try {
                             if (pending.expiration_timer != null)
@@ -1998,10 +2004,10 @@ public class NetworkConnection {
                             //Timer already cancelled
                         }
                         if(pending.eid != event.eid)
-                            EventsDataSource.getInstance().deleteEvent(pending.eid, pending.bid);
+                            mEvents.deleteEvent(pending.eid, pending.bid);
                     }
                 } else if(event.self && b != null && b.type.equals("conversation")) {
-                    EventsDataSource.getInstance().clearPendingEvents(event.bid);
+                    mEvents.clearPendingEvents(event.bid);
                 }
 
                 if (!backlog)
@@ -2104,7 +2110,7 @@ public class NetworkConnection {
         put("link_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog)
                     notifyHandlers(EVENT_LINKCHANNEL, object);
@@ -2113,21 +2119,21 @@ public class NetworkConnection {
         put("channel_init", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ChannelsDataSource c = ChannelsDataSource.getInstance();
+                ChannelsDataSource c = mChannels;
                 ChannelsDataSource.Channel channel = c.createChannel(object.cid(), object.bid(), object.getString("chan"),
                         object.getJsonObject("topic").get("text").isNull() ? "" : object.getJsonObject("topic").get("text").asText(),
                         object.getJsonObject("topic").get("time").asLong(),
                         object.getJsonObject("topic").has("nick") ? object.getJsonObject("topic").get("nick").asText() : object.getJsonObject("topic").get("server").asText(), object.getString("channel_type"),
                         object.getLong("timestamp"));
                 c.updateMode(object.bid(), object.getString("mode"), object.getJsonObject("ops"), true);
-                UsersDataSource u = UsersDataSource.getInstance();
+                UsersDataSource u = mUsers;
                 u.deleteUsersForBuffer(object.bid());
                 JsonNode users = object.getJsonNode("members");
                 for (int i = 0; i < users.size(); i++) {
                     JsonNode user = users.get(i);
                     u.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("away").asBoolean() ? 1 : 0, false);
                 }
-                BuffersDataSource.getInstance().dirty = true;
+                mBuffers.dirty = true;
                 if (!backlog)
                     notifyHandlers(EVENT_CHANNELINIT, channel);
             }
@@ -2135,10 +2141,10 @@ public class NetworkConnection {
         put("channel_topic", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    ChannelsDataSource c = ChannelsDataSource.getInstance();
+                    ChannelsDataSource c = mChannels;
                     c.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid") / 1000000, object.has("author") ? object.getString("author") : object.getString("server"));
                     notifyHandlers(EVENT_CHANNELTOPIC, object);
                 }
@@ -2147,17 +2153,17 @@ public class NetworkConnection {
         put("channel_url", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ChannelsDataSource c = ChannelsDataSource.getInstance();
+                ChannelsDataSource c = mChannels;
                 c.updateURL(object.bid(), object.getString("url"));
             }
         });
         put("channel_mode", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    ChannelsDataSource c = ChannelsDataSource.getInstance();
+                    ChannelsDataSource c = mChannels;
                     c.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
                     notifyHandlers(EVENT_CHANNELMODE, object);
                 }
@@ -2168,7 +2174,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if (!backlog) {
-                    ChannelsDataSource c = ChannelsDataSource.getInstance();
+                    ChannelsDataSource c = mChannels;
                     c.updateTimestamp(object.bid(), object.getLong("timestamp"));
                     notifyHandlers(EVENT_CHANNELTIMESTAMP, object);
                 }
@@ -2177,10 +2183,10 @@ public class NetworkConnection {
         put("joined_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    UsersDataSource u = mUsers;
                     u.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
                     notifyHandlers(EVENT_JOIN, object);
                 }
@@ -2190,16 +2196,16 @@ public class NetworkConnection {
         put("parted_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    UsersDataSource u = mUsers;
                     u.deleteUser(object.bid(), object.getString("nick"));
                     if (object.type().equals("you_parted_channel")) {
-                        ChannelsDataSource c = ChannelsDataSource.getInstance();
+                        ChannelsDataSource c = mChannels;
                         c.deleteChannel(object.bid());
                         u.deleteUsersForBuffer(object.bid());
-                        BuffersDataSource.getInstance().dirty = true;
+                        mBuffers.dirty = true;
                     }
                     notifyHandlers(EVENT_PART, object);
                 }
@@ -2209,10 +2215,10 @@ public class NetworkConnection {
         put("quit", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    UsersDataSource u = mUsers;
                     u.deleteUser(object.bid(), object.getString("nick"));
                     notifyHandlers(EVENT_QUIT, object);
                 }
@@ -2221,7 +2227,7 @@ public class NetworkConnection {
         put("quit_server", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog)
                     notifyHandlers(EVENT_QUIT, object);
@@ -2230,16 +2236,16 @@ public class NetworkConnection {
         put("kicked_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    UsersDataSource u = mUsers;
                     u.deleteUser(object.bid(), object.getString("nick"));
                     if (object.type().equals("you_kicked_channel")) {
-                        ChannelsDataSource c = ChannelsDataSource.getInstance();
+                        ChannelsDataSource c = mChannels;
                         c.deleteChannel(object.bid());
                         u.deleteUsersForBuffer(object.bid());
-                        BuffersDataSource.getInstance().dirty = true;
+                        mBuffers.dirty = true;
                     }
                     notifyHandlers(EVENT_KICK, object);
                 }
@@ -2251,13 +2257,13 @@ public class NetworkConnection {
         put("nickchange", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    UsersDataSource u = mUsers;
                     u.updateNick(object.bid(), object.getString("oldnick"), object.getString("newnick"));
                     if (object.type().equals("you_nickchange")) {
-                        ServersDataSource.getInstance().updateNick(object.cid(), object.getString("newnick"));
+                        mServers.updateNick(object.cid(), object.getString("newnick"));
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
                 }
@@ -2267,10 +2273,10 @@ public class NetworkConnection {
         put("user_channel_mode", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    UsersDataSource u = mUsers;
                     u.updateMode(object.bid(), object.getString("nick"), object.getString("newmode"));
                     notifyHandlers(EVENT_USERCHANNELMODE, object);
                 }
@@ -2284,7 +2290,7 @@ public class NetworkConnection {
                 while (i.hasNext()) {
                     Map.Entry<String, JsonNode> e = i.next();
                     JsonNode user = e.getValue();
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    UsersDataSource u = mUsers;
                     u.updateAway(object.bid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
                     u.updateHostmask(object.bid(), user.get("nick").asText(), user.get("usermask").asText());
                 }
@@ -2295,8 +2301,8 @@ public class NetworkConnection {
         put("user_away", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource b = BuffersDataSource.getInstance();
-                UsersDataSource u = UsersDataSource.getInstance();
+                BuffersDataSource b = mBuffers;
+                UsersDataSource u = mUsers;
                 u.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("msg"));
                 b.updateAway(object.cid(), object.getString("nick"), object.getString("msg"));
                 if (!backlog)
@@ -2307,8 +2313,8 @@ public class NetworkConnection {
         put("user_back", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource b = BuffersDataSource.getInstance();
-                UsersDataSource u = UsersDataSource.getInstance();
+                BuffersDataSource b = mBuffers;
+                UsersDataSource u = mUsers;
                 u.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
                 b.updateAway(object.cid(), object.getString("nick"), "");
                 if (!backlog)
@@ -2319,8 +2325,8 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if (!backlog) {
-                    ServersDataSource s = ServersDataSource.getInstance();
-                    UsersDataSource u = UsersDataSource.getInstance();
+                    ServersDataSource s = mServers;
+                    UsersDataSource u = mUsers;
                     u.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("away_msg"));
                     s.updateAway(object.cid(), object.getString("away_msg"));
                     notifyHandlers(EVENT_AWAY, object);
@@ -2330,8 +2336,8 @@ public class NetworkConnection {
         put("self_back", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
-                UsersDataSource u = UsersDataSource.getInstance();
+                ServersDataSource s = mServers;
+                UsersDataSource u = mUsers;
                 u.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
                 s.updateAway(object.cid(), "");
                 if (!backlog)
@@ -2341,9 +2347,9 @@ public class NetworkConnection {
         put("self_details", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                ServersDataSource s = ServersDataSource.getInstance();
+                ServersDataSource s = mServers;
                 s.updateUsermask(object.cid(), object.getString("usermask"));
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog)
                     notifyHandlers(EVENT_SELFDETAILS, object);
@@ -2352,10 +2358,10 @@ public class NetworkConnection {
         put("user_mode", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource e = EventsDataSource.getInstance();
+                EventsDataSource e = mEvents;
                 e.addEvent(object);
                 if (!backlog) {
-                    ServersDataSource s = ServersDataSource.getInstance();
+                    ServersDataSource s = mServers;
                     s.updateMode(object.cid(), object.getString("newmode"));
                     notifyHandlers(EVENT_USERMODE, object);
                 }
@@ -2378,9 +2384,9 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if (!backlog) {
-                    BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(object.cid(), object.getString("subject"));
+                    BuffersDataSource.Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("subject"));
                     if (b != null) {
-                        UsersDataSource u = UsersDataSource.getInstance();
+                        UsersDataSource u = mUsers;
                         JsonNode users = object.getJsonNode("users");
                         for (int i = 0; i < users.size(); i++) {
                             JsonNode user = users.get(i);
@@ -2395,7 +2401,7 @@ public class NetworkConnection {
         put("time", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                EventsDataSource.Event e = EventsDataSource.getInstance().addEvent(object);
+                EventsDataSource.Event e = mEvents.addEvent(object);
                 if (!backlog) {
                     notifyHandlers(EVENT_ALERT, object);
                     notifyHandlers(EVENT_BUFFERMSG, e);
@@ -2405,9 +2411,9 @@ public class NetworkConnection {
         put("channel_topic_is", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBufferByName(object.cid(), object.getString("chan"));
+                BuffersDataSource.Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("chan"));
                 if (b != null) {
-                    ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+                    ChannelsDataSource.Channel c = mChannels.getChannelForBuffer(b.bid);
                     if (c != null) {
                         c.topic_author = object.has("author") ? object.getString("author") : object.getString("server");
                         c.topic_time = object.getLong("time");
@@ -2900,9 +2906,9 @@ public class NetworkConnection {
                             firstEid = -1;
                             backlog = true;
                             if (bid == -1) {
-                                BuffersDataSource.getInstance().invalidate();
-                                ChannelsDataSource.getInstance().invalidate();
-                                EventsDataSource.getInstance().clear();
+                                mBuffers.invalidate();
+                                mChannels.invalidate();
+                                mEvents.clear();
                             }
                             int count = 0;
                             while (parser.nextToken() == JsonToken.START_OBJECT) {
@@ -2944,7 +2950,7 @@ public class NetworkConnection {
                             totalTime -= totalParseTime;
                             Crashlytics.log(Log.DEBUG, TAG, "Total non-processing time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
 
-                            ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffers();
+                            ArrayList<BuffersDataSource.Buffer> buffers = mBuffers.getBuffers();
                             for (BuffersDataSource.Buffer b : buffers) {
                                 Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
                                 if (b.timeout > 0 && bid == -1) {
@@ -2963,7 +2969,7 @@ public class NetworkConnection {
                     parser.close();
 
                     if (bid != -1) {
-                        BuffersDataSource.getInstance().updateTimeout(bid, 0);
+                        mBuffers.updateTimeout(bid, 0);
                     }
                     oobTasks.remove(bid);
 
@@ -2980,7 +2986,7 @@ public class NetworkConnection {
                 e.printStackTrace();
                 if (bid != -1) {
                     if (!isCancelled()) {
-                        BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(bid);
+                        BuffersDataSource.Buffer b = mBuffers.getBuffer(bid);
                         if (b != null && b.timeout == 1) {
                             Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
                             idleTimer.schedule(new TimerTask() {

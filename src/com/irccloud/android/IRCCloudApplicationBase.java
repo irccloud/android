@@ -47,11 +47,6 @@ public class IRCCloudApplicationBase extends Application {
     private static final int RINGTONE_VERSION = 1;
 
     private NetworkConnection conn = null;
-    private ServersDataSource s = null;
-    private BuffersDataSource b = null;
-    private ChannelsDataSource c = null;
-    private UsersDataSource u = null;
-    private EventsDataSource e = null;
 
     @Override
     public void onCreate() {
@@ -65,11 +60,6 @@ public class IRCCloudApplicationBase extends Application {
 
         //Allocate all the shared objects at launch
         conn = NetworkConnection.getInstance();
-        s = ServersDataSource.getInstance();
-        b = BuffersDataSource.getInstance();
-        c = ChannelsDataSource.getInstance();
-        u = UsersDataSource.getInstance();
-        e = EventsDataSource.getInstance();
         ColorFormatter.init();
 
         if (prefs.contains("notify")) {
