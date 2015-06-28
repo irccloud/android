@@ -1356,7 +1356,7 @@ public class ColorFormatter {
 
                         boolean isImageEnt = false;
                         if (entities != null && entities.has("files")) {
-                            if(file_uri_template != null) {
+                            if (file_uri_template != null) {
                                 UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
                                 for (JsonNode file : entities.get("files")) {
                                     String file_url = template.set("id", file.get("id").asText()).expand();
@@ -1388,7 +1388,7 @@ public class ColorFormatter {
                     }
 
                     if (entities != null && entities.has("pastes")) {
-                        if(pastebin_uri_template != null) {
+                        if (pastebin_uri_template != null) {
                             UriTemplate template = UriTemplate.fromTemplate(pastebin_uri_template);
                             for (JsonNode paste : entities.get("pastes")) {
                                 String paste_url = template.set("id", paste.get("id").asText()).expand();

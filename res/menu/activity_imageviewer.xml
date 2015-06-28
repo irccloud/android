@@ -18,17 +18,17 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_share"
+    <item
+        android:id="@+id/action_share"
         android:title="Share"
         app:showAsAction="ifRoom"
-        app:actionProviderClass="com.irccloud.android.ShareActionProviderHax"
-        />
-    <item android:id="@+id/action_browser"
+        app:actionProviderClass="com.irccloud.android.ShareActionProviderHax" />
+    <item
+        android:id="@+id/action_browser"
         android:title="Open in Browser"
-        app:showAsAction="never"
-        />
-    <item android:id="@+id/action_copy"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_copy"
         android:title="Copy URL"
-        app:showAsAction="never"
-        />
+        app:showAsAction="never" />
 </menu>

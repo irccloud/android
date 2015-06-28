@@ -16,13 +16,15 @@
 
 package com.irccloud.android.fragment;
 
+
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -44,9 +46,7 @@ import com.mobeta.android.dslv.DragSortListView;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
-import java.util.Collections;
-
-public class ServerReorderFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+import java.util.Collections;public class ServerReorderFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     private NetworkConnection conn;
     private ServerListAdapter adapter;
     private RefreshTask refreshTask = null;

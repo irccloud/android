@@ -1274,7 +1274,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 if (!backlog && !buffer.scrolledUp) {
                     getListView().setSelection(adapter.getCount() - 1);
-                    if(tapTimer != null) {
+                    if (tapTimer != null) {
                         tapTimer.schedule(new TimerTask() {
                             @Override
                             public void run() {
@@ -1395,12 +1395,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
-    @Override public void onDestroy() {
+    @Override
+    public void onDestroy() {
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
+        if (refWatcher != null)
             refWatcher.watch(this);
-        if(tapTimer != null) {
+        if (tapTimer != null) {
             tapTimer.cancel();
             tapTimer = null;
         }
@@ -1880,7 +1881,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         if (newMsgs > 0) {
             /*int minutes = (int)((System.currentTimeMillis() - newMsgTime)/60000);
-			
+
 			if(minutes < 1)
 				unreadBottomLabel.setText("Less than a minute of chatter (");
 			else if(minutes == 1)

@@ -16,14 +16,15 @@
 
 package com.irccloud.android.activity;
 
+
+
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -49,9 +50,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-
-public class QuickReplyActivity extends AppCompatActivity {
+import java.util.Calendar;public class QuickReplyActivity extends AppCompatActivity {
     int cid, bid;
     String to;
     SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");

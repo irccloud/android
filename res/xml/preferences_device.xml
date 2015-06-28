@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,38 +14,39 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="Device">
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="screenlock"
-			android:defaultValue="false"
-		    android:summaryOn="Your display will remain on while IRCCloud is visible"
-		    android:summaryOff="Your display will turn off as normal"
-			android:title="Prevent display sleep"/>
-	    <ListPreference android:entries="@array/pref_timeout_names"
-		    android:title="Connection timeout" android:key="timeout"
-		    android:entryValues="@array/pref_timeout_values"
-		    android:summary="How long to remain connected to IRCCloud while running in the background"
-		    android:defaultValue="300000" />
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="kb_send"
-			android:defaultValue="false"
-		    android:summaryOn="Send button will be displayed on the on-screen keyboard"
-		    android:summaryOff="Emoticon button will be displayed on the on-screen keyboard"
-			android:title="Show send button"/>
+    <PreferenceCategory android:title="Device">
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="screenlock"
+            android:defaultValue="false"
+            android:summaryOn="Your display will remain on while IRCCloud is visible"
+            android:summaryOff="Your display will turn off as normal"
+            android:title="Prevent display sleep" />
+        <ListPreference
+            android:entries="@array/pref_timeout_names"
+            android:title="Connection timeout"
+            android:key="timeout"
+            android:entryValues="@array/pref_timeout_values"
+            android:summary="How long to remain connected to IRCCloud while running in the background"
+            android:defaultValue="300000" />
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="kb_send"
+            android:defaultValue="false"
+            android:summaryOn="Send button will be displayed on the on-screen keyboard"
+            android:summaryOff="Emoticon button will be displayed on the on-screen keyboard"
+            android:title="Show send button" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="kb_caps"
             android:defaultValue="true"
             android:summaryOn="Messages will automatically start with a capital letter"
             android:summaryOff="Messages will not automatically start with a capital letter"
-            android:title="Auto-capitalize messages"/>
+            android:title="Auto-capitalize messages" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="imageviewer"
             android:defaultValue="true"
             android:summaryOn="Image URLs will open in IRCCloud"
             android:summaryOff="Image URLs will open in your browser"
-            android:title="Image Viewer"/>
-	</PreferenceCategory>
+            android:title="Image Viewer" />
+    </PreferenceCategory>
 </PreferenceScreen>

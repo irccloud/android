@@ -16,13 +16,15 @@
 
 package com.irccloud.android.fragment;
 
+
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -36,9 +38,7 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
-import com.squareup.leakcanary.RefWatcher;
-
-public class WhoisFragment extends DialogFragment {
+import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends DialogFragment {
     IRCCloudJSONObject event;
     TextView extra, name, mask, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
             operChannels, operTitle, ownerChannels, ownerTitle, adminChannels, adminTitle, halfopChannels, halfopTitle, voicedChannels, voicedTitle, awayTitle, away;

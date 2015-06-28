@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,7 @@
     android:insetTop="@dimen/scrollbar_inset"
     android:insetBottom="@dimen/scrollbar_inset">
     <shape>
-        <corners android:radius="4dp"/>
-        <solid android:color="@color/dark_blue"/>
+        <corners android:radius="4dp" />
+        <solid android:color="@color/dark_blue" />
     </shape>
 </inset>

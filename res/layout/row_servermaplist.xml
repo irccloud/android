@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +20,7 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingLeft="12dp"
-    android:paddingRight="6dp" >
+    android:paddingRight="6dp">
 
     <TextView
         android:id="@+id/server"

@@ -16,6 +16,8 @@
 
 package com.irccloud.android;
 
+
+
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
@@ -29,10 +31,7 @@ import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.data.BuffersDataSource;
-import com.irccloud.android.data.ChannelsDataSource;
 import com.irccloud.android.data.EventsDataSource;
-import com.irccloud.android.data.ServersDataSource;
-import com.irccloud.android.data.UsersDataSource;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,9 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import io.fabric.sdk.android.Fabric;
-
-@SuppressWarnings("unused")
+import io.fabric.sdk.android.Fabric;@SuppressWarnings("unused")
 public class IRCCloudApplicationBase extends Application {
     private static final int RINGTONE_VERSION = 1;
 

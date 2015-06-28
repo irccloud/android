@@ -16,16 +16,20 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_buffer_options"
+    <item
+        android:id="@+id/menu_buffer_options"
         android:title="@string/menu_display_options"
         app:showAsAction="never" />
-    <item android:id="@+id/menu_editconnection"
+    <item
+        android:id="@+id/menu_editconnection"
         android:title="@string/menu_editconnection"
         app:showAsAction="never" />
-    <item android:id="@+id/menu_identify"
+    <item
+        android:id="@+id/menu_identify"
         android:title="@string/menu_identify"
         app:showAsAction="never" />
-    <item android:id="@+id/menu_disconnect"
+    <item
+        android:id="@+id/menu_disconnect"
         android:title="@string/menu_disconnect"
         app:showAsAction="never" />
 </menu>

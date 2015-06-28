@@ -33,8 +33,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AlertDialog;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -59,17 +59,13 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
 import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
-import com.google.android.gms.auth.api.credentials.CredentialsApi;
-import com.google.android.gms.auth.api.credentials.IdentityProviders;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.NetworkConnection;
@@ -505,7 +501,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             startActivity(i);
             finish();
         } else {
-            if(host.getVisibility() == View.GONE && mGoogleApiClient.isConnected()) {
+            if (host.getVisibility() == View.GONE && mGoogleApiClient.isConnected()) {
                 Log.e("IRCCloud", "Play Services connected");
                 CredentialRequest request = new CredentialRequest.Builder()
                         .setAccountTypes("https://" + NetworkConnection.IRCCLOUD_HOST)
@@ -515,18 +511,18 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 Auth.CredentialsApi.request(mGoogleApiClient, request).setResultCallback(new ResultCallback<CredentialRequestResult>() {
                     @Override
                     public void onResult(CredentialRequestResult result) {
-                        if(result.getStatus().isSuccess()) {
+                        if (result.getStatus().isSuccess()) {
                             Log.e("IRCCloud", "Credentials request succeeded");
                             email.setText(result.getCredential().getId());
                             password.setText(result.getCredential().getPassword());
                             loginHintClickListener.onClick(null);
                             new LoginTask().execute((Void) null);
-                        } else if(result.getStatus().getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
+                        } else if (result.getStatus().getStatusCode() == CommonStatusCodes.SIGN_IN_REQUIRED) {
                             Log.e("IRCCloud", "Credentials request sign in");
                             loading.setVisibility(View.GONE);
                             connecting.setVisibility(View.GONE);
                             login.setVisibility(View.VISIBLE);
-                        } else if(result.getStatus().hasResolution()) {
+                        } else if (result.getStatus().hasResolution()) {
                             Log.e("IRCCloud", "Credentials request requires resolution");
                             try {
                                 startIntentSenderForResult(result.getStatus().getResolution().getIntentSender(), REQUEST_RESOLVE_CREDENTIALS, null, 0, 0, 0);
@@ -608,7 +604,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 }
             }
         } else if (requestCode == REQUEST_RESOLVE_CREDENTIALS) {
-            if(resultCode == RESULT_OK && data.hasExtra(Credential.EXTRA_KEY)) {
+            if (resultCode == RESULT_OK && data.hasExtra(Credential.EXTRA_KEY)) {
                 Credential c = data.getParcelableExtra(Credential.EXTRA_KEY);
                 name.setText(c.getName());
                 email.setText(c.getId());
@@ -616,13 +612,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 loading.setVisibility(View.GONE);
                 login.setVisibility(View.VISIBLE);
                 loginHintClickListener.onClick(null);
-                new LoginTask().execute((Void)null);
+                new LoginTask().execute((Void) null);
             } else {
                 loading.setVisibility(View.GONE);
                 login.setVisibility(View.VISIBLE);
             }
         } else if (requestCode == REQUEST_RESOLVE_SAVE_CREDENTIALS) {
-            if(resultCode == RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 Log.e("IRCCloud", "Credentials result: OK");
             }
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
@@ -713,18 +709,18 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                             i.putExtras(getIntent().getExtras());
                     }
 
-                    if(mGoogleApiClient.isConnected()) {
+                    if (mGoogleApiClient.isConnected()) {
                         Credential.Builder builder = new Credential.Builder(email.getText().toString()).setPassword(password.getText().toString());
-                        if(name.getText() != null && name.getText().length() > 0)
+                        if (name.getText() != null && name.getText().length() > 0)
                             builder.setName(name.getText().toString());
                         Auth.CredentialsApi.save(mGoogleApiClient, builder.build()).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
                             @Override
                             public void onResult(com.google.android.gms.common.api.Status status) {
-                                if(status.isSuccess()) {
+                                if (status.isSuccess()) {
                                     Log.e("IRCCloud", "Credentials saved");
                                     startActivity(i);
                                     finish();
-                                } else if(status.hasResolution()) {
+                                } else if (status.hasResolution()) {
                                     Log.e("IRCCloud", "Credentials require resolution");
                                     try {
                                         startIntentSenderForResult(status.getResolution().getIntentSender(), REQUEST_RESOLVE_SAVE_CREDENTIALS, null, 0, 0, 0);
@@ -741,7 +737,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                         finish();
                     }
 
-                    if(!BuildConfig.ENTERPRISE) {
+                    if (!BuildConfig.ENTERPRISE) {
                         if (name.getVisibility() == View.VISIBLE)
                             Answers.getInstance().logEvent("signup", new EventAttributes().put("method", "email"));
                         else
@@ -803,7 +799,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                 message = "Error: " + message;
                         }
 
-                        if(mGoogleApiClient.isConnected()) {
+                        if (mGoogleApiClient.isConnected()) {
                             Auth.CredentialsApi.delete(mGoogleApiClient, new Credential.Builder(email.getText().toString()).setPassword(password.getText().toString()).build()).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
                                 @Override
                                 public void onResult(com.google.android.gms.common.api.Status status) {
@@ -914,7 +910,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     }
                     startActivity(i);
                     finish();
-                    if(!BuildConfig.ENTERPRISE)
+                    if (!BuildConfig.ENTERPRISE)
                         Answers.getInstance().logEvent("login", new EventAttributes().put("method", "access-link"));
                 } catch (JSONException e) {
                     e.printStackTrace();

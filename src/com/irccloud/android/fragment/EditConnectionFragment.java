@@ -16,14 +16,16 @@
 
 package com.irccloud.android.fragment;
 
+
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,7 +36,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -55,9 +56,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-public class EditConnectionFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+import java.util.ArrayList;public class EditConnectionFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     private class PresetServersAdapter extends BaseAdapter {
         private Activity ctx;
 

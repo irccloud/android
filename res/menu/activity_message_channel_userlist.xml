@@ -15,6 +15,10 @@
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/menu_userlist" android:title="Users" app:showAsAction="always" android:icon="@drawable/ic_action_users"></item>
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_userlist"
+        android:title="Users"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_action_users"></item>
 </menu>

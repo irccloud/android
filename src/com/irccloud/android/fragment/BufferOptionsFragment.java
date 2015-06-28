@@ -16,14 +16,16 @@
 
 package com.irccloud.android.fragment;
 
+
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,9 +38,7 @@ import com.irccloud.android.R;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
-import org.json.JSONObject;
-
-@SuppressLint("ValidFragment")
+import org.json.JSONObject;@SuppressLint("ValidFragment")
 public class BufferOptionsFragment extends DialogFragment {
     SwitchCompat unread;
     SwitchCompat joinpart;

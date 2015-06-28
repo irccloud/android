@@ -335,7 +335,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(tapTimer == null)
+        if (tapTimer == null)
             tapTimer = new Timer("users-tap-timer");
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
@@ -359,12 +359,13 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         refresh(users);
     }
 
-    @Override public void onDestroy() {
+    @Override
+    public void onDestroy() {
         super.onDestroy();
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
+        if (refWatcher != null)
             refWatcher.watch(this);
-        if(tapTimer != null) {
+        if (tapTimer != null) {
             tapTimer.cancel();
             tapTimer = null;
         }
@@ -375,7 +376,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         cid = args.getInt("cid", 0);
         bid = args.getInt("bid", 0);
         channel = args.getString("name");
-        if(tapTimer == null)
+        if (tapTimer == null)
             tapTimer = new Timer("users-tap-timer");
 
         tapTimer.schedule(new TimerTask() {

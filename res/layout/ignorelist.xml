@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +20,8 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".IgnoreListFragment" >
-    
+    tools:context=".IgnoreListFragment">
+
     <ListView
         android:id="@android:id/list"
         android:divider="@color/dialog_bg"
@@ -31,7 +30,7 @@
         android:layout_width="match_parent"
         android:padding="4dp"
         android:layout_height="match_parent" />
-    
+
     <TextView
         android:id="@android:id/empty"
         android:layout_width="fill_parent"

@@ -16,7 +16,8 @@
 
 package com.irccloud.android.activity;
 
-import android.app.Activity;
+
+
 import android.app.ActivityManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -57,9 +58,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-
-public class PastebinsActivity extends BaseActivity {
+import java.util.HashMap;public class PastebinsActivity extends BaseActivity {
     private int page = 0;
     private int reqid = -1;
     private PastebinsAdapter adapter = new PastebinsAdapter();

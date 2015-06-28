@@ -82,7 +82,7 @@ public class SonyRegistrationInformation extends RegistrationInformation {
     @Override
     public ContentValues getExtensionRegistrationConfiguration() {
         String configurationText = "IRCCloud Settings";
-        String extensionName = BuildConfig.ENTERPRISE?"IRCEnterprise":"IRCCloud";
+        String extensionName = BuildConfig.ENTERPRISE ? "IRCEnterprise" : "IRCCloud";
 
         ContentValues values = new ContentValues();
         values.put(Registration.ExtensionColumns.CONFIGURATION_ACTIVITY,

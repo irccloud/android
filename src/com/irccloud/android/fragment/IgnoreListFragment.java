@@ -16,13 +16,15 @@
 
 package com.irccloud.android.fragment;
 
+
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,9 +42,7 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.ServersDataSource;
-import com.squareup.leakcanary.RefWatcher;
-
-public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     JsonNode ignores;
     int cid;
     IgnoresAdapter adapter;

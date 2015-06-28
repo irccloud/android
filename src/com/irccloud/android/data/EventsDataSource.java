@@ -16,6 +16,8 @@
 
 package com.irccloud.android.data;
 
+
+
 import android.annotation.SuppressLint;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -26,12 +28,9 @@ import com.irccloud.android.Ignore;
 import com.irccloud.android.R;
 import com.irccloud.android.fragment.MessageViewFragment;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.TimerTask;
-import java.util.TreeMap;
-
-@SuppressLint("UseSparseArrays")
+import java.util.TreeMap;@SuppressLint("UseSparseArrays")
 public class EventsDataSource {
 
     public static class Event {

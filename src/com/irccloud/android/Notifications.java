@@ -16,6 +16,8 @@
 
 package com.irccloud.android;
 
+
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -52,11 +54,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
-import java.util.HashSet;
 import java.util.Timer;
-import java.util.TimerTask;
-
-public class Notifications {
+import java.util.TimerTask;public class Notifications {
     public class Notification {
         public int cid;
         public int bid;

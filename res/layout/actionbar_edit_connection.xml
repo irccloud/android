@@ -19,9 +19,8 @@
     android:layout_height="match_parent"
     android:layout_marginRight="16dp"
     android:orientation="horizontal">
-	
-	<LinearLayout
-        style="@style/EditEventCustomActionButton">
+
+    <LinearLayout style="@style/EditEventCustomActionButton">
 
         <TextView
             android:id="@+id/action_cancel"
@@ -32,7 +31,7 @@
 
     </LinearLayout>
 
-	<LinearLayout
+    <LinearLayout
         android:id="@+id/action_done"
         style="@style/EditEventCustomActionButton">
 

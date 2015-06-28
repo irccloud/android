@@ -21,12 +21,12 @@
     android:minHeight="48dp"
     android:orientation="vertical"
     android:paddingLeft="6dp"
-    android:paddingRight="6dp" >
+    android:paddingRight="6dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical" >
+        android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/network"

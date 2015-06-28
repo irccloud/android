@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,15 +14,14 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="Debugging">
-		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
-			android:key="detect_leaks"
-			android:defaultValue="true"
-			android:summaryOn="Memory leaks will be caught and automatically reported via Crashlytics"
-			android:summaryOff="Memory leaks will be ignored"
-			android:title="Detect Memory Leaks"/>
-	</PreferenceCategory>
+    <PreferenceCategory android:title="Debugging">
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="detect_leaks"
+            android:defaultValue="true"
+            android:summaryOn="Memory leaks will be caught and automatically reported via Crashlytics"
+            android:summaryOff="Memory leaks will be ignored"
+            android:title="Detect Memory Leaks" />
+    </PreferenceCategory>
 </PreferenceScreen>

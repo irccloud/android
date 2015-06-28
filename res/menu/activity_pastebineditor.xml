@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,12 +16,12 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/action_save"
+    <item
+        android:id="@+id/action_save"
         android:title="Save"
-        app:showAsAction="always"
-        />
-    <item android:id="@+id/action_send"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_send"
         android:title="Send"
-        app:showAsAction="always"
-        />
+        app:showAsAction="always" />
 </menu>
