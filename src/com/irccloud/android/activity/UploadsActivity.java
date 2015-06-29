@@ -402,7 +402,8 @@ public class UploadsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
+        if(ColorFormatter.file_uri_template != null)
+            template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
@@ -556,7 +557,8 @@ public class UploadsActivity extends BaseActivity {
 
     @Override
     public void onResume() {
-        template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
+        if(ColorFormatter.file_uri_template != null)
+            template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onResume();
         NetworkConnection.getInstance().addHandler(this);
 

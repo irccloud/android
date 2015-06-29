@@ -158,6 +158,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     ServersDataSource.Server server;
     ActionEditText messageTxt;
     View sendBtn;
+    View photoBtn;
     UsersDataSource.User selected_user;
     View userListView;
     View buffersListView;
@@ -379,7 +380,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        View photoBtn = findViewById(R.id.photoBtn);
+        photoBtn = findViewById(R.id.photoBtn);
         if (photoBtn != null) {
             photoBtn.setFocusable(false);
             photoBtn.setOnClickListener(new OnClickListener() {
@@ -1234,6 +1235,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             sendBtn.setEnabled(false);
             if (Build.VERSION.SDK_INT >= 11)
                 sendBtn.setAlpha(0.5f);
+            if(conn.config == null) {
+                photoBtn.setEnabled(false);
+                if (Build.VERSION.SDK_INT >= 11)
+                    photoBtn.setAlpha(0.5f);
+            }
             conn.connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
         } else {
             if (drawerLayout != null) {
@@ -1245,6 +1251,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (Build.VERSION.SDK_INT >= 11)
                     sendBtn.setAlpha(1);
             }
+            photoBtn.setEnabled(true);
+            if (Build.VERSION.SDK_INT >= 11)
+                photoBtn.setAlpha(1);
         }
 
         if (server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
@@ -1751,6 +1760,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 sendBtn.setEnabled(false);
                                 if (Build.VERSION.SDK_INT >= 11)
                                     sendBtn.setAlpha(0.5f);
+                                photoBtn.setEnabled(false);
+                                if (Build.VERSION.SDK_INT >= 11)
+                                    photoBtn.setAlpha(0.5f);
                             }
                         });
                     }
@@ -2184,6 +2196,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             refreshUpIndicatorTask.cancel(true);
                         refreshUpIndicatorTask = new RefreshUpIndicatorTask();
                         refreshUpIndicatorTask.execute((Void) null);
+                        photoBtn.setEnabled(true);
+                        if (Build.VERSION.SDK_INT >= 11)
+                            photoBtn.setAlpha(1);
                     }
                 });
                 //TODO: prune and pop the back stack if the current BID has disappeared
