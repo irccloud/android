@@ -73,6 +73,8 @@ import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends 
             return null;
 
         Context ctx = getActivity();
+        if(ctx == null)
+            return null;
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View v = inflater.inflate(R.layout.dialog_nickserv, null);

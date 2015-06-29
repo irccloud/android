@@ -203,6 +203,8 @@ public class ChannelOptionsFragment extends DialogFragment {
             bid = savedInstanceState.getInt("bid");
         }
         Context ctx = getActivity();
+        if(ctx == null)
+            return null;
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_channel_options, null);
         members = (SwitchCompat) v.findViewById(R.id.members);

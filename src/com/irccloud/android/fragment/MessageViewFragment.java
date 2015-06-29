@@ -1761,7 +1761,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private void update_top_unread(int first) {
-        if (adapter != null) {
+        if (adapter != null && buffer != null) {
             try {
                 int markerPos = adapter.getLastSeenEIDPosition();
                 if (markerPos >= 0 && first > (markerPos + 1) && buffer.unread > 0) {

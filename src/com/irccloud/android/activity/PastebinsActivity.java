@@ -415,12 +415,17 @@ import java.util.HashMap;public class PastebinsActivity extends BaseActivity {
         }
 
         if(savedInstanceState != null && savedInstanceState.containsKey("adapter")) {
-            page = savedInstanceState.getInt("page");
-            Pastebin[] pastebins = (Pastebin[])savedInstanceState.getSerializable("adapter");
-            for(Pastebin p : pastebins) {
-                adapter.addPastebin(p);
+            try {
+                page = savedInstanceState.getInt("page");
+                Pastebin[] pastebins = (Pastebin[]) savedInstanceState.getSerializable("adapter");
+                for (Pastebin p : pastebins) {
+                    adapter.addPastebin(p);
+                }
+                adapter.notifyDataSetChanged();
+            } catch (Exception e) {
+                page = 0;
+                adapter.clear();
             }
-            adapter.notifyDataSetChanged();
         }
 
         footer = getLayoutInflater().inflate(R.layout.messageview_header, null);

@@ -167,6 +167,8 @@ public class BufferOptionsFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context ctx = getActivity();
+        if(ctx == null)
+            return null;
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.dialog_buffer_options, null);
         unread = (SwitchCompat) v.findViewById(R.id.unread);

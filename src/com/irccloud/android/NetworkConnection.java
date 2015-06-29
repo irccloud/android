@@ -1723,7 +1723,7 @@ public class NetworkConnection {
                 for (BuffersDataSource.Buffer b : mBuffers.getBuffers()) {
                     Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
                 }
-                if (userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
+                if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
                     streamId = null;
