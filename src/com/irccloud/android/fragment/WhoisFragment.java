@@ -37,7 +37,7 @@ import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends DialogFragment {
     IRCCloudJSONObject event;
     TextView extra, name, mask, server, time, timeTitle, channels, channelsTitle, opChannels, opTitle,
@@ -267,7 +267,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
                 String chan = c.get(i).asText();
                 channelstxt += "• " + chan + "<br/>";
             }
-            channels.setText(ColorFormatter.html_to_spanned(channelstxt, true, ServersDataSource.getInstance().getServer(event.cid())));
+            channels.setText(ColorFormatter.html_to_spanned(channelstxt, true, ServersList.getInstance().getServer(event.cid())));
         } else {
             title.setVisibility(View.GONE);
             channels.setVisibility(View.GONE);

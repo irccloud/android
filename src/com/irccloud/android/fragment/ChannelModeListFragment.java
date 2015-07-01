@@ -43,9 +43,11 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.EventsDataSource;
-import com.irccloud.android.data.ServersDataSource;
-import com.irccloud.android.data.UsersDataSource;
+import com.irccloud.android.data.model.Event;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.data.model.User;
+import com.irccloud.android.data.collection.UsersList;
 import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     JsonNode data;
     int cid;
@@ -207,8 +209,8 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         public void onClick(DialogInterface d, int which) {
             Context ctx = getActivity();
 
-            ServersDataSource s = ServersDataSource.getInstance();
-            ServersDataSource.Server server = s.getServer(cid);
+            ServersList s = ServersList.getInstance();
+            Server server = s.getServer(cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -263,9 +265,9 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         title = args.getString("title");
         mode = args.getString("mode");
         data = event.getJsonNode(list);
-        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        Server s = ServersList.getInstance().getServer(cid);
         if(s != null) {
-            UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+            User self_user = UsersList.getInstance().getUser(bid, s.nick);
             canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
         } else {
             canChangeMode = false;
@@ -294,9 +296,9 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
             adapter = new Adapter(this);
             listView.setAdapter(adapter);
         }
-        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        Server s = ServersList.getInstance().getServer(cid);
         if (s != null) {
-            UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+            User self_user = UsersList.getInstance().getUser(bid, s.nick);
             canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
         } else {
             canChangeMode = false;
@@ -325,8 +327,8 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
     public void onIRCEvent(int what, Object obj) {
         switch (what) {
             case NetworkConnection.EVENT_USERCHANNELMODE:
-                ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-                UsersDataSource.User self_user = UsersDataSource.getInstance().getUser(bid, s.nick);
+                Server s = ServersList.getInstance().getServer(cid);
+                User self_user = UsersList.getInstance().getUser(bid, s.nick);
                 canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -337,7 +339,7 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
                 });
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
-                EventsDataSource.Event e = (EventsDataSource.Event) obj;
+                Event e = (Event) obj;
                 if (e.bid == bid && e.type.equals("channel_mode_list_change"))
                     conn.mode(cid, event.getString("channel"), mode);
                 break;

@@ -14,93 +14,61 @@
  * limitations under the License.
  */
 
-package com.irccloud.android.data;
+package com.irccloud.android.data.collection;
 
+import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.data.model.Channel;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class ChannelsDataSource {
-    public static class Mode {
-        public String mode;
-        public String param;
-    }
-
-    public static class Channel {
-        public int cid;
-        public int bid;
-        public String name;
-        public String topic_text;
-        public long topic_time;
-        public String topic_author;
-        public String type;
-        public String mode;
-        public ArrayList<Mode> modes;
-        public long timestamp;
-        public String url;
-        public int valid;
-        public boolean key;
-
-        public synchronized void addMode(String mode, String param, boolean init) {
-            if (!init)
-                removeMode(mode);
-            if (mode.equals("k"))
-                key = true;
-            Mode m = new Mode();
-            m.mode = mode;
-            m.param = param;
-            modes.add(m);
-        }
-
-        public synchronized void removeMode(String mode) {
-            if (mode.equals("k"))
-                key = false;
-            for (Mode m : modes) {
-                if (m.mode.equals(mode)) {
-                    modes.remove(m);
-                    return;
-                }
-            }
-        }
-
-        public synchronized boolean hasMode(String mode) {
-            for (Mode m : modes) {
-                if (m.mode.equals(mode)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public synchronized String paramForMode(String mode) {
-            for (Mode m : modes) {
-                if (m.mode.equals(mode)) {
-                    return m.param;
-                }
-            }
-            return null;
-        }
-    }
-
+public class ChannelsList {
     private SparseArray<Channel> channels;
 
-    private static ChannelsDataSource instance = null;
+    private static ChannelsList instance = null;
 
-    public synchronized static ChannelsDataSource getInstance() {
+    public synchronized static ChannelsList getInstance() {
         if (instance == null)
-            instance = new ChannelsDataSource();
+            instance = new ChannelsList();
         return instance;
     }
 
-    public ChannelsDataSource() {
+    public ChannelsList() {
         channels = new SparseArray<>(100);
     }
 
     public synchronized void clear() {
         channels.clear();
+        new Delete().from(Channel.class).queryClose();
+    }
+
+    public void load() {
+        try {
+            List<Channel> c = new Select().all().from(Channel.class).queryList();
+            if (c != null && !c.isEmpty()) {
+                for (Channel s : c) {
+                    channels.put(s.bid, s);
+                    updateMode(s.bid, s.mode, s.ops, true);
+                }
+            }
+        } catch (SQLiteException e) {
+            channels.clear();
+        }
+    }
+
+    public void save() {
+        ArrayList<Channel> s = new ArrayList<>(channels.size());
+        for (int i = 0; i < channels.size(); i++) {
+            s.add(channels.valueAt(i));
+        }
+        TransactionManager.getInstance().saveOnSaveQueue(s);
     }
 
     public synchronized Channel createChannel(int cid, int bid, String name, String topic_text, long topic_time, String topic_author, String type, long timestamp) {
@@ -117,10 +85,9 @@ public class ChannelsDataSource {
         c.topic_time = topic_time;
         c.type = type;
         c.timestamp = timestamp;
-        c.valid = 1;
         c.key = false;
         c.mode = "";
-        c.modes = new ArrayList<Mode>();
+        c.valid = 1;
         return c;
     }
 
@@ -134,6 +101,7 @@ public class ChannelsDataSource {
             c.topic_text = ColorFormatter.emojify(topic_text);
             c.topic_time = topic_time;
             c.topic_author = topic_author;
+            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -152,6 +120,8 @@ public class ChannelsDataSource {
                 c.removeMode(m.get("mode").asText());
             }
             c.mode = mode;
+            c.ops = ops;
+            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -159,6 +129,7 @@ public class ChannelsDataSource {
         Channel c = getChannelForBuffer(bid);
         if (c != null) {
             c.url = url;
+            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -166,6 +137,7 @@ public class ChannelsDataSource {
         Channel c = getChannelForBuffer(bid);
         if (c != null) {
             c.timestamp = timestamp;
+            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -174,7 +146,7 @@ public class ChannelsDataSource {
     }
 
     public synchronized ArrayList<Channel> getChannels() {
-        ArrayList<Channel> list = new ArrayList<Channel>();
+        ArrayList<Channel> list = new ArrayList<>();
         for (int i = 0; i < channels.size(); i++) {
             Channel c = channels.valueAt(i);
             list.add(c);
@@ -190,15 +162,17 @@ public class ChannelsDataSource {
     }
 
     public synchronized void purgeInvalidChannels() {
-        ArrayList<Channel> channelsToRemove = new ArrayList<Channel>();
+        ArrayList<Channel> channelsToRemove = new ArrayList<>();
         for (int i = 0; i < channels.size(); i++) {
             Channel c = channels.valueAt(i);
             if (c.valid == 0)
                 channelsToRemove.add(c);
         }
         for (Channel c : channelsToRemove) {
-            UsersDataSource.getInstance().deleteUsersForBuffer(c.bid);
+            android.util.Log.e("IRCCloud", "Removing invalid channel: " + c.name);
+            UsersList.getInstance().deleteUsersForBuffer(c.bid);
             channels.remove(c.bid);
+            c.delete();
         }
     }
 }

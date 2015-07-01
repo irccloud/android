@@ -21,8 +21,8 @@ import android.text.TextUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.irccloud.android.data.EventsDataSource;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Event;
+import com.irccloud.android.data.model.Server;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -217,7 +217,7 @@ public class CollapsedEventsList {
     }
 
     private ArrayList<CollapsedEvent> data = new ArrayList<CollapsedEvent>();
-    private ServersDataSource.Server server;
+    private Server server;
     private HashMap<String, String> mode_colors;
     private String mode_modes[];
 
@@ -225,7 +225,7 @@ public class CollapsedEventsList {
         setServer(null);
     }
 
-    public void setServer(ServersDataSource.Server s) {
+    public void setServer(Server s) {
         server = s;
         if (server != null) {
             mode_colors = new HashMap<String, String>() {{
@@ -274,7 +274,7 @@ public class CollapsedEventsList {
         return out;
     }
 
-    public boolean addEvent(EventsDataSource.Event event) {
+    public boolean addEvent(Event event) {
         String type = event.type;
         if (type.startsWith("you_"))
             type = type.substring(4);

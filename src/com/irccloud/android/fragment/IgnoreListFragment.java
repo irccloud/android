@@ -41,7 +41,8 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     JsonNode ignores;
     int cid;
@@ -144,12 +145,12 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
         listView.setEmptyView(empty);
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
-            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+            ignores = ServersList.getInstance().getServer(cid).raw_ignores;
             adapter = new IgnoresAdapter(this);
             listView.setAdapter(adapter);
         }
         Dialog d = new AlertDialog.Builder(ctx)
-                .setTitle("Ignore list for " + ServersDataSource.getInstance().getServer(cid).name)
+                .setTitle("Ignore list for " + ServersList.getInstance().getServer(cid).name)
                 .setView(v)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setPositiveButton("Add Ignore Mask", new AddClickListener())
@@ -169,8 +170,8 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
         public void onClick(DialogInterface d, int which) {
             Context ctx = getActivity();
 
-            ServersDataSource s = ServersDataSource.getInstance();
-            ServersDataSource.Server server = s.getServer(cid);
+            ServersList s = ServersList.getInstance();
+            Server server = s.getServer(cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -215,7 +216,7 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+                    ignores = ServersList.getInstance().getServer(cid).raw_ignores;
                     adapter = new IgnoresAdapter(IgnoreListFragment.this);
                     listView.setAdapter(adapter);
                 }
@@ -229,7 +230,7 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
         conn.addHandler(this);
 
         if (ignores == null && cid > 0) {
-            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+            ignores = ServersList.getInstance().getServer(cid).raw_ignores;
             adapter = new IgnoresAdapter(this);
             listView.setAdapter(adapter);
         }
@@ -255,12 +256,12 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
     public void onIRCEvent(int what, Object obj) {
         switch (what) {
             case NetworkConnection.EVENT_MAKESERVER:
-                ServersDataSource.Server s = (ServersDataSource.Server) obj;
+                Server s = (Server) obj;
                 if (s.cid == cid && getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+                            ignores = ServersList.getInstance().getServer(cid).raw_ignores;
                             adapter.notifyDataSetChanged();
                         }
                     });
@@ -272,7 +273,7 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ignores = ServersDataSource.getInstance().getServer(cid).raw_ignores;
+                            ignores = ServersList.getInstance().getServer(cid).raw_ignores;
                             adapter.notifyDataSetChanged();
                         }
                     });

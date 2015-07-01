@@ -37,9 +37,11 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ChannelsDataSource;
-import com.irccloud.android.data.ServersDataSource;
-import com.irccloud.android.data.UsersDataSource;
+import com.irccloud.android.data.collection.ChannelsList;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.data.model.User;
+import com.irccloud.android.data.collection.UsersList;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
@@ -182,17 +184,17 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
     }
 
-    private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<UsersDataSource.User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
+    private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
         if (users.size() > 0 && symbol != null) {
             entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, heading_color, heading_bg_color, heading_bg_color, false, false));
             for (int i = 0; i < users.size(); i++) {
-                UsersDataSource.User user = users.get(i);
+                User user = users.get(i);
                 entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, heading_bg_color, user.away > 0, i == users.size() - 1));
             }
         }
     }
 
-    private void refresh(ArrayList<UsersDataSource.User> users) {
+    private void refresh(ArrayList<User> users) {
         if (users == null) {
             if (adapter != null) {
                 adapter.data.clear();
@@ -202,13 +204,13 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
 
         ArrayList<UserListAdapter.UserListEntry> entries = new ArrayList<UserListAdapter.UserListEntry>();
-        ArrayList<UsersDataSource.User> opers = new ArrayList<UsersDataSource.User>();
-        ArrayList<UsersDataSource.User> owners = new ArrayList<UsersDataSource.User>();
-        ArrayList<UsersDataSource.User> admins = new ArrayList<UsersDataSource.User>();
-        ArrayList<UsersDataSource.User> ops = new ArrayList<UsersDataSource.User>();
-        ArrayList<UsersDataSource.User> halfops = new ArrayList<UsersDataSource.User>();
-        ArrayList<UsersDataSource.User> voiced = new ArrayList<UsersDataSource.User>();
-        ArrayList<UsersDataSource.User> members = new ArrayList<UsersDataSource.User>();
+        ArrayList<User> opers = new ArrayList<User>();
+        ArrayList<User> owners = new ArrayList<User>();
+        ArrayList<User> admins = new ArrayList<User>();
+        ArrayList<User> ops = new ArrayList<User>();
+        ArrayList<User> halfops = new ArrayList<User>();
+        ArrayList<User> voiced = new ArrayList<User>();
+        ArrayList<User> members = new ArrayList<User>();
         boolean showSymbol = false;
         try {
             if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
@@ -217,7 +219,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
 
         ObjectNode PREFIX = null;
-        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        Server s = ServersList.getInstance().getServer(cid);
         if (s != null)
             PREFIX = s.PREFIX;
 
@@ -236,7 +238,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
 
         for (int i = 0; i < users.size(); i++) {
-            UsersDataSource.User user = users.get(i);
+            User user = users.get(i);
             if (user.mode.contains(s != null ? s.MODE_OPER : "Y") && PREFIX.has(s != null ? s.MODE_OPER : "Y")) {
                 opers.add(user);
             } else if (user.mode.contains(s != null ? s.MODE_OWNER : "q") && PREFIX.has(s != null ? s.MODE_OWNER : "q")) {
@@ -355,7 +357,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         super.onResume();
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
-        ArrayList<UsersDataSource.User> users = UsersDataSource.getInstance().getUsersForBuffer(bid);
+        ArrayList<User> users = UsersList.getInstance().getUsersForBuffer(bid);
         refresh(users);
     }
 
@@ -387,9 +389,9 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
                         @Override
                         public void run() {
-                            ArrayList<UsersDataSource.User> users = null;
-                            if (ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null)
-                                users = UsersDataSource.getInstance().getUsersForBuffer(bid);
+                            ArrayList<User> users = null;
+                            if (ChannelsList.getInstance().getChannelForBuffer(bid) != null)
+                                users = UsersList.getInstance().getUsersForBuffer(bid);
                             refresh(users);
                             try {
                                 if (getListView() != null)
@@ -537,9 +539,9 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
             case NetworkConnection.EVENT_MEMBERUPDATES:
             case NetworkConnection.EVENT_BACKLOG_END:
                 if (getActivity() != null) {
-                    final ArrayList<UsersDataSource.User> users;
-                    if (ChannelsDataSource.getInstance().getChannelForBuffer(bid) != null) {
-                        users = UsersDataSource.getInstance().getUsersForBuffer(bid);
+                    final ArrayList<User> users;
+                    if (ChannelsList.getInstance().getChannelForBuffer(bid) != null) {
+                        users = UsersList.getInstance().getUsersForBuffer(bid);
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

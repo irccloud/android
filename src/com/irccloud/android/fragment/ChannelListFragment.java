@@ -34,7 +34,8 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
     NetworkConnection conn;
     ListView listView;
     TextView empty;
-    ServersDataSource.Server server;
+    Server server;
 
     private class ChannelsAdapter extends BaseAdapter {
         private ListFragment ctx;
@@ -169,7 +170,7 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
 
     @Override
     public void setArguments(Bundle args) {
-        server = ServersDataSource.getInstance().getServer(args.getInt("cid", -1));
+        server = ServersList.getInstance().getServer(args.getInt("cid", -1));
         channels = null;
         if (listView != null && getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {

@@ -39,7 +39,8 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;
 
 public class AcceptListFragment extends DialogFragment {
@@ -151,7 +152,7 @@ public class AcceptListFragment extends DialogFragment {
             adapter = new AcceptListAdapter(this);
             listView.setAdapter(adapter);
         }
-        ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
+        Server s = ServersList.getInstance().getServer(cid);
         String network = s.name;
         if (network == null || network.length() == 0)
             network = s.hostname;
@@ -176,8 +177,8 @@ public class AcceptListFragment extends DialogFragment {
         public void onClick(DialogInterface d, int which) {
             Context ctx = getActivity();
 
-            ServersDataSource s = ServersDataSource.getInstance();
-            ServersDataSource.Server server = s.getServer(cid);
+            ServersList s = ServersList.getInstance();
+            Server server = s.getServer(cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

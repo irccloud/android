@@ -30,8 +30,10 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
-import com.irccloud.android.data.BuffersDataSource;
-import com.irccloud.android.data.EventsDataSource;
+import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.collection.EventsList;
+import com.raizlabs.android.dbflow.config.FlowManager;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,9 +50,9 @@ public class IRCCloudApplicationBase extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
         Fabric.with(this, new Crashlytics());
+        FlowManager.init(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         //Disable HTTP keep-alive for our app, as some versions of Android will return an empty response
         System.setProperty("http.keepAlive", "false");
@@ -161,6 +163,7 @@ public class IRCCloudApplicationBase extends Application {
     @Override
     public void onTerminate() {
         Notifications.getInstance().saveNow();
+        NetworkConnection.getInstance().save();
         super.onTerminate();
     }
 
@@ -169,9 +172,9 @@ public class IRCCloudApplicationBase extends Application {
         super.onLowMemory();
         if (!NetworkConnection.getInstance().isVisible()) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the background, cleaning backlog in all buffers");
-            for (BuffersDataSource.Buffer b : BuffersDataSource.getInstance().getBuffers()) {
+            for (Buffer b : BuffersList.getInstance().getBuffers()) {
                 if (!b.scrolledUp)
-                    EventsDataSource.getInstance().pruneEvents(b.bid);
+                    EventsList.getInstance().pruneEvents(b.bid);
             }
         }
     }

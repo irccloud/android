@@ -32,8 +32,8 @@ import android.widget.Toast;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.BuffersDataSource;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.fragment.EditConnectionFragment;
 
 public class EditConnectionActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
@@ -73,7 +73,7 @@ public class EditConnectionActivity extends AppCompatActivity implements Network
 
             @Override
             public void onClick(View v) {
-                if (ServersDataSource.getInstance().count() < 1) {
+                if (ServersList.getInstance().count() < 1) {
                     NetworkConnection.getInstance().logout();
                     Intent i = new Intent(EditConnectionActivity.this, LoginActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -103,10 +103,10 @@ public class EditConnectionActivity extends AppCompatActivity implements Network
 
     public void onIRCEvent(int what, Object o) {
         IRCCloudJSONObject obj;
-        BuffersDataSource.Buffer buffer;
+        Buffer buffer;
         switch (what) {
             case NetworkConnection.EVENT_MAKEBUFFER:
-                buffer = (BuffersDataSource.Buffer) o;
+                buffer = (Buffer) o;
                 if (buffer.cid == cidToOpen) {
                     Intent i = new Intent(EditConnectionActivity.this, MainActivity.class);
                     i.putExtra("bid", buffer.bid);

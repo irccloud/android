@@ -19,7 +19,7 @@ package com.irccloud.android.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.irccloud.android.Ignore;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.collection.ServersList;
 
 import junit.framework.TestCase;
 
@@ -28,7 +28,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoNickWithDot() {
         ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!users.1@host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -47,7 +47,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoNick() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!username@host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
         ignore.setIgnores(s.ignores);
@@ -66,7 +66,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoNickIdentUsername() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
         ignores.add("*!~username@host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
         ignore.setIgnores(s.ignores);
@@ -85,7 +85,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoHost() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!users.1@*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
         ignore.setIgnores(s.ignores);
@@ -104,7 +104,7 @@ public class IgnoreTests extends TestCase {
 	public void testJustHost() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
         ignore.setIgnores(s.ignores);
@@ -123,7 +123,7 @@ public class IgnoreTests extends TestCase {
 	public void testPartialWildcard1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*sam!*users.1@*.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
         ignore.setIgnores(s.ignores);
@@ -142,7 +142,7 @@ public class IgnoreTests extends TestCase {
 	public void testPartialWildcard2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*a*!*users.1@*.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
         ignore.setIgnores(s.ignores);
@@ -161,7 +161,7 @@ public class IgnoreTests extends TestCase {
 	public void testPartialWildcard3() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*users.1@*.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -180,7 +180,7 @@ public class IgnoreTests extends TestCase {
 	public void testPartialWildcard4() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!user*@*.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -199,7 +199,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoNickNoUsername1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*@host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -218,7 +218,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoNickNoUsername2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*@host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -237,7 +237,7 @@ public class IgnoreTests extends TestCase {
 	public void testJustNick() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -256,7 +256,7 @@ public class IgnoreTests extends TestCase {
 	public void testFull1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!users.1@host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -275,7 +275,7 @@ public class IgnoreTests extends TestCase {
 	public void testFull2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("Sam!Users.1@HOST.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -294,7 +294,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoNickNoHost() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!users.1@*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -313,7 +313,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoUsername1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*@host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -332,7 +332,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoUsername2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!host.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -351,7 +351,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoUsername3() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -370,7 +370,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoUsername4() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*o*.local");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -389,7 +389,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoUsername5() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!host.*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -408,7 +408,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoUsernameOrHost1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*@*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -427,7 +427,7 @@ public class IgnoreTests extends TestCase {
 	public void testNoUsernameOrHost2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -446,7 +446,7 @@ public class IgnoreTests extends TestCase {
 	public void testUsernameAlone() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("sam!~username");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -465,7 +465,7 @@ public class IgnoreTests extends TestCase {
 	public void testAllWildcards1() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*@*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -484,7 +484,7 @@ public class IgnoreTests extends TestCase {
 	public void testAllWildcards2() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*!*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -503,7 +503,7 @@ public class IgnoreTests extends TestCase {
 	public void testAllWildcards3() {
 		ArrayNode ignores = new ObjectMapper().createArrayNode();
 		ignores.add("*");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 		
 		Ignore ignore = new Ignore();
 		ignore.setIgnores(s.ignores);
@@ -524,7 +524,7 @@ public class IgnoreTests extends TestCase {
         ignores.add("(sam)");
         ignores.add("{sam}");
         ignores.add("[sam]");
-        ServersDataSource.Server s = ServersDataSource.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
+        Server s = ServersList.getInstance().createServer(0,"","",0,"","",0,0,"","","","",null,"",ignores,0);
 
         Ignore ignore = new Ignore();
         ignore.setIgnores(s.ignores);

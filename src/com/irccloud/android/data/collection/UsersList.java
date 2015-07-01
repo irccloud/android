@@ -14,44 +14,39 @@
  * limitations under the License.
  */
 
-package com.irccloud.android.data;
+package com.irccloud.android.data.collection;
 
 import android.annotation.SuppressLint;
+import android.database.sqlite.SQLiteException;
+
+import com.irccloud.android.data.model.User$Table;
+import com.irccloud.android.data.model.User;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 @SuppressLint("UseSparseArrays")
-public class UsersDataSource {
-    public static class User {
-        public int cid;
-        public int bid;
-        public String nick;
-        public String old_nick = null;
-        public String nick_lowercase;
-        public String hostmask;
-        public String mode;
-        public int away;
-        public String away_msg;
-        public int joined;
-        public long last_mention = -1;
-    }
-
+public class UsersList {
     private HashMap<Integer, TreeMap<String, User>> users;
     private Collator collator;
 
-    private static UsersDataSource instance = null;
+    private static UsersList instance = null;
 
-    public synchronized static UsersDataSource getInstance() {
+    public synchronized static UsersList getInstance() {
         if (instance == null)
-            instance = new UsersDataSource();
+            instance = new UsersList();
         return instance;
     }
 
-    public UsersDataSource() {
+    public UsersList() {
         users = new HashMap<>(50);
         collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
@@ -59,6 +54,31 @@ public class UsersDataSource {
 
     public synchronized void clear() {
         users.clear();
+        new Delete().from(User.class).queryClose();
+    }
+
+    public void load() {
+        try {
+            List<User> c = new Select().all().from(User.class).queryList();
+            if(c != null && !c.isEmpty()) {
+                for(User e : c) {
+                    if (!users.containsKey(e.bid) || users.get(e.bid) == null)
+                        users.put(e.bid, new TreeMap<String, User>(comparator));
+                    users.get(e.bid).put(e.nick.toLowerCase(), e);
+                }
+            }
+        } catch (SQLiteException e) {
+            users.clear();
+        }
+    }
+
+    public void save() {
+        for (int bid : users.keySet()) {
+            TreeMap<String, User> e = users.get(bid);
+            if(e != null) {
+                TransactionManager.getInstance().saveOnSaveQueue(e.values());
+            }
+        }
     }
 
     public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away) {
@@ -97,10 +117,12 @@ public class UsersDataSource {
     public synchronized void deleteUser(int bid, String nick) {
         if (users.containsKey(bid) && users.get(bid) != null)
             users.get(bid).remove(nick.toLowerCase());
+        new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).and(Condition.column(User$Table.NICK).is(nick)).queryClose();
     }
 
     public synchronized void deleteUsersForBuffer(int bid) {
         users.remove(bid);
+        new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).queryClose();
     }
 
     public synchronized void updateNick(int bid, String old_nick, String new_nick) {
@@ -111,25 +133,32 @@ public class UsersDataSource {
             u.old_nick = old_nick;
             users.get(bid).remove(old_nick.toLowerCase());
             users.get(bid).put(new_nick.toLowerCase(), u);
+            TransactionManager.getInstance().saveOnSaveQueue(u);
         }
     }
 
     public synchronized void updateAway(int bid, String nick, int away) {
         User u = getUser(bid, nick);
-        if (u != null)
+        if (u != null) {
             u.away = away;
+            TransactionManager.getInstance().saveOnSaveQueue(u);
+        }
     }
 
     public synchronized void updateHostmask(int bid, String nick, String hostmask) {
         User u = getUser(bid, nick);
-        if (u != null)
+        if (u != null) {
             u.hostmask = hostmask;
+            TransactionManager.getInstance().saveOnSaveQueue(u);
+        }
     }
 
     public synchronized void updateMode(int bid, String nick, String mode) {
         User u = getUser(bid, nick);
-        if (u != null)
+        if (u != null) {
             u.mode = mode;
+            TransactionManager.getInstance().saveOnSaveQueue(u);
+        }
     }
 
     public synchronized void updateAwayMsg(int bid, String nick, int away, String away_msg) {
@@ -137,11 +166,12 @@ public class UsersDataSource {
         if (u != null) {
             u.away = away;
             u.away_msg = away_msg;
+            TransactionManager.getInstance().saveOnSaveQueue(u);
         }
     }
 
     public synchronized ArrayList<User> getUsersForBuffer(int bid) {
-        ArrayList<User> list = new ArrayList<User>();
+        ArrayList<User> list = new ArrayList<>();
         if (users.containsKey(bid) && users.get(bid) != null) {
             for (User u : users.get(bid).values()) {
                 list.add(u);

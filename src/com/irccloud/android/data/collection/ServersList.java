@@ -14,73 +14,65 @@
  * limitations under the License.
  */
 
-package com.irccloud.android.data;
+package com.irccloud.android.data.collection;
 
+import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.Notifications;
+import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.model.Server;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-public class ServersDataSource {
-    public static class Server implements Comparable<Server> {
-        public int cid;
-        public String name;
-        public String hostname;
-        public int port;
-        public String nick;
-        public String status;
-        public long lag;
-        public int ssl;
-        public String realname;
-        public String server_pass;
-        public String nickserv_pass;
-        public String join_commands;
-        public ObjectNode fail_info;
-        public String away;
-        public String usermask;
-        public String mode;
-        public ObjectNode isupport;
-        public JsonNode raw_ignores;
-        public ArrayList<String> ignores;
-        public int order;
-        public String CHANTYPES;
-        public ObjectNode PREFIX;
-        public String MODE_OPER = "Y";
-        public String MODE_OWNER = "q";
-        public String MODE_ADMIN = "a";
-        public String MODE_OP = "o";
-        public String MODE_HALFOP = "h";
-        public String MODE_VOICED = "v";
-
-        @Override
-        public int compareTo(Server another) {
-            if (order != another.order)
-                return Integer.valueOf(order).compareTo(another.order);
-            return Integer.valueOf(cid).compareTo(another.cid);
-        }
-    }
-
+public class ServersList {
     private SparseArray<Server> servers;
 
-    private static ServersDataSource instance = null;
+    private static ServersList instance = null;
 
-    public synchronized static ServersDataSource getInstance() {
+    public synchronized static ServersList getInstance() {
         if (instance == null)
-            instance = new ServersDataSource();
+            instance = new ServersList();
         return instance;
     }
 
-    public ServersDataSource() {
+    public ServersList() {
         servers = new SparseArray<>(10);
     }
 
     public void clear() {
         servers.clear();
+        new Delete().from(Server.class).queryClose();
+    }
+
+    public void load() {
+        try {
+            List<Server> c = new Select().all().from(Server.class).queryList();
+            if (c != null && !c.isEmpty()) {
+                for (Server s : c) {
+                    servers.put(s.cid, s);
+                    updateIgnores(s.cid, s.raw_ignores);
+                }
+            }
+        } catch (SQLiteException e) {
+            servers.clear();
+        }
+    }
+
+    public void save() {
+        ArrayList<Server> s = new ArrayList<>(servers.size());
+        for (int i = 0; i < servers.size(); i++) {
+            s.add(servers.valueAt(i));
+        }
+        TransactionManager.getInstance().saveOnSaveQueue(s);
     }
 
     public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order) {
@@ -122,6 +114,7 @@ public class ServersDataSource {
         Server s = getServer(cid);
         if (s != null) {
             s.lag = lag;
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -129,6 +122,7 @@ public class ServersDataSource {
         Server s = getServer(cid);
         if (s != null) {
             s.nick = nick;
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -137,6 +131,7 @@ public class ServersDataSource {
         if (s != null) {
             s.status = status;
             s.fail_info = fail_info;
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -144,6 +139,7 @@ public class ServersDataSource {
         Server s = getServer(cid);
         if (s != null) {
             s.away = away;
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -151,6 +147,7 @@ public class ServersDataSource {
         Server s = getServer(cid);
         if (s != null) {
             s.usermask = usermask;
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -158,6 +155,7 @@ public class ServersDataSource {
         Server s = getServer(cid);
         if (s != null) {
             s.mode = mode;
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -166,6 +164,7 @@ public class ServersDataSource {
             Server s = getServer(cid);
             if (s != null) {
                 s.MODE_OWNER = modes.substring(0, 1);
+                TransactionManager.getInstance().saveOnSaveQueue(s);
             }
         }
     }
@@ -193,6 +192,7 @@ public class ServersDataSource {
                 s.CHANTYPES = s.isupport.get("CHANTYPES").asText();
             else
                 s.CHANTYPES = null;
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -200,7 +200,7 @@ public class ServersDataSource {
         Server s = getServer(cid);
         if (s != null) {
             s.raw_ignores = ignores;
-            s.ignores = new ArrayList<String>();
+            s.ignores = new ArrayList<>();
             for (int i = 0; i < ignores.size(); i++) {
                 String mask = ignores.get(i).asText().toLowerCase()
                         .replace("\\", "\\\\")
@@ -235,6 +235,7 @@ public class ServersDataSource {
                     continue;
                 s.ignores.add(mask);
             }
+            TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
 
@@ -245,21 +246,22 @@ public class ServersDataSource {
     public void deleteAllDataForServer(int cid) {
         Server s = getServer(cid);
         if (s != null) {
-            ArrayList<BuffersDataSource.Buffer> buffersToRemove = new ArrayList<BuffersDataSource.Buffer>();
+            ArrayList<Buffer> buffersToRemove = new ArrayList<Buffer>();
 
-            Iterator<BuffersDataSource.Buffer> i = BuffersDataSource.getInstance().getBuffersForServer(cid).iterator();
+            Iterator<Buffer> i = BuffersList.getInstance().getBuffersForServer(cid).iterator();
             while (i.hasNext()) {
-                BuffersDataSource.Buffer b = i.next();
+                Buffer b = i.next();
                 buffersToRemove.add(b);
             }
 
             i = buffersToRemove.iterator();
             while (i.hasNext()) {
-                BuffersDataSource.Buffer b = i.next();
-                BuffersDataSource.getInstance().deleteAllDataForBuffer(b.bid);
+                Buffer b = i.next();
+                BuffersList.getInstance().deleteAllDataForBuffer(b.bid);
                 Notifications.getInstance().deleteNotificationsForBid(b.bid);
             }
             servers.remove(cid);
+            s.delete();
         }
     }
 

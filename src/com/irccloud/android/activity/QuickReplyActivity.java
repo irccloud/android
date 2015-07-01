@@ -43,7 +43,7 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.Notifications;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,7 +56,7 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
     SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
     CollapsedEventsList collapsedEventsList = new CollapsedEventsList();
     boolean nickColors;
-    ServersDataSource.Server server;
+    Server server;
     int timestamp_width = -1;
 
     private class MessagesAdapter extends BaseAdapter {
@@ -177,7 +177,7 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
         cid = intent.getIntExtra("cid", -1);
         bid = intent.getIntExtra("bid", -1);
         to = intent.getStringExtra("to");
-        server = new ServersDataSource.Server();
+        server = new Server();
         server.cid = cid;
 
         setTitle("Reply to " + to + " (" + intent.getStringExtra("network") + ")");

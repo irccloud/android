@@ -36,13 +36,14 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.EditConnectionActivity;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 
 public class AddChannelFragment extends DialogFragment {
-    SparseArray<ServersDataSource.Server> servers;
+    SparseArray<Server> servers;
     Spinner spinner;
     TextView channels;
     int defaultCid = -1;
@@ -74,7 +75,7 @@ public class AddChannelFragment extends DialogFragment {
     public void onResume() {
         int pos = 0;
         super.onResume();
-        servers = ServersDataSource.getInstance().getServers();
+        servers = ServersList.getInstance().getServers();
 
         ArrayList<String> servernames = new ArrayList<String>();
         for (int i = 0; i < servers.size(); i++) {

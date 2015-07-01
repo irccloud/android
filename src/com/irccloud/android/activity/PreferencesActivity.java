@@ -56,8 +56,9 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.Notifications;
 import com.irccloud.android.R;
-import com.irccloud.android.data.EventsDataSource;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.collection.EventsList;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 import org.json.JSONException;
@@ -417,7 +418,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
     Preference.OnPreferenceChangeListener imageviewertoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            EventsDataSource.getInstance().clearCaches();
+            EventsList.getInstance().clearCaches();
             return true;
         }
     };
@@ -583,7 +584,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 save_prefs_reqid = conn.set_prefs(conn.getUserInfo().prefs.toString());
             else
                 save_prefs_reqid = -1;
-            EventsDataSource.getInstance().clearCaches();
+            EventsList.getInstance().clearCaches();
             return null;
         }
 
@@ -818,7 +819,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             if (preference.getKey().equals("faq"))
                 i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/faq"));
             if (preference.getKey().equals("feedback")) {
-                ServersDataSource.Server s = ServersDataSource.getInstance().getServer("irc.irccloud.com");
+                Server s = ServersList.getInstance().getServer("irc.irccloud.com");
                 if (s != null && s.ssl > 0)
                     i = new Intent(Intent.ACTION_VIEW, Uri.parse("ircs://irc.irccloud.com/%23feedback"));
                 else

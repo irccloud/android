@@ -35,7 +35,7 @@ import android.widget.Toast;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.BuffersDataSource;
+import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.fragment.BuffersListFragment;
 
 import java.util.Timer;
@@ -278,7 +278,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     }
 
     @Override
-    public boolean onBufferLongClicked(BuffersDataSource.Buffer b) {
+    public boolean onBufferLongClicked(Buffer b) {
         return false;
     }
 

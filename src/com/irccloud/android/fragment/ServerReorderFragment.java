@@ -41,7 +41,8 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.mobeta.android.dslv.DragSortListView;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -54,7 +55,7 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
     private DragSortListView.DropListener dropListener = new DragSortListView.DropListener() {
         @Override
         public void drop(int from, int to) {
-            ServersDataSource.Server s = adapter.data.get(from);
+            Server s = adapter.data.get(from);
             adapter.data.remove(from);
             if (to >= adapter.data.size())
                 adapter.data.add(s);
@@ -75,7 +76,7 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
     };
 
     private class ServerListAdapter extends BaseAdapter {
-        ArrayList<ServersDataSource.Server> data;
+        ArrayList<Server> data;
         private DialogFragment ctx;
         int width = 0;
 
@@ -86,12 +87,12 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
 
         public ServerListAdapter(DialogFragment context) {
             ctx = context;
-            data = new ArrayList<ServersDataSource.Server>();
+            data = new ArrayList<Server>();
             WindowManager wm = (WindowManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
             width = wm.getDefaultDisplay().getWidth();
         }
 
-        public void setItems(ArrayList<ServersDataSource.Server> items) {
+        public void setItems(ArrayList<Server> items) {
             data = items;
         }
 
@@ -112,7 +113,7 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            ServersDataSource.Server s = data.get(position);
+            Server s = data.get(position);
             View row = convertView;
             ViewHolder holder;
 
@@ -155,7 +156,7 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
         }
     }
 
-    private void refresh(ArrayList<ServersDataSource.Server> servers) {
+    private void refresh(ArrayList<Server> servers) {
         if (servers == null) {
             if (adapter != null) {
                 adapter.data.clear();
@@ -177,11 +178,11 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
     }
 
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-        ArrayList<ServersDataSource.Server> servers = new ArrayList<ServersDataSource.Server>();
+        ArrayList<Server> servers = new ArrayList<Server>();
 
         @Override
         protected Void doInBackground(Void... params) {
-            SparseArray<ServersDataSource.Server> s = ServersDataSource.getInstance().getServers();
+            SparseArray<Server> s = ServersList.getInstance().getServers();
             for (int i = 0; i < s.size(); i++) {
                 servers.add(s.valueAt(i));
             }
@@ -247,8 +248,8 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
         super.onResume();
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
-        ArrayList<ServersDataSource.Server> servers = new ArrayList<ServersDataSource.Server>();
-        SparseArray<ServersDataSource.Server> s = ServersDataSource.getInstance().getServers();
+        ArrayList<Server> servers = new ArrayList<Server>();
+        SparseArray<Server> s = ServersList.getInstance().getServers();
         for (int i = 0; i < s.size(); i++) {
             servers.add(s.valueAt(i));
         }

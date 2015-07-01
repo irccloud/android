@@ -34,9 +34,10 @@ import android.widget.TextView;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends DialogFragment {
-    ServersDataSource.Server server;
+    Server server;
     EditText pass;
     TextView nick;
 
@@ -59,7 +60,7 @@ import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends 
     }
 
     public void setCid(int cid) {
-        server = ServersDataSource.getInstance().getServer(cid);
+        server = ServersList.getInstance().getServer(cid);
         if (nick != null && server != null) {
             nick.setText("Password for " + server.nick);
             if (server.nickserv_pass != null)

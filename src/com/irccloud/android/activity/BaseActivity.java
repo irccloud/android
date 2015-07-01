@@ -48,12 +48,14 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.GCMIntentService;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 
 import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     NetworkConnection conn;
@@ -86,6 +88,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
+        NetworkConnection.getInstance().save();
         super.onStop();
     }
 
@@ -164,9 +167,9 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
         if (session != null && session.length() > 0) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
-            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-                conn.connect(session);
             NetworkConnection.getInstance().registerForConnectivity();
+            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
+                new LoadAndConnectTask().execute((Void)null);
         } else {
             Intent i = new Intent(this, LoginActivity.class);
             i.addFlags(
@@ -176,6 +179,23 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
             finish();
         }
     }
+
+    private class LoadAndConnectTask extends AsyncTaskEx<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            NetworkConnection.getInstance().load();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
+                conn.connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
+        }
+    }
+
 
     @Override
     public void onPause() {
@@ -208,7 +228,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ServersDataSource.Server server = ServersDataSource.getInstance().getServer(o.cid());
+                        Server server = ServersList.getInstance().getServer(o.cid());
                         AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
                         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                         View view = getDialogTextPrompt();
@@ -269,7 +289,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ServersDataSource.Server server = ServersDataSource.getInstance().getServer(o.cid());
+                        Server server = ServersList.getInstance().getServer(o.cid());
                         AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
                         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
                         View view = getDialogTextPrompt();
@@ -419,7 +439,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     }
 
     protected void showAlert(int cid, final String msg) {
-        final ServersDataSource.Server server = ServersDataSource.getInstance().getServer(cid);
+        final Server server = ServersList.getInstance().getServer(cid);
         if (server != null)
             runOnUiThread(new Runnable() {
                 @Override

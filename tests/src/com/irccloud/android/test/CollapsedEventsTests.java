@@ -16,13 +16,10 @@
 
 package com.irccloud.android.test;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.CollapsedEventsList;
-import com.irccloud.android.data.EventsDataSource;
-import com.irccloud.android.data.ServersDataSource;
 
 import junit.framework.TestCase;
 
@@ -36,7 +33,7 @@ public class CollapsedEventsTests extends TestCase {
         op.put("mode", mode);
         add.add(op);
 
-        EventsDataSource.Event e = new EventsDataSource.Event();
+        Event e = new Event();
         e.eid = eid++;
         e.type = "user_channel_mode";
         e.from = from;
@@ -59,7 +56,7 @@ public class CollapsedEventsTests extends TestCase {
         op.put("mode", mode);
         remove.add(op);
 
-        EventsDataSource.Event e = new EventsDataSource.Event();
+        Event e = new Event();
         e.eid = eid++;
         e.type = "user_channel_mode";
         e.from = from;
@@ -82,7 +79,7 @@ public class CollapsedEventsTests extends TestCase {
 
     public void testOwner2() {
         CollapsedEventsList list = new CollapsedEventsList();
-        ServersDataSource.Server s = new ServersDataSource.Server();
+        Server s = new Server();
         s.MODE_OWNER = "y";
         list.setServer(s);
         addMode(list, "y", "sam", "ChanServ");

@@ -48,10 +48,13 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.BuffersDataSource;
-import com.irccloud.android.data.ChannelsDataSource;
-import com.irccloud.android.data.EventsDataSource;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.model.Channel;
+import com.irccloud.android.data.collection.ChannelsList;
+import com.irccloud.android.data.model.Event;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
@@ -152,7 +155,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
         public BufferListAdapter(ListFragment context) {
             ctx = context;
-            data = new ArrayList<>(BuffersDataSource.getInstance().count() + ServersDataSource.getInstance().count() + 10);
+            data = new ArrayList<>(BuffersList.getInstance().count() + ServersList.getInstance().count() + 10);
             eightdp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getSafeResources().getDisplayMetrics());
         }
 
@@ -160,7 +163,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             data = items;
         }
 
-        public void updateBuffer(BuffersDataSource.Buffer b) {
+        public void updateBuffer(Buffer b) {
             int pos = positionForBid(b.bid);
             if (pos >= 0 && data != null && pos < data.size()) {
                 BufferListEntry e = data.get(pos);
@@ -204,14 +207,14 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 e.unread = unread;
                 e.highlights = highlights;
 
-                ServersDataSource.Server s = ServersDataSource.getInstance().getServer(e.cid);
+                Server s = ServersList.getInstance().getServer(e.cid);
                 if (s != null) {
                     e.status = s.status;
                     e.fail_info = s.fail_info;
                 }
 
                 if (b.type.equalsIgnoreCase("channel")) {
-                    ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+                    Channel c = ChannelsList.getInstance().getChannelForBuffer(b.bid);
                     if (c == null) {
                         e.joined = 0;
                         e.key = 0;
@@ -590,8 +593,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 return null;
             }
 
-            SparseArray<ServersDataSource.Server> serversArray = ServersDataSource.getInstance().getServers();
-            ArrayList<ServersDataSource.Server> servers = new ArrayList<ServersDataSource.Server>();
+            SparseArray<Server> serversArray = ServersList.getInstance().getServers();
+            ArrayList<Server> servers = new ArrayList<Server>();
 
             for (int i = 0; i < serversArray.size(); i++) {
                 servers.add(serversArray.valueAt(i));
@@ -624,17 +627,17 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 }
             }
 
-            for (ServersDataSource.Server s : servers) {
+            for (Server s : servers) {
                 if (isCancelled())
                     return null;
 
                 int archiveCount = 0;
-                ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(s.cid);
+                ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(s.cid);
                 for (int j = 0; j < buffers.size(); j++) {
                     if (isCancelled())
                         return null;
 
-                    BuffersDataSource.Buffer b = buffers.get(j);
+                    Buffer b = buffers.get(j);
                     if (b.type.equalsIgnoreCase("console")) {
                         int unread = 0;
                         int highlights = 0;
@@ -669,7 +672,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                         break;
                     }
                 }
-                for (BuffersDataSource.Buffer b : buffers) {
+                for (Buffer b : buffers) {
                     if (isCancelled())
                         return null;
 
@@ -678,7 +681,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     int joined = 1;
                     if (b.type.equalsIgnoreCase("channel")) {
                         type = TYPE_CHANNEL;
-                        ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(b.bid);
+                        Channel c = ChannelsList.getInstance().getChannelForBuffer(b.bid);
                         if (c == null)
                             joined = 0;
                         if (c != null && c.key)
@@ -727,7 +730,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Archives", null));
                     position++;
                     if (mExpandArchives.get(s.cid, false)) {
-                        for (BuffersDataSource.Buffer b : buffers) {
+                        for (Buffer b : buffers) {
                             int type = -1;
                             String contentDescription = null;
                             if (b.archived == 1) {
@@ -797,10 +800,10 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         int last_bid = selected_bid;
         selected_bid = bid;
         if (adapter != null) {
-            BuffersDataSource.Buffer b = BuffersDataSource.getInstance().getBuffer(last_bid);
+            Buffer b = BuffersList.getInstance().getBuffer(last_bid);
             if (b != null)
                 adapter.updateBuffer(b);
-            b = BuffersDataSource.getInstance().getBuffer(bid);
+            b = BuffersList.getInstance().getBuffer(bid);
             if (b != null)
                 adapter.updateBuffer(b);
             adapter.showProgress(adapter.positionForBid(bid));
@@ -919,7 +922,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-                return mListener.onBufferLongClicked(BuffersDataSource.getInstance().getBuffer(adapter.data.get(pos).bid));
+                return mListener.onBufferLongClicked(BuffersList.getInstance().getBuffer(adapter.data.get(pos).bid));
             }
 
         });
@@ -948,9 +951,9 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     public void onSaveInstanceState(Bundle state) {
         if (adapter != null && adapter.data != null && adapter.data.size() > 0) {
             ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
-            SparseArray<ServersDataSource.Server> servers = ServersDataSource.getInstance().getServers();
+            SparseArray<Server> servers = ServersList.getInstance().getServers();
             for (int i = 0; i < servers.size(); i++) {
-                ServersDataSource.Server s = servers.valueAt(i);
+                Server s = servers.valueAt(i);
                 if (mExpandArchives.get(s.cid, false))
                     expandedArchives.add(s.cid);
             }
@@ -1021,27 +1024,27 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     }
 
     public void onIRCEvent(int what, Object obj) {
-        BuffersDataSource.Buffer b;
+        Buffer b;
         IRCCloudJSONObject object = null;
         try {
             object = (IRCCloudJSONObject) obj;
         } catch (ClassCastException e) {
         }
-        EventsDataSource.Event event = null;
+        Event event = null;
         try {
-            event = (EventsDataSource.Event) obj;
+            event = (Event) obj;
         } catch (ClassCastException e) {
         }
         switch (what) {
             case NetworkConnection.EVENT_CHANNELMODE:
-                b = BuffersDataSource.getInstance().getBuffer(object.bid());
+                b = BuffersList.getInstance().getBuffer(object.bid());
                 if (b != null && adapter != null)
                     adapter.updateBuffer(b);
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
                 if (adapter != null) {
-                    ArrayList<BuffersDataSource.Buffer> buffers = BuffersDataSource.getInstance().getBuffersForServer(object.cid());
-                    for (BuffersDataSource.Buffer buffer : buffers) {
+                    ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(object.cid());
+                    for (Buffer buffer : buffers) {
                         adapter.updateBuffer(buffer);
                     }
                 }
@@ -1049,7 +1052,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_BUFFERMSG:
                 if (adapter != null) {
                     if (event.bid != selected_bid) {
-                        b = BuffersDataSource.getInstance().getBuffer(event.bid);
+                        b = BuffersList.getInstance().getBuffer(event.bid);
                         if (b != null && event.isImportant(b.type))
                             adapter.updateBuffer(b);
                     }
@@ -1067,7 +1070,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                         while (j.hasNext()) {
                             Map.Entry<String, JsonNode> eidentry = j.next();
                             Integer bid = Integer.valueOf(eidentry.getKey());
-                            b = BuffersDataSource.getInstance().getBuffer(bid);
+                            b = BuffersList.getInstance().getBuffer(bid);
                             if (b != null)
                                 adapter.updateBuffer(b);
                             count++;
@@ -1148,7 +1151,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 ready = true;
                 if (obj != null && adapter != null) {
                     Integer bid = (Integer) obj;
-                    b = BuffersDataSource.getInstance().getBuffer(bid);
+                    b = BuffersList.getInstance().getBuffer(bid);
                     if (b != null) {
                         adapter.updateBuffer(b);
                         break;
@@ -1198,7 +1201,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     public interface OnBufferSelectedListener {
         public void onBufferSelected(int bid);
 
-        public boolean onBufferLongClicked(BuffersDataSource.Buffer b);
+        public boolean onBufferLongClicked(Buffer b);
 
         public void addButtonPressed(int cid);
 

@@ -14,134 +14,70 @@
  * limitations under the License.
  */
 
-package com.irccloud.android.data;
+package com.irccloud.android.data.collection;
 
 
 
 import android.annotation.SuppressLint;
-import android.text.Spanned;
+import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
-import com.irccloud.android.Ignore;
 import com.irccloud.android.R;
+import com.irccloud.android.data.model.Event$Table;
+import com.irccloud.android.data.model.Event;
 import com.irccloud.android.fragment.MessageViewFragment;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import java.util.HashMap;
-import java.util.TimerTask;
+import java.util.List;
 import java.util.TreeMap;@SuppressLint("UseSparseArrays")
-public class EventsDataSource {
-
-    public static class Event {
-        public int cid;
-        public int bid;
-        public long eid;
-        public String timestamp;
-        public String type;
-        public String msg;
-        public String hostmask;
-        public String from;
-        public String from_mode;
-        public String nick;
-        public String old_nick;
-        public String server;
-        public String diff;
-        public String html;
-        public String chan;
-        public boolean highlight;
-        public boolean self;
-        public boolean to_chan;
-        public boolean to_buffer;
-        public int color;
-        public int bg_color;
-        public JsonNode ops;
-        public long group_eid;
-        public int row_type;
-        public String group_msg;
-        public boolean linkify;
-        public String target_mode;
-        public int reqid;
-        public boolean pending;
-        public boolean failed;
-        public String command;
-        public int day;
-        public Spanned formatted;
-        public String contentDescription;
-        public JsonNode entities;
-        public TimerTask expiration_timer;
-
-        public String toString() {
-            return "{" +
-                    "cid: " + cid +
-                    " bid: " + bid +
-                    " eid: " + eid +
-                    " type: " + type +
-                    " timestamp: " + timestamp +
-                    " from: " + from +
-                    " msg: " + msg +
-                    " html: " + html +
-                    " group_eid: " + group_eid +
-                    " group_msg: " + group_msg +
-                    " pending: " + pending +
-                    "}";
-        }
-
-        public synchronized boolean isImportant(String buffer_type) {
-            if (self)
-                return false;
-            if (type == null) {
-                return false;
-            }
-
-            Ignore ignore = new Ignore();
-            ServersDataSource.Server s = ServersDataSource.getInstance().getServer(cid);
-            if (s != null) {
-                ignore.setIgnores(s.ignores);
-                String from = this.from;
-                if (from == null || from.length() == 0)
-                    from = this.nick;
-                if (ignore.match(from + "!" + hostmask))
-                    return false;
-            }
-
-            if (type.equals("notice") || type.equalsIgnoreCase("channel_invite")) {
-                // Notices sent from the server (with no nick sender) aren't important
-                // e.g. *** Looking up your hostname...
-                if (from == null || from.length() == 0)
-                    return false;
-
-                // Notices and invites sent to a buffer shouldn't notify in the server buffer
-                if (buffer_type.equalsIgnoreCase("console") && (to_chan || to_buffer))
-                    return false;
-            }
-            return (type.equals("buffer_msg") ||
-                    type.equals("buffer_me_msg") ||
-                    type.equals("notice") ||
-                    type.equals("channel_invite") ||
-                    type.equals("callerid") ||
-                    type.equals("wallops"));
-        }
-    }
-
+public class EventsList {
     private final HashMap<Integer, TreeMap<Long, Event>> events;
-    private static EventsDataSource instance = null;
+    private static EventsList instance = null;
     public long highest_eid = -1;
 
-    public synchronized static EventsDataSource getInstance() {
+    public synchronized static EventsList getInstance() {
         if (instance == null)
-            instance = new EventsDataSource();
+            instance = new EventsList();
         return instance;
     }
 
-    public EventsDataSource() {
+    public EventsList() {
         events = new HashMap<>(100);
+    }
+
+    public void load() {
+        try {
+            List<Event> c = new Select().all().from(Event.class).queryList();
+            if(c != null && !c.isEmpty()) {
+                for(Event e : c) {
+                    addEvent(e);
+                }
+            }
+        } catch (SQLiteException e) {
+            events.clear();
+        }
+    }
+
+    public void save() {
+        for (int bid : events.keySet()) {
+            TreeMap<Long, Event> e = events.get(bid);
+            if(e != null) {
+                TransactionManager.getInstance().saveOnSaveQueue(e.values());
+            }
+        }
     }
 
     public void clear() {
         synchronized (events) {
             events.clear();
             highest_eid = -1;
+            new Delete().from(Event.class).queryClose();
         }
     }
 
@@ -151,6 +87,8 @@ public class EventsDataSource {
                 events.put(event.bid, new TreeMap<Long, Event>());
 
             events.get(event.bid).put(event.eid, event);
+            if(event.eid > highest_eid)
+                highest_eid = event.eid;
         }
     }
 
@@ -934,9 +872,6 @@ public class EventsDataSource {
             if (e.self)
                 e.bg_color = R.color.self;
 
-            if (highest_eid < event.eid())
-                highest_eid = event.eid();
-
             return e;
         }
     }
@@ -962,6 +897,7 @@ public class EventsDataSource {
             if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).containsKey(eid))
                 events.get(bid).remove(eid);
         }
+        new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).is(eid)).queryClose();
     }
 
     public void deleteEventsForBuffer(int bid) {
@@ -969,6 +905,7 @@ public class EventsDataSource {
             if (events.containsKey(bid) && events.get(bid) != null)
                 events.remove(bid);
         }
+        new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryClose();
     }
 
     public TreeMap<Long, Event> getEventsForBuffer(int bid) {
@@ -995,7 +932,9 @@ public class EventsDataSource {
         synchronized (events) {
             TreeMap<Long, Event> e = events.get(bid);
             while (e != null && e.size() > 50 && e.firstKey() != null) {
+                Event event = e.get(e.firstKey());
                 e.remove(e.firstKey());
+                event.delete();
             }
         }
     }

@@ -48,7 +48,8 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
+import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONArray;
@@ -205,7 +206,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
 
     PresetServersAdapter adapter;
 
-    ServersDataSource.Server server;
+    Server server;
 
     LinearLayout channelsWrapper;
     Spinner presets;
@@ -321,7 +322,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         init(v);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid"))
-            server = ServersDataSource.getInstance().getServer(savedInstanceState.getInt("cid"));
+            server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
 
         final AlertDialog d = new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
@@ -354,7 +355,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
     }
 
     public void setCid(int cid) {
-        server = ServersDataSource.getInstance().getServer(cid);
+        server = ServersList.getInstance().getServer(cid);
     }
 
     @Override

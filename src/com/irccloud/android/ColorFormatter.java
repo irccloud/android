@@ -34,7 +34,7 @@ import android.util.Patterns;
 
 import com.damnhandy.uri.template.UriTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.irccloud.android.data.ServersDataSource;
+import com.irccloud.android.data.model.Server;
 
 import org.xml.sax.XMLReader;
 
@@ -1239,11 +1239,11 @@ public class ColorFormatter {
         return html_to_spanned(msg, false, null, null);
     }
 
-    public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server) {
+    public static Spanned html_to_spanned(String msg, boolean linkify, final Server server) {
         return html_to_spanned(msg, linkify, server, null);
     }
 
-    public static Spanned html_to_spanned(String msg, boolean linkify, final ServersDataSource.Server server, final JsonNode entities) {
+    public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities) {
         if (msg == null)
             msg = "";
 
