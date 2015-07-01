@@ -150,7 +150,7 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
             listView.setAdapter(adapter);
         }
         Dialog d = new AlertDialog.Builder(ctx)
-                .setTitle("Ignore list for " + ServersList.getInstance().getServer(cid).name)
+                .setTitle("Ignore list for " + ServersList.getInstance().getServer(cid).getName())
                 .setView(v)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setPositiveButton("Add Ignore Mask", new AddClickListener())
@@ -180,7 +180,7 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
             final EditText input = (EditText) view.findViewById(R.id.textInput);
             input.setHint("nickname!user@host.name");
             prompt.setText("Ignore messages from this hostmask");
-            builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+            builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             builder.setView(view);
             builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
@@ -257,7 +257,7 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
         switch (what) {
             case NetworkConnection.EVENT_MAKESERVER:
                 Server s = (Server) obj;
-                if (s.cid == cid && getActivity() != null) {
+                if (s.getCid() == cid && getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {

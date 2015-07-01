@@ -256,7 +256,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
-                        builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+                        builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                         builder.setView(view);
                         builder.setPositiveButton("Join", new OnClickListener() {
                             @Override
@@ -320,7 +320,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
-                        builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+                        builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                         builder.setView(view);
                         builder.setPositiveButton("Change Nickname", new OnClickListener() {
                             @Override
@@ -446,7 +446,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                 public void run() {
                     AlertDialog.Builder builder = new AlertDialog.Builder(BaseActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                    builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setMessage(msg);
                     builder.setNegativeButton("Ok", new OnClickListener() {
                         @Override

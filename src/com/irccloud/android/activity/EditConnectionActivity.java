@@ -107,9 +107,9 @@ public class EditConnectionActivity extends AppCompatActivity implements Network
         switch (what) {
             case NetworkConnection.EVENT_MAKEBUFFER:
                 buffer = (Buffer) o;
-                if (buffer.cid == cidToOpen) {
+                if (buffer.getCid() == cidToOpen) {
                     Intent i = new Intent(EditConnectionActivity.this, MainActivity.class);
-                    i.putExtra("bid", buffer.bid);
+                    i.putExtra("bid", buffer.getBid());
                     startActivity(i);
                     finish();
                 }

@@ -35,32 +35,32 @@ import java.util.List;
 public class BuffersList {
     public class comparator implements Comparator<Buffer> {
         public int compare(Buffer b1, Buffer b2) {
-            if (b1.cid < b2.cid)
+            if (b1.getCid() < b2.getCid())
                 return -1;
-            if (b1.cid > b2.cid)
+            if (b1.getCid() > b2.getCid())
                 return 1;
-            if (b1.type.equals("console"))
+            if (b1.getType().equals("console"))
                 return -1;
-            if (b2.type.equals("console"))
+            if (b2.getType().equals("console"))
                 return 1;
-            if (b1.bid == b2.bid)
+            if (b1.getBid() == b2.getBid())
                 return 0;
             int joined1 = 1, joined2 = 1;
-            Channel c = ChannelsList.getInstance().getChannelForBuffer(b1.bid);
+            Channel c = ChannelsList.getInstance().getChannelForBuffer(b1.getBid());
             if (c == null)
                 joined1 = 0;
-            c = ChannelsList.getInstance().getChannelForBuffer(b2.bid);
+            c = ChannelsList.getInstance().getChannelForBuffer(b2.getBid());
             if (c == null)
                 joined2 = 0;
-            if (b1.type.equals("conversation") && b2.type.equals("channel")) {
+            if (b1.getType().equals("conversation") && b2.getType().equals("channel")) {
                 return 1;
-            } else if (b1.type.equals("channel") && b2.type.equals("conversation")) {
+            } else if (b1.getType().equals("channel") && b2.getType().equals("conversation")) {
                 return -1;
             } else if (joined1 != joined2) {
                 return joined2 - joined1;
             } else {
                 if (collator.compare(b1.normalizedName(), b2.normalizedName()) == 0)
-                    return (b1.bid < b2.bid) ? -1 : 1;
+                    return (b1.getBid() < b2.getBid()) ? -1 : 1;
                 return collator.compare(b1.normalizedName(), b2.normalizedName());
             }
         }
@@ -94,11 +94,13 @@ public class BuffersList {
 
     public void load() {
         try {
+            buffers.clear();
+            buffers_indexed.clear();
             List<Buffer> c = new Select().all().from(Buffer.class).queryList();
             if (c != null && !c.isEmpty()) {
                 for (Buffer b : c) {
                     buffers.add(b);
-                    buffers_indexed.put(b.bid, b);
+                    buffers_indexed.put(b.getBid(), b);
                 }
             }
         } catch (SQLiteException e) {
@@ -118,7 +120,7 @@ public class BuffersList {
 
     public int firstBid() {
         if (buffers_indexed.size() > 0)
-            return buffers_indexed.valueAt(0).bid;
+            return buffers_indexed.valueAt(0).getBid();
         else
             return -1;
     }
@@ -130,78 +132,28 @@ public class BuffersList {
             buffers.add(b);
             buffers_indexed.put(bid, b);
         }
-        b.bid = bid;
-        b.cid = cid;
-        b.min_eid = min_eid;
-        b.last_seen_eid = last_seen_eid;
-        b.name = name;
-        b.type = type;
-        b.archived = archived;
-        b.deferred = deferred;
-        b.timeout = timeout;
-        b.valid = 1;
+        b.setBid(bid);
+        b.setCid(cid);
+        b.setMin_eid(min_eid);
+        b.setLast_seen_eid(last_seen_eid);
+        b.setName(name);
+        b.setType(type);
+        b.setArchived(archived);
+        b.setDeferred(deferred);
+        b.setTimeout(timeout);
+        b.setValid(1);
+        b.setUnread(0);
+        b.setHighlights(0);
         dirty = true;
-        b.unread = 0;
-        b.highlights = 0;
         return b;
-    }
-
-    public synchronized void updateLastSeenEid(int bid, long last_seen_eid) {
-        Buffer b = getBuffer(bid);
-        if (b != null && b.last_seen_eid < last_seen_eid) {
-            b.last_seen_eid = last_seen_eid;
-            TransactionManager.getInstance().saveOnSaveQueue(b);
-        }
-    }
-
-    public synchronized void updateArchived(int bid, int archived) {
-        Buffer b = getBuffer(bid);
-        if (b != null) {
-            b.archived = archived;
-            TransactionManager.getInstance().saveOnSaveQueue(b);
-        }
-        dirty = true;
-    }
-
-    public synchronized void updateTimeout(int bid, int timeout) {
-        Buffer b = getBuffer(bid);
-        if (b != null) {
-            b.timeout = timeout;
-            TransactionManager.getInstance().saveOnSaveQueue(b);
-        }
-    }
-
-    public synchronized void updateName(int bid, String name) {
-        Buffer b = getBuffer(bid);
-        if (b != null) {
-            b.name = name;
-            TransactionManager.getInstance().saveOnSaveQueue(b);
-        }
-        dirty = true;
-    }
-
-    public synchronized void updateAway(int cid, String nick, String away_msg) {
-        Buffer b = getBufferByName(cid, nick);
-        if (b != null) {
-            b.away_msg = away_msg;
-            TransactionManager.getInstance().saveOnSaveQueue(b);
-        }
-    }
-
-    public synchronized void updateDraft(int bid, String draft) {
-        Buffer b = getBuffer(bid);
-        if (b != null) {
-            b.draft = draft;
-            TransactionManager.getInstance().saveOnSaveQueue(b);
-        }
     }
 
     public synchronized void deleteAllDataForBuffer(int bid) {
         Buffer b = getBuffer(bid);
         if (b != null) {
-            if (b.type.equalsIgnoreCase("channel")) {
+            if (b.getType().equalsIgnoreCase("channel")) {
                 ChannelsList.getInstance().deleteChannel(bid);
-                UsersList.getInstance().deleteUsersForBuffer(b.bid);
+                UsersList.getInstance().deleteUsersForBuffer(b.getBid());
             }
             EventsList.getInstance().deleteEventsForBuffer(bid);
             buffers.remove(b);
@@ -217,7 +169,7 @@ public class BuffersList {
 
     public synchronized Buffer getBufferByName(int cid, String name) {
         for (Buffer b : buffers) {
-            if (b.cid == cid && b.name.equalsIgnoreCase(name))
+            if (b.getCid() == cid && b.getName().equalsIgnoreCase(name))
                 return b;
         }
         return null;
@@ -233,7 +185,7 @@ public class BuffersList {
             dirty = false;
         }
         for (Buffer b : buffers) {
-            if (b.cid == cid)
+            if (b.getCid() == cid)
                 list.add(b);
         }
         return list;
@@ -249,7 +201,7 @@ public class BuffersList {
 
     public synchronized void invalidate() {
         for (Buffer b : buffers) {
-            b.valid = 0;
+            b.setValid(0);
         }
     }
 
@@ -258,19 +210,19 @@ public class BuffersList {
         Iterator<Buffer> i = buffers.iterator();
         while (i.hasNext()) {
             Buffer b = i.next();
-            if (b.valid == 0)
+            if (b.getValid() == 0)
                 buffersToRemove.add(b);
         }
         i = buffersToRemove.iterator();
         while (i.hasNext()) {
             Buffer b = i.next();
-            EventsList.getInstance().deleteEventsForBuffer(b.bid);
-            ChannelsList.getInstance().deleteChannel(b.bid);
-            UsersList.getInstance().deleteUsersForBuffer(b.bid);
+            EventsList.getInstance().deleteEventsForBuffer(b.getBid());
+            ChannelsList.getInstance().deleteChannel(b.getBid());
+            UsersList.getInstance().deleteUsersForBuffer(b.getBid());
             buffers.remove(b);
-            buffers_indexed.remove(b.bid);
-            if (b.type.equalsIgnoreCase("console")) {
-                ServersList.getInstance().deleteServer(b.cid);
+            buffers_indexed.remove(b.getBid());
+            if (b.getType().equalsIgnoreCase("console")) {
+                ServersList.getInstance().deleteServer(b.getCid());
             }
             b.delete();
         }

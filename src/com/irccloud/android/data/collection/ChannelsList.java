@@ -51,6 +51,7 @@ public class ChannelsList {
 
     public void load() {
         try {
+            channels.clear();
             List<Channel> c = new Select().all().from(Channel.class).queryList();
             if (c != null && !c.isEmpty()) {
                 for (Channel s : c) {

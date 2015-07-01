@@ -45,7 +45,7 @@ import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends 
         @Override
         public void onClick(DialogInterface dialog, int which) {
             if (pass.getText() != null && pass.getText().length() > 0) {
-                NetworkConnection.getInstance().set_nspass(server.cid, pass.getText().toString());
+                NetworkConnection.getInstance().set_nspass(server.getCid(), pass.getText().toString());
                 dismiss();
             }
         }
@@ -54,7 +54,7 @@ import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends 
     class InstructionsClickListener implements DialogInterface.OnClickListener {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-            NetworkConnection.getInstance().ns_help_register(server.cid);
+            NetworkConnection.getInstance().ns_help_register(server.getCid());
             dismiss();
         }
     }
@@ -62,9 +62,9 @@ import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends 
     public void setCid(int cid) {
         server = ServersList.getInstance().getServer(cid);
         if (nick != null && server != null) {
-            nick.setText("Password for " + server.nick);
-            if (server.nickserv_pass != null)
-                pass.setText(server.nickserv_pass);
+            nick.setText("Password for " + server.getNick());
+            if (server.getNickserv_pass() != null)
+                pass.setText(server.getNickserv_pass());
         }
     }
 
@@ -81,15 +81,15 @@ import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends 
         View v = inflater.inflate(R.layout.dialog_nickserv, null);
         nick = (TextView) v.findViewById(R.id.nickname);
         pass = (EditText) v.findViewById(R.id.password);
-        nick.setText("Password for " + server.nick);
-        if (server.nickserv_pass != null)
-            pass.setText(server.nickserv_pass);
+        nick.setText("Password for " + server.getNick());
+        if (server.getNickserv_pass() != null)
+            pass.setText(server.getNickserv_pass());
 
         String title = "Identify your nickname on ";
-        if (server.name != null && server.name.length() > 0)
-            title += server.name;
+        if (server.getName() != null && server.getName().length() > 0)
+            title += server.getName();
         else
-            title += server.hostname;
+            title += server.getHostname();
 
         AlertDialog d = new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)

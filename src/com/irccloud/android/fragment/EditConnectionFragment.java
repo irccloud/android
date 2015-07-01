@@ -247,9 +247,9 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0) {
                     if (server != null) {
-                        hostname.setText(server.hostname);
-                        port.setText(String.valueOf(server.port));
-                        ssl.setChecked(server.ssl == 1);
+                        hostname.setText(server.getHostname());
+                        port.setText(String.valueOf(server.getPort()));
+                        ssl.setChecked(server.getSsl() == 1);
                     } else {
                         if (default_hostname != null)
                             hostname.setText(default_hostname);
@@ -269,9 +269,9 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 if (server != null) {
-                    hostname.setText(server.hostname);
-                    port.setText(String.valueOf(server.port));
-                    ssl.setChecked(server.ssl == 1);
+                    hostname.setText(server.getHostname());
+                    port.setText(String.valueOf(server.getPort()));
+                    ssl.setChecked(server.getSsl() == 1);
                 } else {
                     if (default_hostname != null)
                         hostname.setText(default_hostname);
@@ -366,16 +366,16 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             presets.setSelection(0);
             presets.setVisibility(View.GONE);
             network.setVisibility(View.VISIBLE);
-            network.setText(server.name);
+            network.setText(server.getName());
             channelsWrapper.setVisibility(View.GONE);
-            hostname.setText(server.hostname);
-            port.setText(String.valueOf(server.port));
-            ssl.setChecked(server.ssl > 0);
-            nickname.setText(server.nick);
-            realname.setText(server.realname);
-            join_commands.setText(server.join_commands);
-            nickserv_pass.setText(server.nickserv_pass);
-            server_pass.setText(server.server_pass);
+            hostname.setText(server.getHostname());
+            port.setText(String.valueOf(server.getPort()));
+            ssl.setChecked(server.getSsl() > 0);
+            nickname.setText(server.getNick());
+            realname.setText(server.getRealname());
+            join_commands.setText(server.getJoin_commands());
+            nickserv_pass.setText(server.getNickserv_pass());
+            server_pass.setText(server.getServer_pass());
         } else {
             if (adapter == null)
                 new LoadNetworkPresets().execute((Void) null);
@@ -412,7 +412,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         if (server != null)
-            savedInstanceState.putInt("cid", server.cid);
+            savedInstanceState.putInt("cid", server.getCid());
     }
 
     public int save() {
@@ -433,7 +433,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
             String netname = network.getText().toString();
             if (hostname.getText().toString().equalsIgnoreCase(netname))
                 netname = null;
-            return NetworkConnection.getInstance().editServer(server.cid, hostname.getText().toString(), portValue,
+            return NetworkConnection.getInstance().editServer(server.getCid(), hostname.getText().toString(), portValue,
                     ssl.isChecked() ? 1 : 0, netname, nickname.getText().toString(), realname.getText().toString(), server_pass.getText().toString(),
                     nickserv_pass.getText().toString(), join_commands.getText().toString());
 

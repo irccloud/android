@@ -53,7 +53,7 @@ public class AddChannelFragment extends DialogFragment {
         public void onClick(DialogInterface dialog, int which) {
             int pos = spinner.getSelectedItemPosition();
             if (pos >= 0 && pos < servers.size()) {
-                int cid = servers.valueAt(spinner.getSelectedItemPosition()).cid;
+                int cid = servers.valueAt(spinner.getSelectedItemPosition()).getCid();
                 String[] splitchannels = channels.getText().toString().split(",");
                 for (int i = 0; i < splitchannels.length; i++) {
                     String[] channelandkey = splitchannels[i].split(" ");
@@ -79,8 +79,8 @@ public class AddChannelFragment extends DialogFragment {
 
         ArrayList<String> servernames = new ArrayList<String>();
         for (int i = 0; i < servers.size(); i++) {
-            servernames.add(servers.valueAt(i).name);
-            if (servers.valueAt(i).cid == defaultCid)
+            servernames.add(servers.valueAt(i).getName());
+            if (servers.valueAt(i).getCid() == defaultCid)
                 pos = i;
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, android.R.id.text1, servernames.toArray(new String[servernames.size()]));

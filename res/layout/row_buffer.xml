@@ -15,81 +15,93 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg"
-    android:descendantFocusability="blocksDescendants"
-    android:minHeight="48dp"
-    android:orientation="horizontal" >
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+	<data>
+		<import type="android.view.View"/>
+		<import type="android.graphics.Typeface"/>
+		<variable name="buffer" type="com.irccloud.android.data.model.Buffer"/>
+		<variable name="server" type="com.irccloud.android.data.model.Server"/>
+		<variable name="selected" type="boolean"/>
+	</data>
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@drawable/bg"
+		android:descendantFocusability="blocksDescendants"
+		android:minHeight="48dp"
+		android:orientation="horizontal" >
 
-    <LinearLayout
-        android:id="@+id/unread"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginRight="8dp"
-        android:background="@drawable/bg"
-        android:paddingLeft="8dp" >
+		<LinearLayout
+			android:id="@+id/unread"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:layout_marginTop='@{ (buffer.type.equals(buffer.TYPE_CONSOLE) || buffer.type.equals(buffer.TYPE_ADD_NETWORK) || buffer.type.equals(buffer.TYPE_REORDER)) ? @dimen/activity_vertical_margin : 0 }'
+			android:layout_marginRight="8dp"
+			android:paddingLeft="8dp" >
 
-      	    <LinearLayout
-      	        android:id="@+id/bufferbg"
-      	        android:layout_width="match_parent"
-      	        android:layout_height="match_parent"
-      	        android:background="@drawable/row_buffer_bg"
-      	        android:gravity="center_vertical" >
-	
-		        <ImageView
-		            android:id="@+id/icon"
-		            android:layout_width="16dp"
-		            android:layout_height="16dp"
-		            android:layout_marginLeft="4dp"
-		            android:layout_marginRight="4dp"
-		            android:layout_weight="0"
-		            android:src="@drawable/lock" />
+				<LinearLayout
+					android:id="@+id/bufferbg"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:gravity="center_vertical" >
 
-		        <TextView
-		            android:id="@+id/label"
-		            android:layout_width="wrap_content"
-		            android:layout_height="fill_parent"
-		            android:layout_weight="1"
-		            android:ellipsize="end"
-		            android:gravity="center_vertical"
-		            android:lines="1"
-		            android:maxLines="1"
-		            android:paddingRight="6dp"
-		            android:textColor="@color/row_label"
-		            android:textSize="16sp" />
-			    
-			    <TextView
-			        android:id="@+id/highlights"
-			        android:layout_width="wrap_content"
-			        android:layout_height="wrap_content"
-			        android:layout_marginRight="4dp"
-			        android:background="@drawable/highlights_bg"
-			        android:gravity="center"
-			        android:minHeight="24dp"
-			        android:minWidth="24dp"
-			        android:padding="4dp"
-			        android:textColor="#fff"
-			        android:textStyle="bold" />
+					<ImageView
+						android:id="@+id/icon"
+						android:layout_width="16dp"
+						android:layout_height="16dp"
+						android:layout_marginLeft="4dp"
+						android:layout_marginRight="4dp"
+						android:layout_weight="0"
+						android:visibility='@{(buffer.icon != 0 || buffer.type.equals(buffer.TYPE_CONSOLE)) ? View.VISIBLE : View.INVISIBLE }'
+						android:src='@{buffer.type.equals(buffer.TYPE_CONSOLE) ? server.icon : buffer.icon}' />
 
-				<ProgressBar
-   			        android:id="@+id/progressBar"
-   			        android:layout_width="wrap_content"
-   			        android:layout_height="wrap_content"
-   			        android:layout_weight="0"
-   			        android:padding="4dp"
-   			        style="?android:attr/progressBarStyleSmall"
-   			        android:visibility="gone" />
+					<TextView
+						android:id="@+id/label"
+						android:layout_width="wrap_content"
+						android:layout_height="fill_parent"
+						android:layout_weight="1"
+						android:ellipsize="end"
+						android:gravity="center_vertical"
+						android:lines="1"
+						android:maxLines="1"
+						android:paddingRight="6dp"
+						android:text='@{buffer.type.equals(buffer.TYPE_CONSOLE) ? (server.name ?? server.hostname) : buffer.name}'
+						android:typeface="@{(selected || buffer.unread > 0) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
+						android:textSize="16sp" />
+					<TextView
+						android:id="@+id/highlights"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_marginRight="4dp"
+						android:background="@drawable/highlights_bg"
+						android:gravity="center"
+						android:minHeight="24dp"
+						android:minWidth="24dp"
+						android:padding="4dp"
+						android:textColor="#fff"
+						android:text="@{String.valueOf(buffer.highlights)}"
+						android:visibility="@{(buffer.highlights > 0) ? View.VISIBLE : View.GONE }"
+						android:textStyle="bold" />
 
-                <ImageButton
-                    android:id="@+id/addBtn"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginLeft="8dp"
-                    android:background="@null"
-                    android:contentDescription="Join a channel"
-                    android:src="@drawable/add" />
-	   		</LinearLayout>
+					<ProgressBar
+						android:id="@+id/progressBar"
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:layout_weight="0"
+						android:padding="4dp"
+						style="?android:attr/progressBarStyleSmall"
+						android:visibility="gone" />
+
+					<ImageButton
+						android:id="@+id/addBtn"
+						android:layout_width="48dp"
+						android:layout_height="48dp"
+						android:layout_marginLeft="8dp"
+						android:background="@null"
+						android:contentDescription="Join a channel"
+						android:visibility='@{(buffer.type.equals(buffer.TYPE_CONSOLE)) ? View.VISIBLE : View.GONE }'
+						android:src="@drawable/add" />
+				</LinearLayout>
+		</LinearLayout>
 	</LinearLayout>
-</LinearLayout>
+</layout>

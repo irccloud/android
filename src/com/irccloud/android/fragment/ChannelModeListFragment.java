@@ -219,7 +219,7 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
             final EditText input = (EditText) view.findViewById(R.id.textInput);
             input.setHint("nickname!user@host.name");
             prompt.setText("Add this hostmask");
-            builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+            builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
             builder.setView(view);
             builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                 @Override
@@ -267,7 +267,7 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         data = event.getJsonNode(list);
         Server s = ServersList.getInstance().getServer(cid);
         if(s != null) {
-            User self_user = UsersList.getInstance().getUser(bid, s.nick);
+            User self_user = UsersList.getInstance().getUser(bid, s.getNick());
             canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
         } else {
             canChangeMode = false;
@@ -298,7 +298,7 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         }
         Server s = ServersList.getInstance().getServer(cid);
         if (s != null) {
-            User self_user = UsersList.getInstance().getUser(bid, s.nick);
+            User self_user = UsersList.getInstance().getUser(bid, s.getNick());
             canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP) || self_user.mode.contains(s.MODE_HALFOP)));
         } else {
             canChangeMode = false;
@@ -328,7 +328,7 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         switch (what) {
             case NetworkConnection.EVENT_USERCHANNELMODE:
                 Server s = ServersList.getInstance().getServer(cid);
-                User self_user = UsersList.getInstance().getUser(bid, s.nick);
+                User self_user = UsersList.getInstance().getUser(bid, s.getNick());
                 canChangeMode = (self_user != null && (self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(s.MODE_OP)));
                 getActivity().runOnUiThread(new Runnable() {
                     @Override

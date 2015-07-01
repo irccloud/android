@@ -32,6 +32,7 @@
 -dontwarn com.android.vending.billing.**
 -dontwarn java.beans.**
 -dontobfuscate
+-dontwarn android.databinding.**
 
 #Play Services
 -keep class * extends java.util.ListResourceBundle {

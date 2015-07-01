@@ -1434,7 +1434,7 @@ public class ColorFormatter {
                         channel = URLEncoder.encode(channel, "UTF-8");
                     } catch (UnsupportedEncodingException e) {
                     }
-                    return IRCCloudApplication.getInstance().getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.cid + "/" + channel;
+                    return IRCCloudApplication.getInstance().getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.getCid() + "/" + channel;
                 }
             });
         }

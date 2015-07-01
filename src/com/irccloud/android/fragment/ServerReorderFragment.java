@@ -66,10 +66,10 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
             String cids = "";
             for (int i = 0; i < adapter.data.size(); i++) {
                 s = adapter.data.get(i);
-                s.order = i + 1;
+                s.setOrder(i + 1);
                 if (cids.length() > 0)
                     cids += ",";
-                cids += s.cid;
+                cids += s.getCid();
             }
             NetworkConnection.getInstance().reorder_connections(cids);
         }
@@ -130,17 +130,17 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
                 holder = (ViewHolder) row.getTag();
             }
 
-            if (s.name != null && s.name.length() > 0)
-                holder.label.setText(s.name);
+            if (s.getName() != null && s.getName().length() > 0)
+                holder.label.setText(s.getName());
             else
-                holder.label.setText(s.hostname);
+                holder.label.setText(s.getHostname());
 
-            if (s.ssl > 0)
+            if (s.getSsl() > 0)
                 holder.icon.setImageResource(R.drawable.world_shield);
             else
                 holder.icon.setImageResource(R.drawable.world);
 
-            if (s.status != null && s.status.equals("connected_ready")) {
+            if (s.getStatus() != null && s.getStatus().equals("connected_ready")) {
                 holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
             } else {
                 holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));

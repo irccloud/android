@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.model.Buffer;
 
 import org.json.JSONObject;
 
@@ -83,8 +84,10 @@ public class GCMIntentService extends IntentService {
                                         Map.Entry<String, JsonNode> eidentry = j.next();
                                         String bid = eidentry.getKey();
                                         long eid = eidentry.getValue().asLong();
-                                        if (conn.ready && conn.getState() != NetworkConnection.STATE_CONNECTED)
-                                            BuffersList.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                                        if (conn.ready && conn.getState() != NetworkConnection.STATE_CONNECTED) {
+                                            Buffer b = BuffersList.getInstance().getBuffer(Integer.valueOf(bid));
+                                            b.setLast_seen_eid(eid);
+                                        }
                                         Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
                                         Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
                                     }

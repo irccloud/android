@@ -16,7 +16,19 @@
 
 package com.irccloud.android.data.model;
 
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.databinding.Bindable;
+import android.databinding.PropertyChangeRegistry;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
+
+import com.irccloud.android.BR;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
+import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.collection.ServersList;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
@@ -24,80 +36,365 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @Table(databaseName = IRCCloudDatabase.NAME,
         uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class Buffer extends BaseModel {
-    @Column
-    @PrimaryKey
-    @Unique(unique = false, uniqueGroups = 1)
-    public int bid;
+public class Buffer extends BaseModel implements android.databinding.Observable {
+    public static final String TYPE_CONSOLE = "console";
+    public static final String TYPE_CHANNEL = "channel";
+    public static final String TYPE_CONVERSATION = "conversation";
+    public static final String TYPE_ARCHIVES_HEADER = "archives_header";
+    public static final String TYPE_JOIN_CHANNEL = "join_channel";
+    public static final String TYPE_ADD_NETWORK = "add_network";
+    public static final String TYPE_REORDER = "reorder";
 
     @Column
     @PrimaryKey
     @Unique(unique = false, uniqueGroups = 1)
-    public int cid;
+    private int bid = -1;
 
     @Column
-    public long min_eid;
+    @PrimaryKey
+    @Unique(unique = false, uniqueGroups = 1)
+    private int cid = -1;
 
     @Column
-    public long last_seen_eid;
+    private long min_eid;
 
     @Column
-    public String name;
+    private long last_seen_eid;
 
     @Column
-    public String type;
+    private String name;
 
     @Column
-    public int archived;
+    private String type;
 
     @Column
-    public int deferred;
+    private int archived;
 
     @Column
-    public int timeout;
+    private int deferred;
 
     @Column
-    public String away_msg;
+    private int timeout;
 
     @Column
-    public String draft;
+    private String away_msg;
 
     @Column
-    public String chan_types;
+    private String draft;
 
     @Column
-    public boolean scrolledUp;
+    private String chan_types;
 
     @Column
-    public int scrollPosition;
+    private boolean scrolledUp;
 
     @Column
-    public int scrollPositionOffset;
+    private int scrollPosition;
 
     @Column
-    public int unread;
+    private int scrollPositionOffset;
 
     @Column
-    public int highlights;
+    private int unread;
 
-    public int valid = 1;
+    @Column
+    private int highlights;
+
+    private int valid = 1;
 
     public String toString() {
-        return "{cid:" + cid + ", bid:" + bid + ", name: " + name + ", type: " + type + ", archived: " + archived + "}";
+        return "{cid:" + getCid() + ", bid:" + getBid() + ", name: " + getName() + ", type: " + getType() + ", archived: " + getArchived() + "}";
     }
 
     public String normalizedName() {
-        if (chan_types == null || chan_types.length() < 2) {
-            Server s = ServersList.getInstance().getServer(cid);
+        if (getChan_types() == null || getChan_types().length() < 2) {
+            Server s = ServersList.getInstance().getServer(getCid());
             if (s != null && s.CHANTYPES != null && s.CHANTYPES.length() > 0)
-                chan_types = s.CHANTYPES;
+                setChan_types(s.CHANTYPES);
             else
-                chan_types = "#";
+                setChan_types("#");
         }
-        return name.replaceAll("^[" + chan_types + "]+", "");
+        return getName().replaceAll("^[" + getChan_types() + "]+", "");
+    }
+
+
+    public int getBid() {
+        return bid;
+    }
+
+    public void setBid(int bid) {
+        this.bid = bid;
+    }
+
+    public int getCid() {
+        return cid;
+    }
+
+    public void setCid(int cid) {
+        this.cid = cid;
+    }
+
+    public long getMin_eid() {
+        return min_eid;
+    }
+
+    public void setMin_eid(long min_eid) {
+        this.min_eid = min_eid;
+    }
+
+    public long getLast_seen_eid() {
+        return last_seen_eid;
+    }
+
+    public void setLast_seen_eid(long last_seen_eid) {
+        if(this.last_seen_eid < last_seen_eid)
+            this.last_seen_eid = last_seen_eid;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+    }
+
+    @Bindable
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        BuffersList.getInstance().dirty = true;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+        callbacks.notifyChange(this, BR.name);
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getArchived() {
+        return archived;
+    }
+
+    public void setArchived(int archived) {
+        this.archived = archived;
+        BuffersList.getInstance().dirty = true;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+    }
+
+    public int getDeferred() {
+        return deferred;
+    }
+
+    public void setDeferred(int deferred) {
+        this.deferred = deferred;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+    }
+
+    public String getAway_msg() {
+        return away_msg;
+    }
+
+    public void setAway_msg(String away_msg) {
+        this.away_msg = away_msg;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+    }
+
+    public String getDraft() {
+        return draft;
+    }
+
+    public void setDraft(String draft) {
+        this.draft = draft;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+    }
+
+    public String getChan_types() {
+        return chan_types;
+    }
+
+    public void setChan_types(String chan_types) {
+        this.chan_types = chan_types;
+    }
+
+    public boolean getScrolledUp() {
+        return scrolledUp;
+    }
+
+    public void setScrolledUp(boolean scrolledUp) {
+        this.scrolledUp = scrolledUp;
+    }
+
+    public int getScrollPosition() {
+        return scrollPosition;
+    }
+
+    public void setScrollPosition(int scrollPosition) {
+        this.scrollPosition = scrollPosition;
+    }
+
+    public int getScrollPositionOffset() {
+        return scrollPositionOffset;
+    }
+
+    public void setScrollPositionOffset(int scrollPositionOffset) {
+        this.scrollPositionOffset = scrollPositionOffset;
+    }
+
+    @Bindable
+    public int getUnread() {
+        JSONObject channelDisabledMap = null;
+        JSONObject bufferDisabledMap = null;
+        NetworkConnection conn = NetworkConnection.getInstance();
+
+        if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+            try {
+                if (conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
+                    channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
+                if (conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
+                    bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+            } catch (JSONException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+        }
+
+        try {
+            if (type.equals(TYPE_CHANNEL) && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(bid)) && channelDisabledMap.getBoolean(String.valueOf(bid))) {
+                return 0;
+            } else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(bid)) && bufferDisabledMap.getBoolean(String.valueOf(bid))) {
+                return 0;
+            }
+            if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
+                return unread;
+            } else {
+                return 0;
+            }
+        } catch (JSONException e) {
+            return 0;
+        }
+    }
+
+    public void setUnread(int unread) {
+        this.unread = unread;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+        callbacks.notifyChange(this, BR.unread);
+    }
+
+    @Bindable
+    public int getHighlights() {
+        return highlights;
+    }
+
+    public void setHighlights(int highlights) {
+        this.highlights = highlights;
+        if(this.bid != -1)
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+        callbacks.notifyChange(this, BR.highlights);
+    }
+
+    public int getValid() {
+        return valid;
+    }
+
+    public void setValid(int valid) {
+        this.valid = valid;
+    }
+
+    @Override
+    public void save() {
+        if(bid != -1)
+            super.save();
+    }
+
+    public boolean isJoined() {
+        return ChannelsList.getInstance().getChannelForBuffer(bid) != null;
+    }
+
+    @Bindable public String getContentDescription() {
+        if(type.equals(TYPE_CHANNEL))
+            return "Channel " + normalizedName();
+        else
+            return "Conversation with " + normalizedName();
+    }
+
+    PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
+
+    @Override
+    public void addOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @Override
+    public void removeOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
+        callbacks.remove(callback);
+    }
+
+    @Bindable
+    public int getTextColor() {
+        if (type.equals(TYPE_ARCHIVES_HEADER)) {
+            return R.color.row_label_archives_heading;
+        } else if (type.equals(TYPE_JOIN_CHANNEL)) {
+            return R.color.row_label_join;
+        } else if (archived == 1) {
+            return R.color.row_label_archived;
+        } else if (type.equals(TYPE_CHANNEL) && !isJoined()) {
+            return R.color.row_label_inactive;
+        } else if (unread > 0) {
+            return R.color.row_label_unread;
+        } else {
+            return R.color.row_label;
+        }
+    }
+
+    @Bindable
+    public int getIcon() {
+        switch(type) {
+            case TYPE_JOIN_CHANNEL:
+                return R.drawable.add;
+            case TYPE_REORDER:
+                return R.drawable.move;
+            case TYPE_ADD_NETWORK:
+                return R.drawable.world_add;
+            case TYPE_CHANNEL:
+                Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
+                if(c != null && c.hasMode("k"))
+                    return R.drawable.lock;
+                break;
+            default:
+                break;
+        }
+        return 0;
+    }
+
+    @Bindable
+    public int getBackgroundResource() {
+        if(type.equals(TYPE_CHANNEL) || type.equals(TYPE_CONVERSATION) || type.equals(TYPE_ARCHIVES_HEADER) || type.equals(TYPE_JOIN_CHANNEL))
+            return (archived == 0)?R.drawable.row_buffer_bg:R.drawable.row_buffer_bg_archived;
+        else
+            return R.drawable.row_buffergroup_bg;
     }
 }

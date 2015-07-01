@@ -564,7 +564,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private void show_topic_popup() {
         if(buffer == null)
             return;
-        Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.bid);
+        Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
         if (c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
@@ -624,7 +624,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             });
             boolean canEditTopic;
             if (c.hasMode("t")) {
-                User self_user = UsersList.getInstance().getUser(buffer.bid, server.nick);
+                User self_user = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                 canEditTopic = (self_user != null && (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")));
             } else {
                 canEditTopic = true;
@@ -687,9 +687,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     sortedChannels = channels;
                 }
 
-                if (buffer != null && messageTxt.getText().length() > 0 && buffer.type.equals("channel") && buffer.name.toLowerCase().startsWith(text) && !sugs_set.contains(buffer.name)) {
-                    sugs_set.add(buffer.name);
-                    sugs.add(buffer.name);
+                if (buffer != null && messageTxt.getText().length() > 0 && buffer.getType().equals("channel") && buffer.getName().toLowerCase().startsWith(text) && !sugs_set.contains(buffer.getName())) {
+                    sugs_set.add(buffer.getName());
+                    sugs.add(buffer.getName());
                 }
                 if(channels != null) {
                     for (Channel channel : channels) {
@@ -713,14 +713,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 boolean disabled;
                 try {
-                    disabled = disableAutoSuggest != null && disableAutoSuggest.has(String.valueOf(buffer.bid)) && disableAutoSuggest.getBoolean(String.valueOf(buffer.bid));
+                    disabled = disableAutoSuggest != null && disableAutoSuggest.has(String.valueOf(buffer.getBid())) && disableAutoSuggest.getBoolean(String.valueOf(buffer.getBid()));
                 } catch (JSONException e) {
                     disabled = false;
                 }
 
                 ArrayList<User> users = sortedUsers;
                 if (users == null && buffer != null && (force || !disabled)) {
-                    users = UsersList.getInstance().getUsersForBuffer(buffer.bid);
+                    users = UsersList.getInstance().getUsersForBuffer(buffer.getBid());
                     if (users != null) {
                         Collections.sort(users, new Comparator<User>() {
                             @Override
@@ -876,13 +876,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
         if (server != null)
-            state.putInt("cid", server.cid);
+            state.putInt("cid", server.getCid());
         if (buffer != null) {
-            state.putInt("bid", buffer.bid);
+            state.putInt("bid", buffer.getBid());
             if (messageTxt != null && messageTxt.getText() != null)
-                buffer.draft = messageTxt.getText().toString();
+                buffer.setDraft(messageTxt.getText().toString());
             else
-                buffer.draft = null;
+                buffer.setDraft(null);
         }
         state.putSerializable("backStack", backStack);
         if (imageCaptureURI != null)
@@ -899,7 +899,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             while (backStack != null && backStack.size() > 0) {
                 Integer bid = backStack.get(0);
                 backStack.remove(0);
-                if(buffer == null || bid != buffer.bid) {
+                if(buffer == null || bid != buffer.getBid()) {
                     Buffer b = BuffersList.getInstance().getBuffer(bid);
                     if (b != null) {
                         onBufferSelected(bid);
@@ -942,19 +942,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     show_pastebin_prompt();
                     return;
                 }
-                User u = UsersList.getInstance().getUser(buffer.bid, server.nick);
+                User u = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                 e = new Event();
                 e.command = messageTxt.getText().toString();
-                e.cid = buffer.cid;
-                e.bid = buffer.bid;
+                e.cid = buffer.getCid();
+                e.bid = buffer.getBid();
                 e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
-                if (e.eid < EventsList.getInstance().lastEidForBuffer(buffer.bid))
-                    e.eid = EventsList.getInstance().lastEidForBuffer(buffer.bid) + 1000;
+                if (e.eid < EventsList.getInstance().lastEidForBuffer(buffer.getBid()))
+                    e.eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid()) + 1000;
                 e.self = true;
-                e.from = server.nick;
-                e.nick = server.nick;
-                if (!buffer.type.equals("console"))
-                    e.chan = buffer.name;
+                e.from = server.getNick();
+                e.nick = server.getNick();
+                if (!buffer.getType().equals("console"))
+                    e.chan = buffer.getName();
                 if (u != null)
                     e.from_mode = u.mode;
                 e.msg = msg;
@@ -965,7 +965,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     e.type = "buffer_msg";
                 }
                 e.color = R.color.timestamp;
-                if (title.getText() != null && title.getText().equals(server.nick))
+                if (title.getText() != null && title.getText().equals(server.getNick()))
                     e.bg_color = R.color.message_bg;
                 else
                     e.bg_color = R.color.self;
@@ -1020,14 +1020,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if (e != null && e.command.equals("/ignore")) {
                 Bundle args = new Bundle();
-                args.putInt("cid", buffer.cid);
+                args.putInt("cid", buffer.getCid());
                 IgnoreListFragment ignoreList = new IgnoreListFragment();
                 ignoreList.setArguments(args);
                 ignoreList.show(getSupportFragmentManager(), "ignorelist");
             }
             if (e != null && e.reqid != -1) {
                 messageTxt.setText("");
-                BuffersList.getInstance().updateDraft(e.bid, null);
+                Buffer b = BuffersList.getInstance().getBuffer(e.bid);
+                if(b != null)
+                    b.setDraft(null);
                 e.expiration_timer = new TimerTask() {
                     @Override
                     public void run() {
@@ -1079,14 +1081,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffers();
                 for (int j = 0; j < buffers.size(); j++) {
                     Buffer b = buffers.get(j);
-                    if (buffer == null || b.bid != buffer.bid) {
+                    if (buffer == null || b.getBid() != buffer.getBid()) {
                         if (unread == 0) {
                             int u = 0;
                             try {
-                                u = b.unread;
-                                if (b.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                u = b.getUnread();
+                                if (b.getType().equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.getBid())) && channelDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     u = 0;
-                                else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     u = 0;
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -1095,8 +1097,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                         if (highlights == 0) {
                             try {
-                                if (!b.type.equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.bid)) || !bufferDisabledMap.getBoolean(String.valueOf(b.bid))) {
-                                    highlights += b.highlights;
+                                if (!b.getType().equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.getBid())) || !bufferDisabledMap.getBoolean(String.valueOf(b.getBid()))) {
+                                    highlights += b.getHighlights();
                                 }
                             } catch (JSONException e) {
                             }
@@ -1153,10 +1155,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return;
             } else if (BuffersList.getInstance().getBuffer(new_bid) != null) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Found BID, switching buffers");
-                if (buffer != null && buffer.bid != new_bid)
-                    backStack.add(0, buffer.bid);
+                if (buffer != null && buffer.getBid() != new_bid)
+                    backStack.add(0, buffer.getBid());
                 buffer = BuffersList.getInstance().getBuffer(new_bid);
-                server = ServersList.getInstance().getServer(buffer.cid);
+                server = ServersList.getInstance().getServer(buffer.getCid());
             } else {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "BID not found, will try after reconnecting");
                 launchBid = new_bid;
@@ -1195,16 +1197,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             if (intent.hasExtra(Intent.EXTRA_TEXT)) {
                 if (intent.hasExtra(Intent.EXTRA_SUBJECT))
-                    buffer.draft = intent.getStringExtra(Intent.EXTRA_SUBJECT) + " (" + intent.getStringExtra(Intent.EXTRA_TEXT) + ")";
+                    buffer.setDraft(intent.getStringExtra(Intent.EXTRA_SUBJECT) + " (" + intent.getStringExtra(Intent.EXTRA_TEXT) + ")");
                 else
-                    buffer.draft = intent.getStringExtra(Intent.EXTRA_TEXT);
+                    buffer.setDraft(intent.getStringExtra(Intent.EXTRA_TEXT));
             }
         }
 
         if (buffer == null) {
             launchBid = intent.getIntExtra("bid", -1);
         } else {
-            onBufferSelected(buffer.bid);
+            onBufferSelected(buffer.getBid());
         }
     }
 
@@ -1274,7 +1276,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         } else if (buffer != null) {
-            int bid = buffer.bid;
+            int bid = buffer.getBid();
             onBufferSelected(bid);
         }
 
@@ -1315,7 +1317,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (excludeBIDTask != null)
                     excludeBIDTask.cancel(true);
                 excludeBIDTask = new ExcludeBIDTask();
-                excludeBIDTask.execute(buffer.bid);
+                excludeBIDTask.execute(buffer.getBid());
             } catch (Exception e) {
             }
         }
@@ -1383,7 +1385,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         errorMsg.setVisibility(View.GONE);
         error = null;
         if(buffer != null)
-            backStack.add(0, buffer.bid);
+            backStack.add(0, buffer.getBid());
     }
 
     public static class ConfigInstance {
@@ -1432,22 +1434,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         key = channel.substring(channel.indexOf(",") + 1);
                         channel = channel.substring(0, channel.indexOf(","));
                     }
-                    Buffer b = BuffersList.getInstance().getBufferByName(s.cid, channel);
+                    Buffer b = BuffersList.getInstance().getBufferByName(s.getCid(), channel);
                     if (b != null) {
                         server = null;
-                        return open_bid(b.bid);
+                        return open_bid(b.getBid());
                     } else {
                         onBufferSelected(-1);
                         title.setText(channel);
                         getSupportActionBar().setTitle(channel);
                         bufferToOpen = channel;
-                        conn.join(s.cid, channel, key);
+                        conn.join(s.getCid(), channel, key);
                     }
                     return true;
                 } else {
-                    Buffer b = BuffersList.getInstance().getBufferByName(s.cid, "*");
+                    Buffer b = BuffersList.getInstance().getBufferByName(s.getCid(), "*");
                     if (b != null)
-                        return open_bid(b.bid);
+                        return open_bid(b.getBid());
                 }
             } else {
                 if (!getResources().getBoolean(R.bool.isTablet)) {
@@ -1493,42 +1495,42 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             title.setText(bufferToOpen);
             subtitle.setVisibility(View.GONE);
         } else {
-            if (buffer.type.equals("console")) {
-                if (server.name.length() > 0) {
-                    title.setText(server.name);
+            if (buffer.getType().equals("console")) {
+                if (server.getName().length() > 0) {
+                    title.setText(server.getName());
                     if (progressBar.getVisibility() == View.GONE)
-                        getSupportActionBar().setTitle(server.name);
+                        getSupportActionBar().setTitle(server.getName());
                 } else {
-                    title.setText(server.hostname);
+                    title.setText(server.getHostname());
                     if (progressBar.getVisibility() == View.GONE)
-                        getSupportActionBar().setTitle(server.hostname);
+                        getSupportActionBar().setTitle(server.getHostname());
                 }
             } else {
-                title.setText(buffer.name);
+                title.setText(buffer.getName());
                 if (progressBar.getVisibility() == View.GONE)
-                    getSupportActionBar().setTitle(buffer.name);
+                    getSupportActionBar().setTitle(buffer.getName());
             }
 
-            if (buffer.archived > 0 && !buffer.type.equals("console")) {
+            if (buffer.getArchived() > 0 && !buffer.getType().equals("console")) {
                 subtitle.setVisibility(View.VISIBLE);
                 subtitle.setText("(archived)");
-                if (buffer.type.equals("conversation")) {
+                if (buffer.getType().equals("conversation")) {
                     title.setContentDescription("Conversation with " + title.getText());
-                } else if (buffer.type.equals("channel")) {
+                } else if (buffer.getType().equals("channel")) {
                     title.setContentDescription("Channel " + buffer.normalizedName());
                 }
             } else {
-                if (buffer.type.equals("conversation")) {
+                if (buffer.getType().equals("conversation")) {
                     title.setContentDescription("Conversation with " + title.getText());
-                    if (buffer.away_msg != null && buffer.away_msg.length() > 0) {
+                    if (buffer.getAway_msg() != null && buffer.getAway_msg().length() > 0) {
                         subtitle.setVisibility(View.VISIBLE);
-                        if (buffer.away_msg != null && buffer.away_msg.length() > 0) {
-                            subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(buffer.away_msg)))).toString());
+                        if (buffer.getAway_msg() != null && buffer.getAway_msg().length() > 0) {
+                            subtitle.setText("Away: " + ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(buffer.getAway_msg())))).toString());
                         } else {
                             subtitle.setText("Away");
                         }
                     } else {
-                        User u = UsersList.getInstance().findUserOnConnection(buffer.cid, buffer.name);
+                        User u = UsersList.getInstance().findUserOnConnection(buffer.getCid(), buffer.getName());
                         if (u != null && u.away > 0) {
                             subtitle.setVisibility(View.VISIBLE);
                             if (u.away_msg != null && u.away_msg.length() > 0) {
@@ -1541,9 +1543,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                     key.setVisibility(View.GONE);
-                } else if (buffer.type.equals("channel")) {
+                } else if (buffer.getType().equals("channel")) {
                     title.setContentDescription("Channel " + buffer.normalizedName() + ". Double-tap to view or edit the topic.");
-                    Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.bid);
+                    Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                     if (c != null && c.topic_text.length() > 0) {
                         subtitle.setVisibility(View.VISIBLE);
                         subtitle.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(c.topic_text)))).toString());
@@ -1557,12 +1559,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     } else {
                         key.setVisibility(View.GONE);
                     }
-                } else if (buffer.type.equals("console")) {
+                } else if (buffer.getType().equals("console")) {
                     subtitle.setVisibility(View.VISIBLE);
-                    subtitle.setText(server.hostname + ":" + server.port);
-                    title.setContentDescription("Network " + server.name);
+                    subtitle.setText(server.getHostname() + ":" + server.getPort());
+                    title.setContentDescription("Network " + server.getName());
                     subtitle.setContentDescription(".");
-                    if (server.ssl > 0)
+                    if (server.getSsl() > 0)
                         key.setImageResource(R.drawable.world_shield);
                     else
                         key.setImageResource(R.drawable.world);
@@ -1577,15 +1579,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         boolean hide = true;
         if (userListView != null) {
             Channel c = null;
-            if (buffer != null && buffer.type.equals("channel")) {
-                c = ChannelsList.getInstance().getChannelForBuffer(buffer.bid);
+            if (buffer != null && buffer.getType().equals("channel")) {
+                c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                 if (c != null)
                     hide = false;
             }
             try {
                 if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && findViewById(R.id.usersListFragment2) != null) {
                     JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
-                    if (hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid)))
+                    if (hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())))
                         hide = true;
                 }
             } catch (Exception e) {
@@ -1646,7 +1648,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 });
                 break;
             case NetworkConnection.EVENT_RENAMECONVERSATION:
-                if (buffer != null && (Integer) obj == buffer.bid) {
+                if (buffer != null && (Integer) obj == buffer.getBid()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1657,7 +1659,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_CHANNELTOPICIS:
                 event = (IRCCloudJSONObject) obj;
-                if (buffer != null && buffer.cid == event.cid() && buffer.name.equalsIgnoreCase(event.getString("chan"))) {
+                if (buffer != null && buffer.getCid() == event.cid() && buffer.getName().equalsIgnoreCase(event.getString("chan"))) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1678,9 +1680,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             case NetworkConnection.EVENT_MAKEBUFFER:
                 Buffer b = (Buffer) obj;
-                if (cidToOpen == b.cid && (bufferToOpen == null || (b.name.equalsIgnoreCase(bufferToOpen) && (buffer == null || !bufferToOpen.equalsIgnoreCase(buffer.name))))) {
+                if (cidToOpen == b.getCid() && (bufferToOpen == null || (b.getName().equalsIgnoreCase(bufferToOpen) && (buffer == null || !bufferToOpen.equalsIgnoreCase(buffer.getName()))))) {
                     server = null;
-                    final int bid = b.bid;
+                    final int bid = b.getBid();
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -1697,11 +1699,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     bufferToOpen = event.getString("name");
                     cidToOpen = event.cid();
                     b = BuffersList.getInstance().getBufferByName(cidToOpen, bufferToOpen);
-                    if (b != null && !bufferToOpen.equalsIgnoreCase(buffer.name)) {
+                    if (b != null && !bufferToOpen.equalsIgnoreCase(buffer.getName())) {
                         server = null;
                         bufferToOpen = null;
                         cidToOpen = -1;
-                        final int bid = b.bid;
+                        final int bid = b.getBid();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -1776,12 +1778,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.cid() == buffer.cid) {
+                        if (event != null && event.cid() == buffer.getCid()) {
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
                             if(b != null)
-                                args.putInt("bid", b.bid);
+                                args.putInt("bid", b.getBid());
                             args.putString("mode", "b");
                             args.putString("placeholder", "No bans in effect.\n\nYou can ban someone by tapping their nickname in the user list, long-pressing a message, or by using /ban.");
                             args.putString("mask", "mask");
@@ -1809,12 +1811,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.cid() == buffer.cid) {
+                        if (event != null && event.cid() == buffer.getCid()) {
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
                             if(b != null)
-                                args.putInt("bid", b.bid);
+                                args.putInt("bid", b.getBid());
                             args.putString("mode", "q");
                             args.putString("placeholder", "Empty quiet list.");
                             args.putString("mask", "quiet_mask");
@@ -1842,12 +1844,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.cid() == buffer.cid) {
+                        if (event != null && event.cid() == buffer.getCid()) {
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
                             if(b != null)
-                                args.putInt("bid", b.bid);
+                                args.putInt("bid", b.getBid());
                             args.putString("mode", "e");
                             args.putString("placeholder", "Empty exception list.");
                             args.putString("mask", "mask");
@@ -1875,12 +1877,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.cid() == buffer.cid) {
+                        if (event != null && event.cid() == buffer.getCid()) {
                             Bundle args = new Bundle();
                             args.putInt("cid", event.cid());
                             Buffer b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("channel"));
                             if(b != null)
-                                args.putInt("bid", b.bid);
+                                args.putInt("bid", b.getBid());
                             args.putString("mode", "I");
                             args.putString("placeholder", "Empty invite list");
                             args.putString("mask", "mask");
@@ -1908,9 +1910,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (event != null && event.cid() == buffer.cid) {
+                        if (event != null && event.cid() == buffer.getCid()) {
                             Bundle args = new Bundle();
-                            args.putInt("cid", buffer.cid);
+                            args.putInt("cid", buffer.getCid());
                             args.putString("event", event.toString());
                             AcceptListFragment acceptList = (AcceptListFragment) getSupportFragmentManager().findFragmentByTag("acceptlist");
                             if (acceptList == null) {
@@ -2021,7 +2023,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String dialogtitle = "List of channels on " + ServersList.getInstance().getServer(event.cid()).hostname;
+                        String dialogtitle = "List of channels on " + ServersList.getInstance().getServer(event.cid()).getHostname();
                         if (channelsListDialog == null) {
                             Context ctx = MainActivity.this;
                             final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
@@ -2069,7 +2071,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case NetworkConnection.EVENT_STATUSCHANGED:
                 try {
                     event = (IRCCloudJSONObject) obj;
-                    if (event != null && server != null && event.cid() == server.cid) {
+                    if (event != null && server != null && event.cid() == server.getCid()) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -2083,7 +2085,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_MAKESERVER:
                 Server s = (Server) obj;
-                if (server != null && s != null && s.cid == server.cid) {
+                if (server != null && s != null && s.getCid() == server.getCid()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -2092,14 +2094,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    cidToOpen = s.cid;
+                    cidToOpen = s.getCid();
                     bufferToOpen = "*";
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERARCHIVED:
             case NetworkConnection.EVENT_BUFFERUNARCHIVED:
                 event_bid = (Integer) obj;
-                if (buffer != null && event_bid == buffer.bid) {
+                if (buffer != null && event_bid == buffer.getBid()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -2114,7 +2116,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_JOIN:
                 event = (IRCCloudJSONObject) obj;
-                if (event != null && buffer != null && event.bid() == buffer.bid && event.type().equals("you_joined_channel")) {
+                if (event != null && buffer != null && event.bid() == buffer.getBid() && event.type().equals("you_joined_channel")) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -2127,7 +2129,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case NetworkConnection.EVENT_PART:
             case NetworkConnection.EVENT_KICK:
                 event = (IRCCloudJSONObject) obj;
-                if (event != null && buffer != null && event.bid() == buffer.bid && event.type().toLowerCase().startsWith("you_")) {
+                if (event != null && buffer != null && event.bid() == buffer.getBid() && event.type().toLowerCase().startsWith("you_")) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -2139,7 +2141,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_CHANNELINIT:
                 Channel channel = (Channel) obj;
-                if (channel != null && buffer != null && channel.bid == buffer.bid) {
+                if (channel != null && buffer != null && channel.bid == buffer.getBid()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -2219,7 +2221,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                 }
-                if (buffer != null && id == ((what == NetworkConnection.EVENT_CONNECTIONDELETED) ? buffer.cid : buffer.bid)) {
+                if (buffer != null && id == ((what == NetworkConnection.EVENT_CONNECTIONDELETED) ? buffer.getCid() : buffer.getBid())) {
                     synchronized (backStack) {
                         while (backStack != null && backStack.size() > 0) {
                             final Integer bid = backStack.get(0);
@@ -2264,7 +2266,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case NetworkConnection.EVENT_CHANNELMODE:
             case NetworkConnection.EVENT_CHANNELTOPIC:
                 event = (IRCCloudJSONObject) obj;
-                if (event != null && buffer != null && event.bid() == buffer.bid) {
+                if (event != null && buffer != null && event.bid() == buffer.getBid()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -2277,7 +2279,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case NetworkConnection.EVENT_AWAY:
                 try {
                     event = (IRCCloudJSONObject) obj;
-                    if (event != null && buffer != null && event.cid() == buffer.cid && event.getString("nick").equalsIgnoreCase(buffer.name)) {
+                    if (event != null && buffer != null && event.cid() == buffer.getCid() && event.getString("nick").equalsIgnoreCase(buffer.getName())) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -2301,7 +2303,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     while (j.hasNext()) {
                         Map.Entry<String, JsonNode> eidentry = j.next();
                         Integer bid = Integer.valueOf(eidentry.getKey());
-                        if (buffer != null && bid != buffer.bid) {
+                        if (buffer != null && bid != buffer.getBid()) {
                             shouldRefresh = true;
                         }
                     }
@@ -2373,10 +2375,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 try {
                     Event e = (Event) obj;
                     if (e != null && buffer != null) {
-                        if (e.bid != buffer.bid && upDrawable != null) {
+                        if (e.bid != buffer.getBid() && upDrawable != null) {
                             Buffer buf = BuffersList.getInstance().getBuffer(e.bid);
-                            if (e.isImportant(buf.type)) {
-                                if (upDrawable.getColor() != redColor && (e.highlight || buf.type.equals("conversation"))) {
+                            if (e.isImportant(buf.getType())) {
+                                if (upDrawable.getColor() != redColor && (e.highlight || buf.getType().equals("conversation"))) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -2397,9 +2399,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                             e1.printStackTrace();
                                         }
                                     }
-                                    if (buf.type.equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(buf.bid)) && channelDisabledMap.getBoolean(String.valueOf(buf.bid)))
+                                    if (buf.getType().equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(buf.getBid())) && channelDisabledMap.getBoolean(String.valueOf(buf.getBid())))
                                         break;
-                                    else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(buf.bid)) && bufferDisabledMap.getBoolean(String.valueOf(buf.bid)))
+                                    else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(buf.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(buf.getBid())))
                                         break;
                                     runOnUiThread(new Runnable() {
                                         @Override
@@ -2410,7 +2412,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 }
                             }
                         }
-                        if (e.from.equalsIgnoreCase(buffer.name)) {
+                        if (e.from.equalsIgnoreCase(buffer.getName())) {
                             pendingEvents.clear();
                         } else if (pendingEvents.containsKey(e.reqid)) {
                             pendingEvents.remove(e.reqid);
@@ -2424,13 +2426,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
-            if (buffer.type.equals("channel")) {
+        if (buffer != null && buffer.getType() != null && NetworkConnection.getInstance().ready) {
+            if (buffer.getType().equals("channel")) {
                 getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
                 getMenuInflater().inflate(R.menu.activity_message_channel, menu);
-            } else if (buffer.type.equals("conversation"))
+            } else if (buffer.getType().equals("conversation"))
                 getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
-            else if (buffer.type.equals("console"))
+            else if (buffer.getType().equals("console"))
                 getMenuInflater().inflate(R.menu.activity_message_console, menu);
 
             getMenuInflater().inflate(R.menu.activity_message_archive, menu);
@@ -2442,16 +2444,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (menu != null && buffer != null && buffer.type != null && NetworkConnection.getInstance().ready) {
-            if (buffer.archived == 0) {
+        if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().ready) {
+            if (buffer.getArchived() == 0) {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
             } else {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
             }
-            if (buffer.type.equals("channel")) {
-                if (ChannelsList.getInstance().getChannelForBuffer(buffer.bid) == null) {
+            if (buffer.getType().equals("channel")) {
+                if (ChannelsList.getInstance().getChannelForBuffer(buffer.getBid()) == null) {
                     if (menu.findItem(R.id.menu_leave) != null)
                         menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
 
@@ -2491,7 +2493,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         try {
                             if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                                 JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
-                                if (hiddenMap.has(String.valueOf(buffer.bid)) && hiddenMap.getBoolean(String.valueOf(buffer.bid)))
+                                if (hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())))
                                     hide = false;
                             }
                         } catch (JSONException e) {
@@ -2505,12 +2507,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                 }
-            } else if (buffer.type.equals("console")) {
+            } else if (buffer.getType().equals("console")) {
                 if (menu.findItem(R.id.menu_archive) != null) {
                     menu.findItem(R.id.menu_archive).setVisible(false);
                     menu.findItem(R.id.menu_archive).setEnabled(false);
                 }
-                if (server != null && server.status != null && (server.status.equalsIgnoreCase("waiting_to_retry") || (server.status.contains("connected") && !server.status.startsWith("dis")))) {
+                if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry") || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis")))) {
                     if (menu.findItem(R.id.menu_disconnect) != null)
                         menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
                     if (menu.findItem(R.id.menu_delete) != null) {
@@ -2626,14 +2628,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     fileUploadTask.execute((Void) null);
                 }
             } else if (requestCode == REQUEST_UPLOADS && resultCode == RESULT_OK) {
-                buffer.draft = "";
+                buffer.setDraft("");
                 messageTxt.setText("");
             } else if (requestCode == REQUEST_PASTEBIN) {
                 if(resultCode == RESULT_OK) {
                     pastebinResult = imageReturnedIntent;
                 } else if(resultCode == RESULT_CANCELED) {
-                    buffer.draft = imageReturnedIntent.getStringExtra("paste_contents");
-                    messageTxt.setText(buffer.draft);
+                    buffer.setDraft(imageReturnedIntent.getStringExtra("paste_contents"));
+                    messageTxt.setText(buffer.getDraft());
                 }
             }
         }
@@ -2695,8 +2697,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             break;
                         case "File Uploads":
                             i = new Intent(MainActivity.this, UploadsActivity.class);
-                            i.putExtra("cid", buffer.cid);
-                            i.putExtra("to", buffer.name);
+                            i.putExtra("cid", buffer.getCid());
+                            i.putExtra("to", buffer.getName());
                             i.putExtra("msg", messageTxt.getText().toString());
                             startActivityForResult(i, REQUEST_UPLOADS);
                             break;
@@ -2726,22 +2728,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case R.id.menu_whois:
-                NetworkConnection.getInstance().whois(buffer.cid, buffer.name, null);
+                NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), null);
                 break;
             case R.id.menu_identify:
                 NickservFragment nsFragment = new NickservFragment();
-                nsFragment.setCid(buffer.cid);
+                nsFragment.setCid(buffer.getCid());
                 nsFragment.show(getSupportFragmentManager(), "nickserv");
                 break;
             case R.id.menu_add_network:
                 addNetwork();
                 break;
             case R.id.menu_channel_options:
-                ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.cid, buffer.bid);
+                ChannelOptionsFragment newFragment = new ChannelOptionsFragment(buffer.getCid(), buffer.getBid());
                 newFragment.show(getSupportFragmentManager(), "channeloptions");
                 break;
             case R.id.menu_buffer_options:
-                BufferOptionsFragment bufferFragment = new BufferOptionsFragment(buffer.cid, buffer.bid, buffer.type);
+                BufferOptionsFragment bufferFragment = new BufferOptionsFragment(buffer.getCid(), buffer.getBid(), buffer.getType());
                 bufferFragment.show(getSupportFragmentManager(), "bufferoptions");
                 break;
             case R.id.menu_userlist:
@@ -2764,41 +2766,41 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return true;
             case R.id.menu_ignore_list:
                 Bundle args = new Bundle();
-                args.putInt("cid", buffer.cid);
+                args.putInt("cid", buffer.getCid());
                 IgnoreListFragment ignoreList = new IgnoreListFragment();
                 ignoreList.setArguments(args);
                 ignoreList.show(getSupportFragmentManager(), "ignorelist");
                 return true;
             case R.id.menu_ban_list:
-                NetworkConnection.getInstance().mode(buffer.cid, buffer.name, "b");
+                NetworkConnection.getInstance().mode(buffer.getCid(), buffer.getName(), "b");
                 return true;
             case R.id.menu_leave:
-                if (ChannelsList.getInstance().getChannelForBuffer(buffer.bid) == null)
-                    NetworkConnection.getInstance().join(buffer.cid, buffer.name, null);
+                if (ChannelsList.getInstance().getChannelForBuffer(buffer.getBid()) == null)
+                    NetworkConnection.getInstance().join(buffer.getCid(), buffer.getName(), null);
                 else
-                    NetworkConnection.getInstance().part(buffer.cid, buffer.name, null);
+                    NetworkConnection.getInstance().part(buffer.getCid(), buffer.getName(), null);
                 return true;
             case R.id.menu_archive:
-                if (buffer.archived == 0)
-                    NetworkConnection.getInstance().archiveBuffer(buffer.cid, buffer.bid);
+                if (buffer.getArchived() == 0)
+                    NetworkConnection.getInstance().archiveBuffer(buffer.getCid(), buffer.getBid());
                 else
-                    NetworkConnection.getInstance().unarchiveBuffer(buffer.cid, buffer.bid);
+                    NetworkConnection.getInstance().unarchiveBuffer(buffer.getCid(), buffer.getBid());
                 return true;
             case R.id.menu_delete:
                 builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
-                if (buffer.type.equals("console"))
+                if (buffer.getType().equals("console"))
                     builder.setTitle("Delete Connection");
                 else
                     builder.setTitle("Delete History");
 
-                if (buffer.type.equalsIgnoreCase("console"))
+                if (buffer.getType().equalsIgnoreCase("console"))
                     builder.setMessage("Are you sure you want to remove this connection?");
-                else if (buffer.type.equalsIgnoreCase("channel"))
-                    builder.setMessage("Are you sure you want to clear your history in " + buffer.name + "?");
+                else if (buffer.getType().equalsIgnoreCase("channel"))
+                    builder.setMessage("Are you sure you want to clear your history in " + buffer.getName() + "?");
                 else
-                    builder.setMessage("Are you sure you want to clear your history with " + buffer.name + "?");
+                    builder.setMessage("Are you sure you want to clear your history with " + buffer.getName() + "?");
 
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
@@ -2811,10 +2813,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (buffer.type.equals("console")) {
-                            NetworkConnection.getInstance().deleteServer(buffer.cid);
+                        if (buffer.getType().equals("console")) {
+                            NetworkConnection.getInstance().deleteServer(buffer.getCid());
                         } else {
-                            NetworkConnection.getInstance().deleteBuffer(buffer.cid, buffer.bid);
+                            NetworkConnection.getInstance().deleteBuffer(buffer.getCid(), buffer.getBid());
                         }
                         dialog.dismiss();
                     }
@@ -2826,19 +2828,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case R.id.menu_editconnection:
                 if (!getResources().getBoolean(R.bool.isTablet)) {
                     Intent i = new Intent(this, EditConnectionActivity.class);
-                    i.putExtra("cid", buffer.cid);
+                    i.putExtra("cid", buffer.getCid());
                     startActivity(i);
                 } else {
                     EditConnectionFragment editFragment = new EditConnectionFragment();
-                    editFragment.setCid(buffer.cid);
+                    editFragment.setCid(buffer.getCid());
                     editFragment.show(getSupportFragmentManager(), "editconnection");
                 }
                 return true;
             case R.id.menu_disconnect:
-                if (server != null && server.status != null && (server.status.equalsIgnoreCase("waiting_to_retry")) || (server.status.contains("connected") && !server.status.startsWith("dis"))) {
-                    NetworkConnection.getInstance().disconnect(buffer.cid, null);
+                if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry")) || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis"))) {
+                    NetworkConnection.getInstance().disconnect(buffer.getCid(), null);
                 } else {
-                    NetworkConnection.getInstance().reconnect(buffer.cid);
+                    NetworkConnection.getInstance().reconnect(buffer.getCid());
                 }
                 return true;
         }
@@ -2846,7 +2848,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     void editTopic() {
-        Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.bid);
+        Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
         View view = getDialogTextPrompt();
@@ -2859,7 +2861,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                conn.topic(buffer.cid, buffer.name, input.getText().toString());
+                conn.topic(buffer.getCid(), buffer.getName(), input.getText().toString());
                 dialog.dismiss();
             }
         });
@@ -2976,19 +2978,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
-        Server s = ServersList.getInstance().getServer(b.cid);
+        Server s = ServersList.getInstance().getServer(b.getCid());
 
-        if (buffer == null || b.bid != buffer.bid)
+        if (buffer == null || b.getBid() != buffer.getBid())
             itemList.add("Open");
 
-        if (ChannelsList.getInstance().getChannelForBuffer(b.bid) != null) {
+        if (ChannelsList.getInstance().getChannelForBuffer(b.getBid()) != null) {
             itemList.add("Leave");
             itemList.add("Display Options…");
         } else {
-            if (b.type.equalsIgnoreCase("channel"))
+            if (b.getType().equalsIgnoreCase("channel"))
                 itemList.add("Join");
-            else if (b.type.equalsIgnoreCase("console")) {
-                if (s.status.equalsIgnoreCase("waiting_to_retry") || (s.status.contains("connected") && !s.status.startsWith("dis"))) {
+            else if (b.getType().equalsIgnoreCase("console")) {
+                if (s.getStatus().equalsIgnoreCase("waiting_to_retry") || (s.getStatus().contains("connected") && !s.getStatus().startsWith("dis"))) {
                     itemList.add("Disconnect");
                 } else {
                     itemList.add("Connect");
@@ -2996,14 +2998,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 itemList.add("Edit Connection…");
             }
-            if (!b.type.equalsIgnoreCase("console")) {
-                if (b.archived == 0)
+            if (!b.getType().equalsIgnoreCase("console")) {
+                if (b.getArchived() == 0)
                     itemList.add("Archive");
                 else
                     itemList.add("Unarchive");
                 itemList.add("Delete");
             }
-            if (!b.type.equalsIgnoreCase("channel")) {
+            if (!b.getType().equalsIgnoreCase("channel")) {
                 itemList.add("Display Options…");
             }
         }
@@ -3011,10 +3013,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        if (b.type.equalsIgnoreCase("console"))
-            builder.setTitle(s.name);
+        if (b.getType().equalsIgnoreCase("console"))
+            builder.setTitle(s.getName());
         else
-            builder.setTitle(b.name);
+            builder.setTitle(b.getName());
         items = itemList.toArray(new String[itemList.size()]);
         builder.setItems(items, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialogInterface, int item) {
@@ -3025,35 +3027,35 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     return;
 
                 if (items[item].equals("Open")) {
-                    onBufferSelected(b.bid);
+                    onBufferSelected(b.getBid());
                 } else if (items[item].equals("Join")) {
-                    conn.join(b.cid, b.name, null);
+                    conn.join(b.getCid(), b.getName(), null);
                 } else if (items[item].equals("Leave")) {
-                    conn.part(b.cid, b.name, null);
+                    conn.part(b.getCid(), b.getName(), null);
                 } else if (items[item].equals("Archive")) {
-                    conn.archiveBuffer(b.cid, b.bid);
+                    conn.archiveBuffer(b.getCid(), b.getBid());
                 } else if (items[item].equals("Unarchive")) {
-                    conn.unarchiveBuffer(b.cid, b.bid);
+                    conn.unarchiveBuffer(b.getCid(), b.getBid());
                 } else if (items[item].equals("Connect")) {
-                    conn.reconnect(b.cid);
+                    conn.reconnect(b.getCid());
                 } else if (items[item].equals("Disconnect")) {
-                    conn.disconnect(b.cid, null);
+                    conn.disconnect(b.getCid(), null);
                 } else if (items[item].equals("Display Options…")) {
-                    if (b.type.equals("channel")) {
-                        ChannelOptionsFragment newFragment = new ChannelOptionsFragment(b.cid, b.bid);
+                    if (b.getType().equals("channel")) {
+                        ChannelOptionsFragment newFragment = new ChannelOptionsFragment(b.getCid(), b.getBid());
                         newFragment.show(getSupportFragmentManager(), "channeloptions");
                     } else {
-                        BufferOptionsFragment newFragment = new BufferOptionsFragment(b.cid, b.bid, b.type);
+                        BufferOptionsFragment newFragment = new BufferOptionsFragment(b.getCid(), b.getBid(), b.getType());
                         newFragment.show(getSupportFragmentManager(), "bufferoptions");
                     }
                 } else if (items[item].equals("Edit Connection…")) {
                     if (!getResources().getBoolean(R.bool.isTablet)) {
                         Intent i = new Intent(MainActivity.this, EditConnectionActivity.class);
-                        i.putExtra("cid", b.cid);
+                        i.putExtra("cid", b.getCid());
                         startActivity(i);
                     } else {
                         EditConnectionFragment editFragment = new EditConnectionFragment();
-                        editFragment.setCid(b.cid);
+                        editFragment.setCid(b.getCid());
                         editFragment.show(getSupportFragmentManager(), "editconnection");
                     }
                 } else if (items[item].equals("Mark All As Read")) {
@@ -3062,34 +3064,34 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     ArrayList<Long> eids = new ArrayList<Long>();
 
                     for (Buffer b : BuffersList.getInstance().getBuffers()) {
-                        if (b.unread == 1 && EventsList.getInstance().lastEidForBuffer(b.bid) > 0) {
-                            b.unread = 0;
-                            b.highlights = 0;
-                            b.last_seen_eid = EventsList.getInstance().lastEidForBuffer(b.bid);
-                            cids.add(b.cid);
-                            bids.add(b.bid);
-                            eids.add(b.last_seen_eid);
+                        if (b.getUnread() == 1 && EventsList.getInstance().lastEidForBuffer(b.getBid()) > 0) {
+                            b.setUnread(0);
+                            b.setHighlights(0);
+                            b.setLast_seen_eid(EventsList.getInstance().lastEidForBuffer(b.getBid()));
+                            cids.add(b.getCid());
+                            bids.add(b.getBid());
+                            eids.add(b.getLast_seen_eid());
                         }
                     }
                     BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
                     if (blf != null)
                         blf.refresh();
-                    conn.heartbeat(buffer.bid, cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
+                    conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
                 } else if (items[item].equals("Delete")) {
                     builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
-                    if (b.type.equalsIgnoreCase("console"))
+                    if (b.getType().equalsIgnoreCase("console"))
                         builder.setTitle("Delete Connection");
                     else
                         builder.setTitle("Delete History");
 
-                    if (b.type.equalsIgnoreCase("console"))
+                    if (b.getType().equalsIgnoreCase("console"))
                         builder.setMessage("Are you sure you want to remove this connection?");
-                    else if (b.type.equalsIgnoreCase("channel"))
-                        builder.setMessage("Are you sure you want to clear your history in " + b.name + "?");
+                    else if (b.getType().equalsIgnoreCase("channel"))
+                        builder.setMessage("Are you sure you want to clear your history in " + b.getName() + "?");
                     else
-                        builder.setMessage("Are you sure you want to clear your history with " + b.name + "?");
+                        builder.setMessage("Are you sure you want to clear your history with " + b.getName() + "?");
 
                     builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 
@@ -3102,10 +3104,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (b.type.equalsIgnoreCase("console")) {
-                                conn.deleteServer(b.cid);
+                            if (b.getType().equalsIgnoreCase("console")) {
+                                conn.deleteServer(b.getCid());
                             } else {
-                                conn.deleteBuffer(b.cid, b.bid);
+                                conn.deleteBuffer(b.getCid(), b.getBid());
                             }
                             dialog.dismiss();
                         }
@@ -3129,7 +3131,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (from == null || from.length() == 0)
             from = event.nick;
 
-        User user = UsersList.getInstance().getUser(buffer.bid, from);
+        User user = UsersList.getInstance().getUser(buffer.getBid(), from);
 
         if (user == null && from != null && event.hostmask != null) {
             user = new User();
@@ -3175,7 +3177,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         final Event e = event;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+        builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
         builder.setMessage("This message could not be sent");
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -3225,7 +3227,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onUserSelected(int c, String chan, String nick) {
         UsersList u = UsersList.getInstance();
-        showUserPopup(u.getUser(buffer.bid, nick), null);
+        showUserPopup(u.getUser(buffer.getBid(), nick), null);
     }
 
     @SuppressLint("NewApi")
@@ -3252,8 +3254,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             itemList.add("Mention");
             itemList.add("Invite to a channel…");
             itemList.add("Ignore");
-            if (buffer.type.equalsIgnoreCase("channel")) {
-                User self_user = UsersList.getInstance().getUser(buffer.bid, server.nick);
+            if (buffer.getType().equalsIgnoreCase("channel")) {
+                User self_user = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                 if (self_user != null && self_user.mode != null) {
                     if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o")) {
                         if (selected_user.mode.contains(server != null ? server.MODE_OP : "o"))
@@ -3325,7 +3327,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
                         url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
                         if (server != null) {
-                            url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.cid + "/", ((server.ssl>0)?"ircs://":"irc://") + server.hostname + ":" + server.port + "/");
+                            url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.getCid() + "/", ((server.getSsl() >0)?"ircs://":"irc://") + server.getHostname() + ":" + server.getPort() + "/");
                         }
                         urlListItems.add(url);
                     }
@@ -3370,9 +3372,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         dialog.show();
                     }
                 } else if (items[item].equals("Whois…")) {
-                    conn.whois(buffer.cid, selected_user.nick, null);
+                    conn.whois(buffer.getCid(), selected_user.nick, null);
                 } else if (items[item].equals("Send a message")) {
-                    conn.say(buffer.cid, null, "/query " + selected_user.nick);
+                    conn.say(buffer.getCid(), null, "/query " + selected_user.nick);
                 } else if (items[item].equals("Mention")) {
                     if (!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
                         Toast.makeText(MainActivity.this, "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
@@ -3387,12 +3389,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input = (EditText) view.findViewById(R.id.textInput);
                     input.setText("");
                     prompt.setText("Invite " + selected_user.nick + " to a channel");
-                    builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.invite(buffer.cid, input.getText().toString(), selected_user.nick);
+                            conn.invite(buffer.getCid(), input.getText().toString(), selected_user.nick);
                             dialog.dismiss();
                         }
                     });
@@ -3412,12 +3414,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input = (EditText) view.findViewById(R.id.textInput);
                     input.setText("*!" + selected_user.hostmask);
                     prompt.setText("Ignore messages for " + selected_user.nick + " at this hostmask");
-                    builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.ignore(buffer.cid, input.getText().toString());
+                            conn.ignore(buffer.getCid(), input.getText().toString());
                             dialog.dismiss();
                         }
                     });
@@ -3432,21 +3434,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
                     dialog.show();
                 } else if (items[item].equals("Op")) {
-                    conn.mode(buffer.cid, buffer.name, "+" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
+                    conn.mode(buffer.getCid(), buffer.getName(), "+" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
                 } else if (items[item].equals("Deop")) {
-                    conn.mode(buffer.cid, buffer.name, "-" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
+                    conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
                 } else if (items[item].equals("Kick…")) {
                     view = getDialogTextPrompt();
                     prompt = (TextView) view.findViewById(R.id.prompt);
                     input = (EditText) view.findViewById(R.id.textInput);
                     input.setText("");
                     prompt.setText("Give a reason for kicking");
-                    builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Kick", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.kick(buffer.cid, buffer.name, selected_user.nick, input.getText().toString());
+                            conn.kick(buffer.getCid(), buffer.getName(), selected_user.nick, input.getText().toString());
                             dialog.dismiss();
                         }
                     });
@@ -3466,12 +3468,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     input = (EditText) view.findViewById(R.id.textInput);
                     input.setText("*!" + selected_user.hostmask);
                     prompt.setText("Add a banmask for " + selected_user.nick);
-                    builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
                     builder.setPositiveButton("Ban", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.mode(buffer.cid, buffer.name, "+b " + input.getText().toString());
+                            conn.mode(buffer.getCid(), buffer.getName(), "+b " + input.getText().toString());
                             dialog.dismiss();
                         }
                     });
@@ -3523,29 +3525,29 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             conn.getUserInfo().last_selected_bid = bid;
         }
         for (int i = 0; i < backStack.size(); i++) {
-            if (buffer != null && backStack.get(i) == buffer.bid)
+            if (buffer != null && backStack.get(i) == buffer.getBid())
                 backStack.remove(i);
         }
-        if (buffer != null && buffer.bid >= 0 && bid != buffer.bid) {
-            backStack.add(0, buffer.bid);
-            buffer.draft = messageTxt.getText().toString();
+        if (buffer != null && buffer.getBid() >= 0 && bid != buffer.getBid()) {
+            backStack.add(0, buffer.getBid());
+            buffer.setDraft(messageTxt.getText().toString());
         }
-        if (buffer == null || buffer.bid == -1 || buffer.cid == -1 || buffer.bid == bid)
+        if (buffer == null || buffer.getBid() == -1 || buffer.getCid() == -1 || buffer.getBid() == bid)
             shouldFadeIn = false;
         else
             shouldFadeIn = true;
         buffer = BuffersList.getInstance().getBuffer(bid);
         if (buffer != null) {
-            Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.cid + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
-            server = ServersList.getInstance().getServer(buffer.cid);
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
+            server = ServersList.getInstance().getServer(buffer.getCid());
 
             try {
-                TreeMap<Long, Event> events = EventsList.getInstance().getEventsForBuffer(buffer.bid);
+                TreeMap<Long, Event> events = EventsList.getInstance().getEventsForBuffer(buffer.getBid());
                 if (events != null) {
                     events = (TreeMap<Long, Event>) events.clone();
                     for (Event e : events.values()) {
                         if (e != null && e.highlight && e.from != null) {
-                            User u = UsersList.getInstance().getUser(buffer.bid, e.from);
+                            User u = UsersList.getInstance().getUser(buffer.getBid(), e.from);
                             if (u != null && u.last_mention < e.eid)
                                 u.last_mention = e.eid;
                         }
@@ -3560,12 +3562,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
                     if (nfc != null) {
                         String uri = "irc";
-                        if (server.ssl > 0)
+                        if (server.getSsl() > 0)
                             uri += "s";
-                        uri += "://" + server.hostname + ":" + server.port;
-                        if (buffer.type.equals("channel")) {
-                            uri += "/" + URLEncoder.encode(buffer.name, "UTF-8");
-                            Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.bid);
+                        uri += "://" + server.getHostname() + ":" + server.getPort();
+                        if (buffer.getType().equals("channel")) {
+                            uri += "/" + URLEncoder.encode(buffer.getName(), "UTF-8");
+                            Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                             if (c != null && c.hasMode("k"))
                                 uri += "," + c.paramForMode("k");
                         }
@@ -3581,7 +3583,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         update_subtitle();
         final Bundle b = new Bundle();
         if (buffer != null)
-            b.putInt("cid", buffer.cid);
+            b.putInt("cid", buffer.getCid());
         b.putInt("bid", bid);
         b.putBoolean("fade", shouldFadeIn);
         BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
@@ -3614,8 +3616,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (mvf != null)
                             mvf.setArguments(b);
                         messageTxt.setText("");
-                        if (buffer != null && buffer.draft != null)
-                            messageTxt.append(buffer.draft);
+                        if (buffer != null && buffer.getDraft() != null)
+                            messageTxt.append(buffer.getDraft());
                     }
 
                     @Override
@@ -3636,8 +3638,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (mvf != null)
                             mvf.setArguments(b);
                         messageTxt.setText("");
-                        if (buffer != null && buffer.draft != null)
-                            messageTxt.append(buffer.draft);
+                        if (buffer != null && buffer.getDraft() != null)
+                            messageTxt.append(buffer.getDraft());
                     }
                 });
                 ulf.getListView().animate().alpha(0);
@@ -3647,8 +3649,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (mvf != null)
                 mvf.setArguments(b);
             messageTxt.setText("");
-            if (buffer != null && buffer.draft != null)
-                messageTxt.append(buffer.draft);
+            if (buffer != null && buffer.getDraft() != null)
+                messageTxt.append(buffer.getDraft());
         }
 
         updateUsersListFragmentVisibility();
@@ -3659,7 +3661,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         excludeBIDTask.execute(bid);
         if (drawerLayout != null)
             new RefreshUpIndicatorTask().execute((Void) null);
-        if (buffer != null && buffer.cid != -1) {
+        if (buffer != null && buffer.getCid() != -1) {
             if (drawerLayout != null) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
                 getSupportActionBar().setHomeButtonEnabled(true);
@@ -3690,10 +3692,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     ulf.getListView().animate().alpha(1);
             }
             if (mvf != null && mvf.getListView() != null) {
-                if (mvf.buffer != buffer && buffer != null && BuffersList.getInstance().getBuffer(buffer.bid) != null) {
+                if (mvf.buffer != buffer && buffer != null && BuffersList.getInstance().getBuffer(buffer.getBid()) != null) {
                     Bundle b = new Bundle();
-                    b.putInt("cid", buffer.cid);
-                    b.putInt("bid", buffer.bid);
+                    b.putInt("cid", buffer.getCid());
+                    b.putInt("bid", buffer.getBid());
                     b.putBoolean("fade", false);
                     mvf.setArguments(b);
                 }
@@ -4137,11 +4139,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 Crashlytics.log(Log.INFO, "IRCCloud", "Upload finished");
                 if (s != null) {
                     if (mBuffer != null) {
-                        if (mBuffer.draft == null)
-                            mBuffer.draft = "";
-                        if (mBuffer.draft.length() > 0 && !mBuffer.draft.endsWith(" "))
-                            mBuffer.draft += " ";
-                        mBuffer.draft += s;
+                        if (mBuffer.getDraft() == null)
+                            mBuffer.setDraft("");
+                        if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().endsWith(" "))
+                            mBuffer.setDraft(mBuffer.getDraft() + " ");
+                        mBuffer.setDraft(mBuffer.getDraft() + s);
                     }
                     activity.runOnUiThread(new Runnable() {
                         @Override
@@ -4181,11 +4183,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 imgurTask = null;
             } else if (mBuffer != null && s != null) {
                 Crashlytics.log(Log.INFO, "IRCCloud", "Upload finished, updating draft");
-                if (mBuffer.draft == null)
-                    mBuffer.draft = "";
-                if (mBuffer.draft.length() > 0 && !mBuffer.draft.endsWith(" "))
-                    mBuffer.draft += " ";
-                mBuffer.draft += s;
+                if (mBuffer.getDraft() == null)
+                    mBuffer.setDraft("");
+                if (mBuffer.getDraft().length() > 0 && !mBuffer.getDraft().endsWith(" "))
+                    mBuffer.setDraft(mBuffer.getDraft() + " ");
+                mBuffer.setDraft(mBuffer.getDraft() + s);
             } else {
                 if(suggestionsTimer != null)
                     suggestionsTimer.schedule(new TimerTask() {
@@ -4252,7 +4254,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             @Override
             public void onReceive(Context context, Intent intent) {
                 cancel(true);
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
                 if(activity != null) {
                     activity.fileUploadTask = null;
                     activity.runOnUiThread(new Runnable() {
@@ -4324,8 +4326,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             Intent i = new Intent();
             i.setComponent(new ComponentName(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), "com.irccloud.android.MainActivity"));
-            i.putExtra("bid", mBuffer.bid);
-            i.setData(Uri.parse("bid://" + mBuffer.bid));
+            i.putExtra("bid", mBuffer.getBid());
+            i.setData(Uri.parse("bid://" + mBuffer.getBid()));
             notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 
             show_dialog();
@@ -4343,8 +4345,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     final EditText fileinput = (EditText) view.findViewById(R.id.filename);
                     final EditText messageinput = (EditText) view.findViewById(R.id.message);
                     final ImageView thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-                    messageinput.setText(activity.buffer.draft);
-                    activity.buffer.draft = "";
+                    messageinput.setText(activity.buffer.getDraft());
+                    activity.buffer.setDraft("");
                     activity.messageTxt.setText("");
 
                     view.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -4404,7 +4406,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             return true;
                         }
                     });
-                    builder.setTitle("Upload A File To " + mBuffer.name);
+                    builder.setTitle("Upload A File To " + mBuffer.getName());
                     builder.setView(view);
                     builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
                         @Override
@@ -4438,7 +4440,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             dialog.dismiss();
                             hide_progress();
                             if (activity.buffer != null)
-                                activity.buffer.draft = messageinput.getText().toString();
+                                activity.buffer.setDraft(messageinput.getText().toString());
                             if (activity.messageTxt != null)
                                 activity.messageTxt.setText(messageinput.getText());
                             metadataDialog = null;
@@ -4498,8 +4500,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
-                    Notifications.getInstance().alert(mBuffer.bid, "Upload Failed", "Unable to upload file to IRCCloud.");
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+                    Notifications.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
                 }
                 return null;
             }
@@ -4513,8 +4515,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } else {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
-                    Notifications.getInstance().alert(mBuffer.bid, "Upload Failed", "Unable to upload file to IRCCloud.");
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
+                    Notifications.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
                 }
                 return null;
             }
@@ -4531,7 +4533,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                     fileSize.setText(filesize + " • " + type);
                     notification.setContentText(filesize + " • " + type);
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.bid, notification.build());
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.getBid(), notification.build());
                 }
             });
 
@@ -4626,7 +4628,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 notification.setProgress(1000, (int) (values[0] * 1000), false);
             else
                 notification.setProgress(0, 0, true);
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.bid, notification.build());
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.getBid(), notification.build());
 
             if (activity != null) {
                 try {
@@ -4721,7 +4723,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             activity.getSupportActionBar().setDisplayShowCustomEnabled(true);
             activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
         }
 
         public void onIRCEvent(int what, Object obj) {
@@ -4736,9 +4738,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         else
                             message += " ";
                         message += event.getJsonObject("file").get("url").asText();
-                        NetworkConnection.getInstance().say(mBuffer.cid, mBuffer.name, message);
+                        NetworkConnection.getInstance().say(mBuffer.getCid(), mBuffer.getName(), message);
                         NetworkConnection.getInstance().removeHandler(this);
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
                         if(activity != null) {
                             activity.fileUploadTask = null;
                             activity.runOnUiThread(new Runnable() {
@@ -4754,7 +4756,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     event = (IRCCloudJSONObject) obj;
                     if (event.getInt("_reqid") == reqid) {
                         NetworkConnection.getInstance().removeHandler(this);
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
                         if(activity != null) {
                             activity.fileUploadTask = null;
                             activity.runOnUiThread(new Runnable() {
@@ -4771,7 +4773,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         private void show_alert(String title, String message) {
-            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.bid);
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
             try {
                 if (activity == null)
                     throw new IllegalStateException();
@@ -4799,7 +4801,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 metadataDialog.dismiss();
             } catch (Exception e) {
-                Notifications.getInstance().alert(mBuffer.bid, "Upload Failed", "Unable to upload file to IRCCloud.");
+                Notifications.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
             }
         }
     }

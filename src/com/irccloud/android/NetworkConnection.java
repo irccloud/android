@@ -561,8 +561,8 @@ public class NetworkConnection {
         oobTasks.clear();
         session = null;
         for (Buffer b : mBuffers.getBuffers()) {
-            if (!b.scrolledUp)
-                mEvents.pruneEvents(b.bid);
+            if (!b.getScrolledUp())
+                mEvents.pruneEvents(b.getBid());
         }
     }
 
@@ -1701,14 +1701,14 @@ public class NetworkConnection {
                         Map.Entry<String, JsonNode> eidentry = j.next();
                         int bid = Integer.valueOf(eidentry.getKey());
                         long eid = eidentry.getValue().asLong();
-                        mBuffers.updateLastSeenEid(bid, eid);
                         Notifications.getInstance().deleteOldNotifications(bid, eid);
                         Notifications.getInstance().updateLastSeenEid(bid, eid);
-                        if (mEvents.lastEidForBuffer(bid) <= eid) {
-                            Buffer b = mBuffers.getBuffer(bid);
-                            if (b != null) {
-                                b.unread = 0;
-                                b.highlights = 0;
+                        Buffer b = mBuffers.getBuffer(bid);
+                        if (b != null) {
+                            b.setLast_seen_eid(eid);
+                            if (mEvents.lastEidForBuffer(bid) <= eid) {
+                                b.setUnread(0);
+                                b.setHighlights(0);
                                 TransactionManager.getInstance().saveOnSaveQueue(b);
                             }
                         }
@@ -1758,7 +1758,7 @@ public class NetworkConnection {
                 mBuffers.purgeInvalidBIDs();
                 mChannels.purgeInvalidChannels();
                 for (Buffer b : mBuffers.getBuffers()) {
-                    Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
+                    Notifications.getInstance().deleteOldNotifications(b.getBid(), b.getLast_seen_eid());
                 }
                 if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
@@ -1867,7 +1867,7 @@ public class NetworkConnection {
                     if (object.getString("new_status").equals("disconnected")) {
                         ArrayList<Buffer> buffers = mBuffers.getBuffersForServer(object.cid());
                         for (Buffer b : buffers) {
-                            mChannels.deleteChannel(b.bid);
+                            mChannels.deleteChannel(b.getBid());
                         }
                     }
                     notifyHandlers(EVENT_STATUSCHANGED, object);
@@ -1898,7 +1898,7 @@ public class NetworkConnection {
                 JsonNode order = object.getJsonNode("order");
                 for (int i = 0; i < order.size(); i++) {
                     Server server = s.getServer(order.get(i).asInt());
-                    server.order = i + 1;
+                    server.setOrder(i + 1);
                 }
                 notifyHandlers(EVENT_REORDERCONNECTIONS, object);
             }
@@ -1914,11 +1914,11 @@ public class NetworkConnection {
                         (object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined")) ? object.getLong("min_eid") : 0,
                         (object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined")) ? object.getLong("last_seen_eid") : -1, object.getString("name"), object.getString("buffer_type"),
                         (object.has("archived") && object.getBoolean("archived")) ? 1 : 0, (object.has("deferred") && object.getBoolean("deferred")) ? 1 : 0, (object.has("timeout") && object.getBoolean("timeout")) ? 1 : 0);
-                Notifications.getInstance().deleteOldNotifications(buffer.bid, buffer.last_seen_eid);
-                Notifications.getInstance().updateLastSeenEid(buffer.bid, buffer.last_seen_eid);
-                if (mEvents.lastEidForBuffer(buffer.bid) <= buffer.last_seen_eid) {
-                    buffer.unread = 0;
-                    buffer.highlights = 0;
+                Notifications.getInstance().deleteOldNotifications(buffer.getBid(), buffer.getLast_seen_eid());
+                Notifications.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());
+                if (mEvents.lastEidForBuffer(buffer.getBid()) <= buffer.getLast_seen_eid()) {
+                    buffer.setUnread(0);
+                    buffer.setHighlights(0);
                     TransactionManager.getInstance().saveOnSaveQueue(buffer);
                 }
                 if (!backlog)
@@ -1939,8 +1939,9 @@ public class NetworkConnection {
         put("buffer_archived", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersList b = mBuffers;
-                b.updateArchived(object.bid(), 1);
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null)
+                    b.setArchived(1);
                 if (!backlog)
                     notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
             }
@@ -1948,8 +1949,9 @@ public class NetworkConnection {
         put("buffer_unarchived", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersList b = mBuffers;
-                b.updateArchived(object.bid(), 0);
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null)
+                    b.setArchived(0);
                 if (!backlog)
                     notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
             }
@@ -1957,8 +1959,9 @@ public class NetworkConnection {
         put("rename_conversation", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersList b = mBuffers;
-                b.updateName(object.bid(), object.getString("new_name"));
+                Buffer b = mBuffers.getBuffer(object.bid());
+                if(b != null)
+                    b.setName(object.getString("new_name"));
                 if (!backlog)
                     notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
             }
@@ -1971,11 +1974,11 @@ public class NetworkConnection {
                 Event event = e.addEvent(object);
                 Buffer b = mBuffers.getBuffer(object.bid());
 
-                if (b != null && event.eid > b.last_seen_eid && event.isImportant(b.type)) {
-                    if ((event.highlight || b.type.equals("conversation"))) {
+                if (b != null && event.eid > b.getLast_seen_eid() && event.isImportant(b.getType())) {
+                    if ((event.highlight || b.getType().equals("conversation"))) {
                         if (newEvent) {
-                            b.highlights++;
-                            b.unread = 1;
+                            b.setHighlights(b.getHighlights() + 1);
+                            b.setUnread(1);
                             TransactionManager.getInstance().saveOnSaveQueue(b);
                         }
                         if(!backlog) {
@@ -1983,7 +1986,7 @@ public class NetworkConnection {
                             boolean show = true;
                             if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
                                 bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
-                                if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))
+                                if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     show = false;
                             }
                             if (GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() > 0)
@@ -1991,36 +1994,36 @@ public class NetworkConnection {
                             if (show && Notifications.getInstance().getNotification(event.eid) == null) {
                                 String message = ColorFormatter.irc_to_html(event.msg);
                                 message = ColorFormatter.html_to_spanned(message).toString();
-                                Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.name, b.type, event.type);
-                                switch (b.type) {
+                                Notifications.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type);
+                                switch (b.getType()) {
                                     case "conversation":
                                         if (event.type.equals("buffer_me_msg"))
-                                            Notifications.getInstance().showNotifications("— " + b.name + " " + message);
+                                            Notifications.getInstance().showNotifications("— " + b.getName() + " " + message);
                                         else
-                                            Notifications.getInstance().showNotifications(b.name + ": " + message);
+                                            Notifications.getInstance().showNotifications(b.getName() + ": " + message);
                                         break;
                                     case "console":
                                         if (event.from == null || event.from.length() == 0) {
                                             Server s = mServers.getServer(event.cid);
-                                            if (s.name != null && s.name.length() > 0)
-                                                Notifications.getInstance().showNotifications(s.name + ": " + message);
+                                            if (s.getName() != null && s.getName().length() > 0)
+                                                Notifications.getInstance().showNotifications(s.getName() + ": " + message);
                                             else
-                                                Notifications.getInstance().showNotifications(s.hostname + ": " + message);
+                                                Notifications.getInstance().showNotifications(s.getHostname() + ": " + message);
                                         } else {
                                             Notifications.getInstance().showNotifications(event.from + ": " + message);
                                         }
                                         break;
                                     default:
                                         if (event.type.equals("buffer_me_msg"))
-                                            Notifications.getInstance().showNotifications(b.name + ": — " + event.nick + " " + message);
+                                            Notifications.getInstance().showNotifications(b.getName() + ": — " + event.nick + " " + message);
                                         else
-                                            Notifications.getInstance().showNotifications(b.name + ": <" + event.from + "> " + message);
+                                            Notifications.getInstance().showNotifications(b.getName() + ": <" + event.from + "> " + message);
                                         break;
                                 }
                             }
                         }
                     } else {
-                        b.unread = 1;
+                        b.setUnread(1);
                         TransactionManager.getInstance().saveOnSaveQueue(b);
                     }
                 } else if (b == null && !oobTasks.containsKey(-1)) {
@@ -2031,8 +2034,8 @@ public class NetworkConnection {
                         client.disconnect();
                 }
 
-                if (handlers.size() == 0 && b != null && !b.scrolledUp && mEvents.getSizeOfBuffer(b.bid) > 200)
-                    mEvents.pruneEvents(b.bid);
+                if (handlers.size() == 0 && b != null && !b.getScrolledUp() && mEvents.getSizeOfBuffer(b.getBid()) > 200)
+                    mEvents.pruneEvents(b.getBid());
 
                 if (event.reqid >= 0) {
                     Event pending = mEvents.findPendingEventForReqid(event.bid, event.reqid);
@@ -2046,7 +2049,7 @@ public class NetworkConnection {
                         if(pending.eid != event.eid)
                             mEvents.deleteEvent(pending.eid, pending.bid);
                     }
-                } else if(event.self && b != null && b.type.equals("conversation")) {
+                } else if(event.self && b != null && b.getType().equals("conversation")) {
                     mEvents.clearPendingEvents(event.bid);
                 }
 
@@ -2341,10 +2344,11 @@ public class NetworkConnection {
         put("user_away", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersList b = mBuffers;
+                Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
                 UsersList u = mUsers;
                 u.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("msg"));
-                b.updateAway(object.cid(), object.getString("nick"), object.getString("msg"));
+                if(b != null)
+                    b.setAway_msg(object.getString("msg"));
                 if (!backlog)
                     notifyHandlers(EVENT_AWAY, object);
             }
@@ -2353,10 +2357,11 @@ public class NetworkConnection {
         put("user_back", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                BuffersList b = mBuffers;
+                Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("nick"));
                 UsersList u = mUsers;
                 u.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
-                b.updateAway(object.cid(), object.getString("nick"), "");
+                if(b != null)
+                    b.setAway_msg("");
                 if (!backlog)
                     notifyHandlers(EVENT_AWAY, object);
             }
@@ -2430,8 +2435,8 @@ public class NetworkConnection {
                         JsonNode users = object.getJsonNode("users");
                         for (int i = 0; i < users.size(); i++) {
                             JsonNode user = users.get(i);
-                            u.updateHostmask(b.bid, user.get("nick").asText(), user.get("usermask").asText());
-                            u.updateAway(b.bid, user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
+                            u.updateHostmask(b.getBid(), user.get("nick").asText(), user.get("usermask").asText());
+                            u.updateAway(b.getBid(), user.get("nick").asText(), user.get("away").asBoolean() ? 1 : 0);
                         }
                     }
                     notifyHandlers(EVENT_WHOLIST, object);
@@ -2453,7 +2458,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 Buffer b = mBuffers.getBufferByName(object.cid(), object.getString("chan"));
                 if (b != null) {
-                    Channel c = mChannels.getChannelForBuffer(b.bid);
+                    Channel c = mChannels.getChannelForBuffer(b.getBid());
                     if (c != null) {
                         c.topic_author = object.has("author") ? object.getString("author") : object.getString("server");
                         c.topic_time = object.getLong("time");
@@ -2998,10 +3003,10 @@ public class NetworkConnection {
 
                             ArrayList<Buffer> buffers = mBuffers.getBuffers();
                             for (Buffer b : buffers) {
-                                Notifications.getInstance().deleteOldNotifications(b.bid, b.last_seen_eid);
-                                if (b.timeout > 0 && bid == -1) {
-                                    Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.name);
-                                    request_backlog(b.cid, b.bid, 0);
+                                Notifications.getInstance().deleteOldNotifications(b.getBid(), b.getLast_seen_eid());
+                                if (b.getTimeout() > 0 && bid == -1) {
+                                    Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.getName());
+                                    request_backlog(b.getCid(), b.getBid(), 0);
                                 }
                             }
                             schedule_idle_timer();
@@ -3015,7 +3020,9 @@ public class NetworkConnection {
                     parser.close();
 
                     if (bid != -1) {
-                        mBuffers.updateTimeout(bid, 0);
+                        Buffer b = mBuffers.getBuffer(bid);
+                        if(b != null)
+                            b.setTimeout(0);
                     }
                     oobTasks.remove(bid);
 
@@ -3033,7 +3040,7 @@ public class NetworkConnection {
                 if (bid != -1) {
                     if (!isCancelled()) {
                         Buffer b = mBuffers.getBuffer(bid);
-                        if (b != null && b.timeout == 1) {
+                        if (b != null && b.getTimeout() == 1) {
                             Crashlytics.log(Log.WARN, TAG, "Failed to fetch backlog for timed-out buffer, retrying in " + retryDelay + "ms");
                             idleTimer.schedule(new TimerTask() {
                                 public void run() {

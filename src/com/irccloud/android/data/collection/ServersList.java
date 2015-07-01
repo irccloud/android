@@ -55,11 +55,12 @@ public class ServersList {
 
     public void load() {
         try {
+            servers.clear();
             List<Server> c = new Select().all().from(Server.class).queryList();
             if (c != null && !c.isEmpty()) {
                 for (Server s : c) {
-                    servers.put(s.cid, s);
-                    updateIgnores(s.cid, s.raw_ignores);
+                    servers.put(s.getCid(), s);
+                    updateIgnores(s.getCid(), s.raw_ignores);
                 }
             }
         } catch (SQLiteException e) {
@@ -81,26 +82,26 @@ public class ServersList {
             s = new Server();
             servers.put(cid, s);
         }
-        s.cid = cid;
-        s.name = name;
-        s.hostname = hostname;
-        s.port = port;
-        s.nick = nick;
-        s.status = status;
-        s.lag = lag;
-        s.ssl = ssl;
-        s.realname = realname;
-        s.server_pass = server_pass;
-        s.nickserv_pass = nickserv_pass;
-        s.join_commands = join_commands;
+        s.setCid(cid);
+        s.setName(name);
+        s.setHostname(hostname);
+        s.setPort(port);
+        s.setNick(nick);
+        s.setStatus(status);
+        s.setLag(lag);
+        s.setSsl(ssl);
+        s.setRealname(realname);
+        s.setServer_pass(server_pass);
+        s.setNickserv_pass(nickserv_pass);
+        s.setJoin_commands(join_commands);
         s.fail_info = fail_info;
-        s.away = away;
-        s.usermask = "";
-        s.mode = "";
-        s.order = order;
+        s.setAway(away);
+        s.setUsermask("");
+        s.setMode("");
+        s.setOrder(order);
         s.isupport = new ObjectMapper().createObjectNode();
-        if (s.name == null || s.name.length() == 0)
-            s.name = s.hostname;
+        if (s.getName() == null || s.getName().length() == 0)
+            s.setName(s.getHostname());
         if (ignores != null)
             updateIgnores(cid, ignores);
         return s;
@@ -113,7 +114,7 @@ public class ServersList {
     public void updateLag(int cid, long lag) {
         Server s = getServer(cid);
         if (s != null) {
-            s.lag = lag;
+            s.setLag(lag);
             TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
@@ -121,7 +122,7 @@ public class ServersList {
     public void updateNick(int cid, String nick) {
         Server s = getServer(cid);
         if (s != null) {
-            s.nick = nick;
+            s.setNick(nick);
             TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
@@ -129,7 +130,7 @@ public class ServersList {
     public void updateStatus(int cid, String status, ObjectNode fail_info) {
         Server s = getServer(cid);
         if (s != null) {
-            s.status = status;
+            s.setStatus(status);
             s.fail_info = fail_info;
             TransactionManager.getInstance().saveOnSaveQueue(s);
         }
@@ -138,7 +139,7 @@ public class ServersList {
     public void updateAway(int cid, String away) {
         Server s = getServer(cid);
         if (s != null) {
-            s.away = away;
+            s.setAway(away);
             TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
@@ -146,7 +147,7 @@ public class ServersList {
     public void updateUsermask(int cid, String usermask) {
         Server s = getServer(cid);
         if (s != null) {
-            s.usermask = usermask;
+            s.setUsermask(usermask);
             TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
@@ -154,7 +155,7 @@ public class ServersList {
     public void updateMode(int cid, String mode) {
         Server s = getServer(cid);
         if (s != null) {
-            s.mode = mode;
+            s.setMode(mode);
             TransactionManager.getInstance().saveOnSaveQueue(s);
         }
     }
@@ -257,8 +258,8 @@ public class ServersList {
             i = buffersToRemove.iterator();
             while (i.hasNext()) {
                 Buffer b = i.next();
-                BuffersList.getInstance().deleteAllDataForBuffer(b.bid);
-                Notifications.getInstance().deleteNotificationsForBid(b.bid);
+                BuffersList.getInstance().deleteAllDataForBuffer(b.getBid());
+                Notifications.getInstance().deleteNotificationsForBid(b.getBid());
             }
             servers.remove(cid);
             s.delete();
@@ -276,7 +277,7 @@ public class ServersList {
     public Server getServer(String hostname) {
         for (int i = 0; i < servers.size(); i++) {
             Server s = servers.valueAt(i);
-            if (s.hostname.equalsIgnoreCase(hostname))
+            if (s.getHostname().equalsIgnoreCase(hostname))
                 return s;
         }
         return null;
@@ -285,7 +286,7 @@ public class ServersList {
     public Server getServer(String hostname, int port) {
         for (int i = 0; i < servers.size(); i++) {
             Server s = servers.valueAt(i);
-            if (s.hostname.equalsIgnoreCase(hostname) && s.port == port)
+            if (s.getHostname().equalsIgnoreCase(hostname) && s.getPort() == port)
                 return s;
         }
         return null;
@@ -294,7 +295,7 @@ public class ServersList {
     public Server getServer(String hostname, boolean ssl) {
         for (int i = 0; i < servers.size(); i++) {
             Server s = servers.valueAt(i);
-            if (s.hostname.equalsIgnoreCase(hostname) && ((!ssl && s.ssl == 0) || (ssl && s.ssl > 0)))
+            if (s.getHostname().equalsIgnoreCase(hostname) && ((!ssl && s.getSsl() == 0) || (ssl && s.getSsl() > 0)))
                 return s;
         }
         return null;

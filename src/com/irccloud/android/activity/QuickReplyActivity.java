@@ -178,7 +178,7 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
         bid = intent.getIntExtra("bid", -1);
         to = intent.getStringExtra("to");
         server = new Server();
-        server.cid = cid;
+        server.setCid(cid);
 
         setTitle("Reply to " + to + " (" + intent.getStringExtra("network") + ")");
     }

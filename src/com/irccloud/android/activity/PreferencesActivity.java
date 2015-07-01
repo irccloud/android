@@ -820,7 +820,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/faq"));
             if (preference.getKey().equals("feedback")) {
                 Server s = ServersList.getInstance().getServer("irc.irccloud.com");
-                if (s != null && s.ssl > 0)
+                if (s != null && s.getSsl() > 0)
                     i = new Intent(Intent.ACTION_VIEW, Uri.parse("ircs://irc.irccloud.com/%23feedback"));
                 else
                     i = new Intent(Intent.ACTION_VIEW, Uri.parse("irc://irc.irccloud.com/%23feedback"));

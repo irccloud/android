@@ -25,7 +25,7 @@ import android.text.TextUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
-import com.irccloud.android.data.model.Event$Table;
+//import com.irccloud.android.data.model.Event$Table;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -53,6 +53,7 @@ public class EventsList {
 
     public void load() {
         try {
+            events.clear();
             List<Event> c = new Select().all().from(Event.class).queryList();
             if(c != null && !c.isEmpty()) {
                 for(Event e : c) {
@@ -897,7 +898,7 @@ public class EventsList {
             if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).containsKey(eid))
                 events.get(bid).remove(eid);
         }
-        new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).is(eid)).queryClose();
+        //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).is(eid)).queryClose();
     }
 
     public void deleteEventsForBuffer(int bid) {
@@ -905,7 +906,7 @@ public class EventsList {
             if (events.containsKey(bid) && events.get(bid) != null)
                 events.remove(bid);
         }
-        new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryClose();
+        //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryClose();
     }
 
     public TreeMap<Long, Event> getEventsForBuffer(int bid) {

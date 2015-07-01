@@ -18,7 +18,6 @@ package com.irccloud.android.fragment;
 
 import android.app.Activity;
 import android.content.res.Resources;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -34,12 +33,8 @@ import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,31 +45,18 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
-import com.irccloud.android.data.model.Channel;
-import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.databinding.RowBufferBinding;
 import com.squareup.leakcanary.RefWatcher;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
 public class BuffersListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
-    private static final int TYPE_SERVER = 0;
-    private static final int TYPE_CHANNEL = 1;
-    private static final int TYPE_CONVERSATION = 2;
-    private static final int TYPE_ARCHIVES_HEADER = 3;
-    private static final int TYPE_JOIN_CHANNEL = 4;
-    private static final int TYPE_ADD_NETWORK = 5;
-    private static final int TYPE_REORDER = 6;
-
     NetworkConnection conn;
     BufferListAdapter adapter;
     OnBufferSelectedListener mListener;
@@ -100,52 +82,14 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
     SparseBooleanArray mExpandArchives = new SparseBooleanArray();
 
-    private static class BufferListEntry implements Serializable {
-        private static final long serialVersionUID = 1848168221883194028L;
-        int cid;
-        int bid;
-        int type;
-        int unread;
-        int highlights;
-        int key;
-        long last_seen_eid;
-        long min_eid;
-        int joined;
-        int archived;
-        int timeout;
-        String name;
-        String status;
-        JsonNode fail_info;
-        int ssl;
-        int count;
-        String contentDescription;
-    }
-
     private class BufferListAdapter extends BaseAdapter {
-        ArrayList<BufferListEntry> data;
+        ArrayList<Buffer> data;
         private ListFragment ctx;
-        int progressRow = -1;
-
-        private class ViewHolder {
-            int type;
-            TextView label;
-            TextView highlights;
-            LinearLayout unread;
-            LinearLayout bufferbg;
-            ImageView icon;
-            ProgressBar progress;
-            ImageButton addBtn;
-        }
-
-        public void showProgress(int row) {
-            progressRow = row;
-            notifyDataSetChanged();
-        }
 
         public int positionForBid(int bid) {
             for (int i = 0; i < data.size(); i++) {
-                BufferListEntry e = data.get(i);
-                if (e.bid == bid)
+                Buffer e = data.get(i);
+                if (e.getBid() == bid)
                     return i;
             }
             return -1;
@@ -159,74 +103,16 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             eightdp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getSafeResources().getDisplayMetrics());
         }
 
-        public void setItems(ArrayList<BufferListEntry> items) {
+        public void setItems(ArrayList<Buffer> items) {
             data = items;
         }
 
         public void updateBuffer(Buffer b) {
-            int pos = positionForBid(b.bid);
+            int pos = positionForBid(b.getBid());
             if (pos >= 0 && data != null && pos < data.size()) {
-                BufferListEntry e = data.get(pos);
+                Buffer e = data.get(pos);
 
-                JSONObject channelDisabledMap = null;
-                JSONObject bufferDisabledMap = null;
-                if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                    try {
-                        if (conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
-                            channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-                        if (conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
-                            bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
-                    } catch (JSONException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                }
-
-                int unread = 0;
-                int highlights = 0;
-                if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                    unread = b.unread;
-                    highlights = b.highlights;
-                }
-                try {
-                    if (b.type.equalsIgnoreCase("channel")) {
-                        if (b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
-                            unread = 0;
-                        if (b.bid == selected_bid)
-                            highlights = 0;
-                    } else {
-                        if (b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-                            unread = 0;
-                        if (b.bid == selected_bid || (b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid)))))
-                            highlights = 0;
-                    }
-                } catch (JSONException e1) {
-                    e1.printStackTrace();
-                }
-
-                e.unread = unread;
-                e.highlights = highlights;
-
-                Server s = ServersList.getInstance().getServer(e.cid);
-                if (s != null) {
-                    e.status = s.status;
-                    e.fail_info = s.fail_info;
-                }
-
-                if (b.type.equalsIgnoreCase("channel")) {
-                    Channel c = ChannelsList.getInstance().getChannelForBuffer(b.bid);
-                    if (c == null) {
-                        e.joined = 0;
-                        e.key = 0;
-                    } else if (c.key) {
-                        e.key = 1;
-                    } else {
-                        e.key = 0;
-                    }
-                }
-
-
-                if (unread > 0) {
+                if (e.getUnread() > 0) {
                     if (firstUnreadPosition == -1 || firstUnreadPosition > pos)
                         firstUnreadPosition = pos;
                     if (lastUnreadPosition == -1 || lastUnreadPosition < pos)
@@ -235,7 +121,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     if (firstUnreadPosition == pos) {
                         firstUnreadPosition = -1;
                         for (int i = 0; i < data.size(); i++) {
-                            if (data.get(i).unread > 0) {
+                            if (data.get(i).getUnread() > 0) {
                                 firstUnreadPosition = i;
                                 break;
                             }
@@ -244,7 +130,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     if (lastUnreadPosition == pos) {
                         lastUnreadPosition = -1;
                         for (int i = pos; i >= 0; i--) {
-                            if (data.get(i).unread > 0) {
+                            if (data.get(i).getUnread() > 0) {
                                 lastUnreadPosition = i;
                                 break;
                             }
@@ -252,7 +138,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if (highlights > 0) {
+                if (e.getHighlights() > 0) {
                     if (firstHighlightPosition == -1 || firstHighlightPosition > pos)
                         firstHighlightPosition = pos;
                     if (lastHighlightPosition == -1 || lastHighlightPosition < pos)
@@ -261,7 +147,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     if (firstHighlightPosition == pos) {
                         firstHighlightPosition = -1;
                         for (int i = 0; i < data.size(); i++) {
-                            if (data.get(i).highlights > 0) {
+                            if (data.get(i).getHighlights() > 0) {
                                 firstHighlightPosition = i;
                                 break;
                             }
@@ -270,7 +156,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     if (lastHighlightPosition == pos) {
                         lastHighlightPosition = -1;
                         for (int i = pos; i >= 0; i--) {
-                            if (data.get(i).highlights > 0) {
+                            if (data.get(i).getHighlights() > 0) {
                                 lastHighlightPosition = i;
                                 break;
                             }
@@ -278,7 +164,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if (e.type == TYPE_SERVER) {
+                /*if (e.type == TYPE_SERVER) {
                     if (e.fail_info != null && e.fail_info.has("type")) {
                         if (firstFailurePosition == -1 || firstFailurePosition > pos)
                             firstFailurePosition = pos;
@@ -306,7 +192,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                             }
                         }
                     }
-                }
+                }*/
 
                 if (BuffersListFragment.this.getActivity() != null) {
                     BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
@@ -333,8 +219,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         int unreadPositionAbove(int pos) {
             if (pos > 0) {
                 for (int i = pos - 1; i >= 0; i--) {
-                    BufferListEntry e = data.get(i);
-                    if (e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
+                    Buffer e = data.get(i);
+                    if (e.getUnread() > 0 || e.getHighlights() > 0 /*|| (e.getType().equals("console") && e.fail_info != null && e.fail_info.has("type"))*/)
                         return i;
                 }
             }
@@ -344,34 +230,12 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         int unreadPositionBelow(int pos) {
             if (pos >= 0) {
                 for (int i = pos; i < data.size(); i++) {
-                    BufferListEntry e = data.get(i);
-                    if (e.unread > 0 || e.highlights > 0 || (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type")))
+                    Buffer e = data.get(i);
+                    if (e.getUnread() > 0 || e.getHighlights() > 0 /*|| (e.type == TYPE_SERVER && e.fail_info != null && e.fail_info.has("type"))*/)
                         return i;
                 }
             }
             return data.size() - 1;
-        }
-
-        public BufferListEntry buildItem(int cid, int bid, int type, String name, int key, int unread, int highlights, long last_seen_eid, long min_eid, int joined, int archived, String status, int timeout, int ssl, int count, String contentDescription, JsonNode fail_info) {
-            BufferListEntry e = new BufferListEntry();
-            e.cid = cid;
-            e.bid = bid;
-            e.type = type;
-            e.name = name;
-            e.key = key;
-            e.unread = unread;
-            e.highlights = highlights;
-            e.last_seen_eid = last_seen_eid;
-            e.min_eid = min_eid;
-            e.joined = joined;
-            e.archived = archived;
-            e.status = status;
-            e.timeout = timeout;
-            e.ssl = ssl;
-            e.count = count;
-            e.contentDescription = contentDescription;
-            e.fail_info = fail_info;
-            return e;
         }
 
         @Override
@@ -390,8 +254,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         @Override
         public long getItemId(int position) {
             if (position < data.size()) {
-                BufferListEntry e = data.get(position);
-                return e.bid;
+                Buffer e = data.get(position);
+                return e.getBid();
             } else {
                 return -1;
             }
@@ -400,191 +264,65 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         @SuppressWarnings("deprecation")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            BufferListEntry e = data.get(position);
-            View row = convertView;
-            ViewHolder holder;
+            RowBufferBinding row;
 
-            if (row == null) {
-                LayoutInflater inflater = ctx.getLayoutInflater(null);
-                row = inflater.inflate(R.layout.row_buffer, null);
-
-                holder = new ViewHolder();
-                holder.label = (TextView) row.findViewById(R.id.label);
-                holder.highlights = (TextView) row.findViewById(R.id.highlights);
-                holder.unread = (LinearLayout) row.findViewById(R.id.unread);
-                holder.bufferbg = (LinearLayout) row.findViewById(R.id.bufferbg);
-                holder.icon = (ImageView) row.findViewById(R.id.icon);
-                holder.progress = (ProgressBar) row.findViewById(R.id.progressBar);
-                holder.addBtn = (ImageButton) row.findViewById(R.id.addBtn);
-                holder.type = e.type;
-
-                row.setTag(holder);
+            if(convertView == null) {
+                row = RowBufferBinding.inflate(ctx.getLayoutInflater(null), parent, false);
             } else {
-                holder = (ViewHolder) row.getTag();
+                row = (RowBufferBinding)convertView.getTag();
             }
 
-            row.setContentDescription(e.contentDescription);
-            holder.label.setText(e.name);
-            if (e.type == TYPE_ARCHIVES_HEADER) {
-                holder.label.setTypeface(null);
-                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archives_heading));
-                holder.unread.setBackgroundDrawable(null);
-            } else if (e.type == TYPE_JOIN_CHANNEL) {
-                holder.label.setTypeface(null);
-                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_join));
-                holder.unread.setBackgroundDrawable(null);
-            } else if (e.archived == 1 && holder.bufferbg != null) {
-                holder.label.setTypeface(null);
-                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_archived));
-                holder.unread.setBackgroundDrawable(null);
-            } else if ((e.type == TYPE_CHANNEL && e.joined == 0) || !e.status.equals("connected_ready")) {
-                if (selected_bid == e.bid) {
-                    holder.label.setTypeface(null, Typeface.BOLD);
-                    holder.unread.setBackgroundResource(R.drawable.selected_blue);
-                } else {
-                    holder.label.setTypeface(null);
-                    holder.unread.setBackgroundDrawable(null);
-                }
-                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
-            } else if ((e.unread > 0 && !readOnly) || selected_bid == e.bid) {
-                holder.label.setTypeface(null, Typeface.BOLD);
-                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_unread));
-                holder.unread.setBackgroundResource(R.drawable.selected_blue);
-                row.setContentDescription(row.getContentDescription() + ", unread");
+            Server s = null;
+            Buffer b = data.get(position);
+            s = ServersList.getInstance().getServer(b.getCid());
+
+            row.setBuffer(b);
+            row.setServer(s);
+
+            if(readOnly) {
+                row.bufferbg.setBackgroundResource(b.getBackgroundResource());
+                row.addBtn.setVisibility(View.GONE);
             } else {
-                holder.label.setTypeface(null);
-                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label));
-                holder.unread.setBackgroundDrawable(null);
-            }
+                row.setSelected(b.getBid() == selected_bid);
+                row.label.setTextColor(parent.getContext().getResources().getColorStateList(b.getTextColor()));
+                row.label.setSelected(b.getBid() == selected_bid);
 
-            if (holder.icon != null) {
-                if (e.type == TYPE_JOIN_CHANNEL) {
-                    holder.icon.setImageResource(R.drawable.add);
-                    holder.icon.setVisibility(View.VISIBLE);
-                } else if (e.type == TYPE_ADD_NETWORK) {
-                    holder.icon.setImageResource(R.drawable.world_add);
-                    holder.icon.setVisibility(View.VISIBLE);
-                } else if (e.type == TYPE_REORDER) {
-                    holder.icon.setImageResource(R.drawable.move);
-                    holder.icon.setVisibility(View.VISIBLE);
-                } else if (e.type == TYPE_SERVER) {
-                    if (e.ssl > 0)
-                        holder.icon.setImageResource(R.drawable.world_shield);
-                    else
-                        holder.icon.setImageResource(R.drawable.world);
-                    holder.icon.setVisibility(View.VISIBLE);
+                if (b.getArchived() > 0) {
+                    row.unread.setBackgroundResource(b.getUnread() > 0 ? R.drawable.archived_bg_selected : R.drawable.bg);
                 } else {
-                    if (e.key > 0) {
-                        holder.icon.setImageResource(R.drawable.lock);
-                        holder.icon.setVisibility(View.VISIBLE);
-                    } else {
-                        holder.icon.setVisibility(View.INVISIBLE);
+                    row.unread.setBackgroundResource(b.getUnread() > 0 ? R.drawable.selected_blue : R.drawable.bg);
+                }
+                if (b.getBid() == selected_bid) {
+                    row.unread.setBackgroundResource(b.getArchived() > 0 ? R.drawable.archived_bg_selected : R.drawable.selected_blue);
+                    row.bufferbg.setBackgroundResource(b.getArchived() > 0 ? R.drawable.archived_bg_selected : R.drawable.selected_blue);
+                } else {
+                    row.bufferbg.setBackgroundResource(b.getBackgroundResource());
+                }
+                if (mExpandArchives.get(b.getCid(), false)) {
+                    row.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
+                    row.bufferbg.setSelected(true);
+                } else {
+                    row.bufferbg.setSelected(false);
+                }
+
+                row.addBtn.setTag(b);
+                row.addBtn.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Buffer e = (Buffer) v.getTag();
+                        AddChannelFragment newFragment = new AddChannelFragment();
+                        newFragment.setDefaultCid(e.getCid());
+                        newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+                        mListener.addButtonPressed(e.getCid());
                     }
-                }
+                });
             }
-
-            if (holder.progress != null) {
-                if (progressRow == position || e.timeout > 0 || (e.type == TYPE_SERVER && !(e.status.equals("connected_ready") || e.status.equals("quitting") || e.status.equals("disconnected")))) {
-                    if (selected_bid == -1 || progressRow != position) {
-                        holder.progress.setVisibility(View.VISIBLE);
-                        if (holder.bufferbg != null)
-                            holder.bufferbg.setSelected(false);
-                    } else {
-                        if (holder.bufferbg != null)
-                            holder.bufferbg.setSelected(true);
-                        holder.progress.setVisibility(View.GONE);
-                    }
-                } else {
-                    holder.progress.setVisibility(View.GONE);
-                    if (e.type != TYPE_ARCHIVES_HEADER && holder.bufferbg != null)
-                        holder.bufferbg.setSelected(false);
-                }
-            }
-
-            if (holder.bufferbg != null) {
-                if (e.type == TYPE_ARCHIVES_HEADER) {
-                    if (mExpandArchives.get(e.cid, false)) {
-                        holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
-                        holder.bufferbg.setSelected(true);
-                        row.setContentDescription(e.contentDescription + ". Double-tap to collapse.");
-                    } else {
-                        holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
-                        holder.bufferbg.setSelected(false);
-                        row.setContentDescription(e.contentDescription + ". Double-tap to expand.");
-                    }
-                } else if (e.type == TYPE_SERVER) {
-                    if (e.status.equals("waiting_to_retry") || e.status.equals("pool_unavailable") ||
-                            ((e.status.equals("disconnected") && e.fail_info != null && e.fail_info.has("type")))) {
-                        holder.bufferbg.setBackgroundResource(R.drawable.row_failed_bg);
-                        holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_failed));
-                        if (e.bid == selected_bid)
-                            holder.unread.setBackgroundResource(R.drawable.status_fail_bg);
-                    } else {
-                        holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
-                        if (e.status.equals("connected_ready"))
-                            holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label));
-                        else
-                            holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_label_inactive));
-                    }
-                } else if (e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
-                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffergroup_bg);
-                } else if (e.type == TYPE_JOIN_CHANNEL) {
-                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_join);
-                } else if (e.archived == 1) {
-                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
-                } else {
-                    holder.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg);
-                }
-            }
-
-            if (holder.highlights != null) {
-                if (e.highlights > 0) {
-                    holder.highlights.setVisibility(View.VISIBLE);
-                    holder.highlights.setText(String.valueOf(e.highlights));
-                    row.setContentDescription(row.getContentDescription() + ", " + e.highlights + " highlights");
-                } else {
-                    holder.highlights.setVisibility(View.GONE);
-                    holder.highlights.setText("");
-                }
-            }
-
-            if (holder.addBtn != null) {
-                if (e.count > 1 && !readOnly) {
-                    holder.addBtn.setVisibility(View.VISIBLE);
-                    holder.addBtn.setTag(e);
-                    holder.addBtn.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            BufferListEntry e = (BufferListEntry) v.getTag();
-                            AddChannelFragment newFragment = new AddChannelFragment();
-                            newFragment.setDefaultCid(e.cid);
-                            newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
-                            mListener.addButtonPressed(e.cid);
-                        }
-                    });
-                } else {
-                    holder.addBtn.setVisibility(View.GONE);
-                }
-            }
-
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) holder.unread.getLayoutParams();
-            if (lp != null) {
-                if (e.type == TYPE_SERVER || e.type == TYPE_ADD_NETWORK || e.type == TYPE_REORDER) {
-                    lp.setMargins(0, eightdp, eightdp, 0);
-                    row.setMinimumHeight(eightdp * 7);
-                } else {
-                    lp.setMargins(0, 0, eightdp, 0);
-                    row.setMinimumHeight(eightdp * 6);
-                }
-                holder.unread.setLayoutParams(lp);
-            }
-
-            return row;
+            return row.getRoot();
         }
     }
 
     private class RefreshTask extends AsyncTaskEx<Void, Void, Void> {
-        ArrayList<BufferListEntry> entries = new ArrayList<BufferListEntry>();
+        ArrayList<Buffer> entries = new ArrayList<>();
 
         @Override
         protected synchronized Void doInBackground(Void... params) {
@@ -594,7 +332,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             }
 
             SparseArray<Server> serversArray = ServersList.getInstance().getServers();
-            ArrayList<Server> servers = new ArrayList<Server>();
+            ArrayList<Server> servers = new ArrayList<>();
 
             for (int i = 0; i < serversArray.size(); i++) {
                 servers.add(serversArray.valueAt(i));
@@ -613,151 +351,65 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             lastFailurePosition = -1;
             int position = 0;
 
-            JSONObject channelDisabledMap = null;
-            JSONObject bufferDisabledMap = null;
-            if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                try {
-                    if (conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
-                        channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-                    if (conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
-                        bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
-                } catch (JSONException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
-
             for (Server s : servers) {
                 if (isCancelled())
                     return null;
 
                 int archiveCount = 0;
-                ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(s.cid);
-                for (int j = 0; j < buffers.size(); j++) {
-                    if (isCancelled())
-                        return null;
-
-                    Buffer b = buffers.get(j);
-                    if (b.type.equalsIgnoreCase("console")) {
-                        int unread = 0;
-                        int highlights = 0;
-                        if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                            unread = b.unread;
-                            highlights = b.highlights;
-                        }
-                        if (s.name.length() == 0)
-                            s.name = s.hostname;
-                        try {
-                            if (b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-                                unread = 0;
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        entries.add(adapter.buildItem(b.cid, b.bid, TYPE_SERVER, s.name, 0, unread, highlights, b.last_seen_eid, b.min_eid, 1, b.archived, s.status, 0, s.ssl, buffers.size(), "Network " + s.name, s.fail_info));
-                        if (unread > 0 && firstUnreadPosition == -1)
-                            firstUnreadPosition = position;
-                        if (unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
-                            lastUnreadPosition = position;
-                        if (highlights > 0 && firstHighlightPosition == -1)
-                            firstHighlightPosition = position;
-                        if (highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
-                            lastHighlightPosition = position;
-                        if (s.fail_info != null && s.fail_info.has("type")) {
-                            if (firstFailurePosition == -1)
-                                firstFailurePosition = position;
-                            if (lastFailurePosition == -1 || lastFailurePosition < position)
-                                lastFailurePosition = position;
-                        }
-                        position++;
-                        break;
-                    }
-                }
+                ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(s.getCid());
                 for (Buffer b : buffers) {
                     if (isCancelled())
                         return null;
 
-                    int type = -1;
-                    int key = 0;
-                    int joined = 1;
-                    if (b.type.equalsIgnoreCase("channel")) {
-                        type = TYPE_CHANNEL;
-                        Channel c = ChannelsList.getInstance().getChannelForBuffer(b.bid);
-                        if (c == null)
-                            joined = 0;
-                        if (c != null && c.key)
-                            key = 1;
-                    } else if (b.type.equalsIgnoreCase("conversation"))
-                        type = TYPE_CONVERSATION;
-                    if (type > 0 && b.archived == 0) {
-                        int unread = 0;
-                        int highlights = 0;
-                        String contentDescription = null;
-                        if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                            unread = b.unread;
-                            highlights = b.highlights;
-                        }
-                        try {
-                            if (b.type.equalsIgnoreCase("channel")) {
-                                contentDescription = "Channel " + b.normalizedName();
-                                if (b.bid == selected_bid || (channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.bid)) && channelDisabledMap.getBoolean(String.valueOf(b.bid))))
-                                    unread = 0;
-                            } else {
-                                contentDescription = "Conversation with " + b.normalizedName();
-                                if (b.bid == selected_bid || (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-                                    unread = 0;
-                                if (b.type.equalsIgnoreCase("conversation") && (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.bid)) && bufferDisabledMap.getBoolean(String.valueOf(b.bid))))
-                                    highlights = 0;
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, key, unread, highlights, b.last_seen_eid, b.min_eid, joined, b.archived, s.status, b.timeout, s.ssl, 0, contentDescription, null));
-                        if (unread > 0 && firstUnreadPosition == -1)
+                    if (b.getArchived() == 0) {
+                        entries.add(b);
+                        if (b.getUnread() > 0 && firstUnreadPosition == -1)
                             firstUnreadPosition = position;
-                        if (unread > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
+                        if (b.getUnread() > 0 && (lastUnreadPosition == -1 || lastUnreadPosition < position))
                             lastUnreadPosition = position;
-                        if (highlights > 0 && firstHighlightPosition == -1)
+                        if (b.getHighlights() > 0 && firstHighlightPosition == -1)
                             firstHighlightPosition = position;
-                        if (highlights > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
+                        if (b.getHighlights() > 0 && (lastHighlightPosition == -1 || lastHighlightPosition < position))
                             lastHighlightPosition = position;
                         position++;
-                    }
-                    if (type > 0 && b.archived > 0) {
+                    } else {
                         archiveCount++;
                     }
                 }
                 if (archiveCount > 0) {
-                    entries.add(adapter.buildItem(s.cid, 0, TYPE_ARCHIVES_HEADER, "Archives", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Archives", null));
+                    Buffer header = new Buffer();
+                    header.setCid(s.getCid());
+                    header.setName("Archives");
+                    header.setType(Buffer.TYPE_ARCHIVES_HEADER);
+                    entries.add(header);
                     position++;
-                    if (mExpandArchives.get(s.cid, false)) {
+                    if (mExpandArchives.get(s.getCid(), false)) {
                         for (Buffer b : buffers) {
-                            int type = -1;
-                            String contentDescription = null;
-                            if (b.archived == 1) {
-                                if (b.type.equalsIgnoreCase("channel")) {
-                                    type = TYPE_CHANNEL;
-                                    contentDescription = "Channel: " + b.normalizedName();
-                                } else if (b.type.equalsIgnoreCase("conversation")) {
-                                    type = TYPE_CONVERSATION;
-                                    contentDescription = "Conversation with " + b.normalizedName();
-                                }
-
-                                if (type > 0) {
-                                    entries.add(adapter.buildItem(b.cid, b.bid, type, b.name, 0, 0, 0, b.last_seen_eid, b.min_eid, 0, b.archived, s.status, 0, s.ssl, 0, contentDescription, null));
-                                    position++;
-                                }
+                            if (b.getArchived() == 1) {
+                                entries.add(b);
+                                position++;
                             }
                         }
                     }
                 }
                 if (buffers.size() == 1 && !readOnly) {
-                    entries.add(adapter.buildItem(s.cid, 0, TYPE_JOIN_CHANNEL, "Join a channel…", 0, 0, 0, 0, 0, 0, 1, s.status, 0, s.ssl, 0, "Join a channel", null));
+                    Buffer join = new Buffer();
+                    join.setCid(s.getCid());
+                    join.setName("Join a Channel");
+                    join.setType(Buffer.TYPE_JOIN_CHANNEL);
+                    entries.add(join);
                 }
             }
 
             if (!readOnly) {
-                entries.add(adapter.buildItem(0, 0, TYPE_ADD_NETWORK, "Add a network", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Add a network", null));
-                entries.add(adapter.buildItem(0, 0, TYPE_REORDER, "Reorder", 0, 0, 0, 0, 0, 0, 1, "connected_ready", 0, 0, 0, "Reorder", null));
+                Buffer b = new Buffer();
+                b.setName("Add a network");
+                b.setType(Buffer.TYPE_ADD_NETWORK);
+                entries.add(b);
+                b = new Buffer();
+                b.setName("Reorder");
+                b.setType(Buffer.TYPE_REORDER);
+                entries.add(b);
             }
 
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffers list adapter contains " + entries.size() + " entries");
@@ -790,9 +442,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 refreshTask = new RefreshTask();
                 refreshTask.execute((Void) null);
             }
-
-            if (selected_bid > 0)
-                adapter.showProgress(adapter.positionForBid(selected_bid));
         }
     }
 
@@ -806,7 +455,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             b = BuffersList.getInstance().getBuffer(bid);
             if (b != null)
                 adapter.updateBuffer(b);
-            adapter.showProgress(adapter.positionForBid(bid));
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
             RefreshTask t = new RefreshTask();
@@ -922,7 +570,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
             @Override
             public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
-                return mListener.onBufferLongClicked(BuffersList.getInstance().getBuffer(adapter.data.get(pos).bid));
+                return mListener.onBufferLongClicked(BuffersList.getInstance().getBuffer(adapter.data.get(pos).getBid()));
             }
 
         });
@@ -950,12 +598,12 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onSaveInstanceState(Bundle state) {
         if (adapter != null && adapter.data != null && adapter.data.size() > 0) {
-            ArrayList<Integer> expandedArchives = new ArrayList<Integer>();
+            ArrayList<Integer> expandedArchives = new ArrayList<>();
             SparseArray<Server> servers = ServersList.getInstance().getServers();
             for (int i = 0; i < servers.size(); i++) {
                 Server s = servers.valueAt(i);
-                if (mExpandArchives.get(s.cid, false))
-                    expandedArchives.add(s.cid);
+                if (mExpandArchives.get(s.getCid(), false))
+                    expandedArchives.add(s.getCid());
             }
             state.putIntegerArrayList("expandedArchives", expandedArchives);
             if (listView != null)
@@ -967,9 +615,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
         super.onResume();
         conn.addHandler(this);
         ready = conn.ready;
-        if (adapter != null)
-            adapter.showProgress(-1);
-
         refresh();
     }
 
@@ -998,28 +643,27 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     }
 
     public void onListItemClick(ListView l, View v, int position, long id) {
-        BufferListEntry e = (BufferListEntry) adapter.getItem(position);
+        Buffer e = (Buffer) adapter.getItem(position);
         if(e != null) {
-            switch (e.type) {
-                case TYPE_ADD_NETWORK:
+            switch (e.getType()) {
+                case Buffer.TYPE_ADD_NETWORK:
                     mListener.addNetwork();
                     return;
-                case TYPE_REORDER:
+                case Buffer.TYPE_REORDER:
                     mListener.reorder();
                     return;
-                case TYPE_ARCHIVES_HEADER:
-                    mExpandArchives.put(e.cid, !mExpandArchives.get(e.cid, false));
+                case Buffer.TYPE_ARCHIVES_HEADER:
+                    mExpandArchives.put(e.getCid(), !mExpandArchives.get(e.getCid(), false));
                     refresh();
                     return;
-                case TYPE_JOIN_CHANNEL:
+                case Buffer.TYPE_JOIN_CHANNEL:
                     AddChannelFragment newFragment = new AddChannelFragment();
-                    newFragment.setDefaultCid(e.cid);
+                    newFragment.setDefaultCid(e.getCid());
                     newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
-                    mListener.addButtonPressed(e.cid);
+                    mListener.addButtonPressed(e.getCid());
                     return;
             }
-            adapter.showProgress(position);
-            mListener.onBufferSelected(e.bid);
+            mListener.onBufferSelected(e.getBid());
         }
     }
 
@@ -1053,7 +697,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 if (adapter != null) {
                     if (event.bid != selected_bid) {
                         b = BuffersList.getInstance().getBuffer(event.bid);
-                        if (b != null && event.isImportant(b.type))
+                        if (b != null && event.isImportant(b.getType()))
                             adapter.updateBuffer(b);
                     }
                 }

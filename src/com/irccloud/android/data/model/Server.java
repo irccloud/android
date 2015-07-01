@@ -16,8 +16,21 @@
 
 package com.irccloud.android.data.model;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.databinding.Bindable;
+import android.databinding.Observable;
+import android.databinding.PropertyChangeRegistry;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
+
+import com.irccloud.android.BR;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -27,46 +40,46 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import java.util.ArrayList;
 
 @Table(databaseName = IRCCloudDatabase.NAME)
-public class Server extends BaseModel implements Comparable<Server> {
+public class Server extends BaseModel implements Comparable<Server>, android.databinding.Observable {
     @Column
     @PrimaryKey
-    public int cid;
+    private int cid;
 
     @Column
-    public String name;
+    private String name;
 
     @Column
-    public String hostname;
+    private String hostname;
 
     @Column
-    public int port;
+    private int port;
 
     @Column
-    public String nick;
+    private String nick;
 
     @Column
-    public String status;
+    private String status;
 
     @Column
-    public long lag;
+    private long lag;
 
     @Column
-    public int ssl;
+    private int ssl;
 
     @Column
-    public String realname;
+    private String realname;
 
     @Column
     public ObjectNode fail_info;
 
     @Column
-    public String away;
+    private String away;
 
     @Column
-    public String usermask;
+    private String usermask;
 
     @Column
-    public String mode;
+    private String mode;
 
     @Column
     public ObjectNode isupport;
@@ -75,7 +88,7 @@ public class Server extends BaseModel implements Comparable<Server> {
     public JsonNode raw_ignores;
 
     @Column(name = "server_order")
-    public int order;
+    private int order;
 
     @Column
     public String CHANTYPES;
@@ -101,15 +114,168 @@ public class Server extends BaseModel implements Comparable<Server> {
     @Column
     public String MODE_VOICED = "v";
 
-    public String server_pass;
-    public String nickserv_pass;
-    public String join_commands;
+    private String server_pass;
+    private String nickserv_pass;
+    private String join_commands;
     public ArrayList<String> ignores;
 
     @Override
     public int compareTo(Server another) {
-        if (order != another.order)
-            return Integer.valueOf(order).compareTo(another.order);
-        return Integer.valueOf(cid).compareTo(another.cid);
+        if (getOrder() != another.getOrder())
+            return Integer.valueOf(getOrder()).compareTo(another.getOrder());
+        return Integer.valueOf(getCid()).compareTo(another.getCid());
+    }
+
+    public int getCid() {
+        return cid;
+    }
+
+    public void setCid(int cid) {
+        this.cid = cid;
+    }
+
+    @Bindable
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        callbacks.notifyChange(this, BR.name);
+    }
+
+    @Bindable
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+        callbacks.notifyChange(this, BR.hostname);
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public void setNick(String nick) {
+        this.nick = nick;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public long getLag() {
+        return lag;
+    }
+
+    public void setLag(long lag) {
+        this.lag = lag;
+    }
+
+    public int getSsl() {
+        return ssl;
+    }
+
+    public void setSsl(int ssl) {
+        this.ssl = ssl;
+        callbacks.notifyChange(this, BR.icon);
+    }
+
+    public String getRealname() {
+        return realname;
+    }
+
+    public void setRealname(String realname) {
+        this.realname = realname;
+    }
+
+    public String getAway() {
+        return away;
+    }
+
+    public void setAway(String away) {
+        this.away = away;
+    }
+
+    public String getUsermask() {
+        return usermask;
+    }
+
+    public void setUsermask(String usermask) {
+        this.usermask = usermask;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    public String getServer_pass() {
+        return server_pass;
+    }
+
+    public void setServer_pass(String server_pass) {
+        this.server_pass = server_pass;
+    }
+
+    public String getNickserv_pass() {
+        return nickserv_pass;
+    }
+
+    public void setNickserv_pass(String nickserv_pass) {
+        this.nickserv_pass = nickserv_pass;
+    }
+
+    public String getJoin_commands() {
+        return join_commands;
+    }
+
+    public void setJoin_commands(String join_commands) {
+        this.join_commands = join_commands;
+    }
+
+    PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
+
+    @Override
+    public void addOnPropertyChangedCallback(Observable.OnPropertyChangedCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @Override
+    public void removeOnPropertyChangedCallback(Observable.OnPropertyChangedCallback callback) {
+        callbacks.remove(callback);
+    }
+
+    @Bindable
+    public int getIcon() {
+        if(ssl > 0)
+            return R.drawable.world_shield;
+        else
+            return R.drawable.world;
     }
 }

@@ -153,9 +153,9 @@ public class AcceptListFragment extends DialogFragment {
             listView.setAdapter(adapter);
         }
         Server s = ServersList.getInstance().getServer(cid);
-        String network = s.name;
+        String network = s.getName();
         if (network == null || network.length() == 0)
-            network = s.hostname;
+            network = s.getHostname();
         AlertDialog d = new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
                 .setTitle("Accept list for " + network)
@@ -187,7 +187,7 @@ public class AcceptListFragment extends DialogFragment {
             final EditText input = (EditText) view.findViewById(R.id.textInput);
             input.setHint("nickname");
             prompt.setText("Accept messages from this nickname");
-            builder.setTitle(server.name + " (" + server.hostname + ":" + (server.port) + ")");
+            builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
             builder.setView(view);
             builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
                 @Override
