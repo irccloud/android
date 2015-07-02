@@ -49,6 +49,10 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
     public static final String TYPE_ADD_NETWORK = "add_network";
     public static final String TYPE_REORDER = "reorder";
 
+    private enum Type {
+        CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, OTHER
+    }
+
     @Column
     @PrimaryKey
     @Unique(unique = false, uniqueGroups = 1)
@@ -105,6 +109,8 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
     private int highlights;
 
     private int valid = 1;
+
+    private Type type_int;
 
     public String toString() {
         return "{cid:" + getCid() + ", bid:" + getBid() + ", name: " + getName() + ", type: " + getType() + ", archived: " + getArchived() + "}";
@@ -177,6 +183,67 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
 
     public void setType(String type) {
         this.type = type;
+        switch(type) {
+            case TYPE_CONSOLE:
+                this.type_int = Type.CONSOLE;
+                break;
+            case TYPE_CHANNEL:
+                this.type_int = Type.CHANNEL;
+                break;
+            case TYPE_CONVERSATION:
+                this.type_int = Type.CONVERSATION;
+                break;
+            case TYPE_ARCHIVES_HEADER:
+                this.type_int = Type.ARCHIVES_HEADER;
+                break;
+            case TYPE_JOIN_CHANNEL:
+                this.type_int = Type.JOIN_CHANNEL;
+                break;
+            default:
+                this.type_int = Type.OTHER;
+                break;
+        }
+        callbacks.notifyChange(this, BR.isConsole);
+        callbacks.notifyChange(this, BR.isChannel);
+        callbacks.notifyChange(this, BR.isConversation);
+        callbacks.notifyChange(this, BR.isGroupHeading);
+    }
+
+    public boolean isConsole() {
+        return type_int == Type.CONSOLE;
+    }
+
+    @Bindable
+    public boolean getIsConsole() {
+        return isConsole();
+    }
+
+    public boolean isChannel() {
+        return type_int == Type.CHANNEL;
+    }
+
+    @Bindable
+    public boolean getIsChannel() {
+        return isChannel();
+    }
+
+    public boolean isConversation() {
+        return type_int == Type.CONVERSATION;
+    }
+
+    @Bindable
+    public boolean getIsConversation() {
+        return isConversation();
+    }
+
+    @Bindable
+    public boolean getIsGroupHeading() {
+        return isConsole() || type_int == Type.OTHER;
+    }
+
+    @Bindable
+    public boolean getIsArchivesHeader() {
+        return type_int == Type.ARCHIVES_HEADER;
     }
 
     public int getArchived() {
@@ -307,11 +374,17 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
         return highlights;
     }
 
+    @Bindable
+    public String getHighlightsString() {
+        return String.valueOf(highlights);
+    }
+
     public void setHighlights(int highlights) {
         this.highlights = highlights;
         if(this.bid != -1)
             TransactionManager.getInstance().saveOnSaveQueue(this);
         callbacks.notifyChange(this, BR.highlights);
+        callbacks.notifyChange(this, BR.highlightsString);
     }
 
     public int getValid() {

@@ -39,9 +39,9 @@ public class BuffersList {
                 return -1;
             if (b1.getCid() > b2.getCid())
                 return 1;
-            if (b1.getType().equals("console"))
+            if (b1.isConsole())
                 return -1;
-            if (b2.getType().equals("console"))
+            if (b2.isConsole())
                 return 1;
             if (b1.getBid() == b2.getBid())
                 return 0;
@@ -52,9 +52,9 @@ public class BuffersList {
             c = ChannelsList.getInstance().getChannelForBuffer(b2.getBid());
             if (c == null)
                 joined2 = 0;
-            if (b1.getType().equals("conversation") && b2.getType().equals("channel")) {
+            if (b1.isConversation() && b2.isChannel()) {
                 return 1;
-            } else if (b1.getType().equals("channel") && b2.getType().equals("conversation")) {
+            } else if (b1.isChannel() && b2.isConversation()) {
                 return -1;
             } else if (joined1 != joined2) {
                 return joined2 - joined1;
@@ -151,7 +151,7 @@ public class BuffersList {
     public synchronized void deleteAllDataForBuffer(int bid) {
         Buffer b = getBuffer(bid);
         if (b != null) {
-            if (b.getType().equalsIgnoreCase("channel")) {
+            if (b.isChannel()) {
                 ChannelsList.getInstance().deleteChannel(bid);
                 UsersList.getInstance().deleteUsersForBuffer(b.getBid());
             }
@@ -221,7 +221,7 @@ public class BuffersList {
             UsersList.getInstance().deleteUsersForBuffer(b.getBid());
             buffers.remove(b);
             buffers_indexed.remove(b.getBid());
-            if (b.getType().equalsIgnoreCase("console")) {
+            if (b.isConsole()) {
                 ServersList.getInstance().deleteServer(b.getCid());
             }
             b.delete();

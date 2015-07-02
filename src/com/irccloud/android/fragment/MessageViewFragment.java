@@ -1032,10 +1032,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
                     boolean shouldExpand = false;
-                    collapsedEvents.showChan = !buffer.getType().equals("channel");
+                    collapsedEvents.showChan = !buffer.isChannel();
                     if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                         if (hiddenMap == null) {
-                            if (buffer.getType().equals("channel")) {
+                            if (buffer.isChannel()) {
                                 if (conn.getUserInfo().prefs.has("channel-hideJoinPart"))
                                     hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
                             } else {
@@ -1052,10 +1052,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         }
 
                         if (expandMap == null) {
-                            if (buffer.getType().equals("channel")) {
+                            if (buffer.isChannel()) {
                                 if (conn.getUserInfo().prefs.has("channel-expandJoinPart"))
                                     expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
-                            } else if (buffer.getType().equals("console")) {
+                            } else if (buffer.isConsole()) {
                                 if (conn.getUserInfo().prefs.has("buffer-expandDisco"))
                                     expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandDisco");
                             } else {
@@ -1168,7 +1168,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     event.formatted = null;
                     event.linkify = false;
                     lastCollapsedEid = event.eid;
-                    if (buffer.getType().equals("console") && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
+                    if (buffer.isConsole() && !event.type.equals("socket_closed") && !event.type.equals("connecting_failed") && !event.type.equals("connecting_cancelled")) {
                         currentCollapsedEid = -1;
                         lastCollapsedEid = -1;
                         collapsedEvents.clear();
@@ -1191,7 +1191,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (from == null || from.length() == 0)
                     from = event.nick;
 
-                if (from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer.getType() != null && !buffer.getType().equals("conversation")) {
+                if (from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer.getType() != null && !buffer.isConversation()) {
                     String usermask = from + "!" + event.hostmask;
                     if (ignore.match(usermask)) {
                         if (unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
@@ -1219,7 +1219,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
                         else
                             event.html = "";
-                        if (buffer.getType().equals("console") && event.to_chan && event.chan != null && event.chan.length() > 0) {
+                        if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
                             event.html += event.chan + "&#xfe55; " + event.msg;
                         } else {
                             event.html += event.msg;

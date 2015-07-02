@@ -23,8 +23,10 @@ import android.view.ViewGroup;
 public class HeightBindingAdapter {
     @BindingAdapter("android:minHeight")
     public static void setMinHeight(View view, float height) {
-        ViewGroup.LayoutParams lp = view.getLayoutParams();
-        lp.height = (int)height;
-        view.setLayoutParams(lp);
+        if(height > 0) {
+            ViewGroup.LayoutParams lp = view.getLayoutParams();
+            lp.height = (int) height;
+            view.setLayoutParams(lp);
+        }
     }
 }

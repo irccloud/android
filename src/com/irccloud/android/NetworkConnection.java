@@ -1975,7 +1975,7 @@ public class NetworkConnection {
                 Buffer b = mBuffers.getBuffer(object.bid());
 
                 if (b != null && event.eid > b.getLast_seen_eid() && event.isImportant(b.getType())) {
-                    if ((event.highlight || b.getType().equals("conversation"))) {
+                    if ((event.highlight || b.isConversation())) {
                         if (newEvent) {
                             b.setHighlights(b.getHighlights() + 1);
                             b.setUnread(1);
@@ -2049,7 +2049,7 @@ public class NetworkConnection {
                         if(pending.eid != event.eid)
                             mEvents.deleteEvent(pending.eid, pending.bid);
                     }
-                } else if(event.self && b != null && b.getType().equals("conversation")) {
+                } else if(event.self && b != null && b.isConversation()) {
                     mEvents.clearPendingEvents(event.bid);
                 }
 

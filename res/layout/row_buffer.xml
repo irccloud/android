@@ -21,7 +21,7 @@
 		<import type="android.graphics.Typeface"/>
 		<variable name="buffer" type="com.irccloud.android.data.model.Buffer"/>
 		<variable name="server" type="com.irccloud.android.data.model.Server"/>
-		<variable name="selected" type="boolean"/>
+		<variable name="selected" type="com.irccloud.android.fragment.BuffersListFragment.SelectedBID"/>
 		<variable name="readOnly" type="boolean"/>
 	</data>
 	<LinearLayout
@@ -29,23 +29,23 @@
 		android:layout_height="wrap_content"
 		android:background="@drawable/bg"
 		android:descendantFocusability="blocksDescendants"
-		android:minHeight="@{ (buffer.type.equals(buffer.TYPE_CONSOLE) || buffer.type.equals(buffer.TYPE_ADD_NETWORK) || buffer.type.equals(buffer.TYPE_REORDER)) ? @dimen/buffergroup_min_height : @dimen/buffer_min_height }"
+		android:minHeight="@{ ( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : @dimen/buffer_min_height }"
 		android:orientation="horizontal" >
 
 		<LinearLayout
 			android:id="@+id/unread"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_marginTop='@{ (buffer.type.equals(buffer.TYPE_CONSOLE) || buffer.type.equals(buffer.TYPE_ADD_NETWORK) || buffer.type.equals(buffer.TYPE_REORDER)) ? @dimen/activity_vertical_margin : 0 }'
+			android:layout_marginTop='@{ ( buffer.isGroupHeading ) ? @dimen/activity_vertical_margin : 0 }'
 			android:layout_marginRight="8dp"
-			android:background="@{ (!readOnly &amp;&amp; (selected || buffer.unread > 0)) ? buffer.selectedBackgroundResource : 0 }"
+			android:background="@{ (!readOnly &amp;&amp; (selected.selectedBID == buffer.bid || buffer.unread > 0)) ? buffer.selectedBackgroundResource : 0 }"
 			android:paddingLeft="8dp" >
 
 				<LinearLayout
 					android:id="@+id/bufferbg"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:background="@{ selected ? buffer.selectedBackgroundResource : buffer.backgroundResource }"
+					android:background="@{ selected.selectedBID == buffer.bid ? buffer.selectedBackgroundResource : buffer.backgroundResource }"
 					android:gravity="center_vertical" >
 
 					<ImageView
@@ -55,7 +55,7 @@
 						android:layout_marginLeft="4dp"
 						android:layout_marginRight="4dp"
 						android:layout_weight="0"
-						android:src='@{buffer.type.equals(buffer.TYPE_CONSOLE) ? server.icon : buffer.icon}' />
+						android:src='@{buffer.isConsole ? server.icon : buffer.icon}' />
 
 					<TextView
 						android:id="@+id/label"
@@ -67,9 +67,9 @@
 						android:lines="1"
 						android:maxLines="1"
 						android:paddingRight="6dp"
-						android:text='@{buffer.type.equals(buffer.TYPE_CONSOLE) ? (server.name ?? server.hostname) : buffer.name}'
-						android:textColor="@{ buffer.textColor }"
-						android:typeface="@{( !readOnly &amp;&amp; (selected || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
+						android:text='@{buffer.isConsole ? (server.name ?? server.hostname) : buffer.name}'
+						android:textColor="@{ (selected.selectedBID == buffer.bid || buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader ) ? @color/selected_white : buffer.textColor }"
+						android:typeface="@{( !readOnly &amp;&amp; (selected.selectedBID == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
 						android:textSize="16sp" />
 					<TextView
 						android:id="@+id/highlights"
@@ -81,8 +81,8 @@
 						android:minHeight="24dp"
 						android:minWidth="24dp"
 						android:padding="4dp"
-						android:textColor="#fff"
-						android:text="@{String.valueOf(buffer.highlights)}"
+						android:textColor="@color/selected_white"
+						android:text="@{buffer.highlightsString}"
 						android:visibility="@{(!readOnly &amp;&amp; buffer.highlights > 0) ? View.VISIBLE : View.GONE }"
 						android:textStyle="bold" />
 
@@ -102,7 +102,7 @@
 						android:layout_marginLeft="8dp"
 						android:background="@null"
 						android:contentDescription="Join a channel"
-						android:visibility='@{(!readOnly &amp;&amp; buffer.type.equals(buffer.TYPE_CONSOLE)) ? View.VISIBLE : View.GONE }'
+						android:visibility='@{(!readOnly &amp;&amp; buffer.isConsole ) ? View.VISIBLE : View.GONE }'
 						android:src="@drawable/add" />
 				</LinearLayout>
 		</LinearLayout>

@@ -687,7 +687,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     sortedChannels = channels;
                 }
 
-                if (buffer != null && messageTxt.getText().length() > 0 && buffer.getType().equals("channel") && buffer.getName().toLowerCase().startsWith(text) && !sugs_set.contains(buffer.getName())) {
+                if (buffer != null && messageTxt.getText().length() > 0 && buffer.isChannel() && buffer.getName().toLowerCase().startsWith(text) && !sugs_set.contains(buffer.getName())) {
                     sugs_set.add(buffer.getName());
                     sugs.add(buffer.getName());
                 }
@@ -953,7 +953,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 e.self = true;
                 e.from = server.getNick();
                 e.nick = server.getNick();
-                if (!buffer.getType().equals("console"))
+                if (!buffer.isConsole())
                     e.chan = buffer.getName();
                 if (u != null)
                     e.from_mode = u.mode;
@@ -1086,7 +1086,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             int u = 0;
                             try {
                                 u = b.getUnread();
-                                if (b.getType().equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.getBid())) && channelDisabledMap.getBoolean(String.valueOf(b.getBid())))
+                                if (b.isChannel() && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(b.getBid())) && channelDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     u = 0;
                                 else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     u = 0;
@@ -1097,7 +1097,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                         if (highlights == 0) {
                             try {
-                                if (!b.getType().equalsIgnoreCase("conversation") || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.getBid())) || !bufferDisabledMap.getBoolean(String.valueOf(b.getBid()))) {
+                                if (!b.isConversation() || bufferDisabledMap == null || !bufferDisabledMap.has(String.valueOf(b.getBid())) || !bufferDisabledMap.getBoolean(String.valueOf(b.getBid()))) {
                                     highlights += b.getHighlights();
                                 }
                             } catch (JSONException e) {
@@ -1495,7 +1495,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             title.setText(bufferToOpen);
             subtitle.setVisibility(View.GONE);
         } else {
-            if (buffer.getType().equals("console")) {
+            if (buffer.isConsole()) {
                 if (server.getName().length() > 0) {
                     title.setText(server.getName());
                     if (progressBar.getVisibility() == View.GONE)
@@ -1511,16 +1511,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     getSupportActionBar().setTitle(buffer.getName());
             }
 
-            if (buffer.getArchived() > 0 && !buffer.getType().equals("console")) {
+            if (buffer.getArchived() > 0 && !buffer.isConsole()) {
                 subtitle.setVisibility(View.VISIBLE);
                 subtitle.setText("(archived)");
-                if (buffer.getType().equals("conversation")) {
+                if (buffer.isConversation()) {
                     title.setContentDescription("Conversation with " + title.getText());
-                } else if (buffer.getType().equals("channel")) {
+                } else if (buffer.isChannel()) {
                     title.setContentDescription("Channel " + buffer.normalizedName());
                 }
             } else {
-                if (buffer.getType().equals("conversation")) {
+                if (buffer.isConversation()) {
                     title.setContentDescription("Conversation with " + title.getText());
                     if (buffer.getAway_msg() != null && buffer.getAway_msg().length() > 0) {
                         subtitle.setVisibility(View.VISIBLE);
@@ -1543,7 +1543,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                     key.setVisibility(View.GONE);
-                } else if (buffer.getType().equals("channel")) {
+                } else if (buffer.isChannel()) {
                     title.setContentDescription("Channel " + buffer.normalizedName() + ". Double-tap to view or edit the topic.");
                     Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                     if (c != null && c.topic_text.length() > 0) {
@@ -1559,7 +1559,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     } else {
                         key.setVisibility(View.GONE);
                     }
-                } else if (buffer.getType().equals("console")) {
+                } else if (buffer.isConsole()) {
                     subtitle.setVisibility(View.VISIBLE);
                     subtitle.setText(server.getHostname() + ":" + server.getPort());
                     title.setContentDescription("Network " + server.getName());
@@ -1579,7 +1579,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         boolean hide = true;
         if (userListView != null) {
             Channel c = null;
-            if (buffer != null && buffer.getType().equals("channel")) {
+            if (buffer != null && buffer.isChannel()) {
                 c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                 if (c != null)
                     hide = false;
@@ -2378,7 +2378,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (e.bid != buffer.getBid() && upDrawable != null) {
                             Buffer buf = BuffersList.getInstance().getBuffer(e.bid);
                             if (e.isImportant(buf.getType())) {
-                                if (upDrawable.getColor() != redColor && (e.highlight || buf.getType().equals("conversation"))) {
+                                if (upDrawable.getColor() != redColor && (e.highlight || buf.isConversation())) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -2399,7 +2399,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                             e1.printStackTrace();
                                         }
                                     }
-                                    if (buf.getType().equalsIgnoreCase("channel") && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(buf.getBid())) && channelDisabledMap.getBoolean(String.valueOf(buf.getBid())))
+                                    if (buf.isChannel() && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(buf.getBid())) && channelDisabledMap.getBoolean(String.valueOf(buf.getBid())))
                                         break;
                                     else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(buf.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(buf.getBid())))
                                         break;
@@ -2427,12 +2427,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (buffer != null && buffer.getType() != null && NetworkConnection.getInstance().ready) {
-            if (buffer.getType().equals("channel")) {
+            if (buffer.isChannel()) {
                 getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
                 getMenuInflater().inflate(R.menu.activity_message_channel, menu);
-            } else if (buffer.getType().equals("conversation"))
+            } else if (buffer.isConversation())
                 getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
-            else if (buffer.getType().equals("console"))
+            else if (buffer.isConsole())
                 getMenuInflater().inflate(R.menu.activity_message_console, menu);
 
             getMenuInflater().inflate(R.menu.activity_message_archive, menu);
@@ -2452,7 +2452,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_unarchive);
             }
-            if (buffer.getType().equals("channel")) {
+            if (buffer.isChannel()) {
                 if (ChannelsList.getInstance().getChannelForBuffer(buffer.getBid()) == null) {
                     if (menu.findItem(R.id.menu_leave) != null)
                         menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
@@ -2507,7 +2507,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     }
                 }
-            } else if (buffer.getType().equals("console")) {
+            } else if (buffer.isConsole()) {
                 if (menu.findItem(R.id.menu_archive) != null) {
                     menu.findItem(R.id.menu_archive).setVisible(false);
                     menu.findItem(R.id.menu_archive).setEnabled(false);
@@ -2790,14 +2790,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
-                if (buffer.getType().equals("console"))
+                if (buffer.isConsole())
                     builder.setTitle("Delete Connection");
                 else
                     builder.setTitle("Delete History");
 
-                if (buffer.getType().equalsIgnoreCase("console"))
+                if (buffer.isConsole())
                     builder.setMessage("Are you sure you want to remove this connection?");
-                else if (buffer.getType().equalsIgnoreCase("channel"))
+                else if (buffer.isChannel())
                     builder.setMessage("Are you sure you want to clear your history in " + buffer.getName() + "?");
                 else
                     builder.setMessage("Are you sure you want to clear your history with " + buffer.getName() + "?");
@@ -2813,7 +2813,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (buffer.getType().equals("console")) {
+                        if (buffer.isConsole()) {
                             NetworkConnection.getInstance().deleteServer(buffer.getCid());
                         } else {
                             NetworkConnection.getInstance().deleteBuffer(buffer.getCid(), buffer.getBid());
@@ -2987,9 +2987,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             itemList.add("Leave");
             itemList.add("Display Options…");
         } else {
-            if (b.getType().equalsIgnoreCase("channel"))
+            if (b.isChannel())
                 itemList.add("Join");
-            else if (b.getType().equalsIgnoreCase("console")) {
+            else if (b.isConsole()) {
                 if (s.getStatus().equalsIgnoreCase("waiting_to_retry") || (s.getStatus().contains("connected") && !s.getStatus().startsWith("dis"))) {
                     itemList.add("Disconnect");
                 } else {
@@ -2998,14 +2998,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 itemList.add("Edit Connection…");
             }
-            if (!b.getType().equalsIgnoreCase("console")) {
+            if (!b.isConsole()) {
                 if (b.getArchived() == 0)
                     itemList.add("Archive");
                 else
                     itemList.add("Unarchive");
                 itemList.add("Delete");
             }
-            if (!b.getType().equalsIgnoreCase("channel")) {
+            if (!b.isChannel()) {
                 itemList.add("Display Options…");
             }
         }
@@ -3013,7 +3013,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        if (b.getType().equalsIgnoreCase("console"))
+        if (b.isConsole())
             builder.setTitle(s.getName());
         else
             builder.setTitle(b.getName());
@@ -3041,7 +3041,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if (items[item].equals("Disconnect")) {
                     conn.disconnect(b.getCid(), null);
                 } else if (items[item].equals("Display Options…")) {
-                    if (b.getType().equals("channel")) {
+                    if (b.isChannel()) {
                         ChannelOptionsFragment newFragment = new ChannelOptionsFragment(b.getCid(), b.getBid());
                         newFragment.show(getSupportFragmentManager(), "channeloptions");
                     } else {
@@ -3081,14 +3081,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
 
-                    if (b.getType().equalsIgnoreCase("console"))
+                    if (b.isConsole())
                         builder.setTitle("Delete Connection");
                     else
                         builder.setTitle("Delete History");
 
-                    if (b.getType().equalsIgnoreCase("console"))
+                    if (b.isConsole())
                         builder.setMessage("Are you sure you want to remove this connection?");
-                    else if (b.getType().equalsIgnoreCase("channel"))
+                    else if (b.isChannel())
                         builder.setMessage("Are you sure you want to clear your history in " + b.getName() + "?");
                     else
                         builder.setMessage("Are you sure you want to clear your history with " + b.getName() + "?");
@@ -3104,7 +3104,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            if (b.getType().equalsIgnoreCase("console")) {
+                            if (b.isConsole()) {
                                 conn.deleteServer(b.getCid());
                             } else {
                                 conn.deleteBuffer(b.getCid(), b.getBid());
@@ -3254,7 +3254,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             itemList.add("Mention");
             itemList.add("Invite to a channel…");
             itemList.add("Ignore");
-            if (buffer.getType().equalsIgnoreCase("channel")) {
+            if (buffer.isChannel()) {
                 User self_user = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
                 if (self_user != null && self_user.mode != null) {
                     if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o")) {
@@ -3565,7 +3565,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (server.getSsl() > 0)
                             uri += "s";
                         uri += "://" + server.getHostname() + ":" + server.getPort();
-                        if (buffer.getType().equals("channel")) {
+                        if (buffer.isChannel()) {
                             uri += "/" + URLEncoder.encode(buffer.getName(), "UTF-8");
                             Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
                             if (c != null && c.hasMode("k"))

@@ -19,6 +19,8 @@ package com.irccloud.android.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.databinding.BaseObservable;
+import android.databinding.Bindable;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -41,6 +43,7 @@ import android.widget.ListView;
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BR;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -70,7 +73,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     LinearLayout bottomUnreadIndicator = null;
     LinearLayout bottomUnreadIndicatorColor = null;
     LinearLayout bottomUnreadIndicatorBorder = null;
-    int selected_bid = -1;
     RefreshTask refreshTask = null;
     private boolean ready = false;
     public boolean readOnly = false;
@@ -83,6 +85,22 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     int lastFailurePosition = -1;
 
     SparseBooleanArray mExpandArchives = new SparseBooleanArray();
+
+    public static class SelectedBID extends BaseObservable {
+        private int selected_bid = -1;
+
+        @Bindable
+        public int getSelectedBID() {
+            return this.selected_bid;
+        }
+
+        public void setSelectedBID(int bid) {
+            this.selected_bid = bid;
+            notifyPropertyChanged(BR.selectedBID);
+        }
+    }
+
+    private SelectedBID selected_bid = new SelectedBID();
 
     private class BufferListAdapter extends BaseAdapter {
         ArrayList<Buffer> data;
@@ -216,7 +234,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             if (pos > 0) {
                 for (int i = pos - 1; i >= 0; i--) {
                     Buffer e = data.get(i);
-                    if (e.getUnread() > 0 || e.getHighlights() > 0 /*|| (e.getType().equals("console") && e.fail_info != null && e.fail_info.has("type"))*/)
+                    if (e.getUnread() > 0 || e.getHighlights() > 0 /*|| (e.isConsole() && e.fail_info != null && e.fail_info.has("type"))*/)
                         return i;
                 }
             }
@@ -282,16 +300,15 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 row = DataBindingUtil.getBinding(convertView);
             }
 
-            row.setSelected(b.getBid() == selected_bid);
             row.setBuffer(b);
             row.setServer(s);
+            row.setSelected(selected_bid);
+            row.setReadOnly(readOnly);
+            row.executePendingBindings();
 
             row.addBtn.setTag(b);
             row.addBtn.setOnClickListener(addClickListener);
 
-            row.label.setSelected(b.getBid() == selected_bid || (s != null && mExpandArchives.get(s.getCid(), false) && b.getType().equals(Buffer.TYPE_ARCHIVES_HEADER)));
-
-            row.executePendingBindings();
             return convertView;
         }
     }
@@ -422,8 +439,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
     }
 
     public void setSelectedBid(int bid) {
-        int last_bid = selected_bid;
-        selected_bid = bid;
+        int last_bid = selected_bid.getSelectedBID();
+        selected_bid.setSelectedBID(bid);
         if (adapter != null) {
             Buffer b = BuffersList.getInstance().getBuffer(last_bid);
             if (b != null)
@@ -431,7 +448,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             b = BuffersList.getInstance().getBuffer(bid);
             if (b != null)
                 adapter.updateBuffer(b);
-            adapter.notifyDataSetChanged();
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
             RefreshTask t = new RefreshTask();
@@ -672,7 +688,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
                 if (adapter != null) {
-                    if (event.bid != selected_bid) {
+                    if (event.bid != selected_bid.getSelectedBID()) {
                         b = BuffersList.getInstance().getBuffer(event.bid);
                         if (b != null && event.isImportant(b.getType()))
                             adapter.updateBuffer(b);
@@ -752,17 +768,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_PROGRESS:
             case NetworkConnection.EVENT_ALERT:
             case NetworkConnection.EVENT_DEBUG:
-                break;
             case NetworkConnection.EVENT_CONNECTIVITY:
-                if (getActivity() != null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (adapter != null)
-                                adapter.notifyDataSetChanged();
-                        }
-                    });
-                }
                 break;
             case NetworkConnection.EVENT_BACKLOG_START:
                 if (refreshTask != null)
