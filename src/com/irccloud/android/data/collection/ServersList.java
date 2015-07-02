@@ -60,7 +60,7 @@ public class ServersList {
             if (c != null && !c.isEmpty()) {
                 for (Server s : c) {
                     servers.put(s.getCid(), s);
-                    updateIgnores(s.getCid(), s.raw_ignores);
+                    s.updateIgnores(s.raw_ignores);
                 }
             }
         } catch (SQLiteException e) {
@@ -88,7 +88,6 @@ public class ServersList {
         s.setPort(port);
         s.setNick(nick);
         s.setStatus(status);
-        s.setLag(lag);
         s.setSsl(ssl);
         s.setRealname(realname);
         s.setServer_pass(server_pass);
@@ -103,141 +102,12 @@ public class ServersList {
         if (s.getName() == null || s.getName().length() == 0)
             s.setName(s.getHostname());
         if (ignores != null)
-            updateIgnores(cid, ignores);
+            s.updateIgnores(ignores);
         return s;
     }
 
     public int count() {
         return servers.size();
-    }
-
-    public void updateLag(int cid, long lag) {
-        Server s = getServer(cid);
-        if (s != null) {
-            s.setLag(lag);
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
-    }
-
-    public void updateNick(int cid, String nick) {
-        Server s = getServer(cid);
-        if (s != null) {
-            s.setNick(nick);
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
-    }
-
-    public void updateStatus(int cid, String status, ObjectNode fail_info) {
-        Server s = getServer(cid);
-        if (s != null) {
-            s.setStatus(status);
-            s.fail_info = fail_info;
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
-    }
-
-    public void updateAway(int cid, String away) {
-        Server s = getServer(cid);
-        if (s != null) {
-            s.setAway(away);
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
-    }
-
-    public void updateUsermask(int cid, String usermask) {
-        Server s = getServer(cid);
-        if (s != null) {
-            s.setUsermask(usermask);
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
-    }
-
-    public void updateMode(int cid, String mode) {
-        Server s = getServer(cid);
-        if (s != null) {
-            s.setMode(mode);
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
-    }
-
-    public void updateUserModes(int cid, String modes) {
-        if (modes != null && modes.length() == 5 && modes.charAt(0) != 'q') {
-            Server s = getServer(cid);
-            if (s != null) {
-                s.MODE_OWNER = modes.substring(0, 1);
-                TransactionManager.getInstance().saveOnSaveQueue(s);
-            }
-        }
-    }
-
-    public void updateIsupport(int cid, ObjectNode params) {
-        Server s = getServer(cid);
-        if (s != null) {
-            if (params != null && !params.isArray())
-                s.isupport.putAll(params);
-            else
-                s.isupport = new ObjectMapper().createObjectNode();
-
-            if (s.isupport.has("PREFIX")) {
-                s.PREFIX = (ObjectNode) s.isupport.get("PREFIX");
-            } else {
-                s.PREFIX = new ObjectMapper().createObjectNode();
-                s.PREFIX.put(s.MODE_OPER, "!");
-                s.PREFIX.put(s.MODE_OWNER, "~");
-                s.PREFIX.put(s.MODE_ADMIN, "&");
-                s.PREFIX.put(s.MODE_OP, "@");
-                s.PREFIX.put(s.MODE_HALFOP, "%");
-                s.PREFIX.put(s.MODE_VOICED, "+");
-            }
-            if (s.isupport.has("CHANTYPES"))
-                s.CHANTYPES = s.isupport.get("CHANTYPES").asText();
-            else
-                s.CHANTYPES = null;
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
-    }
-
-    public void updateIgnores(int cid, JsonNode ignores) {
-        Server s = getServer(cid);
-        if (s != null) {
-            s.raw_ignores = ignores;
-            s.ignores = new ArrayList<>();
-            for (int i = 0; i < ignores.size(); i++) {
-                String mask = ignores.get(i).asText().toLowerCase()
-                        .replace("\\", "\\\\")
-                        .replace("(", "\\(")
-                        .replace(")", "\\)")
-                        .replace("[", "\\[")
-                        .replace("]", "\\]")
-                        .replace("{", "\\{")
-                        .replace("}", "\\}")
-                        .replace("-", "\\-")
-                        .replace("^", "\\^")
-                        .replace("$", "\\$")
-                        .replace("|", "\\|")
-                        .replace("+", "\\+")
-                        .replace("?", "\\?")
-                        .replace(".", "\\.")
-                        .replace(",", "\\,")
-                        .replace("#", "\\#")
-                        .replace("*", ".*")
-                        .replace("!~", "!");
-                if (!mask.contains("!"))
-                    if (mask.contains("@"))
-                        mask = ".*!" + mask;
-                    else
-                        mask += "!.*";
-                if (!mask.contains("@"))
-                    if (mask.contains("!"))
-                        mask = mask.replace("!", "!.*@");
-                    else
-                        mask += "@.*";
-                if (mask.equals(".*!.*@.*"))
-                    continue;
-                s.ignores.add(mask);
-            }
-            TransactionManager.getInstance().saveOnSaveQueue(s);
-        }
     }
 
     public void deleteServer(int cid) {

@@ -16,25 +16,21 @@
 
 package com.irccloud.android.data.model;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.databinding.Bindable;
 import android.databinding.Observable;
 import android.databinding.PropertyChangeRegistry;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.irccloud.android.BR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
@@ -43,7 +39,7 @@ import java.util.ArrayList;
 public class Server extends BaseModel implements Comparable<Server>, android.databinding.Observable {
     @Column
     @PrimaryKey
-    private int cid;
+    private int cid = -1;
 
     @Column
     private String name;
@@ -59,9 +55,6 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     @Column
     private String status;
-
-    @Column
-    private long lag;
 
     @Column
     private int ssl;
@@ -168,6 +161,7 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     public void setNick(String nick) {
         this.nick = nick;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getStatus() {
@@ -176,14 +170,7 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public long getLag() {
-        return lag;
-    }
-
-    public void setLag(long lag) {
-        this.lag = lag;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public int getSsl() {
@@ -209,6 +196,7 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     public void setAway(String away) {
         this.away = away;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getUsermask() {
@@ -217,6 +205,7 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     public void setUsermask(String usermask) {
         this.usermask = usermask;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getMode() {
@@ -225,6 +214,7 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     public void setMode(String mode) {
         this.mode = mode;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public int getOrder() {
@@ -259,6 +249,77 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
         this.join_commands = join_commands;
     }
 
+    public void updateUserModes(String modes) {
+        if (modes != null && modes.length() == 5 && modes.charAt(0) != 'q') {
+            this.MODE_OWNER = modes.substring(0, 1);
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+        }
+    }
+
+    public void updateIsupport(ObjectNode params) {
+        if (params != null && !params.isArray())
+            this.isupport.putAll(params);
+        else
+            this.isupport = new ObjectMapper().createObjectNode();
+
+        if (this.isupport.has("PREFIX")) {
+            this.PREFIX = (ObjectNode) this.isupport.get("PREFIX");
+        } else {
+            this.PREFIX = new ObjectMapper().createObjectNode();
+            this.PREFIX.put(this.MODE_OPER, "!");
+            this.PREFIX.put(this.MODE_OWNER, "~");
+            this.PREFIX.put(this.MODE_ADMIN, "&");
+            this.PREFIX.put(this.MODE_OP, "@");
+            this.PREFIX.put(this.MODE_HALFOP, "%");
+            this.PREFIX.put(this.MODE_VOICED, "+");
+        }
+        if (this.isupport.has("CHANTYPES"))
+            this.CHANTYPES = this.isupport.get("CHANTYPES").asText();
+        else
+            this.CHANTYPES = null;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
+    }
+
+    public void updateIgnores(JsonNode ignores) {
+        this.raw_ignores = ignores;
+        this.ignores = new ArrayList<>();
+        for (int i = 0; i < ignores.size(); i++) {
+            String mask = ignores.get(i).asText().toLowerCase()
+                    .replace("\\", "\\\\")
+                    .replace("(", "\\(")
+                    .replace(")", "\\)")
+                    .replace("[", "\\[")
+                    .replace("]", "\\]")
+                    .replace("{", "\\{")
+                    .replace("}", "\\}")
+                    .replace("-", "\\-")
+                    .replace("^", "\\^")
+                    .replace("$", "\\$")
+                    .replace("|", "\\|")
+                    .replace("+", "\\+")
+                    .replace("?", "\\?")
+                    .replace(".", "\\.")
+                    .replace(",", "\\,")
+                    .replace("#", "\\#")
+                    .replace("*", ".*")
+                    .replace("!~", "!");
+            if (!mask.contains("!"))
+                if (mask.contains("@"))
+                    mask = ".*!" + mask;
+                else
+                    mask += "!.*";
+            if (!mask.contains("@"))
+                if (mask.contains("!"))
+                    mask = mask.replace("!", "!.*@");
+                else
+                    mask += "@.*";
+            if (mask.equals(".*!.*@.*"))
+                continue;
+            this.ignores.add(mask);
+            TransactionManager.getInstance().saveOnSaveQueue(this);
+        }
+    }
+
     PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
 
     @Override
@@ -277,5 +338,11 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
             return R.drawable.world_shield;
         else
             return R.drawable.world;
+    }
+
+    @Override
+    public void save() {
+        if(cid != -1)
+            super.save();
     }
 }

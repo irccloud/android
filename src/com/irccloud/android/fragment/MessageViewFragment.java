@@ -2009,13 +2009,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         switch (status) {
             case "connected_ready":
-                if (server != null && server.getLag() >= 2 * 1000 * 1000) {
-                    statusView.setVisibility(View.VISIBLE);
-                    statusView.setText("Slow ping response from " + server.getHostname() + " (" + (server.getLag() / 1000 / 1000) + "s)");
-                } else {
-                    statusView.setVisibility(View.GONE);
-                    statusView.setText("");
-                }
+                statusView.setVisibility(View.GONE);
+                statusView.setText("");
                 break;
             case "quitting":
                 statusView.setVisibility(View.VISIBLE);
