@@ -33,8 +33,7 @@
         android:dividerHeight="0dip"
         android:fadingEdge="none"
         android:scrollbarThumbVertical="@drawable/scrollbar"
-        android:scrollbarSize="@dimen/scrollbar_size"
-        android:fastScrollEnabled="true" />
+        android:scrollbarSize="@dimen/scrollbar_size"/>
 
     <LinearLayout
         android:id="@+id/topUnreadIndicator"

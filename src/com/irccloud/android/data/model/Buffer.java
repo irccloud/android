@@ -16,12 +16,8 @@
 
 package com.irccloud.android.data.model;
 
-import android.content.Context;
-import android.content.res.ColorStateList;
 import android.databinding.Bindable;
 import android.databinding.PropertyChangeRegistry;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.ContextCompat;
 
 import com.irccloud.android.BR;
 import com.irccloud.android.NetworkConnection;
@@ -168,9 +164,10 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
 
     public void setName(String name) {
         this.name = name;
-        BuffersList.getInstance().dirty = true;
-        if(this.bid != -1)
+        if(this.bid != -1) {
+            BuffersList.getInstance().dirty = true;
             TransactionManager.getInstance().saveOnSaveQueue(this);
+        }
         callbacks.notifyChange(this, BR.name);
     }
 
@@ -188,9 +185,10 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
 
     public void setArchived(int archived) {
         this.archived = archived;
-        BuffersList.getInstance().dirty = true;
-        if(this.bid != -1)
+        if(this.bid != -1) {
+            BuffersList.getInstance().dirty = true;
             TransactionManager.getInstance().saveOnSaveQueue(this);
+        }
     }
 
     public int getDeferred() {
@@ -392,9 +390,19 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
 
     @Bindable
     public int getBackgroundResource() {
-        if(type.equals(TYPE_CHANNEL) || type.equals(TYPE_CONVERSATION) || type.equals(TYPE_ARCHIVES_HEADER) || type.equals(TYPE_JOIN_CHANNEL))
+        if(type.equals(TYPE_CHANNEL) || type.equals(TYPE_CONVERSATION) || type.equals(TYPE_JOIN_CHANNEL))
             return (archived == 0)?R.drawable.row_buffer_bg:R.drawable.row_buffer_bg_archived;
+        else if(type.equals(TYPE_ARCHIVES_HEADER))
+            return (archived == 0)?R.drawable.row_buffer_bg:R.drawable.archived_bg_selected;
         else
             return R.drawable.row_buffergroup_bg;
+    }
+
+    @Bindable
+    public int getSelectedBackgroundResource() {
+        if(archived == 0)
+            return R.drawable.selected_blue;
+        else
+            return R.drawable.archived_bg_selected;
     }
 }

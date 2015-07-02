@@ -17,7 +17,9 @@
 package com.irccloud.android.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Resources;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -84,7 +86,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
 
     private class BufferListAdapter extends BaseAdapter {
         ArrayList<Buffer> data;
-        private ListFragment ctx;
 
         public int positionForBid(int bid) {
             for (int i = 0; i < data.size(); i++) {
@@ -95,12 +96,8 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             return -1;
         }
 
-        private int eightdp = 0;
-
-        public BufferListAdapter(ListFragment context) {
-            ctx = context;
+        public BufferListAdapter() {
             data = new ArrayList<>(BuffersList.getInstance().count() + ServersList.getInstance().count() + 10);
-            eightdp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getSafeResources().getDisplayMetrics());
         }
 
         public void setItems(ArrayList<Buffer> items) {
@@ -198,7 +195,6 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     BuffersListFragment.this.getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            notifyDataSetChanged();
                             if (listView != null)
                                 updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
                         }
@@ -261,63 +257,42 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             }
         }
 
+        private OnClickListener addClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Buffer e = (Buffer) v.getTag();
+                AddChannelFragment newFragment = new AddChannelFragment();
+                newFragment.setDefaultCid(e.getCid());
+                newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+                mListener.addButtonPressed(e.getCid());
+            }
+        };
+
         @SuppressWarnings("deprecation")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            Buffer b = data.get(position);
+            Server s = ServersList.getInstance().getServer(b.getCid());
             RowBufferBinding row;
 
             if(convertView == null) {
-                row = RowBufferBinding.inflate(ctx.getLayoutInflater(null), parent, false);
+                row = RowBufferBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                convertView = row.getRoot();
             } else {
-                row = (RowBufferBinding)convertView.getTag();
+                row = DataBindingUtil.getBinding(convertView);
             }
 
-            Server s = null;
-            Buffer b = data.get(position);
-            s = ServersList.getInstance().getServer(b.getCid());
-
+            row.setSelected(b.getBid() == selected_bid);
             row.setBuffer(b);
             row.setServer(s);
 
-            if(readOnly) {
-                row.bufferbg.setBackgroundResource(b.getBackgroundResource());
-                row.addBtn.setVisibility(View.GONE);
-            } else {
-                row.setSelected(b.getBid() == selected_bid);
-                row.label.setTextColor(parent.getContext().getResources().getColorStateList(b.getTextColor()));
-                row.label.setSelected(b.getBid() == selected_bid);
+            row.addBtn.setTag(b);
+            row.addBtn.setOnClickListener(addClickListener);
 
-                if (b.getArchived() > 0) {
-                    row.unread.setBackgroundResource(b.getUnread() > 0 ? R.drawable.archived_bg_selected : R.drawable.bg);
-                } else {
-                    row.unread.setBackgroundResource(b.getUnread() > 0 ? R.drawable.selected_blue : R.drawable.bg);
-                }
-                if (b.getBid() == selected_bid) {
-                    row.unread.setBackgroundResource(b.getArchived() > 0 ? R.drawable.archived_bg_selected : R.drawable.selected_blue);
-                    row.bufferbg.setBackgroundResource(b.getArchived() > 0 ? R.drawable.archived_bg_selected : R.drawable.selected_blue);
-                } else {
-                    row.bufferbg.setBackgroundResource(b.getBackgroundResource());
-                }
-                if (mExpandArchives.get(b.getCid(), false)) {
-                    row.bufferbg.setBackgroundResource(R.drawable.row_buffer_bg_archived);
-                    row.bufferbg.setSelected(true);
-                } else {
-                    row.bufferbg.setSelected(false);
-                }
+            row.label.setSelected(b.getBid() == selected_bid || (s != null && mExpandArchives.get(s.getCid(), false) && b.getType().equals(Buffer.TYPE_ARCHIVES_HEADER)));
 
-                row.addBtn.setTag(b);
-                row.addBtn.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Buffer e = (Buffer) v.getTag();
-                        AddChannelFragment newFragment = new AddChannelFragment();
-                        newFragment.setDefaultCid(e.getCid());
-                        newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
-                        mListener.addButtonPressed(e.getCid());
-                    }
-                });
-            }
-            return row.getRoot();
+            row.executePendingBindings();
+            return convertView;
         }
     }
 
@@ -340,7 +315,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             Collections.sort(servers);
             if (adapter == null) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Created new BufferListAdapter");
-                adapter = new BufferListAdapter(BuffersListFragment.this);
+                adapter = new BufferListAdapter();
             }
 
             firstUnreadPosition = -1;
@@ -381,6 +356,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
                     header.setCid(s.getCid());
                     header.setName("Archives");
                     header.setType(Buffer.TYPE_ARCHIVES_HEADER);
+                    header.setArchived(mExpandArchives.get(s.getCid(), false) ? 1 : 0);
                     entries.add(header);
                     position++;
                     if (mExpandArchives.get(s.getCid(), false)) {
@@ -433,7 +409,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             if (getListAdapter() == null && entries.size() > 0) {
                 setListAdapter(adapter);
             } else
-                adapter.notifyDataSetChanged();
+                adapter.notifyDataSetInvalidated();
 
             if (listView != null)
                 updateUnreadIndicators(listView.getFirstVisiblePosition(), listView.getLastVisiblePosition());
@@ -455,6 +431,7 @@ public class BuffersListFragment extends ListFragment implements NetworkConnecti
             b = BuffersList.getInstance().getBuffer(bid);
             if (b != null)
                 adapter.updateBuffer(b);
+            adapter.notifyDataSetChanged();
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
             RefreshTask t = new RefreshTask();
