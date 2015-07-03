@@ -21,6 +21,7 @@ import android.database.sqlite.SQLiteException;
 
 //import com.irccloud.android.data.model.User$Table;
 import com.irccloud.android.data.model.User;
+import com.irccloud.android.data.model.User$Table;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -106,6 +107,7 @@ public class UsersList {
         u.mode = mode;
         u.away = away;
         u.joined = 1;
+        TransactionManager.getInstance().saveOnSaveQueue(u);
         return u;
     }
 
@@ -118,12 +120,12 @@ public class UsersList {
     public synchronized void deleteUser(int bid, String nick) {
         if (users.containsKey(bid) && users.get(bid) != null)
             users.get(bid).remove(nick.toLowerCase());
-        //new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).and(Condition.column(User$Table.NICK).is(nick)).queryClose();
+        new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).and(Condition.column(User$Table.NICK).is(nick)).queryClose();
     }
 
     public synchronized void deleteUsersForBuffer(int bid) {
         users.remove(bid);
-        //new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).queryClose();
+        new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).queryClose();
     }
 
     public synchronized void updateNick(int bid, String old_nick, String new_nick) {

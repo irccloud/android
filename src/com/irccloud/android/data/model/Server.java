@@ -253,6 +253,7 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setOrder(int order) {
         this.order = order;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getServer_pass() {

@@ -39,6 +39,8 @@ public class User extends BaseModel {
     public int bid;
 
     @Column
+    @PrimaryKey
+    @Unique(unique = false, uniqueGroups = 1)
     public String nick;
 
     @Column
@@ -64,4 +66,8 @@ public class User extends BaseModel {
 
     @Column
     public long last_mention = -1;
+
+    public String toString() {
+        return "{cid: " + cid + ", bid: " + bid + ", nick: " + nick + ", hostmask: " + hostmask + "}";
+    }
 }

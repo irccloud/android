@@ -873,6 +873,8 @@ public class EventsList {
             if (e.self)
                 e.bg_color = R.color.self;
 
+            TransactionManager.getInstance().saveOnSaveQueue(e);
+
             return e;
         }
     }

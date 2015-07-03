@@ -88,7 +88,6 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
-        NetworkConnection.getInstance().save();
         super.onStop();
     }
 

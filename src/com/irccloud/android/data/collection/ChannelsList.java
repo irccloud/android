@@ -89,6 +89,7 @@ public class ChannelsList {
         c.key = false;
         c.mode = "";
         c.valid = 1;
+        TransactionManager.getInstance().saveOnSaveQueue(c);
         return c;
     }
 
