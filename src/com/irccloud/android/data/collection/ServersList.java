@@ -93,7 +93,7 @@ public class ServersList {
         s.setServer_pass(server_pass);
         s.setNickserv_pass(nickserv_pass);
         s.setJoin_commands(join_commands);
-        s.fail_info = fail_info;
+        s.setFail_info(fail_info);
         s.setAway(away);
         s.setUsermask("");
         s.setMode("");

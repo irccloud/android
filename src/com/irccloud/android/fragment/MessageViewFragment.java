@@ -939,7 +939,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 awayView.setVisibility(View.GONE);
             }
             collapsedEvents.setServer(server);
-            update_status(server.getStatus(), server.fail_info);
+            update_status(server.getStatus(), server.getFail_info());
         }
         if (unreadTopView != null)
             unreadTopView.setVisibility(View.GONE);
@@ -1656,7 +1656,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             //List view not ready yet
                         }
                         if (server != null)
-                            update_status(server.getStatus(), server.fail_info);
+                            update_status(server.getStatus(), server.getFail_info());
                         if (mListener != null && !ready)
                             mListener.onMessageViewReady();
                         ready = true;
@@ -2201,7 +2201,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                update_status(server.getStatus(), server.fail_info);
+                                update_status(server.getStatus(), server.getFail_info());
                             }
                         });
                     }

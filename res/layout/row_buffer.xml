@@ -21,7 +21,7 @@
 		<import type="android.graphics.Typeface"/>
 		<variable name="buffer" type="com.irccloud.android.data.model.Buffer"/>
 		<variable name="server" type="com.irccloud.android.data.model.Server"/>
-		<variable name="selected" type="com.irccloud.android.fragment.BuffersListFragment.SelectedBID"/>
+		<variable name="selected" type="int"/>
 		<variable name="readOnly" type="boolean"/>
 	</data>
 	<LinearLayout
@@ -33,23 +33,20 @@
 		android:orientation="horizontal" >
 
 		<LinearLayout
-			android:id="@+id/unread"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:layout_marginTop='@{ ( buffer.isGroupHeading ) ? @dimen/activity_vertical_margin : 0 }'
 			android:layout_marginRight="8dp"
-			android:background="@{ (!readOnly &amp;&amp; (selected.selectedBID == buffer.bid || buffer.unread > 0)) ? buffer.selectedBackgroundResource : 0 }"
+			android:background="@{ (!readOnly &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? buffer.selectedBackgroundResource : 0 }"
 			android:paddingLeft="8dp" >
 
 				<LinearLayout
-					android:id="@+id/bufferbg"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:background="@{ selected.selectedBID == buffer.bid ? buffer.selectedBackgroundResource : buffer.backgroundResource }"
+					android:background="@{ selected == buffer.bid ? buffer.selectedBackgroundResource : buffer.backgroundResource }"
 					android:gravity="center_vertical" >
 
 					<ImageView
-						android:id="@+id/icon"
 						android:layout_width="16dp"
 						android:layout_height="16dp"
 						android:layout_marginLeft="4dp"
@@ -58,7 +55,6 @@
 						android:src='@{buffer.isConsole ? server.icon : buffer.icon}' />
 
 					<TextView
-						android:id="@+id/label"
 						android:layout_width="wrap_content"
 						android:layout_height="fill_parent"
 						android:layout_weight="1"
@@ -68,11 +64,10 @@
 						android:maxLines="1"
 						android:paddingRight="6dp"
 						android:text='@{buffer.isConsole ? (server.name ?? server.hostname) : buffer.name}'
-						android:textColor="@{ (selected.selectedBID == buffer.bid || buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader ) ? @color/selected_white : buffer.textColor }"
-						android:typeface="@{( !readOnly &amp;&amp; (selected.selectedBID == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
+						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? @color/selected_white : buffer.textColor }"
+						android:typeface="@{( !readOnly &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
 						android:textSize="16sp" />
 					<TextView
-						android:id="@+id/highlights"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_marginRight="4dp"
@@ -87,13 +82,12 @@
 						android:textStyle="bold" />
 
 					<ProgressBar
-						android:id="@+id/progressBar"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:layout_weight="0"
 						android:padding="4dp"
 						style="?android:attr/progressBarStyleSmall"
-						android:visibility="gone" />
+						android:visibility="@{(!readOnly &amp;&amp; buffer.showSpinner) ? View.VISIBLE : View.GONE }" />
 
 					<ImageButton
 						android:id="@+id/addBtn"
@@ -102,7 +96,7 @@
 						android:layout_marginLeft="8dp"
 						android:background="@null"
 						android:contentDescription="Join a channel"
-						android:visibility='@{(!readOnly &amp;&amp; buffer.isConsole ) ? View.VISIBLE : View.GONE }'
+						android:visibility='@{(!readOnly &amp;&amp; buffer.showAddBtn ) ? View.VISIBLE : View.GONE }'
 						android:src="@drawable/add" />
 				</LinearLayout>
 		</LinearLayout>

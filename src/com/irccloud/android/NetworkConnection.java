@@ -1859,7 +1859,7 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mServers.getServer(object.cid()).setStatus(object.getString("new_status"));
-                mServers.getServer(object.cid()).fail_info = object.getJsonObject("fail_info");
+                mServers.getServer(object.cid()).setFail_info(object.getJsonObject("fail_info"));
                 if (!backlog) {
                     if (object.getString("new_status").equals("disconnected")) {
                         ArrayList<Buffer> buffers = mBuffers.getBuffersForServer(object.cid());

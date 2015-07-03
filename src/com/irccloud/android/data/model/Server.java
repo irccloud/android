@@ -17,11 +17,8 @@
 package com.irccloud.android.data.model;
 
 import android.databinding.Bindable;
-import android.databinding.Observable;
-import android.databinding.PropertyChangeRegistry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.irccloud.android.BR;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -36,7 +33,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import java.util.ArrayList;
 
 @Table(databaseName = IRCCloudDatabase.NAME)
-public class Server extends BaseModel implements Comparable<Server>, android.databinding.Observable {
+public class Server extends ObservableBaseModel implements Comparable<Server> {
     @Column
     @PrimaryKey
     private int cid = -1;
@@ -63,7 +60,7 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
     private String realname;
 
     @Column
-    public ObjectNode fail_info;
+    private ObjectNode fail_info;
 
     @Column
     private String away;
@@ -75,7 +72,7 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
     private String mode;
 
     @Column
-    public ObjectNode isupport;
+    public ObjectNode isupport = new ObjectMapper().createObjectNode();
 
     @Column
     public JsonNode raw_ignores;
@@ -134,7 +131,6 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     public void setName(String name) {
         this.name = name;
-        callbacks.notifyChange(this, BR.name);
     }
 
     @Bindable
@@ -144,7 +140,6 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
 
     public void setHostname(String hostname) {
         this.hostname = hostname;
-        callbacks.notifyChange(this, BR.hostname);
     }
 
     public int getPort() {
@@ -173,13 +168,48 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
         TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
+    public ObjectNode getFail_info() {
+        return fail_info;
+    }
+
+    public void setFail_info(ObjectNode fail_info) {
+        this.fail_info = fail_info;
+        TransactionManager.getInstance().saveOnSaveQueue(this);
+    }
+
+    public boolean isConnecting() {
+        return this.status.equals("waiting_to_retry") || this.status.equals("queued") || this.status.equals("connecting") || this.status.equals("connected_joining");
+    }
+
+    @Bindable
+    public boolean getIsConnecting() {
+        return isConnecting();
+    }
+
+    public boolean isConnected() {
+        return this.status.equals("connected_ready");
+    }
+
+    @Bindable
+    public boolean getIsConnected() {
+        return isConnected();
+    }
+
+    public boolean isFailed() {
+        return (this.status.equals("waiting_to_retry") || this.status.equals("pool_unavailable") || (this.status.equals("disconnected") && this.getFail_info() != null && this.getFail_info().has("type")));
+    }
+
+    @Bindable
+    public boolean getIsFailed() {
+        return isFailed();
+    }
+
     public int getSsl() {
         return ssl;
     }
 
     public void setSsl(int ssl) {
         this.ssl = ssl;
-        callbacks.notifyChange(this, BR.icon);
     }
 
     public String getRealname() {
@@ -257,6 +287,9 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
     }
 
     public void updateIsupport(ObjectNode params) {
+        if(this.isupport == null)
+            this.isupport = new ObjectMapper().createObjectNode();
+
         if (params != null && !params.isArray())
             this.isupport.putAll(params);
         else
@@ -283,53 +316,43 @@ public class Server extends BaseModel implements Comparable<Server>, android.dat
     public void updateIgnores(JsonNode ignores) {
         this.raw_ignores = ignores;
         this.ignores = new ArrayList<>();
-        for (int i = 0; i < ignores.size(); i++) {
-            String mask = ignores.get(i).asText().toLowerCase()
-                    .replace("\\", "\\\\")
-                    .replace("(", "\\(")
-                    .replace(")", "\\)")
-                    .replace("[", "\\[")
-                    .replace("]", "\\]")
-                    .replace("{", "\\{")
-                    .replace("}", "\\}")
-                    .replace("-", "\\-")
-                    .replace("^", "\\^")
-                    .replace("$", "\\$")
-                    .replace("|", "\\|")
-                    .replace("+", "\\+")
-                    .replace("?", "\\?")
-                    .replace(".", "\\.")
-                    .replace(",", "\\,")
-                    .replace("#", "\\#")
-                    .replace("*", ".*")
-                    .replace("!~", "!");
-            if (!mask.contains("!"))
-                if (mask.contains("@"))
-                    mask = ".*!" + mask;
-                else
-                    mask += "!.*";
-            if (!mask.contains("@"))
-                if (mask.contains("!"))
-                    mask = mask.replace("!", "!.*@");
-                else
-                    mask += "@.*";
-            if (mask.equals(".*!.*@.*"))
-                continue;
-            this.ignores.add(mask);
-            TransactionManager.getInstance().saveOnSaveQueue(this);
+        if(ignores != null) {
+            for (int i = 0; i < ignores.size(); i++) {
+                String mask = ignores.get(i).asText().toLowerCase()
+                        .replace("\\", "\\\\")
+                        .replace("(", "\\(")
+                        .replace(")", "\\)")
+                        .replace("[", "\\[")
+                        .replace("]", "\\]")
+                        .replace("{", "\\{")
+                        .replace("}", "\\}")
+                        .replace("-", "\\-")
+                        .replace("^", "\\^")
+                        .replace("$", "\\$")
+                        .replace("|", "\\|")
+                        .replace("+", "\\+")
+                        .replace("?", "\\?")
+                        .replace(".", "\\.")
+                        .replace(",", "\\,")
+                        .replace("#", "\\#")
+                        .replace("*", ".*")
+                        .replace("!~", "!");
+                if (!mask.contains("!"))
+                    if (mask.contains("@"))
+                        mask = ".*!" + mask;
+                    else
+                        mask += "!.*";
+                if (!mask.contains("@"))
+                    if (mask.contains("!"))
+                        mask = mask.replace("!", "!.*@");
+                    else
+                        mask += "@.*";
+                if (mask.equals(".*!.*@.*"))
+                    continue;
+                this.ignores.add(mask);
+                TransactionManager.getInstance().saveOnSaveQueue(this);
+            }
         }
-    }
-
-    PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
-
-    @Override
-    public void addOnPropertyChangedCallback(Observable.OnPropertyChangedCallback callback) {
-        callbacks.add(callback);
-    }
-
-    @Override
-    public void removeOnPropertyChangedCallback(Observable.OnPropertyChangedCallback callback) {
-        callbacks.remove(callback);
     }
 
     @Bindable

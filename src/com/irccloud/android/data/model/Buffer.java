@@ -17,9 +17,7 @@
 package com.irccloud.android.data.model;
 
 import android.databinding.Bindable;
-import android.databinding.PropertyChangeRegistry;
 
-import com.irccloud.android.BR;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -40,7 +38,7 @@ import org.json.JSONObject;
 
 @Table(databaseName = IRCCloudDatabase.NAME,
         uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class Buffer extends BaseModel implements android.databinding.Observable {
+public class Buffer extends ObservableBaseModel {
     public static final String TYPE_CONSOLE = "console";
     public static final String TYPE_CHANNEL = "channel";
     public static final String TYPE_CONVERSATION = "conversation";
@@ -51,6 +49,15 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
 
     private enum Type {
         CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, OTHER
+    }
+
+    private Server server = null;
+
+    public Server getServer() {
+        if(server == null)
+            server = ServersList.getInstance().getServer(this.cid);
+
+        return server;
     }
 
     @Column
@@ -174,7 +181,6 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
             BuffersList.getInstance().dirty = true;
             TransactionManager.getInstance().saveOnSaveQueue(this);
         }
-        callbacks.notifyChange(this, BR.name);
     }
 
     public String getType() {
@@ -203,10 +209,6 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
                 this.type_int = Type.OTHER;
                 break;
         }
-        callbacks.notifyChange(this, BR.isConsole);
-        callbacks.notifyChange(this, BR.isChannel);
-        callbacks.notifyChange(this, BR.isConversation);
-        callbacks.notifyChange(this, BR.isGroupHeading);
     }
 
     public boolean isConsole() {
@@ -247,7 +249,7 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
     }
 
     public int getArchived() {
-        return archived;
+        return isConsole()?0:archived;
     }
 
     public void setArchived(int archived) {
@@ -266,6 +268,7 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
         this.deferred = deferred;
     }
 
+    @Bindable
     public int getTimeout() {
         return timeout;
     }
@@ -366,7 +369,6 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
         this.unread = unread;
         if(this.bid != -1)
             TransactionManager.getInstance().saveOnSaveQueue(this);
-        callbacks.notifyChange(this, BR.unread);
     }
 
     @Bindable
@@ -383,8 +385,6 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
         this.highlights = highlights;
         if(this.bid != -1)
             TransactionManager.getInstance().saveOnSaveQueue(this);
-        callbacks.notifyChange(this, BR.highlights);
-        callbacks.notifyChange(this, BR.highlightsString);
     }
 
     public int getValid() {
@@ -412,27 +412,22 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
             return "Conversation with " + normalizedName();
     }
 
-    PropertyChangeRegistry callbacks = new PropertyChangeRegistry();
-
-    @Override
-    public void addOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
-        callbacks.add(callback);
-    }
-
-    @Override
-    public void removeOnPropertyChangedCallback(OnPropertyChangedCallback callback) {
-        callbacks.remove(callback);
-    }
-
     @Bindable
     public int getTextColor() {
-        if (type.equals(TYPE_ARCHIVES_HEADER)) {
+        if (type_int == Type.ARCHIVES_HEADER) {
             return R.color.row_label_archives_heading;
-        } else if (type.equals(TYPE_JOIN_CHANNEL)) {
+        } else if (type_int == Type.JOIN_CHANNEL) {
             return R.color.row_label_join;
-        } else if (archived == 1) {
+        } else if (getArchived() == 1) {
             return R.color.row_label_archived;
-        } else if (type.equals(TYPE_CHANNEL) && !isJoined()) {
+        } else if (isConsole()) {
+            if(getServer().isFailed())
+                return R.color.row_label_failed;
+            else if(!getServer().isConnected())
+                return R.color.row_label_inactive;
+            else
+                return R.color.row_label;
+        } else if (isChannel() && !isJoined()) {
             return R.color.row_label_inactive;
         } else if (unread > 0) {
             return R.color.row_label_unread;
@@ -463,19 +458,33 @@ public class Buffer extends BaseModel implements android.databinding.Observable 
 
     @Bindable
     public int getBackgroundResource() {
-        if(type.equals(TYPE_CHANNEL) || type.equals(TYPE_CONVERSATION) || type.equals(TYPE_JOIN_CHANNEL))
-            return (archived == 0)?R.drawable.row_buffer_bg:R.drawable.row_buffer_bg_archived;
-        else if(type.equals(TYPE_ARCHIVES_HEADER))
-            return (archived == 0)?R.drawable.row_buffer_bg:R.drawable.archived_bg_selected;
+        if(isChannel() || isConversation())
+            return (getArchived() == 0)?R.drawable.row_buffer_bg:R.drawable.row_buffer_bg_archived;
+        else if(isConsole())
+            return getServer().isFailed() ? R.drawable.row_failed_bg : R.drawable.row_buffergroup_bg;
+        else if(type_int == Type.JOIN_CHANNEL)
+            return R.drawable.row_buffer_bg_join;
+        else if(type_int == Type.ARCHIVES_HEADER)
+            return (getArchived() == 0)?R.drawable.row_buffer_bg:R.drawable.archived_bg_selected;
         else
             return R.drawable.row_buffergroup_bg;
     }
 
     @Bindable
     public int getSelectedBackgroundResource() {
-        if(archived == 0)
-            return R.drawable.selected_blue;
+        if(isConsole())
+            return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
         else
-            return R.drawable.archived_bg_selected;
+            return ((getArchived() == 0)) ? R.drawable.selected_blue : R.drawable.archived_bg_selected;
+    }
+
+    @Bindable
+    public boolean getShowAddBtn() {
+        return isConsole() && getServer().isConnected();
+    }
+
+    @Bindable
+    public boolean getShowSpinner() {
+        return isConsole() ? getServer().isConnecting() : (this.timeout > 0);
     }
 }
