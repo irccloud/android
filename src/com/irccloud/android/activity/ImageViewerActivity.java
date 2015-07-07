@@ -21,6 +21,8 @@ package com.irccloud.android.activity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -32,6 +34,8 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -50,6 +54,7 @@ import com.irccloud.android.ShareActionProviderHax;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -92,8 +97,11 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(IMAGE_URL + params[0], headers);
                 if(o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
+                    android.util.Log.e("IRCCloud", "D: " + data.toString());
                     if(data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                         return data.getString("link");
+                    else if(data.getBoolean("animated"))
+                        return data.getString("mp4");
                 }
             } catch (Exception e) {
             }
@@ -103,7 +111,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         @Override
         protected void onPostExecute(String url) {
             if (url != null) {
-                loadImage(url);
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
             } else {
                 fail();
             }
@@ -123,8 +137,11 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + params[0], headers);
                 if(o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
+                    android.util.Log.e("IRCCloud", "D: " + data.toString());
                     if(data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                         return data.getString("link");
+                    else if(data.getBoolean("animated"))
+                        return data.getString("mp4");
                 }
             } catch (Exception e) {
             }
@@ -134,7 +151,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         @Override
         protected void onPostExecute(String url) {
             if (url != null) {
-                loadImage(url);
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
             } else {
                 fail();
             }
@@ -299,6 +322,33 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
         mProgress = (ProgressBar) findViewById(R.id.progress);
 
+        findViewById(R.id.video).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (toolbar.getVisibility() == View.VISIBLE) {
+                    if (mHideTimerTask != null)
+                        mHideTimerTask.cancel();
+                    if (Build.VERSION.SDK_INT > 16) {
+                        toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                toolbar.setVisibility(View.GONE);
+                            }
+                        });
+                    } else {
+                        toolbar.setVisibility(View.GONE);
+                    }
+                } else {
+                    if (Build.VERSION.SDK_INT > 16) {
+                        toolbar.setAlpha(0);
+                        toolbar.animate().alpha(1).translationY(0);
+                    }
+                    toolbar.setVisibility(View.VISIBLE);
+                    hide_actionbar();
+                }
+            }
+        });
+
         if (getIntent() != null && getIntent().getDataString() != null) {
             String url = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
             String lower = url.toLowerCase().replace("https://", "").replace("http://", "");
@@ -314,13 +364,19 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 String id = url.replace("https://", "").replace("http://", "");
                 id = id.substring(id.indexOf("/") + 1);
 
-                if(!id.contains("/") && id.length() > 0) {
+                if (!id.contains("/") && id.length() > 0) {
                     new ImgurImageTask().execute(id);
-                } else if(id.startsWith("gallery/") && id.length() > 8) {
+                } else if (id.startsWith("gallery/") && id.length() > 8) {
                     new ImgurGalleryTask().execute(id.substring(8));
                 } else {
                     fail();
                 }
+                return;
+            } else if(lower.startsWith("i.imgur.com") && lower.endsWith(".gifv")) {
+                String id = url.replace("https://", "").replace("http://", "");
+                id = id.substring(id.indexOf("/") + 1);
+                id = id.substring(0, id.length() - 5);
+                new ImgurImageTask().execute(id);
                 return;
             } else if (lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
@@ -341,6 +397,73 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             loadImage(url);
         } else {
             finish();
+        }
+    }
+
+    private MediaPlayer player;
+
+    private void loadVideo(String urlStr) {
+        try {
+            player = new MediaPlayer();
+            final SurfaceView v = (SurfaceView)findViewById(R.id.video);
+            v.getHolder().addCallback(new SurfaceHolder.Callback() {
+                @Override
+                public void surfaceCreated(SurfaceHolder surfaceHolder) {
+                    try {
+                        player.setDisplay(surfaceHolder);
+                        player.prepare();
+
+                        int videoWidth = player.getVideoWidth();
+                        int videoHeight = player.getVideoHeight();
+
+                        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+
+                        android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+                        lp.width = screenWidth;
+                        lp.height = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
+                        v.setLayoutParams(lp);
+
+                        player.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+
+                }
+            });
+            v.setVisibility(View.VISIBLE);
+
+            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    mSpinner.setVisibility(View.GONE);
+                    mProgress.setVisibility(View.GONE);
+                    hide_actionbar();
+                }
+            });
+
+            player.setDataSource(ImageViewerActivity.this, Uri.parse(urlStr));
+
+            try {
+                if (Build.VERSION.SDK_INT >= 16) {
+                    NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+                    if (nfc != null) {
+                        nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
+                    }
+                }
+            } catch (Exception e) {
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
         }
     }
 
@@ -378,9 +501,11 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     private void fail() {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+        android.util.Log.e("IRCCloud", "FAILED");
+        Thread.dumpStack();
+        /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
         startActivity(intent);
-        finish();
+        finish();*/
     }
 
     @Override
@@ -403,6 +528,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if (Build.VERSION.SDK_INT >= 11)
                 mImage.removeJavascriptInterface("Android");
         }
+        if(player != null)
+            player.release();
     }
 
     private void hide_actionbar() {
