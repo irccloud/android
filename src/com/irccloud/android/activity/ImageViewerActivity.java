@@ -446,6 +446,9 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         try {
             player = new MediaPlayer();
             final SurfaceView v = (SurfaceView)findViewById(R.id.video);
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+                v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
             v.getHolder().addCallback(new SurfaceHolder.Callback() {
                 @Override
                 public void surfaceCreated(SurfaceHolder surfaceHolder) {
@@ -476,7 +479,11 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
                 @Override
                 public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
+                    if(player != null) {
+                        player.stop();
+                        player.release();
+                        player = null;
+                    }
                 }
             });
             v.setVisibility(View.VISIBLE);
@@ -549,11 +556,9 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     private void fail() {
-        android.util.Log.e("IRCCloud", "FAILED");
-        Thread.dumpStack();
-        /*Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
         startActivity(intent);
-        finish();*/
+        finish();
     }
 
     @Override
