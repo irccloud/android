@@ -25,6 +25,7 @@
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
@@ -39,10 +40,12 @@
         <item name="actionModeBackground">@drawable/actionbar</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorAccent">#fff</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="DialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
@@ -54,6 +57,7 @@
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="PastebinEditorTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
         <item name="windowNoTitle">true</item>
@@ -67,6 +71,7 @@
         <item name="alertDialogTheme">@style/AppAlertTheme</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="messageTxt">
         <item name="android:imeOptions">flagNoExtractUi|actionSend</item>

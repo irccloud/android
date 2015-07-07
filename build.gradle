@@ -49,7 +49,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "21.1.2"
+    buildToolsVersion "22.0.1"
     testBuildType 'debugTest'
 
     defaultConfig {
