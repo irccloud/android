@@ -62,12 +62,16 @@ import java.util.Timer;
 import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
 
     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
+        private String provider = null;
 
         @Override
         protected String doInBackground(String... params) {
             try {
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
-                if (o.getString("type").equalsIgnoreCase("photo"))
+                if(o.has("provider_name"))
+                    provider = o.getString("provider_name");
+
+                if ((provider != null && provider.equals("Giphy")) || o.getString("type").equalsIgnoreCase("photo"))
                     return o.getString("url");
             } catch (Exception e) {
             }
@@ -77,7 +81,10 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         @Override
         protected void onPostExecute(String url) {
             if (url != null) {
-                loadImage(url);
+                if(provider != null && provider.equals("Giphy"))
+                    new GiphyTask().execute(url.substring(url.indexOf("/gifs/") + 6));
+                else
+                    loadImage(url);
             } else {
                 fail();
             }
@@ -175,6 +182,40 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                         return data.getString("mp4Url");
                     else if(data.has("gifUrl") && data.getString("gifUrl").length() > 0)
                         return data.getString("gifUrl");
+                }
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if (url != null) {
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
+            } else {
+                fail();
+            }
+        }
+    }
+
+    public class GiphyTask extends AsyncTaskEx<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                HashMap<String, String> headers = new HashMap<>();
+                JSONObject o = NetworkConnection.getInstance().fetchJSON("https://api.giphy.com/v1/gifs/" + params[0] + "?api_key=dc6zaTOxFJmzC", headers);
+                if(o.has("data") && o.getJSONObject("data").has("images")) {
+                    JSONObject data = o.getJSONObject("data").getJSONObject("images").getJSONObject("original");
+                    if(data.has("mp4") && data.getString("mp4").length() > 0)
+                        return data.getString("mp4");
+                    else if(data.getString("url").endsWith(".gif"))
+                        return data.getString("url");
                 }
             } catch (Exception e) {
             }
@@ -418,6 +459,11 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 id = id.substring(id.lastIndexOf("/") + 1, id.length());
                 new GfyCatTask().execute(id);
                 return;
+            } else if (lower.startsWith("giphy.com/") || lower.startsWith("www.giphy.com/") || lower.startsWith("gph.is/")) {
+                if(lower.contains("/gifs/") && lower.lastIndexOf("/") > lower.indexOf("/gifs/") + 6)
+                    url = url.substring(0, lower.lastIndexOf("/"));
+                new OEmbedTask().execute("https://giphy.com/services/oembed/?url=" + url);
+                return;
             } else if (lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
                 return;
@@ -460,15 +506,23 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                         int videoHeight = player.getVideoHeight();
 
                         int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+                        int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+
+                        int scaledWidth = (int) (((float)videoWidth / (float)videoHeight) * (float)screenHeight);
+                        int scaledHeight = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
 
                         android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
                         lp.width = screenWidth;
-                        lp.height = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
+                        lp.height = scaledHeight;
+                        if(lp.height > screenHeight && scaledWidth < screenWidth) {
+                            lp.width = scaledWidth;
+                            lp.height = screenHeight;
+                        }
                         v.setLayoutParams(lp);
 
                         player.start();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        fail();
                     }
                 }
 
@@ -480,7 +534,10 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 @Override
                 public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
                     if(player != null) {
-                        player.stop();
+                        try {
+                            player.stop();
+                        } catch (IllegalStateException e) {
+                        }
                         player.release();
                         player = null;
                     }
@@ -566,6 +623,19 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         super.onResume();
         if (mSpinner != null && mSpinner.getVisibility() == View.GONE)
             hide_actionbar();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(player != null) {
+            try {
+                player.stop();
+            } catch (IllegalStateException e) {
+            }
+            player.release();
+            player = null;
+        }
     }
 
     @Override
