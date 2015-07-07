@@ -97,7 +97,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(IMAGE_URL + params[0], headers);
                 if(o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
-                    android.util.Log.e("IRCCloud", "D: " + data.toString());
                     if(data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                         return data.getString("link");
                     else if(data.getBoolean("animated"))
@@ -142,6 +141,40 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                         return data.getString("link");
                     else if(data.getBoolean("animated"))
                         return data.getString("mp4");
+                }
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if (url != null) {
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
+            } else {
+                fail();
+            }
+        }
+    }
+
+    public class GfyCatTask extends AsyncTaskEx<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                HashMap<String, String> headers = new HashMap<>();
+                JSONObject o = NetworkConnection.getInstance().fetchJSON("https://gfycat.com/cajax/get/" + params[0], headers);
+                if(o.has("gfyItem")) {
+                    JSONObject data = o.getJSONObject("gfyItem");
+                    if(data.has("mp4Url") && data.getString("mp4Url").length() > 0)
+                        return data.getString("mp4Url");
+                    else if(data.has("gifUrl") && data.getString("gifUrl").length() > 0)
+                        return data.getString("gifUrl");
                 }
             } catch (Exception e) {
             }
@@ -378,6 +411,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 id = id.substring(0, id.length() - 5);
                 new ImgurImageTask().execute(id);
                 return;
+            } else if(lower.startsWith("gfycat.com/") || lower.startsWith("www.gfycat.com/")) {
+                String id = url;
+                if(id.endsWith("/"))
+                    id = id.substring(0, id.length() - 1);
+                id = id.substring(id.lastIndexOf("/") + 1, id.length());
+                new GfyCatTask().execute(id);
+                return;
             } else if (lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
                 return;
@@ -447,6 +487,14 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                     mSpinner.setVisibility(View.GONE);
                     mProgress.setVisibility(View.GONE);
                     hide_actionbar();
+                }
+            });
+
+            player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+                    fail();
+                    return false;
                 }
             });
 

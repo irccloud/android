@@ -1379,6 +1379,7 @@ public class ColorFormatter {
                                         "(^https?://(www\\.)?leetfiles\\.com/image/.*)|" +
                                         "(^https?://(www\\.)?leetfil\\.es/image/.*)|" +
                                         "(^https?://i.imgur.com/.*\\.gifv$)|" +
+                                        "(^https?://(www\\.)?gfycat.com/[a-z]+$)|" +
                                         "(^https?://.*\\.steampowered\\.com/ugc/.*)"
                         ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
                             if (lower.startsWith("http://"))
