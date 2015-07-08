@@ -57,6 +57,7 @@
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:gravity="center">
                 <ImageButton android:id="@+id/rew" style="@android:style/MediaButton.Rew"/>
                 <ImageButton android:id="@+id/pause" style="@android:style/MediaButton.Pause" android:visibility="gone"/>
@@ -68,6 +69,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp">
                 <TextView android:id="@+id/time_current"
@@ -86,8 +88,6 @@
                     android:layout_width="0dip"
                     android:layout_weight="1"
                     android:layout_height="32dip"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentRight="true"
                     android:indeterminate="true"/>
 
                 <TextView android:id="@+id/time"

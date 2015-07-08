@@ -18,7 +18,6 @@ package com.irccloud.android.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +28,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
 import android.view.Menu;
@@ -63,6 +63,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                     getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
                 } else {
                     toolbar.setVisibility(View.GONE);
+                    controls.setVisibility(View.GONE);
                 }
             }
         }
@@ -70,6 +71,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     private Runnable mUpdateRunnable = new Runnable() {
         @Override
         public void run() {
+            handler.removeCallbacks(this);
             if(video.isPlaying()) {
                 play.setVisibility(View.GONE);
                 pause.setVisibility(View.VISIBLE);
@@ -84,13 +86,37 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 seekBar.setIndeterminate(false);
                 seekBar.setProgress(video.getCurrentPosition());
                 seekBar.setMax(video.getDuration());
+                seekBar.setSecondaryProgress(video.getBufferPercentage());
             } else {
                 seekBar.setIndeterminate(true);
                 time.setText("--:--");
                 time_current.setText("--:--");
             }
-            handler.removeCallbacks(this);
             handler.postDelayed(this, 250);
+        }
+    };
+
+    private Runnable rewindRunnable = new Runnable() {
+        @Override
+        public void run() {
+            int position = video.getCurrentPosition() - 500;
+            if(position < 0)
+                position = 0;
+            video.seekTo(position);
+            handler.postDelayed(this, 250);
+            handler.post(mUpdateRunnable);
+        }
+    };
+
+    private Runnable ffwdRunnable = new Runnable() {
+        @Override
+        public void run() {
+            int position = video.getCurrentPosition() + 1000;
+            if(position > video.getDuration())
+                position = video.getDuration();
+            video.seekTo(position);
+            handler.postDelayed(this, 250);
+            handler.post(mUpdateRunnable);
         }
     };
 
@@ -134,6 +160,20 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
 
         rew = (ImageButton)findViewById(R.id.rew);
         rew.setEnabled(false);
+        rew.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    handler.removeCallbacks(mHideRunnable);
+                    handler.post(rewindRunnable);
+                }
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    handler.removeCallbacks(rewindRunnable);
+                    hide_actionbar();
+                }
+                return false;
+            }
+        });
         play = (ImageButton)findViewById(R.id.play);
         play.setEnabled(false);
         play.setOnClickListener(new View.OnClickListener() {
@@ -156,6 +196,20 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         });
         ffwd = (ImageButton)findViewById(R.id.ffwd);
         ffwd.setEnabled(false);
+        ffwd.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if(motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    handler.removeCallbacks(mHideRunnable);
+                    handler.post(ffwdRunnable);
+                }
+                if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                    handler.removeCallbacks(ffwdRunnable);
+                    hide_actionbar();
+                }
+                return false;
+            }
+        });
         time_current = (TextView)findViewById(R.id.time_current);
         time = (TextView)findViewById(R.id.time);
         seekBar = (SeekBar)findViewById(R.id.mediacontroller_progress);
@@ -195,8 +249,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 } else {
                     if (toolbar.getVisibility() == View.VISIBLE) {
                         toolbar.setVisibility(View.GONE);
+                        controls.setVisibility(View.GONE);
                     } else {
                         toolbar.setVisibility(View.VISIBLE);
+                        controls.setVisibility(View.VISIBLE);
                         hide_actionbar();
                     }
                 }
@@ -222,6 +278,13 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             public void onCompletion(MediaPlayer mediaPlayer) {
                 video.pause();
                 video.seekTo(video.getDuration());
+                handler.removeCallbacks(mHideRunnable);
+                if (Build.VERSION.SDK_INT > 16) {
+                    getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                } else {
+                    toolbar.setVisibility(View.VISIBLE);
+                    controls.setVisibility(View.VISIBLE);
+                }
             }
         });
         video.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -233,10 +296,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                         .setPositiveButton("Download", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                DownloadManager d = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-                                if(d != null) {
+                                DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                                if (d != null) {
                                     DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
-                                    if(Build.VERSION.SDK_INT >= 11) {
+                                    if (Build.VERSION.SDK_INT >= 11) {
                                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                                         r.allowScanningByMediaScanner();
                                     }
@@ -250,17 +313,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                                 finish();
                             }
                         })
-                        .setNeutralButton("Open in Browser", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
-                                startActivity(intent);
-                                finish();
-                            }
-                        })
                         .create();
                 d.show();
-                return false;
+                return true;
             }
         });
 
