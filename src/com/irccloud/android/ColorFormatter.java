@@ -1391,6 +1391,38 @@ public class ColorFormatter {
                         }
                     }
 
+                    String lower = url.toLowerCase();
+                    if (lower.contains("?"))
+                        lower = lower.substring(0, lower.indexOf("?"));
+
+                    boolean isVideoEnt = false;
+                    if (entities != null && entities.has("files")) {
+                        if (file_uri_template != null) {
+                            UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
+                            for (JsonNode file : entities.get("files")) {
+                                String file_url = template.set("id", file.get("id").asText()).expand();
+                                String u = file_url.toLowerCase();
+                                String mime  = file.get("mime_type").asText();
+                                isVideoEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && (
+                                                mime.equals("video/mp4") ||
+                                                mime.equals("video/webm") ||
+                                                mime.equals("video/3gpp")
+                                ));
+                                if (isVideoEnt) {
+                                    url = file_url;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (isVideoEnt || lower.matches("(^.*\\/.*\\.3gp)|(^.*\\/.*\\.mp4$)|(^.*\\/.*\\.m4v)|(^.*\\/.*\\.webm$)")) {
+                        if (lower.startsWith("http://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + "://" + url.substring(7);
+                        else if (lower.startsWith("https://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://" + url.substring(8);
+                    }
+
                     if (entities != null && entities.has("pastes")) {
                         if (pastebin_uri_template != null) {
                             UriTemplate template = UriTemplate.fromTemplate(pastebin_uri_template);

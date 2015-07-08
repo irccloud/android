@@ -20,6 +20,7 @@ package com.irccloud.android.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.DownloadManager;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -726,6 +727,17 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             startActivity(intent);
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_save) {
+            DownloadManager d = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+            if(d != null) {
+                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                if(Build.VERSION.SDK_INT >= 11) {
+                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    r.allowScanningByMediaScanner();
+                }
+                d.enqueue(r);
+            }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
             if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
