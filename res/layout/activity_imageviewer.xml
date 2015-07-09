@@ -18,8 +18,22 @@
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent" android:layout_height="fill_parent"
-    android:background="#000"
-    android:id="@+id/frame">
+    android:background="#000">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center|center_vertical">
+
+        <SurfaceView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/video"
+            android:visibility="gone"
+            android:layout_gravity="center"/>
+    </LinearLayout>
 
     <WebView
         android:id="@+id/image"
@@ -27,26 +41,32 @@
         android:layout_height="fill_parent"
         android:visibility="gone" />
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/spinner"
-        android:layout_gravity="center"
-        style="?android:attr/progressBarStyleLarge" />
+        <FrameLayout android:id="@+id/frame"
+         android:fitsSystemWindows="true"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner"
+                android:layout_gravity="center"
+                style="?android:attr/progressBarStyleLarge" />
 
-    <ProgressBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/progress"
-        android:layout_gravity="center"
-        android:max="100"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:visibility="gone"
-        android:layout_margin="6dp" />
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/progress"
+                android:layout_gravity="center"
+                android:max="100"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:visibility="gone"
+                android:layout_margin="6dp" />
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:background="@drawable/actionbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"/>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:background="@drawable/actionbar_translucent"
+                android:fitsSystemWindows="true"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"/>
+        </FrameLayout>
 </FrameLayout>

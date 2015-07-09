@@ -122,6 +122,8 @@
         </activity>
         <activity
             android:name=".activity.ImageViewerActivity"
+            android:label="@string/title_activity_imageviewer"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:theme="@style/ImageViewerTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -134,6 +136,24 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="@string/IMAGE_SCHEME_SECURE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.VideoPlayerActivity"
+            android:label="@string/title_activity_video_player"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:theme="@style/ImageViewerTheme" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/VIDEO_SCHEME" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="@string/VIDEO_SCHEME_SECURE" />
             </intent-filter>
         </activity>
         <activity

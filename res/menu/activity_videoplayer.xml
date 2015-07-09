@@ -24,12 +24,8 @@
         app:showAsAction="ifRoom"
         app:actionProviderClass="com.irccloud.android.ShareActionProviderHax" />
     <item
-        android:id="@+id/action_save"
-        android:title="Save to Gallary"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_browser"
-        android:title="Open in Browser"
+        android:id="@+id/action_download"
+        android:title="Download"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_copy"

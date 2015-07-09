@@ -20,7 +20,10 @@ package com.irccloud.android.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.DownloadManager;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -32,6 +35,8 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.JavascriptInterface;
@@ -50,6 +55,7 @@ import com.irccloud.android.ShareActionProviderHax;
 
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -57,12 +63,16 @@ import java.util.Timer;
 import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
 
     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
+        private String provider = null;
 
         @Override
         protected String doInBackground(String... params) {
             try {
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
-                if (o.getString("type").equalsIgnoreCase("photo"))
+                if(o.has("provider_name"))
+                    provider = o.getString("provider_name");
+
+                if ((provider != null && provider.equals("Giphy")) || o.getString("type").equalsIgnoreCase("photo"))
                     return o.getString("url");
             } catch (Exception e) {
             }
@@ -72,7 +82,10 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         @Override
         protected void onPostExecute(String url) {
             if (url != null) {
-                loadImage(url);
+                if(provider != null && provider.equals("Giphy"))
+                    new GiphyTask().execute(url.substring(url.indexOf("/gifs/") + 6));
+                else
+                    loadImage(url);
             } else {
                 fail();
             }
@@ -94,6 +107,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                     JSONObject data = o.getJSONObject("data");
                     if(data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                         return data.getString("link");
+                    else if(data.getBoolean("animated"))
+                        return data.getString("mp4");
                 }
             } catch (Exception e) {
             }
@@ -103,7 +118,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         @Override
         protected void onPostExecute(String url) {
             if (url != null) {
-                loadImage(url);
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
             } else {
                 fail();
             }
@@ -123,8 +144,11 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(GALLERY_URL + params[0], headers);
                 if(o.getBoolean("success")) {
                     JSONObject data = o.getJSONObject("data");
+                    android.util.Log.e("IRCCloud", "D: " + data.toString());
                     if(data.getString("type").startsWith("image/") && !data.getBoolean("animated"))
                         return data.getString("link");
+                    else if(data.getBoolean("animated"))
+                        return data.getString("mp4");
                 }
             } catch (Exception e) {
             }
@@ -134,7 +158,81 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         @Override
         protected void onPostExecute(String url) {
             if (url != null) {
-                loadImage(url);
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
+            } else {
+                fail();
+            }
+        }
+    }
+
+    public class GfyCatTask extends AsyncTaskEx<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                HashMap<String, String> headers = new HashMap<>();
+                JSONObject o = NetworkConnection.getInstance().fetchJSON("https://gfycat.com/cajax/get/" + params[0], headers);
+                if(o.has("gfyItem")) {
+                    JSONObject data = o.getJSONObject("gfyItem");
+                    if(data.has("mp4Url") && data.getString("mp4Url").length() > 0)
+                        return data.getString("mp4Url");
+                    else if(data.has("gifUrl") && data.getString("gifUrl").length() > 0)
+                        return data.getString("gifUrl");
+                }
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if (url != null) {
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
+            } else {
+                fail();
+            }
+        }
+    }
+
+    public class GiphyTask extends AsyncTaskEx<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                HashMap<String, String> headers = new HashMap<>();
+                JSONObject o = NetworkConnection.getInstance().fetchJSON("https://api.giphy.com/v1/gifs/" + params[0] + "?api_key=dc6zaTOxFJmzC", headers);
+                if(o.has("data") && o.getJSONObject("data").has("images")) {
+                    JSONObject data = o.getJSONObject("data").getJSONObject("images").getJSONObject("original");
+                    if(data.has("mp4") && data.getString("mp4").length() > 0)
+                        return data.getString("mp4");
+                    else if(data.getString("url").endsWith(".gif"))
+                        return data.getString("url");
+                }
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String url) {
+            if (url != null) {
+                if(url.endsWith(".mp4")) {
+                    loadVideo(url);
+                    player.setLooping(true);
+                    player.setVolume(0,0);
+                } else {
+                    loadImage(url);
+                }
             } else {
                 fail();
             }
@@ -299,6 +397,33 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
         mProgress = (ProgressBar) findViewById(R.id.progress);
 
+        findViewById(R.id.video).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (toolbar.getVisibility() == View.VISIBLE) {
+                    if (mHideTimerTask != null)
+                        mHideTimerTask.cancel();
+                    if (Build.VERSION.SDK_INT > 16) {
+                        toolbar.animate().alpha(0).translationY(-toolbar.getHeight()).withEndAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                toolbar.setVisibility(View.GONE);
+                            }
+                        });
+                    } else {
+                        toolbar.setVisibility(View.GONE);
+                    }
+                } else {
+                    if (Build.VERSION.SDK_INT > 16) {
+                        toolbar.setAlpha(0);
+                        toolbar.animate().alpha(1).translationY(0);
+                    }
+                    toolbar.setVisibility(View.VISIBLE);
+                    hide_actionbar();
+                }
+            }
+        });
+
         if (getIntent() != null && getIntent().getDataString() != null) {
             String url = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
             String lower = url.toLowerCase().replace("https://", "").replace("http://", "");
@@ -314,13 +439,31 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 String id = url.replace("https://", "").replace("http://", "");
                 id = id.substring(id.indexOf("/") + 1);
 
-                if(!id.contains("/") && id.length() > 0) {
+                if (!id.contains("/") && id.length() > 0) {
                     new ImgurImageTask().execute(id);
-                } else if(id.startsWith("gallery/") && id.length() > 8) {
+                } else if (id.startsWith("gallery/") && id.length() > 8) {
                     new ImgurGalleryTask().execute(id.substring(8));
                 } else {
                     fail();
                 }
+                return;
+            } else if(lower.startsWith("i.imgur.com") && lower.endsWith(".gifv")) {
+                String id = url.replace("https://", "").replace("http://", "");
+                id = id.substring(id.indexOf("/") + 1);
+                id = id.substring(0, id.length() - 5);
+                new ImgurImageTask().execute(id);
+                return;
+            } else if(lower.startsWith("gfycat.com/") || lower.startsWith("www.gfycat.com/")) {
+                String id = url;
+                if(id.endsWith("/"))
+                    id = id.substring(0, id.length() - 1);
+                id = id.substring(id.lastIndexOf("/") + 1, id.length());
+                new GfyCatTask().execute(id);
+                return;
+            } else if (lower.startsWith("giphy.com/") || lower.startsWith("www.giphy.com/") || lower.startsWith("gph.is/")) {
+                if(lower.contains("/gifs/") && lower.lastIndexOf("/") > lower.indexOf("/gifs/") + 6)
+                    url = url.substring(0, lower.lastIndexOf("/"));
+                new OEmbedTask().execute("https://giphy.com/services/oembed/?url=" + url);
                 return;
             } else if (lower.startsWith("flickr.com/") || lower.startsWith("www.flickr.com/")) {
                 new OEmbedTask().execute("https://www.flickr.com/services/oembed/?format=json&url=" + url);
@@ -341,6 +484,99 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             loadImage(url);
         } else {
             finish();
+        }
+    }
+
+    private MediaPlayer player;
+
+    private void loadVideo(String urlStr) {
+        try {
+            player = new MediaPlayer();
+            final SurfaceView v = (SurfaceView)findViewById(R.id.video);
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+                v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+            v.getHolder().addCallback(new SurfaceHolder.Callback() {
+                @Override
+                public void surfaceCreated(SurfaceHolder surfaceHolder) {
+                    try {
+                        player.setDisplay(surfaceHolder);
+                        player.prepare();
+
+                        int videoWidth = player.getVideoWidth();
+                        int videoHeight = player.getVideoHeight();
+
+                        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+                        int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+
+                        int scaledWidth = (int) (((float)videoWidth / (float)videoHeight) * (float)screenHeight);
+                        int scaledHeight = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
+
+                        android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+                        lp.width = screenWidth;
+                        lp.height = scaledHeight;
+                        if(lp.height > screenHeight && scaledWidth < screenWidth) {
+                            lp.width = scaledWidth;
+                            lp.height = screenHeight;
+                        }
+                        v.setLayoutParams(lp);
+
+                        player.start();
+                    } catch (IOException e) {
+                        fail();
+                    }
+                }
+
+                @Override
+                public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+                    if(player != null) {
+                        try {
+                            player.stop();
+                        } catch (IllegalStateException e) {
+                        }
+                        player.release();
+                        player = null;
+                    }
+                }
+            });
+            v.setVisibility(View.VISIBLE);
+
+            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    mSpinner.setVisibility(View.GONE);
+                    mProgress.setVisibility(View.GONE);
+                    hide_actionbar();
+                }
+            });
+
+            player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+                    fail();
+                    return false;
+                }
+            });
+
+            player.setDataSource(ImageViewerActivity.this, Uri.parse(urlStr));
+
+            try {
+                if (Build.VERSION.SDK_INT >= 16) {
+                    NfcAdapter nfc = NfcAdapter.getDefaultAdapter(this);
+                    if (nfc != null) {
+                        nfc.setNdefPushMessage(new NdefMessage(NdefRecord.createUri(urlStr)), this);
+                    }
+                }
+            } catch (Exception e) {
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
         }
     }
 
@@ -391,6 +627,19 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        if(player != null) {
+            try {
+                player.stop();
+            } catch (IllegalStateException e) {
+            }
+            player.release();
+            player = null;
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if(mHideTimer != null) {
@@ -403,6 +652,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if (Build.VERSION.SDK_INT >= 11)
                 mImage.removeJavascriptInterface("Android");
         }
+        if(player != null)
+            player.release();
     }
 
     private void hide_actionbar() {
@@ -476,6 +727,17 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             startActivity(intent);
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_save) {
+            DownloadManager d = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+            if(d != null) {
+                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                if(Build.VERSION.SDK_INT >= 11) {
+                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    r.allowScanningByMediaScanner();
+                }
+                d.enqueue(r);
+            }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
             if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {

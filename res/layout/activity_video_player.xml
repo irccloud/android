@@ -1,0 +1,106 @@
+<!--
+  ~ Copyright (c) 2015 IRCCloud, Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="#000"
+             tools:context="com.irccloud.android.activity.VideoPlayerActivity">
+
+    <VideoView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:id="@+id/video"/>
+
+    <FrameLayout android:id="@+id/frame"
+        android:fitsSystemWindows="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progress"
+            android:layout_gravity="center"/>
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:background="@drawable/actionbar_translucent"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/actionbar_translucent"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            android:id="@+id/controls">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:gravity="center">
+                <ImageButton android:id="@+id/rew" style="@android:style/MediaButton.Rew"/>
+                <ImageButton android:id="@+id/pause" style="@android:style/MediaButton.Pause" android:visibility="gone"/>
+                <ImageButton android:id="@+id/play" style="@android:style/MediaButton.Play" />
+                <ImageButton android:id="@+id/ffwd" style="@android:style/MediaButton.Ffwd" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp">
+                <TextView android:id="@+id/time_current"
+                          android:textSize="14sp"
+                          android:textStyle="bold"
+                          android:paddingTop="4dip"
+                          android:paddingLeft="4dip"
+                          android:layout_gravity="center_horizontal"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:paddingRight="4dip"
+                          android:textColor="?android:attr/textColorSecondary" />
+                <SeekBar
+                    android:id="@+id/mediacontroller_progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dip"
+                    android:layout_weight="1"
+                    android:layout_height="32dip"
+                    android:indeterminate="true"/>
+
+                <TextView android:id="@+id/time"
+                          android:textSize="14sp"
+                          android:textStyle="bold"
+                          android:paddingTop="4dip"
+                          android:paddingRight="4dip"
+                          android:layout_gravity="center_horizontal"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:paddingLeft="4dip"
+                          android:textColor="?android:attr/textColorSecondary" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

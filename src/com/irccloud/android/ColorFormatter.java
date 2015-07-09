@@ -1302,7 +1302,7 @@ public class ColorFormatter {
         if (server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
             chanTypes = server.CHANTYPES;
 
-        final String pattern = "\\B([" + chanTypes + "]([^\ufe0e\ufe0f\u20e3<>!?\"()\\[\\],\\s\ufe55\\.]|\\.+\\w)+)";
+        final String pattern = "\\B([" + chanTypes + "]([^\ufe0e\ufe0f\u20e3<>\",\\s][^<>\",\\s]*))";
 
         if (linkify) {
             Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {
@@ -1378,6 +1378,10 @@ public class ColorFormatter {
                                         "(^https?://cl\\.ly/.*)|" +
                                         "(^https?://(www\\.)?leetfiles\\.com/image/.*)|" +
                                         "(^https?://(www\\.)?leetfil\\.es/image/.*)|" +
+                                        "(^https?://i.imgur.com/.*\\.gifv$)|" +
+                                        "(^https?://(www\\.)?gfycat.com/[a-z]+$)|" +
+                                        "(^https?://(www\\.)?giphy.com/gifs/.*)|" +
+                                        "(^https?://gph.is/.*)|" +
                                         "(^https?://.*\\.steampowered\\.com/ugc/.*)"
                         ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
                             if (lower.startsWith("http://"))
@@ -1385,6 +1389,38 @@ public class ColorFormatter {
                             else if (lower.startsWith("https://"))
                                 return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://" + url.substring(8);
                         }
+                    }
+
+                    String lower = url.toLowerCase();
+                    if (lower.contains("?"))
+                        lower = lower.substring(0, lower.indexOf("?"));
+
+                    boolean isVideoEnt = false;
+                    if (entities != null && entities.has("files")) {
+                        if (file_uri_template != null) {
+                            UriTemplate template = UriTemplate.fromTemplate(file_uri_template);
+                            for (JsonNode file : entities.get("files")) {
+                                String file_url = template.set("id", file.get("id").asText()).expand();
+                                String u = file_url.toLowerCase();
+                                String mime  = file.get("mime_type").asText();
+                                isVideoEnt = ((lower.equals(u) || lower.startsWith(u + "/")) && (
+                                                mime.equals("video/mp4") ||
+                                                mime.equals("video/webm") ||
+                                                mime.equals("video/3gpp")
+                                ));
+                                if (isVideoEnt) {
+                                    url = file_url;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (isVideoEnt || lower.matches("(^.*\\/.*\\.3gp)|(^.*\\/.*\\.mp4$)|(^.*\\/.*\\.m4v)|(^.*\\/.*\\.webm$)")) {
+                        if (lower.startsWith("http://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + "://" + url.substring(7);
+                        else if (lower.startsWith("https://"))
+                            return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://" + url.substring(8);
                     }
 
                     if (entities != null && entities.has("pastes")) {
@@ -1405,7 +1441,7 @@ public class ColorFormatter {
                 }
             });
             Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:");
-            Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\"()\\[\\],\\s]+"), null, null, new TransformFilter() {
+            Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, null, new TransformFilter() {
                 public final String transformUrl(final Matcher match, String url) {
                     return url.replace("#", "%23");
                 }
