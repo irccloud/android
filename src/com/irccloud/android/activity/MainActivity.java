@@ -490,6 +490,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
             getSupportActionBar().setTitle("Loading");
+            getSupportActionBar().setSubtitle(null);
         } else if (conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
             getSupportActionBar().setDisplayShowCustomEnabled(false);
             getSupportActionBar().setDisplayShowTitleEnabled(true);
@@ -506,9 +507,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 int seconds = (int) ((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
                 if (seconds < 1) {
                     getSupportActionBar().setTitle("Connecting");
+                    getSupportActionBar().setSubtitle(null);
                     errorMsg.setVisibility(View.GONE);
                 } else if (seconds >= 10) {
                     getSupportActionBar().setTitle("Reconnecting in 0:" + seconds);
+                    getSupportActionBar().setSubtitle(null);
                     if (error != null && error.length() > 0) {
                         errorMsg.setText(error);
                         errorMsg.setVisibility(View.VISIBLE);
@@ -518,6 +521,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 } else {
                     getSupportActionBar().setTitle("Reconnecting in 0:0" + seconds);
+                    getSupportActionBar().setSubtitle(null);
                     errorMsg.setVisibility(View.GONE);
                     error = null;
                 }
@@ -543,11 +547,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else {
                 getSupportActionBar().setTitle("Connecting");
+                getSupportActionBar().setSubtitle(null);
                 error = null;
                 errorMsg.setVisibility(View.GONE);
             }
         } else {
             getSupportActionBar().setTitle("Offline");
+            getSupportActionBar().setSubtitle(null);
             progressBar.setIndeterminate(false);
             progressBar.setProgress(0);
             getSupportActionBar().setDisplayShowCustomEnabled(false);
@@ -1442,6 +1448,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         onBufferSelected(-1);
                         title.setText(channel);
                         getSupportActionBar().setTitle(channel);
+                        getSupportActionBar().setSubtitle(null);
                         bufferToOpen = channel;
                         conn.join(s.getCid(), channel, key);
                     }
@@ -1498,17 +1505,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (buffer.isConsole()) {
                 if (server.getName().length() > 0) {
                     title.setText(server.getName());
-                    if (progressBar.getVisibility() == View.GONE)
+                    if (progressBar.getVisibility() == View.GONE) {
                         getSupportActionBar().setTitle(server.getName());
+                        getSupportActionBar().setSubtitle(null);
+                    }
                 } else {
                     title.setText(server.getHostname());
-                    if (progressBar.getVisibility() == View.GONE)
+                    if (progressBar.getVisibility() == View.GONE) {
                         getSupportActionBar().setTitle(server.getHostname());
+                        getSupportActionBar().setSubtitle(null);
+                    }
                 }
             } else {
                 title.setText(buffer.getName());
-                if (progressBar.getVisibility() == View.GONE)
+                if (progressBar.getVisibility() == View.GONE) {
                     getSupportActionBar().setTitle(buffer.getName());
+                    getSupportActionBar().setSubtitle(null);
+                }
             }
 
             if (buffer.getArchived() > 0 && !buffer.isConsole()) {
@@ -1570,6 +1583,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         key.setImageResource(R.drawable.world);
                     key.setVisibility(View.VISIBLE);
                 }
+
+                if(progressBar.getVisibility() == View.GONE && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED) {
+                    subtitle.setVisibility(View.VISIBLE);
+                    subtitle.setText("(Offline)");
+                    getSupportActionBar().setSubtitle("(Offline)");
+                }
             }
         }
         supportInvalidateOptionsMenu();
@@ -1592,6 +1611,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } catch (Exception e) {
             }
+
+            if(conn != null && conn.getState() != NetworkConnection.STATE_CONNECTED)
+                hide = true;
+
             if (hide) {
                 userListView.setVisibility(View.GONE);
                 if (drawerLayout != null) {
@@ -1618,6 +1641,36 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         final IRCCloudJSONObject event;
         final Object o = obj;
         switch (what) {
+            case NetworkConnection.EVENT_CACHE_START:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        getSupportActionBar().setTitle("Loading");
+                        getSupportActionBar().setSubtitle(null);
+                        progressBar.setVisibility(View.VISIBLE);
+                        progressBar.setIndeterminate(true);
+                    }
+                });
+                break;
+            case NetworkConnection.EVENT_CACHE_END:
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressBar.setVisibility(View.GONE);
+                        updateReconnecting();
+                        if (drawerLayout != null && NetworkConnection.getInstance().ready) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                                    getSupportActionBar().setHomeButtonEnabled(true);
+                                    updateUsersListFragmentVisibility();
+                                }
+                            });
+                        }
+                    }
+                });
+                break;
             case NetworkConnection.EVENT_DEBUG:
                 runOnUiThread(new Runnable() {
                     @Override
@@ -1770,6 +1823,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     photoBtn.setAlpha(0.5f);
                             }
                         });
+                        if (conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.ready && server == null) {
+                            Crashlytics.log(Log.DEBUG, "IRCCloud", "Offline cache available and we're waiting for a buffer, switching now");
+                            if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+                                if (!open_bid(BuffersList.getInstance().firstBid())) {
+                                    if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
+                                        drawerLayout.openDrawer(Gravity.LEFT);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 break;
@@ -2426,25 +2489,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (buffer != null && buffer.getType() != null && NetworkConnection.getInstance().ready) {
-            if (buffer.isChannel()) {
-                getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
-                getMenuInflater().inflate(R.menu.activity_message_channel, menu);
-            } else if (buffer.isConversation())
-                getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
-            else if (buffer.isConsole())
-                getMenuInflater().inflate(R.menu.activity_message_console, menu);
+        if (NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
+            if(buffer != null && buffer.getType() != null) {
+                if (buffer.isChannel()) {
+                    getMenuInflater().inflate(R.menu.activity_message_channel_userlist, menu);
+                    getMenuInflater().inflate(R.menu.activity_message_channel, menu);
+                } else if (buffer.isConversation())
+                    getMenuInflater().inflate(R.menu.activity_message_conversation, menu);
+                else if (buffer.isConsole())
+                    getMenuInflater().inflate(R.menu.activity_message_console, menu);
 
-            getMenuInflater().inflate(R.menu.activity_message_archive, menu);
+                getMenuInflater().inflate(R.menu.activity_message_archive, menu);
+            }
+            getMenuInflater().inflate(R.menu.activity_main, menu);
         }
-        getMenuInflater().inflate(R.menu.activity_main, menu);
 
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().ready) {
+        if (menu != null && buffer != null && buffer.getType() != null && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
             if (buffer.getArchived() == 0) {
                 if (menu.findItem(R.id.menu_archive) != null)
                     menu.findItem(R.id.menu_archive).setTitle(R.string.menu_archive);
@@ -2983,33 +3048,35 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer == null || b.getBid() != buffer.getBid())
             itemList.add("Open");
 
-        if (ChannelsList.getInstance().getChannelForBuffer(b.getBid()) != null) {
-            itemList.add("Leave");
-            itemList.add("Display Options…");
-        } else {
-            if (b.isChannel())
-                itemList.add("Join");
-            else if (b.isConsole()) {
-                if (s.getStatus().equalsIgnoreCase("waiting_to_retry") || (s.getStatus().contains("connected") && !s.getStatus().startsWith("dis"))) {
-                    itemList.add("Disconnect");
-                } else {
-                    itemList.add("Connect");
+        if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+            if (ChannelsList.getInstance().getChannelForBuffer(b.getBid()) != null) {
+                itemList.add("Leave");
+                itemList.add("Display Options…");
+            } else {
+                if (b.isChannel())
+                    itemList.add("Join");
+                else if (b.isConsole()) {
+                    if (s.getStatus().equalsIgnoreCase("waiting_to_retry") || (s.getStatus().contains("connected") && !s.getStatus().startsWith("dis"))) {
+                        itemList.add("Disconnect");
+                    } else {
+                        itemList.add("Connect");
+                        itemList.add("Delete");
+                    }
+                    itemList.add("Edit Connection…");
+                }
+                if (!b.isConsole()) {
+                    if (b.getArchived() == 0)
+                        itemList.add("Archive");
+                    else
+                        itemList.add("Unarchive");
                     itemList.add("Delete");
                 }
-                itemList.add("Edit Connection…");
+                if (!b.isChannel()) {
+                    itemList.add("Display Options…");
+                }
             }
-            if (!b.isConsole()) {
-                if (b.getArchived() == 0)
-                    itemList.add("Archive");
-                else
-                    itemList.add("Unarchive");
-                itemList.add("Delete");
-            }
-            if (!b.isChannel()) {
-                itemList.add("Display Options…");
-            }
+            itemList.add("Mark All As Read");
         }
-        itemList.add("Mark All As Read");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
@@ -3249,23 +3316,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         if (selected_user != null) {
-            itemList.add("Whois…");
-            itemList.add("Send a message");
-            itemList.add("Mention");
-            itemList.add("Invite to a channel…");
-            itemList.add("Ignore");
-            if (buffer.isChannel()) {
-                User self_user = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
-                if (self_user != null && self_user.mode != null) {
-                    if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o")) {
-                        if (selected_user.mode.contains(server != null ? server.MODE_OP : "o"))
-                            itemList.add("Deop");
-                        else
-                            itemList.add("Op");
-                    }
-                    if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")) {
-                        itemList.add("Kick…");
-                        itemList.add("Ban…");
+            if(conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                itemList.add("Whois…");
+                itemList.add("Send a message");
+                itemList.add("Mention");
+                itemList.add("Invite to a channel…");
+                itemList.add("Ignore");
+                if (buffer.isChannel()) {
+                    User self_user = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
+                    if (self_user != null && self_user.mode != null) {
+                        if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o")) {
+                            if (selected_user.mode.contains(server != null ? server.MODE_OP : "o"))
+                                itemList.add("Deop");
+                            else
+                                itemList.add("Op");
+                        }
+                        if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")) {
+                            itemList.add("Kick…");
+                            itemList.add("Ban…");
+                        }
                     }
                 }
             }
@@ -4052,6 +4121,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (a != null) {
                 if (total > 0) {
                     getSupportActionBar().setTitle("Uploading");
+                    getSupportActionBar().setSubtitle(null);
                     getSupportActionBar().setDisplayShowCustomEnabled(false);
                     getSupportActionBar().setDisplayShowTitleEnabled(true);
                     progressBar.setProgress(0);
@@ -4073,6 +4143,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 try {
                     if (progressBar.getVisibility() != View.VISIBLE) {
                         getSupportActionBar().setTitle("Uploading");
+                        getSupportActionBar().setSubtitle(null);
                         getSupportActionBar().setDisplayShowCustomEnabled(false);
                         getSupportActionBar().setDisplayShowTitleEnabled(true);
                         if (Build.VERSION.SDK_INT >= 16) {
@@ -4607,6 +4678,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (a != null) {
                 if (total > 0 && !uploadFinished) {
                     activity.getSupportActionBar().setTitle("Uploading");
+                    activity.getSupportActionBar().setSubtitle(null);
                     activity.getSupportActionBar().setDisplayShowCustomEnabled(false);
                     activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
                     activity.progressBar.setProgress(0);
@@ -4634,6 +4706,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 try {
                     if (activity.progressBar.getVisibility() != View.VISIBLE) {
                         activity.getSupportActionBar().setTitle("Uploading");
+                        activity.getSupportActionBar().setSubtitle(null);
                         activity.getSupportActionBar().setDisplayShowCustomEnabled(false);
                         activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
                         if (Build.VERSION.SDK_INT >= 16) {

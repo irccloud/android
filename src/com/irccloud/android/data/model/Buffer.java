@@ -18,6 +18,7 @@ package com.irccloud.android.data.model;
 
 import android.databinding.Bindable;
 
+import com.irccloud.android.BR;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -166,8 +167,6 @@ public class Buffer extends ObservableBaseModel {
     public void setLast_seen_eid(long last_seen_eid) {
         if(this.last_seen_eid < last_seen_eid)
             this.last_seen_eid = last_seen_eid;
-        if(this.bid != -1)
-            TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     @Bindable
@@ -179,7 +178,6 @@ public class Buffer extends ObservableBaseModel {
         this.name = name;
         if(this.bid != -1) {
             BuffersList.getInstance().dirty = true;
-            TransactionManager.getInstance().saveOnSaveQueue(this);
         }
     }
 
@@ -256,7 +254,6 @@ public class Buffer extends ObservableBaseModel {
         this.archived = archived;
         if(this.bid != -1) {
             BuffersList.getInstance().dirty = true;
-            TransactionManager.getInstance().saveOnSaveQueue(this);
         }
     }
 
@@ -275,8 +272,6 @@ public class Buffer extends ObservableBaseModel {
 
     public void setTimeout(int timeout) {
         this.timeout = timeout;
-        if(this.bid != -1)
-            TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getAway_msg() {
@@ -285,8 +280,6 @@ public class Buffer extends ObservableBaseModel {
 
     public void setAway_msg(String away_msg) {
         this.away_msg = away_msg;
-        if(this.bid != -1)
-            TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getDraft() {
@@ -295,8 +288,7 @@ public class Buffer extends ObservableBaseModel {
 
     public void setDraft(String draft) {
         this.draft = draft;
-        if(this.bid != -1)
-            TransactionManager.getInstance().saveOnSaveQueue(this);
+        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getChan_types() {
@@ -367,8 +359,6 @@ public class Buffer extends ObservableBaseModel {
 
     public void setUnread(int unread) {
         this.unread = unread;
-        if(this.bid != -1)
-            TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     @Bindable
@@ -383,8 +373,6 @@ public class Buffer extends ObservableBaseModel {
 
     public void setHighlights(int highlights) {
         this.highlights = highlights;
-        if(this.bid != -1)
-            TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public int getValid() {

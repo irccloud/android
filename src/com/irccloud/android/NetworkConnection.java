@@ -51,6 +51,7 @@ import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
+import com.irccloud.android.data.model.User;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -200,6 +201,8 @@ public class NetworkConnection {
     public static final int EVENT_SUCCESS = 104;
     public static final int EVENT_PROGRESS = 105;
     public static final int EVENT_ALERT = 106;
+    public static final int EVENT_CACHE_START = 107;
+    public static final int EVENT_CACHE_END = 108;
 
     public static final int EVENT_DEBUG = 999;
 
@@ -853,11 +856,22 @@ public class NetworkConnection {
     }
 
     public synchronized void load() {
+        notifyHandlers(EVENT_CACHE_START, null);
+        android.util.Log.e("IRCCloud", "Servers");
         mServers.load();
+        notifyHandlers(EVENT_PROGRESS, (1.0f / 5.0f) * 1000.0f);
+        android.util.Log.e("IRCCloud", "Buffers");
         mBuffers.load();
+        notifyHandlers(EVENT_PROGRESS, (2.0f / 5.0f) * 1000.0f);
+        android.util.Log.e("IRCCloud", "Channels");
         mChannels.load();
+        notifyHandlers(EVENT_PROGRESS, (3.0f / 5.0f) * 1000.0f);
+        android.util.Log.e("IRCCloud", "Users");
         mUsers.load();
+        notifyHandlers(EVENT_PROGRESS, (4.0f / 5.0f) * 1000.0f);
+        android.util.Log.e("IRCCloud", "Events");
         mEvents.load();
+        notifyHandlers(EVENT_PROGRESS, (5.0f / 5.0f) * 1000.0f);
         if(mServers.count() > 0) {
             String u = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
             if(u != null && u.length() > 0)
@@ -865,6 +879,9 @@ public class NetworkConnection {
             streamId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("streamId", null);
             Log.e("IRCCloud", "Loaded stream ID from cache: " + streamId);
         }
+        if(mServers.count() > 0)
+            ready = true;
+        notifyHandlers(EVENT_CACHE_END, null);
     }
 
     public synchronized void save() {
@@ -1841,8 +1858,10 @@ public class NetworkConnection {
                 else
                     Notifications.getInstance().addNetwork(object.cid(), object.getString("hostname"));
 
-                if (!backlog)
+                if (!backlog) {
                     notifyHandlers(EVENT_MAKESERVER, server);
+                    TransactionManager.getInstance().saveOnSaveQueue(server);
+                }
             }
         });
         put("server_details_changed", get("makeserver"));
@@ -1905,8 +1924,10 @@ public class NetworkConnection {
                     buffer.setHighlights(0);
                     TransactionManager.getInstance().saveOnSaveQueue(buffer);
                 }
-                if (!backlog)
+                if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
+                    TransactionManager.getInstance().saveOnSaveQueue(buffer);
+                }
                 totalbuffers++;
             }
         });
@@ -1925,8 +1946,11 @@ public class NetworkConnection {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setArchived(1);
-                if (!backlog)
+                if (!backlog) {
                     notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
+                    if(b != null)
+                        TransactionManager.getInstance().saveOnSaveQueue(b);
+                }
             }
         });
         put("buffer_unarchived", new Parser() {
@@ -1935,8 +1959,11 @@ public class NetworkConnection {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setArchived(0);
-                if (!backlog)
+                if (!backlog) {
                     notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
+                    if(b != null)
+                        TransactionManager.getInstance().saveOnSaveQueue(b);
+                }
             }
         });
         put("rename_conversation", new Parser() {
@@ -1945,8 +1972,11 @@ public class NetworkConnection {
                 Buffer b = mBuffers.getBuffer(object.bid());
                 if(b != null)
                     b.setName(object.getString("new_name"));
-                if (!backlog)
+                if (!backlog) {
                     notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
+                    if(b != null)
+                        TransactionManager.getInstance().saveOnSaveQueue(b);
+                }
             }
         });
         Parser msg = new Parser() {
@@ -2153,7 +2183,9 @@ public class NetworkConnection {
                 JsonNode users = object.getJsonNode("members");
                 for (int i = 0; i < users.size(); i++) {
                     JsonNode user = users.get(i);
-                    mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("away").asBoolean() ? 1 : 0, false);
+                    User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("away").asBoolean() ? 1 : 0, false);
+                    if(!backlog)
+                        TransactionManager.getInstance().saveOnSaveQueue(u);
                 }
                 mBuffers.dirty = true;
                 if (!backlog)
@@ -2201,8 +2233,9 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mEvents.addEvent(object);
                 if (!backlog) {
-                    mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
+                    User u = mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
                     notifyHandlers(EVENT_JOIN, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(u);
                 }
             }
         });
@@ -2305,8 +2338,11 @@ public class NetworkConnection {
                 mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("msg"));
                 if(b != null)
                     b.setAway_msg(object.getString("msg"));
-                if (!backlog)
+                if (!backlog) {
                     notifyHandlers(EVENT_AWAY, object);
+                    if(b != null)
+                        TransactionManager.getInstance().saveOnSaveQueue(b);
+                }
             }
         });
         put("away", get("user_away"));
@@ -2317,8 +2353,11 @@ public class NetworkConnection {
                 mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
                 if(b != null)
                     b.setAway_msg("");
-                if (!backlog)
+                if (!backlog) {
                     notifyHandlers(EVENT_AWAY, object);
+                    if(b != null)
+                        TransactionManager.getInstance().saveOnSaveQueue(b);
+                }
             }
         });
         put("self_away", new Parser() {

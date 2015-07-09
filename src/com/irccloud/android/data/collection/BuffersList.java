@@ -145,7 +145,6 @@ public class BuffersList {
         b.setUnread(0);
         b.setHighlights(0);
         dirty = true;
-        TransactionManager.getInstance().saveOnSaveQueue(b);
         return b;
     }
 

@@ -103,7 +103,6 @@ public class ServersList {
             s.setName(s.getHostname());
         if (ignores != null)
             s.updateIgnores(ignores);
-        TransactionManager.getInstance().saveOnSaveQueue(s);
         return s;
     }
 

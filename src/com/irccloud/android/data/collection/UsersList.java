@@ -107,7 +107,6 @@ public class UsersList {
         u.mode = mode;
         u.away = away;
         u.joined = 1;
-        TransactionManager.getInstance().saveOnSaveQueue(u);
         return u;
     }
 
