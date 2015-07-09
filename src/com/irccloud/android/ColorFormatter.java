@@ -1302,7 +1302,7 @@ public class ColorFormatter {
         if (server != null && server.CHANTYPES != null && server.CHANTYPES.length() > 0)
             chanTypes = server.CHANTYPES;
 
-        final String pattern = "\\B([" + chanTypes + "]([^\ufe0e\ufe0f\u20e3<>!?\"()\\[\\],\\s\ufe55\\.]|\\.+\\w)+)";
+        final String pattern = "\\B([" + chanTypes + "]([^\ufe0e\ufe0f\u20e3<>\",\\s][^<>\",\\s]*))";
 
         if (linkify) {
             Linkify.addLinks(output, WEB_URL, null, new MatchFilter() {
@@ -1441,7 +1441,7 @@ public class ColorFormatter {
                 }
             });
             Linkify.addLinks(output, Patterns.EMAIL_ADDRESS, "mailto:");
-            Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\"()\\[\\],\\s]+"), null, null, new TransformFilter() {
+            Linkify.addLinks(output, Pattern.compile("ircs?://[^<>\",\\s]+"), null, null, new TransformFilter() {
                 public final String transformUrl(final Matcher match, String url) {
                     return url.replace("#", "%23");
                 }
