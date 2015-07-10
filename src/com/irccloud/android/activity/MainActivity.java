@@ -2714,7 +2714,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         AlertDialog dialog;
         builder = new AlertDialog.Builder(this);
         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Start a Pastebin", "Pastebins"} : new String[]{"Take a Photo", "Choose Existing Photo", "Choose Existing Document", "Start a Pastebin", "Pastebins"};
+        String[] items = (Build.VERSION.SDK_INT < 19 || !NetworkConnection.getInstance().uploadsAvailable()) ? new String[]{"Take a Photo", "Choose Existing", "Start a Pastebin", "Pastebins"} : new String[]{"Take a Photo", "Record a Video", "Choose Existing Photo", "Choose Existing Document", "Start a Pastebin", "Pastebins"};
         if(NetworkConnection.getInstance().uploadsAvailable()) {
             items = Arrays.copyOf(items, items.length + 1);
             items[items.length - 1] = "File Uploads";
@@ -2735,6 +2735,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 new File(imageDir, ".nomedia").createNewFile();
                                 imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
                                 i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                startActivityForResult(i, REQUEST_CAMERA);
+                            } catch (IOException e) {
+                            }
+                            break;
+                        case "Record a Video":
+                            try {
+                                File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                                imageDir.mkdirs();
+                                new File(imageDir, ".nomedia").createNewFile();
+                                imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".mp4", imageDir));
+                                i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                                 i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
                                 startActivityForResult(i, REQUEST_CAMERA);
                             } catch (IOException e) {
@@ -4372,6 +4384,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     type = "image/png";
                 else if (lower.endsWith(".bmp"))
                     type = "image/bmp";
+                else if (lower.endsWith(".mp4"))
+                    type = "video/mp4";
+                else if (lower.endsWith(".3gpp"))
+                    type = "video/3gpp";
                 else
                     type = "application/octet-stream";
             }
