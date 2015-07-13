@@ -547,13 +547,15 @@ public class NetworkConnection {
         if (wifiLock.isHeld())
             wifiLock.release();
         reconnect_timestamp = 0;
-        for (Integer bid : oobTasks.keySet()) {
-            try {
-                oobTasks.get(bid).cancel(true);
-            } catch (Exception e) {
+        synchronized (oobTasks) {
+            for (Integer bid : oobTasks.keySet()) {
+                try {
+                    oobTasks.get(bid).cancel(true);
+                } catch (Exception e) {
+                }
             }
+            oobTasks.clear();
         }
-        oobTasks.clear();
         session = null;
         for (BuffersDataSource.Buffer b : mBuffers.getBuffers()) {
             if (!b.scrolledUp)
@@ -878,15 +880,17 @@ public class NetworkConnection {
         if (oobTasks.size() > 0) {
             Log.d("IRCCloud", "Clearing OOB tasks before connecting");
         }
-        for (Integer bid : oobTasks.keySet()) {
-            try {
-                oobTasks.get(bid).cancel(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        oobTasks.clear();
+        synchronized (oobTasks) {
 
+            for (Integer bid : oobTasks.keySet()) {
+                try {
+                    oobTasks.get(bid).cancel(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            oobTasks.clear();
+        }
         if (Build.VERSION.SDK_INT < 11) {
             if (ctx != null) {
                 host = android.net.Proxy.getHost(ctx);
@@ -1498,8 +1502,9 @@ public class NetworkConnection {
                 Looper.prepare();
 
             OOBIncludeTask task = new OOBIncludeTask(bid);
-            oobTasks.put(bid, task);
-
+            synchronized (oobTasks) {
+                oobTasks.put(bid, task);
+            }
             if (beforeId > 0)
                 task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid + "&beforeid=" + beforeId));
             else
@@ -1692,7 +1697,9 @@ public class NetworkConnection {
                         Looper.prepare();
                     String url = "https://" + IRCCLOUD_HOST + object.getString("url");
                     OOBIncludeTask t = new OOBIncludeTask(-1);
-                    oobTasks.put(-1, t);
+                    synchronized (oobTasks) {
+                        oobTasks.put(-1, t);
+                    }
                     t.execute(new URL(url));
                 } catch (MalformedURLException e) {
                     // TODO Auto-generated catch block
@@ -2971,8 +2978,9 @@ public class NetworkConnection {
                     if (bid != -1) {
                         mBuffers.updateTimeout(bid, 0);
                     }
-                    oobTasks.remove(bid);
-
+                    synchronized (oobTasks) {
+                        oobTasks.remove(bid);
+                    }
                     Crashlytics.log(Log.DEBUG, TAG, "OOB fetch complete!");
                     if (Build.VERSION.SDK_INT >= 14)
                         TrafficStats.clearThreadStatsTag();
@@ -2997,7 +3005,9 @@ public class NetworkConnection {
                             retryDelay *= 2;
                         } else {
                             Crashlytics.log(Log.ERROR, TAG, "Failed to fetch backlog");
-                            oobTasks.remove(bid);
+                            synchronized (oobTasks) {
+                                oobTasks.remove(bid);
+                            }
                         }
                     }
                 }

@@ -742,6 +742,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         });
         ((ListView) v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
+        ((ListView) v.findViewById(android.R.id.list)).addFooterView(new View(getActivity()), null, false);
         return v;
     }
 
@@ -977,7 +978,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 adapter.clear();
                 adapter.notifyDataSetInvalidated();
             }
-            mListener.onMessageViewReady();
+            if(mListener != null)
+                mListener.onMessageViewReady();
             ready = true;
         }
     }
@@ -1354,7 +1356,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                     conn.say(buffer.cid, null, "/query " + e.from);
                                                 }
                                             } else if (e.failed) {
-                                                mListener.onFailedMessageClicked(e);
+                                                if(mListener != null)
+                                                    mListener.onFailedMessageClicked(e);
                                             } else {
                                                 long group = e.group_eid;
                                                 if (expandedSectionEids.contains(group))
@@ -1393,6 +1396,29 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             adapter.clearLastSeenEIDMarker();
             adapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (getListView().getHeaderViewsCount() > 0) {
+            getListView().removeHeaderView(headerViewContainer);
+        }
+        getListView().setAdapter(null);
+    }
+
+    @Override
+    public void onStop() {
+        if(headerViewContainer != null)
+            headerViewContainer.setVisibility(View.GONE);
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        if(headerViewContainer != null)
+            headerViewContainer.setVisibility(View.VISIBLE);
+        super.onStart();
     }
 
     @Override

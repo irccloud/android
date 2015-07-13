@@ -2018,33 +2018,33 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
-                        if (channelsListDialog == null) {
-                            Context ctx = MainActivity.this;
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
-                            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                            builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
-                            builder.setTitle(dialogtitle);
-                            builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                            channelsListDialog = builder.create();
-                            channelsListDialog.setOwnerActivity(MainActivity.this);
-                        } else {
-                            channelsListDialog.setTitle(dialogtitle);
-                        }
                         try {
+                            String dialogtitle = "List of channels on " + ServersDataSource.getInstance().getServer(event.cid()).hostname;
+                            if (channelsListDialog == null) {
+                                Context ctx = MainActivity.this;
+                                final AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
+                                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                                builder.setView(getLayoutInflater().inflate(R.layout.dialog_channelslist, null));
+                                builder.setTitle(dialogtitle);
+                                builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                });
+                                channelsListDialog = builder.create();
+                                channelsListDialog.setOwnerActivity(MainActivity.this);
+                            } else {
+                                channelsListDialog.setTitle(dialogtitle);
+                            }
                             channelsListDialog.show();
+                            ChannelListFragment channels = (ChannelListFragment) getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
+                            Bundle args = new Bundle();
+                            args.putInt("cid", event.cid());
+                            channels.setArguments(args);
                         } catch (IllegalStateException e) {
                             //App lost focus already
                         }
-                        ChannelListFragment channels = (ChannelListFragment) getSupportFragmentManager().findFragmentById(R.id.channelListFragment);
-                        Bundle args = new Bundle();
-                        args.putInt("cid", event.cid());
-                        channels.setArguments(args);
                     }
                 });
                 break;
@@ -2856,32 +2856,34 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     void editTopic() {
         ChannelsDataSource.Channel c = ChannelsDataSource.getInstance().getChannelForBuffer(buffer.bid);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-        View view = getDialogTextPrompt();
-        TextView prompt = (TextView) view.findViewById(R.id.prompt);
-        final EditText input = (EditText) view.findViewById(R.id.textInput);
-        input.setText(c.topic_text);
-        prompt.setVisibility(View.GONE);
-        builder.setTitle("Channel Topic");
-        builder.setView(view);
-        builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                conn.topic(buffer.cid, buffer.name, input.getText().toString());
-                dialog.dismiss();
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        AlertDialog dialog = builder.create();
-        dialog.setOwnerActivity(this);
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-        dialog.show();
+        if(c != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+            View view = getDialogTextPrompt();
+            TextView prompt = (TextView) view.findViewById(R.id.prompt);
+            final EditText input = (EditText) view.findViewById(R.id.textInput);
+            input.setText(c.topic_text);
+            prompt.setVisibility(View.GONE);
+            builder.setTitle("Channel Topic");
+            builder.setView(view);
+            builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    conn.topic(buffer.cid, buffer.name, input.getText().toString());
+                    dialog.dismiss();
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.setOwnerActivity(this);
+            dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+            dialog.show();
+        }
     }
 
     @Override
@@ -4532,21 +4534,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return null;
             }
 
-            activity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String filesize;
-                    if (total < 1024) {
-                        filesize = total + " B";
-                    } else {
-                        int exp = (int) (Math.log(total) / Math.log(1024));
-                        filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+            if(activity != null)
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String filesize;
+                        if (total < 1024) {
+                            filesize = total + " B";
+                        } else {
+                            int exp = (int) (Math.log(total) / Math.log(1024));
+                            filesize = String.format("%.1f ", total / Math.pow(1024, exp)) + ("KMGTPE".charAt(exp - 1)) + "B";
+                        }
+                        if(fileSize != null)
+                            fileSize.setText(filesize + " • " + type);
+                        notification.setContentText(filesize + " • " + type);
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.bid, notification.build());
                     }
-                    fileSize.setText(filesize + " • " + type);
-                    notification.setContentText(filesize + " • " + type);
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(mBuffer.bid, notification.build());
-                }
-            });
+                });
 
             InputStream responseIn = null;
 
@@ -4712,7 +4716,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         protected void onCancelled() {
             super.onCancelled();
-            activity.fileUploadTask = null;
+            if(activity != null)
+                activity.fileUploadTask = null;
             NetworkConnection.getInstance().removeHandler(this);
             hide_progress();
             if(metadataDialog != null)

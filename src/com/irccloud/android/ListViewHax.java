@@ -63,6 +63,14 @@ public class ListViewHax extends ListView {
     }
 
     @Override
+    protected void layoutChildren() {
+        try {
+            super.layoutChildren();
+        } catch (Exception e) {
+        }
+    }
+
+    @Override
     public void onInitializeAccessibilityNodeInfoForItem(View view, int position, AccessibilityNodeInfo info) {
         try {
             super.onInitializeAccessibilityNodeInfoForItem(view, position, info);

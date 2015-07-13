@@ -139,7 +139,11 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_MENU && isMenuWorkaroundRequired()) {
-            openOptionsMenu();
+            try {
+                openOptionsMenu();
+            } catch (Exception e) {
+                return false;
+            }
             return true;
         }
         try {
