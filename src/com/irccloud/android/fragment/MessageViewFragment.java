@@ -663,6 +663,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             @Override
             public void onClick(View v) {
+                if(buffer != null)
+                    buffer.scrolledUp = false;
                 getListView().setSelection(adapter.getCount() - 1);
             }
 
@@ -839,7 +841,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
             if (unreadBottomView != null && adapter.data.size() > 0) {
-                if (firstVisibleItem + visibleItemCount == totalItemCount) {
+                if (firstVisibleItem + visibleItemCount >= totalItemCount) {
                     unreadBottomView.setVisibility(View.GONE);
                     if (unreadTopView.getVisibility() == View.GONE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         if (heartbeatTask != null)
@@ -852,7 +854,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     newHighlights = 0;
                 }
             }
-            if (firstVisibleItem + visibleItemCount < totalItemCount) {
+            if (firstVisibleItem + visibleItemCount < totalItemCount - 1) {
                 View v = view.getChildAt(0);
                 buffer.scrolledUp = true;
                 buffer.scrollPosition = firstVisibleItem;
