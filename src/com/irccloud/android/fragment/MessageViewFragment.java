@@ -666,6 +666,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             @Override
             public void onClick(View v) {
+                if(buffer != null)
+                    buffer.scrolledUp = false;
                 getListView().setSelection(adapter.getCount() - 1);
             }
 
@@ -745,6 +747,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         });
         ((ListView) v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
+        ((ListView) v.findViewById(android.R.id.list)).addFooterView(new View(getActivity()), null, false);
         return v;
     }
 
@@ -841,7 +844,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
             if (unreadBottomView != null && adapter.data.size() > 0) {
-                if (firstVisibleItem + visibleItemCount == totalItemCount) {
+                if (firstVisibleItem + visibleItemCount >= totalItemCount) {
                     unreadBottomView.setVisibility(View.GONE);
                     if (unreadTopView.getVisibility() == View.GONE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         if (heartbeatTask != null)
@@ -854,7 +857,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     newHighlights = 0;
                 }
             }
-            if (firstVisibleItem + visibleItemCount < totalItemCount) {
+            if (firstVisibleItem + visibleItemCount < totalItemCount - 1) {
                 View v = view.getChildAt(0);
                 buffer.setScrolledUp(true);
                 buffer.setScrollPosition(firstVisibleItem);
@@ -980,7 +983,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 adapter.clear();
                 adapter.notifyDataSetInvalidated();
             }
-            mListener.onMessageViewReady();
+            if(mListener != null)
+                mListener.onMessageViewReady();
             ready = true;
         }
     }
@@ -1357,7 +1361,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                                     conn.say(buffer.getCid(), null, "/query " + e.from);
                                                 }
                                             } else if (e.failed) {
-                                                mListener.onFailedMessageClicked(e);
+                                                if(mListener != null)
+                                                    mListener.onFailedMessageClicked(e);
                                             } else {
                                                 long group = e.group_eid;
                                                 if (expandedSectionEids.contains(group))
@@ -1396,6 +1401,29 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             adapter.clearLastSeenEIDMarker();
             adapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (getListView().getHeaderViewsCount() > 0) {
+            getListView().removeHeaderView(headerViewContainer);
+        }
+        getListView().setAdapter(null);
+    }
+
+    @Override
+    public void onStop() {
+        if(headerViewContainer != null)
+            headerViewContainer.setVisibility(View.GONE);
+        super.onStop();
+    }
+
+    @Override
+    public void onStart() {
+        if(headerViewContainer != null)
+            headerViewContainer.setVisibility(View.VISIBLE);
+        super.onStart();
     }
 
     @Override

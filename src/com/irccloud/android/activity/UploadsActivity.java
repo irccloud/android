@@ -473,84 +473,86 @@ public class UploadsActivity extends BaseActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final File f = (File)adapter.getItem(i);
+                if (i < adapter.getCount()) {
+                    final File f = (File) adapter.getItem(i);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
-                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-                final View v = getLayoutInflater().inflate(R.layout.dialog_upload, null);
-                final EditText messageinput = (EditText) v.findViewById(R.id.message);
-                messageinput.setText(msg);
-                final ImageView thumbnail = (ImageView) v.findViewById(R.id.thumbnail);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(UploadsActivity.this);
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                    final View v = getLayoutInflater().inflate(R.layout.dialog_upload, null);
+                    final EditText messageinput = (EditText) v.findViewById(R.id.message);
+                    messageinput.setText(msg);
+                    final ImageView thumbnail = (ImageView) v.findViewById(R.id.thumbnail);
 
-                v.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        if (messageinput.hasFocus()) {
-                            v.post(new Runnable() {
+                    v.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            if (messageinput.hasFocus()) {
+                                v.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        v.scrollTo(0, v.getBottom());
+                                    }
+                                });
+                            }
+                        }
+                    });
+
+                    if (f.mime_type.startsWith("image/")) {
+                        try {
+                            thumbnail.setImageBitmap(f.image);
+                            thumbnail.setVisibility(View.VISIBLE);
+                            thumbnail.setOnClickListener(new View.OnClickListener() {
                                 @Override
-                                public void run() {
-                                    v.scrollTo(0, v.getBottom());
+                                public void onClick(View view) {
+                                    Intent i = new Intent(UploadsActivity.this, ImageViewerActivity.class);
+                                    i.setData(Uri.parse(f.url));
+                                    startActivity(i);
                                 }
                             });
+                            thumbnail.setClickable(true);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
+                    } else {
+                        thumbnail.setVisibility(View.GONE);
                     }
-                });
 
-                if(f.mime_type.startsWith("image/")) {
-                    try {
-                        thumbnail.setImageBitmap(f.image);
-                        thumbnail.setVisibility(View.VISIBLE);
-                        thumbnail.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Intent i = new Intent(UploadsActivity.this, ImageViewerActivity.class);
-                                i.setData(Uri.parse(f.url));
-                                startActivity(i);
+                    ((TextView) v.findViewById(R.id.filesize)).setText(f.metadata);
+                    v.findViewById(R.id.filename).setVisibility(View.GONE);
+                    v.findViewById(R.id.filename_heading).setVisibility(View.GONE);
+
+                    builder.setTitle("Send A File To " + to);
+                    builder.setView(v);
+                    builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String message = messageinput.getText().toString();
+                            if (message.length() > 0)
+                                message += " ";
+                            message += f.url;
+
+                            dialog.dismiss();
+                            if (getParent() == null) {
+                                setResult(Activity.RESULT_OK);
+                            } else {
+                                getParent().setResult(Activity.RESULT_OK);
                             }
-                        });
-                        thumbnail.setClickable(true);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    thumbnail.setVisibility(View.GONE);
-                }
+                            finish();
 
-                ((TextView)v.findViewById(R.id.filesize)).setText(f.metadata);
-                v.findViewById(R.id.filename).setVisibility(View.GONE);
-                v.findViewById(R.id.filename_heading).setVisibility(View.GONE);
-
-                builder.setTitle("Send A File To " + to);
-                builder.setView(v);
-                builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String message = messageinput.getText().toString();
-                        if(message.length() > 0)
-                            message += " ";
-                        message += f.url;
-
-                        dialog.dismiss();
-                        if(getParent() == null) {
-                            setResult(Activity.RESULT_OK);
-                        } else {
-                            getParent().setResult(Activity.RESULT_OK);
+                            NetworkConnection.getInstance().say(cid, to, message);
                         }
-                        finish();
-
-                        NetworkConnection.getInstance().say(cid, to, message);
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                AlertDialog d = builder.create();
-                d.setOwnerActivity(UploadsActivity.this);
-                d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-                d.show();
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    AlertDialog d = builder.create();
+                    d.setOwnerActivity(UploadsActivity.this);
+                    d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    d.show();
+                }
             }
         });
     }

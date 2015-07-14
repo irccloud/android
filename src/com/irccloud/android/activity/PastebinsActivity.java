@@ -460,11 +460,13 @@ import java.util.HashMap;public class PastebinsActivity extends BaseActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                final Pastebin p = (Pastebin) adapter.getItem(i);
+                if(i < adapter.getCount()) {
+                    final Pastebin p = (Pastebin) adapter.getItem(i);
 
-                Intent intent = new Intent(PastebinsActivity.this, PastebinViewerActivity.class);
-                intent.setData(Uri.parse(p.url + "?id=" + p.id + "&own_paste=" + (p.own_paste ? "1" : "0")));
-                startActivity(intent);
+                    Intent intent = new Intent(PastebinsActivity.this, PastebinViewerActivity.class);
+                    intent.setData(Uri.parse(p.url + "?id=" + p.id + "&own_paste=" + (p.own_paste ? "1" : "0")));
+                    startActivity(intent);
+                }
             }
         });
 
