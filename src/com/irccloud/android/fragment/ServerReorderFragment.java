@@ -39,6 +39,7 @@ import android.widget.TextView;
 
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Server;
@@ -286,6 +287,14 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 
     @Override public void onDestroy() {

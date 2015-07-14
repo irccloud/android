@@ -122,7 +122,9 @@ public class NetworkConnection {
     private int state = STATE_DISCONNECTED;
 
     public interface IRCEventHandler {
-        public void onIRCEvent(int message, Object object);
+        void onIRCEvent(int message, Object object);
+        void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object);
+        void onIRCRequestFailed(int reqid, IRCCloudJSONObject object);
     }
 
     private WebSocketClient client = null;
@@ -2765,6 +2767,12 @@ public class NetworkConnection {
                     IRCEventHandler handler = handlers.get(i);
                     if (handler != exclude) {
                         handler.onIRCEvent(message, object);
+                        if(message == EVENT_FAILURE_MSG) {
+                            handler.onIRCRequestFailed(((IRCCloudJSONObject)object).getInt("_reqid"), (IRCCloudJSONObject)object);
+                        }
+                        if(message == EVENT_SUCCESS) {
+                            handler.onIRCRequestSucceeded(((IRCCloudJSONObject)object).getInt("_reqid"), (IRCCloudJSONObject)object);
+                        }
                     }
                 }
             }

@@ -441,6 +441,14 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
         }
     }
 
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+    }
+
     protected void showAlert(int cid, final String msg) {
         final Server server = ServersList.getInstance().getServer(cid);
         if (server != null)

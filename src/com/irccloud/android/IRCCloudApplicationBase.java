@@ -154,9 +154,12 @@ public class IRCCloudApplicationBase extends Application {
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
         NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            if (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE))
-                WebView.setWebContentsDebuggingEnabled(true);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                if (0 != (getApplicationInfo().flags &= ApplicationInfo.FLAG_DEBUGGABLE))
+                    WebView.setWebContentsDebuggingEnabled(true);
+            }
+        } catch (Exception e) {
         }
     }
 

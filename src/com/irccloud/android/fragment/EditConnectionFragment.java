@@ -443,36 +443,6 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
     public void onIRCEvent(int what, Object o) {
         IRCCloudJSONObject obj;
         switch (what) {
-            case NetworkConnection.EVENT_SUCCESS:
-                obj = (IRCCloudJSONObject) o;
-                if (obj.getInt("_reqid") == reqid) {
-                    NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
-                    try {
-                        dismiss();
-                    } catch (Exception e) {
-                    }
-                }
-                break;
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                obj = (IRCCloudJSONObject) o;
-                if (obj.getInt("_reqid") == reqid) {
-                    final String message = obj.getString("message");
-                    if (getActivity() != null)
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (message.equals("passworded_servers"))
-                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
-                                else if (message.equals("networks"))
-                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
-                                else if (message.equals("unverified"))
-                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_SHORT).show();
-                                else
-                                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                }
-                break;
             case NetworkConnection.EVENT_USERINFO:
                 try {
                     dismiss();
@@ -481,6 +451,44 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+        if(reqid == this.reqid) {
+            NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
+            try {
+                dismiss();
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+        if(reqid == this.reqid) {
+            final String message = object.getString("message");
+            if (getActivity() != null)
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        switch (message) {
+                            case "passworded_servers":
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "networks":
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "unverified":
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    }
+                });
         }
     }
 

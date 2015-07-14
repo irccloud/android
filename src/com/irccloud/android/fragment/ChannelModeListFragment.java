@@ -347,4 +347,12 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
                 break;
         }
     }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+    }
 }

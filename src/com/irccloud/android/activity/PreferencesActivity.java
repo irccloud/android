@@ -328,34 +328,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         IRCCloudJSONObject o;
 
         switch (what) {
-            case NetworkConnection.EVENT_SUCCESS:
-                o = (IRCCloudJSONObject) obj;
-                if (o.has("_reqid")) {
-                    if (o.getInt("_reqid") == save_settings_reqid) {
-                        save_settings_reqid = -1;
-                    } else if (o.getInt("_reqid") == save_prefs_reqid) {
-                        save_prefs_reqid = -1;
-                    }
-                }
-                break;
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                o = (IRCCloudJSONObject) obj;
-                if (o.has("_reqid")) {
-                    if (o.getInt("_reqid") == save_settings_reqid) {
-                        save_settings_reqid = -1;
-                        Log.e("IRCCloud", "Settings not updated: " + o.getString("message"));
-                    } else if (o.getInt("_reqid") == save_prefs_reqid) {
-                        save_prefs_reqid = -1;
-                        Log.e("IRCCloud", "Prefs not updated: " + o.getString("message"));
-                    }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                break;
             case NetworkConnection.EVENT_USERINFO:
                 final NetworkConnection.UserInfo userInfo = conn.getUserInfo();
                 if (userInfo != null) {
@@ -387,6 +359,32 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+        if (reqid == save_settings_reqid) {
+            save_settings_reqid = -1;
+        } else if (reqid == save_prefs_reqid) {
+            save_prefs_reqid = -1;
+        }
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+        if (reqid == save_settings_reqid) {
+            save_settings_reqid = -1;
+            Log.e("IRCCloud", "Settings not updated: " + object.getString("message"));
+        } else if (reqid == save_prefs_reqid) {
+            save_prefs_reqid = -1;
+            Log.e("IRCCloud", "Prefs not updated: " + object.getString("message"));
+        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     Preference.OnPreferenceChangeListener settingstoggle = new Preference.OnPreferenceChangeListener() {

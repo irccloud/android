@@ -667,7 +667,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             @Override
             public void onClick(View v) {
                 if(buffer != null)
-                    buffer.scrolledUp = false;
+                    buffer.setScrolledUp(false);
                 getListView().setSelection(adapter.getCount() - 1);
             }
 
@@ -2398,6 +2398,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 
     public static Resources getSafeResources() {

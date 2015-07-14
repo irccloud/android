@@ -21,6 +21,8 @@ import android.databinding.PropertyChangeRegistry;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.NetworkConnection;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 public class ObservableBaseModel extends BaseModel implements Observable {

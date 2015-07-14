@@ -283,4 +283,12 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
                 break;
         }
     }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+    }
 }

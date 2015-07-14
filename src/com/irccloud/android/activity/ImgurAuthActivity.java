@@ -29,6 +29,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
@@ -125,5 +126,16 @@ public class ImgurAuthActivity extends AppCompatActivity implements NetworkConne
 
     @Override
     public void onIRCEvent(int message, Object object) {
+
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+
     }
 }

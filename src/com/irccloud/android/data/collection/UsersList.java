@@ -19,7 +19,6 @@ package com.irccloud.android.data.collection;
 import android.annotation.SuppressLint;
 import android.database.sqlite.SQLiteException;
 
-//import com.irccloud.android.data.model.User$Table;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.model.User$Table;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;

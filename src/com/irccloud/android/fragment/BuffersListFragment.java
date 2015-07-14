@@ -822,6 +822,14 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         }
     }
 
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+    }
+
     public void refresh() {
         if (refreshTask != null)
             refreshTask.cancel(true);

@@ -217,39 +217,45 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                     }
                 });
                 break;
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                final IRCCloudJSONObject o = (IRCCloudJSONObject) obj;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            error = o.getString("message");
-                            if (error.equals("auth")) {
-                                conn.logout();
-                                finish();
-                                return;
-                            }
-
-                            if (error.equals("set_shard")) {
-                                conn.disconnect();
-                                conn.ready = false;
-                                SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
-                                editor.putString("session_key", o.getString("cookie"));
-                                conn.connect(o.getString("cookie"));
-                                editor.commit();
-                                return;
-                            }
-
-                            if (error.equals("temp_unavailable"))
-                                error = "Your account is temporarily unavailable";
-                            updateReconnecting();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                break;
         }
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, final IRCCloudJSONObject o) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    error = o.getString("message");
+                    if (error.equals("auth")) {
+                        conn.logout();
+                        finish();
+                        return;
+                    }
+
+                    if (error.equals("set_shard")) {
+                        conn.disconnect();
+                        conn.ready = false;
+                        SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
+                        editor.putString("session_key", o.getString("cookie"));
+                        conn.connect(o.getString("cookie"));
+                        editor.commit();
+                        return;
+                    }
+
+                    if (error.equals("temp_unavailable"))
+                        error = "Your account is temporarily unavailable";
+                    updateReconnecting();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override

@@ -28,7 +28,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,52 +35,59 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
-import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.irccloud.android.data.OnErrorListener;
+import com.irccloud.android.data.model.Pastebin;
 
 public class PastebinEditorActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
 
-    private class FetchPastebinTask extends AsyncTaskEx<Void, Void, JSONObject> {
+    private OnErrorListener<Pastebin> pastebinOnErrorListener = new OnErrorListener<Pastebin>() {
+        @Override
+        public void onSuccess(Pastebin object) {
+            result(RESULT_OK);
+            finish();
+        }
 
         @Override
-        protected JSONObject doInBackground(Void... params) {
+        public void onFailure(Pastebin object) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(PastebinEditorActivity.this, "Unable to save pastebin, please try again shortly.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    };
+
+    private class FetchPastebinTask extends AsyncTaskEx<String, Void, Pastebin> {
+
+        @Override
+        protected Pastebin doInBackground(String... params) {
             try {
-                return NetworkConnection.getInstance().fetchJSON(UriTemplate.fromTemplate(ColorFormatter.pastebin_uri_template).set("id", pasteID).set("type", "json").expand());
+                return Pastebin.fetch(params[0]);
             } catch (Exception e) {
             }
             return null;
         }
 
         @Override
-        protected void onPostExecute(JSONObject o) {
-            if (o != null) {
-                try {
-                    paste.setText(o.getString("body"));
-                    filename.setText(o.getString("name"));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+        protected void onPostExecute(Pastebin p) {
+            if (p != null) {
+                pastebin = p;
+                paste.setText(p.getBody());
+                filename.setText(p.getName());
             }
         }
     }
 
-    private TabLayout tabHost;
     private EditText paste;
     private EditText filename;
     private EditText message;
     private TextView messages_count;
-    private Toolbar toolbar;
-    private int pastereqid = -1;
-    private String pastecontents;
-    private String pasteID;
-    private String url;
+    private Pastebin pastebin = new Pastebin();
     private int current_tab = 0;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +99,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         }
         setContentView(R.layout.activity_pastebineditor);
 
-        toolbar = (Toolbar)findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null) {
@@ -111,15 +117,14 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         if (savedInstanceState != null && savedInstanceState.containsKey("message"))
             message.setText(savedInstanceState.getString("message"));
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("paste_id"))
-            pasteID = savedInstanceState.getString("paste_id");
+        if (savedInstanceState != null && savedInstanceState.containsKey("pastebin"))
+            pastebin = (Pastebin)savedInstanceState.getSerializable("pastebin");
         else if (getIntent() != null && getIntent().hasExtra("paste_id"))
-            pasteID = getIntent().getStringExtra("paste_id");
+            pastebin.setId(getIntent().getStringExtra("paste_id"));
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("paste_contents"))
-            pastecontents = savedInstanceState.getString("paste_contents");
-        else if (getIntent() != null && getIntent().hasExtra("paste_contents"))
-            pastecontents = getIntent().getStringExtra("paste_contents");
+        if (getIntent() != null && getIntent().hasExtra("paste_contents"))
+            pastebin.setBody(getIntent().getStringExtra("paste_contents"));
+
         paste.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -141,17 +146,15 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
                 messages_count.setText("Text will be sent as " + count + " message" + (count==1?"":"s"));
             }
         });
-        paste.setText(pastecontents);
+        paste.setText(pastebin.getBody());
 
-        if (savedInstanceState != null && savedInstanceState.containsKey("filename"))
-            filename.setText(savedInstanceState.getString("filename"));
-        else if (getIntent() != null && getIntent().hasExtra("filename"))
+        if (getIntent() != null && getIntent().hasExtra("filename"))
             filename.setText(getIntent().getStringExtra("filename"));
 
-        tabHost = (TabLayout) findViewById(android.R.id.tabhost);
+        TabLayout tabHost = (TabLayout) findViewById(android.R.id.tabhost);
         ViewCompat.setElevation(toolbar, ViewCompat.getElevation(tabHost));
 
-        if (pasteID != null) {
+        if (pastebin.getId() != null) {
             tabHost.setVisibility(View.GONE);
             message.setVisibility(View.GONE);
             findViewById(R.id.message_heading).setVisibility(View.GONE);
@@ -194,11 +197,11 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
         }
 
         NetworkConnection.getInstance().addHandler(this);
-        if (pasteID != null && (pastecontents == null || pastecontents.length() == 0)) {
-            new FetchPastebinTask().execute((Void) null);
+        if (pastebin.getId() != null && (pastebin.getBody() == null || pastebin.getBody().length() == 0)) {
+            new FetchPastebinTask().execute(pastebin.getId());
         }
 
-        if(pasteID != null) {
+        if(pastebin.getId() != null) {
             setTitle(R.string.title_activity_pastebin_editor_edit);
             toolbar.setBackgroundResource(R.drawable.actionbar);
         } else {
@@ -234,43 +237,23 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
     @Override
     public void onIRCEvent(final int msg, Object obj) {
-        final IRCCloudJSONObject event;
-        switch (msg) {
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                event = (IRCCloudJSONObject) obj;
-                if (event != null && event.has("_reqid")) {
-                    Log.e("IRCCloud", "Pastebin Error: " + obj.toString());
-                    int reqid = event.getInt("_reqid");
-                    if (reqid == pastereqid) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(PastebinEditorActivity.this, "Unable to save pastebin, please try again shortly.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                }
-                break;
-            case NetworkConnection.EVENT_SUCCESS:
-                event = (IRCCloudJSONObject) obj;
-                if (event != null && event.has("_reqid")) {
-                    int reqid = event.getInt("_reqid");
-                    if (reqid == pastereqid) {
-                        url = event.getString("url");
-                        result(RESULT_OK);
-                        finish();
-                    }
-                }
-                break;
-            default:
-                break;
-        }
+
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_pastebineditor, menu);
-        if(pasteID != null) {
+        if(pastebin.getId() != null) {
             menu.findItem(R.id.action_save).setVisible(true);
             menu.findItem(R.id.action_send).setVisible(false);
         } else {
@@ -287,13 +270,17 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
                 finish();
                 break;
             case R.id.action_save:
-                pastecontents = paste.getText().toString();
-                pastereqid = NetworkConnection.getInstance().edit_paste(pasteID, filename.getText().toString(), extension(), pastecontents);
+                pastebin.setBody(paste.getText().toString());
+                pastebin.setName(filename.getText().toString());
+                pastebin.setExtension(extension());
+                pastebin.save(pastebinOnErrorListener);
                 break;
             case R.id.action_send:
-                pastecontents = paste.getText().toString();
+                pastebin.setBody(paste.getText().toString());
                 if(current_tab == 0) {
-                    pastereqid = NetworkConnection.getInstance().paste(filename.getText().toString(), extension(), pastecontents);
+                    pastebin.setName(filename.getText().toString());
+                    pastebin.setExtension(extension());
+                    pastebin.save(pastebinOnErrorListener);
                 } else {
                     result(RESULT_OK);
                     finish();
@@ -305,20 +292,20 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
     private void result(int resultCode) {
         Intent data = new Intent();
-        data.putExtra("paste_contents", pastecontents);
-        data.putExtra("paste_id", pasteID);
+        data.putExtra("paste_contents", pastebin.getBody());
+        data.putExtra("paste_id", pastebin.getId());
         data.putExtra("message", message.getText().toString());
-        data.putExtra("url", url);
+        data.putExtra("url", pastebin.getUrl());
         setResult(resultCode, data);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("paste_contents", paste.getText().toString());
-        outState.putString("paste_id", pasteID);
+        pastebin.setBody(paste.getText().toString());
+        pastebin.setName(filename.getText().toString());
+        outState.putSerializable("pastebin", pastebin);
         outState.putString("message", message.getText().toString());
-        outState.putString("filename", filename.getText().toString());
         outState.putInt("tab", current_tab);
     }
 }

@@ -114,39 +114,47 @@ public class EditConnectionActivity extends AppCompatActivity implements Network
                     finish();
                 }
                 break;
-            case NetworkConnection.EVENT_SUCCESS:
-                obj = (IRCCloudJSONObject) o;
-                if (obj.getInt("_reqid") == reqid) {
-                    if (cid != -1)
-                        finish();
-                    else
-                        cidToOpen = obj.cid();
-                }
-                break;
-            case NetworkConnection.EVENT_FAILURE_MSG:
-                obj = (IRCCloudJSONObject) o;
-                if (obj.getInt("_reqid") == reqid) {
-                    final String message = obj.getString("message");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (message.equals("passworded_servers"))
-                                Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
-                            else if (message.equals("networks"))
-                                Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
-                            else if (message.equals("unverified"))
-                                Toast.makeText(EditConnectionActivity.this, "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_SHORT).show();
-                            else
-                                Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-                break;
             case NetworkConnection.EVENT_USERINFO:
                 finish();
                 break;
             default:
                 break;
+        }
+    }
+
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject obj) {
+        if (this.reqid == reqid) {
+            if (cid != -1)
+                finish();
+            else
+                cidToOpen = obj.cid();
+        }
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject obj) {
+        if (this.reqid == reqid) {
+            final String message = obj.getString("message");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    switch (message) {
+                        case "passworded_servers":
+                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to passworded servers with free accounts.", Toast.LENGTH_SHORT).show();
+                            break;
+                        case "networks":
+                            Toast.makeText(EditConnectionActivity.this, "You've exceeded the connection limit for free accounts.", Toast.LENGTH_SHORT).show();
+                            break;
+                        case "unverified":
+                            Toast.makeText(EditConnectionActivity.this, "You can’t connect to external servers until you confirm your email address.", Toast.LENGTH_SHORT).show();
+                            break;
+                        default:
+                            Toast.makeText(EditConnectionActivity.this, "Unable to add connection: invalid " + message, Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+            });
         }
     }
 }

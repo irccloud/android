@@ -556,6 +556,14 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
     }
 
+    @Override
+    public void onIRCRequestSucceeded(int reqid, IRCCloudJSONObject object) {
+    }
+
+    @Override
+    public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
+    }
+
     public Resources getSafeResources() {
         return IRCCloudApplication.getInstance().getApplicationContext().getResources();
     }
