@@ -64,7 +64,7 @@
 						android:maxLines="1"
 						android:paddingRight="6dp"
 						android:text='@{buffer.isConsole ? (server.name ?? server.hostname) : buffer.name}'
-						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? @color/selected_white : buffer.textColor }"
+						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? buffer.selectedTextColor : buffer.textColor }"
 						android:typeface="@{( !readOnly &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT }"
 						android:textSize="16sp" />
 					<TextView

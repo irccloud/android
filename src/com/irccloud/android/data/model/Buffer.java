@@ -467,6 +467,11 @@ public class Buffer extends ObservableBaseModel {
     }
 
     @Bindable
+    public int getSelectedTextColor() {
+        return R.color.selected_white;
+    }
+
+    @Bindable
     public boolean getShowAddBtn() {
         return isConsole() && getServer().isConnected();
     }
