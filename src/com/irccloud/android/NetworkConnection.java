@@ -1630,7 +1630,6 @@ public class NetworkConnection {
         //Ignored events
         put("idle", null);
         put("end_of_backlog", null);
-        put("oob_skipped", null);
         put("user_account", null);
 
         put("header", new Parser() {
@@ -1773,6 +1772,13 @@ public class NetworkConnection {
                 backlog = true;
             }
         });
+
+        put("oob_skipped", new Parser() {
+                    @Override
+                    public void parse(IRCCloudJSONObject object) throws JSONException {
+                        Log.d("IRCCloud", "OOB was skipped");
+                    }
+                });
 
         put("backlog_complete", new Parser() {
             @Override
@@ -2483,6 +2489,12 @@ public class NetworkConnection {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
             //Crashlytics.log("New event: " + type);
             //Log.d(TAG, "New event: " + type);
+            if (accrued > 0 && object.bid() > -1 && !type.equals("makebuffer") && !type.equals("channel_init") && object.bid() != currentBid) {
+                if(mEvents.firstEidForBuffer(object.bid()) > object.eid()) {
+                    Log.w("IRCCloud", "Gap detected, purging backlog for bid" + object.bid());
+                    mEvents.deleteEventsForBuffer(object.bid());
+                }
+            }
             Parser p = parserMap.get(type);
             if (p != null) {
                 p.parse(object);
@@ -2491,7 +2503,7 @@ public class NetworkConnection {
                 //Log.w(TAG, "Unhandled type: " + object);
             }
 
-            if (backlog || type.equals("backlog_complete")) {
+            if (backlog || type.equals("backlog_complete") || accrued > 0) {
                 if ((object.bid() > -1 || type.equals("backlog_complete")) && !type.equals("makebuffer") && !type.equals("channel_init")) {
                     currentcount++;
                     if (object.bid() != currentBid) {
@@ -2500,6 +2512,8 @@ public class NetworkConnection {
                         currentcount = 0;
                     }
                 }
+            }
+            if (backlog || type.equals("backlog_complete")) {
                 if (numbuffers > 0 && currentcount < 100) {
                     notifyHandlers(EVENT_PROGRESS, ((totalbuffers + ((float) currentcount / (float) 100)) / numbuffers) * 1000.0f);
                 }
@@ -2958,6 +2972,7 @@ public class NetworkConnection {
                                 mBuffers.invalidate();
                                 mChannels.invalidate();
                                 mEvents.clear();
+                                mUsers.clear();
                             }
                             int count = 0;
                             while (parser.nextToken() == JsonToken.START_OBJECT) {

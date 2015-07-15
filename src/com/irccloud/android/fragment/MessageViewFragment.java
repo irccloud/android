@@ -92,6 +92,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private TextView statusView;
     private View headerViewContainer;
     private View headerView;
+    private View footerViewContainer;
     private TextView backlogFailed;
     private Button loadBacklogButton;
     private TextView unreadTopLabel;
@@ -747,7 +748,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
         });
         ((ListView) v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
-        ((ListView) v.findViewById(android.R.id.list)).addFooterView(new View(getActivity()), null, false);
+        footerViewContainer = new View(getActivity());
+        ((ListView) v.findViewById(android.R.id.list)).addFooterView(footerViewContainer, null, false);
         return v;
     }
 
@@ -840,6 +842,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     requestingBacklog = true;
                     conn.request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
                     return;
+                } else if(firstVisibleItem > 0 && loadBacklogButton.getVisibility() == View.VISIBLE) {
+                    loadBacklogButton.setVisibility(View.GONE);
+                    headerView.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -976,8 +981,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         } else {
             if (buffer == null || buffer.getMin_eid() == 0 || earliest_eid == buffer.getMin_eid() || conn.getState() != NetworkConnection.STATE_CONNECTED || !conn.ready) {
                 headerView.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.GONE);
             } else {
-                headerView.setVisibility(View.VISIBLE);
+                headerView.setVisibility(View.GONE);
+                loadBacklogButton.setVisibility(View.VISIBLE);
             }
             if (adapter != null) {
                 adapter.clear();
@@ -1409,6 +1416,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if (getListView().getHeaderViewsCount() > 0) {
             getListView().removeHeaderView(headerViewContainer);
         }
+        if (getListView().getFooterViewsCount() > 0) {
+            getListView().removeFooterView(footerViewContainer);
+        }
         getListView().setAdapter(null);
     }
 
@@ -1416,6 +1426,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     public void onStop() {
         if(headerViewContainer != null)
             headerViewContainer.setVisibility(View.GONE);
+        if(footerViewContainer != null)
+            footerViewContainer.setVisibility(View.GONE);
         super.onStop();
     }
 
@@ -1423,6 +1435,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     public void onStart() {
         if(headerViewContainer != null)
             headerViewContainer.setVisibility(View.VISIBLE);
+        if(footerViewContainer != null)
+            footerViewContainer.setVisibility(View.VISIBLE);
         super.onStart();
     }
 
@@ -1688,11 +1702,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (mListener != null && !ready)
                             mListener.onMessageViewReady();
                         ready = true;
-                        try {
-                            ListView v = getListView();
-                            mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
-                        } catch (Exception e) {
-                        }
                     }
                 }, 250);
                 //Debug.stopMethodTracing();
@@ -1741,25 +1750,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
                 collapsedEvents.setServer(server);
                 earliest_eid = events.firstKey();
-                if (events.firstKey() > buffer.getMin_eid() && buffer.getMin_eid() > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            headerView.setVisibility(View.VISIBLE);
-                            backlogFailed.setVisibility(View.GONE);
-                            loadBacklogButton.setVisibility(View.GONE);
-                        }
-                    });
-                } else {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            headerView.setVisibility(View.GONE);
-                            backlogFailed.setVisibility(View.GONE);
-                            loadBacklogButton.setVisibility(View.GONE);
-                        }
-                    });
-                }
                 if (events.size() > 0) {
                     avgInsertTime = 0;
                     //Debug.startMethodTracing("refresh");
@@ -1784,6 +1774,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     //Debug.stopMethodTracing();
                     avgInsertTime = 0;
                     //adapter.notifyDataSetChanged();
+                    if (events.firstKey() > buffer.getMin_eid() && buffer.getMin_eid() > 0 && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                headerView.setVisibility(View.GONE);
+                                backlogFailed.setVisibility(View.GONE);
+                                loadBacklogButton.setVisibility(View.VISIBLE);
+                            }
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                headerView.setVisibility(View.GONE);
+                                backlogFailed.setVisibility(View.GONE);
+                                loadBacklogButton.setVisibility(View.GONE);
+                            }
+                        });
+                    }
                 }
             }
             if (conn.getReconnectTimestamp() == 0 && conn.getState() == NetworkConnection.STATE_CONNECTED)

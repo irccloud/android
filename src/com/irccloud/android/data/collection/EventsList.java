@@ -894,6 +894,7 @@ public class EventsList {
 
     public int getSizeOfBuffer(int bid) {
         synchronized (events) {
+            load(bid);
             if (events.containsKey(bid) && events.get(bid) != null)
                 return events.get(bid).size();
         }
@@ -942,6 +943,20 @@ public class EventsList {
                     return eids[eids.length - 1];
             } else {
                 Event e = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).orderBy(true, Event$Table.EID).limit(1).querySingle();
+                if(e != null) {
+                    return e.eid;
+                }
+            }
+        }
+        return 0L;
+    }
+
+    public Long firstEidForBuffer(int bid) {
+        synchronized (events) {
+            if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).size() > 0) {
+                return events.get(bid).firstKey();
+            } else {
+                Event e = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).orderBy(false, Event$Table.EID).limit(1).querySingle();
                 if(e != null) {
                     return e.eid;
                 }
