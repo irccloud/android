@@ -195,7 +195,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-                conn.connect(getSharedPreferences("prefs", 0).getString("session_key", ""));
+                conn.connect();
         }
     }
 

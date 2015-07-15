@@ -101,6 +101,10 @@ public class GCMIntentService extends IntentService {
                                     Log.e("IRCCloud", "GCM got EID that already exists");
                                     return;
                                 }
+
+                                if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED)
+                                    NetworkConnection.getInstance().request_backlog(cid, bid, 0);
+
                                 String from = intent.getStringExtra("from_nick");
                                 String msg = intent.getStringExtra("msg");
                                 if (msg != null)

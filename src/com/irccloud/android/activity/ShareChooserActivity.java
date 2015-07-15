@@ -88,11 +88,11 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     protected void onResume() {
         super.onResume();
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-        if (session != null && session.length() > 0) {
+        if (session.length() > 0) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING) {
-                conn.connect(session);
+                conn.connect();
             } else {
                 connecting.setVisibility(View.GONE);
                 buffersList.setVisibility(View.VISIBLE);
@@ -243,8 +243,8 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                         conn.ready = false;
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putString("session_key", o.getString("cookie"));
-                        conn.connect(o.getString("cookie"));
                         editor.commit();
+                        conn.connect();
                         return;
                     }
 

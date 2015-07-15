@@ -2422,7 +2422,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         editor.putString("host", NetworkConnection.IRCCLOUD_HOST);
                         editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                         editor.commit();
-                        NetworkConnection.getInstance().connect(event.getString("cookie"));
+                        NetworkConnection.getInstance().connect();
                     }
                 }
                 try {

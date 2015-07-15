@@ -120,6 +120,7 @@ public class NetworkConnection {
     public static final int STATE_CONNECTED = 2;
     public static final int STATE_DISCONNECTING = 3;
     private int state = STATE_DISCONNECTED;
+    private long highest_eid = -1;
 
     public interface IRCEventHandler {
         void onIRCEvent(int message, Object object);
@@ -393,7 +394,7 @@ public class NetworkConnection {
             if (ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0) {
                 if (idleTimerTask != null)
                     idleTimerTask.cancel();
-                connect(session);
+                connect();
             } else if (ni == null || !ni.isConnected()) {
                 cancel_idle_timer();
                 reconnect_timestamp = 0;
@@ -410,6 +411,7 @@ public class NetworkConnection {
 
     @SuppressWarnings("deprecation")
     public NetworkConnection() {
+        session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", "");
         String version;
         String network_type = null;
         try {
@@ -566,7 +568,6 @@ public class NetworkConnection {
             }
             oobTasks.clear();
         }
-        session = null;
         for (Buffer b : mBuffers.getBuffers()) {
             if (!b.getScrolledUp())
                 mEvents.pruneEvents(b.getBid());
@@ -873,18 +874,17 @@ public class NetworkConnection {
         android.util.Log.e("IRCCloud", "Users");
         mUsers.load();
         notifyHandlers(EVENT_PROGRESS, (4.0f / 5.0f) * 1000.0f);
-        android.util.Log.e("IRCCloud", "Events");
-        mEvents.load();
-        notifyHandlers(EVENT_PROGRESS, (5.0f / 5.0f) * 1000.0f);
         if(mServers.count() > 0) {
             String u = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
             if(u != null && u.length() > 0)
                 userInfo = new UserInfo(new IRCCloudJSONObject(u));
+            highest_eid = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getLong("highest_eid", -1);
             streamId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("streamId", null);
             Log.e("IRCCloud", "Loaded stream ID from cache: " + streamId);
         }
         if(mServers.count() > 0)
             ready = true;
+        notifyHandlers(EVENT_PROGRESS, (4.0f / 5.0f) * 1000.0f);
         notifyHandlers(EVENT_CACHE_END, null);
     }
 
@@ -897,16 +897,17 @@ public class NetworkConnection {
         Log.e("IRCCloud", "Saving stream ID: " + streamId);
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         editor.putString("streamId", streamId);
+        editor.putLong("highest_eid", highest_eid);
         editor.commit();
     }
 
-    public synchronized void connect(String sk) {
+    public synchronized void connect() {
         Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
-        session = sk;
+        session = ctx.getSharedPreferences("prefs", 0).getString("session_key", "");
         String host = null;
         int port = -1;
 
-        if (sk == null || sk.length() == 0)
+        if (session == null || session.length() == 0)
             return;
 
         if (ctx != null) {
@@ -965,8 +966,8 @@ public class NetworkConnection {
         );
 
         String url = "wss://" + IRCCLOUD_HOST + IRCCLOUD_PATH;
-        if (mEvents.highest_eid > 0) {
-            url += "?since_id=" + mEvents.highest_eid;
+        if (highest_eid > 0) {
+            url += "?since_id=" + highest_eid;
             if (streamId != null && streamId.length() > 0)
                 url += "&stream_id=" + streamId;
         }
@@ -1089,6 +1090,7 @@ public class NetworkConnection {
         ready = false;
         streamId = null;
         accrued = 0;
+        highest_eid = -1;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         editor.remove("userinfo");
         try {
@@ -1120,6 +1122,7 @@ public class NetworkConnection {
         Notifications.getInstance().clearNetworks();
         Notifications.getInstance().clear();
         userInfo = null;
+        session = null;
         save();
     }
 
@@ -1590,7 +1593,7 @@ public class NetworkConnection {
                         notifyHandlers(EVENT_CONNECTIVITY, null);
                         if (client != null)
                             client.disconnect();
-                        connect(session);
+                        connect();
                     }
                     reconnect_timestamp = 0;
                 }
@@ -2473,7 +2476,7 @@ public class NetworkConnection {
 
     private synchronized void parse_object(IRCCloudJSONObject object) throws JSONException {
         cancel_idle_timer();
-        //Log.d(TAG, "Backlog: " + backlog + " New event: " + object);
+        //Log.d(TAG, "Backlog: " + backlog + " count: " + currentcount + " New event: " + object);
         if (!object.has("type")) {
             //Log.d(TAG, "Response: " + object);
             if (object.has("success") && !object.getBoolean("success") && object.has("message")) {
@@ -2489,10 +2492,18 @@ public class NetworkConnection {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
             //Crashlytics.log("New event: " + type);
             //Log.d(TAG, "New event: " + type);
-            if (accrued > 0 && object.bid() > -1 && !type.equals("makebuffer") && !type.equals("channel_init") && object.bid() != currentBid) {
-                if(mEvents.firstEidForBuffer(object.bid()) > object.eid()) {
-                    Log.w("IRCCloud", "Gap detected, purging backlog for bid" + object.bid());
-                    mEvents.deleteEventsForBuffer(object.bid());
+            if (object.bid() > -1 && !type.equals("makebuffer") && !type.equals("channel_init") && object.bid() != currentBid) {
+                if(backlog) {
+                    if(mEvents.lastEidForBuffer(object.bid()) > 0 && object.eid() > mEvents.lastEidForBuffer(object.bid())) {
+                        Log.w("IRCCloud", "Backlog gap detected, purging events for bid" + object.bid() + "(" + object.eid() + " / " + mEvents.lastEidForBuffer(object.bid()) + ")");
+                        mEvents.deleteEventsForBuffer(object.bid());
+                    }
+                } else if(accrued > 0 && firstEid == -1) {
+                    firstEid = object.eid();
+                    if (firstEid > highest_eid) {
+                        Log.w("IRCCloud", "Backlog gap detected, purging cache");
+                        mEvents.clear();
+                    }
                 }
             }
             Parser p = parserMap.get(type);
@@ -2508,7 +2519,6 @@ public class NetworkConnection {
                     currentcount++;
                     if (object.bid() != currentBid) {
                         currentBid = object.bid();
-                        firstEid = object.eid();
                         currentcount = 0;
                     }
                 }
@@ -2519,6 +2529,14 @@ public class NetworkConnection {
                 }
             } else if (accrued > 0) {
                 notifyHandlers(EVENT_PROGRESS, ((float) currentcount++ / (float) accrued) * 1000.0f);
+            }
+            if((!backlog || numbuffers > 0) && object.eid() > highest_eid) {
+                highest_eid = object.eid();
+                if(!backlog) {
+                    SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                    editor.putLong("highest_eid", highest_eid);
+                    editor.apply();
+                }
             }
         }
 
@@ -2966,12 +2984,10 @@ public class NetworkConnection {
                             numbuffers = 0;
                             totalbuffers = 0;
                             currentBid = -1;
-                            firstEid = -1;
                             backlog = true;
                             if (bid == -1) {
                                 mBuffers.invalidate();
                                 mChannels.invalidate();
-                                mEvents.clear();
                                 mUsers.clear();
                             }
                             int count = 0;

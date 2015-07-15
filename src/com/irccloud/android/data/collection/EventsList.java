@@ -16,8 +16,6 @@
 
 package com.irccloud.android.data.collection;
 
-
-
 import android.annotation.SuppressLint;
 import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
@@ -25,13 +23,11 @@ import android.text.TextUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
-//import com.irccloud.android.data.model.Event$Table;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Event$Table;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
-import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
@@ -41,7 +37,6 @@ import java.util.TreeMap;@SuppressLint("UseSparseArrays")
 public class EventsList {
     private final HashMap<Integer, TreeMap<Long, Event>> events;
     private static EventsList instance = null;
-    public long highest_eid = -1;
 
     public synchronized static EventsList getInstance() {
         if (instance == null)
@@ -51,12 +46,6 @@ public class EventsList {
 
     public EventsList() {
         events = new HashMap<>(100);
-    }
-
-    public void load() {
-        Event e = new Select().from(Event.class).where().orderBy(false, Event$Table.EID).limit(1).querySingle();
-        if(e != null)
-            highest_eid = e.eid;
     }
 
     public void load(int bid) {
@@ -90,7 +79,6 @@ public class EventsList {
     public void clear() {
         synchronized (events) {
             events.clear();
-            highest_eid = -1;
             new Delete().from(Event.class).queryClose();
         }
     }
@@ -101,8 +89,6 @@ public class EventsList {
                 events.put(event.bid, new TreeMap<Long, Event>());
 
             events.get(event.bid).put(event.eid, event);
-            if(event.eid > highest_eid)
-                highest_eid = event.eid;
         }
     }
 
@@ -944,20 +930,7 @@ public class EventsList {
             } else {
                 Event e = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).orderBy(true, Event$Table.EID).limit(1).querySingle();
                 if(e != null) {
-                    return e.eid;
-                }
-            }
-        }
-        return 0L;
-    }
-
-    public Long firstEidForBuffer(int bid) {
-        synchronized (events) {
-            if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).size() > 0) {
-                return events.get(bid).firstKey();
-            } else {
-                Event e = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).orderBy(false, Event$Table.EID).limit(1).querySingle();
-                if(e != null) {
+                    android.util.Log.d("IRCCloud", "last EID result from database: " + e.eid);
                     return e.eid;
                 }
             }

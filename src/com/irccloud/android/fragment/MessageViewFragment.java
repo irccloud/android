@@ -1702,6 +1702,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (mListener != null && !ready)
                             mListener.onMessageViewReady();
                         ready = true;
+                        try {
+                            ListView v = getListView();
+                            mOnScrollListener.onScroll(v, v.getFirstVisiblePosition(), v.getLastVisiblePosition() - v.getFirstVisiblePosition(), adapter.getCount());
+                        } catch (Exception e) {
+                        }
                     }
                 }, 250);
                 //Debug.stopMethodTracing();
