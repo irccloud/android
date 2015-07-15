@@ -26,8 +26,11 @@ import android.text.Html;
 import com.google.android.apps.dashclock.api.DashClockExtension;
 import com.google.android.apps.dashclock.api.ExtensionData;
 import com.irccloud.android.activity.MainActivity;
+import com.irccloud.android.data.collection.NotificationsList;
+import com.irccloud.android.data.model.Notification;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DashClock extends DashClockExtension {
     public final static String REFRESH_INTENT = "com.irccloud.android.dashclock.REFRESH";
@@ -68,12 +71,12 @@ public class DashClock extends DashClockExtension {
 
     @Override
     protected void onUpdateData(int reason) {
-        int count = Notifications.getInstance().count();
+        long count = NotificationsList.getInstance().count();
         if (count > 0) {
             if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("dashclock_showmsgs", false)) {
                 String msg = "";
-                ArrayList<Notifications.Notification> msgs = Notifications.getInstance().getMessageNotifications();
-                for (Notifications.Notification n : msgs) {
+                List<Notification> msgs = NotificationsList.getInstance().getMessageNotifications();
+                for (Notification n : msgs) {
                     if (n.message_type.equals("buffer_me_msg"))
                         msg += "— " + n.nick + " " + Html.fromHtml(n.message) + "\n";
                     else

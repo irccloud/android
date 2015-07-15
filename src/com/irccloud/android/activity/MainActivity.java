@@ -101,7 +101,7 @@ import com.irccloud.android.DrawerArrowDrawable;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
-import com.irccloud.android.Notifications;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -1136,7 +1136,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         protected Void doInBackground(Integer... params) {
-            Notifications.getInstance().excludeBid(params[0]);
+            NotificationsList.getInstance().excludeBid(params[0]);
             excludeBIDTask = null;
             return null;
         }
@@ -1153,7 +1153,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             int new_bid = intent.getIntExtra("bid", 0);
             if (NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersList.getInstance().getBuffer(new_bid) == null) {
                 Crashlytics.log(Log.WARN, "IRCCloud", "Invalid bid requested by launch intent: " + new_bid);
-                Notifications.getInstance().deleteNotificationsForBid(new_bid);
+                NotificationsList.getInstance().deleteNotificationsForBid(new_bid);
                 if (excludeBIDTask != null)
                     excludeBIDTask.cancel(true);
                 excludeBIDTask = new ExcludeBIDTask();
@@ -4595,7 +4595,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 } else {
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-                    Notifications.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
+                    NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
                 }
                 return null;
             }
@@ -4610,7 +4610,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     });
                 } else {
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
-                    Notifications.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
+                    NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
                 }
                 return null;
             }
@@ -4898,7 +4898,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 metadataDialog.dismiss();
             } catch (Exception e) {
-                Notifications.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
+                NotificationsList.getInstance().alert(mBuffer.getBid(), "Upload Failed", "Unable to upload file to IRCCloud.");
             }
         }
     }

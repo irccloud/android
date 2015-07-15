@@ -30,6 +30,7 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
@@ -137,6 +138,15 @@ public class IRCCloudApplicationBase extends Application {
             editor.commit();
         }
 
+        if(prefs.contains("notifications_json")) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove("notifications_json");
+            editor.remove("networks_json");
+            editor.remove("lastseeneids_json");
+            editor.remove("dismissedeids_json");
+            editor.commit();
+        }
+
         prefs = getSharedPreferences("prefs", 0);
         if (prefs.getString("host", "www.irccloud.com").equals("www.irccloud.com") && !prefs.contains("path") && prefs.contains("session_key")) {
             Crashlytics.log(Log.INFO, "IRCCloud", "Migrating path from session key");
@@ -165,7 +175,6 @@ public class IRCCloudApplicationBase extends Application {
 
     @Override
     public void onTerminate() {
-        Notifications.getInstance().saveNow();
         NetworkConnection.getInstance().save();
         super.onTerminate();
     }

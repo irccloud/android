@@ -37,12 +37,14 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.fasterxml.jackson.databind.type.ArrayType;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
-import com.irccloud.android.Notifications;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
+import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Server;
 
 import org.json.JSONArray;
@@ -50,7 +52,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;public class QuickReplyActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+public class QuickReplyActivity extends AppCompatActivity {
     int cid, bid;
     String to;
     SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
@@ -65,26 +71,14 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
             TextView message;
         }
 
-        private JSONArray msgs = new JSONArray();
+        private ArrayList<Notification> msgs = new ArrayList<>();
 
         public void loadMessages(int cid, int bid) {
-            JSONArray notifications;
+            List<Notification> notifications = NotificationsList.getInstance().getNotifications();
 
-            try {
-                notifications = new JSONArray(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("notifications_json", "[]"));
-            } catch (JSONException e) {
-                notifications = new JSONArray();
-            }
-
-            msgs = new JSONArray();
-            try {
-                for(int i = 0; i < notifications.length(); i++) {
-                    JSONObject n = notifications.getJSONObject(i);
-                    if(n.getInt("cid") == cid && n.getInt("bid") == bid)
-                        msgs.put(n);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
+            for(Notification n : notifications) {
+                if(n.cid == cid && n.bid == bid)
+                    msgs.add(n);
             }
 
             notifyDataSetChanged();
@@ -92,17 +86,12 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
 
         @Override
         public int getCount() {
-            return msgs.length();
+            return msgs.size();
         }
 
         @Override
         public Object getItem(int i) {
-            try {
-                return msgs.get(i);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
+            return msgs.get(i);
         }
 
         @Override
@@ -128,48 +117,37 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
                 holder = (ViewHolder) row.getTag();
             }
 
-           try {
-               JSONObject msg = msgs.getJSONObject(i);
-               if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
-                   holder.timestamp.setVisibility(View.GONE);
-               } else {
-                   Calendar calendar = Calendar.getInstance();
-                   calendar.setTimeInMillis(msg.getLong("eid") / 1000);
+            Notification msg = msgs.get(i);
+            if(getWindowManager().getDefaultDisplay().getWidth() < 800) {
+               holder.timestamp.setVisibility(View.GONE);
+            } else {
+               Calendar calendar = Calendar.getInstance();
+               calendar.setTimeInMillis(msg.eid / 1000);
 
-                   if (timestamp_width == -1) {
-                       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-                       String s = "88:88 88";
-                       if (prefs.getBoolean("time-24hr", false)) {
-                           if (prefs.getBoolean("time-seconds", false))
-                               s = "88:88:88";
-                           else
-                               s = "88:88";
-                       } else if (prefs.getBoolean("time-seconds", false)) {
-                           s = "88:88:88 88";
-                       }
-                       timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
+               if (timestamp_width == -1) {
+                   SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+                   String s = "88:88 88";
+                   if (prefs.getBoolean("time-24hr", false)) {
+                       if (prefs.getBoolean("time-seconds", false))
+                           s = "88:88:88";
+                       else
+                           s = "88:88";
+                   } else if (prefs.getBoolean("time-seconds", false)) {
+                       s = "88:88:88 88";
                    }
-                   holder.timestamp.setMinWidth(timestamp_width);
-                   holder.timestamp.setText(formatter.format(calendar.getTime()));
+                   timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
                }
-               holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(msg.getString("nick"), null, nickColors)) + "</b> " + msg.getString("message"), true, server));
-               holder.message.setMovementMethod(LinkMovementMethod.getInstance());
-               holder.message.setLinkTextColor(getResources().getColor(R.color.linkColor));
-           } catch (JSONException e) {
-               e.printStackTrace();
-           }
+               holder.timestamp.setMinWidth(timestamp_width);
+               holder.timestamp.setText(formatter.format(calendar.getTime()));
+            }
+            holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(msg.nick, null, nickColors)) + "</b> " + msg.message, true, server));
+            holder.message.setMovementMethod(LinkMovementMethod.getInstance());
+            holder.message.setLinkTextColor(getResources().getColor(R.color.linkColor));
             return row;
         }
     }
 
     private MessagesAdapter adapter = new MessagesAdapter();
-
-    private SharedPreferences.OnSharedPreferenceChangeListener prefslistener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            adapter.loadMessages(cid, bid);
-        }
-    };
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -235,7 +213,6 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
     protected void onResume() {
         super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-        prefs.registerOnSharedPreferenceChangeListener(prefslistener);
         nickColors = prefs.getBoolean("nick-colors", false);
         if (prefs.getBoolean("time-24hr", false)) {
             if (prefs.getBoolean("time-seconds", false))
@@ -248,13 +225,12 @@ import java.util.Calendar;public class QuickReplyActivity extends AppCompatActiv
         adapter.loadMessages(cid, bid);
 
         NotificationManagerCompat.from(this).cancel(bid);
-        Notifications.getInstance().excludeBid(bid);
+        NotificationsList.getInstance().excludeBid(bid);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).unregisterOnSharedPreferenceChangeListener(prefslistener);
-        Notifications.getInstance().excludeBid(-1);
+        NotificationsList.getInstance().excludeBid(-1);
     }
 }

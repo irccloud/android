@@ -21,6 +21,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationManagerCompat;
 
+import com.irccloud.android.data.collection.NotificationsList;
+
 public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
 
     @Override
@@ -30,7 +32,7 @@ public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
             long[] eids = i.getLongArrayExtra("eids");
             for (int j = 0; j < eids.length; j++) {
                 if (eids[j] > 0) {
-                    Notifications.getInstance().dismiss(bid, eids[j]);
+                    NotificationsList.getInstance().dismiss(bid, eids[j]);
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (eids[j] / 1000));
                 }
             }

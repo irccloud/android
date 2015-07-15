@@ -32,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
 
 import org.json.JSONObject;
@@ -88,8 +89,8 @@ public class GCMIntentService extends IntentService {
                                             Buffer b = BuffersList.getInstance().getBuffer(Integer.valueOf(bid));
                                             b.setLast_seen_eid(eid);
                                         }
-                                        Notifications.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
-                                        Notifications.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                                        NotificationsList.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
+                                        NotificationsList.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
                                     }
                                 }
                                 parser.close();
@@ -97,7 +98,7 @@ public class GCMIntentService extends IntentService {
                                 int cid = Integer.valueOf(intent.getStringExtra("cid"));
                                 int bid = Integer.valueOf(intent.getStringExtra("bid"));
                                 long eid = Long.valueOf(intent.getStringExtra("eid"));
-                                if (Notifications.getInstance().getNotification(eid) != null) {
+                                if (NotificationsList.getInstance().getNotification(eid) != null) {
                                     Log.e("IRCCloud", "GCM got EID that already exists");
                                     return;
                                 }
@@ -117,24 +118,24 @@ public class GCMIntentService extends IntentService {
                                 if (server_name == null || server_name.length() == 0)
                                     server_name = intent.getStringExtra("server_hostname");
 
-                                String network = Notifications.getInstance().getNetwork(cid);
+                                String network = NotificationsList.getInstance().getNetwork(cid).name;
                                 if (network == null)
-                                    Notifications.getInstance().addNetwork(cid, server_name);
+                                    NotificationsList.getInstance().addNetwork(cid, server_name);
 
-                                Notifications.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type);
+                                NotificationsList.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type);
 
                                 if (from == null || from.length() == 0)
-                                    Notifications.getInstance().showNotifications(server_name + ": " + msg);
+                                    NotificationsList.getInstance().showNotifications(server_name + ": " + msg);
                                 else if (buffer_type.equals("channel")) {
                                     if (type.equals("buffer_me_msg"))
-                                        Notifications.getInstance().showNotifications(chan + ": — " + from + " " + msg);
+                                        NotificationsList.getInstance().showNotifications(chan + ": — " + from + " " + msg);
                                     else
-                                        Notifications.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
+                                        NotificationsList.getInstance().showNotifications(chan + ": <" + from + "> " + msg);
                                 } else {
                                     if (type.equals("buffer_me_msg"))
-                                        Notifications.getInstance().showNotifications("— " + from + " " + msg);
+                                        NotificationsList.getInstance().showNotifications("— " + from + " " + msg);
                                     else
-                                        Notifications.getInstance().showNotifications(from + ": " + msg);
+                                        NotificationsList.getInstance().showNotifications(from + ": " + msg);
                                 }
                             }
                         } catch (Exception e) {

@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package com.irccloud.android;
-
-
+package com.irccloud.android.data.collection;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.ContentValues;
@@ -38,214 +35,60 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.DashClock;
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.R;
+import com.irccloud.android.RemoteInputService;
+import com.irccloud.android.SonyExtensionService;
 import com.irccloud.android.activity.QuickReplyActivity;
+import com.irccloud.android.data.model.Notification;
+import com.irccloud.android.data.model.Notification$Table;
+import com.irccloud.android.data.model.Notification_LastSeenEID;
+import com.irccloud.android.data.model.Notification_LastSeenEID$Table;
+import com.irccloud.android.data.model.Notification_Network;
+import com.irccloud.android.data.model.Notification_Network$Table;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.sonyericsson.extras.liveware.extension.util.notification.NotificationUtil;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.ConcurrentModificationException;
+import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;public class Notifications {
-    public class Notification {
-        public int cid;
-        public int bid;
-        public long eid;
-        public String nick;
-        public String message;
-        public String network;
-        public String chan;
-        public String buffer_type;
-        public String message_type;
-        public boolean shown = false;
+import java.util.TimerTask;
 
-        public String toString() {
-            return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + " shown: " + shown + "}";
-        }
-    }
-
-    public class comparator implements Comparator<Notification> {
-        public int compare(Notification n1, Notification n2) {
-            if (n1.cid != n2.cid)
-                return Integer.valueOf(n1.cid).compareTo(n2.cid);
-            else if (n1.bid != n2.bid)
-                return Integer.valueOf(n1.bid).compareTo(n2.bid);
-            else
-                return Long.valueOf(n1.eid).compareTo(n2.eid);
-        }
-    }
-
-    private ArrayList<Notification> mNotifications = null;
-    private SparseArray<String> mNetworks = null;
-    private SparseArray<Long> mLastSeenEIDs = null;
-
-    private static Notifications instance = null;
+public class NotificationsList {
+    private static NotificationsList instance = null;
     private int excludeBid = -1;
     private static final Timer mNotificationTimer = new Timer("notification-timer");
     private TimerTask mNotificationTimerTask = null;
 
-    public static Notifications getInstance() {
+    public static NotificationsList getInstance() {
         if (instance == null)
-            instance = new Notifications();
+            instance = new NotificationsList();
         return instance;
     }
 
-    public Notifications() {
-        try {
-            load();
-        } catch (Exception e) {
-        }
-    }
-
-    private void load() {
-        mNotifications = new ArrayList<Notification>();
-        mNetworks = new SparseArray<String>();
-        mLastSeenEIDs = new SparseArray<Long>();
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-
-        if (prefs.contains("notifications_json")) {
-            try {
-                JSONArray array = new JSONArray(prefs.getString("networks_json", "[]"));
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject o = array.getJSONObject(i);
-                    mNetworks.put(o.getInt("cid"), o.getString("network"));
-                }
-
-                array = new JSONArray(prefs.getString("lastseeneids_json", "[]"));
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject o = array.getJSONObject(i);
-                    mLastSeenEIDs.put(o.getInt("bid"), o.getLong("eid"));
-                }
-
-                synchronized (mNotifications) {
-                    array = new JSONArray(prefs.getString("notifications_json", "[]"));
-                    for (int i = 0; i < array.length(); i++) {
-                        JSONObject o = array.getJSONObject(i);
-                        Notification n = new Notification();
-                        n.bid = o.getInt("bid");
-                        n.cid = o.getInt("cid");
-                        n.eid = o.getLong("eid");
-                        n.nick = o.getString("nick");
-                        n.message = o.getString("message");
-                        n.chan = o.getString("chan");
-                        n.buffer_type = o.getString("buffer_type");
-                        n.message_type = o.getString("message_type");
-                        n.network = mNetworks.get(n.cid);
-                        if (o.has("shown"))
-                            n.shown = o.getBoolean("shown");
-                        mNotifications.add(n);
-                    }
-                    Collections.sort(mNotifications, new comparator());
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static final Timer mSaveTimer = new Timer("notifications-save-timer");
-    private TimerTask mSaveTimerTask = null;
-
-    @TargetApi(9)
-    private void save() {
-        if (mSaveTimerTask != null)
-            mSaveTimerTask.cancel();
-        mSaveTimerTask = new TimerTask() {
-
-            @Override
-            public void run() {
-                saveNow();
-            }
-        };
-        try {
-            mSaveTimer.schedule(mSaveTimerTask, 100);
-        } catch (IllegalStateException e) {
-            //Timer is already cancelled
-        }
-    }
-
-    public void saveNow() {
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-        try {
-            JSONArray array = new JSONArray();
-            synchronized (mNotifications) {
-                for (Notification n : mNotifications) {
-                    if(n != null) {
-                        JSONObject o = new JSONObject();
-                        o.put("cid", n.cid);
-                        o.put("bid", n.bid);
-                        o.put("eid", n.eid);
-                        o.put("nick", n.nick);
-                        o.put("message", n.message);
-                        o.put("chan", n.chan);
-                        o.put("buffer_type", n.buffer_type);
-                        o.put("message_type", n.message_type);
-                        o.put("shown", n.shown);
-                        array.put(o);
-                    }
-                }
-                editor.putString("notifications_json", array.toString());
-            }
-
-            array = new JSONArray();
-            for (int i = 0; i < mNetworks.size(); i++) {
-                int cid = mNetworks.keyAt(i);
-                String network = mNetworks.get(cid);
-                JSONObject o = new JSONObject();
-                o.put("cid", cid);
-                o.put("network", network);
-                array.put(o);
-            }
-            editor.putString("networks_json", array.toString());
-
-            array = new JSONArray();
-            for (int i = 0; i < mLastSeenEIDs.size(); i++) {
-                int bid = mLastSeenEIDs.keyAt(i);
-                long eid = mLastSeenEIDs.get(bid);
-                JSONObject o = new JSONObject();
-                o.put("bid", bid);
-                o.put("eid", eid);
-                array.put(o);
-            }
-            editor.putString("lastseeneids_json", array.toString());
-
-            editor.remove("dismissedeids_json");
-
-            if (Build.VERSION.SDK_INT >= 9)
-                editor.apply();
-            else
-                editor.commit();
-        } catch (ConcurrentModificationException e) {
-            save();
-        } catch (OutOfMemoryError|Exception e) {
-            editor.remove("notifications_json");
-            editor.remove("networks_json");
-            editor.remove("lastseeneids_json");
-            editor.remove("dismissedeids_json");
-            editor.commit();
-        }
+    public List<Notification> getNotifications() {
+        return new Select().all().from(Notification.class).where().orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
     }
 
     public void clear() {
         try {
-            synchronized (mNotifications) {
-                if (mNotifications.size() > 0) {
-                    for (Notification n : mNotifications) {
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
-                    }
-                }
+            for (Notification n : getNotifications()) {
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
             }
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             try {
@@ -257,64 +100,52 @@ import java.util.TimerTask;public class Notifications {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (mSaveTimerTask != null)
-            mSaveTimerTask.cancel();
-        mNotifications.clear();
-        mLastSeenEIDs.clear();
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-        editor.remove("notifications_json");
-        editor.remove("lastseeneids_json");
-        editor.remove("dismissedeids_json");
-        editor.commit();
         updateTeslaUnreadCount();
     }
 
     public void clearNetworks() {
-        mNetworks.clear();
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-        editor.remove("networks_json");
-        editor.commit();
+        new Delete().from(Notification_Network.class).queryClose();
     }
 
     public void clearLastSeenEIDs() {
-        mLastSeenEIDs.clear();
-        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-        editor.remove("lastseeneids_json");
-        editor.commit();
+        new Delete().from(Notification_LastSeenEID.class).queryClose();
     }
 
     public long getLastSeenEid(int bid) {
-        if (mLastSeenEIDs.get(bid) != null)
-            return mLastSeenEIDs.get(bid);
+        Notification_LastSeenEID eid = new Select().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).querySingle();
+        if(eid != null)
+            return eid.eid;
         else
             return -1;
     }
 
     public synchronized void updateLastSeenEid(int bid, long eid) {
-        mLastSeenEIDs.put(bid, eid);
-        save();
+        Notification_LastSeenEID n = new Notification_LastSeenEID();
+        n.bid = bid;
+        n.eid = eid;
+        TransactionManager.getInstance().saveOnSaveQueue(n);
     }
 
     public synchronized void dismiss(int bid, long eid) {
         Notification n = getNotification(eid);
-        synchronized (mNotifications) {
-            if (n != null)
-                mNotifications.remove(n);
-        }
-        save();
+        if (n != null)
+            n.delete();
         if (IRCCloudApplication.getInstance() != null)
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         updateTeslaUnreadCount();
     }
 
     public synchronized void addNetwork(int cid, String network) {
-        mNetworks.put(cid, network);
-        save();
+        Notification_Network n = new Notification_Network();
+        n.cid = cid;
+        n.name = network;
+        TransactionManager.getInstance().saveOnSaveQueue(n);
     }
 
     public synchronized void deleteNetwork(int cid) {
-        mNetworks.remove(cid);
-        save();
+        Notification_Network n = getNetwork(cid);
+        if(n != null)
+            n.delete();
     }
 
     public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
@@ -324,7 +155,7 @@ import java.util.TimerTask;public class Notifications {
             return;
         }
 
-        String network = getNetwork(cid);
+        Notification_Network network = getNetwork(cid);
         if (network == null)
             addNetwork(cid, "Unknown Network");
         Notification n = new Notification();
@@ -336,26 +167,9 @@ import java.util.TimerTask;public class Notifications {
         n.chan = chan;
         n.buffer_type = buffer_type;
         n.message_type = message_type;
-        n.network = network;
+        n.network = getNetwork(cid);
 
-        synchronized (mNotifications) {
-            //Log.d("IRCCloud", "Add: " + n);
-            mNotifications.add(n);
-            Collections.sort(mNotifications, new comparator());
-        }
-        save();
-    }
-
-    public void deleteNotification(int cid, int bid, long eid) {
-        synchronized (mNotifications) {
-            for (Notification n : mNotifications) {
-                if (n.cid == cid && n.bid == bid && n.eid == eid) {
-                    mNotifications.remove(n);
-                    save();
-                    return;
-                }
-            }
-        }
+        n.save();
     }
 
     public void deleteOldNotifications(int bid, long last_seen_eid) {
@@ -365,7 +179,7 @@ import java.util.TimerTask;public class Notifications {
             pending = true;
         }
 
-        ArrayList<Notification> notifications = getOtherNotifications();
+        List<Notification> notifications = getOtherNotifications();
 
         if (notifications.size() > 0) {
             for (Notification n : notifications) {
@@ -376,19 +190,16 @@ import java.util.TimerTask;public class Notifications {
             }
         }
 
-        synchronized (mNotifications) {
-            for (int i = 0; i < mNotifications.size(); i++) {
-                Notification n = mNotifications.get(i);
-                if (n.bid == bid && n.eid <= last_seen_eid) {
-                    mNotifications.remove(n);
-                    i--;
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
-                    changed = true;
-                }
+        notifications = getNotifications();
+
+        for (Notification n : notifications) {
+            if (n.bid == bid && n.eid <= last_seen_eid) {
+                n.delete();
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
+                changed = true;
             }
         }
-        save();
         if (changed) {
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
             try {
@@ -404,7 +215,7 @@ import java.util.TimerTask;public class Notifications {
     }
 
     public void deleteNotificationsForBid(int bid) {
-        ArrayList<Notification> notifications = getOtherNotifications();
+        List<Notification> notifications = getOtherNotifications();
 
         if (notifications.size() > 0) {
             for (Notification n : notifications) {
@@ -413,16 +224,14 @@ import java.util.TimerTask;public class Notifications {
         }
         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
 
-        synchronized (mNotifications) {
-            for (int i = 0; i < mNotifications.size(); i++) {
-                Notification n = mNotifications.get(i);
-                if (n.bid == bid) {
-                    mNotifications.remove(n);
-                    i--;
-                }
+        notifications = getNotifications();
+        for (Notification n : notifications) {
+            if (n.bid == bid) {
+                n.delete();
             }
         }
-        mLastSeenEIDs.remove(bid);
+
+        new Delete().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).queryClose();
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         try {
             if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
@@ -433,67 +242,36 @@ import java.util.TimerTask;public class Notifications {
         updateTeslaUnreadCount();
     }
 
-    private boolean isMessage(String type) {
-        return !(type.equalsIgnoreCase("channel_invite") || type.equalsIgnoreCase("callerid"));
+    public long count() {
+        return new Select().count().from(Notification.class).count();
     }
 
-    public int count() {
-        return mNotifications.size();
+    public List<Notification> getMessageNotifications() {
+        return new Select().from(Notification.class).where(Condition.column(Notification$Table.BID).isNot(excludeBid))
+                .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("callerid"))
+                .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("channel_invite"))
+                .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
     }
 
-    public ArrayList<Notification> getMessageNotifications() {
-        ArrayList<Notification> notifications = new ArrayList<Notification>();
-
-        synchronized (mNotifications) {
-            for (int i = 0; i < mNotifications.size(); i++) {
-                Notification n = mNotifications.get(i);
-                if (n != null && n.bid != excludeBid && isMessage(n.message_type)) {
-                    if (n.network == null)
-                        n.network = getNetwork(n.cid);
-                    notifications.add(n);
-                }
-            }
-        }
-        return notifications;
+    public List<Notification> getOtherNotifications() {
+        return new Select().from(Notification.class).where(
+                Condition.CombinedCondition.begin(Condition.column(Notification$Table.BID).isNot(excludeBid))
+                        .and(Condition.CombinedCondition.begin(Condition.column(Notification$Table.MESSAGE_TYPE).is("callerid"))
+                                .or(Condition.column(Notification$Table.MESSAGE_TYPE).is("channel_invite"))))
+                .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
     }
 
-    public ArrayList<Notification> getOtherNotifications() {
-        ArrayList<Notification> notifications = new ArrayList<Notification>();
-
-        synchronized (mNotifications) {
-            for (int i = 0; i < mNotifications.size(); i++) {
-                Notification n = mNotifications.get(i);
-                if (n != null && n.bid != excludeBid && !isMessage(n.message_type)) {
-                    if (n.network == null)
-                        n.network = getNetwork(n.cid);
-                    notifications.add(n);
-                }
-            }
-        }
-        return notifications;
-    }
-
-    public String getNetwork(int cid) {
-        return mNetworks.get(cid);
+    public Notification_Network getNetwork(int cid) {
+        return new Select().from(Notification_Network.class).where(Condition.column(Notification_Network$Table.CID).is(cid)).querySingle();
     }
 
     public Notification getNotification(long eid) {
-        synchronized (mNotifications) {
-            for (int i = 0; i < mNotifications.size(); i++) {
-                Notification n = mNotifications.get(i);
-                if (n.bid != excludeBid && n.eid == eid && isMessage(n.message_type)) {
-                    if (n.network == null)
-                        n.network = getNetwork(n.cid);
-                    return n;
-                }
-            }
-        }
-        return null;
+        return new Select().from(Notification.class).where(Condition.column(Notification$Table.EID).is(eid)).querySingle();
     }
 
     public synchronized void excludeBid(int bid) {
         excludeBid = -1;
-        ArrayList<Notification> notifications = getOtherNotifications();
+        List<Notification> notifications = getOtherNotifications();
 
         if (notifications.size() > 0) {
             for (Notification n : notifications) {
@@ -542,7 +320,7 @@ import java.util.TimerTask;public class Notifications {
         String text = "";
         String ticker = null;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-        ArrayList<Notification> notifications = getOtherNotifications();
+        List<Notification> notifications = getOtherNotifications();
 
         int notify_type = Integer.parseInt(prefs.getString("notify_type", "1"));
         boolean notify = false;
@@ -715,7 +493,7 @@ import java.util.TimerTask;public class Notifications {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String text = "";
         String weartext = "";
-        ArrayList<Notification> notifications = getMessageNotifications();
+        List<Notification> notifications = getMessageNotifications();
 
         int notify_type = Integer.parseInt(prefs.getString("notify_type", "1"));
         boolean notify = false;
@@ -737,13 +515,13 @@ import java.util.TimerTask;public class Notifications {
                         if (title == null || title.length() == 0)
                             title = last.nick;
                         if (title == null || title.length() == 0)
-                            title = last.network;
+                            title = last.network.name;
 
                         Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
                         replyIntent.putExtra("bid", last.bid);
                         replyIntent.putExtra("cid", last.cid);
                         replyIntent.putExtra("eids", eids);
-                        replyIntent.putExtra("network", last.network);
+                        replyIntent.putExtra("network", last.network.name);
                         if (last.buffer_type.equals("channel"))
                             replyIntent.putExtra("to", last.chan);
                         else
@@ -762,7 +540,7 @@ import java.util.TimerTask;public class Notifications {
                                 body = last.message;
                         }
 
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
                     }
                     lastbid = n.bid;
                     text = "";
@@ -823,7 +601,7 @@ import java.util.TimerTask;public class Notifications {
                             if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
                                 eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.chan);
                             else
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network);
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network.name);
 
                             if (n.message_type.equals("buffer_me_msg"))
                                 eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.message).toString());
@@ -861,7 +639,7 @@ import java.util.TimerTask;public class Notifications {
                         if (n.nick != null && n.nick.length() > 0)
                             notifyPebble(n.nick, pebbleTitle + Html.fromHtml(pebbleBody).toString());
                         else
-                            notifyPebble(n.network, pebbleTitle + Html.fromHtml(pebbleBody).toString());
+                            notifyPebble(n.network.name, pebbleTitle + Html.fromHtml(pebbleBody).toString());
                     }
                 }
                 eids[count++] = n.eid;
@@ -873,12 +651,12 @@ import java.util.TimerTask;public class Notifications {
                 if (title == null || title.length() == 0)
                     title = last.nick;
                 if (title == null || title.length() == 0)
-                    title = last.network;
+                    title = last.network.name;
 
                 Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
                 replyIntent.putExtra("bid", last.bid);
                 replyIntent.putExtra("cid", last.cid);
-                replyIntent.putExtra("network", last.network);
+                replyIntent.putExtra("network", last.network.name);
                 replyIntent.putExtra("eids", eids);
                 if (last.buffer_type.equals("channel"))
                     replyIntent.putExtra("to", last.chan);
@@ -897,7 +675,7 @@ import java.util.TimerTask;public class Notifications {
                     else
                         body = last.message;
                 }
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
             }
         }
     }
@@ -929,21 +707,10 @@ import java.util.TimerTask;public class Notifications {
             return;
         }
 
-        int count = 0;
-
-        synchronized (mNotifications) {
-            for (int i = 0; i < mNotifications.size(); i++) {
-                Notification n = mNotifications.get(i);
-                if (n.bid != excludeBid) {
-                    count++;
-                }
-            }
-        }
-
         try {
             ContentValues cv = new ContentValues();
             cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getLaunchIntentForPackage(IRCCloudApplication.getInstance().getApplicationContext().getPackageName()).getComponent().flattenToString());
-            cv.put("count", count);
+            cv.put("count", (int)count());
             IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
         } catch (IllegalArgumentException ex) {
         } catch (Exception ex) {

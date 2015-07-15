@@ -54,7 +54,7 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.DashClock;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
-import com.irccloud.android.Notifications;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
@@ -492,7 +492,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 findPreference("notify_vibrate").setEnabled(false);
                 findPreference("notify_ringtone").setEnabled(false);
                 findPreference("notify_led_color").setEnabled(false);
-                Notifications.getInstance().clear();
+                NotificationsList.getInstance().clear();
             }
             return true;
         }

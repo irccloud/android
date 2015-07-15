@@ -22,7 +22,6 @@ import android.util.SparseArray;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.irccloud.android.Notifications;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -129,7 +128,7 @@ public class ServersList {
             while (i.hasNext()) {
                 Buffer b = i.next();
                 BuffersList.getInstance().deleteAllDataForBuffer(b.getBid());
-                Notifications.getInstance().deleteNotificationsForBid(b.getBid());
+                NotificationsList.getInstance().deleteNotificationsForBid(b.getBid());
             }
             servers.remove(cid);
             s.delete();

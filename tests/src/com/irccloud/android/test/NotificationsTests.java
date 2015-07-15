@@ -18,24 +18,24 @@ package com.irccloud.android.test;
 
 import java.util.ArrayList;
 
-import com.irccloud.android.Notifications;
+import com.irccloud.android.data.collection.NotificationsList;
 
 import junit.framework.TestCase;
 
 public class NotificationsTests extends TestCase {
 
 	public void testAdd() {
-		Notifications n = Notifications.getInstance();
+		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
 		n.clearDismissed();
 
 		n.addNetwork(1, "TestNode");
 		n.addNotification(1, 1, 2, "sam", "test", "sam", "conversation", "buffer_msg");
 		
-		ArrayList<Notifications.Notification> notifications = n.getMessageNotifications();
+		ArrayList<NotificationsList.Notification> notifications = n.getMessageNotifications();
 		assertEquals(1, notifications.size());
 		
-		Notifications.Notification n1 = notifications.get(0);
+		NotificationsList.Notification n1 = notifications.get(0);
 		assertEquals(1, n1.cid);
 		assertEquals(1, n1.bid);
 		assertEquals(2, n1.eid);
@@ -52,7 +52,7 @@ public class NotificationsTests extends TestCase {
 	}
 	
 	public void testEidUpdate() {
-		Notifications n = Notifications.getInstance();
+		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
 		n.clearDismissed();
 
@@ -80,7 +80,7 @@ public class NotificationsTests extends TestCase {
 	}
 	
 	public void testDismiss() {
-		Notifications n = Notifications.getInstance();
+		NotificationsList n = NotificationsList.getInstance();
 		n.clear();
 		n.clearDismissed();
 

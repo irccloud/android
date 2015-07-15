@@ -24,6 +24,7 @@ import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.data.collection.NotificationsList;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONObject;
@@ -60,12 +61,12 @@ public class RemoteInputService extends IntentService {
                         long[] eids = intent.getLongArrayExtra("eids");
                         for (int j = 0; j < eids.length; j++) {
                             if (eids[j] > 0) {
-                                Notifications.getInstance().dismiss(bid, eids[j]);
+                                NotificationsList.getInstance().dismiss(bid, eids[j]);
                             }
                         }
                     }
                     if (!success)
-                        Notifications.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/")?"Please launch the IRCCloud app to send this command":"Your message was not sent. Please try again shortly.");
+                        NotificationsList.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/")?"Please launch the IRCCloud app to send this command":"Your message was not sent. Please try again shortly.");
                 } else {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "RemoteInputService received no remoteinput");
                 }
