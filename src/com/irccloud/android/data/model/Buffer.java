@@ -473,11 +473,11 @@ public class Buffer extends ObservableBaseModel {
 
     @Bindable
     public boolean getShowAddBtn() {
-        return isConsole() && getServer().isConnected();
+        return isConsole() && getServer() != null && getServer().isConnected();
     }
 
     @Bindable
     public boolean getShowSpinner() {
-        return isConsole() ? getServer().isConnecting() : (this.timeout > 0);
+        return (isConsole() && getServer() != null)? getServer().isConnecting() : (this.timeout > 0);
     }
 }

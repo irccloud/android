@@ -17,14 +17,17 @@
 package com.irccloud.android.data.collection;
 
 import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.model.User$Table;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -47,26 +50,32 @@ public class UsersList {
     }
 
     public UsersList() {
-        users = new HashMap<>(50);
+        users = new HashMap<>();
         collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
     }
 
     public synchronized void clear() {
         users.clear();
-        new Delete().from(User.class).queryClose();
+        Delete.table(User.class);
     }
 
     public void load() {
         try {
-            users.clear();
-            List<User> c = new Select().all().from(User.class).queryList();
-            if(c != null && !c.isEmpty()) {
-                for(User e : c) {
+            long start = System.currentTimeMillis();
+            ModelAdapter<User> modelAdapter = FlowManager.getModelAdapter(User.class);
+            Cursor c = new Select().all().from(User.class).query();
+            if(c != null && c.moveToFirst()) {
+                users = new HashMap<>(c.getCount());
+                do {
+                    User e = modelAdapter.loadFromCursor(c);
                     if (!users.containsKey(e.bid) || users.get(e.bid) == null)
                         users.put(e.bid, new TreeMap<String, User>(comparator));
                     users.get(e.bid).put(e.nick.toLowerCase(), e);
-                }
+                } while(c.moveToNext());
+                c.close();
+                long time = System.currentTimeMillis() - start;
+                android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " users in " + time + "ms");
             }
         } catch (SQLiteException e) {
             users.clear();

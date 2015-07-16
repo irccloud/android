@@ -16,18 +16,20 @@
 
 package com.irccloud.android.data.collection;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.data.model.Channel;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ChannelsList {
     private SparseArray<Channel> channels;
@@ -41,23 +43,29 @@ public class ChannelsList {
     }
 
     public ChannelsList() {
-        channels = new SparseArray<>(100);
+        channels = new SparseArray<>();
     }
 
     public synchronized void clear() {
         channels.clear();
-        new Delete().from(Channel.class).queryClose();
+        Delete.table(Channel.class);
     }
 
     public void load() {
         try {
-            channels.clear();
-            List<Channel> c = new Select().all().from(Channel.class).queryList();
-            if (c != null && !c.isEmpty()) {
-                for (Channel s : c) {
+            long start = System.currentTimeMillis();
+            ModelAdapter<Channel> modelAdapter = FlowManager.getModelAdapter(Channel.class);
+            Cursor c = new Select().all().from(Channel.class).query();
+            if (c != null && c.moveToFirst()) {
+                channels = new SparseArray<>(c.getCount());
+                do {
+                    Channel s = modelAdapter.loadFromCursor(c);
                     channels.put(s.bid, s);
                     updateMode(s.bid, s.mode, s.ops, true);
-                }
+                } while(c.moveToNext());
+                c.close();
+                long time = System.currentTimeMillis() - start;
+                android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " channels in " + time + "ms");
             }
         } catch (SQLiteException e) {
             channels.clear();

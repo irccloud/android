@@ -101,14 +101,14 @@ public class NotificationsList {
             e.printStackTrace();
         }
         updateTeslaUnreadCount();
+        Delete.table(Notification.class);
     }
 
-    public void clearNetworks() {
-        new Delete().from(Notification_Network.class).queryClose();
+    public void clearNetworks() { Delete.table(Notification_Network.class);
     }
 
     public void clearLastSeenEIDs() {
-        new Delete().from(Notification_LastSeenEID.class).queryClose();
+        Delete.table(Notification_LastSeenEID.class);
     }
 
     public long getLastSeenEid(int bid) {

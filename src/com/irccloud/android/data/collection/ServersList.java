@@ -16,6 +16,7 @@
 
 package com.irccloud.android.data.collection;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
@@ -24,13 +25,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Server;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 public class ServersList {
     private SparseArray<Server> servers;
@@ -44,7 +46,7 @@ public class ServersList {
     }
 
     public ServersList() {
-        servers = new SparseArray<>(10);
+        servers = new SparseArray<>();
     }
 
     public void clear() {
@@ -54,13 +56,19 @@ public class ServersList {
 
     public void load() {
         try {
-            servers.clear();
-            List<Server> c = new Select().all().from(Server.class).queryList();
-            if (c != null && !c.isEmpty()) {
-                for (Server s : c) {
+            long start = System.currentTimeMillis();
+            ModelAdapter<Server> modelAdapter = FlowManager.getModelAdapter(Server.class);
+            Cursor c = new Select().all().from(Server.class).query();
+            if (c != null && c.moveToFirst()) {
+                servers = new SparseArray<>(c.getCount());
+                do {
+                    Server s = modelAdapter.loadFromCursor(c);
                     servers.put(s.getCid(), s);
                     s.updateIgnores(s.raw_ignores);
-                }
+                } while(c.moveToNext());
+                c.close();
+                long time = System.currentTimeMillis() - start;
+                android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " servers in " + time + "ms");
             }
         } catch (SQLiteException e) {
             servers.clear();

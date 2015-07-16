@@ -17,6 +17,7 @@
 package com.irccloud.android.data.collection;
 
 import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 
@@ -26,14 +27,17 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.Event$Table;
 import com.irccloud.android.fragment.MessageViewFragment;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.TreeMap;@SuppressLint("UseSparseArrays")
+import java.util.TreeMap;
+
+@SuppressLint("UseSparseArrays")
 public class EventsList {
     private final HashMap<Integer, TreeMap<Long, Event>> events;
     private static EventsList instance = null;
@@ -50,17 +54,19 @@ public class EventsList {
 
     public void load(int bid) {
         try {
-            List<Event> c;
+            ModelAdapter<Event> modelAdapter = FlowManager.getModelAdapter(Event.class);
+            Cursor c;
             if (events.containsKey(bid) && events.get(bid) != null) {
-                c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(events.get(bid).firstKey())).queryList();
+                c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(events.get(bid).firstKey())).query();
             } else {
-                c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryList();
+                c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).query();
             }
 
-            if(c != null && !c.isEmpty()) {
-                for(Event e : c) {
-                    addEvent(e);
-                }
+            if(c != null && c.moveToFirst()) {
+                do {
+                    addEvent(modelAdapter.loadFromCursor(c));
+                } while(c.moveToNext());
+                c.close();
             }
         } catch (SQLiteException e) {
             events.clear();
@@ -79,7 +85,7 @@ public class EventsList {
     public void clear() {
         synchronized (events) {
             events.clear();
-            new Delete().from(Event.class).queryClose();
+            Delete.table(Event.class);
         }
     }
 
@@ -930,7 +936,6 @@ public class EventsList {
             } else {
                 Event e = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).orderBy(true, Event$Table.EID).limit(1).querySingle();
                 if(e != null) {
-                    android.util.Log.d("IRCCloud", "last EID result from database: " + e.eid);
                     return e.eid;
                 }
             }

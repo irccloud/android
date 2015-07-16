@@ -16,21 +16,23 @@
 
 package com.irccloud.android.data.collection;
 
+import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Channel;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
 
 public class BuffersList {
     public class comparator implements Comparator<Buffer> {
@@ -80,8 +82,8 @@ public class BuffersList {
     }
 
     public BuffersList() {
-        buffers = new ArrayList<>(100);
-        buffers_indexed = new SparseArray<>(100);
+        buffers = new ArrayList<>();
+        buffers_indexed = new SparseArray<>();
         collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
     }
@@ -89,19 +91,25 @@ public class BuffersList {
     public void clear() {
         buffers.clear();
         buffers_indexed.clear();
-        new Delete().from(Buffer.class).queryClose();
+        Delete.table(Buffer.class);
     }
 
     public void load() {
         try {
-            buffers.clear();
-            buffers_indexed.clear();
-            List<Buffer> c = new Select().all().from(Buffer.class).queryList();
-            if (c != null && !c.isEmpty()) {
-                for (Buffer b : c) {
+            long start = System.currentTimeMillis();
+            ModelAdapter<Buffer> modelAdapter = FlowManager.getModelAdapter(Buffer.class);
+            Cursor c = new Select().all().from(Buffer.class).query();
+            if (c != null && c.moveToFirst()) {
+                buffers = new ArrayList<>(c.getCount());
+                buffers_indexed = new SparseArray<>(c.getCount());
+                do {
+                    Buffer b = modelAdapter.loadFromCursor(c);
                     buffers.add(b);
                     buffers_indexed.put(b.getBid(), b);
-                }
+                } while(c.moveToNext());
+                c.close();
+                long time = System.currentTimeMillis() - start;
+                android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " buffers in " + time + "ms");
             }
         } catch (SQLiteException e) {
             buffers.clear();

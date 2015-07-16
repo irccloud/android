@@ -1413,12 +1413,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (getListView().getHeaderViewsCount() > 0) {
-            getListView().removeHeaderView(headerViewContainer);
-        }
-        if (getListView().getFooterViewsCount() > 0) {
-            getListView().removeFooterView(footerViewContainer);
-        }
         getListView().setAdapter(null);
     }
 

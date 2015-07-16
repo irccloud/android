@@ -42,6 +42,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -54,6 +55,7 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.User;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -392,7 +394,7 @@ public class NetworkConnection {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm.getActiveNetworkInfo();
 
-            if (ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0) {
+            if (ni != null && ni.isConnected() && (state == STATE_DISCONNECTED || state == STATE_DISCONNECTING) && session != null && handlers.size() > 0 && ready) {
                 if (idleTimerTask != null)
                     idleTimerTask.cancel();
                 connect();
@@ -890,12 +892,12 @@ public class NetworkConnection {
     }
 
     public synchronized void save() {
+        Delete.tables(Server.class, Buffer.class, Channel.class, User.class, Event.class);
         mServers.save();
         mBuffers.save();
         mChannels.save();
         mUsers.save();
         mEvents.save();
-        Log.e("IRCCloud", "Saving stream ID: " + streamId);
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         editor.putString("streamId", streamId);
         editor.putLong("highest_eid", highest_eid);
@@ -1941,7 +1943,6 @@ public class NetworkConnection {
                 if (mEvents.lastEidForBuffer(buffer.getBid()) <= buffer.getLast_seen_eid()) {
                     buffer.setUnread(0);
                     buffer.setHighlights(0);
-                    TransactionManager.getInstance().saveOnSaveQueue(buffer);
                 }
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
@@ -2010,7 +2011,8 @@ public class NetworkConnection {
                         if (newEvent) {
                             b.setHighlights(b.getHighlights() + 1);
                             b.setUnread(1);
-                            TransactionManager.getInstance().saveOnSaveQueue(b);
+                            if(!backlog)
+                                TransactionManager.getInstance().saveOnSaveQueue(b);
                         }
                         if(!backlog) {
                             JSONObject bufferDisabledMap = null;
@@ -2055,7 +2057,8 @@ public class NetworkConnection {
                         }
                     } else {
                         b.setUnread(1);
-                        TransactionManager.getInstance().saveOnSaveQueue(b);
+                        if(!backlog)
+                            TransactionManager.getInstance().saveOnSaveQueue(b);
                     }
                 } else if (b == null && !oobTasks.containsKey(-1)) {
                     Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
@@ -2493,19 +2496,23 @@ public class NetworkConnection {
             //notifyHandlers(EVENT_DEBUG, "Type: " + type + " BID: " + object.bid() + " EID: " + object.eid());
             //Crashlytics.log("New event: " + type);
             //Log.d(TAG, "New event: " + type);
-            if (object.bid() > -1 && !type.equals("makebuffer") && !type.equals("channel_init") && object.bid() != currentBid) {
+            if ((backlog || accrued > 0) && object.bid() > -1 && object.bid() != currentBid && object.eid > 0) {
                 if(backlog) {
                     if(mEvents.lastEidForBuffer(object.bid()) > 0 && object.eid() > mEvents.lastEidForBuffer(object.bid())) {
                         Log.w("IRCCloud", "Backlog gap detected, purging events for bid" + object.bid() + "(" + object.eid() + " / " + mEvents.lastEidForBuffer(object.bid()) + ")");
                         mEvents.deleteEventsForBuffer(object.bid());
                     }
-                } else if(accrued > 0 && firstEid == -1) {
-                    firstEid = object.eid();
-                    if (firstEid > highest_eid) {
-                        Log.w("IRCCloud", "Backlog gap detected, purging cache");
-                        mEvents.clear();
+                } else {
+                    if(firstEid == -1 && object.eid > highest_eid) {
+                        firstEid = object.eid();
+                        if (firstEid > highest_eid) {
+                            Log.w("IRCCloud", "Backlog gap detected, purging cache");
+                            mEvents.clear();
+                        }
                     }
                 }
+                currentBid = object.bid();
+                currentcount = 0;
             }
             Parser p = parserMap.get(type);
             if (p != null) {
@@ -3031,8 +3038,6 @@ public class NetworkConnection {
                             totalTime -= totalParseTime;
                             Crashlytics.log(Log.DEBUG, TAG, "Total non-processing time: " + totalTime + "ms (" + (totalTime / (float) count) + "ms / object)");
 
-                            save();
-
                             ArrayList<Buffer> buffers = mBuffers.getBuffers();
                             for (Buffer b : buffers) {
                                 NotificationsList.getInstance().deleteOldNotifications(b.getBid(), b.getLast_seen_eid());
@@ -3045,6 +3050,8 @@ public class NetworkConnection {
                             if (bid > 0) {
                                 notifyHandlers(EVENT_BACKLOG_END, bid);
                             }
+
+                            save();
                         }
                     } else {
                         throw new Exception("Unexpected JSON response");
