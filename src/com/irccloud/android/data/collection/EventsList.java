@@ -85,10 +85,12 @@ public class EventsList {
     }
 
     public void save() {
-        for (int bid : events.keySet()) {
-            TreeMap<Long, Event> e = events.get(bid);
-            if(e != null) {
-                TransactionManager.getInstance().saveOnSaveQueue(e.values());
+        synchronized (events) {
+            for (int bid : events.keySet()) {
+                TreeMap<Long, Event> e = events.get(bid);
+                if (e != null) {
+                    TransactionManager.getInstance().saveOnSaveQueue(e.values());
+                }
             }
         }
     }

@@ -175,7 +175,7 @@ public class IRCCloudApplicationBase extends Application {
 
     @Override
     public void onTerminate() {
-        NetworkConnection.getInstance().save();
+        NetworkConnection.getInstance().save(1);
         super.onTerminate();
     }
 

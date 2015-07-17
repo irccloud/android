@@ -51,7 +51,7 @@ public class ServersList {
 
     public void clear() {
         servers.clear();
-        new Delete().from(Server.class).queryClose();
+        Delete.table(Server.class);
     }
 
     public void load() {

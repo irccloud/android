@@ -1775,9 +1775,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                headerView.setVisibility(View.GONE);
+                                headerView.setVisibility(View.VISIBLE);
                                 backlogFailed.setVisibility(View.GONE);
-                                loadBacklogButton.setVisibility(View.VISIBLE);
+                                loadBacklogButton.setVisibility(View.GONE);
                             }
                         });
                     } else {

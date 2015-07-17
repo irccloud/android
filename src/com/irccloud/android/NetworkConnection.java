@@ -141,6 +141,9 @@ public class NetworkConnection {
     private volatile int last_reqid = 0;
     private static final Timer shutdownTimer = new Timer("shutdown-timer");
     private static final Timer idleTimer = new Timer("websocket-idle-timer");
+    private static final Timer saveTimer = new Timer("backlog-save-timer");
+    private TimerTask idleTimerTask = null;
+    private TimerTask saveTimerTask = null;
     public long idle_interval = 1000;
     private volatile int failCount = 0;
     private long reconnect_timestamp = 0;
@@ -886,39 +889,51 @@ public class NetworkConnection {
         notifyHandlers(EVENT_CACHE_END, null);
     }
 
-    public synchronized void save() {
-        final long start = System.currentTimeMillis();
-        Log.i("IRCCloud", "Saving backlog");
-        final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-        editor.remove("streamId");
-        editor.remove("highest_eid");
-        editor.commit();
+    public synchronized void save(int delay) {
+        if(saveTimerTask != null)
+            saveTimerTask.cancel();
 
-        TransactionManager.getInstance().getSaveQueue().setTransactionListener(new TransactionListener<List<Model>>() {
+        saveTimerTask = new TimerTask() {
             @Override
-            public void onResultReceived(List<Model> models) {
-                Log.e("IRCCloud", "Saved " + models.size() + " models in " + (System.currentTimeMillis() - start) + "ms");
-                editor.putString("streamId", streamId);
-                editor.putLong("highest_eid", highest_eid);
-                editor.commit();
-                TransactionManager.getInstance().getSaveQueue().setTransactionListener(null);
-            }
+            public void run() {
+                synchronized (saveTimer) {
+                    saveTimerTask = null;
+                    final long start = System.currentTimeMillis();
+                    Log.i("IRCCloud", "Saving backlog");
+                    final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                    editor.remove("streamId");
+                    editor.remove("highest_eid");
+                    editor.commit();
 
-            @Override
-            public boolean onReady(BaseTransaction<List<Model>> baseTransaction) {
-                return true;
-            }
+                    TransactionManager.getInstance().getSaveQueue().setTransactionListener(new TransactionListener<List<Model>>() {
+                        @Override
+                        public void onResultReceived(List<Model> models) {
+                            Log.e("IRCCloud", "Saved " + models.size() + " models in " + (System.currentTimeMillis() - start) + "ms");
+                            editor.putString("streamId", streamId);
+                            editor.putLong("highest_eid", highest_eid);
+                            editor.commit();
+                            TransactionManager.getInstance().getSaveQueue().setTransactionListener(null);
+                        }
 
-            @Override
-            public boolean hasResult(BaseTransaction<List<Model>> baseTransaction, List<Model> models) {
-                return true;
+                        @Override
+                        public boolean onReady(BaseTransaction<List<Model>> baseTransaction) {
+                            return true;
+                        }
+
+                        @Override
+                        public boolean hasResult(BaseTransaction<List<Model>> baseTransaction, List<Model> models) {
+                            return true;
+                        }
+                    });
+                    mServers.save();
+                    mBuffers.save();
+                    mChannels.save();
+                    mUsers.save();
+                    mEvents.save();
+                }
             }
-        });
-        mServers.save();
-        mBuffers.save();
-        mChannels.save();
-        mUsers.save();
-        mEvents.save();
+        };
+        saveTimer.schedule(saveTimerTask, delay);
     }
 
     public synchronized void connect() {
@@ -1062,7 +1077,8 @@ public class NetworkConnection {
                     }
                 }
                 client = null;
-                save();
+                if(streamId != null)
+                    save(100);
             }
 
             @Override
@@ -1085,7 +1101,8 @@ public class NetworkConnection {
                 state = STATE_DISCONNECTED;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
                 client = null;
-                save();
+                if(streamId != null)
+                    save(100);
             }
         }, extraHeaders);
 
@@ -1106,9 +1123,9 @@ public class NetworkConnection {
 
     public void logout() {
         final String sk = session;
+        streamId = null;
         disconnect();
         ready = false;
-        streamId = null;
         accrued = 0;
         highest_eid = -1;
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
@@ -1143,7 +1160,7 @@ public class NetworkConnection {
         NotificationsList.getInstance().clear();
         userInfo = null;
         session = null;
-        save();
+        save(100);
     }
 
     private synchronized int send(String method, JSONObject params) {
@@ -1625,8 +1642,6 @@ public class NetworkConnection {
             //so catch the exception
         }
     }
-
-    private TimerTask idleTimerTask = null;
 
     public long getReconnectTimestamp() {
         return reconnect_timestamp;
@@ -3086,7 +3101,7 @@ public class NetworkConnection {
                                 notifyHandlers(EVENT_BACKLOG_END, bid);
                             }
 
-                            save();
+                            save(10000);
                         }
                     } else {
                         throw new Exception("Unexpected JSON response");

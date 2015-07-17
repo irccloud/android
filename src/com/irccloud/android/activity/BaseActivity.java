@@ -172,9 +172,6 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
         if (session != null && session.length() > 0) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
-            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-                conn.connect();
-            conn.registerForConnectivity();
         } else {
             Intent i = new Intent(this, LoginActivity.class);
             i.addFlags(
@@ -183,6 +180,14 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
             startActivity(i);
             finish();
         }
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
+            conn.connect();
+        conn.registerForConnectivity();
     }
 
     @Override
