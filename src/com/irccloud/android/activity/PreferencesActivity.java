@@ -159,8 +159,30 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         }
         if (foundSony)
             findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
-        if(BuildConfig.DEBUG)
+        if(BuildConfig.DEBUG) {
             addPreferencesFromResource(R.xml.preferences_debug);
+            findPreference("enable_cache").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    if((Boolean)o) {
+                        Toast.makeText(PreferencesActivity.this, "Current backlog will be cached shortly", Toast.LENGTH_SHORT).show();
+                        NetworkConnection.getInstance().save(10000);
+                    } else {
+                        NetworkConnection.getInstance().clearOfflineCache();
+                        Toast.makeText(PreferencesActivity.this, "Offline cache was cleared", Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                }
+            });
+            findPreference("clear_cache").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    NetworkConnection.getInstance().clearOfflineCache();
+                    Toast.makeText(PreferencesActivity.this, "Offline cache was reset", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }
         addPreferencesFromResource(R.xml.preferences_about);
         findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 

@@ -23,5 +23,17 @@
             android:summaryOn="Memory leaks will be caught and automatically reported via Crashlytics"
             android:summaryOff="Memory leaks will be ignored"
             android:title="Detect Memory Leaks" />
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="enable_cache"
+            android:defaultValue="false"
+            android:summaryOn="Backlog will be cached for offline viewing"
+            android:summaryOff="Backlog will not be cached"
+            android:title="Offline Cache" />
+        <Preference
+            android:dependency="enable_cache"
+            android:title="Reset Offline Cache"
+            android:summary="Reload all backlog from the server"
+            android:key="clear_cache"
+            />
     </PreferenceCategory>
 </PreferenceScreen>

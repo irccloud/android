@@ -870,27 +870,29 @@ public class NetworkConnection {
     }
 
     public synchronized void load() {
-        notifyHandlers(EVENT_CACHE_START, null);
-        mServers.load();
-        notifyHandlers(EVENT_PROGRESS, (1.0f / 4.0f) * 1000.0f);
-        mBuffers.load();
-        notifyHandlers(EVENT_PROGRESS, (2.0f / 4.0f) * 1000.0f);
-        mChannels.load();
-        notifyHandlers(EVENT_PROGRESS, (3.0f / 4.0f) * 1000.0f);
-        if(mServers.count() > 0) {
-            String u = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
-            if(u != null && u.length() > 0)
-                userInfo = new UserInfo(new IRCCloudJSONObject(u));
-            highest_eid = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getLong("highest_eid", -1);
-            streamId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("streamId", null);
-            ready = true;
+        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", false)) {
+            notifyHandlers(EVENT_CACHE_START, null);
+            mServers.load();
+            notifyHandlers(EVENT_PROGRESS, (1.0f / 4.0f) * 1000.0f);
+            mBuffers.load();
+            notifyHandlers(EVENT_PROGRESS, (2.0f / 4.0f) * 1000.0f);
+            mChannels.load();
+            notifyHandlers(EVENT_PROGRESS, (3.0f / 4.0f) * 1000.0f);
+            if (mServers.count() > 0) {
+                String u = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
+                if (u != null && u.length() > 0)
+                    userInfo = new UserInfo(new IRCCloudJSONObject(u));
+                highest_eid = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getLong("highest_eid", -1);
+                streamId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("streamId", null);
+                ready = true;
+            }
+            notifyHandlers(EVENT_PROGRESS, (4.0f / 4.0f) * 1000.0f);
+            notifyHandlers(EVENT_CACHE_END, null);
         }
-        notifyHandlers(EVENT_PROGRESS, (4.0f / 4.0f) * 1000.0f);
-        notifyHandlers(EVENT_CACHE_END, null);
     }
 
     public synchronized void save(int delay) {
-        if(saveTimerTask != null)
+        if (saveTimerTask != null)
             saveTimerTask.cancel();
 
         saveTimerTask = new TimerTask() {
@@ -898,38 +900,40 @@ public class NetworkConnection {
             public void run() {
                 synchronized (saveTimer) {
                     saveTimerTask = null;
-                    final long start = System.currentTimeMillis();
-                    Log.i("IRCCloud", "Saving backlog");
-                    final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-                    editor.remove("streamId");
-                    editor.remove("highest_eid");
-                    editor.commit();
+                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", false)) {
+                        final long start = System.currentTimeMillis();
+                        Log.i("IRCCloud", "Saving backlog");
+                        final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                        editor.remove("streamId");
+                        editor.remove("highest_eid");
+                        editor.commit();
 
-                    TransactionManager.getInstance().getSaveQueue().setTransactionListener(new TransactionListener<List<Model>>() {
-                        @Override
-                        public void onResultReceived(List<Model> models) {
-                            Log.e("IRCCloud", "Saved " + models.size() + " models in " + (System.currentTimeMillis() - start) + "ms");
-                            editor.putString("streamId", streamId);
-                            editor.putLong("highest_eid", highest_eid);
-                            editor.commit();
-                            TransactionManager.getInstance().getSaveQueue().setTransactionListener(null);
-                        }
+                        TransactionManager.getInstance().getSaveQueue().setTransactionListener(new TransactionListener<List<Model>>() {
+                            @Override
+                            public void onResultReceived(List<Model> models) {
+                                Log.i("IRCCloud", "Saved " + models.size() + " objects in " + (System.currentTimeMillis() - start) + "ms");
+                                editor.putString("streamId", streamId);
+                                editor.putLong("highest_eid", highest_eid);
+                                editor.commit();
+                                TransactionManager.getInstance().getSaveQueue().setTransactionListener(null);
+                            }
 
-                        @Override
-                        public boolean onReady(BaseTransaction<List<Model>> baseTransaction) {
-                            return true;
-                        }
+                            @Override
+                            public boolean onReady(BaseTransaction<List<Model>> baseTransaction) {
+                                return true;
+                            }
 
-                        @Override
-                        public boolean hasResult(BaseTransaction<List<Model>> baseTransaction, List<Model> models) {
-                            return true;
-                        }
-                    });
-                    mServers.save();
-                    mBuffers.save();
-                    mChannels.save();
-                    mUsers.save();
-                    mEvents.save();
+                            @Override
+                            public boolean hasResult(BaseTransaction<List<Model>> baseTransaction, List<Model> models) {
+                                return true;
+                            }
+                        });
+                        mServers.save();
+                        mBuffers.save();
+                        mChannels.save();
+                        mUsers.save();
+                        mEvents.save();
+                    }
                 }
             }
         };
@@ -1161,6 +1165,23 @@ public class NetworkConnection {
         userInfo = null;
         session = null;
         save(100);
+    }
+
+    public void clearOfflineCache() {
+        SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+        editor.remove("userinfo");
+        editor.remove("highest_eid");
+        editor.remove("streamId");
+        editor.commit();
+        highest_eid = -1;
+        streamId = null;
+        disconnect();
+        mServers.clear();
+        mBuffers.clear();
+        mChannels.clear();
+        mUsers.clear();
+        mEvents.clear();
+        connect();
     }
 
     private synchronized int send(String method, JSONObject params) {
