@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
-import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.model.User$Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -34,11 +33,13 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 
 @SuppressLint("UseSparseArrays")
 public class UsersList {
     private final HashMap<Integer, TreeMap<String, User>> users;
+    private HashSet<Integer> loaded_bids = new HashSet<>();
     private Collator collator;
 
     private static UsersList instance = null;
@@ -63,9 +64,8 @@ public class UsersList {
     public void load(int bid) {
         synchronized (users) {
             try {
-                if (users.containsKey(bid) && users.get(bid).size() >= new Select().count().from(User.class).where(Condition.column(User$Table.BID).is(bid)).count()) {
+                if(loaded_bids.contains(bid))
                     return;
-                }
                 long start = System.currentTimeMillis();
                 ModelAdapter<User> modelAdapter = FlowManager.getModelAdapter(User.class);
                 Cursor c = new Select().from(User.class).where(Condition.column(User$Table.BID).is(bid)).query();
@@ -80,6 +80,7 @@ public class UsersList {
                     c.close();
                     long time = System.currentTimeMillis() - start;
                     android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " users in " + time + "ms");
+                    loaded_bids.add(bid);
                 }
             } catch (SQLiteException e) {
                 e.printStackTrace();

@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
-import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -36,11 +35,13 @@ import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeMap;
 
 @SuppressLint("UseSparseArrays")
 public class EventsList {
     private final HashMap<Integer, TreeMap<Long, Event>> events;
+    private HashSet<Integer> loaded_bids = new HashSet<>();
     private static EventsList instance = null;
 
     public synchronized static EventsList getInstance() {
@@ -56,6 +57,8 @@ public class EventsList {
     public void load(int bid) {
         synchronized (events) {
             try {
+                if(loaded_bids.contains(bid))
+                    return;
                 long start = System.currentTimeMillis();
                 ModelAdapter<Event> modelAdapter = FlowManager.getModelAdapter(Event.class);
                 Cursor c;
@@ -73,6 +76,7 @@ public class EventsList {
                     c.close();
                     long time = System.currentTimeMillis() - start;
                     android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " events in " + time + "ms");
+                    loaded_bids.add(bid);
                 }
             } catch (SQLiteException e) {
                 e.printStackTrace();
@@ -92,6 +96,7 @@ public class EventsList {
     public void clear() {
         synchronized (events) {
             events.clear();
+            loaded_bids.clear();
             Delete.table(Event.class);
         }
     }
