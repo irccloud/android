@@ -20,6 +20,7 @@ import android.text.Spanned;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.Ignore;
+import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.ServersList;
 import com.raizlabs.android.dbflow.annotation.Column;
@@ -93,10 +94,10 @@ public class Event extends BaseModel {
     public boolean to_buffer;
 
     @Column
-    public int color;
+    public int color = R.color.row_message_label;
 
     @Column
-    public int bg_color;
+    public int bg_color = R.color.message_bg;
 
     @Column
     public JsonNode ops;
@@ -105,13 +106,13 @@ public class Event extends BaseModel {
     public long group_eid;
 
     @Column
-    public int row_type;
+    public int row_type = 0;
 
     @Column
     public String group_msg;
 
     @Column
-    public boolean linkify;
+    public boolean linkify = true;
 
     @Column
     public String target_mode;
@@ -129,7 +130,7 @@ public class Event extends BaseModel {
     public String command;
 
     @Column
-    public int day;
+    public int day = -1;
 
     @Column
     public String contentDescription;

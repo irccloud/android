@@ -615,7 +615,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (e.group_eid == e.eid + 1) {
                                 holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
                                 holder.expandable.setContentDescription("expanded");
-                                row.setBackgroundResource(R.drawable.status_bg);
+                                row.setBackgroundResource(R.color.status_bg);
                             } else {
                                 holder.expandable.setImageResource(R.drawable.tiny_plus);
                                 holder.expandable.setContentDescription("collapse");

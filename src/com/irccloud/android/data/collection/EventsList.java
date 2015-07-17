@@ -840,17 +840,6 @@ public class EventsList {
             e.to_chan = event.getBoolean("to_chan");
             e.to_buffer = event.getBoolean("to_buffer");
             e.ops = event.getJsonNode("ops");
-            e.color = R.color.row_message_label;
-            e.bg_color = R.color.message_bg;
-            e.row_type = 0;
-            e.html = null;
-            e.group_msg = null;
-            e.linkify = true;
-            e.target_mode = null;
-            e.pending = false;
-            e.failed = false;
-            e.command = null;
-            e.day = -1;
             e.entities = event.getJsonNode("entities");
 
             if (event.has("reqid"))
@@ -877,8 +866,6 @@ public class EventsList {
 
             if (e.self)
                 e.bg_color = R.color.self;
-
-            TransactionManager.getInstance().saveOnSaveQueue(e);
 
             return e;
         }

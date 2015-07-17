@@ -34,10 +34,9 @@
     <drawable name="status_fail_bg">#F8DF26</drawable>
     <drawable name="network_fail_bg">#ffee97</drawable>
     <color name="status_fail_text">#632800</color>
-    <color name="timestamp">#AAA</color>
-    <color name="message_bg">#FFF</color>
-    <color name="status_bg">#EEE</color>
-    <drawable name="status_bg">#EEE</drawable>
+    <color name="timestamp">#AAAAAA</color>
+    <color name="message_bg">#FFFFFF</color>
+    <color name="status_bg">#EEEEEE</color>
     <color name="highlight">#C0DBFF</color>
     <color name="highlight_timestamp">#600000</color>
     <color name="self">#e2edff</color>

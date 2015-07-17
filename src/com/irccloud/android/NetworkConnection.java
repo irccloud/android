@@ -2087,8 +2087,10 @@ public class NetworkConnection {
                     mEvents.clearPendingEvents(event.bid);
                 }
 
-                if (!backlog)
+                if (!backlog) {
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                     notifyHandlers(EVENT_BUFFERMSG, event);
+                }
             }
         };
 
@@ -2187,9 +2189,11 @@ public class NetworkConnection {
         put("link_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
-                if (!backlog)
+                Event event = mEvents.addEvent(object);
+                if (!backlog) {
                     notifyHandlers(EVENT_LINKCHANNEL, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
+                }
             }
         });
         put("channel_init", new Parser() {
@@ -2217,10 +2221,11 @@ public class NetworkConnection {
         put("channel_topic", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mChannels.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid") / 1000000, object.has("author") ? object.getString("author") : object.getString("server"));
                     notifyHandlers(EVENT_CHANNELTOPIC, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2233,10 +2238,11 @@ public class NetworkConnection {
         put("channel_mode", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mChannels.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
                     notifyHandlers(EVENT_CHANNELMODE, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2253,11 +2259,12 @@ public class NetworkConnection {
         put("joined_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     User u = mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
                     notifyHandlers(EVENT_JOIN, object);
                     TransactionManager.getInstance().saveOnSaveQueue(u);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2265,7 +2272,7 @@ public class NetworkConnection {
         put("parted_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.deleteUser(object.bid(), object.getString("nick"));
                     if (object.type().equals("you_parted_channel")) {
@@ -2274,6 +2281,7 @@ public class NetworkConnection {
                         mBuffers.dirty = true;
                     }
                     notifyHandlers(EVENT_PART, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2281,25 +2289,28 @@ public class NetworkConnection {
         put("quit", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.deleteUser(object.bid(), object.getString("nick"));
                     notifyHandlers(EVENT_QUIT, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
         put("quit_server", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
-                if (!backlog)
+                Event event = mEvents.addEvent(object);
+                if (!backlog) {
                     notifyHandlers(EVENT_QUIT, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
+                }
             }
         });
         put("kicked_channel", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.deleteUser(object.bid(), object.getString("nick"));
                     if (object.type().equals("you_kicked_channel")) {
@@ -2308,6 +2319,7 @@ public class NetworkConnection {
                         mBuffers.dirty = true;
                     }
                     notifyHandlers(EVENT_KICK, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2317,13 +2329,14 @@ public class NetworkConnection {
         put("nickchange", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.updateNick(object.bid(), object.getString("oldnick"), object.getString("newnick"));
                     if (object.type().equals("you_nickchange")) {
                         mServers.getServer(object.cid).setNick(object.getString("newnick"));
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2331,10 +2344,11 @@ public class NetworkConnection {
         put("user_channel_mode", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mUsers.updateMode(object.bid(), object.getString("nick"), object.getString("newmode"));
                     notifyHandlers(EVENT_USERCHANNELMODE, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2405,18 +2419,21 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mServers.getServer(object.cid()).setUsermask(object.getString("usermask"));
-                mEvents.addEvent(object);
-                if (!backlog)
+                Event event = mEvents.addEvent(object);
+                if (!backlog) {
                     notifyHandlers(EVENT_SELFDETAILS, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
+                }
             }
         });
         put("user_mode", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mEvents.addEvent(object);
+                Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     mServers.getServer(object.cid()).setMode(object.getString("newmode"));
                     notifyHandlers(EVENT_USERMODE, object);
+                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2457,6 +2474,7 @@ public class NetworkConnection {
                 if (!backlog) {
                     notifyHandlers(EVENT_ALERT, object);
                     notifyHandlers(EVENT_BUFFERMSG, e);
+                    TransactionManager.getInstance().saveOnSaveQueue(e);
                 }
             }
         });
