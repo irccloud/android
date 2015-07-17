@@ -63,6 +63,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
@@ -540,7 +541,18 @@ public class NotificationsList {
                                 body = last.message;
                         }
 
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
+                        ArrayList<String> lines = new ArrayList<>(Arrays.asList(text.split("<br/>")));
+                        while(lines.size() > 3)
+                            lines.remove(0);
+
+                        StringBuilder big_text = new StringBuilder();
+                        for(String l : lines) {
+                            if(big_text.length() > 0)
+                                big_text.append("<br/>");
+                            big_text.append(l);
+                        }
+
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
                     }
                     lastbid = n.bid;
                     text = "";
@@ -550,18 +562,18 @@ public class NotificationsList {
                     show = false;
                     auto_messages = new String[notifications.size()];
                 }
-                if (count < 3) {
-                    if (text.length() > 0)
-                        text += "<br/>";
-                    if (n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
-                        text += "— " + n.message;
-                    else if (n.buffer_type.equals("conversation"))
-                        text += n.message;
-                    else if (n.message_type.equals("buffer_me_msg"))
-                        text += "<b>— " + n.nick + "</b> " + n.message;
-                    else
-                        text += "<b>" + n.nick + "</b> " + n.message;
-                }
+
+                if (text.length() > 0)
+                    text += "<br/>";
+                if (n.buffer_type.equals("conversation") && n.message_type.equals("buffer_me_msg"))
+                    text += "— " + n.message;
+                else if (n.buffer_type.equals("conversation"))
+                    text += n.message;
+                else if (n.message_type.equals("buffer_me_msg"))
+                    text += "<b>— " + n.nick + "</b> " + n.message;
+                else
+                    text += "<b>" + n.nick + "</b> " + n.message;
+
                 if (weartext.length() > 0)
                     weartext += "<br/><br/>";
                 if (n.message_type.equals("buffer_me_msg"))
@@ -675,7 +687,19 @@ public class NotificationsList {
                     else
                         body = last.message;
                 }
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(text), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
+
+                ArrayList<String> lines = new ArrayList<>(Arrays.asList(text.split("<br/>")));
+                while(lines.size() > 3)
+                    lines.remove(0);
+
+                StringBuilder big_text = new StringBuilder();
+                for(String l : lines) {
+                    if(big_text.length() > 0)
+                        big_text.append("<br/>");
+                    big_text.append(l);
+                }
+
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
             }
         }
     }
