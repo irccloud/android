@@ -670,6 +670,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if(buffer != null)
                     buffer.setScrolledUp(false);
                 getListView().setSelection(adapter.getCount() - 1);
+                hideView(unreadBottomView);
             }
 
         });
