@@ -33,7 +33,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.TreeMap;
 
 @SuppressLint("UseSparseArrays")
@@ -125,9 +124,11 @@ public class UsersList {
     };
 
     public synchronized void deleteUser(int bid, String nick) {
+        User u = getUser(bid, nick);
+        if(u != null)
+            u.delete();
         if (users.containsKey(bid) && users.get(bid) != null)
             users.get(bid).remove(nick.toLowerCase());
-        new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).and(Condition.column(User$Table.NICK).is(nick)).queryClose();
     }
 
     public synchronized void deleteUsersForBuffer(int bid) {

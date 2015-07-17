@@ -3716,7 +3716,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 });
                 try {
                     mvf.getListView().startAnimation(anim);
-                    ulf.getListView().startAnimation(anim);
+                    ulf.getRecyclerView().startAnimation(anim);
                 } catch (Exception e) {
 
                 }
@@ -3731,7 +3731,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             messageTxt.append(buffer.getDraft());
                     }
                 });
-                ulf.getListView().animate().alpha(0);
+                ulf.getRecyclerView().animate().alpha(0);
             }
             mvf.showSpinner(true);
         } else {
@@ -3772,13 +3772,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 anim.setFillAfter(true);
                 if (mvf != null && mvf.getListView() != null)
                     mvf.getListView().startAnimation(anim);
-                if (ulf != null && ulf.getListView() != null)
-                    ulf.getListView().startAnimation(anim);
+                if (ulf != null && ulf.getRecyclerView() != null)
+                    ulf.getRecyclerView().startAnimation(anim);
             } else {
                 if (mvf != null && mvf.getListView() != null)
                     mvf.getListView().animate().alpha(1);
-                if (ulf != null && ulf.getListView() != null)
-                    ulf.getListView().animate().alpha(1);
+                if (ulf != null && ulf.getRecyclerView() != null)
+                    ulf.getRecyclerView().animate().alpha(1);
             }
             if (mvf != null && mvf.getListView() != null) {
                 if (mvf.buffer != buffer && buffer != null && BuffersList.getInstance().getBuffer(buffer.getBid()) != null) {

@@ -15,36 +15,47 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:minHeight="32dp"
-    android:orientation="horizontal" >
-    
-    <TextView
-        android:id="@+id/label"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:ellipsize="end"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <import type="android.view.View"/>
+        <variable name="user" type="com.irccloud.android.fragment.UsersListFragment.UserListEntry"/>
+    </data>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:lines="1"
-        android:maxLines="1"
-        android:text="TextView"
-        android:textSize="16sp" />
+        android:minHeight="32dp"
+        android:background="@{ user.static_bg_color }"
+        android:paddingBottom="@{ user.last ? @dimen/usergroup_padding : 0 }"
+        android:orientation="horizontal" >
 
-    <TextView
-        android:id="@+id/count"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:paddingRight="12dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:lines="1"
+            android:maxLines="1"
+            android:text="@{ user.text }"
+            android:textColor="@{ user.away ? @color/row_user_away : user.color }"
+            android:background="@{ user.type > 0 ? user.bg_color : user.static_bg_color }"
+            android:textSize="16sp" />
 
-</LinearLayout>
+        <TextView
+            android:text="@{ user.count }"
+            android:textColor="@{ user.color }"
+            android:visibility="@{ user.count != null ? View.VISIBLE : View.GONE }"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingRight="12dp" />
+
+    </LinearLayout>
+</layout>

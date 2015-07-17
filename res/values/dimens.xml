@@ -35,4 +35,5 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="buffer_min_height">52dp</dimen>
     <dimen name="buffergroup_min_height">60dp</dimen>
+    <dimen name="usergroup_padding">8dp</dimen>
 </resources>

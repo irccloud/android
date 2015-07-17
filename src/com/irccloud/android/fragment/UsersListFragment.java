@@ -19,16 +19,17 @@ package com.irccloud.android.fragment;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +43,7 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.collection.UsersList;
+import com.irccloud.android.databinding.RowUserBinding;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
@@ -50,7 +52,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class UsersListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
+public class UsersListFragment extends Fragment implements NetworkConnection.IRCEventHandler {
     private static final int TYPE_HEADING = 0;
     private static final int TYPE_USER = 1;
 
@@ -62,30 +64,36 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     private String channel;
     private static Timer tapTimer = null;
     private TimerTask tapTimerTask = null;
+    private RecyclerView recyclerView = null;
 
-    private class UserListAdapter extends BaseAdapter {
+    public RecyclerView getRecyclerView() {
+        return recyclerView;
+    }
+
+    public static class UserListEntry {
+        public int type;
+        public String text;
+        public String count;
+        public int color;
+        public int bg_color;
+        public int static_bg_color;
+        public boolean away;
+        public boolean last;
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public RowUserBinding binding;
+
+        public ViewHolder(View v) {
+            super(v);
+            binding = DataBindingUtil.bind(v);
+        }
+    }
+
+    private class UserListAdapter extends RecyclerView.Adapter<ViewHolder> {
         ArrayList<UserListEntry> data;
-        private ListFragment ctx;
 
-        private class ViewHolder {
-            int type;
-            TextView label;
-            TextView count;
-        }
-
-        private class UserListEntry {
-            int type;
-            String text;
-            String count;
-            int color;
-            int bg_color;
-            int static_bg_color;
-            boolean away;
-            boolean last;
-        }
-
-        public UserListAdapter(ListFragment context) {
-            ctx = context;
+        public UserListAdapter() {
             data = new ArrayList<>(50);
         }
 
@@ -107,11 +115,10 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return data.size();
         }
 
-        @Override
         public Object getItem(int position) {
             return data.get(position);
         }
@@ -122,69 +129,32 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View row = convertView;
-            if (position >= data.size())
-                return row;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = RowUserBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
+            return new ViewHolder(v);
+        }
 
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
             UserListEntry e = data.get(position);
-            ViewHolder holder;
+            RowUserBinding row = holder.binding;
 
-            if (row == null) {
-                LayoutInflater inflater = ctx.getLayoutInflater(null);
-                row = inflater.inflate(R.layout.row_user, null);
-
-                holder = new ViewHolder();
-                holder.label = (TextView) row.findViewById(R.id.label);
-                holder.count = (TextView) row.findViewById(R.id.count);
-                holder.type = e.type;
-
-                row.setTag(holder);
-            } else {
-                holder = (ViewHolder) row.getTag();
-            }
-
-            row.setOnLongClickListener(new OnItemLongClickListener(position));
-            row.setOnClickListener(new OnItemClickListener(position));
-            holder.label.setText(e.text);
-            if (e.type == TYPE_USER && e.away) {
-                holder.label.setTextColor(getSafeResources().getColorStateList(R.color.row_user_away));
-            } else {
-                holder.label.setTextColor(getSafeResources().getColorStateList(e.color));
-            }
-
-            row.setBackgroundResource(e.static_bg_color);
+            row.setUser(e);
+            row.getRoot().setOnLongClickListener(new OnItemLongClickListener(position));
+            row.getRoot().setOnClickListener(new OnItemClickListener(position));
 
             if (e.type == TYPE_HEADING) {
-                if (e.count != null) {
-                    holder.count.setVisibility(View.VISIBLE);
-                    holder.count.setText(e.count);
-                    holder.count.setTextColor(getSafeResources().getColorStateList(e.color));
-                } else {
-                    holder.count.setVisibility(View.GONE);
-                    holder.count.setText("");
-                }
-                holder.label.setBackgroundDrawable(null);
-                row.setFocusable(false);
-                row.setEnabled(false);
-                row.setPadding(0, 0, 0, 0);
+                row.getRoot().setFocusable(false);
+                row.getRoot().setEnabled(false);
             } else {
-                holder.count.setVisibility(View.GONE);
-                holder.count.setText("");
-                holder.label.setBackgroundResource(e.bg_color);
-                row.setFocusable(true);
-                row.setEnabled(true);
-                if (e.last)
-                    row.setPadding(0, 0, 0, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 8, getSafeResources().getDisplayMetrics()));
-                else
-                    row.setPadding(0, 0, 0, 0);
+                row.getRoot().setFocusable(true);
+                row.getRoot().setEnabled(true);
             }
-
-            return row;
+            row.executePendingBindings();
         }
     }
 
-    private void addUsersFromList(ArrayList<UserListAdapter.UserListEntry> entries, ArrayList<User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
+    private void addUsersFromList(ArrayList<UserListEntry> entries, ArrayList<User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
         if (users.size() > 0 && symbol != null) {
             entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, heading_color, heading_bg_color, heading_bg_color, false, false));
             for (int i = 0; i < users.size(); i++) {
@@ -198,19 +168,19 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         if (users == null) {
             if (adapter != null) {
                 adapter.data.clear();
-                adapter.notifyDataSetInvalidated();
+                adapter.notifyDataSetChanged();
             }
             return;
         }
 
-        ArrayList<UserListAdapter.UserListEntry> entries = new ArrayList<UserListAdapter.UserListEntry>();
-        ArrayList<User> opers = new ArrayList<User>();
-        ArrayList<User> owners = new ArrayList<User>();
-        ArrayList<User> admins = new ArrayList<User>();
-        ArrayList<User> ops = new ArrayList<User>();
-        ArrayList<User> halfops = new ArrayList<User>();
-        ArrayList<User> voiced = new ArrayList<User>();
-        ArrayList<User> members = new ArrayList<User>();
+        ArrayList<UserListEntry> entries = new ArrayList<>();
+        ArrayList<User> opers = new ArrayList<>();
+        ArrayList<User> owners = new ArrayList<>();
+        ArrayList<User> admins = new ArrayList<>();
+        ArrayList<User> ops = new ArrayList<>();
+        ArrayList<User> halfops = new ArrayList<>();
+        ArrayList<User> voiced = new ArrayList<>();
+        ArrayList<User> members = new ArrayList<>();
         boolean showSymbol = false;
         try {
             if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null)
@@ -234,7 +204,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
         }
 
         if (adapter == null) {
-            adapter = new UserListAdapter(UsersListFragment.this);
+            adapter = new UserListAdapter();
         }
 
         for (int i = 0; i < users.size(); i++) {
@@ -328,8 +298,8 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
         adapter.setItems(entries);
 
-        if (getListAdapter() == null && entries.size() > 0)
-            setListAdapter(adapter);
+        if (recyclerView != null && entries.size() > 0)
+            recyclerView.setAdapter(adapter);
         else
             adapter.notifyDataSetChanged();
     }
@@ -350,7 +320,10 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.userslist, null);
+        View v = inflater.inflate(R.layout.userslist, container);
+        recyclerView = (RecyclerView)v.findViewById(android.R.id.list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        return v;
     }
 
     public void onResume() {
@@ -394,8 +367,8 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
                                 users = UsersList.getInstance().getUsersForBuffer(bid);
                             refresh(users);
                             try {
-                                if (getListView() != null)
-                                    getListView().setSelection(0);
+                                if (recyclerView != null)
+                                    recyclerView.scrollToPosition(0);
                             } catch (Exception e) { //Sometimes the list view isn't available yet
                             }
                         }
@@ -442,8 +415,8 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
 
         @Override
         public boolean onLongClick(View v) {
-            if (pos < adapter.getCount()) {
-                UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry) adapter.getItem(pos);
+            if (pos < adapter.getItemCount()) {
+                UserListEntry e = (UserListEntry) adapter.getItem(pos);
                 if (e.type == TYPE_USER) {
                     mListener.onUserSelected(cid, channel, e.text);
                     return true;
@@ -471,7 +444,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
                     tapTimerTask.cancel();
                     tapTimerTask = null;
                     try {
-                        UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry) adapter.getItem(pos);
+                        UserListEntry e = (UserListEntry) adapter.getItem(pos);
                         if (e.type == TYPE_USER)
                             mListener.onUserDoubleClicked(e.text);
                     } catch (Exception e) {
@@ -488,7 +461,7 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
                                     @Override
                                     public void run() {
                                         try {
-                                            UserListAdapter.UserListEntry e = (UserListAdapter.UserListEntry) adapter.getItem(position);
+                                            UserListEntry e = (UserListEntry) adapter.getItem(position);
                                             if (e.type == TYPE_USER) {
                                                 mListener.onUserSelected(cid, channel, e.text);
 
@@ -564,13 +537,8 @@ public class UsersListFragment extends ListFragment implements NetworkConnection
     public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
 
-    public Resources getSafeResources() {
-        return IRCCloudApplication.getInstance().getApplicationContext().getResources();
-    }
-
     public interface OnUserSelectedListener {
-        public void onUserSelected(int cid, String channel, String name);
-
-        public void onUserDoubleClicked(String name);
+        void onUserSelected(int cid, String channel, String name);
+        void onUserDoubleClicked(String name);
     }
 }
