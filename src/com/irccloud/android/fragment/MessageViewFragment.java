@@ -1455,7 +1455,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         public HeartbeatTask() {
             b = buffer;
             /*if(buffer != null)
-                Log.d("IRCCloud", "Heartbeat task created. Ready: " + ready + " BID: " + buffer.bid);
+                Log.d("IRCCloud", "Heartbeat task created. Ready: " + ready + " BID: " + buffer.getBid());
             Thread.dumpStack();*/
         }
 
@@ -1483,19 +1483,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 return null;
 
             try {
-                TreeMap<Long, Event> events = EventsList.getInstance().getEventsForBuffer(buffer.getBid());
-                if (events != null && events.size() > 0) {
-                    Long eid = events.get(events.lastKey()).eid;
+                Long eid = EventsList.getInstance().lastEidForBuffer(b.getBid());
 
-                    if (eid >= b.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                        if (getActivity() != null && getActivity().getIntent() != null)
-                            getActivity().getIntent().putExtra("last_seen_eid", eid);
-                        NetworkConnection.getInstance().heartbeat(b.getCid(), b.getBid(), eid);
-                        b.setLast_seen_eid(eid);
-                        b.setUnread(0);
-                        b.setHighlights(0);
-                        //Log.e("IRCCloud", "Heartbeat: " + buffer.name + ": " + events.get(events.lastKey()).msg);
-                    }
+                if (eid >= b.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    if (getActivity() != null && getActivity().getIntent() != null)
+                        getActivity().getIntent().putExtra("last_seen_eid", eid);
+                    NetworkConnection.getInstance().heartbeat(b.getCid(), b.getBid(), eid);
+                    b.setLast_seen_eid(eid);
+                    b.setUnread(0);
+                    b.setHighlights(0);
+                    //Log.e("IRCCloud", "Heartbeat: " + buffer.name + ": " + events.get(events.lastKey()).msg);
                 }
             } catch (Exception e) {
             }

@@ -55,7 +55,10 @@ import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.User;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
 import com.raizlabs.android.dbflow.sql.language.Delete;
+import com.raizlabs.android.dbflow.structure.Model;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -865,43 +868,57 @@ public class NetworkConnection {
 
     public synchronized void load() {
         notifyHandlers(EVENT_CACHE_START, null);
-        android.util.Log.e("IRCCloud", "Servers");
         mServers.load();
-        notifyHandlers(EVENT_PROGRESS, (1.0f / 5.0f) * 1000.0f);
-        android.util.Log.e("IRCCloud", "Buffers");
+        notifyHandlers(EVENT_PROGRESS, (1.0f / 4.0f) * 1000.0f);
         mBuffers.load();
-        notifyHandlers(EVENT_PROGRESS, (2.0f / 5.0f) * 1000.0f);
-        android.util.Log.e("IRCCloud", "Channels");
+        notifyHandlers(EVENT_PROGRESS, (2.0f / 4.0f) * 1000.0f);
         mChannels.load();
-        notifyHandlers(EVENT_PROGRESS, (3.0f / 5.0f) * 1000.0f);
-        android.util.Log.e("IRCCloud", "Users");
-        mUsers.load();
-        notifyHandlers(EVENT_PROGRESS, (4.0f / 5.0f) * 1000.0f);
+        notifyHandlers(EVENT_PROGRESS, (3.0f / 4.0f) * 1000.0f);
         if(mServers.count() > 0) {
             String u = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
             if(u != null && u.length() > 0)
                 userInfo = new UserInfo(new IRCCloudJSONObject(u));
             highest_eid = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getLong("highest_eid", -1);
             streamId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("streamId", null);
-            Log.e("IRCCloud", "Loaded stream ID from cache: " + streamId);
-        }
-        if(mServers.count() > 0)
             ready = true;
-        notifyHandlers(EVENT_PROGRESS, (4.0f / 5.0f) * 1000.0f);
+        }
+        notifyHandlers(EVENT_PROGRESS, (4.0f / 4.0f) * 1000.0f);
         notifyHandlers(EVENT_CACHE_END, null);
     }
 
     public synchronized void save() {
-        Delete.tables(Server.class, Buffer.class, Channel.class, User.class, Event.class);
+        final long start = System.currentTimeMillis();
+        Log.i("IRCCloud", "Saving backlog");
+        final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+        editor.remove("streamId");
+        editor.remove("highest_eid");
+        editor.commit();
+
+        TransactionManager.getInstance().getSaveQueue().setTransactionListener(new TransactionListener<List<Model>>() {
+            @Override
+            public void onResultReceived(List<Model> models) {
+                Log.e("IRCCloud", "Saved " + models.size() + " models in " + (System.currentTimeMillis() - start) + "ms");
+                editor.putString("streamId", streamId);
+                editor.putLong("highest_eid", highest_eid);
+                editor.commit();
+                TransactionManager.getInstance().getSaveQueue().setTransactionListener(null);
+            }
+
+            @Override
+            public boolean onReady(BaseTransaction<List<Model>> baseTransaction) {
+                return true;
+            }
+
+            @Override
+            public boolean hasResult(BaseTransaction<List<Model>> baseTransaction, List<Model> models) {
+                return true;
+            }
+        });
         mServers.save();
         mBuffers.save();
         mChannels.save();
         mUsers.save();
         mEvents.save();
-        SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-        editor.putString("streamId", streamId);
-        editor.putLong("highest_eid", highest_eid);
-        editor.commit();
     }
 
     public synchronized void connect() {

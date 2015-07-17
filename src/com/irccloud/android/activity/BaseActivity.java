@@ -76,6 +76,8 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+        NetworkConnection.getInstance().load();
     }
     @Override
     protected void onStart() {
@@ -170,9 +172,9 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
         if (session != null && session.length() > 0) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
-            NetworkConnection.getInstance().registerForConnectivity();
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-                new LoadAndConnectTask().execute((Void)null);
+                conn.connect();
+            conn.registerForConnectivity();
         } else {
             Intent i = new Intent(this, LoginActivity.class);
             i.addFlags(
@@ -182,23 +184,6 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
             finish();
         }
     }
-
-    private class LoadAndConnectTask extends AsyncTaskEx<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            NetworkConnection.getInstance().load();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-                conn.connect();
-        }
-    }
-
 
     @Override
     public void onPause() {

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
+import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.model.User$Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -37,7 +38,7 @@ import java.util.TreeMap;
 
 @SuppressLint("UseSparseArrays")
 public class UsersList {
-    private HashMap<Integer, TreeMap<String, User>> users;
+    private final HashMap<Integer, TreeMap<String, User>> users;
     private Collator collator;
 
     private static UsersList instance = null;
@@ -49,7 +50,7 @@ public class UsersList {
     }
 
     public UsersList() {
-        users = new HashMap<>();
+        users = new HashMap<>(1000);
         collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
     }
@@ -59,25 +60,30 @@ public class UsersList {
         Delete.table(User.class);
     }
 
-    public void load() {
-        try {
-            long start = System.currentTimeMillis();
-            ModelAdapter<User> modelAdapter = FlowManager.getModelAdapter(User.class);
-            Cursor c = new Select().all().from(User.class).query();
-            if(c != null && c.moveToFirst()) {
-                users = new HashMap<>(c.getCount());
-                do {
-                    User e = modelAdapter.loadFromCursor(c);
-                    if (!users.containsKey(e.bid) || users.get(e.bid) == null)
-                        users.put(e.bid, new TreeMap<String, User>(comparator));
-                    users.get(e.bid).put(e.nick.toLowerCase(), e);
-                } while(c.moveToNext());
-                c.close();
-                long time = System.currentTimeMillis() - start;
-                android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " users in " + time + "ms");
+    public void load(int bid) {
+        synchronized (users) {
+            try {
+                if (users.containsKey(bid) && users.get(bid).size() >= new Select().count().from(User.class).where(Condition.column(User$Table.BID).is(bid)).count()) {
+                    return;
+                }
+                long start = System.currentTimeMillis();
+                ModelAdapter<User> modelAdapter = FlowManager.getModelAdapter(User.class);
+                Cursor c = new Select().from(User.class).where(Condition.column(User$Table.BID).is(bid)).query();
+                if (c != null && c.moveToFirst()) {
+                    android.util.Log.d("IRCCloud", "Loading users for bid" + bid);
+                    do {
+                        User e = modelAdapter.loadFromCursor(c);
+                        if (!users.containsKey(e.bid) || users.get(e.bid) == null)
+                            users.put(e.bid, new TreeMap<String, User>(comparator));
+                        users.get(e.bid).put(e.nick.toLowerCase(), e);
+                    } while (c.moveToNext());
+                    c.close();
+                    long time = System.currentTimeMillis() - start;
+                    android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " users in " + time + "ms");
+                }
+            } catch (SQLiteException e) {
+                e.printStackTrace();
             }
-        } catch (SQLiteException e) {
-            users.clear();
         }
     }
 
@@ -182,6 +188,7 @@ public class UsersList {
     }
 
     public synchronized ArrayList<User> getUsersForBuffer(int bid) {
+        load(bid);
         ArrayList<User> list = new ArrayList<>();
         if (users.containsKey(bid) && users.get(bid) != null) {
             for (User u : users.get(bid).values()) {
@@ -195,14 +202,14 @@ public class UsersList {
         if (nick != null && users.containsKey(bid) && users.get(bid) != null && users.get(bid).containsKey(nick.toLowerCase())) {
             return users.get(bid).get(nick.toLowerCase());
         }
+        load(bid);
+        if (nick != null && users.containsKey(bid) && users.get(bid) != null && users.get(bid).containsKey(nick.toLowerCase())) {
+            return users.get(bid).get(nick.toLowerCase());
+        }
         return null;
     }
 
     public synchronized User findUserOnConnection(int cid, String nick) {
-        for (Integer bid : users.keySet()) {
-            if (users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid) != null && users.get(bid).get(nick.toLowerCase()).cid == cid)
-                return users.get(bid).get(nick.toLowerCase());
-        }
-        return null;
+        return new Select().from(User.class).where(Condition.column(User$Table.CID).is(cid)).and(Condition.column(User$Table.NICK_LOWERCASE).is(nick.toLowerCase())).querySingle();
     }
 }

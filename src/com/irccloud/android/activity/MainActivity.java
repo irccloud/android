@@ -431,6 +431,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
             buffer = BuffersList.getInstance().getBuffer(savedInstanceState.getInt("bid"));
             backStack = (ArrayList<Integer>) savedInstanceState.getSerializable("backStack");
+        } else if(NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getUserInfo() != null) {
+            buffer = BuffersList.getInstance().getBuffer(NetworkConnection.getInstance().getUserInfo().last_selected_bid);
+            if(buffer != null)
+                server = buffer.getServer();
         }
 
         if (savedInstanceState != null && savedInstanceState.containsKey("imagecaptureuri"))
@@ -553,12 +557,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 errorMsg.setVisibility(View.GONE);
             }
         } else {
-            getSupportActionBar().setTitle("Offline");
-            getSupportActionBar().setSubtitle(null);
+            progressBar.setVisibility(View.GONE);
             progressBar.setIndeterminate(false);
             progressBar.setProgress(0);
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            if(buffer == null) {
+                getSupportActionBar().setTitle("Offline");
+                getSupportActionBar().setSubtitle(null);
+                getSupportActionBar().setDisplayShowCustomEnabled(false);
+                getSupportActionBar().setDisplayShowTitleEnabled(true);
+            } else {
+                getSupportActionBar().setDisplayShowCustomEnabled(true);
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
+                update_subtitle();
+            }
         }
     }
 
@@ -1272,7 +1283,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null)) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Launch intent contains a BID or URL");
                 setFromIntent(getIntent());
-            } else if (conn.getState() == NetworkConnection.STATE_CONNECTED && conn.getUserInfo() != null && conn.ready) {
+            } else if (conn.getUserInfo() != null && conn.ready) {
                 if (launchURI == null || !open_uri(launchURI)) {
                     if (!open_bid(conn.getUserInfo().last_selected_bid)) {
                         if (!open_bid(BuffersList.getInstance().firstBid())) {
@@ -1585,7 +1596,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     key.setVisibility(View.VISIBLE);
                 }
 
-                if(progressBar.getVisibility() == View.GONE && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED) {
+                if(progressBar.getVisibility() == View.GONE && NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
                     subtitle.setVisibility(View.VISIBLE);
                     subtitle.setText("(Offline)");
                     getSupportActionBar().setSubtitle("(Offline)");
@@ -1646,6 +1657,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.i("IRCCloud", "Cache load started");
                         getSupportActionBar().setTitle("Loading");
                         getSupportActionBar().setSubtitle(null);
                         progressBar.setVisibility(View.VISIBLE);
@@ -1657,6 +1669,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        Log.i("IRCCloud", "Cache load finished");
                         progressBar.setVisibility(View.GONE);
                         updateReconnecting();
                         if (drawerLayout != null && NetworkConnection.getInstance().ready) {

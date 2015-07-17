@@ -103,7 +103,10 @@ public class GCMIntentService extends IntentService {
                                     return;
                                 }
 
-                                if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED)
+                                if(!NetworkConnection.getInstance().ready)
+                                    NetworkConnection.getInstance().load();
+
+                                if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED && BuffersList.getInstance().getBuffer(bid) != null)
                                     NetworkConnection.getInstance().request_backlog(cid, bid, 0);
 
                                 String from = intent.getStringExtra("from_nick");

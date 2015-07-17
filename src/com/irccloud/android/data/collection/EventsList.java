@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
+import android.util.SparseArray;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -53,23 +54,29 @@ public class EventsList {
     }
 
     public void load(int bid) {
-        try {
-            ModelAdapter<Event> modelAdapter = FlowManager.getModelAdapter(Event.class);
-            Cursor c;
-            if (events.containsKey(bid) && events.get(bid) != null) {
-                c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(events.get(bid).firstKey())).query();
-            } else {
-                c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).query();
-            }
+        synchronized (events) {
+            try {
+                long start = System.currentTimeMillis();
+                ModelAdapter<Event> modelAdapter = FlowManager.getModelAdapter(Event.class);
+                Cursor c;
+                if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).size() > 0) {
+                    c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(events.get(bid).firstKey())).query();
+                } else {
+                    c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).query();
+                }
 
-            if(c != null && c.moveToFirst()) {
-                do {
-                    addEvent(modelAdapter.loadFromCursor(c));
-                } while(c.moveToNext());
-                c.close();
+                if (c != null && c.moveToFirst()) {
+                    android.util.Log.d("IRCCloud", "Loading events for bid" + bid);
+                    do {
+                        addEvent(modelAdapter.loadFromCursor(c));
+                    } while (c.moveToNext());
+                    c.close();
+                    long time = System.currentTimeMillis() - start;
+                    android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " events in " + time + "ms");
+                }
+            } catch (SQLiteException e) {
+                e.printStackTrace();
             }
-        } catch (SQLiteException e) {
-            events.clear();
         }
     }
 
@@ -99,7 +106,7 @@ public class EventsList {
     }
 
     public interface Formatter {
-        public void format(IRCCloudJSONObject event, Event e);
+        void format(IRCCloudJSONObject event, Event e);
     }
 
     private HashMap<String, Formatter> formatterMap = new HashMap<String, Formatter>() {{
@@ -957,6 +964,7 @@ public class EventsList {
 
     public synchronized Event findPendingEventForReqid(int bid, int reqid) {
         synchronized (events) {
+            load(bid);
             for (Event e : events.get(bid).values()) {
                 if(e.reqid == reqid && (e.pending || e.failed))
                     return e;
