@@ -243,6 +243,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @SuppressWarnings({"deprecation", "unchecked"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppThemeNoActionBar);
         super.onCreate(savedInstanceState);
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");

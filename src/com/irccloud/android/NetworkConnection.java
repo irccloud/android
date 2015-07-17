@@ -380,7 +380,7 @@ public class NetworkConnection {
         }
     };
 
-    public static NetworkConnection getInstance() {
+    public synchronized static NetworkConnection getInstance() {
         if (instance == null) {
             instance = new NetworkConnection();
         }

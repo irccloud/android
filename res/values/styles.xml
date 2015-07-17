@@ -46,6 +46,9 @@
     <style name="LoginThemeSpinner" parent="LoginTheme">
         <item name="colorAccent">#fff</item>
     </style>
+    <style name="LaunchTheme" parent="AppThemeNoActionBar">
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
     <style name="PrefsTheme" parent="AppThemeNoActionBar">
         <item name="android:windowNoTitle">false</item>
         <item name="android:windowTitleSize">?attr/actionBarSize</item>

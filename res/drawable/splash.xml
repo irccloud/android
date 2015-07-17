@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright (c) 2015 IRCCloud, Ltd.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +15,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-  <dimen name="message_row_spacing">4dp</dimen>
-  <dimen name="scrollbar_inset">0dp</dimen>
-  <dimen name="scrollbar_size">4dp</dimen>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:opacity="opaque">
+    <item android:drawable="@color/loginTopBackgroundColor"/>
+    <item>
+        <bitmap
+            android:src="@drawable/splash_logo"
+            android:gravity="center"/>
+    </item>
+</layer-list>
