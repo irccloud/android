@@ -123,7 +123,7 @@ public class IRCCloudApplicationBase extends Application {
         if (prefs.contains("notify_pebble")) {
             try {
                 int pebbleVersion = getPackageManager().getPackageInfo("com.getpebble.android", 0).versionCode;
-                if (pebbleVersion >= 553) {
+                if (pebbleVersion >= 553 && Build.VERSION.SDK_INT >= 18) {
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.remove("notify_pebble");
                     editor.commit();

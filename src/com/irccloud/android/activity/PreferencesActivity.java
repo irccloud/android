@@ -130,7 +130,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("dashclock_showmsgs").setOnPreferenceChangeListener(dashclocktoggle);
         try {
             int pebbleVersion = getPackageManager().getPackageInfo("com.getpebble.android", 0).versionCode;
-            if (pebbleVersion < 553)
+            if (pebbleVersion < 553 || Build.VERSION.SDK_INT < 18)
                 addPreferencesFromResource(R.xml.preferences_pebble);
         } catch (Exception e) {
         }
