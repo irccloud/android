@@ -32,8 +32,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.irccloud.android.data.collection.BuffersList;
+import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
+import com.raizlabs.android.dbflow.runtime.TransactionManager;
 
 import org.json.JSONObject;
 
@@ -70,6 +72,9 @@ public class GCMIntentService extends IntentService {
                     } else {
                         //Log.d("IRCCloud", "GCM K/V pairs: " + intent.getExtras().toString());
                         try {
+                            if(!NetworkConnection.getInstance().ready)
+                                NetworkConnection.getInstance().load();
+
                             String type = intent.getStringExtra("type");
                             if (type.equalsIgnoreCase("heartbeat_echo")) {
                                 NetworkConnection conn = NetworkConnection.getInstance();
@@ -87,7 +92,14 @@ public class GCMIntentService extends IntentService {
                                         long eid = eidentry.getValue().asLong();
                                         if (conn.ready && conn.getState() != NetworkConnection.STATE_CONNECTED) {
                                             Buffer b = BuffersList.getInstance().getBuffer(Integer.valueOf(bid));
-                                            b.setLast_seen_eid(eid);
+                                            if (b != null) {
+                                                b.setLast_seen_eid(eid);
+                                                if (EventsList.getInstance().lastEidForBuffer(b.getBid()) <= eid) {
+                                                    b.setUnread(0);
+                                                    b.setHighlights(0);
+                                                    TransactionManager.getInstance().saveOnSaveQueue(b);
+                                                }
+                                            }
                                         }
                                         NotificationsList.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
                                         NotificationsList.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
@@ -102,9 +114,6 @@ public class GCMIntentService extends IntentService {
                                     Log.e("IRCCloud", "GCM got EID that already exists");
                                     return;
                                 }
-
-                                if(!NetworkConnection.getInstance().ready)
-                                    NetworkConnection.getInstance().load();
 
                                 if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED && BuffersList.getInstance().getBuffer(bid) != null)
                                     NetworkConnection.getInstance().request_backlog(cid, bid, 0);
