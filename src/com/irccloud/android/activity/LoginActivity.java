@@ -67,9 +67,11 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.model.BackgroundTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -688,6 +690,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         public void onPostExecute(JSONObject result) {
             if (result != null && result.has("session")) {
                 try {
+                    NetworkConnection.getInstance().session = result.getString("session");
                     SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                     editor.putString("session_key", result.getString("session"));
                     if (result.has("websocket_host")) {
@@ -732,6 +735,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                 }
                             }
                         });
+                        if(BuildConfig.GCM_ID.length() > 0)
+                            BackgroundTaskService.registerGCM(LoginActivity.this);
                     } else {
                         startActivity(i);
                         finish();

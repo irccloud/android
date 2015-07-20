@@ -160,6 +160,14 @@ public class IRCCloudApplicationBase extends Application {
             editor.putString("host", "api.irccloud.com");
             editor.commit();
         }
+        if (prefs.contains("gcm_app_version")) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.remove("gcm_app_version");
+            editor.remove("gcm_app_build");
+            editor.remove("gcm_registered");
+            editor.remove("gcm_reg_id");
+            editor.commit();
+        }
 
         NetworkConnection.IRCCLOUD_HOST = prefs.getString("host", BuildConfig.HOST);
         NetworkConnection.IRCCLOUD_PATH = prefs.getString("path", "/");

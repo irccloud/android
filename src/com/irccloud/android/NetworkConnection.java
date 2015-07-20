@@ -42,6 +42,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -1124,35 +1125,20 @@ public class NetworkConnection {
     }
 
     public void logout() {
-        final String sk = session;
         streamId = null;
         disconnect();
+        if(BuildConfig.GCM_ID.length() > 0) {
+            BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
+        }
         ready = false;
         accrued = 0;
         highest_eid = -1;
-        SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
-        editor.remove("userinfo");
-        try {
-            String regId = GCMService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
-            editor.clear();
-            editor.commit();
-            if (regId.length() > 0) {
-                //Store the old session key so GCM can unregister later
-                editor.putString(regId, sk);
-                editor.commit();
-                GCMService.scheduleUnregisterTimer(100, regId, false);
-            } else {
-                logout(sk);
-            }
-        } catch (Exception e) {
-            //GCM might not be available on the device
-            editor.clear();
-            editor.commit();
-            logout(sk);
-        }
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
         prefs.clear();
         prefs.commit();
+        SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+        editor.clear();
+        editor.commit();
         mServers.clear();
         mBuffers.clear();
         mChannels.clear();
@@ -2073,7 +2059,7 @@ public class NetworkConnection {
                                 if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     show = false;
                             }
-                            if (GCMService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() > 0)
+                            if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
                                 show = false;
                             if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                 String message = ColorFormatter.irc_to_html(event.msg);

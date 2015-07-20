@@ -48,11 +48,15 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.iid.InstanceID;
+import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.GCMService;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 
@@ -184,9 +188,11 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     @Override
     protected void onPostResume() {
         super.onPostResume();
-        if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
-            conn.connect();
-        conn.registerForConnectivity();
+        if(conn != null){
+            if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
+                conn.connect();
+            conn.registerForConnectivity();
+        }
     }
 
     @Override
@@ -205,16 +211,6 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
         final IRCCloudJSONObject o;
 
         switch (what) {
-            case NetworkConnection.EVENT_USERINFO:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(BaseActivity.this) == ConnectionResult.SUCCESS) {
-                            GCMService.scheduleRegisterTimer(100);
-                        }
-                    }
-                });
-                break;
             case NetworkConnection.EVENT_BADCHANNELKEY:
                 o = (IRCCloudJSONObject) obj;
                 runOnUiThread(new Runnable() {
