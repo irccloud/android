@@ -48,9 +48,8 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
-import com.irccloud.android.GCMIntentService;
+import com.irccloud.android.GCMService;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -211,7 +210,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                     @Override
                     public void run() {
                         if (getSharedPreferences("prefs", 0).contains("session_key") && BuildConfig.GCM_ID.length() > 0 && GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(BaseActivity.this) == ConnectionResult.SUCCESS) {
-                            GCMIntentService.scheduleRegisterTimer(100);
+                            GCMService.scheduleRegisterTimer(100);
                         }
                     }
                 });

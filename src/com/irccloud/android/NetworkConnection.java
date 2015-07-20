@@ -42,7 +42,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -57,7 +56,6 @@ import com.irccloud.android.data.model.User;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -1135,14 +1133,14 @@ public class NetworkConnection {
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         editor.remove("userinfo");
         try {
-            String regId = GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
+            String regId = GCMService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext());
             editor.clear();
             editor.commit();
             if (regId.length() > 0) {
                 //Store the old session key so GCM can unregister later
                 editor.putString(regId, sk);
                 editor.commit();
-                GCMIntentService.scheduleUnregisterTimer(100, regId, false);
+                GCMService.scheduleUnregisterTimer(100, regId, false);
             } else {
                 logout(sk);
             }
@@ -2075,7 +2073,7 @@ public class NetworkConnection {
                                 if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     show = false;
                             }
-                            if (GCMIntentService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() > 0)
+                            if (GCMService.getRegistrationId(IRCCloudApplication.getInstance().getApplicationContext()).length() > 0)
                                 show = false;
                             if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                 String message = ColorFormatter.irc_to_html(event.msg);
