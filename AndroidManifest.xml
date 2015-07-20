@@ -13,11 +13,10 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
-
+-->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.irccloud.android"
-    android:installLocation="auto">
+    android:installLocation="auto" >
 
     <permission
         android:name="${applicationId}.permission.C2D_MESSAGE"
@@ -57,15 +56,17 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".activity.MainActivity"
-            android:theme="@style/LaunchTheme"
+            android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:label="@string/app_name" >
+            android:theme="@style/LaunchTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -74,15 +75,21 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="irc" />
                 <data android:scheme="ircs" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/IRCCLOUD_SCHEME" android:host="cid"/>
+
+                <data
+                    android:host="cid"
+                    android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
         </activity>
 
@@ -93,78 +100,102 @@
 
         <activity
             android:name=".activity.LoginActivity"
-            android:theme="@style/LoginTheme"
             android:label="@string/app_name"
+            android:theme="@style/LoginTheme"
             android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/IRCCLOUD_SCHEME" android:host="chat" android:path="/access-link"/>
+
+                <data
+                    android:host="chat"
+                    android:path="/access-link"
+                    android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/IRCCLOUD_SCHEME" android:host="referral"/>
+
+                <data
+                    android:host="referral"
+                    android:scheme="@string/IRCCLOUD_SCHEME" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="www.irccloud.com" android:path="/chat/access-link"/>
+
+                <data
+                    android:host="www.irccloud.com"
+                    android:path="/chat/access-link"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activity.EditConnectionActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity android:name=".activity.ServerReorderActivity">
+        <activity android:name=".activity.ServerReorderActivity" >
         </activity>
         <activity
             android:name=".activity.ImageViewerActivity"
-            android:label="@string/title_activity_imageviewer"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_imageviewer"
             android:theme="@style/ImageViewerTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/IMAGE_SCHEME" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/IMAGE_SCHEME_SECURE" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activity.VideoPlayerActivity"
-            android:label="@string/title_activity_video_player"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_video_player"
             android:theme="@style/ImageViewerTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/VIDEO_SCHEME" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/VIDEO_SCHEME_SECURE" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activity.PastebinViewerActivity"
             android:label="@string/title_activity_pastebin"
-            android:theme="@style/AppThemeNoActionBar">
+            android:theme="@style/AppThemeNoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="@string/PASTE_SCHEME" />
             </intent-filter>
         </activity>
@@ -174,24 +205,29 @@
             android:theme="@style/PrefsTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.NOTIFICATION_PREFERENCES" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.UploadsActivity"
-            android:theme="@style/DialogWhenLargeTheme"
-            android:label="@string/title_activity_uploads">
+        <activity
+            android:name=".activity.UploadsActivity"
+            android:label="@string/title_activity_uploads"
+            android:theme="@style/DialogWhenLargeTheme" >
         </activity>
-        <activity android:name=".activity.PastebinsActivity"
-            android:theme="@style/DialogWhenLargeTheme"
-            android:label="@string/title_activity_pastebins">
+        <activity
+            android:name=".activity.PastebinsActivity"
+            android:label="@string/title_activity_pastebins"
+            android:theme="@style/DialogWhenLargeTheme" >
         </activity>
 
         <receiver
@@ -201,29 +237,31 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".GCMService" android:exported="false" >
+        <service
+            android:name=".GCMService"
+            android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-
         <service
             android:name=".GCMIDService"
-            android:exported="false">
+            android:exported="false" >
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
-
-        <service android:name=".BackgroundTaskService"
-                 android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
-                 android:exported="true">
+        <service
+            android:name=".BackgroundTaskService"
+            android:exported="true"
+            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE" >
             <intent-filter>
-                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY" />
             </intent-filter>
         </service>
 
@@ -271,7 +309,8 @@
             <meta-data
                 android:name="worldReadable"
                 android:value="true" />
-            <meta-data android:name="settingsActivity"
+            <meta-data
+                android:name="settingsActivity"
                 android:value=".activity.PreferencesActivity" />
         </service>
 
@@ -293,13 +332,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.PastebinEditorActivity"
             android:theme="@style/PastebinEditorTheme"
             android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -314,34 +353,49 @@
 
         <activity
             android:name=".activity.ShareChooserActivity"
-            android:theme="@style/DialogTheme"
-            android:excludeFromRecents="true">
+            android:excludeFromRecents="true"
+            android:theme="@style/DialogTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.QuickReplyActivity"
-            android:theme="@style/DialogTheme"
-            android:windowSoftInputMode="stateVisible|adjustResize"
+            android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:taskAffinity=""
-            android:excludeFromRecents="true">
+            android:theme="@style/DialogTheme"
+            android:windowSoftInputMode="stateVisible|adjustResize" >
         </activity>
-        <meta-data android:name="com.google.android.gms.car.application"
+
+        <meta-data
+            android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${CRASHLYTICS_KEY}" />
 
-        <service android:name=".CrashlyticsLeakService"/>
+        <service android:name=".CrashlyticsLeakService" />
+
+        <receiver
+            android:name=".SyncReceiver"
+            android:enabled="true"
+            android:exported="false" >
+        </receiver>
+
+        <service
+            android:name=".SyncService"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

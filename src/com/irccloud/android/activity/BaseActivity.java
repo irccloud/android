@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -85,6 +86,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     @Override
     protected void onStart() {
         super.onStart();
+        BackgroundTaskService.cancelBacklogSync(this);
         if (!mResolvingError) {
             mGoogleApiClient.connect();
         }
@@ -94,6 +96,9 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     protected void onStop() {
         mGoogleApiClient.disconnect();
         super.onStop();
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("enable_cache", false)) {
+            BackgroundTaskService.scheduleBacklogSync(this);
+        }
     }
 
     @Override
@@ -175,6 +180,10 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
         if (session != null && session.length() > 0) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
+            if(conn.notifier) {
+                android.util.Log.d("IRCCloud", "Upgrading notifier websocket");
+                conn.upgrade();
+            }
         } else {
             Intent i = new Intent(this, LoginActivity.class);
             i.addFlags(

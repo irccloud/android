@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
@@ -24,6 +25,7 @@ import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.gcm.OneoffTask;
+import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.TaskParams;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.model.BackgroundTask;
@@ -37,6 +39,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class BackgroundTaskService extends GcmTaskService {
+    private static final int GCM_INTERVAL = 30; //Wait up to 30 seconds before sending GCM registration
+    private static final int SYNC_INTERVAL = 60 * 60; //Sync backlog hourly
 
     public static void registerGCM(Context context) {
         List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER)).queryList();
@@ -52,7 +56,7 @@ public class BackgroundTaskService extends GcmTaskService {
 
         GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
                 .setTag(task.tag)
-                .setExecutionWindow(1, 30)
+                .setExecutionWindow(1, GCM_INTERVAL)
                 .setPersisted(true)
                 .setService(BackgroundTaskService.class)
                 .build());
@@ -79,7 +83,7 @@ public class BackgroundTaskService extends GcmTaskService {
 
             GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
                     .setTag(task.tag)
-                    .setExecutionWindow(1, 30)
+                    .setExecutionWindow(1, GCM_INTERVAL)
                     .setPersisted(true)
                     .setService(BackgroundTaskService.class)
                     .build());
@@ -95,7 +99,40 @@ public class BackgroundTaskService extends GcmTaskService {
                 }
                 return null;
             }
-        }.execute((Void)null);
+        }.execute((Void) null);
+    }
+
+    public static void scheduleBacklogSync(Context context) {
+        android.util.Log.d("IRCCloud", "Scheduling background sync");
+        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_BACKLOG_SYNC)).queryList();
+        for(BackgroundTask t : tasks) {
+            GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+            t.delete();
+        }
+        BackgroundTask task = new BackgroundTask();
+        task.type = BackgroundTask.TYPE_BACKLOG_SYNC;
+        task.tag = Long.toString(System.currentTimeMillis());
+        task.session = NetworkConnection.getInstance().session;
+        task.save();
+
+        GcmNetworkManager.getInstance(context).schedule(new PeriodicTask.Builder()
+                .setTag(task.tag)
+                .setPeriod(SYNC_INTERVAL)
+                .setPersisted(true)
+                .setService(BackgroundTaskService.class)
+                .build());
+
+        android.util.Log.d("IRCCloud", "Scheduled job with task ID: " + task.tag);
+    }
+
+    public static void cancelBacklogSync(Context context) {
+        android.util.Log.d("IRCCloud", "Cancelling background sync");
+        List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_BACKLOG_SYNC)).queryList();
+        for (BackgroundTask t : tasks) {
+            android.util.Log.d("IRCCloud", "Cancelled job with task ID: " + t.tag);
+            GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
+            t.delete();
+        }
     }
 
     @Override
@@ -108,7 +145,8 @@ public class BackgroundTaskService extends GcmTaskService {
                 case BackgroundTask.TYPE_GCM_UNREGISTER:
                     return onGcmUnregister(task);
                 case BackgroundTask.TYPE_BACKLOG_SYNC:
-                    return onBacklogSync(task);
+                    sendBroadcast(new Intent(this, SyncReceiver.class));
+                    return GcmNetworkManager.RESULT_SUCCESS;
             }
         }
 
@@ -172,10 +210,6 @@ public class BackgroundTaskService extends GcmTaskService {
         android.util.Log.e("IRCCloud", "GCM unregistration failed");
         task.delete();
 
-        return GcmNetworkManager.RESULT_FAILURE;
-    }
-
-    private int onBacklogSync(BackgroundTask task) {
         return GcmNetworkManager.RESULT_FAILURE;
     }
 }

@@ -153,6 +153,7 @@ public class NetworkConnection {
     int currentBid = -1;
     long firstEid = -1;
     public JSONObject config = null;
+    public boolean notifier;
 
     private ObjectMapper mapper = new ObjectMapper();
 
@@ -1008,6 +1009,10 @@ public class NetworkConnection {
             url += "?since_id=" + highest_eid;
             if (streamId != null && streamId.length() > 0)
                 url += "&stream_id=" + streamId;
+            if(notifier)
+                url += "&notifier=1";
+        } else if(notifier) {
+            url += "?notifier=1";
         }
 
         if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
@@ -1127,6 +1132,7 @@ public class NetworkConnection {
     public void logout() {
         streamId = null;
         disconnect();
+        BackgroundTaskService.cancelBacklogSync(IRCCloudApplication.getInstance().getApplicationContext());
         if(BuildConfig.GCM_ID.length() > 0) {
             BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
         }
@@ -1612,6 +1618,11 @@ public class NetworkConnection {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+    }
+
+    public void upgrade() {
+        notifier = false;
+        send("upgrade_notifier", new JSONObject());
     }
 
     public void cancel_idle_timer() {
