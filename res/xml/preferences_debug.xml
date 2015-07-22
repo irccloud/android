@@ -24,6 +24,12 @@
             android:summaryOff="Memory leaks will be ignored"
             android:title="Detect Memory Leaks" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="background_sync"
+            android:defaultValue="true"
+            android:summaryOn="Messages will periodically be downloaded while the app is in the background"
+            android:summaryOff="Messages will not be downloaded in the background"
+            android:title="Background Sync" />
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="enable_cache"
             android:defaultValue="false"
             android:summaryOn="Backlog will be cached for offline viewing"

@@ -61,6 +61,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -260,6 +261,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         setContentView(R.layout.activity_message);
+        final View splash = findViewById(R.id.splash);
+        final View splash_logo = findViewById(R.id.splash_logo);
+        if(Build.VERSION.SDK_INT < 14 || savedInstanceState != null) {
+            splash.setVisibility(View.GONE);
+        } else {
+            DisplayMetrics metrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            splash_logo.animate().setDuration(500).translationY(-(metrics.heightPixels / 2)).setInterpolator(new AccelerateInterpolator(1.2f));
+            splash.animate().setDuration(500).alpha(0).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    splash.setVisibility(View.GONE);
+                }
+            });
+        }
         try {
             setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         } catch (Throwable t) {

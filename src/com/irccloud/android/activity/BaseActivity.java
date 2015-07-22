@@ -96,7 +96,7 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
     protected void onStop() {
         mGoogleApiClient.disconnect();
         super.onStop();
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("enable_cache", false)) {
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("background_sync", true)) {
             BackgroundTaskService.scheduleBacklogSync(this);
         }
     }

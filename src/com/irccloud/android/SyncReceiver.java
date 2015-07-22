@@ -23,12 +23,18 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.irccloud.android.data.collection.ServersList;
 
 public class SyncReceiver extends WakefulBroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Crashlytics.log(Log.INFO, "IRCCloud", "Launching backlog sync service");
-        Intent service = new Intent(context, SyncService.class);
-        startWakefulService(context, service);
+        if(ServersList.getInstance().count() > 0) {
+            Crashlytics.log(Log.INFO, "IRCCloud", "Launching backlog sync service");
+            Intent service = new Intent(context, SyncService.class);
+            startWakefulService(context, service);
+        } else {
+            Crashlytics.log(Log.INFO, "IRCCloud", "App not ready, cancelling sync");
+            BackgroundTaskService.cancelBacklogSync(context);
+        }
     }
 }
