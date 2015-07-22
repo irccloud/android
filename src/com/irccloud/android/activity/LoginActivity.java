@@ -489,11 +489,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             new ImpressionTask().execute(getIntent().getDataString().substring(getIntent().getData().getScheme().length() + getIntent().getData().getHost().length() + 4));
             if (getSharedPreferences("prefs", 0).contains("session_key")) {
                 Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                i.putExtra("nosplash", true);
                 startActivity(i);
                 finish();
             }
         } else if (getSharedPreferences("prefs", 0).contains("session_key")) {
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
+            i.putExtra("nosplash", true);
             if (getIntent() != null) {
                 if (getIntent().getData() != null)
                     i.setData(getIntent().getData());
@@ -624,6 +626,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 Log.e("IRCCloud", "Credentials result: OK");
             }
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
+            i.putExtra("nosplash", true);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                 i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
@@ -702,6 +705,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     editor.commit();
 
                     final Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                    i.putExtra("nosplash", true);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                         i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
@@ -907,6 +911,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.commit();
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                    i.putExtra("nosplash", true);
                     if (getIntent() != null) {
                         if (getIntent().getData() != null)
                             i.setData(getIntent().getData());

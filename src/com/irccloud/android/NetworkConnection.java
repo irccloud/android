@@ -870,7 +870,7 @@ public class NetworkConnection {
     }
 
     public synchronized void load() {
-        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", false)) {
+        if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", true)) {
             notifyHandlers(EVENT_CACHE_START, null);
             mServers.load();
             notifyHandlers(EVENT_PROGRESS, (1.0f / 4.0f) * 1000.0f);
@@ -900,7 +900,7 @@ public class NetworkConnection {
             public void run() {
                 synchronized (saveTimer) {
                     saveTimerTask = null;
-                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", false)) {
+                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", true)) {
                         final long start = System.currentTimeMillis();
                         Log.i("IRCCloud", "Saving backlog");
                         final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
