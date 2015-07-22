@@ -14,19 +14,24 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingLeft="12dp"
-    android:paddingRight="6dp">
-
-    <TextView
-        android:id="@+id/server"
-        android:textColor="#000"
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable name="server" type="String"/>
+    </data>
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:typeface="monospace" />
-</LinearLayout>
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="12dp"
+        android:paddingRight="6dp">
+
+        <TextView
+            android:text="@{ server }"
+            android:textColor="#000"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:typeface="monospace" />
+    </LinearLayout>
+</layout>

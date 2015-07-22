@@ -16,15 +16,15 @@
 
 package com.irccloud.android.fragment;
 
-
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -32,10 +32,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,14 +45,20 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.User;
 import com.irccloud.android.data.collection.UsersList;
-import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+import com.irccloud.android.databinding.RowChannelmodeBinding;
+import com.squareup.leakcanary.RefWatcher;
+
+import org.solovyev.android.views.llm.LinearLayoutManager;
+
+public class ChannelModeListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     JsonNode data;
     int cid;
     int bid = -1;
     IRCCloudJSONObject event;
     Adapter adapter;
     NetworkConnection conn;
-    ListView listView;
+    RecyclerView recyclerView;
+    TextView empty;
     String mode;
     String placeholder;
     String mask;
@@ -63,33 +66,20 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
     String title;
     boolean canChangeMode = false;
 
-    private class Adapter extends BaseAdapter {
-        private DialogFragment ctx;
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        public RowChannelmodeBinding binding;
 
-        private class ViewHolder {
-            int position;
-            TextView mask;
-            TextView setBy;
-            ImageButton removeBtn;
+        public ViewHolder(View v) {
+            super(v);
+            binding = DataBindingUtil.bind(v);
         }
+    }
 
-        public Adapter(DialogFragment context) {
-            ctx = context;
-        }
+    private class Adapter extends RecyclerView.Adapter<ViewHolder> {
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return data.size();
-        }
-
-        @Override
-        public Object getItem(int pos) {
-            try {
-                return data.get(pos);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
         }
 
         @Override
@@ -111,48 +101,25 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         };
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            if (ctx == null)
-                return null;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = RowChannelmodeBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
+            return new ViewHolder(v);
+        }
 
-            View row = convertView;
-            ViewHolder holder;
-
-            if (row != null && ((ViewHolder) row.getTag()).position != position)
-                row = null;
-
-            if (row == null) {
-                LayoutInflater inflater = ctx.getLayoutInflater(null);
-                row = inflater.inflate(R.layout.row_banlist, null);
-
-                holder = new ViewHolder();
-                holder.position = position;
-                holder.mask = (TextView) row.findViewById(R.id.mask);
-                holder.setBy = (TextView) row.findViewById(R.id.setBy);
-                holder.removeBtn = (ImageButton) row.findViewById(R.id.removeBtn);
-
-                row.setTag(holder);
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
+            RowChannelmodeBinding row = holder.binding;
+            row.setMask(Html.fromHtml(data.get(position).get(mask).asText()));
+            row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(data.get(position).get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
+                    + " by " + data.get(position).get("usermask").asText());
+            if (canChangeMode) {
+                row.removeBtn.setVisibility(View.VISIBLE);
+                row.removeBtn.setOnClickListener(removeClickListener);
+                row.removeBtn.setTag(position);
             } else {
-                holder = (ViewHolder) row.getTag();
+                row.removeBtn.setVisibility(View.GONE);
             }
-
-            try {
-                holder.mask.setText(Html.fromHtml(data.get(position).get(mask).asText()));
-                holder.setBy.setText("Set " + DateUtils.getRelativeTimeSpanString(data.get(position).get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
-                        + " by " + data.get(position).get("usermask").asText());
-                if (canChangeMode) {
-                    holder.removeBtn.setVisibility(View.VISIBLE);
-                    holder.removeBtn.setOnClickListener(removeClickListener);
-                    holder.removeBtn.setTag(position);
-                } else {
-                    holder.removeBtn.setVisibility(View.GONE);
-                }
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            return row;
+            row.executePendingBindings();
         }
     }
 
@@ -163,11 +130,11 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
             return null;
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.ignorelist, null);
-        listView = (ListView) v.findViewById(android.R.id.list);
-        TextView empty = (TextView) v.findViewById(android.R.id.empty);
+        View v = inflater.inflate(R.layout.recyclerview, null);
+        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        empty = (TextView) v.findViewById(android.R.id.empty);
         empty.setText(placeholder);
-        listView.setEmptyView(empty);
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
             bid = savedInstanceState.getInt("bid");
@@ -178,8 +145,15 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
             title = savedInstanceState.getString("title");
             mode = savedInstanceState.getString("mode");
             data = event.getJsonNode(list);
-            adapter = new Adapter(this);
-            listView.setAdapter(adapter);
+            adapter = new Adapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
         AlertDialog.Builder b = new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
@@ -272,15 +246,22 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         } else {
             canChangeMode = false;
         }
-        if (getActivity() != null && cid > 0 && listView != null) {
+        if (getActivity() != null && cid > 0 && recyclerView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (adapter == null) {
-                        adapter = new Adapter(ChannelModeListFragment.this);
-                        listView.setAdapter(adapter);
+                        adapter = new Adapter();
+                        recyclerView.setAdapter(adapter);
                     } else {
                         adapter.notifyDataSetChanged();
+                    }
+                    if(adapter.getItemCount() > 0) {
+                        empty.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    } else {
+                        empty.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
                     }
                 }
             });
@@ -293,8 +274,15 @@ import com.squareup.leakcanary.RefWatcher;public class ChannelModeListFragment e
         conn.addHandler(this);
 
         if (cid > 0) {
-            adapter = new Adapter(this);
-            listView.setAdapter(adapter);
+            adapter = new Adapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
         Server s = ServersList.getInstance().getServer(cid);
         if (s != null) {

@@ -347,10 +347,10 @@ public class Buffer extends ObservableBaseModel {
             } else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(bid)) && bufferDisabledMap.getBoolean(String.valueOf(bid))) {
                 return 0;
             }
-            return unread;
         } catch (JSONException e) {
-            return 0;
+            e.printStackTrace();
         }
+        return unread;
     }
 
     public void setUnread(int unread) {

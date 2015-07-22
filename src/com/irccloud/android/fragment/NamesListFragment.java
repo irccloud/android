@@ -16,20 +16,19 @@
 
 package com.irccloud.android.fragment;
 
-
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,41 +36,33 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.squareup.leakcanary.RefWatcher;public class NamesListFragment extends DialogFragment {
+import com.irccloud.android.databinding.RowWhoBinding;
+import com.squareup.leakcanary.RefWatcher;
+
+import org.solovyev.android.views.llm.LinearLayoutManager;
+
+public class NamesListFragment extends DialogFragment {
     JsonNode users;
     UsersAdapter adapter;
     NetworkConnection conn;
-    ListView listView;
+    RecyclerView recyclerView;
+    TextView empty;
     IRCCloudJSONObject event;
 
-    private class UsersAdapter extends BaseAdapter {
-        private DialogFragment ctx;
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        public RowWhoBinding binding;
 
-        private class ViewHolder {
-            int position;
-            TextView nick;
-            TextView name;
-            TextView server;
-            TextView mask;
+        public ViewHolder(View v) {
+            super(v);
+            binding = DataBindingUtil.bind(v);
         }
+    }
 
-        public UsersAdapter(DialogFragment context) {
-            ctx = context;
-        }
+    private class UsersAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return users.size();
-        }
-
-        @Override
-        public Object getItem(int pos) {
-            try {
-                return users.get(pos);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
         }
 
         @Override
@@ -80,43 +71,22 @@ import com.squareup.leakcanary.RefWatcher;public class NamesListFragment extends
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View row = convertView;
-            ViewHolder holder;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = RowWhoBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
+            return new ViewHolder(v);
+        }
 
-            if (row != null && ((ViewHolder) row.getTag()).position != position)
-                row = null;
-
-            if (row == null) {
-                LayoutInflater inflater = ctx.getLayoutInflater(null);
-                row = inflater.inflate(R.layout.row_who, null);
-
-                holder = new ViewHolder();
-                holder.position = position;
-                holder.nick = (TextView) row.findViewById(R.id.nick);
-                holder.name = (TextView) row.findViewById(R.id.name);
-                holder.server = (TextView) row.findViewById(R.id.server);
-                holder.mask = (TextView) row.findViewById(R.id.mask);
-
-                row.setTag(holder);
-            } else {
-                holder = (ViewHolder) row.getTag();
-            }
-
-            try {
-                holder.nick.setText(users.get(position).get("nick").asText());
-                if (users.get(position).get("mode").asText().length() > 0)
-                    holder.name.setText(" (+" + users.get(position).get("mode").asText() + ")");
-                else
-                    holder.name.setText("");
-                holder.server.setVisibility(View.GONE);
-                holder.mask.setText(users.get(position).get("usermask").asText());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            return row;
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
+            RowWhoBinding row = holder.binding;
+            row.setNick(users.get(position).get("nick").asText());
+            if (users.get(position).get("mode").asText().length() > 0)
+                row.setName(new SpannableString(" (+" + users.get(position).get("mode").asText() + ")"));
+            else
+                row.setName(new SpannableString(""));
+            row.setServer("");
+            row.setMask(users.get(position).get("usermask").asText());
+            row.executePendingBindings();
         }
     }
 
@@ -127,16 +97,23 @@ import com.squareup.leakcanary.RefWatcher;public class NamesListFragment extends
             return null;
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.ignorelist, null);
-        listView = (ListView) v.findViewById(android.R.id.list);
-        TextView empty = (TextView) v.findViewById(android.R.id.empty);
+        View v = inflater.inflate(R.layout.recyclerview, null);
+        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        empty = (TextView) v.findViewById(android.R.id.empty);
         empty.setText("No results found.");
-        listView.setEmptyView(empty);
         if (savedInstanceState != null && savedInstanceState.containsKey("event")) {
             event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
             users = event.getJsonNode("members");
-            adapter = new UsersAdapter(this);
-            listView.setAdapter(adapter);
+            adapter = new UsersAdapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
         Dialog d = new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
@@ -161,15 +138,22 @@ import com.squareup.leakcanary.RefWatcher;public class NamesListFragment extends
     public void setArguments(Bundle args) {
         event = new IRCCloudJSONObject(args.getString("event"));
         users = event.getJsonNode("members");
-        if (getActivity() != null && listView != null) {
+        if (getActivity() != null && recyclerView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (adapter == null) {
-                        adapter = new UsersAdapter(NamesListFragment.this);
-                        listView.setAdapter(adapter);
+                        adapter = new UsersAdapter();
+                        recyclerView.setAdapter(adapter);
                     } else {
                         adapter.notifyDataSetChanged();
+                    }
+                    if(adapter.getItemCount() > 0) {
+                        empty.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    } else {
+                        empty.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
                     }
                 }
             });
@@ -181,8 +165,15 @@ import com.squareup.leakcanary.RefWatcher;public class NamesListFragment extends
         conn = NetworkConnection.getInstance();
 
         if (users != null) {
-            adapter = new UsersAdapter(this);
-            listView.setAdapter(adapter);
+            adapter = new UsersAdapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
     }
 

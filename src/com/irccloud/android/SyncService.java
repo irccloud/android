@@ -39,7 +39,7 @@ public class SyncService extends IntentService implements NetworkConnection.IRCE
 
             while(running) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     break;
                 }

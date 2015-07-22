@@ -15,67 +15,74 @@
   ~ limitations under the License.
   -->
 
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:contentPaddingLeft="16dp"
-    app:contentPaddingRight="16dp"
-    app:contentPaddingBottom="16dp"
-    app:contentPaddingTop="6dp"
-    app:cardUseCompatPadding="true">
-
-    <LinearLayout
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View"/>
+        <variable name="nick" type="String"/>
+        <variable name="name" type="android.text.Spanned"/>
+        <variable name="server" type="String"/>
+        <variable name="mask" type="String"/>
+    </data>
+    <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_vertical"
-        android:minHeight="48dp"
-        android:orientation="vertical"
-        >
-
-    <LinearLayout
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="4dp">
+        app:contentPaddingLeft="16dp"
+        app:contentPaddingRight="16dp"
+        app:contentPaddingBottom="16dp"
+        app:contentPaddingTop="6dp"
+        app:cardUseCompatPadding="true">
 
-        <TextView
-            android:id="@+id/nick"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:orientation="vertical"
+            >
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000"
-            android:text="ssteele"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:text="@{ nick }"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:textColor="#000"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:textSize="16sp"
+                android:visibility="@{ name.length() > 0 ? View.VISIBLE : View.GONE }"
+                android:text="@{ name }" />
+
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/name"
-            android:textColor="#000"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:textSize="16sp"
-            android:text="(Sam Steele)" />
+            android:text="@{ server }"
+            android:textColor="@color/timestamp"
+            android:textSize="14sp"
+            android:visibility="@{ server.length() > 0 ? View.VISIBLE : View.GONE }"
+            android:textStyle="italic" />
 
-    </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{ mask }"
+            android:textColor="@color/timestamp"
+            android:textSize="14sp"
+            android:textStyle="italic" />
 
-    <TextView
-        android:id="@+id/server"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Connected via sturgeon.freenode.net"
-        android:textColor="@color/timestamp"
-        android:textSize="14sp"
-        android:textStyle="italic" />
-
-    <TextView
-        android:id="@+id/mask"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="uid545@gateway/web/irccloud.com/x-akdsjhfakjsdhfakl"
-        android:textColor="@color/timestamp"
-        android:textSize="14sp"
-        android:textStyle="italic" />
-
-    </LinearLayout>
-</android.support.v7.widget.CardView>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+</layout>

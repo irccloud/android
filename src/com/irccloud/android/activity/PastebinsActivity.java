@@ -228,7 +228,7 @@ public class PastebinsActivity extends BaseActivity {
             cloud.recycle();
         }
 
-        setContentView(R.layout.ignorelist);
+        setContentView(R.layout.recyclerview);
 
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

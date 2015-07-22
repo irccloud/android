@@ -17,15 +17,16 @@
 package com.irccloud.android.fragment;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
+import android.support.v7.widget.RecyclerView;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,46 +37,48 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.databinding.RowChannelBinding;
 import com.squareup.leakcanary.RefWatcher;
+
+import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import java.util.ArrayList;
 
-public class ChannelListFragment extends ListFragment implements NetworkConnection.IRCEventHandler {
-    ArrayList<ChannelsAdapter.Channel> channels;
+public class ChannelListFragment extends Fragment implements NetworkConnection.IRCEventHandler {
+    ArrayList<ChannelRow> channels;
     ChannelsAdapter adapter;
     NetworkConnection conn;
-    ListView listView;
+    RecyclerView recyclerView;
     TextView empty;
     Server server;
 
-    private class ChannelsAdapter extends BaseAdapter {
-        private ListFragment ctx;
+    public static class ChannelRow {
+        public Spanned name;
+        public Spanned topic;
+    }
 
-        private class ViewHolder {
-            TextView channel;
-            TextView topic;
-        }
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        public RowChannelBinding binding;
 
-        private class Channel {
-            Spanned channel;
-            Spanned topic;
+        public ViewHolder(View v) {
+            super(v);
+            binding = DataBindingUtil.bind(v);
         }
+    }
 
-        public ChannelsAdapter(ListFragment context) {
-            ctx = context;
-        }
+    private class ChannelsAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         public void set(JsonNode json) {
-            channels = new ArrayList<Channel>(json.size());
+            channels = new ArrayList<>(json.size());
 
             for (int i = 0; i < json.size(); i++) {
-                Channel c = new Channel();
+                ChannelRow c = new ChannelRow();
                 JsonNode o = json.get(i);
                 String channel = o.get("name").asText() + " (" + o.get("num_members").asInt() + " member";
                 if (o.get("num_members").asInt() != 1)
                     channel += "s";
                 channel += ")";
-                c.channel = ColorFormatter.html_to_spanned(channel, true, server);
+                c.name = ColorFormatter.html_to_spanned(channel, true, server);
 
                 String topic = o.get("topic").asText();
                 if (topic.length() > 0) {
@@ -88,21 +91,11 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
         }
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             if (channels == null)
                 return 0;
             else
                 return channels.size();
-        }
-
-        @Override
-        public Object getItem(int pos) {
-            try {
-                return channels.get(pos);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
         }
 
         @Override
@@ -111,42 +104,20 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View row = convertView;
-            ViewHolder holder;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = RowChannelBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
+            return new ViewHolder(v);
+        }
 
-            if (row == null) {
-                LayoutInflater inflater = ctx.getLayoutInflater(null);
-                row = inflater.inflate(R.layout.row_channel, null);
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
+            RowChannelBinding row = holder.binding;
+            ChannelRow c = channels.get(position);
 
-                holder = new ViewHolder();
-                holder.channel = (TextView) row.findViewById(R.id.channel);
-                holder.topic = (TextView) row.findViewById(R.id.topic);
-
-                holder.channel.setMovementMethod(LinkMovementMethod.getInstance());
-                holder.topic.setMovementMethod(LinkMovementMethod.getInstance());
-
-                row.setTag(holder);
-            } else {
-                holder = (ViewHolder) row.getTag();
-            }
-
-            try {
-                Channel c = channels.get(position);
-                holder.channel.setText(c.channel);
-                if (c.topic != null && c.topic.length() > 0) {
-                    holder.topic.setText(c.topic);
-                    holder.topic.setVisibility(View.VISIBLE);
-                } else {
-                    holder.topic.setText("");
-                    holder.topic.setVisibility(View.GONE);
-                }
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            return row;
+            row.setChannel(c);
+            row.name.setMovementMethod(LinkMovementMethod.getInstance());
+            row.topic.setMovementMethod(LinkMovementMethod.getInstance());
+            row.executePendingBindings();
         }
     }
 
@@ -160,11 +131,11 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
             return null;
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.ignorelist, null);
-        listView = (ListView) v.findViewById(android.R.id.list);
+        View v = inflater.inflate(R.layout.recyclerview, null);
+        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
         empty = (TextView) v.findViewById(android.R.id.empty);
         empty.setText("Loading channel list…");
-        listView.setEmptyView(empty);
         return v;
     }
 
@@ -172,13 +143,20 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
     public void setArguments(Bundle args) {
         server = ServersList.getInstance().getServer(args.getInt("cid", -1));
         channels = null;
-        if (listView != null && getActivity() != null) {
+        if (recyclerView != null && getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     empty.setText("Loading channel list…");
-                    adapter = new ChannelsAdapter(ChannelListFragment.this);
-                    listView.setAdapter(adapter);
+                    adapter = new ChannelsAdapter();
+                    recyclerView.setAdapter(adapter);
+                    if(adapter.getItemCount() > 0) {
+                        empty.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    } else {
+                        empty.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    }
                 }
             });
         }
@@ -192,8 +170,15 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
         }
 
         if (adapter == null) {
-            adapter = new ChannelsAdapter(this);
-            listView.setAdapter(adapter);
+            adapter = new ChannelsAdapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -226,6 +211,13 @@ public class ChannelListFragment extends ListFragment implements NetworkConnecti
                         public void run() {
                             adapter.set(o.getJsonNode("channels"));
                             adapter.notifyDataSetChanged();
+                            if(adapter.getItemCount() > 0) {
+                                empty.setVisibility(View.GONE);
+                                recyclerView.setVisibility(View.VISIBLE);
+                            } else {
+                                empty.setVisibility(View.VISIBLE);
+                                recyclerView.setVisibility(View.GONE);
+                            }
                         }
                     });
                 break;

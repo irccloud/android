@@ -19,15 +19,15 @@ package com.irccloud.android.fragment;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,40 +35,33 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.databinding.RowServermaplistBinding;
 import com.squareup.leakcanary.RefWatcher;
+
+import org.solovyev.android.views.llm.LinearLayoutManager;
 
 public class ServerMapListFragment extends DialogFragment {
     JsonNode servers;
     ServersAdapter adapter;
     NetworkConnection conn;
-    ListView listView;
+    RecyclerView recyclerView;
+    TextView empty;
     IRCCloudJSONObject event;
 
-    private class ServersAdapter extends BaseAdapter {
-        private DialogFragment ctx;
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        public RowServermaplistBinding binding;
 
-        private class ViewHolder {
-            int position;
-            TextView server;
+        public ViewHolder(View v) {
+            super(v);
+            binding = DataBindingUtil.bind(v);
         }
+    }
 
-        public ServersAdapter(DialogFragment context) {
-            ctx = context;
-        }
+    private class ServersAdapter extends RecyclerView.Adapter<ViewHolder> {
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return servers.size();
-        }
-
-        @Override
-        public Object getItem(int pos) {
-            try {
-                return servers.get(pos);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
         }
 
         @Override
@@ -77,33 +70,16 @@ public class ServerMapListFragment extends DialogFragment {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View row = convertView;
-            ViewHolder holder;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = RowServermaplistBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
+            return new ViewHolder(v);
+        }
 
-            if (row != null && ((ViewHolder) row.getTag()).position != position)
-                row = null;
-
-            if (row == null) {
-                LayoutInflater inflater = ctx.getLayoutInflater(null);
-                row = inflater.inflate(R.layout.row_servermaplist, null);
-
-                holder = new ViewHolder();
-                holder.position = position;
-                holder.server = (TextView) row.findViewById(R.id.server);
-                row.setTag(holder);
-            } else {
-                holder = (ViewHolder) row.getTag();
-            }
-
-            try {
-                holder.server.setText(servers.get(position).asText());
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            return row;
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
+            RowServermaplistBinding row = holder.binding;
+            row.setServer(servers.get(position).asText());
+            row.executePendingBindings();
         }
     }
 
@@ -114,17 +90,23 @@ public class ServerMapListFragment extends DialogFragment {
             return null;
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.ignorelist, null);
-        listView = (ListView) v.findViewById(android.R.id.list);
-        TextView empty = (TextView) v.findViewById(android.R.id.empty);
+        View v = inflater.inflate(R.layout.recyclerview, null);
+        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        empty = (TextView) v.findViewById(android.R.id.empty);
         empty.setText("No results found.");
-        listView.setEmptyView(empty);
-        listView.setDividerHeight(0);
         if (savedInstanceState != null && savedInstanceState.containsKey("event")) {
             event = new IRCCloudJSONObject(savedInstanceState.getString("event"));
             servers = event.getJsonNode("servers");
-            adapter = new ServersAdapter(this);
-            listView.setAdapter(adapter);
+            adapter = new ServersAdapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
         Dialog d = new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
@@ -149,15 +131,22 @@ public class ServerMapListFragment extends DialogFragment {
     public void setArguments(Bundle args) {
         event = new IRCCloudJSONObject(args.getString("event"));
         servers = event.getJsonNode("servers");
-        if (getActivity() != null && listView != null) {
+        if (getActivity() != null && recyclerView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (adapter == null) {
-                        adapter = new ServersAdapter(ServerMapListFragment.this);
-                        listView.setAdapter(adapter);
+                        adapter = new ServersAdapter();
+                        recyclerView.setAdapter(adapter);
                     } else {
                         adapter.notifyDataSetChanged();
+                    }
+                    if(adapter.getItemCount() > 0) {
+                        empty.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    } else {
+                        empty.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
                     }
                 }
             });
@@ -169,8 +158,15 @@ public class ServerMapListFragment extends DialogFragment {
         conn = NetworkConnection.getInstance();
 
         if (servers != null) {
-            adapter = new ServersAdapter(this);
-            listView.setAdapter(adapter);
+            adapter = new ServersAdapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
     }
 

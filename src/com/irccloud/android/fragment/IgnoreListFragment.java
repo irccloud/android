@@ -16,24 +16,21 @@
 
 package com.irccloud.android.fragment;
 
-
-
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.databinding.DataBindingUtil;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,39 +40,32 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
-import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+import com.irccloud.android.databinding.RowHostmaskBinding;
+import com.squareup.leakcanary.RefWatcher;
+
+import org.solovyev.android.views.llm.LinearLayoutManager;
+
+public class IgnoreListFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
     JsonNode ignores;
     int cid;
     IgnoresAdapter adapter;
     NetworkConnection conn;
-    ListView listView;
+    RecyclerView recyclerView;
+    TextView empty;
 
-    private class IgnoresAdapter extends BaseAdapter {
-        private DialogFragment ctx;
+    private class ViewHolder extends RecyclerView.ViewHolder {
+        public RowHostmaskBinding binding;
 
-        private class ViewHolder {
-            int position;
-            TextView label;
-            ImageButton removeBtn;
+        public ViewHolder(View v) {
+            super(v);
+            binding = DataBindingUtil.bind(v);
         }
+    }
 
-        public IgnoresAdapter(DialogFragment context) {
-            ctx = context;
-        }
-
+    private class IgnoresAdapter extends RecyclerView.Adapter<ViewHolder> {
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return ignores.size();
-        }
-
-        @Override
-        public Object getItem(int pos) {
-            try {
-                return ignores.get(pos);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
         }
 
         @Override
@@ -97,37 +87,18 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
         };
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View row = convertView;
-            ViewHolder holder;
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = RowHostmaskBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false).getRoot();
+            return new ViewHolder(v);
+        }
 
-            if (row != null && ((ViewHolder) row.getTag()).position != position)
-                row = null;
-
-            if (row == null) {
-                LayoutInflater inflater = ctx.getLayoutInflater(null);
-                row = inflater.inflate(R.layout.row_hostmask, null);
-
-                holder = new ViewHolder();
-                holder.position = position;
-                holder.label = (TextView) row.findViewById(R.id.label);
-                holder.removeBtn = (ImageButton) row.findViewById(R.id.removeBtn);
-
-                row.setTag(holder);
-            } else {
-                holder = (ViewHolder) row.getTag();
-            }
-
-            try {
-                holder.label.setText(ignores.get(position).asText());
-                holder.removeBtn.setOnClickListener(removeClickListener);
-                holder.removeBtn.setTag(position);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            return row;
+        @Override
+        public void onBindViewHolder(ViewHolder holder, final int position) {
+            RowHostmaskBinding row = holder.binding;
+            row.setLabel(ignores.get(position).asText());
+            row.removeBtn.setOnClickListener(removeClickListener);
+            row.removeBtn.setTag(position);
+            row.executePendingBindings();
         }
     }
 
@@ -138,16 +109,23 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
             return null;
 
         LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.ignorelist, null);
-        listView = (ListView) v.findViewById(android.R.id.list);
-        TextView empty = (TextView) v.findViewById(android.R.id.empty);
+        View v = inflater.inflate(R.layout.recyclerview, null);
+        recyclerView = (RecyclerView) v.findViewById(R.id.recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
+        empty = (TextView) v.findViewById(android.R.id.empty);
         empty.setText("You're not ignoring anyone at the moment.\n\nYou can ignore someone by tapping their nickname in the user list, long-pressing a message, or by using /ignore.");
-        listView.setEmptyView(empty);
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
             ignores = ServersList.getInstance().getServer(cid).raw_ignores;
-            adapter = new IgnoresAdapter(this);
-            listView.setAdapter(adapter);
+            adapter = new IgnoresAdapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
         Dialog d = new AlertDialog.Builder(ctx)
                 .setTitle("Ignore list for " + ServersList.getInstance().getServer(cid).getName())
@@ -212,13 +190,20 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
     @Override
     public void setArguments(Bundle args) {
         cid = args.getInt("cid", 0);
-        if (getActivity() != null && cid > 0 && listView != null) {
+        if (getActivity() != null && cid > 0 && recyclerView != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     ignores = ServersList.getInstance().getServer(cid).raw_ignores;
-                    adapter = new IgnoresAdapter(IgnoreListFragment.this);
-                    listView.setAdapter(adapter);
+                    adapter = new IgnoresAdapter();
+                    recyclerView.setAdapter(adapter);
+                    if(adapter.getItemCount() > 0) {
+                        empty.setVisibility(View.GONE);
+                        recyclerView.setVisibility(View.VISIBLE);
+                    } else {
+                        empty.setVisibility(View.VISIBLE);
+                        recyclerView.setVisibility(View.GONE);
+                    }
                 }
             });
         }
@@ -231,8 +216,15 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
 
         if (ignores == null && cid > 0) {
             ignores = ServersList.getInstance().getServer(cid).raw_ignores;
-            adapter = new IgnoresAdapter(this);
-            listView.setAdapter(adapter);
+            adapter = new IgnoresAdapter();
+            recyclerView.setAdapter(adapter);
+            if(adapter.getItemCount() > 0) {
+                empty.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            } else {
+                empty.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -263,6 +255,13 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
                         public void run() {
                             ignores = ServersList.getInstance().getServer(cid).raw_ignores;
                             adapter.notifyDataSetChanged();
+                            if(adapter.getItemCount() > 0) {
+                                empty.setVisibility(View.GONE);
+                                recyclerView.setVisibility(View.VISIBLE);
+                            } else {
+                                empty.setVisibility(View.VISIBLE);
+                                recyclerView.setVisibility(View.GONE);
+                            }
                         }
                     });
                 }
@@ -275,6 +274,13 @@ import com.squareup.leakcanary.RefWatcher;public class IgnoreListFragment extend
                         public void run() {
                             ignores = ServersList.getInstance().getServer(cid).raw_ignores;
                             adapter.notifyDataSetChanged();
+                            if(adapter.getItemCount() > 0) {
+                                empty.setVisibility(View.GONE);
+                                recyclerView.setVisibility(View.VISIBLE);
+                            } else {
+                                empty.setVisibility(View.VISIBLE);
+                                recyclerView.setVisibility(View.GONE);
+                            }
                         }
                     });
                 }

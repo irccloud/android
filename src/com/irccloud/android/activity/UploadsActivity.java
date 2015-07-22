@@ -420,7 +420,7 @@ public class UploadsActivity extends BaseActivity {
                 Log.i("IRCCloud", "HTTP response cache installation failed:" + e);
             }
         }
-        setContentView(R.layout.ignorelist);
+        setContentView(R.layout.recyclerview);
 
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
