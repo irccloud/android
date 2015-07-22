@@ -262,14 +262,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         setContentView(R.layout.activity_message);
         final View splash = findViewById(R.id.splash);
-        final View splash_logo = findViewById(R.id.splash_logo);
         if(Build.VERSION.SDK_INT < 14 || savedInstanceState != null) {
             splash.setVisibility(View.GONE);
         } else {
-            DisplayMetrics metrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-            splash_logo.animate().setDuration(500).translationY(-(metrics.heightPixels / 2)).setInterpolator(new AccelerateInterpolator(1.2f));
-            splash.animate().setDuration(500).alpha(0).withEndAction(new Runnable() {
+            splash.animate().alpha(0).withEndAction(new Runnable() {
                 @Override
                 public void run() {
                     splash.setVisibility(View.GONE);
@@ -1192,7 +1188,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (buffer != null && buffer.getBid() != new_bid)
                     backStack.add(0, buffer.getBid());
                 buffer = BuffersList.getInstance().getBuffer(new_bid);
-                server = ServersList.getInstance().getServer(buffer.getCid());
+                server = buffer.getServer();
             } else {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "BID not found, will try after reconnecting");
                 launchBid = new_bid;
@@ -3092,7 +3088,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         ArrayList<String> itemList = new ArrayList<String>();
         final String[] items;
-        Server s = ServersList.getInstance().getServer(b.getCid());
+        Server s = b.getServer();
 
         if (buffer == null || b.getBid() != buffer.getBid())
             itemList.add("Open");
@@ -3650,14 +3646,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             backStack.add(0, buffer.getBid());
             buffer.setDraft(messageTxt.getText().toString());
         }
-        if (buffer == null || buffer.getBid() == -1 || buffer.getCid() == -1 || buffer.getBid() == bid)
+        if (buffer != null && buffer.getBid() == bid && findViewById(R.id.splash).getVisibility() == View.GONE)
             shouldFadeIn = false;
         else
             shouldFadeIn = true;
         buffer = BuffersList.getInstance().getBuffer(bid);
         if (buffer != null) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffer selected: cid" + buffer.getCid() + " bid" + bid + " shouldFadeIn: " + shouldFadeIn);
-            server = ServersList.getInstance().getServer(buffer.getCid());
+            server = buffer.getServer();
 
             try {
                 TreeMap<Long, Event> events = EventsList.getInstance().getEventsForBuffer(buffer.getBid());

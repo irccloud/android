@@ -55,7 +55,7 @@ public class CrashlyticsLeakService extends AbstractAnalysisResultService {
             return;
         }
 
-        int maxStoredLeaks = getResources().getInteger(R.integer.__leak_canary_max_stored_leaks);
+        int maxStoredLeaks = getResources().getInteger(R.integer.leak_canary_max_stored_leaks);
         File renamedFile = findNextAvailableHprofFile(maxStoredLeaks);
 
         if (renamedFile == null) {

@@ -299,11 +299,10 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             final Buffer b = data.get(position);
-            Server s = ServersList.getInstance().getServer(b.getCid());
             RowBufferBinding row = holder.binding;
 
             row.setBuffer(b);
-            row.setServer(s);
+            row.setServer(b.getServer());
             row.setSelected(selected_bid);
             row.setReadOnly(readOnly);
 

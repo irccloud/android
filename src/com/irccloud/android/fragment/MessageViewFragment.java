@@ -925,7 +925,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             adapter.clearLastSeenEIDMarker();
         buffer = BuffersList.getInstance().getBuffer(args.getInt("bid", -1));
         if (buffer != null) {
-            server = ServersList.getInstance().getServer(buffer.getCid());
+            server = buffer.getServer();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "MessageViewFragment: switched to bid: " + buffer.getBid());
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "MessageViewFragment: couldn't find buffer to switch to");
@@ -2218,15 +2218,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_BACKLOG_END:
             case NetworkConnection.EVENT_CONNECTIVITY:
             case NetworkConnection.EVENT_USERINFO:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (refreshTask != null)
-                            refreshTask.cancel(true);
-                        refreshTask = new RefreshTask();
-                        refreshTask.execute((Void) null);
-                    }
-                });
+                if(buffer != null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (refreshTask != null)
+                                refreshTask.cancel(true);
+                            refreshTask = new RefreshTask();
+                            refreshTask.execute((Void) null);
+                        }
+                    });
+                }
                 break;
             case NetworkConnection.EVENT_CONNECTIONLAG:
                 try {
