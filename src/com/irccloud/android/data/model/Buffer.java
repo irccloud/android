@@ -329,7 +329,7 @@ public class Buffer extends ObservableBaseModel {
         JSONObject bufferDisabledMap = null;
         NetworkConnection conn = NetworkConnection.getInstance();
 
-        if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+        if (conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
             try {
                 if (conn.getUserInfo().prefs.has("channel-disableTrackUnread"))
                     channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
@@ -347,11 +347,7 @@ public class Buffer extends ObservableBaseModel {
             } else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(bid)) && bufferDisabledMap.getBoolean(String.valueOf(bid))) {
                 return 0;
             }
-            if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && conn.ready) {
-                return unread;
-            } else {
-                return 0;
-            }
+            return unread;
         } catch (JSONException e) {
             return 0;
         }
