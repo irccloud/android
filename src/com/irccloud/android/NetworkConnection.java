@@ -912,9 +912,11 @@ public class NetworkConnection {
                             @Override
                             public void onResultReceived(List<Model> models) {
                                 Log.i("IRCCloud", "Saved " + models.size() + " objects in " + (System.currentTimeMillis() - start) + "ms");
-                                editor.putString("streamId", streamId);
-                                editor.putLong("highest_eid", highest_eid);
-                                editor.commit();
+                                if(handlers.size() == 0) {
+                                    editor.putString("streamId", streamId);
+                                    editor.putLong("highest_eid", highest_eid);
+                                    editor.commit();
+                                }
                                 TransactionManager.getInstance().getSaveQueue().setTransactionListener(null);
                             }
 
@@ -932,8 +934,8 @@ public class NetworkConnection {
                         mBuffers.save();
                         mChannels.save();
                         if(handlers.size() == 0) {
-                            mUsers.save();
                             mEvents.save();
+                            mUsers.save();
                         }
                     }
                 }
@@ -1028,6 +1030,10 @@ public class NetworkConnection {
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
             public void onConnect() {
+                final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                editor.remove("streamId");
+                editor.remove("highest_eid");
+                editor.commit();
                 Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
                 state = STATE_CONNECTED;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
