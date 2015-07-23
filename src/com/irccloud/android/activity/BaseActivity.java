@@ -81,7 +81,8 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                 .addOnConnectionFailedListener(this)
                 .build();
 
-        NetworkConnection.getInstance().load();
+        if(ServersList.getInstance().count() == 0)
+            NetworkConnection.getInstance().load();
     }
     @Override
     protected void onStart() {

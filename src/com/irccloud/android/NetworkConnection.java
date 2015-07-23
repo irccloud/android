@@ -2812,6 +2812,10 @@ public class NetworkConnection {
                 handlers.add(handler);
             if (shutdownTimerTask != null)
                 shutdownTimerTask.cancel();
+            shutdownTimerTask = null;
+            if (saveTimerTask != null)
+                saveTimerTask.cancel();
+            saveTimerTask = null;
         }
     }
 
@@ -2850,6 +2854,7 @@ public class NetworkConnection {
                     reconnect_timestamp = 0;
                     state = STATE_DISCONNECTED;
                 }
+                save(10000);
             }
         }
     }

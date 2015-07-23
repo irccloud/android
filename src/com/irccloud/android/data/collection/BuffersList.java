@@ -184,7 +184,7 @@ public class BuffersList {
     }
 
     public synchronized ArrayList<Buffer> getBuffersForServer(int cid) {
-        ArrayList<Buffer> list = new ArrayList<Buffer>();
+        ArrayList<Buffer> list = new ArrayList<>();
         if (dirty) {
             try {
                 Collections.sort(buffers, new comparator());
