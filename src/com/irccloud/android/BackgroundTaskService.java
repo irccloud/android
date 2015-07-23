@@ -57,7 +57,6 @@ public class BackgroundTaskService extends GcmTaskService {
         GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
                 .setTag(task.tag)
                 .setExecutionWindow(1, GCM_INTERVAL)
-                .setPersisted(true)
                 .setService(BackgroundTaskService.class)
                 .build());
     }
@@ -84,7 +83,6 @@ public class BackgroundTaskService extends GcmTaskService {
             GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
                     .setTag(task.tag)
                     .setExecutionWindow(1, GCM_INTERVAL)
-                    .setPersisted(true)
                     .setService(BackgroundTaskService.class)
                     .build());
         }
@@ -118,7 +116,6 @@ public class BackgroundTaskService extends GcmTaskService {
         GcmNetworkManager.getInstance(context).schedule(new PeriodicTask.Builder()
                 .setTag(task.tag)
                 .setPeriod(SYNC_INTERVAL)
-                .setPersisted(true)
                 .setService(BackgroundTaskService.class)
                 .build());
 
