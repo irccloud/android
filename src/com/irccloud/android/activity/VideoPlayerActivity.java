@@ -21,6 +21,7 @@ import android.annotation.TargetApi;
 import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -379,7 +380,13 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             share.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
                 @Override
                 public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
-                    Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod(intent.getPackage()));
+                    String name = intent.getComponent().getPackageName();
+                    try {
+                        name = String.valueOf(getPackageManager().getActivityInfo(intent.getComponent(), 0).loadLabel(getPackageManager()));
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod(name));
                     return false;
                 }
             });
