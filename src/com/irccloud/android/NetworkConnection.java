@@ -3116,8 +3116,6 @@ public class NetworkConnection {
                             if (bid > 0) {
                                 notifyHandlers(EVENT_BACKLOG_END, bid);
                             }
-
-                            save(10000);
                         }
                     } else {
                         throw new Exception("Unexpected JSON response");
