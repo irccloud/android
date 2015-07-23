@@ -946,6 +946,7 @@ public class EventsList {
 
     public void pruneEvents(int bid) {
         synchronized (events) {
+            load(bid);
             TreeMap<Long, Event> e = events.get(bid);
             while (e != null && e.size() > 50 && e.firstKey() != null) {
                 Event event = e.get(e.firstKey());
