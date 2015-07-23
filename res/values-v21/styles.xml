@@ -118,7 +118,6 @@
 
     <style name="LoginTheme" parent="AppTheme">
         <item name="android:windowNoTitle">true</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
         <item name="android:navigationBarColor">#4480FA</item>
         <item name="android:colorPrimaryDark">#0b2e60</item>
@@ -174,5 +173,9 @@
 
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Material.Light.ImageButton">
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="ProgressBarLogin" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="colorAccent">#fff</item>
     </style>
 </resources>
