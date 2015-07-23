@@ -931,8 +931,10 @@ public class NetworkConnection {
                         mServers.save();
                         mBuffers.save();
                         mChannels.save();
-                        mUsers.save();
-                        mEvents.save();
+                        if(handlers.size() == 0) {
+                            mUsers.save();
+                            mEvents.save();
+                        }
                     }
                 }
             }
@@ -3139,6 +3141,7 @@ public class NetworkConnection {
                     if (Build.VERSION.SDK_INT >= 14)
                         TrafficStats.clearThreadStatsTag();
                     numbuffers = 0;
+                    save(10000);
                     return true;
                 } else {
                     Log.e(TAG, "Invalid response code: " + conn.getResponseCode());
