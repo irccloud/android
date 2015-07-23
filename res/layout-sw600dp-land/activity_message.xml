@@ -143,4 +143,18 @@
         android:layout_gravity="right"
         tools:layout="@layout/userslist" />
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/loginTopBackgroundColor"
+        android:id="@+id/splash"
+        android:paddingTop="@dimen/status_bar_height">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/splash_logo"
+            android:id="@+id/splash_logo"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
 </android.support.v4.widget.DrawerLayout>
