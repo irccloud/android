@@ -399,7 +399,6 @@
                 android:layout_marginTop="6dp"
                 android:indeterminate="true"
                 android:max="1000"
-                android:indeterminateTint="#fff"
                 app:theme="@style/ProgressBarLogin"
                 android:theme="@style/ProgressBarLogin"/>
 

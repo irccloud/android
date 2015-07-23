@@ -32,6 +32,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,6 +47,9 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.GingerbreadImageProxy;
@@ -491,6 +495,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
     private void loadVideo(String urlStr) {
         try {
+            Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Animation"));
             player = new MediaPlayer();
             final SurfaceView v = (SurfaceView)findViewById(R.id.video);
             if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
@@ -582,6 +587,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
     private void loadImage(String urlStr) {
         try {
+            Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Image"));
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && urlStr.startsWith("https://")) {
                 GingerbreadImageProxy proxy = new GingerbreadImageProxy();
                 proxy.init();
@@ -705,6 +711,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             MenuItem shareItem = menu.findItem(R.id.action_share);
             ShareActionProviderHax share = (ShareActionProviderHax) MenuItemCompat.getActionProvider(shareItem);
             share.onShareActionProviderSubVisibilityChangedListener = this;
+            share.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
+                @Override
+                public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
+                    Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod(intent.getPackage()));
+                    return false;
+                }
+            });
             share.setShareIntent(intent);
         }
         return true;

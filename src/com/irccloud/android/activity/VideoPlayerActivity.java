@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.text.format.DateUtils;
 import android.view.Menu;
@@ -42,6 +43,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
 
@@ -322,6 +326,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         if (getIntent() != null && getIntent().getDataString() != null) {
             String url = getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http");
             video.setVideoURI(Uri.parse(url));
+            Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Video"));
         } else {
             finish();
         }
@@ -371,6 +376,13 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             MenuItem shareItem = menu.findItem(R.id.action_share);
             ShareActionProviderHax share = (ShareActionProviderHax) MenuItemCompat.getActionProvider(shareItem);
             share.onShareActionProviderSubVisibilityChangedListener = this;
+            share.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
+                @Override
+                public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
+                    Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod(intent.getPackage()));
+                    return false;
+                }
+            });
             share.setShareIntent(intent);
         }
         return true;

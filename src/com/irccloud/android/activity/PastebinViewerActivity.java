@@ -42,6 +42,9 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -176,6 +179,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 } catch (PackageManager.NameNotFoundException e) {
                 }
                 new FetchPastebinTask().execute();
+                Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Pastebin"));
             } else {
                 finish();
             }
@@ -300,6 +304,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
                 startActivity(Intent.createChooser(intent, "Share Pastebin"));
+                Answers.getInstance().logShare(new ShareEvent().putContentType("Pastebin"));
             }
         } else if(item.getItemId() == R.id.action_edit) {
             mSpinner.setVisibility(View.VISIBLE);

@@ -53,7 +53,8 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.EventAttributes;
+import com.crashlytics.android.answers.LoginEvent;
+import com.crashlytics.android.answers.SignUpEvent;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.Credential;
@@ -71,7 +72,6 @@ import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.model.BackgroundTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -748,9 +748,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
 
                     if (!BuildConfig.ENTERPRISE) {
                         if (name.getVisibility() == View.VISIBLE)
-                            Answers.getInstance().logEvent("signup", new EventAttributes().put("method", "email"));
+                            Answers.getInstance().logSignUp(new SignUpEvent().putMethod("email").putSuccess(true));
                         else
-                            Answers.getInstance().logEvent("login", new EventAttributes().put("method", "email"));
+                            Answers.getInstance().logLogin(new LoginEvent().putMethod("email").putSuccess(true));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -776,6 +776,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 if (result != null) {
                     try {
                         if (result.has("message")) {
+                            if (!BuildConfig.ENTERPRISE) {
+                                if (name.getVisibility() == View.VISIBLE)
+                                    Answers.getInstance().logSignUp(new SignUpEvent().putMethod("email").putSuccess(false).putCustomAttribute("Failure", result.getString("message")));
+                                else
+                                    Answers.getInstance().logLogin(new LoginEvent().putMethod("email").putSuccess(false).putCustomAttribute("Failure", result.getString("message")));
+                            }
                             message = result.getString("message");
                             if (message.equalsIgnoreCase("auth") || message.equalsIgnoreCase("email") || message.equalsIgnoreCase("password") || message.equalsIgnoreCase("legacy_account"))
                                 if (name.getVisibility() == View.VISIBLE)
@@ -824,6 +830,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                         message = "Please enter your name, email address, and password.";
                     else
                         message = "Please enter your username and password.";
+                } else {
+                    if (!BuildConfig.ENTERPRISE) {
+                        if (name.getVisibility() == View.VISIBLE)
+                            Answers.getInstance().logSignUp(new SignUpEvent().putMethod("email").putSuccess(false));
+                        else
+                            Answers.getInstance().logLogin(new LoginEvent().putMethod("email").putSuccess(false));
+                    }
                 }
                 builder.setMessage(message);
                 builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
@@ -921,11 +934,13 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     startActivity(i);
                     finish();
                     if (!BuildConfig.ENTERPRISE)
-                        Answers.getInstance().logEvent("login", new EventAttributes().put("method", "access-link"));
+                        Answers.getInstance().logLogin(new LoginEvent().putMethod("access-link").putSuccess(true));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             } else {
+                if (!BuildConfig.ENTERPRISE)
+                    Answers.getInstance().logLogin(new LoginEvent().putMethod("access-link").putSuccess(false));
                 name.setEnabled(true);
                 email.setEnabled(true);
                 password.setEnabled(true);
@@ -1005,8 +1020,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
-            builder.setTitle("Password Reset Failed");
-            builder.setMessage("Unable to request a password reset.  Please try again later.");
+            builder.setTitle("Reset Failed");
+            builder.setMessage("Unable to request an access link.  Please try again later.");
             builder.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
