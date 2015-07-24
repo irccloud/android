@@ -95,10 +95,10 @@ public class BuffersList {
     }
 
     public void load() {
+        Cursor c = new Select().all().from(Buffer.class).query();
         try {
             long start = System.currentTimeMillis();
             ModelAdapter<Buffer> modelAdapter = FlowManager.getModelAdapter(Buffer.class);
-            Cursor c = new Select().all().from(Buffer.class).query();
             if (c != null && c.moveToFirst()) {
                 buffers = new ArrayList<>(c.getCount());
                 buffers_indexed = new SparseArray<>(c.getCount());
@@ -107,13 +107,15 @@ public class BuffersList {
                     buffers.add(b);
                     buffers_indexed.put(b.getBid(), b);
                 } while(c.moveToNext());
-                c.close();
                 long time = System.currentTimeMillis() - start;
                 android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " buffers in " + time + "ms");
             }
         } catch (SQLiteException e) {
             buffers.clear();
             buffers_indexed.clear();
+        } finally {
+            if(c != null)
+                c.close();
         }
     }
 

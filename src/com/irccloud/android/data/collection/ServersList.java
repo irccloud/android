@@ -55,10 +55,10 @@ public class ServersList {
     }
 
     public void load() {
+        Cursor c = new Select().all().from(Server.class).query();
         try {
             long start = System.currentTimeMillis();
             ModelAdapter<Server> modelAdapter = FlowManager.getModelAdapter(Server.class);
-            Cursor c = new Select().all().from(Server.class).query();
             if (c != null && c.moveToFirst()) {
                 servers = new SparseArray<>(c.getCount());
                 do {
@@ -66,12 +66,14 @@ public class ServersList {
                     servers.put(s.getCid(), s);
                     s.updateIgnores(s.raw_ignores);
                 } while(c.moveToNext());
-                c.close();
                 long time = System.currentTimeMillis() - start;
                 android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " servers in " + time + "ms");
             }
         } catch (SQLiteException e) {
             servers.clear();
+        } finally {
+            if(c != null)
+                c.close();
         }
     }
 

@@ -52,10 +52,10 @@ public class ChannelsList {
     }
 
     public void load() {
+        Cursor c = new Select().all().from(Channel.class).query();
         try {
             long start = System.currentTimeMillis();
             ModelAdapter<Channel> modelAdapter = FlowManager.getModelAdapter(Channel.class);
-            Cursor c = new Select().all().from(Channel.class).query();
             if (c != null && c.moveToFirst()) {
                 channels = new SparseArray<>(c.getCount());
                 do {
@@ -63,12 +63,14 @@ public class ChannelsList {
                     channels.put(s.bid, s);
                     updateMode(s.bid, s.mode, s.ops, true);
                 } while(c.moveToNext());
-                c.close();
                 long time = System.currentTimeMillis() - start;
                 android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " channels in " + time + "ms");
             }
         } catch (SQLiteException e) {
             channels.clear();
+        } finally {
+            if(c != null)
+                c.close();
         }
     }
 

@@ -56,12 +56,12 @@ public class EventsList {
 
     public void load(int bid) {
         synchronized (events) {
+            Cursor c = null;
             try {
                 if(loaded_bids.contains(bid))
                     return;
                 long start = System.currentTimeMillis();
                 ModelAdapter<Event> modelAdapter = FlowManager.getModelAdapter(Event.class);
-                Cursor c;
                 if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).size() > 0) {
                     c = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(events.get(bid).firstKey())).query();
                 } else {
@@ -73,13 +73,15 @@ public class EventsList {
                     do {
                         addEvent(modelAdapter.loadFromCursor(c));
                     } while (c.moveToNext());
-                    c.close();
                     long time = System.currentTimeMillis() - start;
                     android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " events in " + time + "ms");
                     loaded_bids.add(bid);
                 }
             } catch (SQLiteException e) {
                 e.printStackTrace();
+            } finally {
+                if(c != null)
+                    c.close();
             }
         }
     }

@@ -63,12 +63,12 @@ public class UsersList {
 
     public void load(int bid) {
         synchronized (users) {
+            Cursor c = new Select().from(User.class).where(Condition.column(User$Table.BID).is(bid)).query();
             try {
                 if(loaded_bids.contains(bid))
                     return;
                 long start = System.currentTimeMillis();
                 ModelAdapter<User> modelAdapter = FlowManager.getModelAdapter(User.class);
-                Cursor c = new Select().from(User.class).where(Condition.column(User$Table.BID).is(bid)).query();
                 if (c != null && c.moveToFirst()) {
                     android.util.Log.d("IRCCloud", "Loading users for bid" + bid);
                     do {
@@ -77,13 +77,15 @@ public class UsersList {
                             users.put(e.bid, new TreeMap<String, User>(comparator));
                         users.get(e.bid).put(e.nick.toLowerCase(), e);
                     } while (c.moveToNext());
-                    c.close();
                     long time = System.currentTimeMillis() - start;
                     android.util.Log.i("IRCCloud", "Loaded " + c.getCount() + " users in " + time + "ms");
                     loaded_bids.add(bid);
                 }
             } catch (SQLiteException e) {
                 e.printStackTrace();
+            } finally {
+                if(c != null)
+                    c.close();
             }
         }
     }
