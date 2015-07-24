@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -870,8 +871,18 @@ public class NetworkConnection {
     }
 
     public synchronized void load() {
+        notifyHandlers(EVENT_CACHE_START, null);
+        try {
+            String versionName = IRCCloudApplication.getInstance().getPackageManager().getPackageInfo(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), 0).versionName;
+            SharedPreferences prefs = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0);
+            if(!versionName.equals(prefs.getString("cacheVersion", ""))) {
+                Log.w("IRCCloud", "App version changed, clearing cache");
+                clearOfflineCache();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+
         if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", true)) {
-            notifyHandlers(EVENT_CACHE_START, null);
             mServers.load();
             notifyHandlers(EVENT_PROGRESS, (1.0f / 4.0f) * 1000.0f);
             mBuffers.load();
@@ -887,8 +898,8 @@ public class NetworkConnection {
                 ready = true;
             }
             notifyHandlers(EVENT_PROGRESS, (4.0f / 4.0f) * 1000.0f);
-            notifyHandlers(EVENT_CACHE_END, null);
         }
+        notifyHandlers(EVENT_CACHE_END, null);
     }
 
     public synchronized void save(int delay) {
@@ -915,6 +926,11 @@ public class NetworkConnection {
                                 if(handlers.size() == 0) {
                                     editor.putString("streamId", streamId);
                                     editor.putLong("highest_eid", highest_eid);
+                                    try {
+                                        editor.putString("cacheVersion", IRCCloudApplication.getInstance().getPackageManager().getPackageInfo(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), 0).versionName);
+                                    } catch (PackageManager.NameNotFoundException e) {
+                                        editor.remove("cacheVersion");
+                                    }
                                     editor.commit();
                                 }
                                 TransactionManager.getInstance().getSaveQueue().setTransactionListener(null);
@@ -2460,7 +2476,8 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 0, "");
-                mServers.getServer(object.cid()).setAway("");
+                if(mServers.getServer(object.cid()) != null)
+                    mServers.getServer(object.cid()).setAway("");
                 if (!backlog)
                     notifyHandlers(EVENT_SELFBACK, object);
             }

@@ -464,6 +464,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         drawerLayout.closeDrawers();
 
         getSupportActionBar().setElevation(0);
+        if(conn == null) {
+            conn = NetworkConnection.getInstance();
+            conn.addHandler(this);
+        }
     }
 
     @Override
@@ -1252,9 +1256,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
-        conn = NetworkConnection.getInstance();
-        conn.addHandler(this);
-
+        if(conn == null) {
+            conn = NetworkConnection.getInstance();
+            conn.addHandler(this);
+        }
         super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (prefs.getBoolean("screenlock", false)) {
