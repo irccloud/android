@@ -38,7 +38,7 @@
     <LinearLayout
         android:id="@+id/topUnreadIndicator"
         android:layout_width="match_parent"
-        android:layout_height="48dip"
+        android:layout_height="32dip"
         android:layout_alignParentTop="true"
         android:visibility="gone">
 	    <LinearLayout
@@ -58,7 +58,7 @@
     <LinearLayout
         android:id="@+id/bottomUnreadIndicator"
         android:layout_width="match_parent"
-        android:layout_height="48dip"
+        android:layout_height="32dip"
         android:layout_alignParentBottom="true"
         android:gravity="bottom"
         android:visibility="gone" >

@@ -501,19 +501,19 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 bottomUnreadIndicator.setVisibility(View.GONE);
         } else {
             if (topUnreadIndicator != null) {
-                if (firstFailurePosition != -1 && first > firstFailurePosition - 1) {
+                if (firstFailurePosition != -1 && first > firstFailurePosition) {
                     topUnreadIndicator.setVisibility(View.VISIBLE);
                     topUnreadIndicatorColor.setBackgroundResource(R.drawable.network_fail_bg);
                     topUnreadIndicatorBorder.setBackgroundResource(R.drawable.networkErrorBorder);
                 } else {
                     topUnreadIndicator.setVisibility(View.GONE);
                 }
-                if (firstUnreadPosition != -1 && first > firstUnreadPosition - 1) {
+                if (firstUnreadPosition != -1 && first > firstUnreadPosition) {
                     topUnreadIndicator.setVisibility(View.VISIBLE);
                     topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
                     topUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
                 }
-                if ((lastHighlightPosition != -1 && first > lastHighlightPosition - 1) ||
+                if ((lastHighlightPosition != -1 && first > lastHighlightPosition) ||
                         (firstHighlightPosition != -1 && first > firstHighlightPosition)) {
                     topUnreadIndicator.setVisibility(View.VISIBLE);
                     topUnreadIndicatorColor.setBackgroundResource(R.drawable.highlight_red);
@@ -558,7 +558,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
             @Override
             public void onClick(View v) {
-                int scrollTo = adapter.unreadPositionAbove(layoutManager.findFirstVisibleItemPosition());
+                int scrollTo = adapter.unreadPositionAbove(layoutManager.findFirstVisibleItemPosition()) - 1;
                 if (scrollTo > 0)
                     recyclerView.smoothScrollToPosition(scrollTo);
                 else
@@ -575,7 +575,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
             @Override
             public void onClick(View v) {
-                int scrollTo = adapter.unreadPositionBelow(layoutManager.findLastVisibleItemPosition());
+                int scrollTo = adapter.unreadPositionBelow(layoutManager.findLastVisibleItemPosition()) + 1;
                 if (scrollTo < adapter.getItemCount())
                     recyclerView.smoothScrollToPosition(scrollTo);
                 else

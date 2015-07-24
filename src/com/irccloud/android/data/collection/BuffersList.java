@@ -150,8 +150,10 @@ public class BuffersList {
         b.setDeferred(deferred);
         b.setTimeout(timeout);
         b.setValid(1);
-        b.setUnread(0);
-        b.setHighlights(0);
+        if(EventsList.getInstance().lastEidForBuffer(bid) <= last_seen_eid) {
+            b.setUnread(0);
+            b.setHighlights(0);
+        }
         dirty = true;
         return b;
     }

@@ -1009,10 +1009,8 @@ public class NetworkConnection {
         );
 
         String url = "wss://" + IRCCLOUD_HOST + IRCCLOUD_PATH;
-        if (highest_eid > 0) {
-            url += "?since_id=" + highest_eid;
-            if (streamId != null && streamId.length() > 0)
-                url += "&stream_id=" + streamId;
+        if (highest_eid > 0 && streamId != null && streamId.length() > 0) {
+            url += "?since_id=" + highest_eid + "&stream_id=" + streamId;
             if(notifier)
                 url += "&notifier=1";
         } else if(notifier) {
@@ -1996,10 +1994,6 @@ public class NetworkConnection {
                         (object.has("archived") && object.getBoolean("archived")) ? 1 : 0, (object.has("deferred") && object.getBoolean("deferred")) ? 1 : 0, (object.has("timeout") && object.getBoolean("timeout")) ? 1 : 0);
                 NotificationsList.getInstance().deleteOldNotifications(buffer.getBid(), buffer.getLast_seen_eid());
                 NotificationsList.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());
-                if (mEvents.lastEidForBuffer(buffer.getBid()) <= buffer.getLast_seen_eid()) {
-                    buffer.setUnread(0);
-                    buffer.setHighlights(0);
-                }
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
                     TransactionManager.getInstance().saveOnSaveQueue(buffer);
