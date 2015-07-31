@@ -51,6 +51,7 @@ import com.irccloud.android.data.model.Channel;
 import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.collection.EventsList;
+import com.irccloud.android.data.model.Notification_Network;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
@@ -2085,7 +2086,14 @@ public class NetworkConnection {
                             if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                 String message = ColorFormatter.irc_to_html(event.msg);
                                 message = ColorFormatter.html_to_spanned(message).toString();
-                                NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type);
+                                Notification_Network network = NotificationsList.getInstance().getNetwork(event.cid);
+                                if(network == null) {
+                                    String server_name = b.getServer().getName();
+                                    if(server_name == null || server_name.length() == 0)
+                                        server_name = b.getServer().getHostname();
+                                    network = NotificationsList.getInstance().addNetwork(event.cid, server_name);
+                                }
+                                NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, network);
                                 switch (b.getType()) {
                                     case "conversation":
                                         if (event.type.equals("buffer_me_msg"))

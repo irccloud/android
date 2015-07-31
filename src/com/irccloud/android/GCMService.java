@@ -28,6 +28,7 @@ import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.model.Notification_Network;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 
 import java.util.Iterator;
@@ -99,11 +100,11 @@ public class GCMService extends GcmListenerService {
                 if (server_name == null || server_name.length() == 0)
                     server_name = data.getString("server_hostname");
 
-                String network = NotificationsList.getInstance().getNetwork(cid).name;
+                Notification_Network network = NotificationsList.getInstance().getNetwork(cid);
                 if (network == null)
-                    NotificationsList.getInstance().addNetwork(cid, server_name);
+                    network = NotificationsList.getInstance().addNetwork(cid, server_name);
 
-                NotificationsList.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type);
+                NotificationsList.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type, network);
 
                 if (from == null || from.length() == 0)
                     NotificationsList.getInstance().showNotifications(server_name + ": " + msg);

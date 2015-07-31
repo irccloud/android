@@ -136,11 +136,12 @@ public class NotificationsList {
         updateTeslaUnreadCount();
     }
 
-    public synchronized void addNetwork(int cid, String network) {
+    public synchronized Notification_Network addNetwork(int cid, String network) {
         Notification_Network n = new Notification_Network();
         n.cid = cid;
         n.name = network;
         TransactionManager.getInstance().saveOnSaveQueue(n);
+        return n;
     }
 
     public synchronized void deleteNetwork(int cid) {
@@ -149,16 +150,13 @@ public class NotificationsList {
             n.delete();
     }
 
-    public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type) {
+    public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, Notification_Network network) {
         long last_eid = getLastSeenEid(bid);
         if (eid <= last_eid) {
             Crashlytics.log("Refusing to add notification for seen eid: " + eid);
             return;
         }
 
-        Notification_Network network = getNetwork(cid);
-        if (network == null)
-            addNetwork(cid, "Unknown Network");
         Notification n = new Notification();
         n.bid = bid;
         n.cid = cid;
@@ -168,7 +166,7 @@ public class NotificationsList {
         n.chan = chan;
         n.buffer_type = buffer_type;
         n.message_type = message_type;
-        n.network = getNetwork(cid);
+        n.network = network;
 
         n.save();
     }
@@ -263,7 +261,13 @@ public class NotificationsList {
     }
 
     public Notification_Network getNetwork(int cid) {
-        return new Select().from(Notification_Network.class).where(Condition.column(Notification_Network$Table.CID).is(cid)).querySingle();
+        Notification_Network network = new Select().from(Notification_Network.class).where(Condition.column(Notification_Network$Table.CID).is(cid)).querySingle();
+        if (network == null) {
+            network = new Notification_Network();
+            network.cid = cid;
+            network.name = "Unknown Network";
+        }
+        return network;
     }
 
     public Notification getNotification(long eid) {
@@ -330,6 +334,8 @@ public class NotificationsList {
 
         if (notifications.size() > 0 && notify) {
             for (Notification n : notifications) {
+                if(n.network == null)
+                    n.network = getNetwork(n.cid);
                 if (!n.shown) {
                     if (n.message_type.equals("callerid")) {
                         title = "Callerid: " + n.nick + " (" + n.network + ")";
@@ -510,6 +516,9 @@ public class NotificationsList {
             count = 0;
             boolean show = false;
             for (Notification n : notifications) {
+                if(n.network == null)
+                    n.network = getNetwork(n.cid);
+
                 if (n.bid != lastbid) {
                     if (show) {
                         String title = last.chan;

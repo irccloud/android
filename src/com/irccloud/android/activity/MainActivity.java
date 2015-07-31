@@ -416,6 +416,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 show_topic_popup();
             }
         });
+        getSupportActionBar().setCustomView(v);
 
         if (drawerLayout != null) {
             if (findViewById(R.id.usersListFragment2) == null) {
@@ -464,12 +465,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(conn == null) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
-        }
-
-        getSupportActionBar().setCustomView(v);
-        if(buffer != null) {
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
     }
 
@@ -1316,6 +1311,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } else if (buffer != null) {
             int bid = buffer.getBid();
             onBufferSelected(bid);
+        }
+
+        if(buffer != null) {
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
         updateUsersListFragmentVisibility();

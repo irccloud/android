@@ -56,7 +56,7 @@ public class Notification extends BaseModel {
             references = {@ForeignKeyReference(columnName = "network_id",
             columnType = Integer.class,
             foreignColumnName = "cid")},
-    saveForeignKeyModel = false)
+    saveForeignKeyModel = true)
     public Notification_Network network;
 
     @Column
