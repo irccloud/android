@@ -288,7 +288,6 @@ public class Buffer extends ObservableBaseModel {
 
     public void setDraft(String draft) {
         this.draft = draft;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getChan_types() {

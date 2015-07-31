@@ -25,11 +25,6 @@
 		    android:summaryOn="Your display will remain on while IRCCloud is visible"
 		    android:summaryOff="Your display will turn off as normal"
 			android:title="Prevent display sleep"/>
-	    <ListPreference android:entries="@array/pref_timeout_names"
-		    android:title="Connection timeout" android:key="timeout"
-		    android:entryValues="@array/pref_timeout_values"
-		    android:summary="How long to remain connected to IRCCloud while running in the background"
-		    android:defaultValue="300000" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="kb_caps"
             android:defaultValue="true"

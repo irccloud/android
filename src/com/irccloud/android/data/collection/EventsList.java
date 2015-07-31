@@ -29,6 +29,9 @@ import com.irccloud.android.data.model.Event$Table;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
+import com.raizlabs.android.dbflow.runtime.transaction.DeleteTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.process.DeleteModelListTransaction;
+import com.raizlabs.android.dbflow.runtime.transaction.process.ProcessModelInfo;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Select;
@@ -951,10 +954,10 @@ public class EventsList {
             load(bid);
             TreeMap<Long, Event> e = events.get(bid);
             while (e != null && e.size() > 50 && e.firstKey() != null) {
-                Event event = e.get(e.firstKey());
                 e.remove(e.firstKey());
-                event.delete();
             }
+            if(e != null)
+                new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(e.firstKey())).queryClose();
         }
     }
 

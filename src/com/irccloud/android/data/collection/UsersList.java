@@ -153,7 +153,6 @@ public class UsersList {
             u.old_nick = old_nick;
             users.get(bid).remove(old_nick.toLowerCase());
             users.get(bid).put(new_nick.toLowerCase(), u);
-            TransactionManager.getInstance().saveOnSaveQueue(u);
         }
     }
 
@@ -161,7 +160,6 @@ public class UsersList {
         User u = getUser(bid, nick);
         if (u != null) {
             u.away = away;
-            TransactionManager.getInstance().saveOnSaveQueue(u);
         }
     }
 
@@ -169,7 +167,6 @@ public class UsersList {
         User u = getUser(bid, nick);
         if (u != null) {
             u.hostmask = hostmask;
-            TransactionManager.getInstance().saveOnSaveQueue(u);
         }
     }
 
@@ -177,7 +174,6 @@ public class UsersList {
         User u = getUser(bid, nick);
         if (u != null) {
             u.mode = mode;
-            TransactionManager.getInstance().saveOnSaveQueue(u);
         }
     }
 
@@ -186,7 +182,6 @@ public class UsersList {
         if (u != null) {
             u.away = away;
             u.away_msg = away_msg;
-            TransactionManager.getInstance().saveOnSaveQueue(u);
         }
     }
 

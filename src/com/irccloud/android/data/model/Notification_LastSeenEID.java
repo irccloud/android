@@ -30,4 +30,9 @@ public class Notification_LastSeenEID extends BaseModel {
 
     @Column
     public long eid;
+
+    @Override
+    public String toString() {
+        return String.valueOf(eid);
+    }
 }

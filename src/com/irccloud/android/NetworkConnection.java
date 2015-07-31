@@ -58,6 +58,7 @@ import com.irccloud.android.data.model.User;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
 import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.Model;
 
 import org.apache.http.message.BasicNameValuePair;
@@ -139,11 +140,11 @@ public class NetworkConnection {
     private final ArrayList<IRCEventHandler> handlers = new ArrayList<IRCEventHandler>();
     public String session = null;
     private volatile int last_reqid = 0;
-    private static final Timer shutdownTimer = new Timer("shutdown-timer");
     private static final Timer idleTimer = new Timer("websocket-idle-timer");
     private static final Timer saveTimer = new Timer("backlog-save-timer");
     private TimerTask idleTimerTask = null;
     private TimerTask saveTimerTask = null;
+    private TimerTask notifierSockerTimerTask = null;
     public long idle_interval = 1000;
     private volatile int failCount = 0;
     private long reconnect_timestamp = 0;
@@ -919,11 +920,16 @@ public class NetworkConnection {
                         editor.remove("highest_eid");
                         editor.commit();
 
+                        mUsers.save();
+                        mEvents.save();
+                        mChannels.save();
+                        mBuffers.save();
+                        mServers.save();
                         TransactionManager.getInstance().getSaveQueue().setTransactionListener(new TransactionListener<List<Model>>() {
                             @Override
                             public void onResultReceived(List<Model> models) {
                                 Log.i("IRCCloud", "Saved " + models.size() + " objects in " + (System.currentTimeMillis() - start) + "ms");
-                                if(handlers.size() == 0) {
+                                if (handlers.size() == 0) {
                                     editor.putString("streamId", streamId);
                                     editor.putLong("highest_eid", highest_eid);
                                     try {
@@ -946,13 +952,7 @@ public class NetworkConnection {
                                 return true;
                             }
                         });
-                        mServers.save();
-                        mBuffers.save();
-                        mChannels.save();
-                        if(handlers.size() == 0) {
-                            mEvents.save();
-                            mUsers.save();
-                        }
+                        TransactionManager.getInstance().getSaveQueue().purgeQueue();
                     }
                 }
             }
@@ -1048,6 +1048,7 @@ public class NetworkConnection {
                 editor.remove("streamId");
                 editor.remove("highest_eid");
                 editor.commit();
+                Delete.tables(Server.class, Buffer.class, Channel.class);
                 Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
                 state = STATE_CONNECTED;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
@@ -1807,7 +1808,6 @@ public class NetworkConnection {
                             if (mEvents.lastEidForBuffer(bid) <= eid) {
                                 b.setUnread(0);
                                 b.setHighlights(0);
-                                TransactionManager.getInstance().saveOnSaveQueue(b);
                             }
                         }
                     }
@@ -1951,7 +1951,6 @@ public class NetworkConnection {
 
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKESERVER, server);
-                    TransactionManager.getInstance().saveOnSaveQueue(server);
                 }
             }
         });
@@ -2012,7 +2011,6 @@ public class NetworkConnection {
                 NotificationsList.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
-                    TransactionManager.getInstance().saveOnSaveQueue(buffer);
                 }
                 totalbuffers++;
             }
@@ -2034,8 +2032,6 @@ public class NetworkConnection {
                     b.setArchived(1);
                 if (!backlog) {
                     notifyHandlers(EVENT_BUFFERARCHIVED, object.bid());
-                    if(b != null)
-                        TransactionManager.getInstance().saveOnSaveQueue(b);
                 }
             }
         });
@@ -2047,8 +2043,6 @@ public class NetworkConnection {
                     b.setArchived(0);
                 if (!backlog) {
                     notifyHandlers(EVENT_BUFFERUNARCHIVED, object.bid());
-                    if(b != null)
-                        TransactionManager.getInstance().saveOnSaveQueue(b);
                 }
             }
         });
@@ -2060,8 +2054,6 @@ public class NetworkConnection {
                     b.setName(object.getString("new_name"));
                 if (!backlog) {
                     notifyHandlers(EVENT_RENAMECONVERSATION, object.bid());
-                    if(b != null)
-                        TransactionManager.getInstance().saveOnSaveQueue(b);
                 }
             }
         });
@@ -2077,8 +2069,6 @@ public class NetworkConnection {
                         if (newEvent) {
                             b.setHighlights(b.getHighlights() + 1);
                             b.setUnread(1);
-                            if(!backlog)
-                                TransactionManager.getInstance().saveOnSaveQueue(b);
                         }
                         if(!backlog) {
                             JSONObject bufferDisabledMap = null;
@@ -2123,8 +2113,6 @@ public class NetworkConnection {
                         }
                     } else {
                         b.setUnread(1);
-                        if(!backlog)
-                            TransactionManager.getInstance().saveOnSaveQueue(b);
                     }
                 } else if (b == null && !oobTasks.containsKey(-1)) {
                     Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
@@ -2154,7 +2142,6 @@ public class NetworkConnection {
                 }
 
                 if (!backlog) {
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                     notifyHandlers(EVENT_BUFFERMSG, event);
                 }
             }
@@ -2258,7 +2245,6 @@ public class NetworkConnection {
                 Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     notifyHandlers(EVENT_LINKCHANNEL, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2276,8 +2262,6 @@ public class NetworkConnection {
                 for (int i = 0; i < users.size(); i++) {
                     JsonNode user = users.get(i);
                     User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("away").asBoolean() ? 1 : 0, false);
-                    if(!backlog)
-                        TransactionManager.getInstance().saveOnSaveQueue(u);
                 }
                 mBuffers.dirty = true;
                 if (!backlog)
@@ -2291,7 +2275,6 @@ public class NetworkConnection {
                 if (!backlog) {
                     mChannels.updateTopic(object.bid(), object.getString("topic"), object.getLong("eid") / 1000000, object.has("author") ? object.getString("author") : object.getString("server"));
                     notifyHandlers(EVENT_CHANNELTOPIC, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2308,7 +2291,6 @@ public class NetworkConnection {
                 if (!backlog) {
                     mChannels.updateMode(object.bid(), object.getString("newmode"), object.getJsonObject("ops"), false);
                     notifyHandlers(EVENT_CHANNELMODE, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2329,8 +2311,6 @@ public class NetworkConnection {
                 if (!backlog) {
                     User u = mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
                     notifyHandlers(EVENT_JOIN, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(u);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2347,7 +2327,6 @@ public class NetworkConnection {
                         mBuffers.dirty = true;
                     }
                     notifyHandlers(EVENT_PART, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2359,7 +2338,6 @@ public class NetworkConnection {
                 if (!backlog) {
                     mUsers.deleteUser(object.bid(), object.getString("nick"));
                     notifyHandlers(EVENT_QUIT, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2369,7 +2347,6 @@ public class NetworkConnection {
                 Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     notifyHandlers(EVENT_QUIT, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2385,7 +2362,6 @@ public class NetworkConnection {
                         mBuffers.dirty = true;
                     }
                     notifyHandlers(EVENT_KICK, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2402,7 +2378,6 @@ public class NetworkConnection {
                         mServers.getServer(object.cid).setNick(object.getString("newnick"));
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2414,7 +2389,6 @@ public class NetworkConnection {
                 if (!backlog) {
                     mUsers.updateMode(object.bid(), object.getString("nick"), object.getString("newmode"));
                     notifyHandlers(EVENT_USERCHANNELMODE, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2442,8 +2416,6 @@ public class NetworkConnection {
                     b.setAway_msg(object.getString("msg"));
                 if (!backlog) {
                     notifyHandlers(EVENT_AWAY, object);
-                    if(b != null)
-                        TransactionManager.getInstance().saveOnSaveQueue(b);
                 }
             }
         });
@@ -2457,8 +2429,6 @@ public class NetworkConnection {
                     b.setAway_msg("");
                 if (!backlog) {
                     notifyHandlers(EVENT_AWAY, object);
-                    if(b != null)
-                        TransactionManager.getInstance().saveOnSaveQueue(b);
                 }
             }
         });
@@ -2489,7 +2459,6 @@ public class NetworkConnection {
                 Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     notifyHandlers(EVENT_SELFDETAILS, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2500,7 +2469,6 @@ public class NetworkConnection {
                 if (!backlog) {
                     mServers.getServer(object.cid()).setMode(object.getString("newmode"));
                     notifyHandlers(EVENT_USERMODE, object);
-                    TransactionManager.getInstance().saveOnSaveQueue(event);
                 }
             }
         });
@@ -2541,7 +2509,6 @@ public class NetworkConnection {
                 if (!backlog) {
                     notifyHandlers(EVENT_ALERT, object);
                     notifyHandlers(EVENT_BUFFERMSG, e);
-                    TransactionManager.getInstance().saveOnSaveQueue(e);
                 }
             }
         });
@@ -2582,12 +2549,7 @@ public class NetworkConnection {
             //Crashlytics.log("New event: " + type);
             //Log.d(TAG, "New event: " + type);
             if ((backlog || accrued > 0) && object.bid() > -1 && object.bid() != currentBid && object.eid > 0) {
-                if(backlog) {
-                    if(mEvents.lastEidForBuffer(object.bid()) > 0 && object.eid() > mEvents.lastEidForBuffer(object.bid())) {
-                        Log.w("IRCCloud", "Backlog gap detected, purging events for bid" + object.bid() + "(" + object.eid() + " / " + mEvents.lastEidForBuffer(object.bid()) + ")");
-                        mEvents.deleteEventsForBuffer(object.bid());
-                    }
-                } else {
+                if(!backlog) {
                     if(firstEid == -1 && object.eid > highest_eid) {
                         firstEid = object.eid();
                         if (firstEid > highest_eid) {
@@ -2829,52 +2791,33 @@ public class NetworkConnection {
         synchronized (handlers) {
             if (!handlers.contains(handler))
                 handlers.add(handler);
-            if (shutdownTimerTask != null)
-                shutdownTimerTask.cancel();
-            shutdownTimerTask = null;
             if (saveTimerTask != null)
                 saveTimerTask.cancel();
+            if (notifierSockerTimerTask != null)
+                notifierSockerTimerTask.cancel();
             saveTimerTask = null;
+            notifierSockerTimerTask = null;
         }
     }
-
-    private TimerTask shutdownTimerTask = null;
 
     public synchronized void removeHandler(IRCEventHandler handler) {
         synchronized (handlers) {
             handlers.remove(handler);
-            if (handlers.isEmpty()) {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-                long timeout = 300000;
-                try {
-                    timeout = Long.valueOf(prefs.getString("timeout", "300000"));
-                } catch (NumberFormatException e) {
-                    //Fix invalid value if user has tried to modify the timeout to an absurdly large number
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("timeout", "300000");
-                    editor.commit();
-                }
-                if (shutdownTimerTask != null)
-                    shutdownTimerTask.cancel();
-                shutdownTimerTask = new TimerTask() {
-                    public void run() {
-                        if (handlers.isEmpty()) {
-                            disconnect();
-                        }
+            if (notifierSockerTimerTask != null)
+                notifierSockerTimerTask.cancel();
+            notifierSockerTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    notifierSockerTimerTask = null;
+                    if(!notifier && state == STATE_CONNECTED) {
+                        disconnect();
+                        notifier = true;
+                        connect();
                     }
-                };
-                shutdownTimer.schedule(shutdownTimerTask, timeout);
-                if (state != STATE_CONNECTED) {
-                    if (idleTimerTask != null)
-                        idleTimerTask.cancel();
-                    failCount = 0;
-                    if (wifiLock.isHeld())
-                        wifiLock.release();
-                    reconnect_timestamp = 0;
-                    state = STATE_DISCONNECTED;
                 }
-                save(10000);
-            }
+            };
+
+            idleTimer.schedule(notifierSockerTimerTask, 300000);
         }
     }
 
@@ -3086,6 +3029,7 @@ public class NetworkConnection {
                             if (bid == -1) {
                                 mBuffers.invalidate();
                                 mChannels.invalidate();
+                                mEvents.clear();
                                 mUsers.clear();
                             }
                             int count = 0;
@@ -3158,7 +3102,6 @@ public class NetworkConnection {
                     if (Build.VERSION.SDK_INT >= 14)
                         TrafficStats.clearThreadStatsTag();
                     numbuffers = 0;
-                    save(10000);
                     return true;
                 } else {
                     Log.e(TAG, "Invalid response code: " + conn.getResponseCode());

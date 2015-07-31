@@ -156,7 +156,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setNick(String nick) {
         this.nick = nick;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getStatus() {
@@ -165,7 +164,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setStatus(String status) {
         this.status = status;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public ObjectNode getFail_info() {
@@ -174,7 +172,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setFail_info(ObjectNode fail_info) {
         this.fail_info = fail_info;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public boolean isConnecting() {
@@ -226,7 +223,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setAway(String away) {
         this.away = away;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getUsermask() {
@@ -235,7 +231,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setUsermask(String usermask) {
         this.usermask = usermask;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getMode() {
@@ -244,7 +239,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setMode(String mode) {
         this.mode = mode;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public int getOrder() {
@@ -253,7 +247,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
 
     public void setOrder(int order) {
         this.order = order;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public String getServer_pass() {
@@ -283,7 +276,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
     public void updateUserModes(String modes) {
         if (modes != null && modes.length() == 5 && modes.charAt(0) != 'q') {
             this.MODE_OWNER = modes.substring(0, 1);
-            TransactionManager.getInstance().saveOnSaveQueue(this);
         }
     }
 
@@ -311,7 +303,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
             this.CHANTYPES = this.isupport.get("CHANTYPES").asText();
         else
             this.CHANTYPES = null;
-        TransactionManager.getInstance().saveOnSaveQueue(this);
     }
 
     public void updateIgnores(JsonNode ignores) {
@@ -351,7 +342,6 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
                 if (mask.equals(".*!.*@.*"))
                     continue;
                 this.ignores.add(mask);
-                TransactionManager.getInstance().saveOnSaveQueue(this);
             }
         }
     }
