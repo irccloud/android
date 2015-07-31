@@ -31,10 +31,10 @@ public class SyncService extends IntentService implements NetworkConnection.IRCE
         NetworkConnection conn = NetworkConnection.getInstance();
         if (intent != null && conn.session != null && conn.getState() == NetworkConnection.STATE_DISCONNECTED) {
             android.util.Log.d("IRCCloud", "Syncing IRCCloud backlog");
-            conn.load();
             running = true;
             conn.addHandler(this);
             conn.notifier = true;
+            conn.load();
             conn.connect();
 
             while(running) {

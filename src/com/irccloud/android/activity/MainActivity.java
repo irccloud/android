@@ -435,9 +435,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         title = (TextView) v.findViewById(R.id.title);
         subtitle = (TextView) v.findViewById(R.id.subtitle);
         key = (ImageView) v.findViewById(R.id.key);
-        getSupportActionBar().setCustomView(v);
-        getSupportActionBar().setDisplayShowCustomEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
@@ -467,6 +464,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(conn == null) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
+        }
+
+        getSupportActionBar().setCustomView(v);
+        if(buffer != null) {
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
     }
 
@@ -1719,6 +1722,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         public void run() {
                             progressBar.setIndeterminate(false);
                             progressBar.setProgress((int) progress);
+                            if (progressBar.getVisibility() != View.VISIBLE) {
+                                progressBar.setVisibility(View.VISIBLE);
+                            }
                         }
                     });
                 }

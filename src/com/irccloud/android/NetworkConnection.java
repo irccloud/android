@@ -885,11 +885,8 @@ public class NetworkConnection {
 
         if(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("enable_cache", true)) {
             mServers.load();
-            notifyHandlers(EVENT_PROGRESS, (1.0f / 4.0f) * 1000.0f);
             mBuffers.load();
-            notifyHandlers(EVENT_PROGRESS, (2.0f / 4.0f) * 1000.0f);
             mChannels.load();
-            notifyHandlers(EVENT_PROGRESS, (3.0f / 4.0f) * 1000.0f);
             if (mServers.count() > 0) {
                 String u = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
                 if (u != null && u.length() > 0)
@@ -898,7 +895,6 @@ public class NetworkConnection {
                 streamId = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("streamId", null);
                 ready = true;
             }
-            notifyHandlers(EVENT_PROGRESS, (4.0f / 4.0f) * 1000.0f);
         }
         notifyHandlers(EVENT_CACHE_END, null);
     }
@@ -988,6 +984,10 @@ public class NetworkConnection {
         }
         state = STATE_CONNECTING;
 
+        if (saveTimerTask != null)
+            saveTimerTask.cancel();
+        saveTimerTask = null;
+
         if (oobTasks.size() > 0) {
             Log.d("IRCCloud", "Clearing OOB tasks before connecting");
         }
@@ -1044,13 +1044,17 @@ public class NetworkConnection {
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
             public void onConnect() {
+                Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
+                state = STATE_CONNECTED;
+                Crashlytics.log(Log.DEBUG, TAG, "Emptying cache");
+                if (saveTimerTask != null)
+                    saveTimerTask.cancel();
+                saveTimerTask = null;
                 final SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                 editor.remove("streamId");
                 editor.remove("highest_eid");
                 editor.commit();
                 Delete.tables(Server.class, Buffer.class, Channel.class);
-                Crashlytics.log(Log.DEBUG, TAG, "WebSocket connected");
-                state = STATE_CONNECTED;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
                 fetchConfig();
             }
@@ -1108,8 +1112,6 @@ public class NetworkConnection {
                     }
                 }
                 client = null;
-                if(streamId != null)
-                    save(100);
             }
 
             @Override
@@ -1132,8 +1134,6 @@ public class NetworkConnection {
                 state = STATE_DISCONNECTED;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
                 client = null;
-                if(streamId != null)
-                    save(100);
             }
         }, extraHeaders);
 
@@ -1877,6 +1877,8 @@ public class NetworkConnection {
                     failCount = 0;
                     ready = true;
                     notifyHandlers(EVENT_BACKLOG_END, null);
+                    if(notifier)
+                        save(1000);
                 }
             }
         });

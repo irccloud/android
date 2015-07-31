@@ -193,6 +193,7 @@ public class IRCCloudApplicationBase extends Application {
         if (!NetworkConnection.getInstance().isVisible()) {
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Received low memory warning in the background, cleaning backlog in all buffers");
             NetworkConnection.getInstance().disconnect();
+            NetworkConnection.getInstance().save(1000);
         }
     }
 
