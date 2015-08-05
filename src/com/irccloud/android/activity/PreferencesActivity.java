@@ -161,7 +161,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             findPreference("notify_sony").setOnPreferenceChangeListener(sonytoggle);
         if(BuildConfig.DEBUG) {
             addPreferencesFromResource(R.xml.preferences_debug);
-            findPreference("enable_cache").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            /*findPreference("enable_cache").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object o) {
                     if((Boolean)o) {
@@ -181,7 +181,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     Toast.makeText(PreferencesActivity.this, "Offline cache was reset", Toast.LENGTH_SHORT).show();
                     return false;
                 }
-            });
+            });*/
         }
         addPreferencesFromResource(R.xml.preferences_about);
         findPreference("name").setOnPreferenceChangeListener(settingstoggle);

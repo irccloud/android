@@ -23,7 +23,7 @@
             android:summaryOn="Memory leaks will be caught and automatically reported via Crashlytics"
             android:summaryOff="Memory leaks will be ignored"
             android:title="Detect Memory Leaks" />
-        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+        <!--<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="background_sync"
             android:defaultValue="true"
             android:summaryOn="Messages will periodically be downloaded while the app is in the background"
@@ -40,6 +40,6 @@
             android:title="Reset Offline Cache"
             android:summary="Reload all backlog from the server"
             android:key="clear_cache"
-            />
+            />-->
     </PreferenceCategory>
 </PreferenceScreen>

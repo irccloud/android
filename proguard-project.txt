@@ -33,6 +33,7 @@
 -dontwarn java.beans.**
 -dontobfuscate
 -dontwarn android.databinding.**
+-dontwarn com.squareup.**
 
 #Play Services
 -keep class * extends java.util.ListResourceBundle {

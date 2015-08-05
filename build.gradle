@@ -40,6 +40,7 @@ tasks.withType(JavaCompile) {
 repositories {
     jcenter()
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
 def getRevision = { ->
@@ -252,8 +253,8 @@ android {
         enterpriserelease.res.srcDirs = ['enterprise-res']
         main.res.srcDirs = ['res']
         main.assets.srcDirs = ['assets']
-        debug.java.srcDirs = ['release-src']
-        enterprisedebug.java.srcDirs = ['release-src']
+        debug.java.srcDirs = ['debug-src']
+        enterprisedebug.java.srcDirs = ['debug-src']
         release.java.srcDirs = ['release-src']
         enterpriserelease.java.srcDirs = ['release-src']
 
@@ -321,8 +322,8 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.0@aar') {
         transitive = true;
     }
-    debugCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
-    enterprisedebugCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
-    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
-    enterprisereleaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.3.1'
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
+    enterprisedebugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
+    enterprisereleaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
 }
