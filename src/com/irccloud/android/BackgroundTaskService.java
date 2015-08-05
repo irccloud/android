@@ -101,7 +101,7 @@ public class BackgroundTaskService extends GcmTaskService {
     }
 
     public static void scheduleBacklogSync(Context context) {
-        android.util.Log.d("IRCCloud", "Scheduling background sync");
+        /*android.util.Log.d("IRCCloud", "Scheduling background sync");
         List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_BACKLOG_SYNC)).queryList();
         for(BackgroundTask t : tasks) {
             GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
@@ -119,17 +119,17 @@ public class BackgroundTaskService extends GcmTaskService {
                 .setService(BackgroundTaskService.class)
                 .build());
 
-        android.util.Log.d("IRCCloud", "Scheduled job with task ID: " + task.tag);
+        android.util.Log.d("IRCCloud", "Scheduled job with task ID: " + task.tag);*/
     }
 
     public static void cancelBacklogSync(Context context) {
-        android.util.Log.d("IRCCloud", "Cancelling background sync");
+        /*android.util.Log.d("IRCCloud", "Cancelling background sync");
         List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_BACKLOG_SYNC)).queryList();
         for (BackgroundTask t : tasks) {
             android.util.Log.d("IRCCloud", "Cancelled job with task ID: " + t.tag);
             GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
             t.delete();
-        }
+        }*/
     }
 
     @Override

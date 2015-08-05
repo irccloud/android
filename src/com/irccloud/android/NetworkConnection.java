@@ -142,10 +142,11 @@ public class NetworkConnection {
     public String session = null;
     private volatile int last_reqid = 0;
     private static final Timer idleTimer = new Timer("websocket-idle-timer");
-    private static final Timer saveTimer = new Timer("backlog-save-timer");
+    //private static final Timer saveTimer = new Timer("backlog-save-timer");
     private TimerTask idleTimerTask = null;
     private TimerTask saveTimerTask = null;
     private TimerTask notifierSockerTimerTask = null;
+    private TimerTask disconnectSockerTimerTask = null;
     public long idle_interval = 1000;
     private volatile int failCount = 0;
     private long reconnect_timestamp = 0;
@@ -873,7 +874,7 @@ public class NetworkConnection {
     }
 
     public synchronized void load() {
-        notifyHandlers(EVENT_CACHE_START, null);
+        /*notifyHandlers(EVENT_CACHE_START, null);
         try {
             String versionName = IRCCloudApplication.getInstance().getPackageManager().getPackageInfo(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), 0).versionName;
             SharedPreferences prefs = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0);
@@ -897,11 +898,11 @@ public class NetworkConnection {
                 ready = true;
             }
         }
-        notifyHandlers(EVENT_CACHE_END, null);
+        notifyHandlers(EVENT_CACHE_END, null);*/
     }
 
     public synchronized void save(int delay) {
-        if (saveTimerTask != null)
+        /*if (saveTimerTask != null)
             saveTimerTask.cancel();
 
         saveTimerTask = new TimerTask() {
@@ -954,7 +955,7 @@ public class NetworkConnection {
                 }
             }
         };
-        saveTimer.schedule(saveTimerTask, delay);
+        saveTimer.schedule(saveTimerTask, delay);*/
     }
 
     public synchronized void connect() {
@@ -1058,6 +1059,21 @@ public class NetworkConnection {
                 Delete.tables(Server.class, Buffer.class, Channel.class);
                 notifyHandlers(EVENT_CONNECTIVITY, null);
                 fetchConfig();
+                if (disconnectSockerTimerTask != null)
+                    disconnectSockerTimerTask.cancel();
+                if(notifier) {
+                    disconnectSockerTimerTask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            disconnectSockerTimerTask = null;
+                            if(notifier) {
+                                Log.d("IRCCloud", "Notifier socket expired");
+                                disconnect();
+                            }
+                        }
+                    };
+                    idleTimer.schedule(disconnectSockerTimerTask, 600000);
+                }
             }
 
             @Override
@@ -1645,6 +1661,8 @@ public class NetworkConnection {
     }
 
     public void upgrade() {
+        if (disconnectSockerTimerTask != null)
+            disconnectSockerTimerTask.cancel();
         notifier = false;
         send("upgrade_notifier", new JSONObject());
     }

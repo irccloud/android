@@ -1266,7 +1266,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
-        if (conn.getState() != NetworkConnection.STATE_CONNECTED) {
+        if (conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
             if (drawerLayout != null && !NetworkConnection.getInstance().ready) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 getSupportActionBar().setHomeButtonEnabled(false);

@@ -85,8 +85,11 @@ public class GCMService extends GcmListenerService {
                     return;
                 }
 
-                if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED && BuffersList.getInstance().getBuffer(bid) != null)
-                    NetworkConnection.getInstance().request_backlog(cid, bid, 0);
+                if(NetworkConnection.getInstance().getState() == NetworkConnection.STATE_DISCONNECTED) {
+                    NetworkConnection.getInstance().notifier = true;
+                    NetworkConnection.getInstance().connect();
+                    //NetworkConnection.getInstance().request_backlog(cid, bid, 0);
+                }
 
                 String from = data.getString("from_nick");
                 String msg = data.getString("msg");
