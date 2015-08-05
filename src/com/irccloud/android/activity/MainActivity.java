@@ -3751,25 +3751,30 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 try {
-                    mvf.getListView().startAnimation(anim);
-                    ulf.getRecyclerView().startAnimation(anim);
+                    if(mvf != null)
+                        mvf.getListView().startAnimation(anim);
+
+                    if(ulf != null)
+                        ulf.getRecyclerView().startAnimation(anim);
                 } catch (Exception e) {
 
                 }
             } else {
-                mvf.getListView().animate().alpha(0).withEndAction(new Runnable() {
+                if(mvf != null)
+                    mvf.getListView().animate().alpha(0).withEndAction(new Runnable() {
                     @Override
                     public void run() {
-                        if (mvf != null)
-                            mvf.setArguments(b);
+                        mvf.setArguments(b);
                         messageTxt.setText("");
                         if (buffer != null && buffer.getDraft() != null)
                             messageTxt.append(buffer.getDraft());
                     }
                 });
-                ulf.getRecyclerView().animate().alpha(0);
+                if(ulf != null)
+                    ulf.getRecyclerView().animate().alpha(0);
             }
-            mvf.showSpinner(true);
+            if(mvf != null)
+                mvf.showSpinner(true);
         } else {
             if (mvf != null)
                 mvf.setArguments(b);
