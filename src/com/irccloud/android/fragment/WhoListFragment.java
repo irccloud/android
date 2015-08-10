@@ -16,6 +16,8 @@
 
 package com.irccloud.android.fragment;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,6 +34,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
@@ -86,6 +89,46 @@ public class WhoListFragment extends DialogFragment {
             row.setName(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).get("realname").asText()))) + ")"));
             row.setServer("Connected via " + users.get(position).get("ircserver").asText());
             row.setMask(users.get(position).get("usermask").asText());
+            row.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    final JsonNode user = users.get(position);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+
+                    builder.setItems(new String[]{"Send a message", "Whois…", "Copy hostmask"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            switch (i) {
+                                case 0:
+                                    dismiss();
+                                    conn.say(event.cid(), null, "/query " + user.get("nick").asText());
+                                    break;
+                                case 1:
+                                    dismiss();
+                                    conn.say(event.cid(), null, "/whois " + user.get("nick").asText());
+                                    break;
+                                case 2:
+                                    if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
+                                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
+                                        clipboard.setText(user.get("nick").asText() + "!" + user.get("usermask").asText());
+                                    } else {
+                                        @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getActivity().getSystemService(Activity.CLIPBOARD_SERVICE);
+                                        android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", user.get("nick").asText() + "!" + user.get("usermask").asText());
+                                        clipboard.setPrimaryClip(clip);
+                                    }
+                                    Toast.makeText(getActivity(), "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        }
+                    });
+
+                    AlertDialog dialog = builder.create();
+                    dialog.setOwnerActivity(getActivity());
+                    dialog.show();
+                    return false;
+                }
+            });
             row.executePendingBindings();
         }
     }
