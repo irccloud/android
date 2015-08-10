@@ -215,7 +215,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
             if (event.has("user_realname")) {
                 String nametxt = event.getString("user_realname");
                 if (event.has("user_logged_in_as") && event.getString("user_logged_in_as").length() > 0) {
-                    nametxt += " (authed as " + event.getString("user_logged_in_as") + ")";
+                    nametxt += "\u000F (authed as " + event.getString("user_logged_in_as") + ")";
                 }
                 name.setText(ColorFormatter.html_to_spanned(ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(nametxt)))));
             } else {
