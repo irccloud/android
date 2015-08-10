@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Event;
-import com.irccloud.android.data.model.Event$Table;
 import com.irccloud.android.fragment.MessageViewFragment;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -58,7 +57,7 @@ public class EventsList {
     }
 
     public void load(int bid) {
-        synchronized (events) {
+        /*synchronized (events) {
             Cursor c = null;
             try {
                 if(loaded_bids.contains(bid))
@@ -86,25 +85,25 @@ public class EventsList {
                 if(c != null)
                     c.close();
             }
-        }
+        }*/
     }
 
     public void save() {
-        synchronized (events) {
+        /*synchronized (events) {
             for (int bid : events.keySet()) {
                 TreeMap<Long, Event> e = events.get(bid);
                 if (e != null) {
                     TransactionManager.getInstance().saveOnSaveQueue(e.values());
                 }
             }
-        }
+        }*/
     }
 
     public void clear() {
         synchronized (events) {
             events.clear();
             loaded_bids.clear();
-            Delete.table(Event.class);
+            //Delete.table(Event.class);
         }
     }
 
@@ -912,7 +911,7 @@ public class EventsList {
             if (events.containsKey(bid) && events.get(bid) != null && events.get(bid).containsKey(eid))
                 events.get(bid).remove(eid);
         }
-        new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).is(eid)).queryClose();
+        //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).is(eid)).queryClose();
     }
 
     public void deleteEventsForBuffer(int bid) {
@@ -920,7 +919,7 @@ public class EventsList {
             if (events.containsKey(bid) && events.get(bid) != null)
                 events.remove(bid);
         }
-        new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryClose();
+        //new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).queryClose();
     }
 
     public TreeMap<Long, Event> getEventsForBuffer(int bid) {
@@ -939,11 +938,11 @@ public class EventsList {
                 Long[] eids = events.get(bid).keySet().toArray(new Long[events.get(bid).keySet().size()]);
                 if (eids.length > 0)
                     return eids[eids.length - 1];
-            } else {
+            /*} else {
                 Event e = new Select().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).orderBy(true, Event$Table.EID).limit(1).querySingle();
                 if(e != null) {
                     return e.eid;
-                }
+                }*/
             }
         }
         return 0L;
@@ -956,8 +955,8 @@ public class EventsList {
             while (e != null && e.size() > 50 && e.firstKey() != null) {
                 e.remove(e.firstKey());
             }
-            if(e != null)
-                new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(e.firstKey())).queryClose();
+            /*if(e != null)
+                new Delete().from(Event.class).where(Condition.column(Event$Table.BID).is(bid)).and(Condition.column(Event$Table.EID).lessThan(e.firstKey())).queryClose();*/
         }
     }
 

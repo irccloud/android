@@ -33,9 +33,9 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.TimerTask;
 
-@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class Event extends BaseModel {
+/*@Table(databaseName = IRCCloudDatabase.NAME,
+        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
+public class Event /*extends ObservableBaseModel*/ {
     @Column
     @PrimaryKey
     @Unique(unique = false, uniqueGroups = 1)

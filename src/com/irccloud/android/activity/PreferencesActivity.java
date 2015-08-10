@@ -470,7 +470,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 if (prefs == null) {
                     prefs = new JSONObject();
                     conn.getUserInfo().prefs = prefs;
-                    Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
                 }
 
                 if (preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt"))

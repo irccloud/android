@@ -16,6 +16,8 @@
 
 package com.irccloud.android.data.model;
 
+import android.databinding.BaseObservable;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
@@ -28,9 +30,9 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
 
-@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class Channel extends BaseModel {
+/*@Table(databaseName = IRCCloudDatabase.NAME,
+        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
+public class Channel extends BaseObservable /*extends ObservableBaseModel*/ {
     public static class Mode {
         public String mode;
         public String param;

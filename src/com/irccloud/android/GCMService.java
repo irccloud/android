@@ -67,7 +67,7 @@ public class GCMService extends GcmListenerService {
                                 if (EventsList.getInstance().lastEidForBuffer(b.getBid()) <= eid) {
                                     b.setUnread(0);
                                     b.setHighlights(0);
-                                    TransactionManager.getInstance().saveOnSaveQueue(b);
+                                    //TransactionManager.getInstance().saveOnSaveQueue(b);
                                 }
                             }
                         }

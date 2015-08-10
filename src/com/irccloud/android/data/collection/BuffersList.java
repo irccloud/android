@@ -91,11 +91,11 @@ public class BuffersList {
     public void clear() {
         buffers.clear();
         buffers_indexed.clear();
-        Delete.table(Buffer.class);
+        //Delete.table(Buffer.class);
     }
 
     public void load() {
-        Cursor c = new Select().all().from(Buffer.class).query();
+        /*Cursor c = new Select().all().from(Buffer.class).query();
         try {
             long start = System.currentTimeMillis();
             ModelAdapter<Buffer> modelAdapter = FlowManager.getModelAdapter(Buffer.class);
@@ -116,11 +116,11 @@ public class BuffersList {
         } finally {
             if(c != null)
                 c.close();
-        }
+        }*/
     }
 
     public void save() {
-        TransactionManager.getInstance().saveOnSaveQueue(buffers);
+        //TransactionManager.getInstance().saveOnSaveQueue(buffers);
     }
 
 
@@ -169,7 +169,7 @@ public class BuffersList {
             }
             EventsList.getInstance().deleteEventsForBuffer(bid);
             buffers.remove(b);
-            b.delete();
+            //b.delete();
         }
         buffers_indexed.remove(bid);
         dirty = true;
@@ -236,7 +236,7 @@ public class BuffersList {
             if (b.isConsole()) {
                 ServersList.getInstance().deleteServer(b.getCid());
             }
-            b.delete();
+            //b.delete();
         }
         dirty = true;
     }

@@ -16,6 +16,7 @@
 
 package com.irccloud.android.data.model;
 
+import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,8 +33,8 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.ArrayList;
 
-@Table(databaseName = IRCCloudDatabase.NAME)
-public class Server extends ObservableBaseModel implements Comparable<Server> {
+//@Table(databaseName = IRCCloudDatabase.NAME)
+public class Server extends BaseObservable /*extends ObservableBaseModel*/ implements Comparable<Server> {
     @Column
     @PrimaryKey
     private int cid = -1;
@@ -354,9 +355,9 @@ public class Server extends ObservableBaseModel implements Comparable<Server> {
             return R.drawable.world;
     }
 
-    @Override
+    /*@Override
     public void save() {
         if(cid != -1)
             super.save();
-    }
+    }*/
 }

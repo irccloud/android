@@ -87,7 +87,6 @@ public class BufferOptionsFragment extends DialogFragment {
                     prefs = NetworkConnection.getInstance().getUserInfo().prefs;
                     if (prefs == null) {
                         prefs = new JSONObject();
-                        Crashlytics.logException(new Exception("Users prefs was null, creating new object"));
                     }
 
                     prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");

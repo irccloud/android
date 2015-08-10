@@ -16,9 +16,9 @@
 
 package com.irccloud.android.data.model;
 
+import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 
-import com.irccloud.android.BR;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -37,9 +37,9 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class Buffer extends ObservableBaseModel {
+/*@Table(databaseName = IRCCloudDatabase.NAME,
+        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
+public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public static final String TYPE_CONSOLE = "console";
     public static final String TYPE_CHANNEL = "channel";
     public static final String TYPE_CONVERSATION = "conversation";
@@ -378,11 +378,11 @@ public class Buffer extends ObservableBaseModel {
         this.valid = valid;
     }
 
-    @Override
+    /*@Override
     public void save() {
         if(bid != -1)
             super.save();
-    }
+    }*/
 
     public boolean isJoined() {
         return ChannelsList.getInstance().getChannelForBuffer(bid) != null;

@@ -25,9 +25,9 @@ import com.raizlabs.android.dbflow.annotation.Unique;
 import com.raizlabs.android.dbflow.annotation.UniqueGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
-@Table(databaseName = IRCCloudDatabase.NAME,
-        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})
-public class User extends BaseModel {
+/*@Table(databaseName = IRCCloudDatabase.NAME,
+        uniqueColumnGroups = {@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.REPLACE)})*/
+public class User /*extends BaseModel*/ {
     @Column
     @PrimaryKey
     @Unique(unique = false, uniqueGroups = 1)

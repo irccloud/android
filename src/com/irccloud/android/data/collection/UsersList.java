@@ -21,7 +21,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
 import com.irccloud.android.data.model.User;
-import com.irccloud.android.data.model.User$Table;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
@@ -58,11 +57,11 @@ public class UsersList {
 
     public synchronized void clear() {
         users.clear();
-        Delete.table(User.class);
+        //Delete.table(User.class);
     }
 
     public void load(int bid) {
-        synchronized (users) {
+        /*synchronized (users) {
             Cursor c = new Select().from(User.class).where(Condition.column(User$Table.BID).is(bid)).query();
             try {
                 if(loaded_bids.contains(bid))
@@ -87,16 +86,16 @@ public class UsersList {
                 if(c != null)
                     c.close();
             }
-        }
+        }*/
     }
 
     public void save() {
-        for (int bid : users.keySet()) {
+        /*for (int bid : users.keySet()) {
             TreeMap<String, User> e = users.get(bid);
             if(e != null) {
                 TransactionManager.getInstance().saveOnSaveQueue(e.values());
             }
-        }
+        }*/
     }
 
     public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away) {
@@ -134,15 +133,15 @@ public class UsersList {
 
     public synchronized void deleteUser(int bid, String nick) {
         User u = getUser(bid, nick);
-        if(u != null)
-            u.delete();
+        /*if(u != null)
+            u.delete();*/
         if (users.containsKey(bid) && users.get(bid) != null)
             users.get(bid).remove(nick.toLowerCase());
     }
 
     public synchronized void deleteUsersForBuffer(int bid) {
         users.remove(bid);
-        new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).queryClose();
+        //new Delete().from(User.class).where(Condition.column(User$Table.BID).is(bid)).queryClose();
     }
 
     public synchronized void updateNick(int bid, String old_nick, String new_nick) {
@@ -208,6 +207,11 @@ public class UsersList {
     }
 
     public synchronized User findUserOnConnection(int cid, String nick) {
-        return new Select().from(User.class).where(Condition.column(User$Table.CID).is(cid)).and(Condition.column(User$Table.NICK_LOWERCASE).is(nick.toLowerCase())).querySingle();
+        //return new Select().from(User.class).where(Condition.column(User$Table.CID).is(cid)).and(Condition.column(User$Table.NICK_LOWERCASE).is(nick.toLowerCase())).querySingle();
+        for (Integer bid : users.keySet()) {
+            if (users.get(bid).containsKey(nick.toLowerCase()) && users.get(bid) != null && users.get(bid).get(nick.toLowerCase()).cid == cid)
+                return users.get(bid).get(nick.toLowerCase());
+        }
+        return null;
     }
 }

@@ -48,11 +48,11 @@ public class ChannelsList {
 
     public synchronized void clear() {
         channels.clear();
-        Delete.table(Channel.class);
+        //Delete.table(Channel.class);
     }
 
     public void load() {
-        Cursor c = new Select().all().from(Channel.class).query();
+        /*Cursor c = new Select().all().from(Channel.class).query();
         try {
             long start = System.currentTimeMillis();
             ModelAdapter<Channel> modelAdapter = FlowManager.getModelAdapter(Channel.class);
@@ -71,15 +71,15 @@ public class ChannelsList {
         } finally {
             if(c != null)
                 c.close();
-        }
+        }*/
     }
 
     public void save() {
-        ArrayList<Channel> s = new ArrayList<>(channels.size());
+        /*ArrayList<Channel> s = new ArrayList<>(channels.size());
         for (int i = 0; i < channels.size(); i++) {
             s.add(channels.valueAt(i));
         }
-        TransactionManager.getInstance().saveOnSaveQueue(s);
+        TransactionManager.getInstance().saveOnSaveQueue(s);*/
     }
 
     public synchronized Channel createChannel(int cid, int bid, String name, String topic_text, long topic_time, String topic_author, String type, long timestamp) {
@@ -99,7 +99,6 @@ public class ChannelsList {
         c.key = false;
         c.mode = "";
         c.valid = 1;
-        TransactionManager.getInstance().saveOnSaveQueue(c);
         return c;
     }
 
@@ -113,7 +112,6 @@ public class ChannelsList {
             c.topic_text = ColorFormatter.emojify(topic_text);
             c.topic_time = topic_time;
             c.topic_author = topic_author;
-            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -133,7 +131,6 @@ public class ChannelsList {
             }
             c.mode = mode;
             c.ops = ops;
-            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -141,7 +138,6 @@ public class ChannelsList {
         Channel c = getChannelForBuffer(bid);
         if (c != null) {
             c.url = url;
-            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -149,7 +145,6 @@ public class ChannelsList {
         Channel c = getChannelForBuffer(bid);
         if (c != null) {
             c.timestamp = timestamp;
-            TransactionManager.getInstance().saveOnSaveQueue(c);
         }
     }
 
@@ -184,7 +179,6 @@ public class ChannelsList {
             android.util.Log.e("IRCCloud", "Removing invalid channel: " + c.name);
             UsersList.getInstance().deleteUsersForBuffer(c.bid);
             channels.remove(c.bid);
-            c.delete();
         }
     }
 }

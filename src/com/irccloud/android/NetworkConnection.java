@@ -1056,7 +1056,7 @@ public class NetworkConnection {
                 editor.remove("streamId");
                 editor.remove("highest_eid");
                 editor.commit();
-                Delete.tables(Server.class, Buffer.class, Channel.class);
+                //Delete.tables(Server.class, Buffer.class, Channel.class);
                 notifyHandlers(EVENT_CONNECTIVITY, null);
                 fetchConfig();
                 if (disconnectSockerTimerTask != null)

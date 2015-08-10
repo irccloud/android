@@ -51,11 +51,11 @@ public class ServersList {
 
     public void clear() {
         servers.clear();
-        Delete.table(Server.class);
+        //Delete.table(Server.class);
     }
 
     public void load() {
-        Cursor c = new Select().all().from(Server.class).query();
+        /*Cursor c = new Select().all().from(Server.class).query();
         try {
             long start = System.currentTimeMillis();
             ModelAdapter<Server> modelAdapter = FlowManager.getModelAdapter(Server.class);
@@ -74,15 +74,15 @@ public class ServersList {
         } finally {
             if(c != null)
                 c.close();
-        }
+        }*/
     }
 
     public void save() {
-        ArrayList<Server> s = new ArrayList<>(servers.size());
+        /*ArrayList<Server> s = new ArrayList<>(servers.size());
         for (int i = 0; i < servers.size(); i++) {
             s.add(servers.valueAt(i));
         }
-        TransactionManager.getInstance().saveOnSaveQueue(s);
+        TransactionManager.getInstance().saveOnSaveQueue(s);*/
     }
 
     public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order) {
@@ -141,7 +141,7 @@ public class ServersList {
                 NotificationsList.getInstance().deleteNotificationsForBid(b.getBid());
             }
             servers.remove(cid);
-            s.delete();
+            //s.delete();
         }
     }
 
