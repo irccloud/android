@@ -18,7 +18,7 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="88dp"
+    android:layout_height="wrap_content"
     android:gravity="center"
     android:layout_marginLeft="6dp"
     android:layout_marginRight="6dp"
@@ -29,14 +29,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:minHeight="88dp">
 
         <TextView
             android:id="@+id/extension"
             android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_height="match_parent"
             android:layout_weight="0"
             android:text="TXT"
             android:textColor="#fff"
@@ -50,7 +51,7 @@
 
         <ImageView
             android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_height="match_parent"
             android:id="@+id/image"
             android:scaleType="centerCrop"
             android:visibility="gone"
@@ -58,7 +59,7 @@
 
         <ProgressBar
             android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_height="match_parent"
             android:id="@+id/progress"
             android:indeterminate="true"
             android:layout_weight="0"
@@ -68,7 +69,7 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
             android:gravity="center_vertical">
@@ -82,7 +83,8 @@
                 android:maxLines="1"
                 android:layout_margin="6dp"
                 android:layout_weight="1"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:lines="1"/>
 
             <TextView
                 android:id="@+id/name"
@@ -96,7 +98,8 @@
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
                 android:layout_marginBottom="6dp"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:lines="1"/>
 
             <TextView
                 android:id="@+id/metadata"
@@ -110,7 +113,8 @@
                 android:layout_marginBottom="6dp"
                 android:layout_marginLeft="6dp"
                 android:layout_marginRight="6dp"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:lines="1"/>
 
         </LinearLayout>
 
