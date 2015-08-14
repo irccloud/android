@@ -476,6 +476,24 @@ public class NotificationsList {
             notification.bigContentView = bigContentView;
         }
 
+        if (Build.VERSION.SDK_INT >= 21) {
+            RemoteViews headsUpContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
+            headsUpContentView.setTextViewText(R.id.title, title + " (" + network + ")");
+            headsUpContentView.setTextViewText(R.id.text, Html.fromHtml(text));
+            headsUpContentView.setLong(R.id.time, "setTime", eids[0] / 1000);
+            if(replyIntent != null && prefs.getBoolean("notify_quickreply", true)) {
+                headsUpContentView.setViewVisibility(R.id.actions, View.VISIBLE);
+                headsUpContentView.setViewVisibility(R.id.action_divider, View.VISIBLE);
+                i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
+                i.setData(Uri.parse("irccloud-bid://" + bid));
+                i.putExtras(replyIntent);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                headsUpContentView.setOnClickPendingIntent(R.id.action_reply, quickReplyIntent);
+            }
+            notification.headsUpContentView = headsUpContentView;
+        }
+
         return notification;
     }
 
