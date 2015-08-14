@@ -42,11 +42,11 @@ public class CrashlyticsLeakService extends AbstractAnalysisResultService {
     protected final void onHeapAnalyzed(HeapDump heapDump, AnalysisResult result) {
         String leakInfo = leakInfo(this, heapDump, result, true);
         if (leakInfo.length() < 4000) {
-            Log.d("LeakCanary", leakInfo);
+            Log.d("IRCCloudLeakCanary", leakInfo);
         } else {
             String[] lines = leakInfo.split("\n");
             for (String line : lines) {
-                Log.d("LeakCanary", line);
+                Log.d("IRCCloudLeakCanary", line);
             }
         }
 

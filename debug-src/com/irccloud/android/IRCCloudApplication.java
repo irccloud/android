@@ -62,6 +62,7 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
                     .instanceField("android.widget.TextView$ChangeWatcher", "this$0")
                     .instanceField("com.samsung.android.smartclip.SpenGestureManager", "mContext")
                     .instanceField("org.chromium.content.browser.input.PopupTouchHandleDrawable", "mContext")
+                    .instanceField("android.media.AudioManager", "mContext")
                     .build();
             refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
         } else {

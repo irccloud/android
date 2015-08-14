@@ -649,6 +649,12 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(share != null) {
+            share.setOnShareTargetSelectedListener(null);
+            share.onShareActionProviderSubVisibilityChangedListener = null;
+            share.setSubUiVisibilityListener(null);
+            share.setVisibilityListener(null);
+        }
         if(mHideTimer != null) {
             mHideTimer.cancel();
             mHideTimer = null;
@@ -697,6 +703,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
 
+    ShareActionProviderHax share = null;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_imageviewer, menu);
@@ -710,7 +718,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
             MenuItem shareItem = menu.findItem(R.id.action_share);
-            ShareActionProviderHax share = (ShareActionProviderHax) MenuItemCompat.getActionProvider(shareItem);
+            share = (ShareActionProviderHax) MenuItemCompat.getActionProvider(shareItem);
             share.onShareActionProviderSubVisibilityChangedListener = this;
             share.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
                 @Override

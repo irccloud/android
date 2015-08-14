@@ -33,6 +33,7 @@ public class ShareActionProviderHax extends ShareActionProvider {
 
     //Expose the submenu visibility change to the parent activity
     public void subUiVisibilityChanged(boolean visible) {
+        super.subUiVisibilityChanged(visible);
         if (onShareActionProviderSubVisibilityChangedListener != null)
             onShareActionProviderSubVisibilityChangedListener.onShareActionProviderSubVisibilityChanged(visible);
     }
