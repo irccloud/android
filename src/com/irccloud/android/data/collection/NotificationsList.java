@@ -353,6 +353,15 @@ public class NotificationsList {
         }
     }
 
+    private boolean hasTouchWiz() {
+        try {
+            IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getPackageInfo("com.sec.android.app.launcher", 0);
+            return true;
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
     @SuppressLint("NewApi")
     private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, Spanned big_text, int count, Intent replyIntent, Spanned wear_text, String network, String auto_messages[]) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
@@ -367,7 +376,7 @@ public class NotificationsList {
                 .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.dark_blue))
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(hasTouchWiz() ? NotificationCompat.PRIORITY_DEFAULT : NotificationCompat.PRIORITY_HIGH)
                 .setOnlyAlertOnce(false);
 
         if (ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {

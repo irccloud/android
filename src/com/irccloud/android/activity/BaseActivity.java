@@ -16,8 +16,6 @@
 
 package com.irccloud.android.activity;
 
-
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -28,13 +26,11 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -44,24 +40,18 @@ import android.widget.TextView.OnEditorActionListener;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.BackgroundTaskService;
-import com.irccloud.android.BuildConfig;
-import com.irccloud.android.GCMService;
-import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
-import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 
-import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     NetworkConnection conn;
     private View dialogTextPrompt;
     private GoogleApiClient mGoogleApiClient;
@@ -70,9 +60,6 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (isMenuWorkaroundRequired()) {
-            forceOverflowMenu();
-        }
         super.onCreate(savedInstanceState);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -140,29 +127,6 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                     mGoogleApiClient.connect();
                 }
             }
-        }
-    }
-
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return (keyCode == KeyEvent.KEYCODE_MENU && isMenuWorkaroundRequired()) || super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_MENU && isMenuWorkaroundRequired()) {
-            try {
-                openOptionsMenu();
-            } catch (Exception e) {
-                return false;
-            }
-            return true;
-        }
-        try {
-            return super.onKeyUp(keyCode, event);
-        } catch (IllegalStateException e) {
-            return false;
         }
     }
 
@@ -531,28 +495,5 @@ import java.lang.reflect.Field;public class BaseActivity extends AppCompatActivi
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    //Work around for buggy LG devices, see https://code.google.com/p/android/issues/detail?id=78154
-    public static boolean isMenuWorkaroundRequired() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT &&
-                Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1 &&
-                ("LGE".equalsIgnoreCase(Build.MANUFACTURER) || "E6710".equalsIgnoreCase(Build.DEVICE));
-    }
-
-    /**
-     * Modified from: http://stackoverflow.com/a/13098824
-     */
-    public void forceOverflowMenu() {
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if (menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception e) {
-            Log.w("IRCCloud", "Failed to force overflow menu.");
-        }
     }
 }
