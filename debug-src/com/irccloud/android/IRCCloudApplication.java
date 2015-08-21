@@ -64,6 +64,7 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
                     .instanceField("org.chromium.content.browser.input.PopupTouchHandleDrawable", "mContext")
                     .instanceField("android.media.AudioManager", "mContext")
                     .instanceField("com.android.org.chromium.android_webview.AwResource", "sResources")
+                    .instanceField("android.media.AudioManager$1", "this$0")
                     .build();
             refWatcher = LeakCanary.install(this, CrashlyticsLeakService.class, excludedRefs);
         } else {

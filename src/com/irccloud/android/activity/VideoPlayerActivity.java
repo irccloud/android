@@ -59,6 +59,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     private ImageButton rew, pause, play, ffwd;
     private Toolbar toolbar;
     private Handler handler = new Handler();
+    private ShareActionProviderHax share;
 
     private Runnable mHideRunnable = new Runnable() {
         @Override
@@ -349,6 +350,16 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     protected void onDestroy() {
         super.onDestroy();
         handler.removeCallbacks(mHideRunnable);
+        try {
+            video.stopPlayback();
+        } catch (Exception e) {
+        }
+        if(share != null) {
+            share.setOnShareTargetSelectedListener(null);
+            share.onShareActionProviderSubVisibilityChangedListener = null;
+            share.setSubUiVisibilityListener(null);
+            share.setVisibilityListener(null);
+        }
     }
 
     private void hide_actionbar() {
@@ -375,7 +386,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
 
             MenuItem shareItem = menu.findItem(R.id.action_share);
-            ShareActionProviderHax share = (ShareActionProviderHax) MenuItemCompat.getActionProvider(shareItem);
+            share = (ShareActionProviderHax) MenuItemCompat.getActionProvider(shareItem);
             share.onShareActionProviderSubVisibilityChangedListener = this;
             share.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
                 @Override
