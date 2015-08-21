@@ -1743,6 +1743,8 @@ public class NetworkConnection {
                     Log.d("IRCCloud", "Socket was not resumed");
                     NotificationsList.getInstance().clearNetworks();
                     NotificationsList.getInstance().clearLastSeenEIDs();
+                    mEvents.clear();
+                    mUsers.clear();
                 }
             }
         });
@@ -3057,8 +3059,6 @@ public class NetworkConnection {
                             if (bid == -1) {
                                 mBuffers.invalidate();
                                 mChannels.invalidate();
-                                mEvents.clear();
-                                mUsers.clear();
                             }
                             int count = 0;
                             while (parser.nextToken() == JsonToken.START_OBJECT) {
