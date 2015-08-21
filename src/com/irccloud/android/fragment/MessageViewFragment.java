@@ -984,12 +984,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 headerView.setVisibility(View.GONE);
                 loadBacklogButton.setVisibility(View.GONE);
             } else {
-                headerView.setVisibility(View.GONE);
-                loadBacklogButton.setVisibility(View.VISIBLE);
+                headerView.setVisibility(View.VISIBLE);
+                loadBacklogButton.setVisibility(View.GONE);
             }
             if (adapter != null) {
                 adapter.clear();
                 adapter.notifyDataSetInvalidated();
+            } else {
+                adapter = new MessageAdapter(MessageViewFragment.this, 0);
+                setListAdapter(adapter);
             }
             if(mListener != null)
                 mListener.onMessageViewReady();
