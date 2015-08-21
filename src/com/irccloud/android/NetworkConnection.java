@@ -1821,7 +1821,6 @@ public class NetworkConnection {
                         Map.Entry<String, JsonNode> eidentry = j.next();
                         int bid = Integer.valueOf(eidentry.getKey());
                         long eid = eidentry.getValue().asLong();
-                        NotificationsList.getInstance().deleteOldNotifications(bid, eid);
                         NotificationsList.getInstance().updateLastSeenEid(bid, eid);
                         Buffer b = mBuffers.getBuffer(bid);
                         if (b != null) {
@@ -1833,6 +1832,7 @@ public class NetworkConnection {
                         }
                     }
                 }
+                NotificationsList.getInstance().deleteOldNotifications();
                 if (!backlog) {
                     notifyHandlers(EVENT_HEARTBEATECHO, object);
                 }
@@ -1885,9 +1885,7 @@ public class NetworkConnection {
                 Log.d("IRCCloud", "Cleaning up invalid BIDs");
                 mBuffers.purgeInvalidBIDs();
                 mChannels.purgeInvalidChannels();
-                for (Buffer b : mBuffers.getBuffers()) {
-                    NotificationsList.getInstance().deleteOldNotifications(b.getBid(), b.getLast_seen_eid());
-                }
+                NotificationsList.getInstance().deleteOldNotifications();
                 if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
@@ -2030,7 +2028,6 @@ public class NetworkConnection {
                         (object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined")) ? object.getLong("min_eid") : 0,
                         (object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined")) ? object.getLong("last_seen_eid") : -1, object.getString("name"), object.getString("buffer_type"),
                         (object.has("archived") && object.getBoolean("archived")) ? 1 : 0, (object.has("deferred") && object.getBoolean("deferred")) ? 1 : 0, (object.has("timeout") && object.getBoolean("timeout")) ? 1 : 0);
-                NotificationsList.getInstance().deleteOldNotifications(buffer.getBid(), buffer.getLast_seen_eid());
                 NotificationsList.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
@@ -3102,12 +3099,12 @@ public class NetworkConnection {
 
                             ArrayList<Buffer> buffers = mBuffers.getBuffers();
                             for (Buffer b : buffers) {
-                                NotificationsList.getInstance().deleteOldNotifications(b.getBid(), b.getLast_seen_eid());
                                 if (b.getTimeout() > 0 && bid == -1) {
                                     Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.getName());
                                     request_backlog(b.getCid(), b.getBid(), 0);
                                 }
                             }
+                            NotificationsList.getInstance().deleteOldNotifications();
                             schedule_idle_timer();
                             if (bid > 0) {
                                 notifyHandlers(EVENT_BACKLOG_END, bid);

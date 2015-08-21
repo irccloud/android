@@ -71,8 +71,8 @@ public class GCMService extends GcmListenerService {
                                 }
                             }
                         }
-                        NotificationsList.getInstance().deleteOldNotifications(Integer.valueOf(bid), eid);
                         NotificationsList.getInstance().updateLastSeenEid(Integer.valueOf(bid), eid);
+                        NotificationsList.getInstance().deleteOldNotifications();
                     }
                 }
                 parser.close();

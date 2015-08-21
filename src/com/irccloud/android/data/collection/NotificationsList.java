@@ -47,6 +47,7 @@ import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
 import com.irccloud.android.SonyExtensionService;
 import com.irccloud.android.activity.QuickReplyActivity;
+import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Notification$Table;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
@@ -145,9 +146,7 @@ public class NotificationsList {
     }
 
     public synchronized void deleteNetwork(int cid) {
-        Notification_Network n = getNetwork(cid);
-        if(n != null)
-            n.delete();
+        new Delete().from(Notification_Network.class).where(Condition.column(Notification_Network$Table.CID).is(cid));
     }
 
     public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, Notification_Network network) {
@@ -171,7 +170,7 @@ public class NotificationsList {
         n.save();
     }
 
-    public void deleteOldNotifications(int bid, long last_seen_eid) {
+    public void deleteOldNotifications() {
         boolean changed = false, pending = false;
         if (mNotificationTimerTask != null) {
             mNotificationTimerTask.cancel();
@@ -182,9 +181,15 @@ public class NotificationsList {
 
         if (notifications.size() > 0) {
             for (Notification n : notifications) {
-                if (n.bid == bid && n.eid <= last_seen_eid) {
+                Buffer b = BuffersList.getInstance().getBuffer(n.bid);
+                if (n.bid == b.getBid() && n.eid <= b.getLast_seen_eid()) {
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
                     changed = true;
+                    try {
+                        if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+                            NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(n.bid)});
+                    } catch (Exception e) {
+                    }
                 }
             }
         }
@@ -192,20 +197,21 @@ public class NotificationsList {
         notifications = getNotifications();
 
         for (Notification n : notifications) {
-            if (n.bid == bid && n.eid <= last_seen_eid) {
+            Buffer b = BuffersList.getInstance().getBuffer(n.bid);
+            if (n.bid == b.getBid() && n.eid <= b.getLast_seen_eid()) {
                 n.delete();
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
                 changed = true;
+                try {
+                    if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
+                        NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(n.bid)});
+                } catch (Exception e) {
+                }
             }
         }
         if (changed) {
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
-            try {
-                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                    NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(bid)});
-            } catch (Exception e) {
-            }
             updateTeslaUnreadCount();
         }
 
