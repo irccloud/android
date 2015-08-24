@@ -35,6 +35,12 @@
 -dontwarn android.databinding.**
 -dontwarn com.squareup.**
 
+-dontwarn org.apache.**
+-dontwarn org.ietf.**
+-dontwarn javax.naming.**
+-dontwarn javax.servlet.**
+-dontwarn com.google.android.gms.internal.zzac
+
 #Play Services
 -keep class * extends java.util.ListResourceBundle {
     protected Object[][] getContents();

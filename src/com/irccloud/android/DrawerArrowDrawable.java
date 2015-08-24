@@ -17,7 +17,7 @@ package com.irccloud.android;
 
 
 import android.app.Activity;
-import android.content.res.TypedArray;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
@@ -26,7 +26,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewCompat;
-import android.support.v7.appcompat.R;
+import android.util.TypedValue;
 
 /**
  * A drawable that can draw a "Drawer hamburger" menu or an Arrow and animate between them.
@@ -64,23 +64,17 @@ public class DrawerArrowDrawable extends Drawable {
      * @param context used to get the configuration for the drawable from
      */
     public DrawerArrowDrawable(Activity context) {
-        final TypedArray typedArray = context.getTheme()
-                .obtainStyledAttributes(null, R.styleable.DrawerArrowToggle,
-                        R.attr.drawerArrowStyle,
-                        R.style.Base_Widget_AppCompat_DrawerArrowToggle);
+        Resources r = context.getResources();
         mContext = context;
         mPaint.setAntiAlias(true);
-        mPaint.setColor(typedArray.getColor(R.styleable.DrawerArrowToggle_color, 0));
-        mSize = typedArray.getDimensionPixelSize(R.styleable.DrawerArrowToggle_drawableSize, 0);
-        mBarSize = typedArray.getDimension(R.styleable.DrawerArrowToggle_barSize, 0);
-        mTopBottomArrowSize = typedArray
-                .getDimension(R.styleable.DrawerArrowToggle_topBottomBarArrowSize, 0);
-        mBarThickness = typedArray.getDimension(R.styleable.DrawerArrowToggle_thickness, 0);
-        mBarGap = typedArray.getDimension(R.styleable.DrawerArrowToggle_gapBetweenBars, 0);
-        mSpin = typedArray.getBoolean(R.styleable.DrawerArrowToggle_spinBars, true);
-        mMiddleArrowSize = typedArray
-                .getDimension(R.styleable.DrawerArrowToggle_middleBarArrowSize, 0);
-        typedArray.recycle();
+        mPaint.setColor(r.getColor(android.R.color.secondary_text_light, context.getTheme()));
+        mSize = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, r.getDisplayMetrics());
+        mBarSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18, r.getDisplayMetrics());
+        mTopBottomArrowSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 11.31f, r.getDisplayMetrics());
+        mBarThickness = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, r.getDisplayMetrics());
+        mBarGap = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 3, r.getDisplayMetrics());
+        mSpin = false;
+        mMiddleArrowSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics());
 
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);

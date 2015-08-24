@@ -14,9 +14,16 @@
 
 package com.irccloud.android;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.SSLCertificateSocketFactory;
 import android.os.Build;
 import android.util.Log;
+
+import com.crashlytics.android.Crashlytics;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
@@ -50,17 +57,23 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.StringTokenizer;
 
 import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
@@ -188,65 +201,65 @@ public class GingerbreadImageProxy implements Runnable {
         if (request == null) {
             return;
         }
-        String url = request.getRequestLine().getUri();
+        URL url = new URL(request.getRequestLine().getUri());
 
-        DefaultHttpClient seed = new DefaultHttpClient();
-        SchemeRegistry registry = new SchemeRegistry();
-        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
-        registry.register(new Scheme("https", new TlsSniSocketFactory(), 443));
-        SingleClientConnManager mgr = new MyClientConnManager(seed.getParams(),
-                registry);
-        DefaultHttpClient http = new DefaultHttpClient(mgr, seed.getParams());
-        HttpGet method = new HttpGet(url);
-        for (Header h : request.getAllHeaders()) {
-            method.addHeader(h);
-        }
-        HttpResponse realResponse = null;
-        try {
-            realResponse = http.execute(method);
-        } catch (ClientProtocolException e) {
-            Log.e(LOG_TAG, "Error downloading", e);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error downloading", e);
-        }
+        HttpURLConnection conn = null;
 
-        if (realResponse == null) {
-            return;
-        }
+        Proxy proxy = null;
+        String host = null;
+        int port = -1;
 
-        if (!isRunning)
-            return;
-
-        InputStream data = realResponse.getEntity().getContent();
-        StatusLine line = realResponse.getStatusLine();
-        HttpResponse response = new BasicHttpResponse(line);
-        response.setHeaders(realResponse.getAllHeaders());
-
-        StringBuilder httpString = new StringBuilder();
-        httpString.append(response.getStatusLine().toString());
-
-        httpString.append("\n");
-        for (Header h : response.getAllHeaders()) {
-            httpString.append(h.getName()).append(": ").append(h.getValue()).append("\n");
-        }
-        httpString.append("\n");
-
-        try {
-            byte[] buffer = httpString.toString().getBytes();
-            int readBytes;
-            client.getOutputStream().write(buffer, 0, buffer.length);
-
-            // Start streaming content.
-            byte[] buff = new byte[8192];
-            while (isRunning && (readBytes = data.read(buff, 0, buff.length)) != -1) {
-                client.getOutputStream().write(buff, 0, readBytes);
+        if (Build.VERSION.SDK_INT < 11) {
+            Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
+            if (ctx != null) {
+                host = android.net.Proxy.getHost(ctx);
+                port = android.net.Proxy.getPort(ctx);
             }
-        } catch (Exception e) {
-            Log.e("", e.getMessage(), e);
+        } else {
+            host = System.getProperty("http.proxyHost", null);
+            try {
+                port = Integer.parseInt(System.getProperty("http.proxyPort", "8080"));
+            } catch (NumberFormatException e) {
+                port = -1;
+            }
+        }
+
+        if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
+            InetSocketAddress proxyAddr = new InetSocketAddress(host, port);
+            proxy = new Proxy(Proxy.Type.HTTP, proxyAddr);
+        }
+
+        if (url.getProtocol().toLowerCase().equals("https")) {
+            conn = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+        } else {
+            conn = (HttpURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
+        }
+
+        conn.setConnectTimeout(30000);
+        conn.setReadTimeout(30000);
+        conn.setUseCaches(true);
+
+        if(!isRunning)
+            return;
+
+        try {
+            client.getOutputStream().write(("HTTP/1.0 " + conn.getResponseCode() + " " + conn.getResponseMessage() + "\n\n").getBytes());
+
+            if (conn.getResponseCode() == 200 && conn.getInputStream() != null) {
+                byte[] buff = new byte[8192];
+                int readBytes;
+                while (isRunning && (readBytes = conn.getInputStream().read(buff, 0, buff.length)) != -1) {
+                    client.getOutputStream().write(buff, 0, readBytes);
+                }
+            }
+        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
-            mgr.shutdown();
             client.close();
         }
+
+        conn.disconnect();
         stop();
     }
 
