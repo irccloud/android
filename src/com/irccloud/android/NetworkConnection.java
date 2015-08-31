@@ -51,16 +51,10 @@ import com.irccloud.android.data.model.Channel;
 import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.collection.EventsList;
-import com.irccloud.android.data.model.Notification_Network;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.User;
-import com.raizlabs.android.dbflow.runtime.TransactionManager;
-import com.raizlabs.android.dbflow.runtime.transaction.BaseTransaction;
-import com.raizlabs.android.dbflow.runtime.transaction.TransactionListener;
-import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.structure.Model;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -1190,7 +1184,6 @@ public class NetworkConnection {
         mChannels.clear();
         mUsers.clear();
         mEvents.clear();
-        NotificationsList.getInstance().clearNetworks();
         NotificationsList.getInstance().clear();
         userInfo = null;
         session = null;
@@ -1741,7 +1734,6 @@ public class NetworkConnection {
                     accrued = object.getInt("accrued");
                 if (!(object.has("resumed") && object.getBoolean("resumed"))) {
                     Log.d("IRCCloud", "Socket was not resumed");
-                    NotificationsList.getInstance().clearNetworks();
                     NotificationsList.getInstance().clearLastSeenEIDs();
                     mEvents.clear();
                     mUsers.clear();
@@ -1964,11 +1956,6 @@ public class NetworkConnection {
                         object.getInt("port"), object.getString("nick"), object.getString("status"), object.getString("lag").equalsIgnoreCase("undefined") ? 0 : object.getLong("lag"), object.getBoolean("ssl") ? 1 : 0,
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
                         object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0);
-                NotificationsList.getInstance().deleteNetwork(object.cid());
-                if (object.getString("name") != null && object.getString("name").length() > 0)
-                    NotificationsList.getInstance().addNetwork(object.cid(), object.getString("name"));
-                else
-                    NotificationsList.getInstance().addNetwork(object.cid(), object.getString("hostname"));
 
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKESERVER, server);
@@ -1980,7 +1967,6 @@ public class NetworkConnection {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 mServers.deleteAllDataForServer(object.cid());
-                NotificationsList.getInstance().deleteNetwork(object.cid());
                 if (!backlog)
                     notifyHandlers(EVENT_CONNECTIONDELETED, object.cid());
             }
@@ -2103,14 +2089,10 @@ public class NetworkConnection {
                             if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                 String message = ColorFormatter.irc_to_html(event.msg);
                                 message = ColorFormatter.html_to_spanned(message).toString();
-                                Notification_Network network = NotificationsList.getInstance().getNetwork(event.cid);
-                                if(network == null) {
-                                    String server_name = b.getServer().getName();
-                                    if(server_name == null || server_name.length() == 0)
-                                        server_name = b.getServer().getHostname();
-                                    network = NotificationsList.getInstance().addNetwork(event.cid, server_name);
-                                }
-                                NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, network);
+                                String server_name = b.getServer().getName();
+                                if(server_name == null || server_name.length() == 0)
+                                    server_name = b.getServer().getHostname();
+                                NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name);
                                 switch (b.getType()) {
                                     case "conversation":
                                         if (event.type.equals("buffer_me_msg"))

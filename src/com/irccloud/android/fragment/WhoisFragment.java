@@ -273,11 +273,4 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
             channels.setVisibility(View.GONE);
         }
     }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
-    }
 }

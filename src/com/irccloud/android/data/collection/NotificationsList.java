@@ -52,8 +52,6 @@ import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Notification$Table;
 import com.irccloud.android.data.model.Notification_LastSeenEID;
 import com.irccloud.android.data.model.Notification_LastSeenEID$Table;
-import com.irccloud.android.data.model.Notification_Network;
-import com.irccloud.android.data.model.Notification_Network$Table;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -65,7 +63,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -106,9 +103,6 @@ public class NotificationsList {
         Delete.table(Notification.class);
     }
 
-    public void clearNetworks() { Delete.table(Notification_Network.class);
-    }
-
     public void clearLastSeenEIDs() {
         Delete.table(Notification_LastSeenEID.class);
     }
@@ -137,19 +131,7 @@ public class NotificationsList {
         updateTeslaUnreadCount();
     }
 
-    public synchronized Notification_Network addNetwork(int cid, String network) {
-        Notification_Network n = new Notification_Network();
-        n.cid = cid;
-        n.name = network;
-        TransactionManager.getInstance().saveOnSaveQueue(n);
-        return n;
-    }
-
-    public synchronized void deleteNetwork(int cid) {
-        new Delete().from(Notification_Network.class).where(Condition.column(Notification_Network$Table.CID).is(cid));
-    }
-
-    public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, Notification_Network network) {
+    public synchronized void addNotification(int cid, int bid, long eid, String from, String message, String chan, String buffer_type, String message_type, String network) {
         long last_eid = getLastSeenEid(bid);
         if (eid <= last_eid) {
             Crashlytics.log("Refusing to add notification for seen eid: " + eid);
@@ -266,16 +248,6 @@ public class NotificationsList {
                 .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
     }
 
-    public Notification_Network getNetwork(int cid) {
-        Notification_Network network = new Select().from(Notification_Network.class).where(Condition.column(Notification_Network$Table.CID).is(cid)).querySingle();
-        if (network == null) {
-            network = new Notification_Network();
-            network.cid = cid;
-            network.name = "Unknown Network";
-        }
-        return network;
-    }
-
     public Notification getNotification(long eid) {
         return new Select().from(Notification.class).where(Condition.column(Notification$Table.EID).is(eid)).querySingle();
     }
@@ -340,8 +312,6 @@ public class NotificationsList {
 
         if (notifications.size() > 0 && notify) {
             for (Notification n : notifications) {
-                if(n.network == null)
-                    n.network = getNetwork(n.cid);
                 if (!n.shown) {
                     if (n.message_type.equals("callerid")) {
                         title = "Callerid: " + n.nick + " (" + n.network + ")";
@@ -549,22 +519,19 @@ public class NotificationsList {
             count = 0;
             boolean show = false;
             for (Notification n : notifications) {
-                if(n.network == null)
-                    n.network = getNetwork(n.cid);
-
                 if (n.bid != lastbid) {
                     if (show) {
                         String title = last.chan;
                         if (title == null || title.length() == 0)
                             title = last.nick;
                         if (title == null || title.length() == 0)
-                            title = last.network.name;
+                            title = last.network;
 
                         Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
                         replyIntent.putExtra("bid", last.bid);
                         replyIntent.putExtra("cid", last.cid);
                         replyIntent.putExtra("eids", eids);
-                        replyIntent.putExtra("network", last.network.name);
+                        replyIntent.putExtra("network", last.network);
                         if (last.buffer_type.equals("channel"))
                             replyIntent.putExtra("to", last.chan);
                         else
@@ -594,7 +561,7 @@ public class NotificationsList {
                             big_text.append(l);
                         }
 
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
                     }
                     lastbid = n.bid;
                     text = "";
@@ -655,7 +622,7 @@ public class NotificationsList {
                             if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
                                 eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.chan);
                             else
-                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network.name);
+                                eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.TITLE, n.network);
 
                             if (n.message_type.equals("buffer_me_msg"))
                                 eventValues.put(com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.MESSAGE, "— " + Html.fromHtml(n.message).toString());
@@ -693,7 +660,7 @@ public class NotificationsList {
                         if (n.nick != null && n.nick.length() > 0)
                             notifyPebble(n.nick, pebbleTitle + Html.fromHtml(pebbleBody).toString());
                         else
-                            notifyPebble(n.network.name, pebbleTitle + Html.fromHtml(pebbleBody).toString());
+                            notifyPebble(n.network, pebbleTitle + Html.fromHtml(pebbleBody).toString());
                     }
                 }
                 eids[count++] = n.eid;
@@ -705,12 +672,12 @@ public class NotificationsList {
                 if (title == null || title.length() == 0)
                     title = last.nick;
                 if (title == null || title.length() == 0)
-                    title = last.network.name;
+                    title = last.network;
 
                 Intent replyIntent = new Intent(RemoteInputService.ACTION_REPLY);
                 replyIntent.putExtra("bid", last.bid);
                 replyIntent.putExtra("cid", last.cid);
-                replyIntent.putExtra("network", last.network.name);
+                replyIntent.putExtra("network", last.network);
                 replyIntent.putExtra("eids", eids);
                 if (last.buffer_type.equals("channel"))
                     replyIntent.putExtra("to", last.chan);
@@ -741,7 +708,7 @@ public class NotificationsList {
                     big_text.append(l);
                 }
 
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network.name, auto_messages));
+                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
             }
         }
     }

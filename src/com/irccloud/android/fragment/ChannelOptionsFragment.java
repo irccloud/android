@@ -233,11 +233,4 @@ public class ChannelOptionsFragment extends DialogFragment {
         state.putInt("cid", cid);
         state.putInt("bid", bid);
     }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
-    }
 }

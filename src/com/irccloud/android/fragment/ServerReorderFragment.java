@@ -296,11 +296,4 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
     @Override
     public void onIRCRequestFailed(int reqid, IRCCloudJSONObject object) {
     }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
-    }
 }

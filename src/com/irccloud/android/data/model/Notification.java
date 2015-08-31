@@ -52,12 +52,7 @@ public class Notification extends BaseModel {
     public String message;
 
     @Column
-    @ForeignKey(
-            references = {@ForeignKeyReference(columnName = "network_id",
-            columnType = Integer.class,
-            foreignColumnName = "cid")},
-    saveForeignKeyModel = true)
-    public Notification_Network network;
+    public String network;
 
     @Column
     public String chan;

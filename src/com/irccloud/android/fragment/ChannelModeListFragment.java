@@ -300,18 +300,6 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             conn.removeHandler(this);
     }
 
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null) {
-            refWatcher.watch(this);
-            if(data != null)
-                refWatcher.watch(data);
-            if(event != null)
-                refWatcher.watch(event);
-        }
-    }
-
     public void onIRCEvent(int what, Object obj) {
         switch (what) {
             case NetworkConnection.EVENT_USERCHANNELMODE:

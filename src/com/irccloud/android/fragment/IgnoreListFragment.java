@@ -235,16 +235,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
             conn.removeHandler(this);
     }
 
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null) {
-            refWatcher.watch(this);
-            if(adapter != null)
-                refWatcher.watch(adapter);
-        }
-    }
-
     public void onIRCEvent(int what, Object obj) {
         switch (what) {
             case NetworkConnection.EVENT_MAKESERVER:

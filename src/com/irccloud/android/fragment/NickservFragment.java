@@ -107,11 +107,4 @@ import com.squareup.leakcanary.RefWatcher;public class NickservFragment extends 
         d.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return d;
     }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
-    }
 }

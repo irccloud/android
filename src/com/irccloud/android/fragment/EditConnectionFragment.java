@@ -404,9 +404,6 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         super.onDestroy();
         if(presets != null)
             presets.setOnItemSelectedListener(null);
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
     }
 
     @Override

@@ -67,7 +67,7 @@ public class DrawerArrowDrawable extends Drawable {
         Resources r = context.getResources();
         mContext = context;
         mPaint.setAntiAlias(true);
-        mPaint.setColor(r.getColor(android.R.color.secondary_text_light, context.getTheme()));
+        mPaint.setColor(r.getColor(android.R.color.secondary_text_light));
         mSize = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, r.getDisplayMetrics());
         mBarSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18, r.getDisplayMetrics());
         mTopBottomArrowSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 11.31f, r.getDisplayMetrics());

@@ -89,13 +89,6 @@ public class AddChannelFragment extends DialogFragment {
         spinner.setSelection(pos);
     }
 
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Context ctx = getActivity();

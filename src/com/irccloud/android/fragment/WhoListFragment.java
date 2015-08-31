@@ -224,11 +224,4 @@ public class WhoListFragment extends DialogFragment {
     public void onPause() {
         super.onPause();
     }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
-    }
 }

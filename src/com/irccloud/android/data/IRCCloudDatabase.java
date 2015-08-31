@@ -20,6 +20,6 @@ import com.raizlabs.android.dbflow.annotation.Database;
 
 @Database(name = IRCCloudDatabase.NAME, version = IRCCloudDatabase.VERSION)
 public class IRCCloudDatabase {
-    public static final String NAME = "cloud";
+    public static final String NAME = "irccloud";
     public static final int VERSION = 1;
 }

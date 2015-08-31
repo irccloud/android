@@ -210,11 +210,4 @@ public class BufferOptionsFragment extends DialogFragment {
         outState.putInt("cid", cid);
         outState.putString("type", type);
     }
-
-    @Override public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
-        if(refWatcher != null)
-            refWatcher.watch(this);
-    }
 }
