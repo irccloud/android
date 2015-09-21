@@ -541,7 +541,34 @@ public class CollapsedEventsList {
             PREFIX.put(server != null ? server.MODE_VOICED : "v", "+");
         }
 
-        String[] colors = {"fc009a", "ff1f1a", "d20004", "fd6508", "880019", "c7009c", "804fc4", "5200b7", "123e92", "1d40ff", "108374", "2e980d", "207607", "196d61"};
+        String[] colors = {
+                "b22222",
+                "d2691e",
+                "ff9166",
+                "fa8072",
+                "ff8c00",
+                "228b22",
+                "808000",
+                "b7b05d",
+                "8ebd2e",
+                "2ebd2e",
+                "82b482",
+                "37a467",
+                "57c8a1",
+                "1da199",
+                "579193",
+                "008b8b",
+                "00bfff",
+                "4682b4",
+                "1e90ff",
+                "4169e1",
+                "6a5acd",
+                "7b68ee",
+                "9400d3",
+                "8b008b",
+                "ba55d3",
+                "ff00ff",
+                "ff1493",};
         String color = null;
 
         if (colorize) {
@@ -557,7 +584,7 @@ public class CollapsedEventsList {
                 hash = ((int) normalizedNick.charAt(i)) + (double) ((int) (hash.longValue()) << 6) + (double) ((int) (hash.longValue()) << 16) - hash;
             }
 
-            color = colors[(int) Math.abs(hash.longValue() % 14)];
+            color = colors[(int) Math.abs(hash.longValue() % colors.length)];
         }
 
         StringBuilder output = new StringBuilder();
