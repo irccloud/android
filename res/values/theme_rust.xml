@@ -1,0 +1,157 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="rust" parent="AppTheme">
+		<item name="bufferTextColor">@color/rust_text4</item>
+		<item name="navBarSubheadingColor">@color/rust_text4</item>
+		<item name="inactiveBufferTextColor">@color/rust_text9</item>
+		<item name="archivesHeadingTextColor">@color/rust_text9</item>
+		<item name="chatterBarTextColor">@color/rust_text5</item>
+		<item name="linkColor">@color/rust_text1</item>
+		<item name="highlightBackgroundColor">@color/rust_background5</item>
+		<item name="selfBackgroundColor">@color/rust_background6</item>
+		<item name="contentBackgroundColor">@color/rust_background7</item>
+		<item name="messageTextColor">@color/rust_text4</item>
+		<item name="serverBackgroundColor">@color/rust_background6</item>
+		<item name="bufferBackgroundColor">@color/rust_background4</item>
+		<item name="memberListTextColor">@color/rust_text5</item>
+		<item name="memberListAwayTextColor">@color/rust_text9</item>
+		<item name="timestampColor">@color/rust_text10</item>
+		<item name="timestampBackgroundColor">@color/rust_background6</item>
+		<item name="statusBackgroundColor">@color/rust_background6a</item>
+		<item name="noticeBackgroundColor">@color/rust_background5a</item>
+		<item name="collapsedRowTextColor">@color/rust_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/rust_background6</item>
+		<item name="navBarColor">@color/rust_background5</item>
+		<item name="navBarBorderColor">@color/rust_border10</item>
+		<item name="textareaTextColor">@color/rust_text3</item>
+		<item name="textareaBackgroundColor">@color/rust_background3</item>
+		<item name="navBarHeadingColor">@color/rust_text1</item>
+		<item name="lightLinkColor">@color/rust_text9</item>
+		<item name="unreadBufferTextColor">@color/rust_text2</item>
+		<item name="selectedBufferTextColor">@color/rust_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/rust_text3</item>
+		<item name="bufferBorderColor">@color/rust_border9</item>
+		<item name="serverBorderColor">@color/rust_border9</item>
+		<item name="failedServerBorderColor">@color/rust_border9</item>
+		<item name="selectedBufferBorderColor">@color/rust_border4</item>
+		<item name="backlogDividerColor">@color/rust_border1</item>
+		<item name="chatterBarColor">@color/rust_background3</item>
+		<item name="awayBarTextColor">@color/rust_text7</item>
+		<item name="awayBarColor">@color/rust_background6</item>
+		<item name="connectionBarTextColor">@color/rust_text4</item>
+		<item name="connectionBarColor">@color/rust_background4</item>
+		<item name="connectionErrorBarTextColor">@color/rust_text4</item>
+		<item name="connectionErrorBarColor">@color/rust_background5</item>
+		<item name="timestampTopBorderColor">@color/rust_border9</item>
+		<item name="timestampBottomBorderColor">@color/rust_border6</item>
+		<item name="placeholderColor">@color/rust_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/rust_text12</item>
+		<item name="bufferHighlightColor">@color/rust_background5</item>
+		<item name="selectedBufferHighlightColor">@color/rust_text4</item>
+		<item name="archivedBufferHighlightColor">@color/rust_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/rust_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/rust_text6</item>
+	</style>
+
+	<style name="rustNoActionBar" parent="AppThemeNoActionBar">
+		<item name="bufferTextColor">@color/rust_text4</item>
+		<item name="navBarSubheadingColor">@color/rust_text4</item>
+		<item name="inactiveBufferTextColor">@color/rust_text9</item>
+		<item name="archivesHeadingTextColor">@color/rust_text9</item>
+		<item name="chatterBarTextColor">@color/rust_text5</item>
+		<item name="linkColor">@color/rust_text1</item>
+		<item name="highlightBackgroundColor">@color/rust_background5</item>
+		<item name="selfBackgroundColor">@color/rust_background6</item>
+		<item name="contentBackgroundColor">@color/rust_background7</item>
+		<item name="messageTextColor">@color/rust_text4</item>
+		<item name="serverBackgroundColor">@color/rust_background6</item>
+		<item name="bufferBackgroundColor">@color/rust_background4</item>
+		<item name="memberListTextColor">@color/rust_text5</item>
+		<item name="memberListAwayTextColor">@color/rust_text9</item>
+		<item name="timestampColor">@color/rust_text10</item>
+		<item name="timestampBackgroundColor">@color/rust_background6</item>
+		<item name="statusBackgroundColor">@color/rust_background6a</item>
+		<item name="noticeBackgroundColor">@color/rust_background5a</item>
+		<item name="collapsedRowTextColor">@color/rust_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/rust_background6</item>
+		<item name="navBarColor">@color/rust_background5</item>
+		<item name="navBarBorderColor">@color/rust_border10</item>
+		<item name="textareaTextColor">@color/rust_text3</item>
+		<item name="textareaBackgroundColor">@color/rust_background3</item>
+		<item name="navBarHeadingColor">@color/rust_text1</item>
+		<item name="lightLinkColor">@color/rust_text9</item>
+		<item name="unreadBufferTextColor">@color/rust_text2</item>
+		<item name="selectedBufferTextColor">@color/rust_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/rust_text3</item>
+		<item name="bufferBorderColor">@color/rust_border9</item>
+		<item name="serverBorderColor">@color/rust_border9</item>
+		<item name="failedServerBorderColor">@color/rust_border9</item>
+		<item name="selectedBufferBorderColor">@color/rust_border4</item>
+		<item name="backlogDividerColor">@color/rust_border1</item>
+		<item name="chatterBarColor">@color/rust_background3</item>
+		<item name="awayBarTextColor">@color/rust_text7</item>
+		<item name="awayBarColor">@color/rust_background6</item>
+		<item name="connectionBarTextColor">@color/rust_text4</item>
+		<item name="connectionBarColor">@color/rust_background4</item>
+		<item name="connectionErrorBarTextColor">@color/rust_text4</item>
+		<item name="connectionErrorBarColor">@color/rust_background5</item>
+		<item name="timestampTopBorderColor">@color/rust_border9</item>
+		<item name="timestampBottomBorderColor">@color/rust_border6</item>
+		<item name="placeholderColor">@color/rust_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/rust_text12</item>
+		<item name="bufferHighlightColor">@color/rust_background5</item>
+		<item name="selectedBufferHighlightColor">@color/rust_text4</item>
+		<item name="archivedBufferHighlightColor">@color/rust_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/rust_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/rust_text6</item>
+	</style>
+
+	<color name="rust_border1">#CB4D4D</color>
+	<color name="rust_border2">#C53939</color>
+	<color name="rust_border3">#B13333</color>
+	<color name="rust_border4">#9E2D2D</color>
+	<color name="rust_border5">#8A2828</color>
+	<color name="rust_border6">#762222</color>
+	<color name="rust_border7">#621C1C</color>
+	<color name="rust_border8">#4F1616</color>
+	<color name="rust_border9">#3B1111</color>
+	<color name="rust_border10">#270B0B</color>
+	<color name="rust_border11">#130505</color>
+	<color name="rust_text1">#FFFFFF</color>
+	<color name="rust_text2">#F9EBEB</color>
+	<color name="rust_text3">#F3D7D7</color>
+	<color name="rust_text4">#EDC3C3</color>
+	<color name="rust_text5">#E8AFAF</color>
+	<color name="rust_text6">#E29C9C</color>
+	<color name="rust_text7">#DC8888</color>
+	<color name="rust_text8">#D67474</color>
+	<color name="rust_text9">#D16060</color>
+	<color name="rust_text10">#CB4D4D</color>
+	<color name="rust_text11">#C53939</color>
+	<color name="rust_text12">#B13333</color>
+	<color name="rust_background0">#C53939</color>
+	<color name="rust_background1">#B13333</color>
+	<color name="rust_background2">#9E2D2D</color>
+	<color name="rust_background3">#8A2828</color>
+	<color name="rust_background4">#762222</color>
+	<color name="rust_background5">#621C1C</color>
+	<color name="rust_background5a">#5A1A1A</color>
+	<color name="rust_background6">#4F1616</color>
+	<color name="rust_background6a">#431313</color>
+	<color name="rust_background7">#3B1111</color>
+</resources>

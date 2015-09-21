@@ -1,0 +1,157 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="ash" parent="AppTheme">
+		<item name="bufferTextColor">@color/ash_text4</item>
+		<item name="navBarSubheadingColor">@color/ash_text4</item>
+		<item name="inactiveBufferTextColor">@color/ash_text9</item>
+		<item name="archivesHeadingTextColor">@color/ash_text9</item>
+		<item name="chatterBarTextColor">@color/ash_text5</item>
+		<item name="linkColor">@color/ash_text1</item>
+		<item name="highlightBackgroundColor">@color/ash_background5</item>
+		<item name="selfBackgroundColor">@color/ash_background6</item>
+		<item name="contentBackgroundColor">@color/ash_background7</item>
+		<item name="messageTextColor">@color/ash_text4</item>
+		<item name="serverBackgroundColor">@color/ash_background6</item>
+		<item name="bufferBackgroundColor">@color/ash_background4</item>
+		<item name="memberListTextColor">@color/ash_text5</item>
+		<item name="memberListAwayTextColor">@color/ash_text9</item>
+		<item name="timestampColor">@color/ash_text10</item>
+		<item name="timestampBackgroundColor">@color/ash_background6</item>
+		<item name="statusBackgroundColor">@color/ash_background6a</item>
+		<item name="noticeBackgroundColor">@color/ash_background5a</item>
+		<item name="collapsedRowTextColor">@color/ash_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/ash_background6</item>
+		<item name="navBarColor">@color/ash_background5</item>
+		<item name="navBarBorderColor">@color/ash_border10</item>
+		<item name="textareaTextColor">@color/ash_text3</item>
+		<item name="textareaBackgroundColor">@color/ash_background3</item>
+		<item name="navBarHeadingColor">@color/ash_text1</item>
+		<item name="lightLinkColor">@color/ash_text9</item>
+		<item name="unreadBufferTextColor">@color/ash_text2</item>
+		<item name="selectedBufferTextColor">@color/ash_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/ash_text3</item>
+		<item name="bufferBorderColor">@color/ash_border9</item>
+		<item name="serverBorderColor">@color/ash_border9</item>
+		<item name="failedServerBorderColor">@color/ash_border9</item>
+		<item name="selectedBufferBorderColor">@color/ash_border4</item>
+		<item name="backlogDividerColor">@color/ash_border1</item>
+		<item name="chatterBarColor">@color/ash_background3</item>
+		<item name="awayBarTextColor">@color/ash_text7</item>
+		<item name="awayBarColor">@color/ash_background6</item>
+		<item name="connectionBarTextColor">@color/ash_text4</item>
+		<item name="connectionBarColor">@color/ash_background4</item>
+		<item name="connectionErrorBarTextColor">@color/ash_text4</item>
+		<item name="connectionErrorBarColor">@color/ash_background5</item>
+		<item name="timestampTopBorderColor">@color/ash_border9</item>
+		<item name="timestampBottomBorderColor">@color/ash_border6</item>
+		<item name="placeholderColor">@color/ash_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/ash_text12</item>
+		<item name="bufferHighlightColor">@color/ash_background5</item>
+		<item name="selectedBufferHighlightColor">@color/ash_text4</item>
+		<item name="archivedBufferHighlightColor">@color/ash_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/ash_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
+	</style>
+
+	<style name="ashNoActionBar" parent="AppThemeNoActionBar">
+		<item name="bufferTextColor">@color/ash_text4</item>
+		<item name="navBarSubheadingColor">@color/ash_text4</item>
+		<item name="inactiveBufferTextColor">@color/ash_text9</item>
+		<item name="archivesHeadingTextColor">@color/ash_text9</item>
+		<item name="chatterBarTextColor">@color/ash_text5</item>
+		<item name="linkColor">@color/ash_text1</item>
+		<item name="highlightBackgroundColor">@color/ash_background5</item>
+		<item name="selfBackgroundColor">@color/ash_background6</item>
+		<item name="contentBackgroundColor">@color/ash_background7</item>
+		<item name="messageTextColor">@color/ash_text4</item>
+		<item name="serverBackgroundColor">@color/ash_background6</item>
+		<item name="bufferBackgroundColor">@color/ash_background4</item>
+		<item name="memberListTextColor">@color/ash_text5</item>
+		<item name="memberListAwayTextColor">@color/ash_text9</item>
+		<item name="timestampColor">@color/ash_text10</item>
+		<item name="timestampBackgroundColor">@color/ash_background6</item>
+		<item name="statusBackgroundColor">@color/ash_background6a</item>
+		<item name="noticeBackgroundColor">@color/ash_background5a</item>
+		<item name="collapsedRowTextColor">@color/ash_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/ash_background6</item>
+		<item name="navBarColor">@color/ash_background5</item>
+		<item name="navBarBorderColor">@color/ash_border10</item>
+		<item name="textareaTextColor">@color/ash_text3</item>
+		<item name="textareaBackgroundColor">@color/ash_background3</item>
+		<item name="navBarHeadingColor">@color/ash_text1</item>
+		<item name="lightLinkColor">@color/ash_text9</item>
+		<item name="unreadBufferTextColor">@color/ash_text2</item>
+		<item name="selectedBufferTextColor">@color/ash_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/ash_text3</item>
+		<item name="bufferBorderColor">@color/ash_border9</item>
+		<item name="serverBorderColor">@color/ash_border9</item>
+		<item name="failedServerBorderColor">@color/ash_border9</item>
+		<item name="selectedBufferBorderColor">@color/ash_border4</item>
+		<item name="backlogDividerColor">@color/ash_border1</item>
+		<item name="chatterBarColor">@color/ash_background3</item>
+		<item name="awayBarTextColor">@color/ash_text7</item>
+		<item name="awayBarColor">@color/ash_background6</item>
+		<item name="connectionBarTextColor">@color/ash_text4</item>
+		<item name="connectionBarColor">@color/ash_background4</item>
+		<item name="connectionErrorBarTextColor">@color/ash_text4</item>
+		<item name="connectionErrorBarColor">@color/ash_background5</item>
+		<item name="timestampTopBorderColor">@color/ash_border9</item>
+		<item name="timestampBottomBorderColor">@color/ash_border6</item>
+		<item name="placeholderColor">@color/ash_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/ash_text12</item>
+		<item name="bufferHighlightColor">@color/ash_background5</item>
+		<item name="selectedBufferHighlightColor">@color/ash_text4</item>
+		<item name="archivedBufferHighlightColor">@color/ash_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/ash_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
+	</style>
+
+	<color name="ash_border1">#8C8C8C</color>
+	<color name="ash_border2">#7F7F7F</color>
+	<color name="ash_border3">#727272</color>
+	<color name="ash_border4">#666666</color>
+	<color name="ash_border5">#595959</color>
+	<color name="ash_border6">#4C4C4C</color>
+	<color name="ash_border7">#3F3F3F</color>
+	<color name="ash_border8">#333333</color>
+	<color name="ash_border9">#262626</color>
+	<color name="ash_border10">#191919</color>
+	<color name="ash_border11">#0C0C0C</color>
+	<color name="ash_text1">#FFFFFF</color>
+	<color name="ash_text2">#F2F2F2</color>
+	<color name="ash_text3">#E5E5E5</color>
+	<color name="ash_text4">#D8D8D8</color>
+	<color name="ash_text5">#CCCCCC</color>
+	<color name="ash_text6">#BFBFBF</color>
+	<color name="ash_text7">#B2B2B2</color>
+	<color name="ash_text8">#A5A5A5</color>
+	<color name="ash_text9">#999999</color>
+	<color name="ash_text10">#8C8C8C</color>
+	<color name="ash_text11">#7F7F7F</color>
+	<color name="ash_text12">#727272</color>
+	<color name="ash_background0">#7F7F7F</color>
+	<color name="ash_background1">#727272</color>
+	<color name="ash_background2">#666666</color>
+	<color name="ash_background3">#595959</color>
+	<color name="ash_background4">#4C4C4C</color>
+	<color name="ash_background5">#3F3F3F</color>
+	<color name="ash_background5a">#3A3A3A</color>
+	<color name="ash_background6">#333333</color>
+	<color name="ash_background6a">#2B2B2B</color>
+	<color name="ash_background7">#262626</color>
+</resources>

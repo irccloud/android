@@ -1,0 +1,157 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="dusk" parent="AppTheme">
+		<item name="bufferTextColor">@color/dusk_text4</item>
+		<item name="navBarSubheadingColor">@color/dusk_text4</item>
+		<item name="inactiveBufferTextColor">@color/dusk_text9</item>
+		<item name="archivesHeadingTextColor">@color/dusk_text9</item>
+		<item name="chatterBarTextColor">@color/dusk_text5</item>
+		<item name="linkColor">@color/dusk_text1</item>
+		<item name="highlightBackgroundColor">@color/dusk_background5</item>
+		<item name="selfBackgroundColor">@color/dusk_background6</item>
+		<item name="contentBackgroundColor">@color/dusk_background7</item>
+		<item name="messageTextColor">@color/dusk_text4</item>
+		<item name="serverBackgroundColor">@color/dusk_background6</item>
+		<item name="bufferBackgroundColor">@color/dusk_background4</item>
+		<item name="memberListTextColor">@color/dusk_text5</item>
+		<item name="memberListAwayTextColor">@color/dusk_text9</item>
+		<item name="timestampColor">@color/dusk_text10</item>
+		<item name="timestampBackgroundColor">@color/dusk_background6</item>
+		<item name="statusBackgroundColor">@color/dusk_background6a</item>
+		<item name="noticeBackgroundColor">@color/dusk_background5a</item>
+		<item name="collapsedRowTextColor">@color/dusk_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/dusk_background6</item>
+		<item name="navBarColor">@color/dusk_background5</item>
+		<item name="navBarBorderColor">@color/dusk_border10</item>
+		<item name="textareaTextColor">@color/dusk_text3</item>
+		<item name="textareaBackgroundColor">@color/dusk_background3</item>
+		<item name="navBarHeadingColor">@color/dusk_text1</item>
+		<item name="lightLinkColor">@color/dusk_text9</item>
+		<item name="unreadBufferTextColor">@color/dusk_text2</item>
+		<item name="selectedBufferTextColor">@color/dusk_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/dusk_text3</item>
+		<item name="bufferBorderColor">@color/dusk_border9</item>
+		<item name="serverBorderColor">@color/dusk_border9</item>
+		<item name="failedServerBorderColor">@color/dusk_border9</item>
+		<item name="selectedBufferBorderColor">@color/dusk_border4</item>
+		<item name="backlogDividerColor">@color/dusk_border1</item>
+		<item name="chatterBarColor">@color/dusk_background3</item>
+		<item name="awayBarTextColor">@color/dusk_text7</item>
+		<item name="awayBarColor">@color/dusk_background6</item>
+		<item name="connectionBarTextColor">@color/dusk_text4</item>
+		<item name="connectionBarColor">@color/dusk_background4</item>
+		<item name="connectionErrorBarTextColor">@color/dusk_text4</item>
+		<item name="connectionErrorBarColor">@color/dusk_background5</item>
+		<item name="timestampTopBorderColor">@color/dusk_border9</item>
+		<item name="timestampBottomBorderColor">@color/dusk_border6</item>
+		<item name="placeholderColor">@color/dusk_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/dusk_text12</item>
+		<item name="bufferHighlightColor">@color/dusk_background5</item>
+		<item name="selectedBufferHighlightColor">@color/dusk_text4</item>
+		<item name="archivedBufferHighlightColor">@color/dusk_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/dusk_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
+	</style>
+
+	<style name="duskNoActionBar" parent="AppThemeNoActionBar">
+		<item name="bufferTextColor">@color/dusk_text4</item>
+		<item name="navBarSubheadingColor">@color/dusk_text4</item>
+		<item name="inactiveBufferTextColor">@color/dusk_text9</item>
+		<item name="archivesHeadingTextColor">@color/dusk_text9</item>
+		<item name="chatterBarTextColor">@color/dusk_text5</item>
+		<item name="linkColor">@color/dusk_text1</item>
+		<item name="highlightBackgroundColor">@color/dusk_background5</item>
+		<item name="selfBackgroundColor">@color/dusk_background6</item>
+		<item name="contentBackgroundColor">@color/dusk_background7</item>
+		<item name="messageTextColor">@color/dusk_text4</item>
+		<item name="serverBackgroundColor">@color/dusk_background6</item>
+		<item name="bufferBackgroundColor">@color/dusk_background4</item>
+		<item name="memberListTextColor">@color/dusk_text5</item>
+		<item name="memberListAwayTextColor">@color/dusk_text9</item>
+		<item name="timestampColor">@color/dusk_text10</item>
+		<item name="timestampBackgroundColor">@color/dusk_background6</item>
+		<item name="statusBackgroundColor">@color/dusk_background6a</item>
+		<item name="noticeBackgroundColor">@color/dusk_background5a</item>
+		<item name="collapsedRowTextColor">@color/dusk_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/dusk_background6</item>
+		<item name="navBarColor">@color/dusk_background5</item>
+		<item name="navBarBorderColor">@color/dusk_border10</item>
+		<item name="textareaTextColor">@color/dusk_text3</item>
+		<item name="textareaBackgroundColor">@color/dusk_background3</item>
+		<item name="navBarHeadingColor">@color/dusk_text1</item>
+		<item name="lightLinkColor">@color/dusk_text9</item>
+		<item name="unreadBufferTextColor">@color/dusk_text2</item>
+		<item name="selectedBufferTextColor">@color/dusk_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/dusk_text3</item>
+		<item name="bufferBorderColor">@color/dusk_border9</item>
+		<item name="serverBorderColor">@color/dusk_border9</item>
+		<item name="failedServerBorderColor">@color/dusk_border9</item>
+		<item name="selectedBufferBorderColor">@color/dusk_border4</item>
+		<item name="backlogDividerColor">@color/dusk_border1</item>
+		<item name="chatterBarColor">@color/dusk_background3</item>
+		<item name="awayBarTextColor">@color/dusk_text7</item>
+		<item name="awayBarColor">@color/dusk_background6</item>
+		<item name="connectionBarTextColor">@color/dusk_text4</item>
+		<item name="connectionBarColor">@color/dusk_background4</item>
+		<item name="connectionErrorBarTextColor">@color/dusk_text4</item>
+		<item name="connectionErrorBarColor">@color/dusk_background5</item>
+		<item name="timestampTopBorderColor">@color/dusk_border9</item>
+		<item name="timestampBottomBorderColor">@color/dusk_border6</item>
+		<item name="placeholderColor">@color/dusk_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/dusk_text12</item>
+		<item name="bufferHighlightColor">@color/dusk_background5</item>
+		<item name="selectedBufferHighlightColor">@color/dusk_text4</item>
+		<item name="archivedBufferHighlightColor">@color/dusk_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/dusk_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
+	</style>
+
+	<color name="dusk_border1">#4D8CCB</color>
+	<color name="dusk_border2">#397FC5</color>
+	<color name="dusk_border3">#3372B1</color>
+	<color name="dusk_border4">#2D659E</color>
+	<color name="dusk_border5">#28598A</color>
+	<color name="dusk_border6">#224C76</color>
+	<color name="dusk_border7">#1C3F62</color>
+	<color name="dusk_border8">#16324F</color>
+	<color name="dusk_border9">#11263B</color>
+	<color name="dusk_border10">#0B1927</color>
+	<color name="dusk_border11">#050C13</color>
+	<color name="dusk_text1">#FFFFFF</color>
+	<color name="dusk_text2">#EBF2F9</color>
+	<color name="dusk_text3">#D7E5F3</color>
+	<color name="dusk_text4">#C3D8ED</color>
+	<color name="dusk_text5">#AFCBE8</color>
+	<color name="dusk_text6">#9CBFE2</color>
+	<color name="dusk_text7">#88B2DC</color>
+	<color name="dusk_text8">#74A5D6</color>
+	<color name="dusk_text9">#6098D1</color>
+	<color name="dusk_text10">#4D8CCB</color>
+	<color name="dusk_text11">#397FC5</color>
+	<color name="dusk_text12">#3372B1</color>
+	<color name="dusk_background0">#397FC5</color>
+	<color name="dusk_background1">#3372B1</color>
+	<color name="dusk_background2">#2D659E</color>
+	<color name="dusk_background3">#28598A</color>
+	<color name="dusk_background4">#224C76</color>
+	<color name="dusk_background5">#1C3F62</color>
+	<color name="dusk_background5a">#1A3A5A</color>
+	<color name="dusk_background6">#16324F</color>
+	<color name="dusk_background6a">#132B43</color>
+	<color name="dusk_background7">#11263B</color>
+</resources>

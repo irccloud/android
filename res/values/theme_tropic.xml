@@ -1,0 +1,157 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="tropic" parent="AppTheme">
+		<item name="bufferTextColor">@color/tropic_text4</item>
+		<item name="navBarSubheadingColor">@color/tropic_text4</item>
+		<item name="inactiveBufferTextColor">@color/tropic_text9</item>
+		<item name="archivesHeadingTextColor">@color/tropic_text9</item>
+		<item name="chatterBarTextColor">@color/tropic_text5</item>
+		<item name="linkColor">@color/tropic_text1</item>
+		<item name="highlightBackgroundColor">@color/tropic_background5</item>
+		<item name="selfBackgroundColor">@color/tropic_background6</item>
+		<item name="contentBackgroundColor">@color/tropic_background7</item>
+		<item name="messageTextColor">@color/tropic_text4</item>
+		<item name="serverBackgroundColor">@color/tropic_background6</item>
+		<item name="bufferBackgroundColor">@color/tropic_background4</item>
+		<item name="memberListTextColor">@color/tropic_text5</item>
+		<item name="memberListAwayTextColor">@color/tropic_text9</item>
+		<item name="timestampColor">@color/tropic_text10</item>
+		<item name="timestampBackgroundColor">@color/tropic_background6</item>
+		<item name="statusBackgroundColor">@color/tropic_background6a</item>
+		<item name="noticeBackgroundColor">@color/tropic_background5a</item>
+		<item name="collapsedRowTextColor">@color/tropic_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/tropic_background6</item>
+		<item name="navBarColor">@color/tropic_background5</item>
+		<item name="navBarBorderColor">@color/tropic_border10</item>
+		<item name="textareaTextColor">@color/tropic_text3</item>
+		<item name="textareaBackgroundColor">@color/tropic_background3</item>
+		<item name="navBarHeadingColor">@color/tropic_text1</item>
+		<item name="lightLinkColor">@color/tropic_text9</item>
+		<item name="unreadBufferTextColor">@color/tropic_text2</item>
+		<item name="selectedBufferTextColor">@color/tropic_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/tropic_text3</item>
+		<item name="bufferBorderColor">@color/tropic_border9</item>
+		<item name="serverBorderColor">@color/tropic_border9</item>
+		<item name="failedServerBorderColor">@color/tropic_border9</item>
+		<item name="selectedBufferBorderColor">@color/tropic_border4</item>
+		<item name="backlogDividerColor">@color/tropic_border1</item>
+		<item name="chatterBarColor">@color/tropic_background3</item>
+		<item name="awayBarTextColor">@color/tropic_text7</item>
+		<item name="awayBarColor">@color/tropic_background6</item>
+		<item name="connectionBarTextColor">@color/tropic_text4</item>
+		<item name="connectionBarColor">@color/tropic_background4</item>
+		<item name="connectionErrorBarTextColor">@color/tropic_text4</item>
+		<item name="connectionErrorBarColor">@color/tropic_background5</item>
+		<item name="timestampTopBorderColor">@color/tropic_border9</item>
+		<item name="timestampBottomBorderColor">@color/tropic_border6</item>
+		<item name="placeholderColor">@color/tropic_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/tropic_text12</item>
+		<item name="bufferHighlightColor">@color/tropic_background5</item>
+		<item name="selectedBufferHighlightColor">@color/tropic_text4</item>
+		<item name="archivedBufferHighlightColor">@color/tropic_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/tropic_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/tropic_text6</item>
+	</style>
+
+	<style name="tropicNoActionBar" parent="AppThemeNoActionBar">
+		<item name="bufferTextColor">@color/tropic_text4</item>
+		<item name="navBarSubheadingColor">@color/tropic_text4</item>
+		<item name="inactiveBufferTextColor">@color/tropic_text9</item>
+		<item name="archivesHeadingTextColor">@color/tropic_text9</item>
+		<item name="chatterBarTextColor">@color/tropic_text5</item>
+		<item name="linkColor">@color/tropic_text1</item>
+		<item name="highlightBackgroundColor">@color/tropic_background5</item>
+		<item name="selfBackgroundColor">@color/tropic_background6</item>
+		<item name="contentBackgroundColor">@color/tropic_background7</item>
+		<item name="messageTextColor">@color/tropic_text4</item>
+		<item name="serverBackgroundColor">@color/tropic_background6</item>
+		<item name="bufferBackgroundColor">@color/tropic_background4</item>
+		<item name="memberListTextColor">@color/tropic_text5</item>
+		<item name="memberListAwayTextColor">@color/tropic_text9</item>
+		<item name="timestampColor">@color/tropic_text10</item>
+		<item name="timestampBackgroundColor">@color/tropic_background6</item>
+		<item name="statusBackgroundColor">@color/tropic_background6a</item>
+		<item name="noticeBackgroundColor">@color/tropic_background5a</item>
+		<item name="collapsedRowTextColor">@color/tropic_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/tropic_background6</item>
+		<item name="navBarColor">@color/tropic_background5</item>
+		<item name="navBarBorderColor">@color/tropic_border10</item>
+		<item name="textareaTextColor">@color/tropic_text3</item>
+		<item name="textareaBackgroundColor">@color/tropic_background3</item>
+		<item name="navBarHeadingColor">@color/tropic_text1</item>
+		<item name="lightLinkColor">@color/tropic_text9</item>
+		<item name="unreadBufferTextColor">@color/tropic_text2</item>
+		<item name="selectedBufferTextColor">@color/tropic_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/tropic_text3</item>
+		<item name="bufferBorderColor">@color/tropic_border9</item>
+		<item name="serverBorderColor">@color/tropic_border9</item>
+		<item name="failedServerBorderColor">@color/tropic_border9</item>
+		<item name="selectedBufferBorderColor">@color/tropic_border4</item>
+		<item name="backlogDividerColor">@color/tropic_border1</item>
+		<item name="chatterBarColor">@color/tropic_background3</item>
+		<item name="awayBarTextColor">@color/tropic_text7</item>
+		<item name="awayBarColor">@color/tropic_background6</item>
+		<item name="connectionBarTextColor">@color/tropic_text4</item>
+		<item name="connectionBarColor">@color/tropic_background4</item>
+		<item name="connectionErrorBarTextColor">@color/tropic_text4</item>
+		<item name="connectionErrorBarColor">@color/tropic_background5</item>
+		<item name="timestampTopBorderColor">@color/tropic_border9</item>
+		<item name="timestampBottomBorderColor">@color/tropic_border6</item>
+		<item name="placeholderColor">@color/tropic_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/tropic_text12</item>
+		<item name="bufferHighlightColor">@color/tropic_background5</item>
+		<item name="selectedBufferHighlightColor">@color/tropic_text4</item>
+		<item name="archivedBufferHighlightColor">@color/tropic_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/tropic_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/tropic_text6</item>
+	</style>
+
+	<color name="tropic_border1">#4DCBCB</color>
+	<color name="tropic_border2">#39C5C5</color>
+	<color name="tropic_border3">#33B1B1</color>
+	<color name="tropic_border4">#2D9E9E</color>
+	<color name="tropic_border5">#288A8A</color>
+	<color name="tropic_border6">#227676</color>
+	<color name="tropic_border7">#1C6262</color>
+	<color name="tropic_border8">#164F4F</color>
+	<color name="tropic_border9">#113B3B</color>
+	<color name="tropic_border10">#0B2727</color>
+	<color name="tropic_border11">#051313</color>
+	<color name="tropic_text1">#FFFFFF</color>
+	<color name="tropic_text2">#EBF9F9</color>
+	<color name="tropic_text3">#D7F3F3</color>
+	<color name="tropic_text4">#C3EDED</color>
+	<color name="tropic_text5">#AFE8E8</color>
+	<color name="tropic_text6">#9CE2E2</color>
+	<color name="tropic_text7">#88DCDC</color>
+	<color name="tropic_text8">#74D6D6</color>
+	<color name="tropic_text9">#60D1D1</color>
+	<color name="tropic_text10">#4DCBCB</color>
+	<color name="tropic_text11">#39C5C5</color>
+	<color name="tropic_text12">#33B1B1</color>
+	<color name="tropic_background0">#39C5C5</color>
+	<color name="tropic_background1">#33B1B1</color>
+	<color name="tropic_background2">#2D9E9E</color>
+	<color name="tropic_background3">#288A8A</color>
+	<color name="tropic_background4">#227676</color>
+	<color name="tropic_background5">#1C6262</color>
+	<color name="tropic_background5a">#1A5A5A</color>
+	<color name="tropic_background6">#164F4F</color>
+	<color name="tropic_background6a">#134343</color>
+	<color name="tropic_background7">#113B3B</color>
+</resources>
