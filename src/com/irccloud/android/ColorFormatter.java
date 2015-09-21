@@ -1313,6 +1313,8 @@ public class ColorFormatter {
                         return false;
                     if (start >= 1 && s.subSequence(start - 1, end).toString().matches(pattern))
                         return false;
+                    if(s.subSequence(start, end).toString().matches("[0-9\\.]+"))
+                        return false;
                     return Linkify.sUrlMatchFilter.acceptMatch(s, start, end);
                 }
             }, new TransformFilter() {
