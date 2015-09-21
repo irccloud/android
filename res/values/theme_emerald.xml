@@ -15,7 +15,8 @@
 -->
 
 <resources>
-	<style name="emerald" parent="AppTheme">
+	<style name="emerald" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/emerald_text4</item>
 		<item name="navBarSubheadingColor">@color/emerald_text4</item>
 		<item name="inactiveBufferTextColor">@color/emerald_text9</item>
@@ -68,7 +69,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 	</style>
 
-	<style name="emeraldNoActionBar" parent="AppThemeNoActionBar">
+	<style name="emeraldNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/emerald_text4</item>
 		<item name="navBarSubheadingColor">@color/emerald_text4</item>
 		<item name="inactiveBufferTextColor">@color/emerald_text9</item>

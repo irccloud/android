@@ -15,7 +15,8 @@
 -->
 
 <resources>
-	<style name="ash" parent="AppTheme">
+	<style name="ash" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/ash_text4</item>
 		<item name="navBarSubheadingColor">@color/ash_text4</item>
 		<item name="inactiveBufferTextColor">@color/ash_text9</item>
@@ -68,7 +69,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
 	</style>
 
-	<style name="ashNoActionBar" parent="AppThemeNoActionBar">
+	<style name="ashNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/ash_text4</item>
 		<item name="navBarSubheadingColor">@color/ash_text4</item>
 		<item name="inactiveBufferTextColor">@color/ash_text9</item>

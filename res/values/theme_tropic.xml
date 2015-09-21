@@ -15,7 +15,8 @@
 -->
 
 <resources>
-	<style name="tropic" parent="AppTheme">
+	<style name="tropic" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/tropic_text4</item>
 		<item name="navBarSubheadingColor">@color/tropic_text4</item>
 		<item name="inactiveBufferTextColor">@color/tropic_text9</item>
@@ -68,7 +69,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/tropic_text6</item>
 	</style>
 
-	<style name="tropicNoActionBar" parent="AppThemeNoActionBar">
+	<style name="tropicNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/tropic_text4</item>
 		<item name="navBarSubheadingColor">@color/tropic_text4</item>
 		<item name="inactiveBufferTextColor">@color/tropic_text9</item>

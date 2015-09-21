@@ -15,7 +15,8 @@
 -->
 
 <resources>
-	<style name="orchid" parent="AppTheme">
+	<style name="orchid" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/orchid_text4</item>
 		<item name="navBarSubheadingColor">@color/orchid_text4</item>
 		<item name="inactiveBufferTextColor">@color/orchid_text9</item>
@@ -68,7 +69,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/orchid_text6</item>
 	</style>
 
-	<style name="orchidNoActionBar" parent="AppThemeNoActionBar">
+	<style name="orchidNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/orchid_text4</item>
 		<item name="navBarSubheadingColor">@color/orchid_text4</item>
 		<item name="inactiveBufferTextColor">@color/orchid_text9</item>

@@ -94,10 +94,10 @@ public class Event /*extends ObservableBaseModel*/ {
     public boolean to_buffer;
 
     @Column
-    public int color = R.color.row_message_label;
+    public int color;
 
     @Column
-    public int bg_color = R.color.message_bg;
+    public int bg_color;
 
     @Column
     public JsonNode ops;

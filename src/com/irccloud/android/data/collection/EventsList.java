@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Event;
@@ -45,6 +46,7 @@ public class EventsList {
     private final HashMap<Integer, TreeMap<Long, Event>> events;
     private HashSet<Integer> loaded_bids = new HashSet<>();
     private static EventsList instance = null;
+    private ColorScheme colorScheme = ColorScheme.getInstance();
 
     public synchronized static EventsList getInstance() {
         if (instance == null)
@@ -126,7 +128,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 e.linkify = false;
                 if (event.has("pool_lost"))
                     e.msg = "Connection pool lost";
@@ -162,7 +164,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("nick");
                 e.msg = "is already in use";
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -178,7 +180,7 @@ public class EventsList {
                 else
                     msg.append(event.getString("msg"));
                 e.msg = msg.toString();
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
         put("unparsed_line", get("unhandled_line"));
@@ -188,7 +190,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "Cancelled";
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -196,7 +198,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 e.from = "";
                 e.linkify = false;
                 String reason = reason(event.getString("reason"));
@@ -213,7 +215,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "⇐ You disconnected";
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 e.self = false;
             }
         });
@@ -223,7 +225,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "<pre>Your hostmask: <b>" + event.getString("usermask") + "</b></pre>";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -240,7 +242,7 @@ public class EventsList {
                 if (event.has("rest") && event.getString("rest").length() > 0)
                     msg.append("Parametric channel modes: ").append(event.getString("rest")).append("\n");
                 e.msg = "<pre>" + TextUtils.htmlEncode(msg.toString()) + "</pre>";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -250,7 +252,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "<pre>Your user mode is: <b>+" + event.getString("newmode") + "</b></pre>";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
             }
         });
 
@@ -259,7 +261,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "<pre>Your unique ID is: <b>" + event.getString("unique_id") + "</b></pre>";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
             }
         });
 
@@ -274,7 +276,7 @@ public class EventsList {
                     e.msg += " (" + event.getString("killer_hostmask") + ")";
                 if (event.has("reason"))
                     e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -288,7 +290,7 @@ public class EventsList {
                     e.msg += " from " + event.getString("server");
                 if (event.has("reason"))
                     e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -304,7 +306,7 @@ public class EventsList {
                     e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
                 else
                     e.msg = "cleared the topic";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
             }
         });
 
@@ -314,7 +316,7 @@ public class EventsList {
                 e.nick = e.from;
                 e.from = "";
                 e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
                 e.self = false;
             }
@@ -328,7 +330,7 @@ public class EventsList {
                     e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
                 else
                     e.msg = "No channel mode";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -341,7 +343,7 @@ public class EventsList {
                 e.old_nick = event.getString("nick");
                 e.nick = event.getString("kicker");
                 e.hostmask = event.getString("kicker_hostmask");
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 e.linkify = false;
                 if (e.self)
                     e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
@@ -423,7 +425,7 @@ public class EventsList {
                     e.from = "";
                     e.msg = "set channel mode: <b>" + event.getString("diff") + "</b>";
                 }
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
                 e.self = false;
             }
@@ -444,7 +446,7 @@ public class EventsList {
                     builder.append("</pre>");
                     e.msg = builder.toString();
                 }
-                e.bg_color = R.color.self;
+                e.bg_color = colorScheme.selfBackgroundColor;
             }
         });
         put("server_motd", get("motd_response"));
@@ -455,7 +457,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.chan = event.getString("target");
                 e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
@@ -463,7 +465,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
@@ -472,7 +474,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("inviter");
                 e.msg = "<pre>invited " + event.getString("invitee") + " to join " + event.getString("channel") + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
@@ -480,7 +482,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
@@ -489,7 +491,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.msg = "Rehashed config: " + event.getString("file") + "(" + e.msg + ")";
                 e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
@@ -504,14 +506,14 @@ public class EventsList {
                     e.msg = event.getString("userhost") + " " + e.msg;
                 }
                 e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("hidden_host_set", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
                 e.from = "";
                 e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
@@ -523,7 +525,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "<pre>You invited " + event.getString("recipient") + " to join " + event.getString("channel") + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
@@ -532,7 +534,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
                 e.old_nick = event.getString("channel");
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
@@ -552,7 +554,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("target_nick");
                 e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -561,7 +563,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("target_nick");
                 e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -575,7 +577,7 @@ public class EventsList {
                         e.msg = event.getString("invalid_chan") + " " + e.msg;
                     }
                 }
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -612,7 +614,7 @@ public class EventsList {
         Formatter statusFormatter = new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.msg = "<pre>" + e.msg + "</pre>";
                 e.from = "";
                 if (!e.type.equals("server_motd") && !e.type.equals("zurna_motd"))
@@ -631,7 +633,7 @@ public class EventsList {
                 e.from = "";
                 if (event.has("parts") && event.getString("parts").length() > 0)
                     e.msg = event.getString("parts") + ": " + e.msg;
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
                 e.msg = "<pre>" + e.msg + "</pre>";
             }
@@ -646,7 +648,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
                 switch (e.type) {
                     case "cap_ls":
@@ -682,7 +684,7 @@ public class EventsList {
         Formatter helpsFormatter = new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.msg = "<pre>" + e.msg + "</pre>";
                 e.from = "";
             }
@@ -697,7 +699,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         };
         for (String error : errors)
@@ -708,7 +710,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "<pre><b>" + event.getString("server_version") + "</b> " + event.getString("comments") + "</pre>";
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -717,7 +719,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("services_name");
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -727,7 +729,7 @@ public class EventsList {
                 e.from = "";
                 if (event.has("flag"))
                     e.msg = "<b>" + event.getString("flag") + "</b> " + e.msg;
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -735,7 +737,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("channel");
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -743,7 +745,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("channel");
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -751,7 +753,7 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = event.getString("channel");
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -759,14 +761,14 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("time", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.msg = "<pre>" + event.getString("time_string");
                 if (event.has("time_stamp") && event.getString("time_stamp").length() > 0)
                     e.msg += " (" + event.getString("time_stamp") + ")";
@@ -778,7 +780,7 @@ public class EventsList {
         put("watch_status", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.from = event.getString("watch_nick");
                 e.msg = "<pre>" + e.msg + " (" + event.getString("username") + "@" + event.getString("userhost") + ")</pre>";
                 e.linkify = false;
@@ -788,7 +790,7 @@ public class EventsList {
         put("sqline_nick", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.from = event.getString("charset");
                 e.msg = "<pre>" + e.msg + "</pre>";
             }
@@ -839,6 +841,8 @@ public class EventsList {
             e.bid = event.bid();
             e.eid = event.eid();
             e.type = event.type();
+            e.color = colorScheme.messageTextColor;
+            e.bg_color = colorScheme.contentBackgroundColor;
             e.msg = event.getString("msg");
             e.hostmask = event.getString("hostmask");
             e.from = event.getString("from");
@@ -880,10 +884,10 @@ public class EventsList {
             }
 
             if (e.highlight)
-                e.bg_color = R.color.highlight;
+                e.bg_color = colorScheme.highlightBackgroundColor;
 
             if (e.self)
-                e.bg_color = R.color.self;
+                e.bg_color = colorScheme.selfBackgroundColor;
 
             return e;
         }

@@ -18,6 +18,7 @@ def style(name, value):
     
 def theme(f, t, parent):
     f.write("\t<style name=\"" + t + "\" parent=\"" + parent + "\">\n")
+    f.write("\t\t<item name=\"isDarkTheme\">true</item>\n")
     f.write(style("bufferTextColor", "text4"))
     f.write(style("navBarSubheadingColor", "text4"))
     f.write(style("inactiveBufferTextColor", "text9"))
@@ -93,8 +94,8 @@ f.truncate()
 f.write(LICENSE)
 f.write("<resources>\n")
 
-theme(f, themename, "AppTheme")
-theme(f, themename + "NoActionBar", "AppThemeNoActionBar")
+theme(f, themename, "DarkAppTheme")
+theme(f, themename + "NoActionBar", "DarkAppThemeNoActionBar")
 
 f.write(color("border1", 0.55))
 f.write(color("border2", 0.50))

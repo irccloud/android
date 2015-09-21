@@ -98,6 +98,7 @@ import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.DrawerArrowDrawable;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -244,7 +245,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @SuppressWarnings({"deprecation", "unchecked"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppThemeNoActionBar);
+        setTheme(R.style.duskNoActionBar);
+        ColorScheme.getInstance().setThemeFromContext(this);
         super.onCreate(savedInstanceState);
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");

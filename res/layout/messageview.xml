@@ -18,7 +18,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff"
+    android:background="?attr/contentBackgroundColor"
     android:orientation="vertical" >
 
     <include
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@null"
-            android:cacheColorHint="#fff"
+            android:cacheColorHint="?attr/contentBackgroundColor"
             android:dividerHeight="0dp"
             android:transcriptMode="normal"
             android:fadingEdge="none"
@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:background="@color/dark_blue"
+            android:background="?attr/chatterBarColor"
             android:gravity="center_vertical"
             android:padding="2dp"
             android:visibility="gone" >
@@ -80,7 +80,7 @@
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:minHeight="24dp"
-                android:textColor="@color/message_bg"
+                android:textColor="?attr/chatterBarTextColor"
                 android:textSize="@dimen/unread_top_txt_size"
                 android:textStyle="bold" />
 
@@ -90,7 +90,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dismiss"
-                android:textColor="#fff"
+                android:textColor="?attr/chatterBarTextColor"
                 android:background="@drawable/dismiss_bg"
                 android:minHeight="32dp"
                 android:padding="4dp" />
@@ -101,7 +101,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:background="@color/dark_blue"
+            android:background="?attr/chatterBarColor"
             android:gravity="center_vertical"
             android:padding="4dp"
             android:visibility="gone" >
@@ -128,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:minHeight="24dp"
-                android:textColor="@color/message_bg"
+                android:textColor="?attr/chatterBarTextColor"
                 android:textSize="@dimen/unread_bottom_txt_size"
                 android:textStyle="bold" />
 
@@ -175,7 +175,7 @@
         android:id="@+id/away"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/status_bg"
+        android:background="?attr/awayBarColor"
         android:padding="6dp"
         android:visibility="gone" >
 
@@ -185,6 +185,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:accessibilityLiveRegion="polite"
+            android:textColor="?attr/awayBarTextColor"
             android:ellipsize="middle" />
 
         <TextView
@@ -196,7 +197,7 @@
             android:gravity="right"
             android:lines="1"
             android:text="Tap to come back"
-            android:textColor="@color/timestamp" />
+            android:textColor="?attr/awayBarTextColor" />
     </LinearLayout>
 
     <TextView
@@ -205,9 +206,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left|center_vertical"
         android:layout_weight="0"
-        android:background="@drawable/background_blue"
+        android:background="?attr/connectionBarColor"
         android:padding="6dp"
-        android:textColor="@color/dark_blue"
+        android:textColor="?attr/connectionBarTextColor"
         android:textSize="16sp"
         android:accessibilityLiveRegion="polite"
         android:visibility="gone" />

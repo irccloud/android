@@ -42,6 +42,33 @@
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
+    <style name="DarkAppTheme" parent="Theme.AppCompat">
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="dialogTheme">@style/AppDialogTheme</item>
+        <item name="alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
+    </style>
+    <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="dialogTheme">@style/AppDialogTheme</item>
+        <item name="alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
+        <item name="actionModeBackground">@drawable/actionbar</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
+    </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorAccent">#fff</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>

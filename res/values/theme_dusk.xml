@@ -15,7 +15,8 @@
 -->
 
 <resources>
-	<style name="dusk" parent="AppTheme">
+	<style name="dusk" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/dusk_text4</item>
 		<item name="navBarSubheadingColor">@color/dusk_text4</item>
 		<item name="inactiveBufferTextColor">@color/dusk_text9</item>
@@ -68,7 +69,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 	</style>
 
-	<style name="duskNoActionBar" parent="AppThemeNoActionBar">
+	<style name="duskNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/dusk_text4</item>
 		<item name="navBarSubheadingColor">@color/dusk_text4</item>
 		<item name="inactiveBufferTextColor">@color/dusk_text9</item>

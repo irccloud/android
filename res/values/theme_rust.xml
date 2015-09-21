@@ -15,7 +15,8 @@
 -->
 
 <resources>
-	<style name="rust" parent="AppTheme">
+	<style name="rust" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/rust_text4</item>
 		<item name="navBarSubheadingColor">@color/rust_text4</item>
 		<item name="inactiveBufferTextColor">@color/rust_text9</item>
@@ -68,7 +69,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/rust_text6</item>
 	</style>
 
-	<style name="rustNoActionBar" parent="AppThemeNoActionBar">
+	<style name="rustNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/rust_text4</item>
 		<item name="navBarSubheadingColor">@color/rust_text4</item>
 		<item name="inactiveBufferTextColor">@color/rust_text9</item>

@@ -15,7 +15,8 @@
 -->
 
 <resources>
-	<style name="sand" parent="AppTheme">
+	<style name="sand" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/sand_text4</item>
 		<item name="navBarSubheadingColor">@color/sand_text4</item>
 		<item name="inactiveBufferTextColor">@color/sand_text9</item>
@@ -68,7 +69,8 @@
 		<item name="selectedArchivedBufferBackgroundColor">@color/sand_text6</item>
 	</style>
 
-	<style name="sandNoActionBar" parent="AppThemeNoActionBar">
+	<style name="sandNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
 		<item name="bufferTextColor">@color/sand_text4</item>
 		<item name="navBarSubheadingColor">@color/sand_text4</item>
 		<item name="inactiveBufferTextColor">@color/sand_text9</item>
