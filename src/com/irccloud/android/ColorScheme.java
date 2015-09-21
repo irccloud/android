@@ -106,7 +106,7 @@ public class ColorScheme {
         archivedBufferHighlightColor = colorForAttribute(ctx, R.attr.archivedBufferHighlightColor);
         selectedArchivedBufferHighlightColor = colorForAttribute(ctx, R.attr.selectedArchivedBufferHighlightColor);
         selectedArchivedBufferBackgroundColor = colorForAttribute(ctx, R.attr.selectedArchivedBufferBackgroundColor);
-        isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) > 0;
+        isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) != 0;
     }
 
     private int colorForAttribute(Context ctx, int attribute) {

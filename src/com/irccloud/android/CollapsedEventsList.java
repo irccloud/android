@@ -541,7 +541,7 @@ public class CollapsedEventsList {
             PREFIX.put(server != null ? server.MODE_VOICED : "v", "+");
         }
 
-        String[] colors = {
+        String[] light_colors = {
                 "b22222",
                 "d2691e",
                 "ff9166",
@@ -568,7 +568,39 @@ public class CollapsedEventsList {
                 "8b008b",
                 "ba55d3",
                 "ff00ff",
-                "ff1493",};
+                "ff1493"
+        };
+
+        String dark_colors[] = {
+                "deb887",
+                "ffd700",
+                "ff9166",
+                "fa8072",
+                "ff8c00",
+                "00ff00",
+                "ffff00",
+                "bdb76b",
+                "9acd32",
+                "32cd32",
+                "8fbc8f",
+                "3cb371",
+                "66cdaa",
+                "20b2aa",
+                "40e0d0",
+                "00ffff",
+                "00bfff",
+                "87ceeb",
+                "339cff",
+                "6495ed",
+                "b2a9e5",
+                "ff69b4",
+                "da70d6",
+                "ee82ee",
+                "d68fff",
+                "ff00ff",
+                "ffb6c1"
+        };
+        String colors[] = ColorScheme.getInstance().isDarkTheme ? dark_colors : light_colors;
         String color = null;
 
         if (colorize) {
