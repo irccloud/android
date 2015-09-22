@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.util.TypedValue;
 
 public class ColorScheme {
@@ -88,8 +89,6 @@ public class ColorScheme {
         connectionBarColor = colorForAttribute(ctx, R.attr.connectionBarColor);
         connectionErrorBarTextColor = colorForAttribute(ctx, R.attr.connectionErrorBarTextColor);
         connectionErrorBarColor = colorForAttribute(ctx, R.attr.connectionErrorBarColor);
-        buffersDrawerBackgroundColor = colorForAttribute(ctx, R.attr.buffersDrawerBackgroundColor);
-        usersDrawerBackgroundColor = colorForAttribute(ctx, R.attr.usersDrawerBackgroundColor);
         placeholderColor = colorForAttribute(ctx, R.attr.placeholderColor);
         unreadBlueColor = colorForAttribute(ctx, R.attr.unreadBlueColor);
         serverBorderColor = colorForAttribute(ctx, R.attr.serverBorderColor);
@@ -176,8 +175,6 @@ public class ColorScheme {
     public int connectionBarColor;
     public int connectionErrorBarTextColor;
     public int connectionErrorBarColor;
-    public int buffersDrawerBackgroundColor;
-    public int usersDrawerBackgroundColor;
     public int placeholderColor;
     public int unreadBlueColor;
     public int serverBorderColor;

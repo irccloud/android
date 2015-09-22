@@ -27,7 +27,7 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@drawable/bg"
+		android:background="@drawable/buffers_drawer_bg"
 		android:descendantFocusability="blocksDescendants"
 		android:minHeight="@{ ( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : @dimen/buffer_min_height }"
 		android:orientation="horizontal" >
@@ -37,7 +37,7 @@
 			android:layout_height="match_parent"
 			android:layout_marginTop='@{ ( buffer.isGroupHeading ) ? @dimen/activity_vertical_margin : 0 }'
 			android:layout_marginRight="8dp"
-			android:background="@{ (!readOnly &amp;&amp; (selected == buffer.bid || buffer.unread > 0)) ? buffer.selectedBackgroundResource : 0 }"
+			android:background="@{ (!readOnly &amp;&amp; (buffer.unread > 0)) ? buffer.selectedBackgroundResource : (selected==buffer.bid)?buffer.selectedBorderResource:buffer.borderResource }"
 			android:paddingLeft="8dp" >
 
 				<LinearLayout

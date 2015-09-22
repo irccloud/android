@@ -16,9 +16,11 @@
 
 package com.irccloud.android.data.model;
 
+import android.content.res.ColorStateList;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -398,24 +400,22 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getTextColor() {
         if (type_int == Type.ARCHIVES_HEADER) {
-            return R.color.row_label_archives_heading;
+            return ColorScheme.getInstance().archivesHeadingTextColor;
         } else if (type_int == Type.JOIN_CHANNEL) {
             return R.color.row_label_join;
         } else if (getArchived() == 1) {
-            return R.color.row_label_archived;
+            return ColorScheme.getInstance().archivedBufferTextColor;
         } else if (isConsole()) {
             if(getServer().isFailed())
-                return R.color.row_label_failed;
+                return ColorScheme.getInstance().networkErrorColor;
             else if(!getServer().isConnected())
-                return R.color.row_label_inactive;
+                return ColorScheme.getInstance().inactiveBufferTextColor;
             else
-                return R.color.row_label;
+                return ColorScheme.getInstance().bufferTextColor;
         } else if (isChannel() && !isJoined()) {
-            return R.color.row_label_inactive;
-        } else if (unread > 0) {
-            return R.color.row_label_unread;
+            return ColorScheme.getInstance().inactiveBufferTextColor;
         } else {
-            return R.color.row_label;
+            return ColorScheme.getInstance().bufferTextColor;
         }
     }
 
@@ -446,7 +446,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         else if(isConsole())
             return getServer().isFailed() ? R.drawable.row_failed_bg : R.drawable.row_buffergroup_bg;
         else if(type_int == Type.JOIN_CHANNEL)
-            return R.drawable.row_buffer_bg_join;
+            return R.drawable.row_buffer_bg;
         else if(type_int == Type.ARCHIVES_HEADER)
             return (getArchived() == 0)?R.drawable.row_buffer_bg:R.drawable.archived_bg_selected;
         else
@@ -458,12 +458,28 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         if(isConsole())
             return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
         else
-            return ((getArchived() == 0)) ? R.drawable.selected_blue : R.drawable.archived_bg_selected;
+            return ((getArchived() == 0)) ? R.drawable.row_selected_bg : R.drawable.archived_bg_selected;
+    }
+
+    @Bindable
+    public int getSelectedBorderResource() {
+        if(isConsole())
+            return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
+        else
+            return ((getArchived() == 0)) ? R.drawable.row_selected_border : R.drawable.archived_bg_selected;
+    }
+
+    @Bindable
+    public int getBorderResource() {
+        if(isConsole())
+            return R.drawable.row_buffergroup_border;
+        else
+            return R.drawable.row_border;
     }
 
     @Bindable
     public int getSelectedTextColor() {
-        return R.color.selected_white;
+        return ColorScheme.getInstance().selectedBufferTextColor;
     }
 
     @Bindable

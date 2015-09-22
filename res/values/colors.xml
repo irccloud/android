@@ -69,4 +69,5 @@
     <color name="dialog_bg">#fff</color>
     <drawable name="dismiss_blue">#56A4F7</drawable>
     <color name="selected_white">#FFF</color>
+    <color name="bufferBorder">?attr/bufferBorderColor</color>
 </resources>

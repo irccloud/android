@@ -17,6 +17,6 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:color="#fff" android:state_selected="true"/>
-    <item android:color="#9CBAFF" android:state_focused="true"/>
-    <item android:color="#9CBAFF"/>
+    <item android:color="?attr/inactiveBufferTextColor" android:state_focused="true"/>
+    <item android:color="?attr/inactiveBufferTextColor"/>
 </selector>

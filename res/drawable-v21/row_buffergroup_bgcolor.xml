@@ -16,7 +16,5 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/buffergroup_bg_selected" android:state_selected="true"/>
-    <item android:drawable="@drawable/buffergroup_bg_highlighted" android:state_focused="true"/>
-    <item android:drawable="@drawable/buffergroup_bg_rest"/>
+    <item android:drawable="?attr/serverBackgroundColor"/>
 </selector>

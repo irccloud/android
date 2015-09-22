@@ -78,8 +78,6 @@
     <attr name="connectionBarColor" format="color"/>
     <attr name="connectionErrorBarTextColor" format="color"/>
     <attr name="connectionErrorBarColor" format="color"/>
-    <attr name="buffersDrawerBackgroundColor" format="color"/>
-    <attr name="usersDrawerBackgroundColor" format="color"/>
     <attr name="placeholderColor" format="color"/>
     <attr name="unreadBlueColor" format="color"/>
     <attr name="serverBorderColor" format="color"/>

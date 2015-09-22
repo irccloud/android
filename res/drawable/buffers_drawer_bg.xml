@@ -15,9 +15,18 @@
   ~ limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/highlighted_blue" android:state_pressed="true"/>
-    <item android:drawable="@drawable/selected_blue" android:state_selected="true"/>
-    <item android:drawable="@drawable/highlighted_blue" android:state_focused="true"/>
-    <item android:drawable="?attr/bufferBackgroundColor"/>
-</selector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle" >
+            <solid android:color="?attr/bufferBorderColor" />
+        </shape>
+    </item>
+
+    <item android:left="8dp">
+        <shape android:shape="rectangle" >
+            <solid android:color="?attr/bufferBackgroundColor" />
+        </shape>
+    </item>
+
+</layer-list>
