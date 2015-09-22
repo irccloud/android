@@ -262,7 +262,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         setContentView(R.layout.activity_message);
         final View splash = findViewById(R.id.splash);
-        if(Build.VERSION.SDK_INT < 14 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {
+        if(Build.VERSION.SDK_INT < 16 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {
             splash.setVisibility(View.GONE);
         } else {
             splash.animate().alpha(0).withEndAction(new Runnable() {
