@@ -72,6 +72,7 @@ public class NotificationsList {
     private int excludeBid = -1;
     private static final Timer mNotificationTimer = new Timer("notification-timer");
     private TimerTask mNotificationTimerTask = null;
+    private final Object dbLock = new Object();
 
     public static NotificationsList getInstance() {
         if (instance == null)
@@ -80,7 +81,9 @@ public class NotificationsList {
     }
 
     public List<Notification> getNotifications() {
-        return new Select().all().from(Notification.class).where().orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+        synchronized (dbLock) {
+            return new Select().all().from(Notification.class).where().orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+        }
     }
 
     public void clear() {
@@ -100,32 +103,42 @@ public class NotificationsList {
             e.printStackTrace();
         }
         updateTeslaUnreadCount();
-        Delete.table(Notification.class);
+        synchronized (dbLock) {
+            Delete.table(Notification.class);
+        }
     }
 
     public void clearLastSeenEIDs() {
-        Delete.table(Notification_LastSeenEID.class);
+        synchronized (dbLock) {
+            Delete.table(Notification_LastSeenEID.class);
+        }
     }
 
     public long getLastSeenEid(int bid) {
-        Notification_LastSeenEID eid = new Select().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).querySingle();
-        if(eid != null)
-            return eid.eid;
-        else
-            return -1;
+        synchronized (dbLock) {
+            Notification_LastSeenEID eid = new Select().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).querySingle();
+            if (eid != null)
+                return eid.eid;
+            else
+                return -1;
+        }
     }
 
     public synchronized void updateLastSeenEid(int bid, long eid) {
         Notification_LastSeenEID n = new Notification_LastSeenEID();
         n.bid = bid;
         n.eid = eid;
-        TransactionManager.getInstance().saveOnSaveQueue(n);
+        synchronized (dbLock) {
+            n.save();
+        }
     }
 
     public synchronized void dismiss(int bid, long eid) {
-        Notification n = getNotification(eid);
-        if (n != null)
-            n.delete();
+        synchronized (dbLock) {
+            Notification n = getNotification(eid);
+            if (n != null)
+                n.delete();
+        }
         if (IRCCloudApplication.getInstance() != null)
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         updateTeslaUnreadCount();
@@ -149,7 +162,9 @@ public class NotificationsList {
         n.message_type = message_type;
         n.network = network;
 
-        n.save();
+        synchronized (dbLock) {
+            n.save();
+        }
     }
 
     public void deleteOldNotifications() {
@@ -180,7 +195,7 @@ public class NotificationsList {
 
         for (Notification n : notifications) {
             Buffer b = BuffersList.getInstance().getBuffer(n.bid);
-            if (n.bid == b.getBid() && n.eid <= b.getLast_seen_eid()) {
+            if (b != null && n.bid == b.getBid() && n.eid <= b.getLast_seen_eid()) {
                 n.delete();
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
@@ -211,14 +226,15 @@ public class NotificationsList {
         }
         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
 
-        notifications = getNotifications();
-        for (Notification n : notifications) {
-            if (n.bid == bid) {
-                n.delete();
+        synchronized (dbLock) {
+            notifications = getNotifications();
+            for (Notification n : notifications) {
+                if (n.bid == bid) {
+                    n.delete();
+                }
             }
+            new Delete().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).queryClose();
         }
-
-        new Delete().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).queryClose();
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));
         try {
             if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
@@ -230,26 +246,34 @@ public class NotificationsList {
     }
 
     public long count() {
-        return new Select().count().from(Notification.class).count();
+        synchronized (dbLock) {
+            return new Select().count().from(Notification.class).count();
+        }
     }
 
     public List<Notification> getMessageNotifications() {
-        return new Select().from(Notification.class).where(Condition.column(Notification$Table.BID).isNot(excludeBid))
-                .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("callerid"))
-                .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("channel_invite"))
-                .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+        synchronized (dbLock) {
+            return new Select().from(Notification.class).where(Condition.column(Notification$Table.BID).isNot(excludeBid))
+                    .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("callerid"))
+                    .and(Condition.column(Notification$Table.MESSAGE_TYPE).isNot("channel_invite"))
+                    .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+        }
     }
 
     public List<Notification> getOtherNotifications() {
-        return new Select().from(Notification.class).where(
-                Condition.CombinedCondition.begin(Condition.column(Notification$Table.BID).isNot(excludeBid))
-                        .and(Condition.CombinedCondition.begin(Condition.column(Notification$Table.MESSAGE_TYPE).is("callerid"))
-                                .or(Condition.column(Notification$Table.MESSAGE_TYPE).is("channel_invite"))))
-                .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+        synchronized (dbLock) {
+            return new Select().from(Notification.class).where(
+                    Condition.CombinedCondition.begin(Condition.column(Notification$Table.BID).isNot(excludeBid))
+                            .and(Condition.CombinedCondition.begin(Condition.column(Notification$Table.MESSAGE_TYPE).is("callerid"))
+                                    .or(Condition.column(Notification$Table.MESSAGE_TYPE).is("channel_invite"))))
+                    .orderBy(Notification$Table.BID + ", " + Notification$Table.EID).queryList();
+        }
     }
 
     public Notification getNotification(long eid) {
-        return new Select().from(Notification.class).where(Condition.column(Notification$Table.EID).is(eid)).querySingle();
+        synchronized (dbLock) {
+            return new Select().from(Notification.class).where(Condition.column(Notification$Table.EID).is(eid)).querySingle();
+        }
     }
 
     public synchronized void excludeBid(int bid) {
