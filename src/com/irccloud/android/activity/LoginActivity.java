@@ -273,20 +273,20 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             version.setVisibility(View.GONE);
         }
 
-        Typeface LatoRegular = Typeface.createFromAsset(getAssets(), "Lato-Regular.ttf");
-        Typeface LatoLightItalic = Typeface.createFromAsset(getAssets(), "Lato-LightItalic.ttf");
+        Typeface SourceSansProRegular = Typeface.createFromAsset(getAssets(), "SourceSansPro-Regular.otf");
+        Typeface SourceSansProLightItalic = Typeface.createFromAsset(getAssets(), "SourceSansPro-LightIt.otf");
 
         for (int i = 0; i < signupHint.getChildCount(); i++) {
             View v = signupHint.getChildAt(i);
             if (v instanceof TextView) {
-                ((TextView) v).setTypeface(LatoRegular);
+                ((TextView) v).setTypeface(SourceSansProRegular);
             }
         }
 
         for (int i = 0; i < loginHint.getChildCount(); i++) {
             View v = loginHint.getChildAt(i);
             if (v instanceof TextView) {
-                ((TextView) v).setTypeface(LatoRegular);
+                ((TextView) v).setTypeface(SourceSansProRegular);
             }
         }
 
@@ -294,7 +294,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         for (int i = 0; i < IRCCloud.getChildCount(); i++) {
             View v = IRCCloud.getChildAt(i);
             if (v instanceof TextView) {
-                ((TextView) v).setTypeface(LatoRegular);
+                ((TextView) v).setTypeface(SourceSansProRegular);
             }
         }
 
@@ -302,7 +302,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         for (int i = 0; i < notAProblem.getChildCount(); i++) {
             View v = notAProblem.getChildAt(i);
             if (v instanceof TextView) {
-                ((TextView) v).setTypeface((i == 0) ? LatoRegular : LatoLightItalic);
+                ((TextView) v).setTypeface((i == 0) ? SourceSansProRegular : SourceSansProLightItalic);
             }
         }
 
@@ -310,20 +310,20 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         for (int i = 0; i < loginSignupHint.getChildCount(); i++) {
             View v = loginSignupHint.getChildAt(i);
             if (v instanceof TextView) {
-                ((TextView) v).setTypeface(LatoRegular);
+                ((TextView) v).setTypeface(SourceSansProRegular);
                 ((TextView) v).setOnClickListener((i == 0) ? loginHintClickListener : signupHintClickListener);
             }
         }
 
-        name.setTypeface(LatoRegular);
-        email.setTypeface(LatoRegular);
-        password.setTypeface(LatoRegular);
-        host.setTypeface(LatoRegular);
-        loginBtn.setTypeface(LatoRegular);
-        signupBtn.setTypeface(LatoRegular);
-        TOS.setTypeface(LatoRegular);
-        EnterYourEmail.setTypeface(LatoRegular);
-        hostHint.setTypeface(LatoLightItalic);
+        name.setTypeface(SourceSansProRegular);
+        email.setTypeface(SourceSansProRegular);
+        password.setTypeface(SourceSansProRegular);
+        host.setTypeface(SourceSansProRegular);
+        loginBtn.setTypeface(SourceSansProRegular);
+        signupBtn.setTypeface(SourceSansProRegular);
+        TOS.setTypeface(SourceSansProRegular);
+        EnterYourEmail.setTypeface(SourceSansProRegular);
+        hostHint.setTypeface(SourceSansProLightItalic);
 
         if (BuildConfig.ENTERPRISE) {
             name.setVisibility(View.GONE);

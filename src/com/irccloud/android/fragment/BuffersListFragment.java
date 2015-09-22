@@ -306,9 +306,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             row.setSelected(selected_bid);
             row.setReadOnly(readOnly);
 
-            row.addBtn.setTag(b);
-            row.addBtn.setOnClickListener(addClickListener);
-
             row.getRoot().setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {

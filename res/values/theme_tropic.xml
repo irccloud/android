@@ -49,7 +49,7 @@
 		<item name="bufferBorderColor">@color/tropic_border9</item>
 		<item name="serverBorderColor">@color/tropic_border9</item>
 		<item name="failedServerBorderColor">@color/tropic_border9</item>
-		<item name="selectedBufferBorderColor">@color/tropic_border4</item>
+		<item name="selectedBufferBorderColor">@color/tropic_text6</item>
 		<item name="backlogDividerColor">@color/tropic_border1</item>
 		<item name="chatterBarColor">@color/tropic_background3</item>
 		<item name="awayBarTextColor">@color/tropic_text7</item>
@@ -103,7 +103,7 @@
 		<item name="bufferBorderColor">@color/tropic_border9</item>
 		<item name="serverBorderColor">@color/tropic_border9</item>
 		<item name="failedServerBorderColor">@color/tropic_border9</item>
-		<item name="selectedBufferBorderColor">@color/tropic_border4</item>
+		<item name="selectedBufferBorderColor">@color/tropic_text6</item>
 		<item name="backlogDividerColor">@color/tropic_border1</item>
 		<item name="chatterBarColor">@color/tropic_background3</item>
 		<item name="awayBarTextColor">@color/tropic_text7</item>

@@ -79,4 +79,10 @@
                 android:background="@drawable/selected_blue"/>
         </LinearLayout>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:background="?attr/contentBorderColor" />
 </RelativeLayout>

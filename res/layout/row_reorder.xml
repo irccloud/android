@@ -29,13 +29,14 @@
         android:background="@drawable/buffergroup_bg_rest"
         android:gravity="center_vertical">
 
-        <ImageView
+        <TextView
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:layout_marginLeft="4dp"
             android:layout_marginRight="4dp"
             android:layout_weight="0"
-            android:src="@drawable/world"
+            android:textColor="@color/row_label"
+            android:textSize="16sp"
             android:id="@+id/icon" />
 
         <TextView

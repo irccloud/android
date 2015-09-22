@@ -94,4 +94,5 @@
     <attr name="archivedBufferHighlightColor" format="color"/>
     <attr name="selectedArchivedBufferHighlightColor" format="color"/>
     <attr name="selectedArchivedBufferBackgroundColor" format="color"/>
+    <attr name="contentBorderColor" format="color"/>
 </resources>

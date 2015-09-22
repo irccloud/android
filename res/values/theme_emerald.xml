@@ -49,7 +49,7 @@
 		<item name="bufferBorderColor">@color/emerald_border9</item>
 		<item name="serverBorderColor">@color/emerald_border9</item>
 		<item name="failedServerBorderColor">@color/emerald_border9</item>
-		<item name="selectedBufferBorderColor">@color/emerald_border4</item>
+		<item name="selectedBufferBorderColor">@color/emerald_text6</item>
 		<item name="backlogDividerColor">@color/emerald_border1</item>
 		<item name="chatterBarColor">@color/emerald_background3</item>
 		<item name="awayBarTextColor">@color/emerald_text7</item>
@@ -103,7 +103,7 @@
 		<item name="bufferBorderColor">@color/emerald_border9</item>
 		<item name="serverBorderColor">@color/emerald_border9</item>
 		<item name="failedServerBorderColor">@color/emerald_border9</item>
-		<item name="selectedBufferBorderColor">@color/emerald_border4</item>
+		<item name="selectedBufferBorderColor">@color/emerald_text6</item>
 		<item name="backlogDividerColor">@color/emerald_border1</item>
 		<item name="chatterBarColor">@color/emerald_background3</item>
 		<item name="awayBarTextColor">@color/emerald_text7</item>

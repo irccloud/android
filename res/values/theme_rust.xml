@@ -49,7 +49,7 @@
 		<item name="bufferBorderColor">@color/rust_border9</item>
 		<item name="serverBorderColor">@color/rust_border9</item>
 		<item name="failedServerBorderColor">@color/rust_border9</item>
-		<item name="selectedBufferBorderColor">@color/rust_border4</item>
+		<item name="selectedBufferBorderColor">@color/rust_text6</item>
 		<item name="backlogDividerColor">@color/rust_border1</item>
 		<item name="chatterBarColor">@color/rust_background3</item>
 		<item name="awayBarTextColor">@color/rust_text7</item>
@@ -103,7 +103,7 @@
 		<item name="bufferBorderColor">@color/rust_border9</item>
 		<item name="serverBorderColor">@color/rust_border9</item>
 		<item name="failedServerBorderColor">@color/rust_border9</item>
-		<item name="selectedBufferBorderColor">@color/rust_border4</item>
+		<item name="selectedBufferBorderColor">@color/rust_text6</item>
 		<item name="backlogDividerColor">@color/rust_border1</item>
 		<item name="chatterBarColor">@color/rust_background3</item>
 		<item name="awayBarTextColor">@color/rust_text7</item>

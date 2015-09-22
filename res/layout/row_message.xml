@@ -31,16 +31,15 @@
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp" />
 
-    <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:id="@+id/expandable"
-            android:src="@drawable/bullet_toggle_plus"
-            android:layout_gravity="top"
-            android:layout_marginTop="2dp"
-            android:visibility="gone"
-            android:contentDescription="expand"
-            android:scaleType="center"/>
+    <TextView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:id="@+id/expandable"
+        android:layout_gravity="top"
+        android:layout_marginTop="2dp"
+        android:visibility="gone"
+        android:textSize="16sp"
+        android:contentDescription="expand"/>
 
     <TextView
         android:id="@+id/message"

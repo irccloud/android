@@ -51,7 +51,7 @@ def theme(f, t, parent):
     f.write(style("bufferBorderColor", "border9"))
     f.write(style("serverBorderColor", "border9"))
     f.write(style("failedServerBorderColor", "border9"))
-    f.write(style("selectedBufferBorderColor", "border4"))
+    f.write(style("selectedBufferBorderColor", "text6"))
     f.write(style("backlogDividerColor", "border1"))
     f.write(style("chatterBarColor", "background3"))
     f.write(style("awayBarTextColor", "text7"))

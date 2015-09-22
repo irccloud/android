@@ -674,7 +674,7 @@ public class CollapsedEventsList {
         if (modes != null && modes.length() > 0) {
             if (was.length() > 0)
                 was.append("; ");
-            was.append("\u00031").append(modes).append("\u000f");
+            was.append(modes);
         }
 
         if (was.length() > 0)

@@ -100,6 +100,7 @@ import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.DrawerArrowDrawable;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -170,7 +171,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     View buffersListView;
     TextView title;
     TextView subtitle;
-    ImageView key;
+    TextView key;
     LinearLayout messageContainer;
     DrawerLayout drawerLayout;
     NetworkConnection conn;
@@ -437,7 +438,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         title = (TextView) v.findViewById(R.id.title);
         subtitle = (TextView) v.findViewById(R.id.subtitle);
-        key = (ImageView) v.findViewById(R.id.key);
+        key = (TextView) v.findViewById(R.id.key);
+        key.setTypeface(FontAwesome.getTypeface());
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
@@ -1601,7 +1603,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         subtitle.setVisibility(View.GONE);
                     }
                     if (c != null && c.key) {
-                        key.setImageResource(R.drawable.lock);
+                        key.setText(FontAwesome.LOCK);
                         key.setVisibility(View.VISIBLE);
                     } else {
                         key.setVisibility(View.GONE);
@@ -1612,9 +1614,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     title.setContentDescription("Network " + server.getName());
                     subtitle.setContentDescription(".");
                     if (server.getSsl() > 0)
-                        key.setImageResource(R.drawable.world_shield);
+                        key.setText(FontAwesome.SHIELD);
                     else
-                        key.setImageResource(R.drawable.world);
+                        key.setText(FontAwesome.GLOBE);
                     key.setVisibility(View.VISIBLE);
                 }
 

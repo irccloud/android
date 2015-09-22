@@ -60,6 +60,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.Ignore;
@@ -178,7 +179,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             int type;
             TextView timestamp;
             TextView message;
-            ImageView expandable;
+            TextView expandable;
             ImageView failed;
         }
 
@@ -527,7 +528,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder = new ViewHolder();
                     holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
                     holder.message = (TextView) row.findViewById(R.id.message);
-                    holder.expandable = (ImageView) row.findViewById(R.id.expandable);
+                    holder.expandable = (TextView) row.findViewById(R.id.expandable);
+                    if(holder.expandable != null)
+                        holder.expandable.setTypeface(FontAwesome.getTypeface());
                     holder.failed = (ImageView) row.findViewById(R.id.failed);
                     holder.type = e.row_type;
 
@@ -621,22 +624,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
                         if (expandedSectionEids.contains(e.group_eid)) {
                             if (e.group_eid == e.eid + 1) {
-                                holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
+                                holder.expandable.setText(FontAwesome.MINUS_SQUARE_O);
                                 holder.expandable.setContentDescription("expanded");
-                                row.setBackgroundResource(R.color.status_bg);
+                                row.setBackgroundColor(colorScheme.collapsedHeadingBackgroundColor);
                             } else {
-                                holder.expandable.setImageResource(R.drawable.tiny_plus);
+                                holder.expandable.setText(FontAwesome.ANGLE_RIGHT);
                                 holder.expandable.setContentDescription("collapse");
-                                row.setBackgroundResource(R.drawable.expanded_row_bg);
+                                row.setBackgroundColor(colorScheme.contentBackgroundColor);
                             }
                         } else {
-                            holder.expandable.setImageResource(R.drawable.bullet_toggle_plus);
+                            holder.expandable.setText(FontAwesome.PLUS_SQUARE_O);
                             holder.expandable.setContentDescription("expand");
                         }
                         holder.expandable.setVisibility(View.VISIBLE);
                     } else {
                         holder.expandable.setVisibility(View.GONE);
                     }
+                    holder.expandable.setTextColor(colorScheme.expandCollapseIndicatorColor);
                 }
 
                 if (holder.failed != null)
@@ -1121,7 +1125,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         collapsedEvents.clear();
 
                     if ((currentCollapsedEid == event.eid || shouldExpand) && type.equals("user_channel_mode")) {
-                        event.color = colorScheme.collapsedRowTextColor;
+                        event.color = colorScheme.messageTextColor;
                         event.bg_color = colorScheme.collapsedHeadingBackgroundColor;
                     } else {
                         event.color = colorScheme.collapsedRowTextColor;
@@ -1153,7 +1157,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             heading.bid = event.bid;
                             heading.eid = currentCollapsedEid - 1;
                             heading.group_msg = group_msg;
-                            heading.color = colorScheme.collapsedRowTextColor;
+                            heading.color = colorScheme.timestampColor;
                             heading.bg_color = colorScheme.contentBackgroundColor;
                             heading.linkify = false;
                             adapter.addItem(currentCollapsedEid - 1, heading);

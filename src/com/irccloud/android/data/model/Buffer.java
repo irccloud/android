@@ -21,6 +21,7 @@ import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -420,23 +421,13 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     }
 
     @Bindable
-    public int getIcon() {
-        switch(type) {
-            case TYPE_JOIN_CHANNEL:
-                return R.drawable.add;
-            case TYPE_REORDER:
-                return R.drawable.move;
-            case TYPE_ADD_NETWORK:
-                return R.drawable.world_add;
-            case TYPE_CHANNEL:
-                Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
-                if(c != null && c.hasMode("k"))
-                    return R.drawable.lock;
-                break;
-            default:
-                break;
+    public String getIcon() {
+        if(type.equals(TYPE_CHANNEL)) {
+            Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
+            if(c != null && c.hasMode("k"))
+                return FontAwesome.LOCK;
         }
-        return 0;
+        return null;
     }
 
     @Bindable
@@ -481,6 +472,9 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public int getSelectedTextColor() {
         return ColorScheme.getInstance().selectedBufferTextColor;
     }
+
+    @Bindable
+    public int getUnreadColor() { return R.drawable.row_unread_border; }
 
     @Bindable
     public boolean getShowAddBtn() {

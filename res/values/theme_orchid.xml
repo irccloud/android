@@ -49,7 +49,7 @@
 		<item name="bufferBorderColor">@color/orchid_border9</item>
 		<item name="serverBorderColor">@color/orchid_border9</item>
 		<item name="failedServerBorderColor">@color/orchid_border9</item>
-		<item name="selectedBufferBorderColor">@color/orchid_border4</item>
+		<item name="selectedBufferBorderColor">@color/orchid_text6</item>
 		<item name="backlogDividerColor">@color/orchid_border1</item>
 		<item name="chatterBarColor">@color/orchid_background3</item>
 		<item name="awayBarTextColor">@color/orchid_text7</item>
@@ -103,7 +103,7 @@
 		<item name="bufferBorderColor">@color/orchid_border9</item>
 		<item name="serverBorderColor">@color/orchid_border9</item>
 		<item name="failedServerBorderColor">@color/orchid_border9</item>
-		<item name="selectedBufferBorderColor">@color/orchid_border4</item>
+		<item name="selectedBufferBorderColor">@color/orchid_text6</item>
 		<item name="backlogDividerColor">@color/orchid_border1</item>
 		<item name="chatterBarColor">@color/orchid_background3</item>
 		<item name="awayBarTextColor">@color/orchid_text7</item>

@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -83,7 +84,7 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
 
         private class ViewHolder {
             TextView label;
-            ImageView icon;
+            TextView icon;
         }
 
         public ServerListAdapter(DialogFragment context) {
@@ -124,8 +125,8 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
 
                 holder = new ViewHolder();
                 holder.label = (TextView) row.findViewById(R.id.label);
-                holder.icon = (ImageView) row.findViewById(R.id.icon);
-
+                holder.icon = (TextView) row.findViewById(R.id.icon);
+                holder.icon.setTypeface(FontAwesome.getTypeface());
                 row.setTag(holder);
             } else {
                 holder = (ViewHolder) row.getTag();
@@ -137,9 +138,9 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
                 holder.label.setText(s.getHostname());
 
             if (s.getSsl() > 0)
-                holder.icon.setImageResource(R.drawable.world_shield);
+                holder.icon.setText(FontAwesome.SHIELD);
             else
-                holder.icon.setImageResource(R.drawable.world);
+                holder.icon.setText(FontAwesome.GLOBE);
 
             if (s.getStatus() != null && s.getStatus().equals("connected_ready")) {
                 holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));

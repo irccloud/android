@@ -44,6 +44,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -64,7 +65,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         private class ViewHolder {
             TextView network;
             TextView hostname;
-            ImageView lock;
+            TextView lock;
         }
 
         private class PresetServer {
@@ -178,7 +179,8 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 holder = new ViewHolder();
                 holder.network = (TextView) row.findViewById(R.id.network);
                 holder.hostname = (TextView) row.findViewById(R.id.hostname);
-                holder.lock = (ImageView) row.findViewById(R.id.lock);
+                holder.lock = (TextView) row.findViewById(R.id.lock);
+                holder.lock.setTypeface(FontAwesome.getTypeface());
 
                 row.setTag(holder);
             } else {
@@ -195,9 +197,9 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 holder.hostname.setText(s.host);
                 holder.hostname.setVisibility(View.VISIBLE);
                 if (s.port == 6697) {
-                    holder.lock.setVisibility(View.VISIBLE);
+                    holder.lock.setText(FontAwesome.SHIELD);
                 } else {
-                    holder.lock.setVisibility(View.GONE);
+                    holder.lock.setText(FontAwesome.GLOBE);
                 }
             }
             return row;

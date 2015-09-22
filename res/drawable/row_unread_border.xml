@@ -15,18 +15,6 @@
   ~ limitations under the License.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-
-  <item>
-    <shape android:shape="rectangle" >
-      <solid android:color="?attr/navBarBorderColor" />
-    </shape>
-  </item>
-
-  <item android:bottom="3dp">
-    <shape android:shape="rectangle" >
-      <solid android:color="?attr/navBarColor" />
-    </shape>
-  </item>
-
-</layer-list>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:drawable="?attr/unreadBlueColor"/>
+</selector>
