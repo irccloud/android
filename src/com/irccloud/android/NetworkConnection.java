@@ -1974,8 +1974,11 @@ public class NetworkConnection {
         put("status_changed", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mServers.getServer(object.cid()).setStatus(object.getString("new_status"));
-                mServers.getServer(object.cid()).setFail_info(object.getJsonObject("fail_info"));
+                Server s = mServers.getServer(object.cid());
+                if(s != null) {
+                    s.setStatus(object.getString("new_status"));
+                    s.setFail_info(object.getJsonObject("fail_info"));
+                }
                 if (!backlog) {
                     if (object.getString("new_status").equals("disconnected")) {
                         ArrayList<Buffer> buffers = mBuffers.getBuffersForServer(object.cid());
@@ -1990,8 +1993,11 @@ public class NetworkConnection {
         put("isupport_params", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mServers.getServer(object.cid()).updateUserModes(object.getString("usermodes"));
-                mServers.getServer(object.cid()).updateIsupport(object.getJsonObject("params"));
+                Server s = mServers.getServer(object.cid());
+                if(s != null) {
+                    s.updateUserModes(object.getString("usermodes"));
+                    s.updateIsupport(object.getJsonObject("params"));
+                }
             }
         });
         put("reorder_connections", new Parser() {
@@ -2464,7 +2470,9 @@ public class NetworkConnection {
         put("self_details", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mServers.getServer(object.cid()).setUsermask(object.getString("usermask"));
+                Server s = mServers.getServer(object.cid());
+                if(s != null)
+                    s.setUsermask(object.getString("usermask"));
                 Event event = mEvents.addEvent(object);
                 if (!backlog) {
                     notifyHandlers(EVENT_SELFDETAILS, object);
@@ -2474,9 +2482,11 @@ public class NetworkConnection {
         put("user_mode", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                Event event = mEvents.addEvent(object);
+                mEvents.addEvent(object);
                 if (!backlog) {
-                    mServers.getServer(object.cid()).setMode(object.getString("newmode"));
+                    Server s = mServers.getServer(object.cid());
+                    if(s != null)
+                        s.setMode(object.getString("newmode"));
                     notifyHandlers(EVENT_USERMODE, object);
                 }
             }

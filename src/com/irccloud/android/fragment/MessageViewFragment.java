@@ -281,14 +281,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         public void clearLastSeenEIDMarker() {
-            for (int i = 0; i < data.size(); i++) {
-                if (data.get(i).row_type == ROW_LASTSEENEID) {
-                    EventsList.getInstance().deleteEvent(data.get(i).eid, buffer.getBid());
-                    data.remove(i);
+            if(buffer != null) {
+                for (int i = 0; i < data.size(); i++) {
+                    if (data.get(i).row_type == ROW_LASTSEENEID) {
+                        EventsList.getInstance().deleteEvent(data.get(i).eid, buffer.getBid());
+                        data.remove(i);
+                    }
                 }
+                if (lastSeenEidMarkerPosition > 0)
+                    lastSeenEidMarkerPosition = -1;
             }
-            if (lastSeenEidMarkerPosition > 0)
-                lastSeenEidMarkerPosition = -1;
         }
 
         public int getLastSeenEIDPosition() {
