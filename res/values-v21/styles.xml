@@ -79,13 +79,16 @@
         <item name="android:alertDialogTheme">@style/DarkAppAlertTheme</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:colorPrimary">?attr/messageTextColor</item>
-        <item name="android:colorAccent">?attr/textareaBackgroundColor</item>
+        <item name="android:colorAccent">?attr/messageTextColor</item>
         <item name="android:colorPrimaryDark">?attr/contentBackgroundColor</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="android:textColorPrimary">?attr/messageTextColor</item>
+        <item name="android:textColorPrimary">?attr/navBarHeadingColor</item>
+        <item name="android:textColorSecondary">?attr/navBarSubheadingColor</item>
+        <item name="android:actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:colorControlNormal">?attr/navBarSubheadingColor</item>
         <item name="colorPrimary">?attr/messageTextColor</item>
-        <item name="colorAccent">?attr/textareaBackgroundColor</item>
+        <item name="colorAccent">?attr/messageTextColor</item>
         <item name="colorPrimaryDark">?attr/contentBackgroundColor</item>
         <item name="actionModeBackground">@drawable/actionbar</item>
         <item name="windowActionModeOverlay">true</item>
@@ -93,7 +96,8 @@
         <item name="alertDialogTheme">@style/DarkAppAlertTheme</item>
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
+        <item name="colorControlNormal">?attr/navBarSubheadingColor</item>
+        <item name="actionBarStyle">@style/ThemedActionBar</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?attr/contentBackgroundColor</item>
@@ -250,5 +254,15 @@
 
     <style name="ProgressBarLogin" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="colorAccent">#fff</item>
+    </style>
+
+    <style name="ThemedActionBar" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:titleTextStyle">@style/ActionBarTitleText</item>
+        <item name="titleTextStyle">@style/ActionBarTitleText</item>
+    </style>
+
+    <!-- ActionBar title text -->
+    <style name="ActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">?attr/navBarHeadingColor</item>
     </style>
 </resources>

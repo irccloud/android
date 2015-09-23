@@ -28,7 +28,7 @@ import android.view.MenuItem;
 import com.irccloud.android.R;
 import com.irccloud.android.fragment.ServerReorderFragment;
 
-public class ServerReorderActivity extends AppCompatActivity {
+public class ServerReorderActivity extends BaseActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

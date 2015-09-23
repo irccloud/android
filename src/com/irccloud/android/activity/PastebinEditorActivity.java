@@ -42,7 +42,7 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.OnErrorListener;
 import com.irccloud.android.data.model.Pastebin;
 
-public class PastebinEditorActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
+public class PastebinEditorActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
 
     private OnErrorListener<Pastebin> pastebinOnErrorListener = new OnErrorListener<Pastebin>() {
         @Override

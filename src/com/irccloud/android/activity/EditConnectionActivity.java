@@ -36,7 +36,7 @@ import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.fragment.EditConnectionFragment;
 
-public class EditConnectionActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
+public class EditConnectionActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
     int reqid = -1;
     int cidToOpen = -1;
     int cid = -1;

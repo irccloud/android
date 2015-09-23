@@ -45,14 +45,16 @@
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
 					android:background="@{ selected == buffer.bid ? buffer.selectedBackgroundResource : buffer.backgroundResource }"
+					android:baselineAligned="false"
 					android:gravity="center_vertical" >
 
 					<TextView
 						android:layout_width="16dp"
-						android:layout_height="16dp"
+						android:layout_height="wrap_content"
 						android:layout_marginLeft="4dp"
 						android:layout_marginRight="4dp"
 						android:layout_weight="0"
+						android:gravity="center"
 						android:textSize="16sp"
 						android:typeface="@{ FontAwesome.getTypeface() }"
 						android:textColor="@{ (selected == buffer.bid || (buffer.archived == 1 &amp;&amp; buffer.isArchivesHeader) ) ? buffer.selectedTextColor : buffer.textColor }"

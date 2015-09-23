@@ -31,7 +31,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -45,6 +48,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -85,6 +89,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -164,8 +169,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     Buffer buffer;
     Server server;
     ActionEditText messageTxt;
-    View sendBtn;
-    View photoBtn;
+    ImageButton sendBtn;
+    ImageButton photoBtn;
     User selected_user;
     View userListView;
     View buffersListView;
@@ -235,10 +240,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ImgurUploadTask imgurTask = null;
     private FileUploadTask fileUploadTask = null;
 
-    private DrawerArrowDrawable upDrawable;
-    private int redColor;
-    private int blueColor;
-    private int greyColor = 0;
+    private Drawable upDrawable;
 
     private HashMap<Integer, Event> pendingEvents = new HashMap<Integer, Event>();
 
@@ -286,9 +288,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout) findViewById(R.id.messageContainer);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
-
-        redColor = getResources().getColor(R.color.highlight_red);
-        blueColor = getResources().getColor(R.color.dark_blue);
 
         messageTxt = (ActionEditText) findViewById(R.id.messageTxt);
         messageTxt.setOnKeyListener(new OnKeyListener() {
@@ -348,12 +347,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
                     sendBtn.setEnabled(true);
-                    if (Build.VERSION.SDK_INT >= 11)
-                        sendBtn.setAlpha(1);
+                    if (Build.VERSION.SDK_INT >= 11) {
+                        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+                        sendBtn.setAlpha(1.0f);
+                    }
                 } else {
                     sendBtn.setEnabled(false);
-                    if (Build.VERSION.SDK_INT >= 11)
+                    if (Build.VERSION.SDK_INT >= 11) {
+                        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
                         sendBtn.setAlpha(0.5f);
+                    }
                 }
                 String text = s.toString();
                 if (text.endsWith("\t")) { //Workaround for Swype
@@ -390,7 +393,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         };
         messageTxt.addTextChangedListener(textWatcher);
-        sendBtn = findViewById(R.id.sendBtn);
+        sendBtn = (ImageButton)findViewById(R.id.sendBtn);
+        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
         sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -400,8 +404,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        photoBtn = findViewById(R.id.photoBtn);
+        photoBtn = (ImageButton)findViewById(R.id.photoBtn);
         if (photoBtn != null) {
+            photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
             photoBtn.setFocusable(false);
             photoBtn.setOnClickListener(new OnClickListener() {
                 @Override
@@ -423,8 +428,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (drawerLayout != null) {
             if (findViewById(R.id.usersListFragment2) == null) {
-                upDrawable = new DrawerArrowDrawable(this);
-                greyColor = upDrawable.getColor();
+                upDrawable = getDrawable(R.drawable.ic_action_navigation_menu).mutate();
+                upDrawable.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
                 drawerLayout.setDrawerListener(mDrawerListener);
@@ -962,8 +967,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPreExecute() {
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 sendBtn.setEnabled(false);
-                if (Build.VERSION.SDK_INT >= 11)
+                if (Build.VERSION.SDK_INT >= 11) {
+                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
                     sendBtn.setAlpha(0.5f);
+                }
                 String msg = messageTxt.getText().toString();
                 if (msg.startsWith("//"))
                     msg = msg.substring(1);
@@ -1087,8 +1094,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else {
                 sendBtn.setEnabled(true);
-                if (Build.VERSION.SDK_INT >= 11)
-                    sendBtn.setAlpha(1);
+                if (Build.VERSION.SDK_INT >= 11) {
+                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+                    sendBtn.setAlpha(1.0f);
+                }
             }
         }
     }
@@ -1151,11 +1160,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPostExecute(Void result) {
             if (!isCancelled() && upDrawable != null) {
                 if (highlights > 0) {
-                    upDrawable.setColor(redColor);
+                    upDrawable.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
                 } else if (unread > 0) {
-                    upDrawable.setColor(blueColor);
+                    upDrawable.setColorFilter(ColorScheme.getInstance().unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
                 } else {
-                    upDrawable.setColor(greyColor);
+                    upDrawable.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
                 }
                 refreshUpIndicatorTask = null;
             }
@@ -1276,12 +1285,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 getSupportActionBar().setHomeButtonEnabled(false);
             }
             sendBtn.setEnabled(false);
-            if (Build.VERSION.SDK_INT >= 11)
+            if (Build.VERSION.SDK_INT >= 11) {
+                sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
                 sendBtn.setAlpha(0.5f);
+            }
             if(conn.config == null) {
                 photoBtn.setEnabled(false);
-                if (Build.VERSION.SDK_INT >= 11)
+                if (Build.VERSION.SDK_INT >= 11) {
+                    photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
                     photoBtn.setAlpha(0.5f);
+                }
             }
         } else {
             if (drawerLayout != null) {
@@ -1290,12 +1303,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if (messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 sendBtn.setEnabled(true);
-                if (Build.VERSION.SDK_INT >= 11)
-                    sendBtn.setAlpha(1);
+                if (Build.VERSION.SDK_INT >= 11) {
+                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+                    sendBtn.setAlpha(1.0f);
+                }
             }
             photoBtn.setEnabled(true);
-            if (Build.VERSION.SDK_INT >= 11)
-                photoBtn.setAlpha(1);
+            if (Build.VERSION.SDK_INT >= 11) {
+                photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+                photoBtn.setAlpha(1.0f);
+            }
         }
 
         if (server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
@@ -1364,8 +1381,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         sendBtn.setEnabled(messageTxt.getText().length() > 0);
-        if (Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
+        if (Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0) {
+            sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
             sendBtn.setAlpha(0.5f);
+        }
 
         if (drawerLayout != null)
             drawerLayout.closeDrawers();
@@ -1843,8 +1862,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     sendBtn.setEnabled(true);
-                                    if (Build.VERSION.SDK_INT >= 11)
-                                        sendBtn.setAlpha(1);
+                                    if (Build.VERSION.SDK_INT >= 11) {
+                                        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+                                        sendBtn.setAlpha(1.0f);
+                                    }
                                 }
                             });
                         }
@@ -1857,11 +1878,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     getSupportActionBar().setHomeButtonEnabled(false);
                                 }
                                 sendBtn.setEnabled(false);
-                                if (Build.VERSION.SDK_INT >= 11)
+                                if (Build.VERSION.SDK_INT >= 11) {
+                                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
                                     sendBtn.setAlpha(0.5f);
+                                }
                                 photoBtn.setEnabled(false);
-                                if (Build.VERSION.SDK_INT >= 11)
+                                if (Build.VERSION.SDK_INT >= 11) {
+                                    photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
                                     photoBtn.setAlpha(0.5f);
+                                }
                             }
                         });
                         if (conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.ready && server == null) {
@@ -2311,8 +2336,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         refreshUpIndicatorTask = new RefreshUpIndicatorTask();
                         refreshUpIndicatorTask.execute((Void) null);
                         photoBtn.setEnabled(true);
-                        if (Build.VERSION.SDK_INT >= 11)
-                            photoBtn.setAlpha(1);
+                        if (Build.VERSION.SDK_INT >= 11) {
+                            photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+                            photoBtn.setAlpha(1.0f);
+                        }
                     }
                 });
                 //TODO: prune and pop the back stack if the current BID has disappeared
@@ -2487,14 +2514,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (e.bid != buffer.getBid() && upDrawable != null) {
                             Buffer buf = BuffersList.getInstance().getBuffer(e.bid);
                             if (e.isImportant(buf.getType())) {
-                                if (upDrawable.getColor() != redColor && (e.highlight || buf.isConversation())) {
+                                if (/*upDrawable.getColor() != redColor &&*/ (e.highlight || buf.isConversation())) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upDrawable.setColor(redColor);
+                                            upDrawable.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
                                         }
                                     });
-                                } else if (upDrawable.getColor() == greyColor) {
+                                } else /*if (grey)*/ {
                                     JSONObject channelDisabledMap = null;
                                     JSONObject bufferDisabledMap = null;
                                     if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
@@ -2515,7 +2542,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upDrawable.setColor(blueColor);
+                                            upDrawable.setColorFilter(ColorScheme.getInstance().unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
                                         }
                                     });
                                 }

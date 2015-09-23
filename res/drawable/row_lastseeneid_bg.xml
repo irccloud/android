@@ -15,21 +15,17 @@
   ~ limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/row_lastseeneid_bg"
-    android:gravity="center"
-    android:minHeight="28dp" >
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?attr/contentBackgroundColor"
-        android:paddingLeft="6dp"
-        android:paddingRight="6dp"
-        android:text="New Messages"
-        android:textColor="?attr/timestampColor" />
+    <item>
+        <shape android:shape="rectangle" >
+            <solid android:color="?attr/contentBackgroundColor" />
+        </shape>
+    </item>
 
-</LinearLayout>
+    <item android:left="4dp" android:right="4dp">
+        <shape android:shape="line" >
+            <stroke android:color="?attr/timestampColor" android:width="1dp"/>
+        </shape>
+    </item>
+</layer-list>
