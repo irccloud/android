@@ -15,8 +15,18 @@
   ~ limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:color="#fff" android:state_selected="true"/>
-    <item android:color="#fff" android:state_focused="true"/>
-    <item android:color="#222"/>
-</selector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle" >
+            <solid android:color="?attr/membersBorderColor" />
+        </shape>
+    </item>
+
+    <item android:left="@dimen/usergroup_border">
+        <shape android:shape="rectangle" >
+            <solid android:color="?attr/membersGroupColor" />
+        </shape>
+    </item>
+
+</layer-list>

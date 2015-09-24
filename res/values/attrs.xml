@@ -95,4 +95,5 @@
     <attr name="selectedArchivedBufferHighlightColor" format="color"/>
     <attr name="selectedArchivedBufferBackgroundColor" format="color"/>
     <attr name="contentBorderColor" format="color"/>
+    <attr name="usersDrawerBackground" format="reference"/>
 </resources>

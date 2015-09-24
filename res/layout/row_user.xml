@@ -17,6 +17,7 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
+        <import type="com.irccloud.android.ColorScheme"/>
         <import type="android.view.View"/>
         <variable name="user" type="com.irccloud.android.fragment.UsersListFragment.UserListEntry"/>
     </data>
@@ -24,14 +25,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:minHeight="32dp"
-        android:background="@{ user.static_bg_color }"
-        android:paddingBottom="@{ user.last ? @dimen/usergroup_padding : 0 }"
+        android:minHeight="40dp"
+        android:background="@{ user.border_color }"
         android:orientation="horizontal" >
 
         <TextView
+            android:layout_marginLeft="@dimen/usergroup_border"
+            android:layout_marginBottom="@{ user.last ? @dimen/usergroup_border : 0 }"
             android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:paddingTop="4dp"
             android:paddingBottom="4dp"
@@ -42,13 +44,13 @@
             android:lines="1"
             android:maxLines="1"
             android:text="@{ user.text }"
-            android:textColor="@{ user.away ? @color/row_user_away : user.color }"
-            android:background="@{ user.type > 0 ? user.bg_color : user.static_bg_color }"
+            android:textColor="@{ user.type == 0 ? @color/white : (user.away ? ColorScheme.getInstance().memberListAwayTextColor : ColorScheme.getInstance().memberListTextColor ) }"
+            android:background="@{ user.type > 0 ? user.bg_color : user.border_color }"
             android:textSize="16sp" />
 
         <TextView
             android:text="@{ user.count }"
-            android:textColor="@{ user.color }"
+            android:textColor="@{ @color/white }"
             android:visibility="@{ user.count != null ? View.VISIBLE : View.GONE }"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

@@ -405,7 +405,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         } else if (type_int == Type.JOIN_CHANNEL) {
             return R.color.row_label_join;
         } else if (getArchived() == 1) {
-            return ColorScheme.getInstance().archivedBufferTextColor;
+            return (type_int == Type.CHANNEL) ? ColorScheme.getInstance().archivedChannelTextColor : ColorScheme.getInstance().archivedBufferTextColor;
         } else if (isConsole()) {
             if(getServer().isFailed())
                 return ColorScheme.getInstance().networkErrorColor;
@@ -433,7 +433,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getBackgroundResource() {
         if(isChannel() || isConversation())
-            return (getArchived() == 0)?R.drawable.row_buffer_bg:R.drawable.row_buffer_bg_archived;
+            return R.drawable.row_buffer_bg;
         else if(isConsole())
             return getServer().isFailed() ? R.drawable.row_failed_bg : R.drawable.row_buffergroup_bg;
         else if(type_int == Type.JOIN_CHANNEL)
@@ -449,7 +449,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         if(isConsole())
             return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
         else
-            return ((getArchived() == 0)) ? R.drawable.row_selected_bg : R.drawable.archived_bg_selected;
+            return R.drawable.row_selected_bg;
     }
 
     @Bindable
@@ -457,7 +457,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         if(isConsole())
             return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
         else
-            return ((getArchived() == 0)) ? R.drawable.row_selected_border : R.drawable.archived_bg_selected;
+            return R.drawable.row_selected_border;
     }
 
     @Bindable
@@ -470,7 +470,10 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
 
     @Bindable
     public int getSelectedTextColor() {
-        return ColorScheme.getInstance().selectedBufferTextColor;
+        if(type_int == Type.ARCHIVES_HEADER)
+            return ColorScheme.getInstance().selectedArchivesHeadingColor;
+        else
+            return ColorScheme.getInstance().selectedBufferTextColor;
     }
 
     @Bindable

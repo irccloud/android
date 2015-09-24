@@ -100,7 +100,27 @@
         <item name="actionBarStyle">@style/ThemedActionBar</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
-        <item name="contentBorderColor">?attr/contentBackgroundColor</item>
+        <item name="contentBorderColor">#00000000</item>
+        <item name="usersDrawerBackground">@drawable/userslist_bg</item>
+        <item name="archivedChannelTextColor">#ccc</item>
+        <item name="archivedBufferTextColor">#eee</item>
+        <item name="selectedArchivesHeadingColor">#ccc</item>
+        <item name="opersGroupColor">#43260f</item>
+        <item name="ownersGroupColor">#3f3722</item>
+        <item name="adminsGroupColor">#281c31</item>
+        <item name="opsGroupColor">#451c1c</item>
+        <item name="halfopsGroupColor">#372e20</item>
+        <item name="voicedGroupColor">#27331f</item>
+        <item name="membersGroupColor">#1b2432</item>
+        <item name="opersBorderColor">#76400a</item>
+        <item name="ownersBorderColor">#6b5814</item>
+        <item name="adminsBorderColor">#553384</item>
+        <item name="opsBorderColor">#843e3e</item>
+        <item name="halfopsBorderColor">#684f27</item>
+        <item name="voicedBorderColor">#335700</item>
+        <item name="membersBorderColor">#2b3854</item>
+        <item name="memberListTextColor">#b0cce8</item>
+        <item name="memberListAwayTextColor">#6199d1</item>
     </style>
 
     <style name="PrefsTheme" parent="AppThemeNoActionBar">

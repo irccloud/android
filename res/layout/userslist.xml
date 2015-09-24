@@ -18,13 +18,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="@drawable/background_blue">
+    android:background="?attr/usersDrawerBackground">
 
     <android.support.v7.widget.RecyclerView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:cacheColorHint="#D9E7FF"
+        android:cacheColorHint="?attr/membersGroupColor"
         android:divider="#00000000"
         android:dividerHeight="0dp"
         android:fadingEdge="none"
@@ -36,7 +36,7 @@
         android:layout_width="1dp"
         android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
-        android:background="@color/border">
+        android:background="?attr/contentBorderColor">
 
     </LinearLayout>
 

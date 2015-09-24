@@ -15,8 +15,8 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/selected_blue" android:state_pressed="true" />
-    <item android:drawable="@drawable/selected_blue" android:state_selected="true" />
-    <item android:drawable="@drawable/selected_blue" android:state_focused="true" />
-    <item android:drawable="@drawable/oper_bg" />
+    <item android:drawable="?attr/opersBorderColor" android:state_pressed="true" />
+    <item android:drawable="?attr/opersBorderColor" android:state_selected="true" />
+    <item android:drawable="?attr/opersBorderColor" android:state_focused="true" />
+    <item android:drawable="?attr/opersGroupColor" />
 </selector>

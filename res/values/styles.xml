@@ -213,4 +213,6 @@
     <style name="CustomShareIcon">
         <item name="actionModeShareDrawable">@drawable/ic_action_share</item>
     </style>
+
+    <color name="white">#fff</color>
 </resources>

@@ -36,8 +36,8 @@
 		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:layout_marginTop='@{ ( buffer.isGroupHeading ) ? @dimen/activity_vertical_margin : 0 }'
-			android:layout_marginRight="8dp"
+			android:layout_marginTop='@{ ( buffer.isGroupHeading ) ? @dimen/buffers_margin : 0 }'
+			android:layout_marginRight="@dimen/buffers_margin"
 			android:background="@{ (!readOnly &amp;&amp; (buffer.unread > 0)) ? buffer.unreadColor : (selected==buffer.bid)?buffer.selectedBorderResource:buffer.borderResource }"
 			android:paddingLeft="8dp" >
 
