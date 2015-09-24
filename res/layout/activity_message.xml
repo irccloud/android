@@ -149,7 +149,7 @@
         android:background="@color/loginTopBackgroundColor"
         android:id="@+id/splash"
         android:paddingTop="@dimen/status_bar_height"
-        android:visibility="gone">
+        >
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

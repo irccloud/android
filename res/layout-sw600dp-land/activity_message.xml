@@ -78,21 +78,25 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/compose_bar_bg"
-            android:padding="4dp"
-            android:paddingTop="2dp" >
+            android:paddingTop="2dp"
+            android:background="?attr/contentBackgroundColor"
+            android:gravity="bottom"
+            android:paddingBottom="4dp">
 
             <ImageButton
                 style="@style/Widget.Styled.ImageButton"
                 android:id="@+id/photoBtn"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingLeft="6dp"
                 android:paddingRight="6dp"
                 android:paddingBottom="4dp"
-                android:scaleType="fitEnd"
+                android:scaleType="center"
                 android:contentDescription="Insert Photo"
-                android:src="@drawable/ic_action_photo" />
+                android:src="@drawable/ic_action_photo"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:paddingTop="4dp"/>
 
             <!-- Dummy item to prevent ActionEditText from receiving focus on launch -->
             <LinearLayout
@@ -101,29 +105,36 @@
 
             <com.irccloud.android.ActionEditText
                 android:id="@+id/messageTxt"
+                style="@style/messageTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:ems="10"
+                android:maxLines="@integer/max_input_lines"
                 android:hint="Message"
                 android:enabled="false"
                 android:nextFocusLeft="@id/photoBtn"
-                android:imeOptions="flagNoExtractUi|actionSend"
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
-                android:layout_margin="0dp"/>
+                android:background="?attr/textareaBackgroundColor"
+                android:minHeight="32dp"
+                android:padding="4dp"
+                android:layout_marginBottom="2dp"/>
 
             <ImageButton
                 style="@style/Widget.Styled.ImageButton"
                 android:id="@+id/sendBtn"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:paddingLeft="6dp"
                 android:paddingRight="6dp"
                 android:paddingBottom="4dp"
                 android:scaleType="fitEnd"
                 android:contentDescription="Send"
-                android:src="@drawable/ic_action_send" />
+                android:src="@drawable/ic_action_send"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:paddingTop="4dp"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -148,7 +159,8 @@
         android:layout_height="match_parent"
         android:background="@color/loginTopBackgroundColor"
         android:id="@+id/splash"
-        android:paddingTop="@dimen/status_bar_height">
+        android:paddingTop="@dimen/status_bar_height"
+        android:visibility="gone">
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
