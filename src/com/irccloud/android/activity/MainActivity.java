@@ -3199,7 +3199,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
                     if (blf != null)
                         blf.refresh();
-                    conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
+                    if(conn != null && buffer != null)
+                        conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
                 } else if (items[item].equals("Delete")) {
                     builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);

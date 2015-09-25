@@ -115,6 +115,9 @@ public class NotificationsList {
     }
 
     public long getLastSeenEid(int bid) {
+        Buffer b = BuffersList.getInstance().getBuffer(bid);
+        if(b != null)
+            return b.getLast_seen_eid();
         synchronized (dbLock) {
             Notification_LastSeenEID eid = new Select().from(Notification_LastSeenEID.class).where(Condition.column(Notification_LastSeenEID$Table.BID).is(bid)).querySingle();
             if (eid != null)
@@ -178,8 +181,11 @@ public class NotificationsList {
 
         if (notifications.size() > 0) {
             for (Notification n : notifications) {
+                long last_seen_eid = getLastSeenEid(n.bid);
                 Buffer b = BuffersList.getInstance().getBuffer(n.bid);
-                if (n.bid == b.getBid() && n.eid <= b.getLast_seen_eid()) {
+                if(b != null)
+                    last_seen_eid = b.getLast_seen_eid();
+                if (n.eid <= last_seen_eid) {
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
                     changed = true;
                     try {
@@ -194,8 +200,11 @@ public class NotificationsList {
         notifications = getNotifications();
 
         for (Notification n : notifications) {
+            long last_seen_eid = getLastSeenEid(n.bid);
             Buffer b = BuffersList.getInstance().getBuffer(n.bid);
-            if (b != null && n.bid == b.getBid() && n.eid <= b.getLast_seen_eid()) {
+            if(b != null)
+                last_seen_eid = b.getLast_seen_eid();
+            if (n.eid <= last_seen_eid) {
                 n.delete();
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));

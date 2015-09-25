@@ -1794,7 +1794,8 @@ public class NetworkConnection {
         put("set_ignores", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
-                mServers.getServer(object.cid()).updateIgnores(object.getJsonNode("masks"));
+                if(mServers.getServer(object.cid()) != null)
+                    mServers.getServer(object.cid()).updateIgnores(object.getJsonNode("masks"));
                 if (!backlog)
                     notifyHandlers(EVENT_SETIGNORES, object);
             }
@@ -2452,7 +2453,8 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 if (!backlog) {
                     mUsers.updateAwayMsg(object.bid(), object.getString("nick"), 1, object.getString("away_msg"));
-                    mServers.getServer(object.cid()).setAway(object.getString("away_msg"));
+                    if(mServers.getServer(object.cid()) != null)
+                        mServers.getServer(object.cid()).setAway(object.getString("away_msg"));
                     notifyHandlers(EVENT_AWAY, object);
                 }
             }
@@ -2606,11 +2608,11 @@ public class NetworkConnection {
             }
             if((!backlog || numbuffers > 0) && object.eid() > highest_eid) {
                 highest_eid = object.eid();
-                if(!backlog) {
+                /*if(!backlog) {
                     SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
                     editor.putLong("highest_eid", highest_eid);
                     editor.apply();
-                }
+                }*/
             }
         }
 
