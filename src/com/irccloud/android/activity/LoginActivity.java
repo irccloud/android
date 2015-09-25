@@ -736,6 +736,10 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                         startActivity(i);
                                         finish();
                                     }
+                                } else {
+                                    Log.e("IRCCloud", "Credentials request failed");
+                                    startActivity(i);
+                                    finish();
                                 }
                             }
                         });
