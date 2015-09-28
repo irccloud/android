@@ -226,71 +226,71 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         if (opers.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OPER : "Y"))
-                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", R.drawable.row_opers_bg, R.drawable.row_opers_border);
+                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", R.drawable.row_opers_bg, R.drawable.row_opers_border_dark);
                 else
-                    addUsersFromList(entries, opers, "OPER", "", R.drawable.row_opers_bg, R.drawable.row_opers_border);
+                    addUsersFromList(entries, opers, "OPER", "", R.drawable.row_opers_bg, R.drawable.row_opers_border_dark);
             } else {
-                addUsersFromList(entries, opers, "OPER", "", R.drawable.row_opers_bg, R.drawable.row_opers_border);
+                addUsersFromList(entries, opers, "OPER", "", R.drawable.row_opers_bg, R.drawable.row_opers_border_dark);
             }
         }
 
         if (owners.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OWNER : "q"))
-                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s != null ? s.MODE_OWNER : "q").asText() + " ", R.drawable.row_owners_bg, R.drawable.row_owners_border);
+                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s != null ? s.MODE_OWNER : "q").asText() + " ", R.drawable.row_owners_bg, R.drawable.row_owners_border_dark);
                 else
-                    addUsersFromList(entries, owners, "OWNER", "", R.drawable.row_owners_bg, R.drawable.row_owners_border);
+                    addUsersFromList(entries, owners, "OWNER", "", R.drawable.row_owners_bg, R.drawable.row_owners_border_dark);
             } else {
-                addUsersFromList(entries, owners, "OWNER", "", R.drawable.row_owners_bg, R.drawable.row_owners_border);
+                addUsersFromList(entries, owners, "OWNER", "", R.drawable.row_owners_bg, R.drawable.row_owners_border_dark);
             }
         }
 
         if (admins.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_ADMIN : "a"))
-                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s != null ? s.MODE_ADMIN : "a").asText() + " ", R.drawable.row_admins_bg, R.drawable.row_admins_border);
+                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s != null ? s.MODE_ADMIN : "a").asText() + " ", R.drawable.row_admins_bg, R.drawable.row_admins_border_dark);
                 else
-                    addUsersFromList(entries, admins, "ADMINS", "", R.drawable.row_admins_bg, R.drawable.row_admins_border);
+                    addUsersFromList(entries, admins, "ADMINS", "", R.drawable.row_admins_bg, R.drawable.row_admins_border_dark);
             } else {
-                addUsersFromList(entries, admins, "ADMINS", "", R.drawable.row_admins_bg, R.drawable.row_admins_border);
+                addUsersFromList(entries, admins, "ADMINS", "", R.drawable.row_admins_bg, R.drawable.row_admins_border_dark);
             }
         }
 
         if (ops.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OP : "o"))
-                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s != null ? s.MODE_OP : "o").asText() + " ", R.drawable.row_operator_bg, R.drawable.row_operator_border);
+                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s != null ? s.MODE_OP : "o").asText() + " ", R.drawable.row_operator_bg, R.drawable.row_ops_border_dark);
                 else
-                    addUsersFromList(entries, ops, "OPS", "", R.drawable.row_operator_bg, R.drawable.row_operator_border);
+                    addUsersFromList(entries, ops, "OPS", "", R.drawable.row_operator_bg, R.drawable.row_ops_border_dark);
             } else {
-                addUsersFromList(entries, ops, "OPS", "", R.drawable.row_operator_bg, R.drawable.row_operator_border);
+                addUsersFromList(entries, ops, "OPS", "", R.drawable.row_operator_bg, R.drawable.row_ops_border_dark);
             }
         }
 
         if (halfops.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_HALFOP : "h"))
-                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s != null ? s.MODE_HALFOP : "h").asText() + " ", R.drawable.row_halfops_bg, R.drawable.row_halfops_border);
+                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s != null ? s.MODE_HALFOP : "h").asText() + " ", R.drawable.row_halfops_bg, R.drawable.row_halfops_border_dark);
                 else
-                    addUsersFromList(entries, halfops, "HALF OPS", "", R.drawable.row_halfops_bg, R.drawable.row_halfops_border);
+                    addUsersFromList(entries, halfops, "HALF OPS", "", R.drawable.row_halfops_bg, R.drawable.row_halfops_border_dark);
             } else {
-                addUsersFromList(entries, halfops, "HALF OPS", "", R.drawable.row_halfops_bg, R.drawable.row_halfops_border);
+                addUsersFromList(entries, halfops, "HALF OPS", "", R.drawable.row_halfops_bg, R.drawable.row_halfops_border_dark);
             }
         }
 
         if (voiced.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_VOICED : "v"))
-                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s != null ? s.MODE_VOICED : "v").asText() + " ", R.drawable.row_voiced_bg, R.drawable.row_voiced_border);
+                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s != null ? s.MODE_VOICED : "v").asText() + " ", R.drawable.row_voiced_bg, R.drawable.row_voiced_border_dark);
                 else
-                    addUsersFromList(entries, voiced, "VOICED", "", R.drawable.row_voiced_bg, R.drawable.row_voiced_border);
+                    addUsersFromList(entries, voiced, "VOICED", "", R.drawable.row_voiced_bg, R.drawable.row_voiced_border_dark);
             } else {
-                addUsersFromList(entries, voiced, "VOICED", "", R.drawable.row_voiced_bg, R.drawable.row_voiced_border);
+                addUsersFromList(entries, voiced, "VOICED", "", R.drawable.row_voiced_bg, R.drawable.row_voiced_border_dark);
             }
         }
 
         if (members.size() > 0) {
-            addUsersFromList(entries, members, "MEMBERS", "", R.drawable.row_members_bg, R.drawable.row_members_border);
+            addUsersFromList(entries, members, "MEMBERS", "", R.drawable.row_members_bg, R.drawable.row_members_border_dark);
         }
 
         adapter.setItems(entries);

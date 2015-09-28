@@ -28,7 +28,7 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@drawable/buffers_drawer_bg"
+		android:background="?buffersDrawerBackgroundDrawable"
 		android:descendantFocusability="blocksDescendants"
 		android:minHeight="@{ ( buffer.isGroupHeading ) ? @dimen/buffergroup_min_height : @dimen/buffer_min_height }"
 		android:orientation="horizontal" >

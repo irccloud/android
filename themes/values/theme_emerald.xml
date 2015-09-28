@@ -1,0 +1,185 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="emerald" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
+		<item name="bufferTextColor">@color/emerald_text4</item>
+		<item name="navBarSubheadingColor">@color/emerald_text4</item>
+		<item name="inactiveBufferTextColor">@color/emerald_text9</item>
+		<item name="archivesHeadingTextColor">@color/emerald_text9</item>
+		<item name="chatterBarTextColor">@color/emerald_text5</item>
+		<item name="linkColor">@color/emerald_text1</item>
+		<item name="highlightBackgroundColor">@color/emerald_background5</item>
+		<item name="selfBackgroundColor">@color/emerald_background6</item>
+		<item name="contentBackgroundColor">@color/emerald_background7</item>
+		<item name="messageTextColor">@color/emerald_text4</item>
+		<item name="serverBackgroundColor">@color/emerald_background6</item>
+		<item name="bufferBackgroundColor">@color/emerald_background4</item>
+		<item name="memberListTextColor">@color/emerald_text5</item>
+		<item name="memberListAwayTextColor">@color/emerald_text9</item>
+		<item name="timestampColor">@color/emerald_text10</item>
+		<item name="timestampBackgroundColor">@color/emerald_background6</item>
+		<item name="statusBackgroundColor">@color/emerald_background6a</item>
+		<item name="noticeBackgroundColor">@color/emerald_background5a</item>
+		<item name="collapsedRowTextColor">@color/emerald_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/emerald_background6</item>
+		<item name="navBarColor">@color/emerald_background5</item>
+		<item name="navBarBorderColor">@color/emerald_border10</item>
+		<item name="textareaTextColor">@color/emerald_text3</item>
+		<item name="textareaBackgroundColor">@color/emerald_background3</item>
+		<item name="navBarHeadingColor">@color/emerald_text1</item>
+		<item name="lightLinkColor">@color/emerald_text9</item>
+		<item name="unreadBufferTextColor">@color/emerald_text2</item>
+		<item name="selectedBufferTextColor">@color/emerald_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/emerald_text3</item>
+		<item name="bufferBorderColor">@color/emerald_border9</item>
+		<item name="serverBorderColor">@color/emerald_border9</item>
+		<item name="failedServerBorderColor">@color/emerald_border9</item>
+		<item name="selectedBufferBorderColor">@color/emerald_text6</item>
+		<item name="backlogDividerColor">@color/emerald_border1</item>
+		<item name="chatterBarColor">@color/emerald_background3</item>
+		<item name="awayBarTextColor">@color/emerald_text7</item>
+		<item name="awayBarColor">@color/emerald_background6</item>
+		<item name="connectionBarTextColor">@color/emerald_text4</item>
+		<item name="connectionBarColor">@color/emerald_background4</item>
+		<item name="connectionErrorBarTextColor">@color/emerald_text4</item>
+		<item name="connectionErrorBarColor">@color/emerald_background5</item>
+		<item name="timestampTopBorderColor">@color/emerald_border9</item>
+		<item name="timestampBottomBorderColor">@color/emerald_border6</item>
+		<item name="placeholderColor">@color/emerald_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/emerald_text12</item>
+		<item name="bufferHighlightColor">@color/emerald_background5</item>
+		<item name="selectedBufferHighlightColor">@color/emerald_text4</item>
+		<item name="archivedBufferHighlightColor">@color/emerald_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
+		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_emerald</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_emerald</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_emerald</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_emerald</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_emerald</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_emerald</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_emerald</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_emerald</item>
+	</style>
+
+	<style name="emeraldNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
+		<item name="bufferTextColor">@color/emerald_text4</item>
+		<item name="navBarSubheadingColor">@color/emerald_text4</item>
+		<item name="inactiveBufferTextColor">@color/emerald_text9</item>
+		<item name="archivesHeadingTextColor">@color/emerald_text9</item>
+		<item name="chatterBarTextColor">@color/emerald_text5</item>
+		<item name="linkColor">@color/emerald_text1</item>
+		<item name="highlightBackgroundColor">@color/emerald_background5</item>
+		<item name="selfBackgroundColor">@color/emerald_background6</item>
+		<item name="contentBackgroundColor">@color/emerald_background7</item>
+		<item name="messageTextColor">@color/emerald_text4</item>
+		<item name="serverBackgroundColor">@color/emerald_background6</item>
+		<item name="bufferBackgroundColor">@color/emerald_background4</item>
+		<item name="memberListTextColor">@color/emerald_text5</item>
+		<item name="memberListAwayTextColor">@color/emerald_text9</item>
+		<item name="timestampColor">@color/emerald_text10</item>
+		<item name="timestampBackgroundColor">@color/emerald_background6</item>
+		<item name="statusBackgroundColor">@color/emerald_background6a</item>
+		<item name="noticeBackgroundColor">@color/emerald_background5a</item>
+		<item name="collapsedRowTextColor">@color/emerald_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/emerald_background6</item>
+		<item name="navBarColor">@color/emerald_background5</item>
+		<item name="navBarBorderColor">@color/emerald_border10</item>
+		<item name="textareaTextColor">@color/emerald_text3</item>
+		<item name="textareaBackgroundColor">@color/emerald_background3</item>
+		<item name="navBarHeadingColor">@color/emerald_text1</item>
+		<item name="lightLinkColor">@color/emerald_text9</item>
+		<item name="unreadBufferTextColor">@color/emerald_text2</item>
+		<item name="selectedBufferTextColor">@color/emerald_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/emerald_text3</item>
+		<item name="bufferBorderColor">@color/emerald_border9</item>
+		<item name="serverBorderColor">@color/emerald_border9</item>
+		<item name="failedServerBorderColor">@color/emerald_border9</item>
+		<item name="selectedBufferBorderColor">@color/emerald_text6</item>
+		<item name="backlogDividerColor">@color/emerald_border1</item>
+		<item name="chatterBarColor">@color/emerald_background3</item>
+		<item name="awayBarTextColor">@color/emerald_text7</item>
+		<item name="awayBarColor">@color/emerald_background6</item>
+		<item name="connectionBarTextColor">@color/emerald_text4</item>
+		<item name="connectionBarColor">@color/emerald_background4</item>
+		<item name="connectionErrorBarTextColor">@color/emerald_text4</item>
+		<item name="connectionErrorBarColor">@color/emerald_background5</item>
+		<item name="timestampTopBorderColor">@color/emerald_border9</item>
+		<item name="timestampBottomBorderColor">@color/emerald_border6</item>
+		<item name="placeholderColor">@color/emerald_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/emerald_text12</item>
+		<item name="bufferHighlightColor">@color/emerald_background5</item>
+		<item name="selectedBufferHighlightColor">@color/emerald_text4</item>
+		<item name="archivedBufferHighlightColor">@color/emerald_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
+		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_emerald</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_emerald</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_emerald</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_emerald</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_emerald</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_emerald</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_emerald</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_emerald</item>
+	</style>
+
+	<color name="emerald_border1">#62CB4D</color>
+	<color name="emerald_border2">#50C539</color>
+	<color name="emerald_border3">#48B133</color>
+	<color name="emerald_border4">#409E2D</color>
+	<color name="emerald_border5">#388A28</color>
+	<color name="emerald_border6">#307622</color>
+	<color name="emerald_border7">#28621C</color>
+	<color name="emerald_border8">#204F16</color>
+	<color name="emerald_border9">#183B11</color>
+	<color name="emerald_border10">#10270B</color>
+	<color name="emerald_border11">#081305</color>
+	<color name="emerald_text1">#FFFFFF</color>
+	<color name="emerald_text2">#EDF9EB</color>
+	<color name="emerald_text3">#DCF3D7</color>
+	<color name="emerald_text4">#CAEDC3</color>
+	<color name="emerald_text5">#B9E8AF</color>
+	<color name="emerald_text6">#A7E29C</color>
+	<color name="emerald_text7">#96DC88</color>
+	<color name="emerald_text8">#85D674</color>
+	<color name="emerald_text9">#73D160</color>
+	<color name="emerald_text10">#62CB4D</color>
+	<color name="emerald_text11">#50C539</color>
+	<color name="emerald_text12">#48B133</color>
+	<color name="emerald_background0">#50C539</color>
+	<color name="emerald_background1">#48B133</color>
+	<color name="emerald_background2">#409E2D</color>
+	<color name="emerald_background3">#388A28</color>
+	<color name="emerald_background4">#307622</color>
+	<color name="emerald_background5">#28621C</color>
+	<color name="emerald_background5a">#255A1A</color>
+	<color name="emerald_background6">#204F16</color>
+	<color name="emerald_background6a">#1B4313</color>
+	<color name="emerald_background7">#183B11</color>
+<drawable name="bufferBorderDrawable_emerald">@color/emerald_border9</drawable>
+<drawable name="serverBorderDrawable_emerald">@color/emerald_border9</drawable>
+<drawable name="selectedBackgroundDrawable_emerald">@color/emerald_text3</drawable>
+<drawable name="selectedBorderDrawable_emerald">@color/emerald_text6</drawable>
+</resources>

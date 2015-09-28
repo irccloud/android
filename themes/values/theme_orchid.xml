@@ -1,0 +1,185 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="orchid" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
+		<item name="bufferTextColor">@color/orchid_text4</item>
+		<item name="navBarSubheadingColor">@color/orchid_text4</item>
+		<item name="inactiveBufferTextColor">@color/orchid_text9</item>
+		<item name="archivesHeadingTextColor">@color/orchid_text9</item>
+		<item name="chatterBarTextColor">@color/orchid_text5</item>
+		<item name="linkColor">@color/orchid_text1</item>
+		<item name="highlightBackgroundColor">@color/orchid_background5</item>
+		<item name="selfBackgroundColor">@color/orchid_background6</item>
+		<item name="contentBackgroundColor">@color/orchid_background7</item>
+		<item name="messageTextColor">@color/orchid_text4</item>
+		<item name="serverBackgroundColor">@color/orchid_background6</item>
+		<item name="bufferBackgroundColor">@color/orchid_background4</item>
+		<item name="memberListTextColor">@color/orchid_text5</item>
+		<item name="memberListAwayTextColor">@color/orchid_text9</item>
+		<item name="timestampColor">@color/orchid_text10</item>
+		<item name="timestampBackgroundColor">@color/orchid_background6</item>
+		<item name="statusBackgroundColor">@color/orchid_background6a</item>
+		<item name="noticeBackgroundColor">@color/orchid_background5a</item>
+		<item name="collapsedRowTextColor">@color/orchid_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/orchid_background6</item>
+		<item name="navBarColor">@color/orchid_background5</item>
+		<item name="navBarBorderColor">@color/orchid_border10</item>
+		<item name="textareaTextColor">@color/orchid_text3</item>
+		<item name="textareaBackgroundColor">@color/orchid_background3</item>
+		<item name="navBarHeadingColor">@color/orchid_text1</item>
+		<item name="lightLinkColor">@color/orchid_text9</item>
+		<item name="unreadBufferTextColor">@color/orchid_text2</item>
+		<item name="selectedBufferTextColor">@color/orchid_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/orchid_text3</item>
+		<item name="bufferBorderColor">@color/orchid_border9</item>
+		<item name="serverBorderColor">@color/orchid_border9</item>
+		<item name="failedServerBorderColor">@color/orchid_border9</item>
+		<item name="selectedBufferBorderColor">@color/orchid_text6</item>
+		<item name="backlogDividerColor">@color/orchid_border1</item>
+		<item name="chatterBarColor">@color/orchid_background3</item>
+		<item name="awayBarTextColor">@color/orchid_text7</item>
+		<item name="awayBarColor">@color/orchid_background6</item>
+		<item name="connectionBarTextColor">@color/orchid_text4</item>
+		<item name="connectionBarColor">@color/orchid_background4</item>
+		<item name="connectionErrorBarTextColor">@color/orchid_text4</item>
+		<item name="connectionErrorBarColor">@color/orchid_background5</item>
+		<item name="timestampTopBorderColor">@color/orchid_border9</item>
+		<item name="timestampBottomBorderColor">@color/orchid_border6</item>
+		<item name="placeholderColor">@color/orchid_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/orchid_text12</item>
+		<item name="bufferHighlightColor">@color/orchid_background5</item>
+		<item name="selectedBufferHighlightColor">@color/orchid_text4</item>
+		<item name="archivedBufferHighlightColor">@color/orchid_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/orchid_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/orchid_text6</item>
+		<item name="actionbarDrawable">@drawable/actionbar_orchid</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_orchid</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_orchid</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_orchid</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_orchid</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_orchid</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_orchid</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_orchid</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_orchid</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_orchid</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_orchid</item>
+	</style>
+
+	<style name="orchidNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
+		<item name="bufferTextColor">@color/orchid_text4</item>
+		<item name="navBarSubheadingColor">@color/orchid_text4</item>
+		<item name="inactiveBufferTextColor">@color/orchid_text9</item>
+		<item name="archivesHeadingTextColor">@color/orchid_text9</item>
+		<item name="chatterBarTextColor">@color/orchid_text5</item>
+		<item name="linkColor">@color/orchid_text1</item>
+		<item name="highlightBackgroundColor">@color/orchid_background5</item>
+		<item name="selfBackgroundColor">@color/orchid_background6</item>
+		<item name="contentBackgroundColor">@color/orchid_background7</item>
+		<item name="messageTextColor">@color/orchid_text4</item>
+		<item name="serverBackgroundColor">@color/orchid_background6</item>
+		<item name="bufferBackgroundColor">@color/orchid_background4</item>
+		<item name="memberListTextColor">@color/orchid_text5</item>
+		<item name="memberListAwayTextColor">@color/orchid_text9</item>
+		<item name="timestampColor">@color/orchid_text10</item>
+		<item name="timestampBackgroundColor">@color/orchid_background6</item>
+		<item name="statusBackgroundColor">@color/orchid_background6a</item>
+		<item name="noticeBackgroundColor">@color/orchid_background5a</item>
+		<item name="collapsedRowTextColor">@color/orchid_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/orchid_background6</item>
+		<item name="navBarColor">@color/orchid_background5</item>
+		<item name="navBarBorderColor">@color/orchid_border10</item>
+		<item name="textareaTextColor">@color/orchid_text3</item>
+		<item name="textareaBackgroundColor">@color/orchid_background3</item>
+		<item name="navBarHeadingColor">@color/orchid_text1</item>
+		<item name="lightLinkColor">@color/orchid_text9</item>
+		<item name="unreadBufferTextColor">@color/orchid_text2</item>
+		<item name="selectedBufferTextColor">@color/orchid_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/orchid_text3</item>
+		<item name="bufferBorderColor">@color/orchid_border9</item>
+		<item name="serverBorderColor">@color/orchid_border9</item>
+		<item name="failedServerBorderColor">@color/orchid_border9</item>
+		<item name="selectedBufferBorderColor">@color/orchid_text6</item>
+		<item name="backlogDividerColor">@color/orchid_border1</item>
+		<item name="chatterBarColor">@color/orchid_background3</item>
+		<item name="awayBarTextColor">@color/orchid_text7</item>
+		<item name="awayBarColor">@color/orchid_background6</item>
+		<item name="connectionBarTextColor">@color/orchid_text4</item>
+		<item name="connectionBarColor">@color/orchid_background4</item>
+		<item name="connectionErrorBarTextColor">@color/orchid_text4</item>
+		<item name="connectionErrorBarColor">@color/orchid_background5</item>
+		<item name="timestampTopBorderColor">@color/orchid_border9</item>
+		<item name="timestampBottomBorderColor">@color/orchid_border6</item>
+		<item name="placeholderColor">@color/orchid_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/orchid_text12</item>
+		<item name="bufferHighlightColor">@color/orchid_background5</item>
+		<item name="selectedBufferHighlightColor">@color/orchid_text4</item>
+		<item name="archivedBufferHighlightColor">@color/orchid_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/orchid_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/orchid_text6</item>
+		<item name="actionbarDrawable">@drawable/actionbar_orchid</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_orchid</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_orchid</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_orchid</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_orchid</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_orchid</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_orchid</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_orchid</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_orchid</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_orchid</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_orchid</item>
+	</style>
+
+	<color name="orchid_border1">#CB4DAD</color>
+	<color name="orchid_border2">#C539A4</color>
+	<color name="orchid_border3">#B13394</color>
+	<color name="orchid_border4">#9E2D83</color>
+	<color name="orchid_border5">#8A2873</color>
+	<color name="orchid_border6">#762262</color>
+	<color name="orchid_border7">#621C52</color>
+	<color name="orchid_border8">#4F1641</color>
+	<color name="orchid_border9">#3B1131</color>
+	<color name="orchid_border10">#270B20</color>
+	<color name="orchid_border11">#130510</color>
+	<color name="orchid_text1">#FFFFFF</color>
+	<color name="orchid_text2">#F9EBF5</color>
+	<color name="orchid_text3">#F3D7EC</color>
+	<color name="orchid_text4">#EDC3E3</color>
+	<color name="orchid_text5">#E8AFDA</color>
+	<color name="orchid_text6">#E29CD1</color>
+	<color name="orchid_text7">#DC88C8</color>
+	<color name="orchid_text8">#D674BF</color>
+	<color name="orchid_text9">#D160B6</color>
+	<color name="orchid_text10">#CB4DAD</color>
+	<color name="orchid_text11">#C539A4</color>
+	<color name="orchid_text12">#B13394</color>
+	<color name="orchid_background0">#C539A4</color>
+	<color name="orchid_background1">#B13394</color>
+	<color name="orchid_background2">#9E2D83</color>
+	<color name="orchid_background3">#8A2873</color>
+	<color name="orchid_background4">#762262</color>
+	<color name="orchid_background5">#621C52</color>
+	<color name="orchid_background5a">#5A1A4B</color>
+	<color name="orchid_background6">#4F1641</color>
+	<color name="orchid_background6a">#431338</color>
+	<color name="orchid_background7">#3B1131</color>
+<drawable name="bufferBorderDrawable_orchid">@color/orchid_border9</drawable>
+<drawable name="serverBorderDrawable_orchid">@color/orchid_border9</drawable>
+<drawable name="selectedBackgroundDrawable_orchid">@color/orchid_text3</drawable>
+<drawable name="selectedBorderDrawable_orchid">@color/orchid_text6</drawable>
+</resources>

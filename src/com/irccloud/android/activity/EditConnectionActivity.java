@@ -51,7 +51,6 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
         setContentView(R.layout.activity_edit_connection);
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
         getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);
         getSupportActionBar().setElevation(0);
 

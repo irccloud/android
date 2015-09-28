@@ -15,6 +15,6 @@
   -->
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/opsBorderColor">
-    <item android:drawable="?attr/opsGroupColor" />
+    android:color="@color/opsBorderColor_dark">
+    <item android:drawable="@color/opsGroupColor_dark" />
 </ripple>

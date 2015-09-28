@@ -16,6 +16,6 @@
   -->
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/membersBorderColor">
-    <item android:drawable="?attr/membersGroupColor"/>
+    android:color="@color/membersBorderColor_dark">
+    <item android:drawable="@color/membersGroupColor_dark"/>
 </ripple>

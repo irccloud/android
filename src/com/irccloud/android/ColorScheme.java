@@ -106,6 +106,15 @@ public class ColorScheme {
         selectedArchivedBufferHighlightColor = colorForAttribute(ctx, R.attr.selectedArchivedBufferHighlightColor);
         selectedArchivedBufferBackgroundColor = colorForAttribute(ctx, R.attr.selectedArchivedBufferBackgroundColor);
         contentBorderColor = colorForAttribute(ctx, R.attr.contentBorderColor);
+        bufferBorderDrawable = resourceForAttribute(ctx, R.attr.bufferBorderDrawable);
+        serverBorderDrawable = resourceForAttribute(ctx, R.attr.serverBorderDrawable);
+        selectedBorderDrawable = resourceForAttribute(ctx, R.attr.selectedBorderDrawable);
+        bufferBackgroundDrawable = resourceForAttribute(ctx, R.attr.bufferBackgroundDrawable);
+        serverBackgroundDrawable = resourceForAttribute(ctx, R.attr.serverBackgroundDrawable);
+        selectedBackgroundDrawable = resourceForAttribute(ctx, R.attr.selectedBackgroundDrawable);
+        lastSeenEIDBackgroundDrawable = resourceForAttribute(ctx, R.attr.lastSeenEIDBackgroundDrawable);
+        socketclosedBackgroundDrawable = resourceForAttribute(ctx, R.attr.socketclosedBackgroundDrawable);
+        timestampBackgroundDrawable = resourceForAttribute(ctx, R.attr.timestampBackgroundDrawable);
         isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) != 0;
     }
 
@@ -113,6 +122,12 @@ public class ColorScheme {
         TypedValue v = new TypedValue();
         ctx.getTheme().resolveAttribute(attribute, v, true);
         return v.data;
+    }
+
+    private int resourceForAttribute(Context ctx, int attribute) {
+        TypedValue v = new TypedValue();
+        ctx.getTheme().resolveAttribute(attribute, v, true);
+        return v.resourceId;
     }
 
     public int contentBackgroundColor;
@@ -193,5 +208,14 @@ public class ColorScheme {
     public int selectedArchivedBufferHighlightColor;
     public int selectedArchivedBufferBackgroundColor;
     public int contentBorderColor;
+    public int bufferBorderDrawable;
+    public int serverBorderDrawable;
+    public int selectedBorderDrawable;
+    public int bufferBackgroundDrawable;
+    public int serverBackgroundDrawable;
+    public int selectedBackgroundDrawable;
+    public int lastSeenEIDBackgroundDrawable;
+    public int socketclosedBackgroundDrawable;
+    public int timestampBackgroundDrawable;
     public boolean isDarkTheme;
 }

@@ -16,6 +16,6 @@
   -->
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/voicedBorderColor">
-    <item android:drawable="?attr/voicedGroupColor"/>
+    android:color="@color/voicedBorderColor_dark">
+    <item android:drawable="@color/voicedGroupColor_dark"/>
 </ripple>

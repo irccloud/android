@@ -203,7 +203,6 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
 
         if(pastebin.getId() != null) {
             setTitle(R.string.title_activity_pastebin_editor_edit);
-            toolbar.setBackgroundResource(R.drawable.actionbar);
         } else {
             setTitle(R.string.title_activity_pastebin_editor);
         }

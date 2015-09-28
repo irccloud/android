@@ -18,5 +18,5 @@
     <item android:color="@color/dark_blue" android:state_pressed="true" />
     <item android:color="@color/selected_white" android:state_selected="true" />
     <item android:color="@color/dark_blue" android:state_focused="true" />
-    <item android:color="@color/dark_blue" />
+    <item android:color="@color/self" />
 </selector>

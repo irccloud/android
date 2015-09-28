@@ -1,0 +1,185 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="sand" parent="DarkAppTheme">
+		<item name="isDarkTheme">true</item>
+		<item name="bufferTextColor">@color/sand_text4</item>
+		<item name="navBarSubheadingColor">@color/sand_text4</item>
+		<item name="inactiveBufferTextColor">@color/sand_text9</item>
+		<item name="archivesHeadingTextColor">@color/sand_text9</item>
+		<item name="chatterBarTextColor">@color/sand_text5</item>
+		<item name="linkColor">@color/sand_text1</item>
+		<item name="highlightBackgroundColor">@color/sand_background5</item>
+		<item name="selfBackgroundColor">@color/sand_background6</item>
+		<item name="contentBackgroundColor">@color/sand_background7</item>
+		<item name="messageTextColor">@color/sand_text4</item>
+		<item name="serverBackgroundColor">@color/sand_background6</item>
+		<item name="bufferBackgroundColor">@color/sand_background4</item>
+		<item name="memberListTextColor">@color/sand_text5</item>
+		<item name="memberListAwayTextColor">@color/sand_text9</item>
+		<item name="timestampColor">@color/sand_text10</item>
+		<item name="timestampBackgroundColor">@color/sand_background6</item>
+		<item name="statusBackgroundColor">@color/sand_background6a</item>
+		<item name="noticeBackgroundColor">@color/sand_background5a</item>
+		<item name="collapsedRowTextColor">@color/sand_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/sand_background6</item>
+		<item name="navBarColor">@color/sand_background5</item>
+		<item name="navBarBorderColor">@color/sand_border10</item>
+		<item name="textareaTextColor">@color/sand_text3</item>
+		<item name="textareaBackgroundColor">@color/sand_background3</item>
+		<item name="navBarHeadingColor">@color/sand_text1</item>
+		<item name="lightLinkColor">@color/sand_text9</item>
+		<item name="unreadBufferTextColor">@color/sand_text2</item>
+		<item name="selectedBufferTextColor">@color/sand_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/sand_text3</item>
+		<item name="bufferBorderColor">@color/sand_border9</item>
+		<item name="serverBorderColor">@color/sand_border9</item>
+		<item name="failedServerBorderColor">@color/sand_border9</item>
+		<item name="selectedBufferBorderColor">@color/sand_text6</item>
+		<item name="backlogDividerColor">@color/sand_border1</item>
+		<item name="chatterBarColor">@color/sand_background3</item>
+		<item name="awayBarTextColor">@color/sand_text7</item>
+		<item name="awayBarColor">@color/sand_background6</item>
+		<item name="connectionBarTextColor">@color/sand_text4</item>
+		<item name="connectionBarColor">@color/sand_background4</item>
+		<item name="connectionErrorBarTextColor">@color/sand_text4</item>
+		<item name="connectionErrorBarColor">@color/sand_background5</item>
+		<item name="timestampTopBorderColor">@color/sand_border9</item>
+		<item name="timestampBottomBorderColor">@color/sand_border6</item>
+		<item name="placeholderColor">@color/sand_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/sand_text12</item>
+		<item name="bufferHighlightColor">@color/sand_background5</item>
+		<item name="selectedBufferHighlightColor">@color/sand_text4</item>
+		<item name="archivedBufferHighlightColor">@color/sand_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/sand_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/sand_text6</item>
+		<item name="actionbarDrawable">@drawable/actionbar_sand</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_sand</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_sand</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_sand</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_sand</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_sand</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_sand</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_sand</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_sand</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_sand</item>
+	</style>
+
+	<style name="sandNoActionBar" parent="DarkAppThemeNoActionBar">
+		<item name="isDarkTheme">true</item>
+		<item name="bufferTextColor">@color/sand_text4</item>
+		<item name="navBarSubheadingColor">@color/sand_text4</item>
+		<item name="inactiveBufferTextColor">@color/sand_text9</item>
+		<item name="archivesHeadingTextColor">@color/sand_text9</item>
+		<item name="chatterBarTextColor">@color/sand_text5</item>
+		<item name="linkColor">@color/sand_text1</item>
+		<item name="highlightBackgroundColor">@color/sand_background5</item>
+		<item name="selfBackgroundColor">@color/sand_background6</item>
+		<item name="contentBackgroundColor">@color/sand_background7</item>
+		<item name="messageTextColor">@color/sand_text4</item>
+		<item name="serverBackgroundColor">@color/sand_background6</item>
+		<item name="bufferBackgroundColor">@color/sand_background4</item>
+		<item name="memberListTextColor">@color/sand_text5</item>
+		<item name="memberListAwayTextColor">@color/sand_text9</item>
+		<item name="timestampColor">@color/sand_text10</item>
+		<item name="timestampBackgroundColor">@color/sand_background6</item>
+		<item name="statusBackgroundColor">@color/sand_background6a</item>
+		<item name="noticeBackgroundColor">@color/sand_background5a</item>
+		<item name="collapsedRowTextColor">@color/sand_text7</item>
+		<item name="collapsedHeadingBackgroundColor">@color/sand_background6</item>
+		<item name="navBarColor">@color/sand_background5</item>
+		<item name="navBarBorderColor">@color/sand_border10</item>
+		<item name="textareaTextColor">@color/sand_text3</item>
+		<item name="textareaBackgroundColor">@color/sand_background3</item>
+		<item name="navBarHeadingColor">@color/sand_text1</item>
+		<item name="lightLinkColor">@color/sand_text9</item>
+		<item name="unreadBufferTextColor">@color/sand_text2</item>
+		<item name="selectedBufferTextColor">@color/sand_border8</item>
+		<item name="selectedBufferBackgroundColor">@color/sand_text3</item>
+		<item name="bufferBorderColor">@color/sand_border9</item>
+		<item name="serverBorderColor">@color/sand_border9</item>
+		<item name="failedServerBorderColor">@color/sand_border9</item>
+		<item name="selectedBufferBorderColor">@color/sand_text6</item>
+		<item name="backlogDividerColor">@color/sand_border1</item>
+		<item name="chatterBarColor">@color/sand_background3</item>
+		<item name="awayBarTextColor">@color/sand_text7</item>
+		<item name="awayBarColor">@color/sand_background6</item>
+		<item name="connectionBarTextColor">@color/sand_text4</item>
+		<item name="connectionBarColor">@color/sand_background4</item>
+		<item name="connectionErrorBarTextColor">@color/sand_text4</item>
+		<item name="connectionErrorBarColor">@color/sand_background5</item>
+		<item name="timestampTopBorderColor">@color/sand_border9</item>
+		<item name="timestampBottomBorderColor">@color/sand_border6</item>
+		<item name="placeholderColor">@color/sand_text12</item>
+		<item name="expandCollapseIndicatorColor">@color/sand_text12</item>
+		<item name="bufferHighlightColor">@color/sand_background5</item>
+		<item name="selectedBufferHighlightColor">@color/sand_text4</item>
+		<item name="archivedBufferHighlightColor">@color/sand_background5</item>
+		<item name="selectedArchivedBufferHighlightColor">@color/sand_text6</item>
+		<item name="selectedArchivedBufferBackgroundColor">@color/sand_text6</item>
+		<item name="actionbarDrawable">@drawable/actionbar_sand</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_sand</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_sand</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_sand</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_sand</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_sand</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_sand</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_sand</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_sand</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_sand</item>
+	</style>
+
+	<color name="sand_border1">#CBAB4D</color>
+	<color name="sand_border2">#C5A239</color>
+	<color name="sand_border3">#B19233</color>
+	<color name="sand_border4">#9E822D</color>
+	<color name="sand_border5">#8A7128</color>
+	<color name="sand_border6">#766122</color>
+	<color name="sand_border7">#62511C</color>
+	<color name="sand_border8">#4F4116</color>
+	<color name="sand_border9">#3B3011</color>
+	<color name="sand_border10">#27200B</color>
+	<color name="sand_border11">#131005</color>
+	<color name="sand_text1">#FFFFFF</color>
+	<color name="sand_text2">#F9F5EB</color>
+	<color name="sand_text3">#F3ECD7</color>
+	<color name="sand_text4">#EDE3C3</color>
+	<color name="sand_text5">#E8DAAF</color>
+	<color name="sand_text6">#E2D09C</color>
+	<color name="sand_text7">#DCC788</color>
+	<color name="sand_text8">#D6BE74</color>
+	<color name="sand_text9">#D1B560</color>
+	<color name="sand_text10">#CBAB4D</color>
+	<color name="sand_text11">#C5A239</color>
+	<color name="sand_text12">#B19233</color>
+	<color name="sand_background0">#C5A239</color>
+	<color name="sand_background1">#B19233</color>
+	<color name="sand_background2">#9E822D</color>
+	<color name="sand_background3">#8A7128</color>
+	<color name="sand_background4">#766122</color>
+	<color name="sand_background5">#62511C</color>
+	<color name="sand_background5a">#5A4A1A</color>
+	<color name="sand_background6">#4F4116</color>
+	<color name="sand_background6a">#433713</color>
+	<color name="sand_background7">#3B3011</color>
+<drawable name="bufferBorderDrawable_sand">@color/sand_border9</drawable>
+<drawable name="serverBorderDrawable_sand">@color/sand_border9</drawable>
+<drawable name="selectedBackgroundDrawable_sand">@color/sand_text3</drawable>
+<drawable name="selectedBorderDrawable_sand">@color/sand_text6</drawable>
+</resources>

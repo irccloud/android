@@ -16,6 +16,6 @@
   -->
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="?attr/halfopsBorderColor">
-    <item android:drawable="?attr/halfopsGroupColor"/>
+    android:color="@color/halfopsBorderColor_dark">
+    <item android:drawable="@color/halfopsGroupColor_dark"/>
 </ripple>

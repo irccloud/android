@@ -56,6 +56,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     }
 
     private Server server = null;
+    private ColorScheme colorScheme = ColorScheme.getInstance();
 
     public Server getServer() {
         if(server == null)
@@ -401,22 +402,22 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getTextColor() {
         if (type_int == Type.ARCHIVES_HEADER) {
-            return ColorScheme.getInstance().archivesHeadingTextColor;
+            return colorScheme.archivesHeadingTextColor;
         } else if (type_int == Type.JOIN_CHANNEL) {
             return R.color.row_label_join;
         } else if (getArchived() == 1) {
-            return (type_int == Type.CHANNEL) ? ColorScheme.getInstance().archivedChannelTextColor : ColorScheme.getInstance().archivedBufferTextColor;
+            return (type_int == Type.CHANNEL) ? colorScheme.archivedChannelTextColor : colorScheme.archivedBufferTextColor;
         } else if (isConsole()) {
             if(getServer().isFailed())
-                return ColorScheme.getInstance().networkErrorColor;
+                return colorScheme.networkErrorColor;
             else if(!getServer().isConnected())
-                return ColorScheme.getInstance().inactiveBufferTextColor;
+                return colorScheme.inactiveBufferTextColor;
             else
-                return ColorScheme.getInstance().bufferTextColor;
+                return colorScheme.bufferTextColor;
         } else if (isChannel() && !isJoined()) {
-            return ColorScheme.getInstance().inactiveBufferTextColor;
+            return colorScheme.inactiveBufferTextColor;
         } else {
-            return ColorScheme.getInstance().bufferTextColor;
+            return colorScheme.bufferTextColor;
         }
     }
 
@@ -433,15 +434,15 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getBackgroundResource() {
         if(isChannel() || isConversation())
-            return R.drawable.row_buffer_bg;
+            return colorScheme.bufferBackgroundDrawable;
         else if(isConsole())
-            return getServer().isFailed() ? R.drawable.row_failed_bg : R.drawable.row_buffergroup_bg;
+            return getServer().isFailed() ? R.drawable.row_failed_bg : colorScheme.serverBackgroundDrawable;
         else if(type_int == Type.JOIN_CHANNEL)
-            return R.drawable.row_buffer_bg;
+            return colorScheme.bufferBackgroundDrawable;
         else if(type_int == Type.ARCHIVES_HEADER)
-            return (getArchived() == 0)?R.drawable.row_buffer_bg:R.drawable.archived_bg_selected;
+            return (getArchived() == 0)?colorScheme.bufferBackgroundDrawable:R.drawable.archived_bg_selected;
         else
-            return R.drawable.row_buffergroup_bg;
+            return colorScheme.serverBackgroundDrawable;
     }
 
     @Bindable
@@ -449,7 +450,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         if(isConsole())
             return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
         else
-            return R.drawable.row_selected_bg;
+            return colorScheme.selectedBackgroundDrawable;
     }
 
     @Bindable
@@ -457,23 +458,23 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         if(isConsole())
             return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
         else
-            return R.drawable.row_selected_border;
+            return colorScheme.selectedBorderDrawable;
     }
 
     @Bindable
     public int getBorderResource() {
         if(isConsole())
-            return R.drawable.row_buffergroup_border;
+            return colorScheme.serverBorderDrawable;
         else
-            return R.drawable.row_border;
+            return colorScheme.bufferBorderDrawable;
     }
 
     @Bindable
     public int getSelectedTextColor() {
         if(type_int == Type.ARCHIVES_HEADER)
-            return ColorScheme.getInstance().selectedArchivesHeadingColor;
+            return colorScheme.selectedArchivesHeadingColor;
         else
-            return ColorScheme.getInstance().selectedBufferTextColor;
+            return colorScheme.selectedBufferTextColor;
     }
 
     @Bindable

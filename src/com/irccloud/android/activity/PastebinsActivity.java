@@ -233,7 +233,6 @@ public class PastebinsActivity extends BaseActivity {
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
             getSupportActionBar().setElevation(0);
         }
 

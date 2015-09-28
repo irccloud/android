@@ -428,7 +428,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (drawerLayout != null) {
             if (findViewById(R.id.usersListFragment2) == null) {
-                upDrawable = getDrawable(R.drawable.ic_action_navigation_menu).mutate();
+                upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
                 upDrawable.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");

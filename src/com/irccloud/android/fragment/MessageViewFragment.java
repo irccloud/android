@@ -253,7 +253,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         e.eid = buffer.getLast_seen_eid() + 1;
                         e.type = TYPE_LASTSEENEID;
                         e.row_type = ROW_LASTSEENEID;
-                        e.bg_color = R.drawable.socketclosed_bg;
+                        e.bg_color = colorScheme.socketclosedBackgroundDrawable;
                         data.add(lastSeenEidMarkerPosition + 1, e);
                         EventsList.getInstance().addEvent(e);
                         for (int i = 0; i < data.size(); i++) {
@@ -443,7 +443,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 d.row_type = ROW_TIMESTAMP;
                 d.eid = eid - 1;
                 d.timestamp = formatter.format(calendar.getTime());
-                d.bg_color = R.drawable.row_timestamp_bg;
+                d.bg_color = colorScheme.timestampBackgroundDrawable;
                 d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
                 data.add(insert_pos, d);
                 if (currentGroupPosition > -1)

@@ -1,0 +1,141 @@
+<!--
+  ~ Copyright (c) 2015 IRCCloud, Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <style name="DarkAppTheme" parent="Theme.AppCompat">
+        <item name="android:dialogTheme">@style/DarkAppDialogTheme</item>
+        <item name="android:alertDialogTheme">@style/DarkAppAlertTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="dialogTheme">@style/AppDialogTheme</item>
+        <item name="alertDialogTheme">@style/AppAlertTheme</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
+
+        <item name="unreadBlueColor">#1E72FF</item>
+        <item name="contentBorderColor">?contentBackgroundColor</item>
+    </style>
+
+    <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:dialogTheme">@style/DarkAppDialogTheme</item>
+        <item name="android:alertDialogTheme">@style/DarkAppAlertTheme</item>
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:colorPrimary">?messageTextColor</item>
+        <item name="android:colorAccent">?messageTextColor</item>
+        <item name="android:colorPrimaryDark">?contentBackgroundColor</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="android:textColorPrimary">?navBarHeadingColor</item>
+        <item name="android:textColorSecondary">?navBarSubheadingColor</item>
+        <item name="android:actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorPrimary">?messageTextColor</item>
+        <item name="colorAccent">?messageTextColor</item>
+        <item name="colorPrimaryDark">?contentBackgroundColor</item>
+        <item name="actionModeBackground">?actionbarDrawable</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="dialogTheme">@style/DarkAppDialogTheme</item>
+        <item name="alertDialogTheme">@style/DarkAppAlertTheme</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
+        <item name="actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+
+        <item name="unreadBlueColor">#1E72FF</item>
+        <item name="contentBorderColor">#00000000</item>
+        <item name="usersDrawerBackground">@drawable/userslist_bg_dark</item>
+        <item name="archivedChannelTextColor">#ccc</item>
+        <item name="archivedBufferTextColor">#eee</item>
+        <item name="selectedArchivesHeadingColor">#ccc</item>
+
+        <item name="opersGroupColor">@color/opersGroupColor_dark</item>
+        <item name="ownersGroupColor">@color/ownersGroupColor_dark</item>
+        <item name="adminsGroupColor">@color/adminsGroupColor_dark</item>
+        <item name="opsGroupColor">@color/opsGroupColor_dark</item>
+        <item name="halfopsGroupColor">@color/halfopsGroupColor_dark</item>
+        <item name="voicedGroupColor">@color/voicedGroupColor_dark</item>
+        <item name="membersGroupColor">@color/membersGroupColor_dark</item>
+        <item name="opersBorderColor">@color/opersBorderColor_dark</item>
+        <item name="ownersBorderColor">@color/ownersBorderColor_dark</item>
+        <item name="adminsBorderColor">@color/adminsBorderColor_dark</item>
+        <item name="opsBorderColor">@color/opsBorderColor_dark</item>
+        <item name="halfopsBorderColor">@color/halfopsBorderColor_dark</item>
+        <item name="voicedBorderColor">@color/voicedBorderColor_dark</item>
+        <item name="membersBorderColor">@color/membersBorderColor_dark</item>
+
+        <item name="memberListTextColor">#b0cce8</item>
+        <item name="memberListAwayTextColor">#6199d1</item>
+    </style>
+
+    <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="colorControlNormal">@color/dark_blue</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
+    </style>
+
+    <style name="DarkAppAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:colorPrimary">@color/dark_blue</item>
+        <item name="android:colorAccent">@color/dark_blue</item>
+        <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="colorPrimary">@color/dark_blue</item>
+        <item name="colorAccent">@color/dark_blue</item>
+        <item name="colorPrimaryDark">#000</item>
+        <item name="colorControlNormal">@color/dark_blue</item>
+        <item name="android:textColorHighlight">@color/light_blue</item>
+    </style>
+
+    <color name="opersGroupColor_dark">#43260f</color>
+    <color name="ownersGroupColor_dark">#3f3722</color>
+    <color name="adminsGroupColor_dark">#281c31</color>
+    <color name="opsGroupColor_dark">#451c1c</color>
+    <color name="halfopsGroupColor_dark">#372e20</color>
+    <color name="voicedGroupColor_dark">#27331f</color>
+    <color name="membersGroupColor_dark">#1b2432</color>
+    <color name="opersBorderColor_dark">#76400a</color>
+    <color name="ownersBorderColor_dark">#6b5814</color>
+    <color name="adminsBorderColor_dark">#553384</color>
+    <color name="opsBorderColor_dark">#843e3e</color>
+    <color name="halfopsBorderColor_dark">#684f27</color>
+    <color name="voicedBorderColor_dark">#335700</color>
+    <color name="membersBorderColor_dark">#2b3854</color>
+
+    <drawable name="row_opers_border_dark">@color/opersBorderColor_dark</drawable>
+    <drawable name="row_owners_border_dark">@color/ownersBorderColor_dark</drawable>
+    <drawable name="row_admins_border_dark">@color/adminsBorderColor_dark</drawable>
+    <drawable name="row_ops_border_dark">@color/opsBorderColor_dark</drawable>
+    <drawable name="row_halfops_border_dark">@color/halfopsBorderColor_dark</drawable>
+    <drawable name="row_voiced_border_dark">@color/voicedBorderColor_dark</drawable>
+    <drawable name="row_members_border_dark">@color/membersBorderColor_dark</drawable>
+
+</resources>

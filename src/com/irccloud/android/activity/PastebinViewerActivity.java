@@ -139,7 +139,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
 
         mWebView = (WebView) findViewById(R.id.image);
         mWebView.getSettings().setBuiltInZoomControls(true);

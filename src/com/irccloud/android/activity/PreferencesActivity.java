@@ -115,8 +115,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             }
         });
 
-        toolbar.setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
-
         if (Build.VERSION.SDK_INT >= 21)
             toolbar.setElevation(0);
 

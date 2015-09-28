@@ -43,31 +43,6 @@
         <item name="colorPrimaryDark">#0b2e60</item>
         <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
-    <style name="DarkAppTheme" parent="Theme.AppCompat">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-        <item name="unreadBlueColor">#1E72FF</item>
-        <item name="contentBorderColor">?attr/contentBackgroundColor</item>
-    </style>
-    <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-        <item name="unreadBlueColor">#1E72FF</item>
-        <item name="contentBorderColor">?attr/contentBackgroundColor</item>
-    </style>
     <style name="LoginThemeSpinner" parent="LoginTheme">
         <item name="colorAccent">#fff</item>
     </style>
@@ -215,4 +190,5 @@
     </style>
 
     <color name="white">#fff</color>
+    <drawable name="row_unread_border">#1E72FF</drawable>
 </resources>
