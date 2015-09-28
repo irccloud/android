@@ -295,7 +295,7 @@ f.write("""<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle" >
-            <solid android:color="@color/{theme}_background6" />
+            <solid android:color="@color/{theme}_background7" />
         </shape>
     </item>
     <item android:top="-2dp" android:left="8dp" android:right="8dp">
