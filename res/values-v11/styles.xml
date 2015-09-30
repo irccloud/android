@@ -92,7 +92,7 @@
     <style name="ThemedActionBar" parent="@style/Widget.AppCompat.ActionBar">
         <item name="android:titleTextStyle">@style/ActionBarTitleText</item>
         <item name="titleTextStyle">@style/ActionBarTitleText</item>
-        <item name="android:background">?actionbarDrawable</item>
+        <item name="background">?actionbarDrawable</item>
     </style>
 
     <style name="ActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">

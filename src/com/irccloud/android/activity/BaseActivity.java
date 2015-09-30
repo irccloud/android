@@ -64,6 +64,9 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        String theme = ColorScheme.getUserTheme();
+        setTheme(ColorScheme.getTheme(theme, true));
+        ColorScheme.getInstance().setThemeFromContext(this, theme);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Auth.CREDENTIALS_API)

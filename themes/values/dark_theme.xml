@@ -19,20 +19,52 @@
         <item name="android:dialogTheme">@style/DarkAppDialogTheme</item>
         <item name="android:alertDialogTheme">@style/DarkAppAlertTheme</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:colorPrimary">@color/dark_blue</item>
-        <item name="android:colorAccent">@color/dark_blue</item>
-        <item name="android:colorPrimaryDark">#000</item>
+        <item name="android:colorPrimary">?messageTextColor</item>
+        <item name="android:colorAccent">?messageTextColor</item>
+        <item name="android:colorPrimaryDark">?contentBackgroundColor</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
+        <item name="android:textColorPrimary">?navBarHeadingColor</item>
+        <item name="android:textColorSecondary">?navBarSubheadingColor</item>
+        <item name="android:actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorPrimary">?messageTextColor</item>
+        <item name="colorAccent">?messageTextColor</item>
+        <item name="colorPrimaryDark">?contentBackgroundColor</item>
+        <item name="actionModeBackground">?actionbarDrawable</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="dialogTheme">@style/DarkAppDialogTheme</item>
+        <item name="alertDialogTheme">@style/DarkAppAlertTheme</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
+        <item name="actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
-        <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="contentBorderColor">#00000000</item>
+        <item name="usersDrawerBackground">@drawable/userslist_bg_dark</item>
+        <item name="archivedChannelTextColor">#ccc</item>
+        <item name="archivedBufferTextColor">#eee</item>
+        <item name="selectedArchivesHeadingColor">#ccc</item>
+
+        <item name="opersGroupColor">@color/opersGroupColor_dark</item>
+        <item name="ownersGroupColor">@color/ownersGroupColor_dark</item>
+        <item name="adminsGroupColor">@color/adminsGroupColor_dark</item>
+        <item name="opsGroupColor">@color/opsGroupColor_dark</item>
+        <item name="halfopsGroupColor">@color/halfopsGroupColor_dark</item>
+        <item name="voicedGroupColor">@color/voicedGroupColor_dark</item>
+        <item name="membersGroupColor">@color/membersGroupColor_dark</item>
+        <item name="opersBorderColor">@color/opersBorderColor_dark</item>
+        <item name="ownersBorderColor">@color/ownersBorderColor_dark</item>
+        <item name="adminsBorderColor">@color/adminsBorderColor_dark</item>
+        <item name="opsBorderColor">@color/opsBorderColor_dark</item>
+        <item name="halfopsBorderColor">@color/halfopsBorderColor_dark</item>
+        <item name="voicedBorderColor">@color/voicedBorderColor_dark</item>
+        <item name="membersBorderColor">@color/membersBorderColor_dark</item>
+
+        <item name="memberListTextColor">#b0cce8</item>
+        <item name="memberListAwayTextColor">#6199d1</item>
     </style>
 
     <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">

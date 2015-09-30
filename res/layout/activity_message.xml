@@ -68,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="2dp"
-            android:background="?attr/contentBackgroundColor"
+            android:background="?attr/textareaBackgroundColor"
             android:gravity="bottom"
             android:paddingBottom="4dp">
 

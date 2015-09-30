@@ -1777,6 +1777,8 @@ public class NetworkConnection {
                     prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("nick-colors"));
                     prefs.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("emoji-disableconvert")));
                     prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("pastebin-disableprompt")));
+                    if(userInfo.prefs.has("theme"))
+                        prefs.putString("theme", userInfo.prefs.getString("theme"));
                 } else {
                     prefs.putBoolean("time-24hr", false);
                     prefs.putBoolean("time-seconds", false);

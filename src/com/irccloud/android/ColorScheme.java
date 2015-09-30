@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.preference.PreferenceManager;
 import android.util.TypedValue;
 
 public class ColorScheme {
@@ -27,7 +28,33 @@ public class ColorScheme {
         return instance;
     }
 
-    public void setThemeFromContext(Context ctx) {
+    public static String getUserTheme() {
+        return PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "dusk");
+    }
+
+    public static int getTheme(String theme, boolean actionbar) {
+        switch(theme) {
+            case "dusk":
+                return actionbar?R.style.dusk:R.style.duskNoActionBar;
+            case "tropic":
+                return actionbar?R.style.tropic:R.style.tropicNoActionBar;
+            case "emerald":
+                return actionbar?R.style.emerald:R.style.emeraldNoActionBar;
+            case "sand":
+                return actionbar?R.style.sand:R.style.sandNoActionBar;
+            case "rust":
+                return actionbar?R.style.rust:R.style.rustNoActionBar;
+            case "orchid":
+                return actionbar?R.style.orchid:R.style.orchidNoActionBar;
+            case "ash":
+                return actionbar?R.style.ash:R.style.ashNoActionBar;
+            default:
+                return actionbar?R.style.dusk:R.style.duskNoActionBar;
+        }
+    }
+
+    public void setThemeFromContext(Context ctx, String theme_name) {
+        theme = theme_name;
         contentBackgroundColor = colorForAttribute(ctx, R.attr.contentBackgroundColor);
         messageTextColor = colorForAttribute(ctx, R.attr.messageTextColor);
         opersGroupColor = colorForAttribute(ctx, R.attr.opersGroupColor);
@@ -115,6 +142,7 @@ public class ColorScheme {
         lastSeenEIDBackgroundDrawable = resourceForAttribute(ctx, R.attr.lastSeenEIDBackgroundDrawable);
         socketclosedBackgroundDrawable = resourceForAttribute(ctx, R.attr.socketclosedBackgroundDrawable);
         timestampBackgroundDrawable = resourceForAttribute(ctx, R.attr.timestampBackgroundDrawable);
+        colorControlNormal = colorForAttribute(ctx, R.attr.colorControlNormal);
         isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) != 0;
     }
 
@@ -217,5 +245,7 @@ public class ColorScheme {
     public int lastSeenEIDBackgroundDrawable;
     public int socketclosedBackgroundDrawable;
     public int timestampBackgroundDrawable;
+    public int colorControlNormal;
+    public String theme;
     public boolean isDarkTheme;
 }

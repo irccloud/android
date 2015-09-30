@@ -248,9 +248,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @SuppressWarnings({"deprecation", "unchecked"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.duskNoActionBar);
-        ColorScheme.getInstance().setThemeFromContext(this);
         super.onCreate(savedInstanceState);
+        setTheme(ColorScheme.getTheme(ColorScheme.getUserTheme(), false));
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
 
@@ -261,7 +260,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             if(cloud != null) {
-                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
                 cloud.recycle();
             }
         }
@@ -347,16 +346,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
                     sendBtn.setEnabled(true);
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                        sendBtn.setAlpha(1.0f);
-                    }
                 } else {
                     sendBtn.setEnabled(false);
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                        sendBtn.setAlpha(0.5f);
-                    }
                 }
                 String text = s.toString();
                 if (text.endsWith("\t")) { //Workaround for Swype
@@ -394,7 +385,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         };
         messageTxt.addTextChangedListener(textWatcher);
         sendBtn = (ImageButton)findViewById(R.id.sendBtn);
-        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+        sendBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
         sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -406,7 +397,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         photoBtn = (ImageButton)findViewById(R.id.photoBtn);
         if (photoBtn != null) {
-            photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
+            photoBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             photoBtn.setFocusable(false);
             photoBtn.setOnClickListener(new OnClickListener() {
                 @Override
@@ -967,10 +958,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPreExecute() {
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 sendBtn.setEnabled(false);
-                if (Build.VERSION.SDK_INT >= 11) {
-                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                    sendBtn.setAlpha(0.5f);
-                }
                 String msg = messageTxt.getText().toString();
                 if (msg.startsWith("//"))
                     msg = msg.substring(1);
@@ -1094,10 +1081,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else {
                 sendBtn.setEnabled(true);
-                if (Build.VERSION.SDK_INT >= 11) {
-                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                    sendBtn.setAlpha(1.0f);
-                }
             }
         }
     }
@@ -1285,16 +1268,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 getSupportActionBar().setHomeButtonEnabled(false);
             }
             sendBtn.setEnabled(false);
-            if (Build.VERSION.SDK_INT >= 11) {
-                sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                sendBtn.setAlpha(0.5f);
-            }
             if(conn.config == null) {
                 photoBtn.setEnabled(false);
-                if (Build.VERSION.SDK_INT >= 11) {
-                    photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                    photoBtn.setAlpha(0.5f);
-                }
             }
         } else {
             if (drawerLayout != null) {
@@ -1303,16 +1278,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if (messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 sendBtn.setEnabled(true);
-                if (Build.VERSION.SDK_INT >= 11) {
-                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                    sendBtn.setAlpha(1.0f);
-                }
             }
             photoBtn.setEnabled(true);
-            if (Build.VERSION.SDK_INT >= 11) {
-                photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                photoBtn.setAlpha(1.0f);
-            }
         }
 
         if (server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
@@ -1381,10 +1348,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         sendBtn.setEnabled(messageTxt.getText().length() > 0);
-        if (Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0) {
-            sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-            sendBtn.setAlpha(0.5f);
-        }
 
         if (drawerLayout != null)
             drawerLayout.closeDrawers();
@@ -1862,10 +1825,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     sendBtn.setEnabled(true);
-                                    if (Build.VERSION.SDK_INT >= 11) {
-                                        sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                                        sendBtn.setAlpha(1.0f);
-                                    }
                                 }
                             });
                         }
@@ -1878,15 +1837,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     getSupportActionBar().setHomeButtonEnabled(false);
                                 }
                                 sendBtn.setEnabled(false);
-                                if (Build.VERSION.SDK_INT >= 11) {
-                                    sendBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                                    sendBtn.setAlpha(0.5f);
-                                }
                                 photoBtn.setEnabled(false);
-                                if (Build.VERSION.SDK_INT >= 11) {
-                                    photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                                    photoBtn.setAlpha(0.5f);
-                                }
                             }
                         });
                         if (conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.ready && server == null) {
@@ -2336,10 +2287,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         refreshUpIndicatorTask = new RefreshUpIndicatorTask();
                         refreshUpIndicatorTask.execute((Void) null);
                         photoBtn.setEnabled(true);
-                        if (Build.VERSION.SDK_INT >= 11) {
-                            photoBtn.setColorFilter(ColorScheme.getInstance().textareaBackgroundColor, PorterDuff.Mode.SRC_ATOP);
-                            photoBtn.setAlpha(1.0f);
-                        }
                     }
                 });
                 //TODO: prune and pop the back stack if the current BID has disappeared
