@@ -51,6 +51,7 @@ import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 
@@ -64,9 +65,15 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        boolean themeChanged = false;
         String theme = ColorScheme.getUserTheme();
+        if(ColorScheme.getInstance().theme == null || !ColorScheme.getInstance().theme.equals(theme)) {
+            themeChanged = true;
+        }
         setTheme(ColorScheme.getTheme(theme, true));
         ColorScheme.getInstance().setThemeFromContext(this, theme);
+        if(themeChanged)
+            EventsList.getInstance().clearCaches();
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Auth.CREDENTIALS_API)

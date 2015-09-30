@@ -2139,19 +2139,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 });
                 break;
             case NetworkConnection.EVENT_USERINFO:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateUsersListFragmentVisibility();
-                        supportInvalidateOptionsMenu();
-                        if (refreshUpIndicatorTask != null)
-                            refreshUpIndicatorTask.cancel(true);
-                        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                        refreshUpIndicatorTask.execute((Void) null);
-                    }
-                });
-                if (launchBid == -1 && server == null && conn != null && conn.getUserInfo() != null)
-                    launchBid = conn.getUserInfo().last_selected_bid;
+                if(conn != null && conn.ready && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+                    Intent i = (getIntent() != null)?getIntent():new Intent(this, MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.putExtra("nosplash", true);
+                    finish();
+                    startActivity(i);
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateUsersListFragmentVisibility();
+                            supportInvalidateOptionsMenu();
+                            if (refreshUpIndicatorTask != null)
+                                refreshUpIndicatorTask.cancel(true);
+                            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                            refreshUpIndicatorTask.execute((Void) null);
+                        }
+                    });
+                    if (launchBid == -1 && server == null && conn != null && conn.getUserInfo() != null)
+                        launchBid = conn.getUserInfo().last_selected_bid;
+                }
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
                 try {
@@ -2238,58 +2246,66 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        errorMsg.setVisibility(View.GONE);
-                        error = null;
-                        if (progressBar.getVisibility() == View.VISIBLE) {
-                            if (Build.VERSION.SDK_INT >= 16) {
-                                progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-                                });
-                            } else {
-                                progressBar.setVisibility(View.GONE);
+                if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+                    Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.putExtra("nosplash", true);
+                    finish();
+                    startActivity(i);
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            errorMsg.setVisibility(View.GONE);
+                            error = null;
+                            if (progressBar.getVisibility() == View.VISIBLE) {
+                                if (Build.VERSION.SDK_INT >= 16) {
+                                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressBar.setVisibility(View.GONE);
+                                        }
+                                    });
+                                } else {
+                                    progressBar.setVisibility(View.GONE);
+                                }
                             }
-                        }
-                        getSupportActionBar().setDisplayShowTitleEnabled(false);
-                        getSupportActionBar().setDisplayShowCustomEnabled(true);
-                        if (drawerLayout != null) {
-                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                            getSupportActionBar().setHomeButtonEnabled(true);
-                            updateUsersListFragmentVisibility();
-                        }
-                        if (ServersList.getInstance().count() < 1) {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "No servers configured, launching add dialog");
-                            addNetwork();
-                        } else {
-                            if (server == null || launchURI != null || launchBid != -1) {
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
-                                if (launchURI == null || !open_uri(launchURI)) {
-                                    if (launchBid == -1 || !open_bid(launchBid)) {
-                                        if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-                                            if (!open_bid(BuffersList.getInstance().firstBid())) {
-                                                if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
-                                                    drawerLayout.openDrawer(Gravity.LEFT);
+                            getSupportActionBar().setDisplayShowTitleEnabled(false);
+                            getSupportActionBar().setDisplayShowCustomEnabled(true);
+                            if (drawerLayout != null) {
+                                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                                getSupportActionBar().setHomeButtonEnabled(true);
+                                updateUsersListFragmentVisibility();
+                            }
+                            if (ServersList.getInstance().count() < 1) {
+                                Crashlytics.log(Log.DEBUG, "IRCCloud", "No servers configured, launching add dialog");
+                                addNetwork();
+                            } else {
+                                if (server == null || launchURI != null || launchBid != -1) {
+                                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
+                                    if (launchURI == null || !open_uri(launchURI)) {
+                                        if (launchBid == -1 || !open_bid(launchBid)) {
+                                            if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+                                                if (!open_bid(BuffersList.getInstance().firstBid())) {
+                                                    if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
+                                                        drawerLayout.openDrawer(Gravity.LEFT);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
+                                update_subtitle();
                             }
-                            update_subtitle();
+                            if (refreshUpIndicatorTask != null)
+                                refreshUpIndicatorTask.cancel(true);
+                            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                            refreshUpIndicatorTask.execute((Void) null);
+                            photoBtn.setEnabled(true);
                         }
-                        if (refreshUpIndicatorTask != null)
-                            refreshUpIndicatorTask.cancel(true);
-                        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                        refreshUpIndicatorTask.execute((Void) null);
-                        photoBtn.setEnabled(true);
-                    }
-                });
-                //TODO: prune and pop the back stack if the current BID has disappeared
+                    });
+                    //TODO: prune and pop the back stack if the current BID has disappeared
+                }
                 break;
             case NetworkConnection.EVENT_CONNECTIONDELETED:
             case NetworkConnection.EVENT_DELETEBUFFER:
