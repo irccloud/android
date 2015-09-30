@@ -28,6 +28,7 @@
         <item name="android:textColorSecondary">?navBarSubheadingColor</item>
         <item name="android:actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="android:windowBackground">?contentBackgroundColor</item>
         <item name="colorPrimary">?messageTextColor</item>
         <item name="colorAccent">?messageTextColor</item>
         <item name="colorPrimaryDark">?contentBackgroundColor</item>
@@ -80,6 +81,7 @@
         <item name="android:textColorSecondary">?navBarSubheadingColor</item>
         <item name="android:actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="android:windowBackground">?contentBackgroundColor</item>
         <item name="colorPrimary">?messageTextColor</item>
         <item name="colorAccent">?messageTextColor</item>
         <item name="colorPrimaryDark">?contentBackgroundColor</item>

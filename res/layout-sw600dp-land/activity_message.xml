@@ -78,10 +78,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="2dp"
+            android:paddingTop="8dp"
             android:background="?attr/textareaBackgroundColor"
             android:gravity="bottom"
-            android:paddingBottom="4dp">
+            android:paddingBottom="8dp">
 
             <ImageButton
                 style="@style/Widget.Styled.ImageButton"

@@ -182,4 +182,12 @@
 <drawable name="serverBorderDrawable_dusk">@color/dusk_border9</drawable>
 <drawable name="selectedBackgroundDrawable_dusk">@color/dusk_text3</drawable>
 <drawable name="selectedBorderDrawable_dusk">@color/dusk_text6</drawable>
+
+<style name="duskPrefsTheme" parent="duskNoActionBar">
+    <item name="android:windowNoTitle">false</item>
+    <item name="android:windowTitleSize">?attr/actionBarSize</item>
+    <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+    <item name="android:seekBarStyle">@style/SeekBarmain</item>
+    <item name="android:listViewStyle">@style/listViewPrefs</item>
+</style>
 </resources>

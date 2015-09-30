@@ -182,4 +182,12 @@
 <drawable name="serverBorderDrawable_sand">@color/sand_border9</drawable>
 <drawable name="selectedBackgroundDrawable_sand">@color/sand_text3</drawable>
 <drawable name="selectedBorderDrawable_sand">@color/sand_text6</drawable>
+
+<style name="sandPrefsTheme" parent="sandNoActionBar">
+    <item name="android:windowNoTitle">false</item>
+    <item name="android:windowTitleSize">?attr/actionBarSize</item>
+    <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+    <item name="android:seekBarStyle">@style/SeekBarmain</item>
+    <item name="android:listViewStyle">@style/listViewPrefs</item>
+</style>
 </resources>

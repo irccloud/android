@@ -182,4 +182,12 @@
 <drawable name="serverBorderDrawable_orchid">@color/orchid_border9</drawable>
 <drawable name="selectedBackgroundDrawable_orchid">@color/orchid_text3</drawable>
 <drawable name="selectedBorderDrawable_orchid">@color/orchid_text6</drawable>
+
+<style name="orchidPrefsTheme" parent="orchidNoActionBar">
+    <item name="android:windowNoTitle">false</item>
+    <item name="android:windowTitleSize">?attr/actionBarSize</item>
+    <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+    <item name="android:seekBarStyle">@style/SeekBarmain</item>
+    <item name="android:listViewStyle">@style/listViewPrefs</item>
+</style>
 </resources>

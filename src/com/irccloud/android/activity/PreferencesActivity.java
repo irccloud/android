@@ -51,6 +51,7 @@ import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.DashClock;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -96,16 +97,18 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     public void onCreate(Bundle icicle) {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
+        setTheme(ColorScheme.getPrefsTheme(ColorScheme.getUserTheme()));
         getDelegate().installViewFactory();
         getDelegate().onCreate(icicle);
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
             cloud.recycle();
         }
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.actionbar_prefs);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.actionbar);
+        toolbar.setBackgroundResource(ColorScheme.getInstance().actionBarDrawable);
         toolbar.setTitle(getTitle());
         toolbar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -239,6 +242,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+        if (Build.VERSION.SDK_INT >= 16)
+            getListView().setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
     }
 
     @Override

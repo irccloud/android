@@ -53,6 +53,27 @@ public class ColorScheme {
         }
     }
 
+    public static int getPrefsTheme(String theme) {
+        switch(theme) {
+            case "dusk":
+                return R.style.duskPrefsTheme;
+            case "tropic":
+                return R.style.tropicPrefsTheme;
+            case "emerald":
+                return R.style.emeraldPrefsTheme;
+            case "sand":
+                return R.style.sandPrefsTheme;
+            case "rust":
+                return R.style.rustPrefsTheme;
+            case "orchid":
+                return R.style.orchidPrefsTheme;
+            case "ash":
+                return R.style.ashPrefsTheme;
+            default:
+                return R.style.duskPrefsTheme;
+        }
+    }
+
     public void setThemeFromContext(Context ctx, String theme_name) {
         theme = theme_name;
         contentBackgroundColor = colorForAttribute(ctx, R.attr.contentBackgroundColor);
@@ -142,6 +163,7 @@ public class ColorScheme {
         lastSeenEIDBackgroundDrawable = resourceForAttribute(ctx, R.attr.lastSeenEIDBackgroundDrawable);
         socketclosedBackgroundDrawable = resourceForAttribute(ctx, R.attr.socketclosedBackgroundDrawable);
         timestampBackgroundDrawable = resourceForAttribute(ctx, R.attr.timestampBackgroundDrawable);
+        actionBarDrawable = resourceForAttribute(ctx, R.attr.actionbarDrawable);
         colorControlNormal = colorForAttribute(ctx, R.attr.colorControlNormal);
         isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) != 0;
     }
@@ -246,6 +268,7 @@ public class ColorScheme {
     public int socketclosedBackgroundDrawable;
     public int timestampBackgroundDrawable;
     public int colorControlNormal;
+    public int actionBarDrawable;
     public String theme;
     public boolean isDarkTheme;
 }

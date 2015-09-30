@@ -100,6 +100,11 @@ LICENSE = """<!--
 ~ limitations under the License.
 -->\n"""
 
+params = {
+    "license":LICENSE,
+    "theme":themename
+}
+
 print "Geneating theme: " + themename
 
 f = open("themes/values/theme_" + themename + ".xml", "w")
@@ -151,13 +156,18 @@ f.write("<drawable name=\"serverBorderDrawable_" + themename + "\">@color/" + th
 f.write("<drawable name=\"selectedBackgroundDrawable_" + themename + "\">@color/" + themename + "_text3</drawable>\n")
 f.write("<drawable name=\"selectedBorderDrawable_" + themename + "\">@color/" + themename + "_text6</drawable>\n")
 
+f.write("""
+<style name="{theme}PrefsTheme" parent="{theme}NoActionBar">
+    <item name="android:windowNoTitle">false</item>
+    <item name="android:windowTitleSize">?attr/actionBarSize</item>
+    <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+    <item name="android:seekBarStyle">@style/SeekBarmain</item>
+    <item name="android:listViewStyle">@style/listViewPrefs</item>
+</style>
+""".format(**params))
+
 f.write("</resources>\n")
 f.close()
-
-params = {
-    "license":LICENSE,
-    "theme":themename
-}
 
 f = open("themes/drawable/actionbar_" + themename + ".xml", "w")
 f.truncate()
@@ -169,7 +179,7 @@ f.write("""<?xml version="1.0" encoding="utf-8"?>
 \t\t\t<solid android:color="@color/{theme}_border10" />
 \t\t</shape>
 \t</item>
-\t<item android:bottom="3dp">
+\t<item android:bottom="2dp">
 \t\t<shape android:shape="rectangle" >
 \t\t\t<solid android:color="@color/{theme}_background5" />
 \t\t</shape>

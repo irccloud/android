@@ -189,6 +189,11 @@
         <item name="actionModeShareDrawable">@drawable/ic_action_share</item>
     </style>
 
+    <style name="listViewPrefs" parent="@android:style/Widget.ListView">
+        <item name="android:background">?contentBackgroundColor</item>
+        <item name="android:cacheColorHint">?contentBackgroundColor</item>
+    </style>
+
     <color name="white">#fff</color>
     <drawable name="row_unread_border">#1E72FF</drawable>
 </resources>

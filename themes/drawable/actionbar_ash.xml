@@ -21,7 +21,7 @@
 			<solid android:color="@color/ash_border10" />
 		</shape>
 	</item>
-	<item android:bottom="3dp">
+	<item android:bottom="2dp">
 		<shape android:shape="rectangle" >
 			<solid android:color="@color/ash_background5" />
 		</shape>
