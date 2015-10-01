@@ -19,13 +19,13 @@
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
               android:orientation="vertical"
+              android:background="?contentBackgroundColor"
               android:gravity="center" >
 
     <ListView
         android:id="@android:id/list"
-        android:divider="@color/dialog_bg"
-        android:cacheColorHint="@color/dialog_bg"
-        android:background="@color/dialog_bg"
+        android:divider="?contentBackgroundColor"
+        android:cacheColorHint="?contentBackgroundColor"
         android:layout_width="match_parent"
         android:padding="4dp"
         android:layout_height="match_parent" />

@@ -16,11 +16,14 @@
 
 package com.irccloud.android.activity;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -74,6 +77,14 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         ColorScheme.getInstance().setThemeFromContext(this, theme);
         if(themeChanged)
             EventsList.getInstance().clearCaches();
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            if(cloud != null) {
+                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
+                cloud.recycle();
+            }
+        }
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Auth.CREDENTIALS_API)

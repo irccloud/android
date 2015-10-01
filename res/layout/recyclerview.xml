@@ -17,12 +17,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?contentBackgroundColor"
     android:orientation="vertical"
     android:gravity="center">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler"
-        android:background="@color/dialog_bg"
         android:layout_width="match_parent"
         android:padding="4dp"
         android:layout_height="wrap_content" />

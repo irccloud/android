@@ -257,13 +257,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenReceiver, filter);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            if(cloud != null) {
-                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
-                cloud.recycle();
-            }
-        }
         setContentView(R.layout.activity_message);
         final View splash = findViewById(R.id.splash);
         if(Build.VERSION.SDK_INT < 16 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {

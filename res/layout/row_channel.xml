@@ -26,6 +26,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="6dp"
         android:layout_marginRight="6dp"
+        app:cardBackgroundColor="?listItemBackgroundColor"
         app:contentPaddingLeft="16dp"
         app:contentPaddingRight="16dp"
         app:contentPaddingBottom="16dp"
@@ -44,8 +45,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{ channel.name }"
-            android:textColor="#000"
-            android:textColorLink="@color/dialogLinkColor"
+            android:textColor="?messageTextColor"
+            android:textColorLink="?linkColor"
             android:layout_marginBottom="6dp"
             android:textSize="16sp" />
 
@@ -55,8 +56,8 @@
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:text="@{ channel.topic }"
-             android:textColor="@color/timestamp"
-             android:textColorLink="@color/dialogLinkColor"
+             android:textColor="?navBarSubheadingColor"
+             android:textColorLink="?linkColor"
              android:textSize="14sp"
              android:textStyle="italic" />
         </LinearLayout>

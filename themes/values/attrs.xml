@@ -95,6 +95,8 @@
     <attr name="selectedArchivedBufferHighlightColor" format="color"/>
     <attr name="selectedArchivedBufferBackgroundColor" format="color"/>
     <attr name="contentBorderColor" format="color"/>
+    <attr name="listItemBackgroundColor" format="color"/>
+    <attr name="dialogBackgroundColor" format="color"/>
     <attr name="usersDrawerBackground" format="reference"/>
     <attr name="actionbarDrawable" format="reference"/>
     <attr name="buffersDrawerBackgroundDrawable" format="reference"/>

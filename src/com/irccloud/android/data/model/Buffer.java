@@ -448,7 +448,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getSelectedBackgroundResource() {
         if(isConsole())
-            return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
+            return getServer().isFailed() ? R.drawable.status_fail_bg : colorScheme.selectedBackgroundDrawable;
         else
             return colorScheme.selectedBackgroundDrawable;
     }
@@ -456,7 +456,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getSelectedBorderResource() {
         if(isConsole())
-            return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
+            return getServer().isFailed() ? R.drawable.status_fail_bg : colorScheme.selectedBorderDrawable;
         else
             return colorScheme.selectedBorderDrawable;
     }

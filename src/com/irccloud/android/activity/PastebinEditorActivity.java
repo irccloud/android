@@ -92,11 +92,6 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
         setContentView(R.layout.activity_pastebineditor);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -259,7 +254,8 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
             menu.findItem(R.id.action_save).setVisible(false);
             menu.findItem(R.id.action_send).setVisible(true);
         }
-        return super.onCreateOptionsMenu(menu);
+        setMenuColorFilter(menu);
+        return true;
     }
 
     @Override

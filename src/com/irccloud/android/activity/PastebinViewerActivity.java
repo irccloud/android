@@ -221,6 +221,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_pastebin, menu);
+        setMenuColorFilter(menu);
         return true;
     }
 

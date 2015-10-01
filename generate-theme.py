@@ -28,6 +28,7 @@ def theme(f, t, parent):
     f.write(style("highlightBackgroundColor", "background5"))
     f.write(style("selfBackgroundColor", "background6"))
     f.write(style("contentBackgroundColor", "background7"))
+    f.write(style("dialogBackgroundColor", "background6"))
     f.write(style("messageTextColor", "text4"))
     f.write(style("serverBackgroundColor", "background6"))
     f.write(style("bufferBackgroundColor", "background4"))
@@ -69,6 +70,7 @@ def theme(f, t, parent):
     f.write(style("archivedBufferHighlightColor", "background5"))
     f.write(style("selectedArchivedBufferHighlightColor", "text6"))
     f.write(style("selectedArchivedBufferBackgroundColor", "text6"))
+    f.write(style("listItemBackgroundColor", "background4"))
     
     f.write("\t\t<item name=\"actionbarDrawable\">@drawable/actionbar_" + themename + "</item>\n")
     f.write("\t\t<item name=\"buffersDrawerBackgroundDrawable\">@drawable/buffers_drawer_bg_" + themename + "</item>\n")
@@ -81,6 +83,10 @@ def theme(f, t, parent):
     f.write("\t\t<item name=\"lastSeenEIDBackgroundDrawable\">@drawable/row_lastseeneid_bg_" + themename + "</item>\n")
     f.write("\t\t<item name=\"timestampBackgroundDrawable\">@drawable/row_timestamp_bg_" + themename + "</item>\n")
     f.write("\t\t<item name=\"socketclosedBackgroundDrawable\">@drawable/row_socketclosed_bg_" + themename + "</item>\n")
+    f.write("\t\t<item name=\"android:dialogTheme\">@style/" + themename + "Dialog</item>\n")
+    f.write("\t\t<item name=\"dialogTheme\">@style/" + themename + "Dialog</item>\n")
+    f.write("\t\t<item name=\"android:alertDialogTheme\">@style/" + themename + "Alert</item>\n")
+    f.write("\t\t<item name=\"alertDialogTheme\">@style/" + themename + "Alert</item>\n")
     
     f.write("\t</style>\n\n")
     
@@ -114,6 +120,8 @@ f.write("\n<resources>\n")
 
 theme(f, themename, "DarkAppTheme")
 theme(f, themename + "NoActionBar", "DarkAppThemeNoActionBar")
+theme(f, themename + "Dialog", "DarkAppDialogTheme")
+theme(f, themename + "Alert", "DarkAppAlertTheme")
 
 f.write(color("border1", 0.55))
 f.write(color("border2", 0.50))

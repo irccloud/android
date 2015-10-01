@@ -20,6 +20,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -36,6 +37,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -115,6 +117,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             if (canChangeMode) {
                 row.removeBtn.setVisibility(View.VISIBLE);
                 row.removeBtn.setOnClickListener(removeClickListener);
+                row.removeBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
                 row.removeBtn.setTag(position);
             } else {
                 row.removeBtn.setVisibility(View.GONE);

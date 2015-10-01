@@ -42,6 +42,11 @@
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
 
+        <item name="android:navigationBarColor">?textareaBackgroundColor</item>
+        <item name="android:statusBarColor">?contentBackgroundColor</item>
+        <item name="android:colorForeground">?messageTextColor</item>
+        <item name="android:colorBackground">?dialogBackgroundColor</item>
+
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">#00000000</item>
         <item name="usersDrawerBackground">@drawable/userslist_bg_dark</item>
@@ -69,8 +74,6 @@
     </style>
 
     <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:dialogTheme">@style/DarkAppDialogTheme</item>
-        <item name="android:alertDialogTheme">@style/DarkAppAlertTheme</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:colorPrimary">?messageTextColor</item>
         <item name="android:colorAccent">?messageTextColor</item>
@@ -87,13 +90,16 @@
         <item name="colorPrimaryDark">?contentBackgroundColor</item>
         <item name="actionModeBackground">?actionbarDrawable</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="dialogTheme">@style/DarkAppDialogTheme</item>
-        <item name="alertDialogTheme">@style/DarkAppAlertTheme</item>
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="colorControlNormal">?navBarSubheadingColor</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+
+        <item name="android:navigationBarColor">?textareaBackgroundColor</item>
+        <item name="android:statusBarColor">?contentBackgroundColor</item>
+        <item name="android:colorForeground">?messageTextColor</item>
+        <item name="android:colorBackground">?dialogBackgroundColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">#00000000</item>
@@ -122,31 +128,46 @@
     </style>
 
     <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">
-        <item name="android:colorPrimary">@color/dark_blue</item>
-        <item name="android:colorAccent">@color/dark_blue</item>
-        <item name="android:colorPrimaryDark">#000</item>
-        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:background">?dialogBackgroundColor</item>
+        <item name="android:colorPrimary">?messageTextColor</item>
+        <item name="android:colorAccent">?messageTextColor</item>
+        <item name="android:colorPrimaryDark">?contentBackgroundColor</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
+        <item name="android:textColorPrimary">?navBarHeadingColor</item>
+        <item name="android:textColorSecondary">?navBarSubheadingColor</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorPrimary">?messageTextColor</item>
+        <item name="colorAccent">?messageTextColor</item>
+        <item name="colorPrimaryDark">?contentBackgroundColor</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
+        <item name="actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
     </style>
 
     <style name="DarkAppAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:colorPrimary">@color/dark_blue</item>
-        <item name="android:colorAccent">@color/dark_blue</item>
-        <item name="android:colorPrimaryDark">#000</item>
-        <item name="android:colorControlNormal">@color/dark_blue</item>
+        <item name="android:background">?dialogBackgroundColor</item>
+        <item name="android:colorPrimary">?messageTextColor</item>
+        <item name="android:colorAccent">?messageTextColor</item>
+        <item name="android:colorPrimaryDark">?contentBackgroundColor</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
+        <item name="android:textColorPrimary">?navBarHeadingColor</item>
+        <item name="android:textColorSecondary">?navBarSubheadingColor</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorPrimary">?messageTextColor</item>
+        <item name="colorAccent">?messageTextColor</item>
+        <item name="colorPrimaryDark">?contentBackgroundColor</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
+        <item name="actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
+    </style>
+
+    <style name="DarkDialogTitleTextStyle">
+        <item name="android:textColor">?navBarHeadingColor</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
     </style>
 
     <color name="opersGroupColor_dark">#43260f</color>

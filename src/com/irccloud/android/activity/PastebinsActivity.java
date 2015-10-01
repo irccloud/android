@@ -21,6 +21,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.OnErrorListener;
@@ -157,6 +159,7 @@ public class PastebinsActivity extends BaseActivity {
 
             binding.setPastebin(pastebins.get(i));
             binding.delete.setOnClickListener(deleteClickListener);
+            binding.delete.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             binding.delete.setTag(i);
             binding.executePendingBindings();
             return binding.getRoot();
@@ -222,12 +225,6 @@ public class PastebinsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
-
         setContentView(R.layout.listview);
 
         if(getSupportActionBar() != null) {

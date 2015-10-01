@@ -171,34 +171,6 @@
         <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
 
-    <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">
-        <item name="android:colorPrimary">@color/dark_blue</item>
-        <item name="android:colorAccent">@color/dark_blue</item>
-        <item name="android:colorPrimaryDark">#000</item>
-        <item name="android:colorControlNormal">@color/dark_blue</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-
-    <style name="DarkAppAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:colorPrimary">@color/dark_blue</item>
-        <item name="android:colorAccent">@color/dark_blue</item>
-        <item name="android:colorPrimaryDark">#000</item>
-        <item name="android:colorControlNormal">@color/dark_blue</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Material.Light.ImageButton">
         <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
     </style>

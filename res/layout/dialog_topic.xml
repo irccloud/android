@@ -32,7 +32,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            style="?android:attr/windowTitleStyle"
             android:textStyle="bold"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:text="Topic"/>
@@ -40,6 +40,7 @@
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -57,13 +58,13 @@
                             android:layout_height="wrap_content"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="16sp"
-                        android:textColorLink="@color/dialogLinkColor" />
+                        android:textColorLink="?linkColor" />
 
                     <TextView
                         android:id="@+id/setBy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/timestamp"
+                        android:textColor="?timestampColor"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:textStyle="italic"
                         android:visibility="gone" />
@@ -76,7 +77,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            style="?android:attr/windowTitleStyle"
             android:textStyle="bold"
             android:id="@+id/mode"
             android:visibility="gone" />
@@ -86,6 +87,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/mode_i"
             android:visibility="gone"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -108,7 +110,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
                     android:text="Members must be invited to join this channel." />
 
             </LinearLayout>
@@ -119,6 +121,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/mode_k"
             android:visibility="gone"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -141,7 +144,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
                     android:id="@+id/key" />
 
             </LinearLayout>
@@ -152,6 +155,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/mode_m"
             android:visibility="gone"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -174,7 +178,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
                     android:text="Only ops and voiced members may talk." />
 
             </LinearLayout>
@@ -185,6 +189,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/mode_n"
             android:visibility="gone"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -207,7 +212,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
                     android:text="No messages allowed from outside the channel." />
 
             </LinearLayout>
@@ -218,6 +223,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/mode_p"
             android:visibility="gone"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -240,7 +246,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
                     android:text="Membership is only visible to other members." />
 
             </LinearLayout>
@@ -251,6 +257,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/mode_s"
             android:visibility="gone"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -273,7 +280,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
                     android:text="This channel is unlisted and membership is only visible to other members." />
 
             </LinearLayout>
@@ -284,6 +291,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/mode_t"
             android:visibility="gone"
+            app:cardBackgroundColor="?listItemBackgroundColor"
             app:contentPaddingLeft="12dp"
             app:contentPaddingRight="12dp"
             app:contentPaddingBottom="6dp"
@@ -306,7 +314,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
                     android:text="Only ops can set the topic." />
 
             </LinearLayout>
