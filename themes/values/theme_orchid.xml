@@ -332,15 +332,15 @@
 	<color name="orchid_background6">#4F1641</color>
 	<color name="orchid_background6a">#431338</color>
 	<color name="orchid_background7">#3B1131</color>
-<drawable name="bufferBorderDrawable_orchid">@color/orchid_border9</drawable>
-<drawable name="serverBorderDrawable_orchid">@color/orchid_border9</drawable>
-<drawable name="selectedBackgroundDrawable_orchid">@color/orchid_text3</drawable>
-<drawable name="selectedBorderDrawable_orchid">@color/orchid_text6</drawable>
+	<drawable name="bufferBorderDrawable_orchid">@color/orchid_border9</drawable>
+	<drawable name="serverBorderDrawable_orchid">@color/orchid_border9</drawable>
+	<drawable name="selectedBackgroundDrawable_orchid">@color/orchid_text3</drawable>
+	<drawable name="selectedBorderDrawable_orchid">@color/orchid_text6</drawable>
 
-<style name="orchidPrefsTheme" parent="orchidNoActionBar">
-    <item name="android:windowNoTitle">false</item>
-    <item name="android:windowTitleSize">?attr/actionBarSize</item>
-    <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-    <item name="android:seekBarStyle">@style/SeekBarmain</item>
-</style>
+	<style name="orchidPrefsTheme" parent="orchidNoActionBar">
+		<item name="android:windowNoTitle">false</item>
+		<item name="android:windowTitleSize">?attr/actionBarSize</item>
+		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+		<item name="android:seekBarStyle">@style/SeekBarmain</item>
+	</style>
 </resources>

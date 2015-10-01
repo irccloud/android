@@ -332,15 +332,15 @@
 	<color name="tropic_background6">#164F4F</color>
 	<color name="tropic_background6a">#134343</color>
 	<color name="tropic_background7">#113B3B</color>
-<drawable name="bufferBorderDrawable_tropic">@color/tropic_border9</drawable>
-<drawable name="serverBorderDrawable_tropic">@color/tropic_border9</drawable>
-<drawable name="selectedBackgroundDrawable_tropic">@color/tropic_text3</drawable>
-<drawable name="selectedBorderDrawable_tropic">@color/tropic_text6</drawable>
+	<drawable name="bufferBorderDrawable_tropic">@color/tropic_border9</drawable>
+	<drawable name="serverBorderDrawable_tropic">@color/tropic_border9</drawable>
+	<drawable name="selectedBackgroundDrawable_tropic">@color/tropic_text3</drawable>
+	<drawable name="selectedBorderDrawable_tropic">@color/tropic_text6</drawable>
 
-<style name="tropicPrefsTheme" parent="tropicNoActionBar">
-    <item name="android:windowNoTitle">false</item>
-    <item name="android:windowTitleSize">?attr/actionBarSize</item>
-    <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-    <item name="android:seekBarStyle">@style/SeekBarmain</item>
-</style>
+	<style name="tropicPrefsTheme" parent="tropicNoActionBar">
+		<item name="android:windowNoTitle">false</item>
+		<item name="android:windowTitleSize">?attr/actionBarSize</item>
+		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+		<item name="android:seekBarStyle">@style/SeekBarmain</item>
+	</style>
 </resources>

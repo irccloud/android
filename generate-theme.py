@@ -159,18 +159,18 @@ f.write(color("background6", 0.20))
 f.write(color("background6a", 0.17))
 f.write(color("background7", 0.15))
 
-f.write("<drawable name=\"bufferBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
-f.write("<drawable name=\"serverBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
-f.write("<drawable name=\"selectedBackgroundDrawable_" + themename + "\">@color/" + themename + "_text3</drawable>\n")
-f.write("<drawable name=\"selectedBorderDrawable_" + themename + "\">@color/" + themename + "_text6</drawable>\n")
+f.write("\t<drawable name=\"bufferBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
+f.write("\t<drawable name=\"serverBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
+f.write("\t<drawable name=\"selectedBackgroundDrawable_" + themename + "\">@color/" + themename + "_text3</drawable>\n")
+f.write("\t<drawable name=\"selectedBorderDrawable_" + themename + "\">@color/" + themename + "_text6</drawable>\n")
 
 f.write("""
-<style name="{theme}PrefsTheme" parent="{theme}NoActionBar">
-    <item name="android:windowNoTitle">false</item>
-    <item name="android:windowTitleSize">?attr/actionBarSize</item>
-    <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-    <item name="android:seekBarStyle">@style/SeekBarmain</item>
-</style>
+\t<style name="{theme}PrefsTheme" parent="{theme}NoActionBar">
+\t\t<item name="android:windowNoTitle">false</item>
+\t\t<item name="android:windowTitleSize">?attr/actionBarSize</item>
+\t\t<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+\t\t<item name="android:seekBarStyle">@style/SeekBarmain</item>
+\t</style>
 """.format(**params))
 
 f.write("</resources>\n")

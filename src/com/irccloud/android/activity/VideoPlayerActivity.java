@@ -26,6 +26,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -129,6 +130,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.ImageViewerTheme);
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_video_player);
@@ -422,11 +424,13 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             DownloadManager d = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
             if(d != null) {
                 DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
                 if(Build.VERSION.SDK_INT >= 11) {
                     r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                     r.allowScanningByMediaScanner();
                 }
                 d.enqueue(r);
+                Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {

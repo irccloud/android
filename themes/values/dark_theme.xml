@@ -16,8 +16,6 @@
 
 <resources>
     <style name="DarkAppTheme" parent="Theme.AppCompat">
-        <item name="android:dialogTheme">@style/DarkAppDialogTheme</item>
-        <item name="android:alertDialogTheme">@style/DarkAppAlertTheme</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:colorPrimary">?messageTextColor</item>
         <item name="android:colorAccent">?messageTextColor</item>
@@ -34,8 +32,6 @@
         <item name="colorPrimaryDark">?contentBackgroundColor</item>
         <item name="actionModeBackground">?actionbarDrawable</item>
         <item name="windowActionModeOverlay">true</item>
-        <item name="dialogTheme">@style/DarkAppDialogTheme</item>
-        <item name="alertDialogTheme">@style/DarkAppAlertTheme</item>
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="colorControlNormal">?navBarSubheadingColor</item>
@@ -55,6 +51,9 @@
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
+        <item name="highlightTimestampColor">#ffe0e0</item>
+        <item name="memberListTextColor">#b0cce8</item>
+        <item name="memberListAwayTextColor">#6199d1</item>
 
         <item name="opersGroupColor">@color/opersGroupColor_dark</item>
         <item name="ownersGroupColor">@color/ownersGroupColor_dark</item>
@@ -70,9 +69,6 @@
         <item name="halfopsBorderColor">@color/halfopsBorderColor_dark</item>
         <item name="voicedBorderColor">@color/voicedBorderColor_dark</item>
         <item name="membersBorderColor">@color/membersBorderColor_dark</item>
-
-        <item name="memberListTextColor">#b0cce8</item>
-        <item name="memberListAwayTextColor">#6199d1</item>
     </style>
 
     <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
@@ -111,6 +107,9 @@
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
+        <item name="highlightTimestampColor">#ffe0e0</item>
+        <item name="memberListTextColor">#b0cce8</item>
+        <item name="memberListAwayTextColor">#6199d1</item>
 
         <item name="opersGroupColor">@color/opersGroupColor_dark</item>
         <item name="ownersGroupColor">@color/ownersGroupColor_dark</item>
@@ -126,9 +125,6 @@
         <item name="halfopsBorderColor">@color/halfopsBorderColor_dark</item>
         <item name="voicedBorderColor">@color/voicedBorderColor_dark</item>
         <item name="membersBorderColor">@color/membersBorderColor_dark</item>
-
-        <item name="memberListTextColor">#b0cce8</item>
-        <item name="memberListAwayTextColor">#6199d1</item>
     </style>
 
     <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">

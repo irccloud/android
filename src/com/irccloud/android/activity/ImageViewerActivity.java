@@ -31,6 +31,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
@@ -340,6 +341,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.ImageViewerTheme);
         mHideTimer = new Timer("actionbar-hide-timer");
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
@@ -760,11 +762,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             DownloadManager d = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
             if(d != null) {
                 DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, getIntent().getData().getLastPathSegment());
                 if(Build.VERSION.SDK_INT >= 11) {
                     r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                     r.allowScanningByMediaScanner();
                 }
                 d.enqueue(r);
+                Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Save to Gallery"));
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
