@@ -170,7 +170,6 @@ f.write("""
     <item name="android:windowTitleSize">?attr/actionBarSize</item>
     <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
     <item name="android:seekBarStyle">@style/SeekBarmain</item>
-    <item name="android:listViewStyle">@style/listViewPrefs</item>
 </style>
 """.format(**params))
 

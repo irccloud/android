@@ -243,8 +243,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             e.printStackTrace();
         }
 
-        if (Build.VERSION.SDK_INT >= 16)
-            getListView().setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
+        getListView().setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
+        getListView().setCacheColorHint(ColorScheme.getInstance().contentBackgroundColor);
     }
 
     @Override
