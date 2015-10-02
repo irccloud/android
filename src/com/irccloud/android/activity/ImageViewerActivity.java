@@ -508,28 +508,30 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 @Override
                 public void surfaceCreated(SurfaceHolder surfaceHolder) {
                     try {
-                        player.setDisplay(surfaceHolder);
-                        player.prepare();
+                        if(player != null) {
+                            player.setDisplay(surfaceHolder);
+                            player.prepare();
 
-                        int videoWidth = player.getVideoWidth();
-                        int videoHeight = player.getVideoHeight();
+                            int videoWidth = player.getVideoWidth();
+                            int videoHeight = player.getVideoHeight();
 
-                        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-                        int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+                            int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+                            int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
 
-                        int scaledWidth = (int) (((float)videoWidth / (float)videoHeight) * (float)screenHeight);
-                        int scaledHeight = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
+                            int scaledWidth = (int) (((float) videoWidth / (float) videoHeight) * (float) screenHeight);
+                            int scaledHeight = (int) (((float) videoHeight / (float) videoWidth) * (float) screenWidth);
 
-                        android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
-                        lp.width = screenWidth;
-                        lp.height = scaledHeight;
-                        if(lp.height > screenHeight && scaledWidth < screenWidth) {
-                            lp.width = scaledWidth;
-                            lp.height = screenHeight;
+                            android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+                            lp.width = screenWidth;
+                            lp.height = scaledHeight;
+                            if (lp.height > screenHeight && scaledWidth < screenWidth) {
+                                lp.width = scaledWidth;
+                                lp.height = screenHeight;
+                            }
+                            v.setLayoutParams(lp);
+
+                            player.start();
                         }
-                        v.setLayoutParams(lp);
-
-                        player.start();
                     } catch (IOException e) {
                         fail();
                     }
@@ -754,6 +756,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if (item.getItemId() == R.id.action_browser) {
+            Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Open in Browser"));
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             startActivity(intent);
             finish();
@@ -768,7 +771,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                     r.allowScanningByMediaScanner();
                 }
                 d.enqueue(r);
-                Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Save to Gallery"));
+                Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Download"));
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
@@ -781,6 +784,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 clipboard.setPrimaryClip(clip);
             }
             Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+            Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
         }
         return super.onOptionsItemSelected(item);
     }

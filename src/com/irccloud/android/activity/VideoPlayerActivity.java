@@ -443,6 +443,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 clipboard.setPrimaryClip(clip);
             }
             Toast.makeText(VideoPlayerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+            Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Copy to Clipboard"));
         }
         return super.onOptionsItemSelected(item);
     }

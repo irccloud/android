@@ -111,9 +111,13 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             RowChannelmodeBinding row = holder.binding;
-            row.setMask(Html.fromHtml(data.get(position).get(mask).asText()));
-            row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(data.get(position).get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
-                    + " by " + data.get(position).get("usermask").asText());
+            JsonNode node = data.get(position);
+            row.setMask(Html.fromHtml(node.get(mask).asText()));
+            if(node.get("usermask").asText() != null)
+                row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(node.get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
+                    + " by " + node.get("usermask").asText());
+            else
+                row.setSetBy("");
             if (canChangeMode) {
                 row.removeBtn.setVisibility(View.VISIBLE);
                 row.removeBtn.setOnClickListener(removeClickListener);
