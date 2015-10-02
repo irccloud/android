@@ -69,6 +69,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/dusk_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background4</item>
+		<item name="backlogMarkerColor">@color/dusk_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_dusk</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dusk</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
@@ -84,6 +85,7 @@
 		<item name="dialogTheme">@style/duskDialog</item>
 		<item name="android:alertDialogTheme">@style/duskAlert</item>
 		<item name="alertDialogTheme">@style/duskAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dusk</item>
 	</style>
 
 	<style name="duskNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -140,6 +142,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/dusk_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background4</item>
+		<item name="backlogMarkerColor">@color/dusk_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_dusk</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dusk</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
@@ -155,6 +158,7 @@
 		<item name="dialogTheme">@style/duskDialog</item>
 		<item name="android:alertDialogTheme">@style/duskAlert</item>
 		<item name="alertDialogTheme">@style/duskAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dusk</item>
 	</style>
 
 	<style name="duskDialog" parent="DarkAppDialogTheme">
@@ -211,6 +215,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/dusk_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background4</item>
+		<item name="backlogMarkerColor">@color/dusk_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_dusk</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dusk</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
@@ -226,6 +231,7 @@
 		<item name="dialogTheme">@style/duskDialog</item>
 		<item name="android:alertDialogTheme">@style/duskAlert</item>
 		<item name="alertDialogTheme">@style/duskAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dusk</item>
 	</style>
 
 	<style name="duskAlert" parent="DarkAppAlertTheme">
@@ -282,6 +288,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/dusk_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/dusk_text6</item>
 		<item name="listItemBackgroundColor">@color/dusk_background4</item>
+		<item name="backlogMarkerColor">@color/dusk_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_dusk</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dusk</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dusk</item>
@@ -297,6 +304,7 @@
 		<item name="dialogTheme">@style/duskDialog</item>
 		<item name="android:alertDialogTheme">@style/duskAlert</item>
 		<item name="alertDialogTheme">@style/duskAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dusk</item>
 	</style>
 
 	<color name="dusk_border1">#4D8CCB</color>

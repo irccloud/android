@@ -109,4 +109,6 @@
     <attr name="lastSeenEIDBackgroundDrawable" format="reference"/>
     <attr name="timestampBackgroundDrawable" format="reference"/>
     <attr name="socketclosedBackgroundDrawable" format="reference"/>
+    <attr name="scrollbarDrawable" format="reference"/>
+    <attr name="backlogMarkerColor" format="color"/>
 </resources>

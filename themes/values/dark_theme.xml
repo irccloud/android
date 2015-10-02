@@ -95,6 +95,8 @@
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
         <item name="actionMenuTextColor">?navBarHeadingColor</item>
+        <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
+        <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
 
         <item name="android:navigationBarColor">?textareaBackgroundColor</item>
         <item name="android:statusBarColor">?contentBackgroundColor</item>

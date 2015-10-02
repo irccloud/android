@@ -71,6 +71,7 @@ def theme(f, t, parent):
     f.write(style("selectedArchivedBufferHighlightColor", "text6"))
     f.write(style("selectedArchivedBufferBackgroundColor", "text6"))
     f.write(style("listItemBackgroundColor", "background4"))
+    f.write(style("backlogMarkerColor", "border1"))
     
     f.write("\t\t<item name=\"actionbarDrawable\">@drawable/actionbar_" + themename + "</item>\n")
     f.write("\t\t<item name=\"buffersDrawerBackgroundDrawable\">@drawable/buffers_drawer_bg_" + themename + "</item>\n")
@@ -87,6 +88,7 @@ def theme(f, t, parent):
     f.write("\t\t<item name=\"dialogTheme\">@style/" + themename + "Dialog</item>\n")
     f.write("\t\t<item name=\"android:alertDialogTheme\">@style/" + themename + "Alert</item>\n")
     f.write("\t\t<item name=\"alertDialogTheme\">@style/" + themename + "Alert</item>\n")
+    f.write("\t\t<item name=\"scrollbarDrawable\">@drawable/scrollbar_" + themename + "</item>\n")
     
     f.write("\t</style>\n\n")
     
@@ -326,5 +328,22 @@ f.write("""<?xml version="1.0" encoding="utf-8"?>
         </shape>
     </item>
 </layer-list>
+""".format(**params))
+f.close()
+
+f = open("themes/drawable/scrollbar_" + themename + ".xml", "w")
+f.truncate()
+f.write("""<?xml version="1.0" encoding="utf-8"?>
+{license}
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="@dimen/scrollbar_inset"
+    android:insetRight="@dimen/scrollbar_inset"
+    android:insetTop="@dimen/scrollbar_inset"
+    android:insetBottom="@dimen/scrollbar_inset">
+    <shape>
+        <corners android:radius="4dp" />
+        <solid android:color="@color/{theme}_text4" />
+    </shape>
+</inset>
 """.format(**params))
 f.close()

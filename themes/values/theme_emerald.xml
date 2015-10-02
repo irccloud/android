@@ -69,6 +69,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="backlogMarkerColor">@color/emerald_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -84,6 +85,7 @@
 		<item name="dialogTheme">@style/emeraldDialog</item>
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 	</style>
 
 	<style name="emeraldNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -140,6 +142,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="backlogMarkerColor">@color/emerald_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -155,6 +158,7 @@
 		<item name="dialogTheme">@style/emeraldDialog</item>
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 	</style>
 
 	<style name="emeraldDialog" parent="DarkAppDialogTheme">
@@ -211,6 +215,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="backlogMarkerColor">@color/emerald_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -226,6 +231,7 @@
 		<item name="dialogTheme">@style/emeraldDialog</item>
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 	</style>
 
 	<style name="emeraldAlert" parent="DarkAppAlertTheme">
@@ -282,6 +288,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
 		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="backlogMarkerColor">@color/emerald_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -297,6 +304,7 @@
 		<item name="dialogTheme">@style/emeraldDialog</item>
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 	</style>
 
 	<color name="emerald_border1">#62CB4D</color>

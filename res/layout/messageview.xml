@@ -38,12 +38,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@null"
-            android:cacheColorHint="?attr/contentBackgroundColor"
+            android:cacheColorHint="?contentBackgroundColor"
             android:dividerHeight="0dp"
             android:transcriptMode="normal"
             android:fadingEdge="none"
-            android:scrollbarThumbVertical="@drawable/scrollbar"
-            android:scrollbarSize="@dimen/scrollbar_size"
             android:stackFromBottom="true"/>
 
         <LinearLayout

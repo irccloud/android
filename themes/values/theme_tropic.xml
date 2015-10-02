@@ -69,6 +69,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/tropic_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/tropic_text6</item>
 		<item name="listItemBackgroundColor">@color/tropic_background4</item>
+		<item name="backlogMarkerColor">@color/tropic_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -84,6 +85,7 @@
 		<item name="dialogTheme">@style/tropicDialog</item>
 		<item name="android:alertDialogTheme">@style/tropicAlert</item>
 		<item name="alertDialogTheme">@style/tropicAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 	</style>
 
 	<style name="tropicNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -140,6 +142,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/tropic_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/tropic_text6</item>
 		<item name="listItemBackgroundColor">@color/tropic_background4</item>
+		<item name="backlogMarkerColor">@color/tropic_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -155,6 +158,7 @@
 		<item name="dialogTheme">@style/tropicDialog</item>
 		<item name="android:alertDialogTheme">@style/tropicAlert</item>
 		<item name="alertDialogTheme">@style/tropicAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 	</style>
 
 	<style name="tropicDialog" parent="DarkAppDialogTheme">
@@ -211,6 +215,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/tropic_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/tropic_text6</item>
 		<item name="listItemBackgroundColor">@color/tropic_background4</item>
+		<item name="backlogMarkerColor">@color/tropic_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -226,6 +231,7 @@
 		<item name="dialogTheme">@style/tropicDialog</item>
 		<item name="android:alertDialogTheme">@style/tropicAlert</item>
 		<item name="alertDialogTheme">@style/tropicAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 	</style>
 
 	<style name="tropicAlert" parent="DarkAppAlertTheme">
@@ -282,6 +288,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/tropic_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/tropic_text6</item>
 		<item name="listItemBackgroundColor">@color/tropic_background4</item>
+		<item name="backlogMarkerColor">@color/tropic_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -297,6 +304,7 @@
 		<item name="dialogTheme">@style/tropicDialog</item>
 		<item name="android:alertDialogTheme">@style/tropicAlert</item>
 		<item name="alertDialogTheme">@style/tropicAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_tropic</item>
 	</style>
 
 	<color name="tropic_border1">#4DCBCB</color>

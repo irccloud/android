@@ -69,6 +69,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/rust_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/rust_text6</item>
 		<item name="listItemBackgroundColor">@color/rust_background4</item>
+		<item name="backlogMarkerColor">@color/rust_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -84,6 +85,7 @@
 		<item name="dialogTheme">@style/rustDialog</item>
 		<item name="android:alertDialogTheme">@style/rustAlert</item>
 		<item name="alertDialogTheme">@style/rustAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 	</style>
 
 	<style name="rustNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -140,6 +142,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/rust_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/rust_text6</item>
 		<item name="listItemBackgroundColor">@color/rust_background4</item>
+		<item name="backlogMarkerColor">@color/rust_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -155,6 +158,7 @@
 		<item name="dialogTheme">@style/rustDialog</item>
 		<item name="android:alertDialogTheme">@style/rustAlert</item>
 		<item name="alertDialogTheme">@style/rustAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 	</style>
 
 	<style name="rustDialog" parent="DarkAppDialogTheme">
@@ -211,6 +215,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/rust_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/rust_text6</item>
 		<item name="listItemBackgroundColor">@color/rust_background4</item>
+		<item name="backlogMarkerColor">@color/rust_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -226,6 +231,7 @@
 		<item name="dialogTheme">@style/rustDialog</item>
 		<item name="android:alertDialogTheme">@style/rustAlert</item>
 		<item name="alertDialogTheme">@style/rustAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 	</style>
 
 	<style name="rustAlert" parent="DarkAppAlertTheme">
@@ -282,6 +288,7 @@
 		<item name="selectedArchivedBufferHighlightColor">@color/rust_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/rust_text6</item>
 		<item name="listItemBackgroundColor">@color/rust_background4</item>
+		<item name="backlogMarkerColor">@color/rust_border1</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -297,6 +304,7 @@
 		<item name="dialogTheme">@style/rustDialog</item>
 		<item name="android:alertDialogTheme">@style/rustAlert</item>
 		<item name="alertDialogTheme">@style/rustAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 	</style>
 
 	<color name="rust_border1">#CB4D4D</color>
