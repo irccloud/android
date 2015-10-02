@@ -59,8 +59,6 @@ def theme(f, t, parent):
     f.write(style("awayBarColor", "background6"))
     f.write(style("connectionBarTextColor", "text4"))
     f.write(style("connectionBarColor", "background4"))
-    f.write(style("connectionErrorBarTextColor", "text4"))
-    f.write(style("connectionErrorBarColor", "background5"))
     f.write(style("timestampTopBorderColor", "border9"))
     f.write(style("timestampBottomBorderColor", "border6"))
     f.write(style("placeholderColor", "text12"))

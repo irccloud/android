@@ -135,8 +135,6 @@ public class ColorScheme {
         awayBarColor = colorForAttribute(ctx, R.attr.awayBarColor);
         connectionBarTextColor = colorForAttribute(ctx, R.attr.connectionBarTextColor);
         connectionBarColor = colorForAttribute(ctx, R.attr.connectionBarColor);
-        connectionErrorBarTextColor = colorForAttribute(ctx, R.attr.connectionErrorBarTextColor);
-        connectionErrorBarColor = colorForAttribute(ctx, R.attr.connectionErrorBarColor);
         placeholderColor = colorForAttribute(ctx, R.attr.placeholderColor);
         unreadBlueColor = colorForAttribute(ctx, R.attr.unreadBlueColor);
         serverBorderColor = colorForAttribute(ctx, R.attr.serverBorderColor);
@@ -239,8 +237,6 @@ public class ColorScheme {
     public int awayBarColor;
     public int connectionBarTextColor;
     public int connectionBarColor;
-    public int connectionErrorBarTextColor;
-    public int connectionErrorBarColor;
     public int placeholderColor;
     public int unreadBlueColor;
     public int serverBorderColor;

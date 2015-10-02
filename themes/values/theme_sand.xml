@@ -57,8 +57,6 @@
 		<item name="awayBarColor">@color/sand_background6</item>
 		<item name="connectionBarTextColor">@color/sand_text4</item>
 		<item name="connectionBarColor">@color/sand_background4</item>
-		<item name="connectionErrorBarTextColor">@color/sand_text4</item>
-		<item name="connectionErrorBarColor">@color/sand_background5</item>
 		<item name="timestampTopBorderColor">@color/sand_border9</item>
 		<item name="timestampBottomBorderColor">@color/sand_border6</item>
 		<item name="placeholderColor">@color/sand_text12</item>
@@ -130,8 +128,6 @@
 		<item name="awayBarColor">@color/sand_background6</item>
 		<item name="connectionBarTextColor">@color/sand_text4</item>
 		<item name="connectionBarColor">@color/sand_background4</item>
-		<item name="connectionErrorBarTextColor">@color/sand_text4</item>
-		<item name="connectionErrorBarColor">@color/sand_background5</item>
 		<item name="timestampTopBorderColor">@color/sand_border9</item>
 		<item name="timestampBottomBorderColor">@color/sand_border6</item>
 		<item name="placeholderColor">@color/sand_text12</item>
@@ -203,8 +199,6 @@
 		<item name="awayBarColor">@color/sand_background6</item>
 		<item name="connectionBarTextColor">@color/sand_text4</item>
 		<item name="connectionBarColor">@color/sand_background4</item>
-		<item name="connectionErrorBarTextColor">@color/sand_text4</item>
-		<item name="connectionErrorBarColor">@color/sand_background5</item>
 		<item name="timestampTopBorderColor">@color/sand_border9</item>
 		<item name="timestampBottomBorderColor">@color/sand_border6</item>
 		<item name="placeholderColor">@color/sand_text12</item>
@@ -276,8 +270,6 @@
 		<item name="awayBarColor">@color/sand_background6</item>
 		<item name="connectionBarTextColor">@color/sand_text4</item>
 		<item name="connectionBarColor">@color/sand_background4</item>
-		<item name="connectionErrorBarTextColor">@color/sand_text4</item>
-		<item name="connectionErrorBarColor">@color/sand_background5</item>
 		<item name="timestampTopBorderColor">@color/sand_border9</item>
 		<item name="timestampBottomBorderColor">@color/sand_border6</item>
 		<item name="placeholderColor">@color/sand_text12</item>

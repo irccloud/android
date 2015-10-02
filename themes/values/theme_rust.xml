@@ -57,8 +57,6 @@
 		<item name="awayBarColor">@color/rust_background6</item>
 		<item name="connectionBarTextColor">@color/rust_text4</item>
 		<item name="connectionBarColor">@color/rust_background4</item>
-		<item name="connectionErrorBarTextColor">@color/rust_text4</item>
-		<item name="connectionErrorBarColor">@color/rust_background5</item>
 		<item name="timestampTopBorderColor">@color/rust_border9</item>
 		<item name="timestampBottomBorderColor">@color/rust_border6</item>
 		<item name="placeholderColor">@color/rust_text12</item>
@@ -130,8 +128,6 @@
 		<item name="awayBarColor">@color/rust_background6</item>
 		<item name="connectionBarTextColor">@color/rust_text4</item>
 		<item name="connectionBarColor">@color/rust_background4</item>
-		<item name="connectionErrorBarTextColor">@color/rust_text4</item>
-		<item name="connectionErrorBarColor">@color/rust_background5</item>
 		<item name="timestampTopBorderColor">@color/rust_border9</item>
 		<item name="timestampBottomBorderColor">@color/rust_border6</item>
 		<item name="placeholderColor">@color/rust_text12</item>
@@ -203,8 +199,6 @@
 		<item name="awayBarColor">@color/rust_background6</item>
 		<item name="connectionBarTextColor">@color/rust_text4</item>
 		<item name="connectionBarColor">@color/rust_background4</item>
-		<item name="connectionErrorBarTextColor">@color/rust_text4</item>
-		<item name="connectionErrorBarColor">@color/rust_background5</item>
 		<item name="timestampTopBorderColor">@color/rust_border9</item>
 		<item name="timestampBottomBorderColor">@color/rust_border6</item>
 		<item name="placeholderColor">@color/rust_text12</item>
@@ -276,8 +270,6 @@
 		<item name="awayBarColor">@color/rust_background6</item>
 		<item name="connectionBarTextColor">@color/rust_text4</item>
 		<item name="connectionBarColor">@color/rust_background4</item>
-		<item name="connectionErrorBarTextColor">@color/rust_text4</item>
-		<item name="connectionErrorBarColor">@color/rust_background5</item>
 		<item name="timestampTopBorderColor">@color/rust_border9</item>
 		<item name="timestampBottomBorderColor">@color/rust_border6</item>
 		<item name="placeholderColor">@color/rust_text12</item>

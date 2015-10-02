@@ -57,8 +57,6 @@
 		<item name="awayBarColor">@color/ash_background6</item>
 		<item name="connectionBarTextColor">@color/ash_text4</item>
 		<item name="connectionBarColor">@color/ash_background4</item>
-		<item name="connectionErrorBarTextColor">@color/ash_text4</item>
-		<item name="connectionErrorBarColor">@color/ash_background5</item>
 		<item name="timestampTopBorderColor">@color/ash_border9</item>
 		<item name="timestampBottomBorderColor">@color/ash_border6</item>
 		<item name="placeholderColor">@color/ash_text12</item>
@@ -130,8 +128,6 @@
 		<item name="awayBarColor">@color/ash_background6</item>
 		<item name="connectionBarTextColor">@color/ash_text4</item>
 		<item name="connectionBarColor">@color/ash_background4</item>
-		<item name="connectionErrorBarTextColor">@color/ash_text4</item>
-		<item name="connectionErrorBarColor">@color/ash_background5</item>
 		<item name="timestampTopBorderColor">@color/ash_border9</item>
 		<item name="timestampBottomBorderColor">@color/ash_border6</item>
 		<item name="placeholderColor">@color/ash_text12</item>
@@ -203,8 +199,6 @@
 		<item name="awayBarColor">@color/ash_background6</item>
 		<item name="connectionBarTextColor">@color/ash_text4</item>
 		<item name="connectionBarColor">@color/ash_background4</item>
-		<item name="connectionErrorBarTextColor">@color/ash_text4</item>
-		<item name="connectionErrorBarColor">@color/ash_background5</item>
 		<item name="timestampTopBorderColor">@color/ash_border9</item>
 		<item name="timestampBottomBorderColor">@color/ash_border6</item>
 		<item name="placeholderColor">@color/ash_text12</item>
@@ -276,8 +270,6 @@
 		<item name="awayBarColor">@color/ash_background6</item>
 		<item name="connectionBarTextColor">@color/ash_text4</item>
 		<item name="connectionBarColor">@color/ash_background4</item>
-		<item name="connectionErrorBarTextColor">@color/ash_text4</item>
-		<item name="connectionErrorBarColor">@color/ash_background5</item>
 		<item name="timestampTopBorderColor">@color/ash_border9</item>
 		<item name="timestampBottomBorderColor">@color/ash_border6</item>
 		<item name="placeholderColor">@color/ash_text12</item>

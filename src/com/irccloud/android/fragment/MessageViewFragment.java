@@ -2056,6 +2056,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             statusRefreshRunnable = null;
         }
 
+        statusView.setTextColor(colorScheme.connectionBarTextColor);
+        statusView.setBackgroundColor(colorScheme.connectionBarColor);
+
         switch (status) {
             case "connected_ready":
                 statusView.setVisibility(View.GONE);
@@ -2064,8 +2067,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case "quitting":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Disconnecting");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "disconnected":
                 statusView.setVisibility(View.VISIBLE);
@@ -2086,43 +2087,33 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             text += reason_txt(fail_info.get("reason").asText());
                     }
                     statusView.setText(text);
-                    statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-                    statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                    statusView.setTextColor(colorScheme.networkErrorColor);
+                    statusView.setBackgroundColor(colorScheme.networkErrorBackgroundColor);
                 } else {
                     statusView.setText("Disconnected. Tap to reconnect.");
-                    statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                    statusView.setBackgroundResource(R.drawable.background_blue);
                 }
                 break;
             case "queued":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connection queued");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "connecting":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connecting");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "connected":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connected");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "connected_joining":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connected: Joining Channels");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "pool_unavailable":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connection temporarily unavailable");
-                statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-                statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                statusView.setTextColor(colorScheme.networkErrorColor);
+                statusView.setBackgroundColor(colorScheme.networkErrorBackgroundColor);
                 break;
             case "waiting_to_retry":
                 try {
@@ -2165,14 +2156,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (attempts > 1)
                             text += " (" + ordinal(attempts) + " attempt)";
                         statusView.setText(text);
-                        statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-                        statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                        statusView.setTextColor(colorScheme.networkErrorColor);
+                        statusView.setBackgroundColor(colorScheme.networkErrorBackgroundColor);
                         statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
                     } else {
                         statusView.setVisibility(View.VISIBLE);
                         statusView.setText("Ready to connect, waiting our turn…");
-                        statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                        statusView.setBackgroundResource(R.drawable.background_blue);
                     }
                     mHandler.postDelayed(statusRefreshRunnable, 500);
                 } catch (Exception e) {
@@ -2182,8 +2171,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case "ip_retry":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Trying another IP address");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
         }
 

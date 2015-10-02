@@ -69,6 +69,9 @@
         <item name="halfopsBorderColor">@color/halfopsBorderColor_dark</item>
         <item name="voicedBorderColor">@color/voicedBorderColor_dark</item>
         <item name="membersBorderColor">@color/membersBorderColor_dark</item>
+
+        <item name="networkErrorColor">#632800</item>
+        <item name="networkErrorBackgroundColor">#F8DF26</item>
     </style>
 
     <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
