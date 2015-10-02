@@ -48,8 +48,6 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public static final String TYPE_CONVERSATION = "conversation";
     public static final String TYPE_ARCHIVES_HEADER = "archives_header";
     public static final String TYPE_JOIN_CHANNEL = "join_channel";
-    public static final String TYPE_ADD_NETWORK = "add_network";
-    public static final String TYPE_REORDER = "reorder";
 
     private enum Type {
         CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, OTHER

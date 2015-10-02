@@ -3119,6 +3119,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             itemList.add("Mark All As Read");
+            itemList.add("Add A Network");
+            itemList.add("Reorder Connections");
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -3226,6 +3228,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog = builder.create();
                     dialog.setOwnerActivity(MainActivity.this);
                     dialog.show();
+                } else if (items[item].equals("Add A Network")) {
+                    addNetwork();
+                } else if (items[item].equals("Reorder Connections")) {
+                    reorder();
                 }
             }
         });

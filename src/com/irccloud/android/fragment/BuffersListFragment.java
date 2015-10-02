@@ -310,12 +310,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 @Override
                 public void onClick(View view) {
                     switch (b.getType()) {
-                        case Buffer.TYPE_ADD_NETWORK:
-                            mListener.addNetwork();
-                            return;
-                        case Buffer.TYPE_REORDER:
-                            mListener.reorder();
-                            return;
                         case Buffer.TYPE_ARCHIVES_HEADER:
                             mExpandArchives.put(b.getCid(), !mExpandArchives.get(b.getCid(), false));
                             refresh();
@@ -425,17 +419,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                     join.setType(Buffer.TYPE_JOIN_CHANNEL);
                     entries.add(join);
                 }
-            }
-
-            if (!readOnly) {
-                Buffer b = new Buffer();
-                b.setName("Add a network");
-                b.setType(Buffer.TYPE_ADD_NETWORK);
-                entries.add(b);
-                b = new Buffer();
-                b.setName("Reorder");
-                b.setType(Buffer.TYPE_REORDER);
-                entries.add(b);
             }
 
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Buffers list adapter contains " + entries.size() + " entries");
@@ -679,14 +662,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 b = BuffersList.getInstance().getBuffer(object.bid());
                 if (b != null && adapter != null)
                     adapter.updateBuffer(b);
-                break;
-            case NetworkConnection.EVENT_STATUSCHANGED:
-                if (adapter != null) {
-                    ArrayList<Buffer> buffers = BuffersList.getInstance().getBuffersForServer(object.cid());
-                    for (Buffer buffer : buffers) {
-                        adapter.updateBuffer(buffer);
-                    }
-                }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
                 if (adapter != null) {

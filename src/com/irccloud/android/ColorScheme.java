@@ -163,6 +163,7 @@ public class ColorScheme {
         timestampBackgroundDrawable = resourceForAttribute(ctx, R.attr.timestampBackgroundDrawable);
         actionBarDrawable = resourceForAttribute(ctx, R.attr.actionbarDrawable);
         colorControlNormal = colorForAttribute(ctx, R.attr.colorControlNormal);
+        dialogBackgroundColor = colorForAttribute(ctx, R.attr.dialogBackgroundColor);
         isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) != 0;
     }
 
@@ -265,6 +266,7 @@ public class ColorScheme {
     public int timestampBackgroundDrawable;
     public int colorControlNormal;
     public int actionBarDrawable;
+    public int dialogBackgroundColor;
     public String theme;
     public boolean isDarkTheme;
 }

@@ -16,8 +16,6 @@
 
 package com.irccloud.android.fragment;
 
-
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -25,19 +23,16 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.ImageSpan;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -46,10 +41,12 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.mobeta.android.dslv.DragSortListView;
-import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
-import java.util.Collections;public class ServerReorderFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+import java.util.Collections;
+
+public class ServerReorderFragment extends DialogFragment implements NetworkConnection.IRCEventHandler {
+    private ColorScheme colorScheme = ColorScheme.getInstance();
     private NetworkConnection conn;
     private ServerListAdapter adapter;
     private RefreshTask refreshTask = null;
@@ -83,8 +80,10 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
         int width = 0;
 
         private class ViewHolder {
+            View background;
             TextView label;
             TextView icon;
+            TextView drag_handle;
         }
 
         public ServerListAdapter(DialogFragment context) {
@@ -124,9 +123,14 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
                 row = inflater.inflate(R.layout.row_reorder, null);
 
                 holder = new ViewHolder();
+                holder.background = row.findViewById(R.id.serverBackground);
+                holder.background.setFocusable(false);
+                holder.background.setEnabled(false);
                 holder.label = (TextView) row.findViewById(R.id.label);
                 holder.icon = (TextView) row.findViewById(R.id.icon);
                 holder.icon.setTypeface(FontAwesome.getTypeface());
+                holder.drag_handle = (TextView) row.findViewById(R.id.drag_handle);
+                holder.drag_handle.setTypeface(FontAwesome.getTypeface());
                 row.setTag(holder);
             } else {
                 holder = (ViewHolder) row.getTag();
@@ -143,15 +147,19 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
                 holder.icon.setText(FontAwesome.GLOBE);
 
             if (s.getStatus() != null && s.getStatus().equals("connected_ready")) {
-                holder.label.setTextColor(getResources().getColorStateList(R.color.row_label));
+                holder.icon.setTextColor(colorScheme.bufferTextColor);
+                holder.label.setTextColor(colorScheme.bufferTextColor);
             } else {
-                holder.label.setTextColor(getResources().getColorStateList(R.color.row_label_inactive));
+                holder.icon.setTextColor(colorScheme.inactiveBufferTextColor);
+                holder.label.setTextColor(colorScheme.inactiveBufferTextColor);
             }
 
+            holder.drag_handle.setText(FontAwesome.ARROWS);
+
             if (getShowsDialog())
-                row.setBackgroundColor(0xfff3f3f3);
+                row.setBackgroundColor(colorScheme.dialogBackgroundColor);
             else
-                row.setBackgroundResource(R.drawable.bg);
+                row.setBackgroundColor(colorScheme.contentBackgroundColor);
 
             holder.label.setMinimumWidth(width);
             return row;
@@ -205,9 +213,8 @@ import java.util.Collections;public class ServerReorderFragment extends DialogFr
         listView = (DragSortListView) v.findViewById(android.R.id.list);
         listView.setDropListener(dropListener);
         TextView tv = (TextView) v.findViewById(R.id.hint);
-        Spannable s = new SpannableString(tv.getText());
-        s.setSpan(new ImageSpan(getActivity(), R.drawable.move), 5, 6, 0);
-        tv.setText(s);
+        tv.setTypeface(FontAwesome.getTypeface());
+        tv.setText(FontAwesome.ARROWS);
     }
 
     @Override

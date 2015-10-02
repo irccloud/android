@@ -23,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.irccloud.android.R;
@@ -46,6 +47,11 @@ public class ServerReorderActivity extends BaseActivity {
         final ServerReorderFragment newFragment = new ServerReorderFragment();
         ft.replace(R.id.reorderFragment, newFragment);
         ft.commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
     }
 
     @Override

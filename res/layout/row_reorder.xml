@@ -26,6 +26,8 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:focusable="false"
+        android:id="@+id/serverBackground"
         android:background="?serverBackgroundDrawable"
         android:gravity="center_vertical">
 
@@ -52,15 +54,16 @@
             android:textColor="@color/row_label"
             android:textSize="16sp" />
 
-        <ImageView
+        <TextView
             android:layout_width="48dp"
             android:layout_height="match_parent"
+            android:textSize="16sp"
             android:paddingLeft="12dp"
             android:paddingRight="4dp"
             android:layout_weight="0"
+            android:textColor="?unreadBlueColor"
             android:id="@+id/drag_handle"
-            android:src="@drawable/move"
-            android:scaleType="center" />
+            android:gravity="center" />
 
     </LinearLayout>
 </LinearLayout>

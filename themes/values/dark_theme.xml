@@ -53,6 +53,7 @@
         <item name="highlightTimestampColor">#ffe0e0</item>
         <item name="memberListTextColor">#ffffffff</item>
         <item name="memberListAwayTextColor">#88ffffff</item>
+        <item name="errorBackgroundColor">#b2b234</item>
 
         <item name="opersHoverColor">@color/opersHoverColor_dark</item>
         <item name="ownersHoverColor">@color/ownersHoverColor_dark</item>
@@ -122,6 +123,7 @@
         <item name="highlightTimestampColor">#ffe0e0</item>
         <item name="memberListTextColor">#ffffffff</item>
         <item name="memberListAwayTextColor">#88ffffff</item>
+        <item name="errorBackgroundColor">#b2b234</item>
 
         <item name="opersHoverColor">@color/opersHoverColor_dark</item>
         <item name="ownersHoverColor">@color/ownersHoverColor_dark</item>
