@@ -32,8 +32,6 @@ def theme(f, t, parent):
     f.write(style("messageTextColor", "text4"))
     f.write(style("serverBackgroundColor", "background6"))
     f.write(style("bufferBackgroundColor", "background4"))
-    f.write(style("memberListTextColor", "text5"))
-    f.write(style("memberListAwayTextColor", "text9"))
     f.write(style("timestampColor", "text10"))
     f.write(style("timestampBackgroundColor", "background6"))
     f.write(style("statusBackgroundColor", "background6a"))

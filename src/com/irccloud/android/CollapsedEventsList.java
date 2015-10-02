@@ -783,7 +783,7 @@ public class CollapsedEventsList {
                         case TYPE_MODE:
                             if (message.length() > 0)
                                 message.append("• ");
-                            message.append("\u00031mode:\u000f ");
+                            message.append("mode: ");
                             break;
                         case TYPE_JOIN:
                             message.append("→ ");

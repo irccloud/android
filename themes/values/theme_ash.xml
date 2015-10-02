@@ -30,8 +30,6 @@
 		<item name="messageTextColor">@color/ash_text4</item>
 		<item name="serverBackgroundColor">@color/ash_background6</item>
 		<item name="bufferBackgroundColor">@color/ash_background4</item>
-		<item name="memberListTextColor">@color/ash_text5</item>
-		<item name="memberListAwayTextColor">@color/ash_text9</item>
 		<item name="timestampColor">@color/ash_text10</item>
 		<item name="timestampBackgroundColor">@color/ash_background6</item>
 		<item name="statusBackgroundColor">@color/ash_background6a</item>
@@ -101,8 +99,6 @@
 		<item name="messageTextColor">@color/ash_text4</item>
 		<item name="serverBackgroundColor">@color/ash_background6</item>
 		<item name="bufferBackgroundColor">@color/ash_background4</item>
-		<item name="memberListTextColor">@color/ash_text5</item>
-		<item name="memberListAwayTextColor">@color/ash_text9</item>
 		<item name="timestampColor">@color/ash_text10</item>
 		<item name="timestampBackgroundColor">@color/ash_background6</item>
 		<item name="statusBackgroundColor">@color/ash_background6a</item>
@@ -172,8 +168,6 @@
 		<item name="messageTextColor">@color/ash_text4</item>
 		<item name="serverBackgroundColor">@color/ash_background6</item>
 		<item name="bufferBackgroundColor">@color/ash_background4</item>
-		<item name="memberListTextColor">@color/ash_text5</item>
-		<item name="memberListAwayTextColor">@color/ash_text9</item>
 		<item name="timestampColor">@color/ash_text10</item>
 		<item name="timestampBackgroundColor">@color/ash_background6</item>
 		<item name="statusBackgroundColor">@color/ash_background6a</item>
@@ -243,8 +237,6 @@
 		<item name="messageTextColor">@color/ash_text4</item>
 		<item name="serverBackgroundColor">@color/ash_background6</item>
 		<item name="bufferBackgroundColor">@color/ash_background4</item>
-		<item name="memberListTextColor">@color/ash_text5</item>
-		<item name="memberListAwayTextColor">@color/ash_text9</item>
 		<item name="timestampColor">@color/ash_text10</item>
 		<item name="timestampBackgroundColor">@color/ash_background6</item>
 		<item name="statusBackgroundColor">@color/ash_background6a</item>

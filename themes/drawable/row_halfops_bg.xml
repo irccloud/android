@@ -16,8 +16,8 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@color/halfopsBorderColor_dark" android:state_pressed="true"/>
-    <item android:drawable="@color/halfopsBorderColor_dark" android:state_selected="true"/>
-    <item android:drawable="@color/halfopsBorderColor_dark" android:state_focused="true"/>
+    <item android:drawable="@color/halfopsHoverColor_dark" android:state_pressed="true"/>
+    <item android:drawable="@color/halfopsHoverColor_dark" android:state_selected="true"/>
+    <item android:drawable="@color/halfopsHoverColor_dark" android:state_focused="true"/>
     <item android:drawable="@color/halfopsGroupColor_dark"/>
 </selector>

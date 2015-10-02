@@ -26,12 +26,10 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:minHeight="40dp"
-        android:background="@{ user.border_color }"
+        android:background="@{ user.bg_color }"
         android:orientation="horizontal" >
 
         <TextView
-            android:layout_marginLeft="@dimen/usergroup_border"
-            android:layout_marginBottom="@{ user.last ? @dimen/usergroup_border : 0 }"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -44,13 +42,12 @@
             android:lines="1"
             android:maxLines="1"
             android:text="@{ user.text }"
-            android:textColor="@{ user.type == 0 ? @color/white : (user.away ? ColorScheme.getInstance().memberListAwayTextColor : ColorScheme.getInstance().memberListTextColor ) }"
-            android:background="@{ user.type > 0 ? user.bg_color : user.border_color }"
+            android:textColor="@{ user.type == 0 ? user.heading_color : (user.away ? ColorScheme.getInstance().memberListAwayTextColor : ColorScheme.getInstance().memberListTextColor ) }"
             android:textSize="16sp" />
 
         <TextView
             android:text="@{ user.count }"
-            android:textColor="@{ @color/white }"
+            android:textColor="@{ user.heading_color }"
             android:visibility="@{ user.count != null ? View.VISIBLE : View.GONE }"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

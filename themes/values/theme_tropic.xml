@@ -30,8 +30,6 @@
 		<item name="messageTextColor">@color/tropic_text4</item>
 		<item name="serverBackgroundColor">@color/tropic_background6</item>
 		<item name="bufferBackgroundColor">@color/tropic_background4</item>
-		<item name="memberListTextColor">@color/tropic_text5</item>
-		<item name="memberListAwayTextColor">@color/tropic_text9</item>
 		<item name="timestampColor">@color/tropic_text10</item>
 		<item name="timestampBackgroundColor">@color/tropic_background6</item>
 		<item name="statusBackgroundColor">@color/tropic_background6a</item>
@@ -101,8 +99,6 @@
 		<item name="messageTextColor">@color/tropic_text4</item>
 		<item name="serverBackgroundColor">@color/tropic_background6</item>
 		<item name="bufferBackgroundColor">@color/tropic_background4</item>
-		<item name="memberListTextColor">@color/tropic_text5</item>
-		<item name="memberListAwayTextColor">@color/tropic_text9</item>
 		<item name="timestampColor">@color/tropic_text10</item>
 		<item name="timestampBackgroundColor">@color/tropic_background6</item>
 		<item name="statusBackgroundColor">@color/tropic_background6a</item>
@@ -172,8 +168,6 @@
 		<item name="messageTextColor">@color/tropic_text4</item>
 		<item name="serverBackgroundColor">@color/tropic_background6</item>
 		<item name="bufferBackgroundColor">@color/tropic_background4</item>
-		<item name="memberListTextColor">@color/tropic_text5</item>
-		<item name="memberListAwayTextColor">@color/tropic_text9</item>
 		<item name="timestampColor">@color/tropic_text10</item>
 		<item name="timestampBackgroundColor">@color/tropic_background6</item>
 		<item name="statusBackgroundColor">@color/tropic_background6a</item>
@@ -243,8 +237,6 @@
 		<item name="messageTextColor">@color/tropic_text4</item>
 		<item name="serverBackgroundColor">@color/tropic_background6</item>
 		<item name="bufferBackgroundColor">@color/tropic_background4</item>
-		<item name="memberListTextColor">@color/tropic_text5</item>
-		<item name="memberListAwayTextColor">@color/tropic_text9</item>
 		<item name="timestampColor">@color/tropic_text10</item>
 		<item name="timestampBackgroundColor">@color/tropic_background6</item>
 		<item name="statusBackgroundColor">@color/tropic_background6a</item>

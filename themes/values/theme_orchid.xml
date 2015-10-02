@@ -30,8 +30,6 @@
 		<item name="messageTextColor">@color/orchid_text4</item>
 		<item name="serverBackgroundColor">@color/orchid_background6</item>
 		<item name="bufferBackgroundColor">@color/orchid_background4</item>
-		<item name="memberListTextColor">@color/orchid_text5</item>
-		<item name="memberListAwayTextColor">@color/orchid_text9</item>
 		<item name="timestampColor">@color/orchid_text10</item>
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
@@ -101,8 +99,6 @@
 		<item name="messageTextColor">@color/orchid_text4</item>
 		<item name="serverBackgroundColor">@color/orchid_background6</item>
 		<item name="bufferBackgroundColor">@color/orchid_background4</item>
-		<item name="memberListTextColor">@color/orchid_text5</item>
-		<item name="memberListAwayTextColor">@color/orchid_text9</item>
 		<item name="timestampColor">@color/orchid_text10</item>
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
@@ -172,8 +168,6 @@
 		<item name="messageTextColor">@color/orchid_text4</item>
 		<item name="serverBackgroundColor">@color/orchid_background6</item>
 		<item name="bufferBackgroundColor">@color/orchid_background4</item>
-		<item name="memberListTextColor">@color/orchid_text5</item>
-		<item name="memberListAwayTextColor">@color/orchid_text9</item>
 		<item name="timestampColor">@color/orchid_text10</item>
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>
@@ -243,8 +237,6 @@
 		<item name="messageTextColor">@color/orchid_text4</item>
 		<item name="serverBackgroundColor">@color/orchid_background6</item>
 		<item name="bufferBackgroundColor">@color/orchid_background4</item>
-		<item name="memberListTextColor">@color/orchid_text5</item>
-		<item name="memberListAwayTextColor">@color/orchid_text9</item>
 		<item name="timestampColor">@color/orchid_text10</item>
 		<item name="timestampBackgroundColor">@color/orchid_background6</item>
 		<item name="statusBackgroundColor">@color/orchid_background6a</item>

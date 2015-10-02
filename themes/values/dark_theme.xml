@@ -46,15 +46,22 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
-        <item name="contentBorderColor">#00000000</item>
-        <item name="usersDrawerBackground">@drawable/userslist_bg_dark</item>
+        <item name="contentBorderColor">?contentBackgroundColor</item>
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
         <item name="highlightTimestampColor">#ffe0e0</item>
-        <item name="memberListTextColor">#b0cce8</item>
-        <item name="memberListAwayTextColor">#6199d1</item>
+        <item name="memberListTextColor">#ffffffff</item>
+        <item name="memberListAwayTextColor">#88ffffff</item>
 
+        <item name="opersHoverColor">@color/opersHoverColor_dark</item>
+        <item name="ownersHoverColor">@color/ownersHoverColor_dark</item>
+        <item name="adminsHoverColor">@color/adminsHoverColor_dark</item>
+        <item name="opsHoverColor">@color/opsHoverColor_dark</item>
+        <item name="halfopsHoverColor">@color/halfopsHoverColor_dark</item>
+        <item name="voicedHoverColor">@color/voicedHoverColor_dark</item>
+        <item name="membersHoverColor">@color/membersHoverColor_dark</item>
+        
         <item name="opersGroupColor">@color/opersGroupColor_dark</item>
         <item name="ownersGroupColor">@color/ownersGroupColor_dark</item>
         <item name="adminsGroupColor">@color/adminsGroupColor_dark</item>
@@ -62,13 +69,14 @@
         <item name="halfopsGroupColor">@color/halfopsGroupColor_dark</item>
         <item name="voicedGroupColor">@color/voicedGroupColor_dark</item>
         <item name="membersGroupColor">@color/membersGroupColor_dark</item>
-        <item name="opersBorderColor">@color/opersBorderColor_dark</item>
-        <item name="ownersBorderColor">@color/ownersBorderColor_dark</item>
-        <item name="adminsBorderColor">@color/adminsBorderColor_dark</item>
-        <item name="opsBorderColor">@color/opsBorderColor_dark</item>
-        <item name="halfopsBorderColor">@color/halfopsBorderColor_dark</item>
-        <item name="voicedBorderColor">@color/voicedBorderColor_dark</item>
-        <item name="membersBorderColor">@color/membersBorderColor_dark</item>
+
+        <item name="opersHeadingColor">#fdbeb4</item>
+        <item name="ownersHeadingColor">#ffebb4</item>
+        <item name="adminsHeadingColor">#c872ff</item>
+        <item name="opsHeadingColor">#f4a9aa</item>
+        <item name="halfopsHeadingColor">#ffbf82</item>
+        <item name="voicedHeadingColor">#99ff7e</item>
+        <item name="membersHeadingColor">#88b2dd</item>
 
         <item name="networkErrorColor">#632800</item>
         <item name="networkErrorBackgroundColor">#F8DF26</item>
@@ -107,14 +115,21 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
-        <item name="contentBorderColor">#00000000</item>
-        <item name="usersDrawerBackground">@drawable/userslist_bg_dark</item>
+        <item name="contentBorderColor">?contentBackgroundColor</item>
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
         <item name="highlightTimestampColor">#ffe0e0</item>
-        <item name="memberListTextColor">#b0cce8</item>
-        <item name="memberListAwayTextColor">#6199d1</item>
+        <item name="memberListTextColor">#ffffffff</item>
+        <item name="memberListAwayTextColor">#88ffffff</item>
+
+        <item name="opersHoverColor">@color/opersHoverColor_dark</item>
+        <item name="ownersHoverColor">@color/ownersHoverColor_dark</item>
+        <item name="adminsHoverColor">@color/adminsHoverColor_dark</item>
+        <item name="opsHoverColor">@color/opsHoverColor_dark</item>
+        <item name="halfopsHoverColor">@color/halfopsHoverColor_dark</item>
+        <item name="voicedHoverColor">@color/voicedHoverColor_dark</item>
+        <item name="membersHoverColor">@color/membersHoverColor_dark</item>
 
         <item name="opersGroupColor">@color/opersGroupColor_dark</item>
         <item name="ownersGroupColor">@color/ownersGroupColor_dark</item>
@@ -123,13 +138,6 @@
         <item name="halfopsGroupColor">@color/halfopsGroupColor_dark</item>
         <item name="voicedGroupColor">@color/voicedGroupColor_dark</item>
         <item name="membersGroupColor">@color/membersGroupColor_dark</item>
-        <item name="opersBorderColor">@color/opersBorderColor_dark</item>
-        <item name="ownersBorderColor">@color/ownersBorderColor_dark</item>
-        <item name="adminsBorderColor">@color/adminsBorderColor_dark</item>
-        <item name="opsBorderColor">@color/opsBorderColor_dark</item>
-        <item name="halfopsBorderColor">@color/halfopsBorderColor_dark</item>
-        <item name="voicedBorderColor">@color/voicedBorderColor_dark</item>
-        <item name="membersBorderColor">@color/membersBorderColor_dark</item>
     </style>
 
     <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">
@@ -175,27 +183,28 @@
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
     </style>
 
-    <color name="opersGroupColor_dark">#43260f</color>
-    <color name="ownersGroupColor_dark">#3f3722</color>
-    <color name="adminsGroupColor_dark">#281c31</color>
-    <color name="opsGroupColor_dark">#451c1c</color>
-    <color name="halfopsGroupColor_dark">#372e20</color>
-    <color name="voicedGroupColor_dark">#27331f</color>
-    <color name="membersGroupColor_dark">#1b2432</color>
-    <color name="opersBorderColor_dark">#76400a</color>
-    <color name="ownersBorderColor_dark">#6b5814</color>
-    <color name="adminsBorderColor_dark">#553384</color>
-    <color name="opsBorderColor_dark">#843e3e</color>
-    <color name="halfopsBorderColor_dark">#684f27</color>
-    <color name="voicedBorderColor_dark">#335700</color>
-    <color name="membersBorderColor_dark">#2b3854</color>
+    <color name="opersHoverColor_dark">#43260f</color>
+    <color name="ownersHoverColor_dark">#3f3722</color>
+    <color name="adminsHoverColor_dark">#281c31</color>
+    <color name="opsHoverColor_dark">#451c1c</color>
+    <color name="halfopsHoverColor_dark">#372e20</color>
+    <color name="voicedHoverColor_dark">#27331f</color>
+    <color name="membersHoverColor_dark">#1b2432</color>
+    
+    <color name="opersGroupColor_dark">#76400a</color>
+    <color name="ownersGroupColor_dark">#6b5814</color>
+    <color name="adminsGroupColor_dark">#553384</color>
+    <color name="opsGroupColor_dark">#843e3e</color>
+    <color name="halfopsGroupColor_dark">#684f27</color>
+    <color name="voicedGroupColor_dark">#335700</color>
+    <color name="membersGroupColor_dark">#2b3854</color>
 
-    <drawable name="row_opers_border_dark">@color/opersBorderColor_dark</drawable>
-    <drawable name="row_owners_border_dark">@color/ownersBorderColor_dark</drawable>
-    <drawable name="row_admins_border_dark">@color/adminsBorderColor_dark</drawable>
-    <drawable name="row_ops_border_dark">@color/opsBorderColor_dark</drawable>
-    <drawable name="row_halfops_border_dark">@color/halfopsBorderColor_dark</drawable>
-    <drawable name="row_voiced_border_dark">@color/voicedBorderColor_dark</drawable>
-    <drawable name="row_members_border_dark">@color/membersBorderColor_dark</drawable>
+    <drawable name="row_opers_border_dark">@color/opersGroupColor_dark</drawable>
+    <drawable name="row_owners_border_dark">@color/ownersGroupColor_dark</drawable>
+    <drawable name="row_admins_border_dark">@color/adminsGroupColor_dark</drawable>
+    <drawable name="row_ops_border_dark">@color/opsGroupColor_dark</drawable>
+    <drawable name="row_halfops_border_dark">@color/halfopsGroupColor_dark</drawable>
+    <drawable name="row_voiced_border_dark">@color/voicedGroupColor_dark</drawable>
+    <drawable name="row_members_border_dark">@color/membersGroupColor_dark</drawable>
 
 </resources>

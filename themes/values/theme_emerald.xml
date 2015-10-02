@@ -30,8 +30,6 @@
 		<item name="messageTextColor">@color/emerald_text4</item>
 		<item name="serverBackgroundColor">@color/emerald_background6</item>
 		<item name="bufferBackgroundColor">@color/emerald_background4</item>
-		<item name="memberListTextColor">@color/emerald_text5</item>
-		<item name="memberListAwayTextColor">@color/emerald_text9</item>
 		<item name="timestampColor">@color/emerald_text10</item>
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
@@ -101,8 +99,6 @@
 		<item name="messageTextColor">@color/emerald_text4</item>
 		<item name="serverBackgroundColor">@color/emerald_background6</item>
 		<item name="bufferBackgroundColor">@color/emerald_background4</item>
-		<item name="memberListTextColor">@color/emerald_text5</item>
-		<item name="memberListAwayTextColor">@color/emerald_text9</item>
 		<item name="timestampColor">@color/emerald_text10</item>
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
@@ -172,8 +168,6 @@
 		<item name="messageTextColor">@color/emerald_text4</item>
 		<item name="serverBackgroundColor">@color/emerald_background6</item>
 		<item name="bufferBackgroundColor">@color/emerald_background4</item>
-		<item name="memberListTextColor">@color/emerald_text5</item>
-		<item name="memberListAwayTextColor">@color/emerald_text9</item>
 		<item name="timestampColor">@color/emerald_text10</item>
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>
@@ -243,8 +237,6 @@
 		<item name="messageTextColor">@color/emerald_text4</item>
 		<item name="serverBackgroundColor">@color/emerald_background6</item>
 		<item name="bufferBackgroundColor">@color/emerald_background4</item>
-		<item name="memberListTextColor">@color/emerald_text5</item>
-		<item name="memberListAwayTextColor">@color/emerald_text9</item>
 		<item name="timestampColor">@color/emerald_text10</item>
 		<item name="timestampBackgroundColor">@color/emerald_background6</item>
 		<item name="statusBackgroundColor">@color/emerald_background6a</item>

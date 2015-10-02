@@ -37,8 +37,10 @@
         android:id="@+id/expandable"
         android:layout_gravity="top"
         android:layout_marginTop="2dp"
+        android:layout_marginRight="2dp"
         android:visibility="gone"
         android:textSize="16sp"
+        android:gravity="center"
         android:contentDescription="expand"/>
 
     <TextView

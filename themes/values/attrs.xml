@@ -26,13 +26,20 @@
     <attr name="halfopsGroupColor" format="color"/>
     <attr name="voicedGroupColor" format="color"/>
     <attr name="membersGroupColor" format="color"/>
-    <attr name="opersBorderColor" format="color"/>
-    <attr name="ownersBorderColor" format="color"/>
-    <attr name="adminsBorderColor" format="color"/>
-    <attr name="opsBorderColor" format="color"/>
-    <attr name="halfopsBorderColor" format="color"/>
-    <attr name="voicedBorderColor" format="color"/>
-    <attr name="membersBorderColor" format="color"/>
+    <attr name="opersHoverColor" format="color"/>
+    <attr name="ownersHoverColor" format="color"/>
+    <attr name="adminsHoverColor" format="color"/>
+    <attr name="opsHoverColor" format="color"/>
+    <attr name="halfopsHoverColor" format="color"/>
+    <attr name="voicedHoverColor" format="color"/>
+    <attr name="membersHoverColor" format="color"/>
+    <attr name="opersHeadingColor" format="color"/>
+    <attr name="ownersHeadingColor" format="color"/>
+    <attr name="adminsHeadingColor" format="color"/>
+    <attr name="opsHeadingColor" format="color"/>
+    <attr name="halfopsHeadingColor" format="color"/>
+    <attr name="voicedHeadingColor" format="color"/>
+    <attr name="membersHeadingColor" format="color"/>
     <attr name="memberListTextColor" format="color"/>
     <attr name="memberListAwayTextColor" format="color"/>
     <attr name="timestampColor" format="color"/>

@@ -30,8 +30,6 @@
 		<item name="messageTextColor">@color/sand_text4</item>
 		<item name="serverBackgroundColor">@color/sand_background6</item>
 		<item name="bufferBackgroundColor">@color/sand_background4</item>
-		<item name="memberListTextColor">@color/sand_text5</item>
-		<item name="memberListAwayTextColor">@color/sand_text9</item>
 		<item name="timestampColor">@color/sand_text10</item>
 		<item name="timestampBackgroundColor">@color/sand_background6</item>
 		<item name="statusBackgroundColor">@color/sand_background6a</item>
@@ -101,8 +99,6 @@
 		<item name="messageTextColor">@color/sand_text4</item>
 		<item name="serverBackgroundColor">@color/sand_background6</item>
 		<item name="bufferBackgroundColor">@color/sand_background4</item>
-		<item name="memberListTextColor">@color/sand_text5</item>
-		<item name="memberListAwayTextColor">@color/sand_text9</item>
 		<item name="timestampColor">@color/sand_text10</item>
 		<item name="timestampBackgroundColor">@color/sand_background6</item>
 		<item name="statusBackgroundColor">@color/sand_background6a</item>
@@ -172,8 +168,6 @@
 		<item name="messageTextColor">@color/sand_text4</item>
 		<item name="serverBackgroundColor">@color/sand_background6</item>
 		<item name="bufferBackgroundColor">@color/sand_background4</item>
-		<item name="memberListTextColor">@color/sand_text5</item>
-		<item name="memberListAwayTextColor">@color/sand_text9</item>
 		<item name="timestampColor">@color/sand_text10</item>
 		<item name="timestampBackgroundColor">@color/sand_background6</item>
 		<item name="statusBackgroundColor">@color/sand_background6a</item>
@@ -243,8 +237,6 @@
 		<item name="messageTextColor">@color/sand_text4</item>
 		<item name="serverBackgroundColor">@color/sand_background6</item>
 		<item name="bufferBackgroundColor">@color/sand_background4</item>
-		<item name="memberListTextColor">@color/sand_text5</item>
-		<item name="memberListAwayTextColor">@color/sand_text9</item>
 		<item name="timestampColor">@color/sand_text10</item>
 		<item name="timestampBackgroundColor">@color/sand_background6</item>
 		<item name="statusBackgroundColor">@color/sand_background6a</item>

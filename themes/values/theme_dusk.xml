@@ -30,8 +30,6 @@
 		<item name="messageTextColor">@color/dusk_text4</item>
 		<item name="serverBackgroundColor">@color/dusk_background6</item>
 		<item name="bufferBackgroundColor">@color/dusk_background4</item>
-		<item name="memberListTextColor">@color/dusk_text5</item>
-		<item name="memberListAwayTextColor">@color/dusk_text9</item>
 		<item name="timestampColor">@color/dusk_text10</item>
 		<item name="timestampBackgroundColor">@color/dusk_background6</item>
 		<item name="statusBackgroundColor">@color/dusk_background6a</item>
@@ -101,8 +99,6 @@
 		<item name="messageTextColor">@color/dusk_text4</item>
 		<item name="serverBackgroundColor">@color/dusk_background6</item>
 		<item name="bufferBackgroundColor">@color/dusk_background4</item>
-		<item name="memberListTextColor">@color/dusk_text5</item>
-		<item name="memberListAwayTextColor">@color/dusk_text9</item>
 		<item name="timestampColor">@color/dusk_text10</item>
 		<item name="timestampBackgroundColor">@color/dusk_background6</item>
 		<item name="statusBackgroundColor">@color/dusk_background6a</item>
@@ -172,8 +168,6 @@
 		<item name="messageTextColor">@color/dusk_text4</item>
 		<item name="serverBackgroundColor">@color/dusk_background6</item>
 		<item name="bufferBackgroundColor">@color/dusk_background4</item>
-		<item name="memberListTextColor">@color/dusk_text5</item>
-		<item name="memberListAwayTextColor">@color/dusk_text9</item>
 		<item name="timestampColor">@color/dusk_text10</item>
 		<item name="timestampBackgroundColor">@color/dusk_background6</item>
 		<item name="statusBackgroundColor">@color/dusk_background6a</item>
@@ -243,8 +237,6 @@
 		<item name="messageTextColor">@color/dusk_text4</item>
 		<item name="serverBackgroundColor">@color/dusk_background6</item>
 		<item name="bufferBackgroundColor">@color/dusk_background4</item>
-		<item name="memberListTextColor">@color/dusk_text5</item>
-		<item name="memberListAwayTextColor">@color/dusk_text9</item>
 		<item name="timestampColor">@color/dusk_text10</item>
 		<item name="timestampBackgroundColor">@color/dusk_background6</item>
 		<item name="statusBackgroundColor">@color/dusk_background6a</item>
