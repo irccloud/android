@@ -25,7 +25,7 @@
         app:actionProviderClass="com.irccloud.android.ShareActionProviderHax" />
     <item
         android:id="@+id/action_save"
-        android:title="Save to Gallary"
+        android:title="Save to Gallery"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_browser"
