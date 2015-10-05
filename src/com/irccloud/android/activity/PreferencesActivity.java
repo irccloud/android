@@ -22,6 +22,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -38,11 +39,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -202,6 +205,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
         findPreference("imageviewer").setOnPreferenceChangeListener(imageviewertoggle);
         findPreference("imgur_account_username").setOnPreferenceClickListener(imgurClick);
+        findPreference("theme").setOnPreferenceClickListener(themesClick);
         //findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
         //findPreference("changes").setOnPreferenceClickListener(urlClick);
         findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
@@ -332,6 +336,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 findPreference("imgur_account_username").setSummary(getSharedPreferences("prefs", 0).getString("imgur_account_username", null));
             if (findPreference("image_service") != null)
                 findPreference("image_service").setSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud"));
+            if(findPreference("theme") != null)
+                findPreference("theme").setSummary(ColorScheme.getUserTheme());
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
@@ -668,157 +674,157 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             View v = getLayoutInflater().inflate(R.layout.dialog_licenses, null);
             TextView tv = (TextView) v.findViewById(R.id.licenses);
             tv.setText("IRCCloud\n" +
-                    "Copyright (C) 2015 IRCCloud, Ltd.\n" +
-                    "\n" +
-                    "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-                    "you may not use this file except in compliance with the License.\n" +
-                    "You may obtain a copy of the License at\n" +
-                    "\n" +
-                    "http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    "\n" +
-                    "Unless required by applicable law or agreed to in writing, software\n" +
-                    "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-                    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-                    "See the License for the specific language governing permissions and\n" +
-                    "limitations under the License.\n" +
-                    "\n" +
-                    "You should have received a copy of the GNU General Public License\n" +
-                    "along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.\n" +
-                    "\n\n" +
-                    "HybiParser.java: draft-ietf-hybi-thewebsocketprotocol-13 parser\n" +
-                    "\n" +
-                    "Based on code from the faye project.\n" +
-                    "https://github.com/faye/faye-websocket-node\n" +
-                    "Copyright (c) 2009-2012 James Coglan\n" +
-                    "\n" +
-                    "Ported from Javascript to Java by Eric Butler <eric@codebutler.com>\n" +
-                    "\n" +
-                    "(The MIT License)\n" +
-                    "\n" +
-                    "Permission is hereby granted, free of charge, to any person obtaining\n" +
-                    "a copy of this software and associated documentation files (the\n" +
-                    "\"Software\"), to deal in the Software without restriction, including\n" +
-                    "without limitation the rights to use, copy, modify, merge, publish,\n" +
-                    "distribute, sublicense, and/or sell copies of the Software, and to\n" +
-                    "permit persons to whom the Software is furnished to do so, subject to\n" +
-                    "the following conditions:\n" +
-                    "\n" +
-                    "The above copyright notice and this permission notice shall be\n" +
-                    "included in all copies or substantial portions of the Software.\n" +
-                    "\n" +
-                    "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n" +
-                    "EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n" +
-                    "MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n" +
-                    "NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n" +
-                    "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n" +
-                    "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n" +
-                    "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
-                    "\n\n" +
-                    "Sony LiveWare library\n" +
-                    "Copyright (c) 2011, Sony Ericsson Mobile Communications AB\n" +
-                    "Copyright (C) 2012-2013 Sony Mobile Communications AB\n" +
-                    "\n" +
-                    "All rights reserved.\n" +
-                    "\n" +
-                    "Redistribution and use in source and binary forms, with or without\n" +
-                    "modification, are permitted provided that the following conditions are met:\n" +
-                    "\n" +
-                    "* Redistributions of source code must retain the above copyright notice, this\n" +
-                    "  list of conditions and the following disclaimer.\n" +
-                    "\n" +
-                    "* Redistributions in binary form must reproduce the above copyright notice,\n" +
-                    "  this list of conditions and the following disclaimer in the documentation\n" +
-                    "  and/or other materials provided with the distribution.\n" +
-                    "\n" +
-                    "* Neither the name of the Sony Ericsson Mobile Communications AB nor the names\n" +
-                    "  of its contributors may be used to endorse or promote products derived from\n" +
-                    "  this software without specific prior written permission.\n" +
-                    "\n" +
-                    "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\n" +
-                    "ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n" +
-                    "WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n" +
-                    "DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\n" +
-                    "FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\n" +
-                    "DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n" +
-                    "SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\n" +
-                    "CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n" +
-                    "OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n" +
-                    "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n" +
-                    "\n\n" +
-                    "AsyncTaskEx\n" +
-                    "Copyright (c) 2008-2009 CommonsWare, LLC\n" +
-                    "Portions (c) 2009 Google, Inc.\n" +
-                    "Licensed under the Apache License, Version 2.0 (the \"License\"); you may\n" +
-                    "not use this file except in compliance with the License. You may obtain\n" +
-                    "a copy of the License at\n" +
-                    "http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    "Unless required by applicable law or agreed to in writing, software\n" +
-                    "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-                    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-                    "See the License for the specific language governing permissions and\n" +
-                    "limitations under the License.\n" +
-                    "A subclass of the Android ListView component that enables drag\n" +
-                    "and drop re-ordering of list items.\n" +
-                    "\n\n" +
-                    "DragSortListView\n" +
-                    "Copyright 2012 Carl Bauer\n" +
-                    "\n" +
-                    "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-                    "you may not use this file except in compliance with the License.\n" +
-                    "You may obtain a copy of the License at\n" +
-                    "\n" +
-                    "http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    "\n" +
-                    "Unless required by applicable law or agreed to in writing, software\n" +
-                    "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-                    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-                    "See the License for the specific language governing permissions and\n" +
-                    "limitations under the License.\n\n" +
-                    "Jackson JSON Parser by FasterXML\n" +
-                    "\n" +
-                    "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-                    "you may not use this file except in compliance with the License.\n" +
-                    "You may obtain a copy of the License at\n" +
-                    "\n" +
-                    "http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    "\n" +
-                    "Unless required by applicable law or agreed to in writing, software\n" +
-                    "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-                    "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-                    "See the License for the specific language governing permissions and\n" +
-                    "limitations under the License.\n\n" +
-                    "SeekBarPreference by RoboBunny\n\n" +
-                    "SwitchPreferenceCompat by Christian Gollner\n\n" +
-                    "The MIT License (MIT)\n" +
-                    "\n" +
-                    "Copyright (c) 2014 Andrew Chen\n" +
-                    "\n" +
-                    "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
-                    "of this software and associated documentation files (the \"Software\"), to deal\n" +
-                    "in the Software without restriction, including without limitation the rights\n" +
-                    "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
-                    "copies of the Software, and to permit persons to whom the Software is\n" +
-                    "furnished to do so, subject to the following conditions:\n" +
-                    "\n" +
-                    "The above copyright notice and this permission notice shall be included in all\n" +
-                    "copies or substantial portions of the Software.\n" +
-                    "\n" +
-                    "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
-                    "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
-                    "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
-                    "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
-                    "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
-                    "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
-                    "SOFTWARE.\n" +
-                    "\n" +
-                    "Handy URI Templates\n" +
-                    "Copyright 2011-2013 Ryan J. McDonough\n" +
-                    "\n" +
-                    "Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n" +
-                    "\n" +
-                    "http://www.apache.org/licenses/LICENSE-2.0\n" +
-                    "Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.\n" +
-                    "\n" + GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this)
+                            "Copyright (C) 2015 IRCCloud, Ltd.\n" +
+                            "\n" +
+                            "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+                            "you may not use this file except in compliance with the License.\n" +
+                            "You may obtain a copy of the License at\n" +
+                            "\n" +
+                            "http://www.apache.org/licenses/LICENSE-2.0\n" +
+                            "\n" +
+                            "Unless required by applicable law or agreed to in writing, software\n" +
+                            "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                            "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+                            "See the License for the specific language governing permissions and\n" +
+                            "limitations under the License.\n" +
+                            "\n" +
+                            "You should have received a copy of the GNU General Public License\n" +
+                            "along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.\n" +
+                            "\n\n" +
+                            "HybiParser.java: draft-ietf-hybi-thewebsocketprotocol-13 parser\n" +
+                            "\n" +
+                            "Based on code from the faye project.\n" +
+                            "https://github.com/faye/faye-websocket-node\n" +
+                            "Copyright (c) 2009-2012 James Coglan\n" +
+                            "\n" +
+                            "Ported from Javascript to Java by Eric Butler <eric@codebutler.com>\n" +
+                            "\n" +
+                            "(The MIT License)\n" +
+                            "\n" +
+                            "Permission is hereby granted, free of charge, to any person obtaining\n" +
+                            "a copy of this software and associated documentation files (the\n" +
+                            "\"Software\"), to deal in the Software without restriction, including\n" +
+                            "without limitation the rights to use, copy, modify, merge, publish,\n" +
+                            "distribute, sublicense, and/or sell copies of the Software, and to\n" +
+                            "permit persons to whom the Software is furnished to do so, subject to\n" +
+                            "the following conditions:\n" +
+                            "\n" +
+                            "The above copyright notice and this permission notice shall be\n" +
+                            "included in all copies or substantial portions of the Software.\n" +
+                            "\n" +
+                            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\n" +
+                            "EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n" +
+                            "MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n" +
+                            "NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n" +
+                            "LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n" +
+                            "OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n" +
+                            "WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n" +
+                            "\n\n" +
+                            "Sony LiveWare library\n" +
+                            "Copyright (c) 2011, Sony Ericsson Mobile Communications AB\n" +
+                            "Copyright (C) 2012-2013 Sony Mobile Communications AB\n" +
+                            "\n" +
+                            "All rights reserved.\n" +
+                            "\n" +
+                            "Redistribution and use in source and binary forms, with or without\n" +
+                            "modification, are permitted provided that the following conditions are met:\n" +
+                            "\n" +
+                            "* Redistributions of source code must retain the above copyright notice, this\n" +
+                            "  list of conditions and the following disclaimer.\n" +
+                            "\n" +
+                            "* Redistributions in binary form must reproduce the above copyright notice,\n" +
+                            "  this list of conditions and the following disclaimer in the documentation\n" +
+                            "  and/or other materials provided with the distribution.\n" +
+                            "\n" +
+                            "* Neither the name of the Sony Ericsson Mobile Communications AB nor the names\n" +
+                            "  of its contributors may be used to endorse or promote products derived from\n" +
+                            "  this software without specific prior written permission.\n" +
+                            "\n" +
+                            "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND\n" +
+                            "ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n" +
+                            "WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n" +
+                            "DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\n" +
+                            "FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\n" +
+                            "DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n" +
+                            "SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\n" +
+                            "CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n" +
+                            "OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n" +
+                            "OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n" +
+                            "\n\n" +
+                            "AsyncTaskEx\n" +
+                            "Copyright (c) 2008-2009 CommonsWare, LLC\n" +
+                            "Portions (c) 2009 Google, Inc.\n" +
+                            "Licensed under the Apache License, Version 2.0 (the \"License\"); you may\n" +
+                            "not use this file except in compliance with the License. You may obtain\n" +
+                            "a copy of the License at\n" +
+                            "http://www.apache.org/licenses/LICENSE-2.0\n" +
+                            "Unless required by applicable law or agreed to in writing, software\n" +
+                            "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                            "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+                            "See the License for the specific language governing permissions and\n" +
+                            "limitations under the License.\n" +
+                            "A subclass of the Android ListView component that enables drag\n" +
+                            "and drop re-ordering of list items.\n" +
+                            "\n\n" +
+                            "DragSortListView\n" +
+                            "Copyright 2012 Carl Bauer\n" +
+                            "\n" +
+                            "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+                            "you may not use this file except in compliance with the License.\n" +
+                            "You may obtain a copy of the License at\n" +
+                            "\n" +
+                            "http://www.apache.org/licenses/LICENSE-2.0\n" +
+                            "\n" +
+                            "Unless required by applicable law or agreed to in writing, software\n" +
+                            "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                            "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+                            "See the License for the specific language governing permissions and\n" +
+                            "limitations under the License.\n\n" +
+                            "Jackson JSON Parser by FasterXML\n" +
+                            "\n" +
+                            "Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
+                            "you may not use this file except in compliance with the License.\n" +
+                            "You may obtain a copy of the License at\n" +
+                            "\n" +
+                            "http://www.apache.org/licenses/LICENSE-2.0\n" +
+                            "\n" +
+                            "Unless required by applicable law or agreed to in writing, software\n" +
+                            "distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
+                            "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
+                            "See the License for the specific language governing permissions and\n" +
+                            "limitations under the License.\n\n" +
+                            "SeekBarPreference by RoboBunny\n\n" +
+                            "SwitchPreferenceCompat by Christian Gollner\n\n" +
+                            "The MIT License (MIT)\n" +
+                            "\n" +
+                            "Copyright (c) 2014 Andrew Chen\n" +
+                            "\n" +
+                            "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
+                            "of this software and associated documentation files (the \"Software\"), to deal\n" +
+                            "in the Software without restriction, including without limitation the rights\n" +
+                            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
+                            "copies of the Software, and to permit persons to whom the Software is\n" +
+                            "furnished to do so, subject to the following conditions:\n" +
+                            "\n" +
+                            "The above copyright notice and this permission notice shall be included in all\n" +
+                            "copies or substantial portions of the Software.\n" +
+                            "\n" +
+                            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
+                            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
+                            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
+                            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
+                            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
+                            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
+                            "SOFTWARE.\n" +
+                            "\n" +
+                            "Handy URI Templates\n" +
+                            "Copyright 2011-2013 Ryan J. McDonough\n" +
+                            "\n" +
+                            "Licensed under the Apache License, Version 2.0 (the \"License\"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n" +
+                            "\n" +
+                            "http://www.apache.org/licenses/LICENSE-2.0\n" +
+                            "Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.\n" +
+                            "\n" + GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this)
             );
             builder.setView(v);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
@@ -855,6 +861,158 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
             if (i != null)
                 startActivity(i);
+            return false;
+        }
+    };
+
+    Preference.OnPreferenceClickListener themesClick = new Preference.OnPreferenceClickListener() {
+
+        public boolean onPreferenceClick(Preference preference) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
+            builder.setTitle("Choose a Theme");
+
+            View v = getLayoutInflater().inflate(R.layout.dialog_theme, null);
+
+            ((AppCompatRadioButton)v.findViewById(R.id.dusk)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[] {
+                            getResources().getColor(R.color.dusk_background0),
+                    }
+            ));
+
+            ((AppCompatRadioButton)v.findViewById(R.id.tropic)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[]{
+                            getResources().getColor(R.color.tropic_background0),
+                    }
+            ));
+
+            ((AppCompatRadioButton)v.findViewById(R.id.emerald)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[]{
+                            getResources().getColor(R.color.emerald_background0),
+                    }
+            ));
+
+            ((AppCompatRadioButton)v.findViewById(R.id.sand)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[]{
+                            getResources().getColor(R.color.sand_background0),
+                    }
+            ));
+
+            ((AppCompatRadioButton)v.findViewById(R.id.rust)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[]{
+                            getResources().getColor(R.color.rust_background0),
+                    }
+            ));
+
+            ((AppCompatRadioButton)v.findViewById(R.id.orchid)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[]{
+                            getResources().getColor(R.color.orchid_background0),
+                    }
+            ));
+
+            ((AppCompatRadioButton)v.findViewById(R.id.ash)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[]{
+                            getResources().getColor(R.color.ash_background0),
+                    }
+            ));
+
+            final RadioGroup group = (RadioGroup) v.findViewById(R.id.radioGroup);
+            switch(ColorScheme.getUserTheme()) {
+                case "dusk":
+                    group.check(R.id.dusk);
+                    break;
+                case "tropic":
+                    group.check(R.id.tropic);
+                    break;
+                case "emerald":
+                    group.check(R.id.emerald);
+                    break;
+                case "sand":
+                    group.check(R.id.sand);
+                    break;
+                case "rust":
+                    group.check(R.id.rust);
+                    break;
+                case "orchid":
+                    group.check(R.id.orchid);
+                    break;
+                case "ash":
+                    group.check(R.id.ash);
+                    break;
+            }
+
+            builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String theme = ColorScheme.getUserTheme();
+                    switch(group.getCheckedRadioButtonId()) {
+                        case R.id.dusk:
+                            theme = "dusk";
+                            break;
+                        case R.id.tropic:
+                            theme = "tropic";
+                            break;
+                        case R.id.emerald:
+                            theme = "emerald";
+                            break;
+                        case R.id.sand:
+                            theme = "sand";
+                            break;
+                        case R.id.rust:
+                            theme = "rust";
+                            break;
+                        case R.id.orchid:
+                            theme = "orchid";
+                            break;
+                        case R.id.ash:
+                            theme = "ash";
+                            break;
+                    }
+
+                    JSONObject prefs = conn.getUserInfo().prefs;
+                    try {
+                        if (prefs == null) {
+                            prefs = new JSONObject();
+                            conn.getUserInfo().prefs = prefs;
+                        }
+
+                        prefs.put("theme", theme);
+
+                        if (savePreferencesTask != null)
+                            savePreferencesTask.cancel(true);
+                        savePreferencesTask = new SavePreferencesTask();
+                        savePreferencesTask.execute((Void) null);
+                    } catch (JSONException e) {
+                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: theme");
+                        Crashlytics.logException(e);
+                        Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.setView(v);
+
+            builder.show();
             return false;
         }
     };

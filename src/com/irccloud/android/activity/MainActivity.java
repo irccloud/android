@@ -1243,6 +1243,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
+        if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+            super.onResume();
+            Toast.makeText(this, "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
+            Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.putExtra("nosplash", true);
+            finish();
+            startActivity(i);
+            return;
+        }
+
         if(conn == null) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
@@ -2133,6 +2145,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_USERINFO:
                 if(conn != null && conn.ready && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+                    Toast.makeText(this, "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
                     Intent i = (getIntent() != null)?getIntent():new Intent(this, MainActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     i.putExtra("nosplash", true);
