@@ -19,13 +19,13 @@
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory android:title="Account">
-		<EditTextPreference
+		<com.irccloud.android.AppCompatEditTextPreference
 			android:key="email"
 			android:title="Email address"/>
-		<EditTextPreference
+		<com.irccloud.android.AppCompatEditTextPreference
 			android:key="name"
 			android:title="Full name"/>
-		<EditTextPreference
+		<com.irccloud.android.AppCompatEditTextPreference
 			android:key="highlights"
 			android:title="Highlight words"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat

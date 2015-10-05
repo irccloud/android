@@ -16,11 +16,12 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory android:title="Photo Sharing" android:key="photos">
-        <ListPreference android:entries="@array/pref_image_service_values"
+        <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_image_service_values"
             android:title="Image Service" android:key="image_service"
-            android:entryValues="@array/pref_image_service_values"
+            app:entryValues="@array/pref_image_service_values"
             android:defaultValue="IRCCloud" />
         <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
             android:key="keep_photos"
@@ -28,9 +29,9 @@
             android:summaryOn="Camera photos will be saved"
             android:summaryOff="Camera photos will not be saved"
             android:title="Save camera photos"/>
-        <ListPreference android:entries="@array/pref_photo_size_names"
+        <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_photo_size_names"
             android:title="Image Size" android:key="photo_size"
-            android:entryValues="@array/pref_photo_size_values"
+            app:entryValues="@array/pref_photo_size_values"
             android:defaultValue="1024" />
         <Preference
             android:title="Imgur.com Account"

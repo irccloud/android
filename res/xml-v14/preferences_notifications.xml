@@ -15,13 +15,13 @@
   ~ limitations under the License.
   -->
 
-<PreferenceScreen
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
 	<PreferenceCategory android:title="Notifications">
-	    <ListPreference android:entries="@array/pref_notify_names"
+	    <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_notify_names"
 		    android:title="Notifications" android:key="notify_type"
-		    android:entryValues="@array/pref_notify_values"
+		    app:entryValues="@array/pref_notify_values"
 		    android:defaultValue="1" />
 		<RingtonePreference android:showDefault="true"
 			android:key="notify_ringtone" android:title="Notification ringtone"
@@ -34,8 +34,8 @@
 			android:summaryOn="Your device will vibrate\n(if available)"
 			android:summaryOff="Your device will not vibrate"
 			android:title="Vibration"/>
-        <ListPreference android:entries="@array/pref_lights_names"
-            android:entryValues="@array/pref_lights_values"
+        <com.irccloud.android.AppCompatListPreference app:entries="@array/pref_lights_names"
+            app:entryValues="@array/pref_lights_values"
 			android:key="notify_led_color"
 			android:defaultValue="1"
 			android:title="LED"/>

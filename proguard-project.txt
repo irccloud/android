@@ -34,7 +34,8 @@
 -dontobfuscate
 -dontwarn android.databinding.**
 -dontwarn com.squareup.**
-
+-keep public class android.support.v7.preference.Preference { *; }
+-keep public class * extends android.support.v7.preference.Preference { *; }
 #Play Services
 -keep class * extends java.util.ListResourceBundle {
     protected Object[][] getContents();
