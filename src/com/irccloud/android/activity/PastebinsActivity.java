@@ -225,6 +225,7 @@ public class PastebinsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         setContentView(R.layout.listview);
 
         if(getSupportActionBar() != null) {

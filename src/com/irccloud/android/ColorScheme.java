@@ -30,11 +30,13 @@ public class ColorScheme {
     }
 
     public static String getUserTheme() {
-        return PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "dusk");
+        return PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("theme", "dawn");
     }
 
     public static int getTheme(String theme, boolean actionbar) {
         switch(theme) {
+            case "dawn":
+                return actionbar?R.style.dawn:R.style.dawnNoActionBar;
             case "dusk":
                 return actionbar?R.style.dusk:R.style.duskNoActionBar;
             case "tropic":
@@ -50,12 +52,14 @@ public class ColorScheme {
             case "ash":
                 return actionbar?R.style.ash:R.style.ashNoActionBar;
             default:
-                return actionbar?R.style.dusk:R.style.duskNoActionBar;
+                return actionbar?R.style.dawn:R.style.dawnNoActionBar;
         }
     }
 
     public static int getPrefsTheme(String theme) {
         switch(theme) {
+            case "dawn":
+                return R.style.dawnPrefsTheme;
             case "dusk":
                 return R.style.duskPrefsTheme;
             case "tropic":
@@ -71,12 +75,14 @@ public class ColorScheme {
             case "ash":
                 return R.style.ashPrefsTheme;
             default:
-                return R.style.duskPrefsTheme;
+                return R.style.dawnPrefsTheme;
         }
     }
 
     public static int getDialogTheme(String theme) {
         switch(theme) {
+            case "dawn":
+                return R.style.dawnDialog;
             case "dusk":
                 return R.style.duskDialog;
             case "tropic":
@@ -92,7 +98,30 @@ public class ColorScheme {
             case "ash":
                 return R.style.ashDialog;
             default:
-                return R.style.duskDialog;
+                return R.style.dawnDialog;
+        }
+    }
+
+    public static int getDialogWhenLargeTheme(String theme) {
+        switch(theme) {
+            case "dawn":
+                return R.style.dawnDialogWhenLarge;
+            case "dusk":
+                return R.style.duskDialogWhenLarge;
+            case "tropic":
+                return R.style.tropicDialogWhenLarge;
+            case "emerald":
+                return R.style.emeraldDialogWhenLarge;
+            case "sand":
+                return R.style.sandDialogWhenLarge;
+            case "rust":
+                return R.style.rustDialogWhenLarge;
+            case "orchid":
+                return R.style.orchidDialogWhenLarge;
+            case "ash":
+                return R.style.ashDialogWhenLarge;
+            default:
+                return R.style.dawnDialogWhenLarge;
         }
     }
 
@@ -187,9 +216,16 @@ public class ColorScheme {
         colorControlNormal = colorForAttribute(ctx, R.attr.colorControlNormal);
         dialogBackgroundColor = colorForAttribute(ctx, R.attr.dialogBackgroundColor);
         windowBackgroundDrawable = resourceForAttribute(ctx, R.attr.windowBackgroundDrawable);
+        row_opers_bg_drawable = resourceForAttribute(ctx, R.attr.row_opers_bg_drawable);
+        row_owners_bg_drawable = resourceForAttribute(ctx, R.attr.row_owners_bg_drawable);
+        row_admins_bg_drawable = resourceForAttribute(ctx, R.attr.row_admins_bg_drawable);
+        row_ops_bg_drawable = resourceForAttribute(ctx, R.attr.row_ops_bg_drawable);
+        row_halfops_bg_drawable = resourceForAttribute(ctx, R.attr.row_halfops_bg_drawable);
+        row_voiced_bg_drawable = resourceForAttribute(ctx, R.attr.row_voiced_bg_drawable);
+        row_members_bg_drawable = resourceForAttribute(ctx, R.attr.row_members_bg_drawable);
         if(Build.VERSION.SDK_INT >= 21)
             statusBarColor = colorForAttribute(ctx, android.R.attr.statusBarColor);
-        isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) != 0;
+        isDarkTheme = !theme.equals("dawn");
     }
 
     private int colorForAttribute(Context ctx, int attribute) {
@@ -294,6 +330,13 @@ public class ColorScheme {
     public int dialogBackgroundColor;
     public int windowBackgroundDrawable;
     public int statusBarColor;
+    public int row_opers_bg_drawable;
+    public int row_owners_bg_drawable;
+    public int row_admins_bg_drawable;
+    public int row_ops_bg_drawable;
+    public int row_halfops_bg_drawable;
+    public int row_voiced_bg_drawable;
+    public int row_members_bg_drawable;
     public String theme;
     public boolean isDarkTheme;
 }

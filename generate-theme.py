@@ -136,6 +136,7 @@ theme(f, themename, "DarkAppTheme")
 theme(f, themename + "NoActionBar", "DarkAppThemeNoActionBar")
 theme(f, themename + "Dialog", "DarkAppDialogTheme")
 theme(f, themename + "Alert", "DarkAppAlertTheme")
+theme(f, themename + "DialogWhenLarge", "DarkAppDialogWhenLargeTheme")
 
 f.write(color("border1", 0.55))
 f.write(color("border2", 0.50))

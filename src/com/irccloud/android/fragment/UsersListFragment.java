@@ -65,6 +65,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
     private TimerTask tapTimerTask = null;
     private RecyclerView recyclerView = null;
 
+    private ColorScheme colorScheme = ColorScheme.getInstance();
+
     public RecyclerView getRecyclerView() {
         return recyclerView;
     }
@@ -156,7 +158,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, bg_color, heading_color, false, false));
             for (int i = 0; i < users.size(); i++) {
                 User user = users.get(i);
-                entries.add(adapter.buildItem(TYPE_USER, user.nick, null, bg_color, heading_color, user.away > 0, bg_color != R.drawable.row_members_bg && i == users.size() - 1));
+                entries.add(adapter.buildItem(TYPE_USER, user.nick, null, bg_color, heading_color, user.away > 0, bg_color != colorScheme.row_members_bg_drawable && i == users.size() - 1));
             }
         }
     }
@@ -226,71 +228,71 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         if (opers.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OPER : "Y"))
-                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", R.drawable.row_opers_bg, ColorScheme.getInstance().opersHeadingColor);
+                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
                 else
-                    addUsersFromList(entries, opers, "OPER", "", R.drawable.row_opers_bg, ColorScheme.getInstance().opersHeadingColor);
+                    addUsersFromList(entries, opers, "OPER", "", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
             } else {
-                addUsersFromList(entries, opers, "OPER", "", R.drawable.row_opers_bg, ColorScheme.getInstance().opersHeadingColor);
+                addUsersFromList(entries, opers, "OPER", "", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
             }
         }
 
         if (owners.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OWNER : "q"))
-                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s != null ? s.MODE_OWNER : "q").asText() + " ", R.drawable.row_owners_bg, ColorScheme.getInstance().ownersHeadingColor);
+                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s != null ? s.MODE_OWNER : "q").asText() + " ", colorScheme.row_owners_bg_drawable, colorScheme.ownersHeadingColor);
                 else
-                    addUsersFromList(entries, owners, "OWNER", "", R.drawable.row_owners_bg, ColorScheme.getInstance().ownersHeadingColor);
+                    addUsersFromList(entries, owners, "OWNER", "", colorScheme.row_owners_bg_drawable, colorScheme.ownersHeadingColor);
             } else {
-                addUsersFromList(entries, owners, "OWNER", "", R.drawable.row_owners_bg, ColorScheme.getInstance().ownersHeadingColor);
+                addUsersFromList(entries, owners, "OWNER", "", colorScheme.row_owners_bg_drawable, colorScheme.ownersHeadingColor);
             }
         }
 
         if (admins.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_ADMIN : "a"))
-                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s != null ? s.MODE_ADMIN : "a").asText() + " ", R.drawable.row_admins_bg, ColorScheme.getInstance().adminsHeadingColor);
+                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s != null ? s.MODE_ADMIN : "a").asText() + " ", colorScheme.row_admins_bg_drawable, colorScheme.adminsHeadingColor);
                 else
-                    addUsersFromList(entries, admins, "ADMINS", "", R.drawable.row_admins_bg, ColorScheme.getInstance().adminsHeadingColor);
+                    addUsersFromList(entries, admins, "ADMINS", "", colorScheme.row_admins_bg_drawable, colorScheme.adminsHeadingColor);
             } else {
-                addUsersFromList(entries, admins, "ADMINS", "", R.drawable.row_admins_bg, ColorScheme.getInstance().adminsHeadingColor);
+                addUsersFromList(entries, admins, "ADMINS", "", colorScheme.row_admins_bg_drawable, colorScheme.adminsHeadingColor);
             }
         }
 
         if (ops.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OP : "o"))
-                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s != null ? s.MODE_OP : "o").asText() + " ", R.drawable.row_operator_bg, ColorScheme.getInstance().opsHeadingColor);
+                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s != null ? s.MODE_OP : "o").asText() + " ", colorScheme.row_ops_bg_drawable, colorScheme.opsHeadingColor);
                 else
-                    addUsersFromList(entries, ops, "OPS", "", R.drawable.row_operator_bg, ColorScheme.getInstance().opsHeadingColor);
+                    addUsersFromList(entries, ops, "OPS", "", colorScheme.row_ops_bg_drawable, colorScheme.opsHeadingColor);
             } else {
-                addUsersFromList(entries, ops, "OPS", "", R.drawable.row_operator_bg, ColorScheme.getInstance().opsHeadingColor);
+                addUsersFromList(entries, ops, "OPS", "", colorScheme.row_ops_bg_drawable, colorScheme.opsHeadingColor);
             }
         }
 
         if (halfops.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_HALFOP : "h"))
-                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s != null ? s.MODE_HALFOP : "h").asText() + " ", R.drawable.row_halfops_bg, ColorScheme.getInstance().halfopsHeadingColor);
+                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s != null ? s.MODE_HALFOP : "h").asText() + " ", colorScheme.row_halfops_bg_drawable, colorScheme.halfopsHeadingColor);
                 else
-                    addUsersFromList(entries, halfops, "HALF OPS", "", R.drawable.row_halfops_bg, ColorScheme.getInstance().halfopsHeadingColor);
+                    addUsersFromList(entries, halfops, "HALF OPS", "", colorScheme.row_halfops_bg_drawable, colorScheme.halfopsHeadingColor);
             } else {
-                addUsersFromList(entries, halfops, "HALF OPS", "", R.drawable.row_halfops_bg, ColorScheme.getInstance().halfopsHeadingColor);
+                addUsersFromList(entries, halfops, "HALF OPS", "", colorScheme.row_halfops_bg_drawable, colorScheme.halfopsHeadingColor);
             }
         }
 
         if (voiced.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_VOICED : "v"))
-                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s != null ? s.MODE_VOICED : "v").asText() + " ", R.drawable.row_voiced_bg, ColorScheme.getInstance().voicedHeadingColor);
+                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s != null ? s.MODE_VOICED : "v").asText() + " ", colorScheme.row_voiced_bg_drawable, colorScheme.voicedHeadingColor);
                 else
-                    addUsersFromList(entries, voiced, "VOICED", "", R.drawable.row_voiced_bg, ColorScheme.getInstance().voicedHeadingColor);
+                    addUsersFromList(entries, voiced, "VOICED", "", colorScheme.row_voiced_bg_drawable, colorScheme.voicedHeadingColor);
             } else {
-                addUsersFromList(entries, voiced, "VOICED", "", R.drawable.row_voiced_bg, ColorScheme.getInstance().voicedHeadingColor);
+                addUsersFromList(entries, voiced, "VOICED", "", colorScheme.row_voiced_bg_drawable, colorScheme.voicedHeadingColor);
             }
         }
 
         if (members.size() > 0) {
-            addUsersFromList(entries, members, "MEMBERS", "", R.drawable.row_members_bg, ColorScheme.getInstance().membersHeadingColor);
+            addUsersFromList(entries, members, "MEMBERS", "", colorScheme.row_members_bg_drawable, colorScheme.membersHeadingColor);
         }
 
         adapter.setItems(entries);

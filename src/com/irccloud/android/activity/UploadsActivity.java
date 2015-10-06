@@ -408,6 +408,7 @@ public class UploadsActivity extends BaseActivity {
         if(ColorFormatter.file_uri_template != null)
             template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onCreate(savedInstanceState);
+        setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
 
         if(Build.VERSION.SDK_INT >= 14) {
             try {

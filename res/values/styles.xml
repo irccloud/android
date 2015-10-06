@@ -15,28 +15,7 @@
   -->
 
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
-	    <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="LoginTheme" parent="AppTheme">
+    <style name="LoginTheme" parent="Theme.AppCompat">
         <item name="android:windowNoTitle">true</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
@@ -46,65 +25,12 @@
     <style name="LoginThemeSpinner" parent="LoginTheme">
         <item name="colorAccent">#fff</item>
     </style>
-    <style name="LaunchTheme" parent="AppThemeNoActionBar">
+    <style name="LaunchTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/splash</item>
-    </style>
-    <style name="PrefsTheme" parent="AppThemeNoActionBar">
-        <item name="android:windowNoTitle">false</item>
-        <item name="android:windowTitleSize">?attr/actionBarSize</item>
-        <item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-        <item name="android:seekBarStyle">@style/SeekBarmain</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="PrefsWindowTitleBackground">
         <item name="android:background">@android:color/transparent</item>
         <item name="android:padding">0px</item>
-    </style>
-    <style name="AppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="AppAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="DialogTheme" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">#888</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="DialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">#888</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="colorControlNormal">@color/dark_blue</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="PastebinEditorTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/light_blue</item>
-        <item name="colorAccent">#888</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="ImgurAuthTheme" parent="Theme.AppCompat">
         <item name="colorAccent">#888</item>

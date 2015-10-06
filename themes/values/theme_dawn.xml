@@ -1,0 +1,402 @@
+<!--
+~ Copyright (c) 2015 IRCCloud, Ltd.
+~
+~ Licensed under the Apache License, Version 2.0 (the "License");
+~ you may not use this file except in compliance with the License.
+~ You may obtain a copy of the License at
+~
+~ http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
+
+<resources>
+	<style name="dawn" parent="LightAppTheme">
+		<item name="isDarkTheme">false</item>
+		<item name="bufferTextColor">#1d40ff</item>
+		<item name="navBarSubheadingColor">#777</item>
+		<item name="inactiveBufferTextColor">#9CC7FF</item>
+		<item name="archivesHeadingTextColor">#666</item>
+		<item name="chatterBarTextColor">#002179</item>
+		<item name="linkColor">#1D40FF</item>
+		<item name="highlightBackgroundColor">#C0DBFF</item>
+		<item name="selfBackgroundColor">#e2edff</item>
+		<item name="contentBackgroundColor">#fff</item>
+		<item name="dialogBackgroundColor">#fff</item>
+		<item name="messageTextColor">#333</item>
+		<item name="serverBackgroundColor">#F2F7FC</item>
+		<item name="bufferBackgroundColor">#D9E7FF</item>
+		<item name="timestampColor">#aaa</item>
+		<item name="timestampBackgroundColor">#fff</item>
+		<item name="statusBackgroundColor">#f2f7fc</item>
+		<item name="noticeBackgroundColor">#d9e7ff</item>
+		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
+		<item name="navBarColor">#F2F7FC</item>
+		<item name="navBarBorderColor">#D9E7FF</item>
+		<item name="textareaTextColor">#000</item>
+		<item name="textareaBackgroundColor">#fff</item>
+		<item name="navBarHeadingColor">#000</item>
+		<item name="lightLinkColor">#9CC7FF</item>
+		<item name="unreadBufferTextColor">#1d40ff</item>
+		<item name="selectedBufferTextColor">#fff</item>
+		<item name="selectedBufferBackgroundColor">#1E72FF</item>
+		<item name="bufferBorderColor">#B3CFFF</item>
+		<item name="serverBorderColor">#D9E7FF</item>
+		<item name="failedServerBorderColor">#dbb300</item>
+		<item name="selectedBufferBorderColor">#3E0CFF</item>
+		<item name="backlogDividerColor">#1E72FF</item>
+		<item name="chatterBarColor">#D9E7FF</item>
+		<item name="awayBarTextColor">#222</item>
+		<item name="awayBarColor">#eaeaea</item>
+		<item name="connectionBarTextColor">#123e92</item>
+		<item name="connectionBarColor">#e2edff</item>
+		<item name="placeholderColor">#000</item>
+		<item name="expandCollapseIndicatorColor">#b3cfff</item>
+		<item name="listItemBackgroundColor">#fff</item>
+		<item name="backlogMarkerColor">#1E72FF</item>
+
+		<item name="colorPrimary">#F2F7FC</item>
+		<item name="colorPrimaryDark">#D9E7FF</item>
+		<item name="colorAccent">#1E72FF</item>
+		<item name="android:colorPrimary">#F2F7FC</item>
+		<item name="android:colorPrimaryDark">#D9E7FF</item>
+		<item name="android:colorAccent">#1E72FF</item>
+		<item name="android:textColorPrimary">#000</item>
+		<item name="android:textColorSecondary">#aaa</item>
+
+		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dawn</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dawn</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dawn</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dawn</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dawn</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dawn</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_dawn</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_dawn</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_dawn</item>
+		<item name="android:dialogTheme">@style/dawnDialog</item>
+		<item name="dialogTheme">@style/dawnDialog</item>
+		<item name="android:alertDialogTheme">@style/dawnAlert</item>
+		<item name="alertDialogTheme">@style/dawnAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="contentBorderColor">#679FFF</item>
+	</style>
+
+	<style name="dawnNoActionBar" parent="LightAppThemeNoActionBar">
+		<item name="isDarkTheme">false</item>
+		<item name="bufferTextColor">#1d40ff</item>
+		<item name="navBarSubheadingColor">#777</item>
+		<item name="inactiveBufferTextColor">#9CC7FF</item>
+		<item name="archivesHeadingTextColor">#666</item>
+		<item name="chatterBarTextColor">#002179</item>
+		<item name="linkColor">#1D40FF</item>
+		<item name="highlightBackgroundColor">#C0DBFF</item>
+		<item name="selfBackgroundColor">#e2edff</item>
+		<item name="contentBackgroundColor">#fff</item>
+		<item name="dialogBackgroundColor">#fff</item>
+		<item name="messageTextColor">#333</item>
+		<item name="serverBackgroundColor">#F2F7FC</item>
+		<item name="bufferBackgroundColor">#D9E7FF</item>
+		<item name="timestampColor">#aaa</item>
+		<item name="timestampBackgroundColor">#fff</item>
+		<item name="statusBackgroundColor">#f2f7fc</item>
+		<item name="noticeBackgroundColor">#d9e7ff</item>
+		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
+		<item name="navBarColor">#F2F7FC</item>
+		<item name="navBarBorderColor">#D9E7FF</item>
+		<item name="textareaTextColor">#000</item>
+		<item name="textareaBackgroundColor">#fff</item>
+		<item name="navBarHeadingColor">#000</item>
+		<item name="lightLinkColor">#9CC7FF</item>
+		<item name="unreadBufferTextColor">#1d40ff</item>
+		<item name="selectedBufferTextColor">#fff</item>
+		<item name="selectedBufferBackgroundColor">#1E72FF</item>
+		<item name="bufferBorderColor">#B3CFFF</item>
+		<item name="serverBorderColor">#D9E7FF</item>
+		<item name="failedServerBorderColor">#dbb300</item>
+		<item name="selectedBufferBorderColor">#3E0CFF</item>
+		<item name="backlogDividerColor">#1E72FF</item>
+		<item name="chatterBarColor">#D9E7FF</item>
+		<item name="awayBarTextColor">#222</item>
+		<item name="awayBarColor">#eaeaea</item>
+		<item name="connectionBarTextColor">#123e92</item>
+		<item name="connectionBarColor">#e2edff</item>
+		<item name="placeholderColor">#000</item>
+		<item name="expandCollapseIndicatorColor">#b3cfff</item>
+		<item name="listItemBackgroundColor">#fff</item>
+		<item name="backlogMarkerColor">#1E72FF</item>
+
+		<item name="colorPrimary">#F2F7FC</item>
+		<item name="colorPrimaryDark">#D9E7FF</item>
+		<item name="colorAccent">#1E72FF</item>
+		<item name="android:colorPrimary">#F2F7FC</item>
+		<item name="android:colorPrimaryDark">#D9E7FF</item>
+		<item name="android:colorAccent">#1E72FF</item>
+		<item name="android:textColorPrimary">#000</item>
+		<item name="android:textColorSecondary">#aaa</item>
+
+		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dawn</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dawn</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dawn</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dawn</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dawn</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dawn</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_dawn</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_dawn</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_dawn</item>
+		<item name="android:dialogTheme">@style/dawnDialog</item>
+		<item name="dialogTheme">@style/dawnDialog</item>
+		<item name="android:alertDialogTheme">@style/dawnAlert</item>
+		<item name="alertDialogTheme">@style/dawnAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="contentBorderColor">#679FFF</item>
+	</style>
+
+	<style name="dawnDialog" parent="LightAppDialogTheme">
+		<item name="isDarkTheme">false</item>
+		<item name="bufferTextColor">#1d40ff</item>
+		<item name="navBarSubheadingColor">#777</item>
+		<item name="inactiveBufferTextColor">#9CC7FF</item>
+		<item name="archivesHeadingTextColor">#666</item>
+		<item name="chatterBarTextColor">#002179</item>
+		<item name="linkColor">#1D40FF</item>
+		<item name="highlightBackgroundColor">#C0DBFF</item>
+		<item name="selfBackgroundColor">#e2edff</item>
+		<item name="contentBackgroundColor">#fff</item>
+		<item name="dialogBackgroundColor">#fff</item>
+		<item name="messageTextColor">#333</item>
+		<item name="serverBackgroundColor">#F2F7FC</item>
+		<item name="bufferBackgroundColor">#D9E7FF</item>
+		<item name="timestampColor">#aaa</item>
+		<item name="timestampBackgroundColor">#fff</item>
+		<item name="statusBackgroundColor">#f2f7fc</item>
+		<item name="noticeBackgroundColor">#d9e7ff</item>
+		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
+		<item name="navBarColor">#F2F7FC</item>
+		<item name="navBarBorderColor">#D9E7FF</item>
+		<item name="textareaTextColor">#000</item>
+		<item name="textareaBackgroundColor">#fff</item>
+		<item name="navBarHeadingColor">#000</item>
+		<item name="lightLinkColor">#9CC7FF</item>
+		<item name="unreadBufferTextColor">#1d40ff</item>
+		<item name="selectedBufferTextColor">#fff</item>
+		<item name="selectedBufferBackgroundColor">#1E72FF</item>
+		<item name="bufferBorderColor">#B3CFFF</item>
+		<item name="serverBorderColor">#D9E7FF</item>
+		<item name="failedServerBorderColor">#dbb300</item>
+		<item name="selectedBufferBorderColor">#3E0CFF</item>
+		<item name="backlogDividerColor">#1E72FF</item>
+		<item name="chatterBarColor">#D9E7FF</item>
+		<item name="awayBarTextColor">#222</item>
+		<item name="awayBarColor">#eaeaea</item>
+		<item name="connectionBarTextColor">#123e92</item>
+		<item name="connectionBarColor">#e2edff</item>
+		<item name="placeholderColor">#000</item>
+		<item name="expandCollapseIndicatorColor">#b3cfff</item>
+		<item name="listItemBackgroundColor">#fff</item>
+		<item name="backlogMarkerColor">#1E72FF</item>
+
+		<item name="colorPrimary">#F2F7FC</item>
+		<item name="colorPrimaryDark">#D9E7FF</item>
+		<item name="colorAccent">#1E72FF</item>
+		<item name="android:colorPrimary">#F2F7FC</item>
+		<item name="android:colorPrimaryDark">#D9E7FF</item>
+		<item name="android:colorAccent">#1E72FF</item>
+		<item name="android:textColorPrimary">#000</item>
+		<item name="android:textColorSecondary">#aaa</item>
+
+		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dawn</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dawn</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dawn</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dawn</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dawn</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dawn</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_dawn</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_dawn</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_dawn</item>
+		<item name="android:dialogTheme">@style/dawnDialog</item>
+		<item name="dialogTheme">@style/dawnDialog</item>
+		<item name="android:alertDialogTheme">@style/dawnAlert</item>
+		<item name="alertDialogTheme">@style/dawnAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="contentBorderColor">#679FFF</item>
+	</style>
+
+	<style name="dawnAlert" parent="LightAppAlertTheme">
+		<item name="isDarkTheme">false</item>
+		<item name="bufferTextColor">#1d40ff</item>
+		<item name="navBarSubheadingColor">#777</item>
+		<item name="inactiveBufferTextColor">#9CC7FF</item>
+		<item name="archivesHeadingTextColor">#666</item>
+		<item name="chatterBarTextColor">#002179</item>
+		<item name="linkColor">#1D40FF</item>
+		<item name="highlightBackgroundColor">#C0DBFF</item>
+		<item name="selfBackgroundColor">#e2edff</item>
+		<item name="contentBackgroundColor">#fff</item>
+		<item name="dialogBackgroundColor">#fff</item>
+		<item name="messageTextColor">#333</item>
+		<item name="serverBackgroundColor">#F2F7FC</item>
+		<item name="bufferBackgroundColor">#D9E7FF</item>
+		<item name="timestampColor">#aaa</item>
+		<item name="timestampBackgroundColor">#fff</item>
+		<item name="statusBackgroundColor">#f2f7fc</item>
+		<item name="noticeBackgroundColor">#d9e7ff</item>
+		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
+		<item name="navBarColor">#F2F7FC</item>
+		<item name="navBarBorderColor">#D9E7FF</item>
+		<item name="textareaTextColor">#000</item>
+		<item name="textareaBackgroundColor">#fff</item>
+		<item name="navBarHeadingColor">#000</item>
+		<item name="lightLinkColor">#9CC7FF</item>
+		<item name="unreadBufferTextColor">#1d40ff</item>
+		<item name="selectedBufferTextColor">#fff</item>
+		<item name="selectedBufferBackgroundColor">#1E72FF</item>
+		<item name="bufferBorderColor">#B3CFFF</item>
+		<item name="serverBorderColor">#D9E7FF</item>
+		<item name="failedServerBorderColor">#dbb300</item>
+		<item name="selectedBufferBorderColor">#3E0CFF</item>
+		<item name="backlogDividerColor">#1E72FF</item>
+		<item name="chatterBarColor">#D9E7FF</item>
+		<item name="awayBarTextColor">#222</item>
+		<item name="awayBarColor">#eaeaea</item>
+		<item name="connectionBarTextColor">#123e92</item>
+		<item name="connectionBarColor">#e2edff</item>
+		<item name="placeholderColor">#000</item>
+		<item name="expandCollapseIndicatorColor">#b3cfff</item>
+		<item name="listItemBackgroundColor">#fff</item>
+		<item name="backlogMarkerColor">#1E72FF</item>
+
+		<item name="colorPrimary">#F2F7FC</item>
+		<item name="colorPrimaryDark">#D9E7FF</item>
+		<item name="colorAccent">#1E72FF</item>
+		<item name="android:colorPrimary">#F2F7FC</item>
+		<item name="android:colorPrimaryDark">#D9E7FF</item>
+		<item name="android:colorAccent">#1E72FF</item>
+		<item name="android:textColorPrimary">#000</item>
+		<item name="android:textColorSecondary">#aaa</item>
+
+		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dawn</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dawn</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dawn</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dawn</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dawn</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dawn</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_dawn</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_dawn</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_dawn</item>
+		<item name="android:dialogTheme">@style/dawnDialog</item>
+		<item name="dialogTheme">@style/dawnDialog</item>
+		<item name="android:alertDialogTheme">@style/dawnAlert</item>
+		<item name="alertDialogTheme">@style/dawnAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="contentBorderColor">#679FFF</item>
+	</style>
+
+	<style name="dawnDialogWhenLarge" parent="LightAppDialogWhenLargeTheme">
+		<item name="isDarkTheme">false</item>
+		<item name="bufferTextColor">#1d40ff</item>
+		<item name="navBarSubheadingColor">#777</item>
+		<item name="inactiveBufferTextColor">#9CC7FF</item>
+		<item name="archivesHeadingTextColor">#666</item>
+		<item name="chatterBarTextColor">#002179</item>
+		<item name="linkColor">#1D40FF</item>
+		<item name="highlightBackgroundColor">#C0DBFF</item>
+		<item name="selfBackgroundColor">#e2edff</item>
+		<item name="contentBackgroundColor">#fff</item>
+		<item name="dialogBackgroundColor">#fff</item>
+		<item name="messageTextColor">#333</item>
+		<item name="serverBackgroundColor">#F2F7FC</item>
+		<item name="bufferBackgroundColor">#D9E7FF</item>
+		<item name="timestampColor">#aaa</item>
+		<item name="timestampBackgroundColor">#fff</item>
+		<item name="statusBackgroundColor">#f2f7fc</item>
+		<item name="noticeBackgroundColor">#d9e7ff</item>
+		<item name="collapsedRowTextColor">#afafaf</item>
+		<item name="collapsedHeadingBackgroundColor">#F2F7FC</item>
+		<item name="navBarColor">#F2F7FC</item>
+		<item name="navBarBorderColor">#D9E7FF</item>
+		<item name="textareaTextColor">#000</item>
+		<item name="textareaBackgroundColor">#fff</item>
+		<item name="navBarHeadingColor">#000</item>
+		<item name="lightLinkColor">#9CC7FF</item>
+		<item name="unreadBufferTextColor">#1d40ff</item>
+		<item name="selectedBufferTextColor">#fff</item>
+		<item name="selectedBufferBackgroundColor">#1E72FF</item>
+		<item name="bufferBorderColor">#B3CFFF</item>
+		<item name="serverBorderColor">#D9E7FF</item>
+		<item name="failedServerBorderColor">#dbb300</item>
+		<item name="selectedBufferBorderColor">#3E0CFF</item>
+		<item name="backlogDividerColor">#1E72FF</item>
+		<item name="chatterBarColor">#D9E7FF</item>
+		<item name="awayBarTextColor">#222</item>
+		<item name="awayBarColor">#eaeaea</item>
+		<item name="connectionBarTextColor">#123e92</item>
+		<item name="connectionBarColor">#e2edff</item>
+		<item name="placeholderColor">#000</item>
+		<item name="expandCollapseIndicatorColor">#b3cfff</item>
+		<item name="listItemBackgroundColor">#fff</item>
+		<item name="backlogMarkerColor">#1E72FF</item>
+
+		<item name="colorPrimary">#F2F7FC</item>
+		<item name="colorPrimaryDark">#D9E7FF</item>
+		<item name="colorAccent">#1E72FF</item>
+		<item name="android:colorPrimary">#F2F7FC</item>
+		<item name="android:colorPrimaryDark">#D9E7FF</item>
+		<item name="android:colorAccent">#1E72FF</item>
+		<item name="android:textColorPrimary">#000</item>
+		<item name="android:textColorSecondary">#aaa</item>
+
+		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
+		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
+		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_dawn</item>
+		<item name="serverBorderDrawable">@drawable/serverBorderDrawable_dawn</item>
+		<item name="selectedBorderDrawable">@drawable/selectedBorderDrawable_dawn</item>
+		<item name="bufferBackgroundDrawable">@drawable/row_buffer_bg_dawn</item>
+		<item name="serverBackgroundDrawable">@drawable/row_server_bg_dawn</item>
+		<item name="selectedBackgroundDrawable">@drawable/selectedBackgroundDrawable_dawn</item>
+		<item name="lastSeenEIDBackgroundDrawable">@drawable/row_lastseeneid_bg_dawn</item>
+		<item name="timestampBackgroundDrawable">@drawable/row_timestamp_bg_dawn</item>
+		<item name="socketclosedBackgroundDrawable">@drawable/row_socketclosed_bg_dawn</item>
+		<item name="android:dialogTheme">@style/dawnDialog</item>
+		<item name="dialogTheme">@style/dawnDialog</item>
+		<item name="android:alertDialogTheme">@style/dawnAlert</item>
+		<item name="alertDialogTheme">@style/dawnAlert</item>
+		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
+		<item name="contentBorderColor">#679FFF</item>
+	</style>
+
+	<drawable name="bufferBorderDrawable_dawn">#B3CFFF</drawable>
+	<drawable name="serverBorderDrawable_dawn">#D9E7FF</drawable>
+	<drawable name="selectedBackgroundDrawable_dawn">#1E72FF</drawable>
+	<drawable name="selectedBorderDrawable_dawn">#3E0CFF</drawable>
+	<drawable name="windowBackground_dawn">#D9E7FF</drawable>
+	<drawable name="bufferBackgroundDrawable_dawn">#D9E7FF</drawable>
+	<drawable name="serverBackgroundDrawable_dawn">#F2F7FC</drawable>
+
+	<style name="dawnPrefsTheme" parent="dawnNoActionBar">
+		<item name="android:windowNoTitle">false</item>
+		<item name="android:windowTitleSize">?attr/actionBarSize</item>
+		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
+		<item name="android:seekBarStyle">@style/SeekBarmain</item>
+	</style>
+</resources>

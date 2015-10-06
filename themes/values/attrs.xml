@@ -118,6 +118,14 @@
     <attr name="backlogMarkerColor" format="color"/>
     <attr name="windowBackgroundDrawable" format="reference"/>
 
+    <attr name="row_opers_bg_drawable" format="reference"/>
+    <attr name="row_owners_bg_drawable" format="reference"/>
+    <attr name="row_admins_bg_drawable" format="reference"/>
+    <attr name="row_ops_bg_drawable" format="reference"/>
+    <attr name="row_halfops_bg_drawable" format="reference"/>
+    <attr name="row_voiced_bg_drawable" format="reference"/>
+    <attr name="row_members_bg_drawable" format="reference"/>
+
     <declare-styleable name="AppCompatListPreference">
         <!-- The human-readable array to present as a list. Each entry must have a corresponding
              index in entryValues. -->

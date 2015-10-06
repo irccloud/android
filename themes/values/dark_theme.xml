@@ -68,6 +68,79 @@
         <item name="voicedHeadingColor">#99ff7e</item>
         <item name="membersHeadingColor">#88b2dd</item>
 
+        <item name="row_opers_bg_drawable">@drawable/row_opers_bg_dark</item>
+        <item name="row_owners_bg_drawable">@drawable/row_owners_bg_dark</item>
+        <item name="row_admins_bg_drawable">@drawable/row_admins_bg_dark</item>
+        <item name="row_ops_bg_drawable">@drawable/row_ops_bg_dark</item>
+        <item name="row_halfops_bg_drawable">@drawable/row_halfops_bg_dark</item>
+        <item name="row_voiced_bg_drawable">@drawable/row_voiced_bg_dark</item>
+        <item name="row_members_bg_drawable">@drawable/row_members_bg_dark</item>
+
+        <item name="networkErrorColor">#632800</item>
+        <item name="networkErrorBackgroundColor">#F8DF26</item>
+    </style>
+
+    <style name="DarkAppDialogWhenLargeTheme" parent="Theme.AppCompat.DialogWhenLarge">
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
+        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
+        <item name="android:actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:windowBackground">?windowBackgroundDrawable</item>
+        <item name="actionModeBackground">?actionbarDrawable</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
+        <item name="actionBarStyle">@style/ThemedActionBar</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
+        <item name="actionMenuTextColor">?navBarHeadingColor</item>
+        <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
+        <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
+        <item name="android:colorBackground">?dialogBackgroundColor</item>
+        <item name="android:statusBarColor">?contentBackgroundColor</item>
+
+        <item name="unreadBlueColor">#1E72FF</item>
+        <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="archivedChannelTextColor">#ccc</item>
+        <item name="archivedBufferTextColor">#eee</item>
+        <item name="selectedArchivesHeadingColor">#ccc</item>
+        <item name="highlightTimestampColor">#ffe0e0</item>
+        <item name="memberListTextColor">#ffffffff</item>
+        <item name="memberListAwayTextColor">#88ffffff</item>
+        <item name="errorBackgroundColor">#b2b234</item>
+
+        <item name="opersHoverColor">@color/opersHoverColor_dark</item>
+        <item name="ownersHoverColor">@color/ownersHoverColor_dark</item>
+        <item name="adminsHoverColor">@color/adminsHoverColor_dark</item>
+        <item name="opsHoverColor">@color/opsHoverColor_dark</item>
+        <item name="halfopsHoverColor">@color/halfopsHoverColor_dark</item>
+        <item name="voicedHoverColor">@color/voicedHoverColor_dark</item>
+        <item name="membersHoverColor">@color/membersHoverColor_dark</item>
+
+        <item name="opersGroupColor">@color/opersGroupColor_dark</item>
+        <item name="ownersGroupColor">@color/ownersGroupColor_dark</item>
+        <item name="adminsGroupColor">@color/adminsGroupColor_dark</item>
+        <item name="opsGroupColor">@color/opsGroupColor_dark</item>
+        <item name="halfopsGroupColor">@color/halfopsGroupColor_dark</item>
+        <item name="voicedGroupColor">@color/voicedGroupColor_dark</item>
+        <item name="membersGroupColor">@color/membersGroupColor_dark</item>
+
+        <item name="opersHeadingColor">#fdbeb4</item>
+        <item name="ownersHeadingColor">#ffebb4</item>
+        <item name="adminsHeadingColor">#c872ff</item>
+        <item name="opsHeadingColor">#f4a9aa</item>
+        <item name="halfopsHeadingColor">#ffbf82</item>
+        <item name="voicedHeadingColor">#99ff7e</item>
+        <item name="membersHeadingColor">#88b2dd</item>
+
+        <item name="row_opers_bg_drawable">@drawable/row_opers_bg_dark</item>
+        <item name="row_owners_bg_drawable">@drawable/row_owners_bg_dark</item>
+        <item name="row_admins_bg_drawable">@drawable/row_admins_bg_dark</item>
+        <item name="row_ops_bg_drawable">@drawable/row_ops_bg_dark</item>
+        <item name="row_halfops_bg_drawable">@drawable/row_halfops_bg_dark</item>
+        <item name="row_voiced_bg_drawable">@drawable/row_voiced_bg_dark</item>
+        <item name="row_members_bg_drawable">@drawable/row_members_bg_dark</item>
+
         <item name="networkErrorColor">#632800</item>
         <item name="networkErrorBackgroundColor">#F8DF26</item>
     </style>
@@ -116,6 +189,22 @@
         <item name="halfopsGroupColor">@color/halfopsGroupColor_dark</item>
         <item name="voicedGroupColor">@color/voicedGroupColor_dark</item>
         <item name="membersGroupColor">@color/membersGroupColor_dark</item>
+
+        <item name="opersHeadingColor">#fdbeb4</item>
+        <item name="ownersHeadingColor">#ffebb4</item>
+        <item name="adminsHeadingColor">#c872ff</item>
+        <item name="opsHeadingColor">#f4a9aa</item>
+        <item name="halfopsHeadingColor">#ffbf82</item>
+        <item name="voicedHeadingColor">#99ff7e</item>
+        <item name="membersHeadingColor">#88b2dd</item>
+
+        <item name="row_opers_bg_drawable">@drawable/row_opers_bg_dark</item>
+        <item name="row_owners_bg_drawable">@drawable/row_owners_bg_dark</item>
+        <item name="row_admins_bg_drawable">@drawable/row_admins_bg_dark</item>
+        <item name="row_ops_bg_drawable">@drawable/row_ops_bg_dark</item>
+        <item name="row_halfops_bg_drawable">@drawable/row_halfops_bg_dark</item>
+        <item name="row_voiced_bg_drawable">@drawable/row_voiced_bg_dark</item>
+        <item name="row_members_bg_drawable">@drawable/row_members_bg_dark</item>
     </style>
 
     <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">
@@ -184,5 +273,4 @@
     <drawable name="row_halfops_border_dark">@color/halfopsGroupColor_dark</drawable>
     <drawable name="row_voiced_border_dark">@color/voicedGroupColor_dark</drawable>
     <drawable name="row_members_border_dark">@color/membersGroupColor_dark</drawable>
-
 </resources>
