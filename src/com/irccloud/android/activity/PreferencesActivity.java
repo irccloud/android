@@ -101,6 +101,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
         setTheme(ColorScheme.getPrefsTheme(ColorScheme.getUserTheme()));
+        ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
         getDelegate().installViewFactory();
         getDelegate().onCreate(icicle);
         if (Build.VERSION.SDK_INT >= 21) {

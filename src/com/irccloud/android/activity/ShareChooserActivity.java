@@ -32,6 +32,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -56,10 +57,14 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         countdownTimer = new Timer("share-chooser-countdown-timer");
+        setTheme(ColorScheme.getDialogTheme(ColorScheme.getUserTheme()));
+        ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
             cloud.recycle();
+            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         }
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_share_chooser);
@@ -70,16 +75,17 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
 
         BuffersListFragment f = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
         f.readOnly = true;
+        f.setSelectedBid(-2);
         buffersList = f.getView();
         buffersList.setVisibility(View.GONE);
 
-        Typeface LatoRegular = Typeface.createFromAsset(getAssets(), "Lato-Regular.ttf");
+        Typeface SourceSansProRegular = Typeface.createFromAsset(getAssets(), "SourceSansPro-Regular.otf");
 
         LinearLayout IRCCloud = (LinearLayout) findViewById(R.id.IRCCloud);
         for (int i = 0; i < IRCCloud.getChildCount(); i++) {
             View v = IRCCloud.getChildAt(i);
             if (v instanceof TextView) {
-                ((TextView) v).setTypeface(LatoRegular);
+                ((TextView) v).setTypeface(SourceSansProRegular);
             }
         }
     }

@@ -38,7 +38,7 @@
         android:orientation="vertical"
         android:visibility="visible"
         android:paddingBottom="12dp"
-        android:background="#4480FA">
+        android:background="@color/loginBackgroundColor">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/logocontainer"
             android:gravity="center"
-            android:background="#0b2e60"
+            android:background="@color/loginTopBackgroundColor"
             android:paddingTop="32dp"
             android:paddingBottom="24dp">
 
@@ -89,7 +89,8 @@
             android:textColor="#fff"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:gravity="center"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="12dp"
+            />
 
         <ProgressBar
             android:id="@+id/connectingProgress"
@@ -101,7 +102,8 @@
             android:layout_marginLeft="24dp"
             android:layout_marginRight="24dp"
             android:layout_marginTop="6dp"
-            android:layout_marginBottom="6dp" />
+            android:layout_marginBottom="6dp"
+            />
 
         <TextView
             android:id="@+id/errorMsg"
@@ -109,7 +111,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textColor="#fff"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            />
     </LinearLayout>
 
 </RelativeLayout>

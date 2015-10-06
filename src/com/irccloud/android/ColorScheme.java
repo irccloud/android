@@ -75,6 +75,27 @@ public class ColorScheme {
         }
     }
 
+    public static int getDialogTheme(String theme) {
+        switch(theme) {
+            case "dusk":
+                return R.style.duskDialog;
+            case "tropic":
+                return R.style.tropicDialog;
+            case "emerald":
+                return R.style.emeraldDialog;
+            case "sand":
+                return R.style.sandDialog;
+            case "rust":
+                return R.style.rustDialog;
+            case "orchid":
+                return R.style.orchidDialog;
+            case "ash":
+                return R.style.ashDialog;
+            default:
+                return R.style.duskDialog;
+        }
+    }
+
     public void setThemeFromContext(Context ctx, String theme_name) {
         theme = theme_name;
         contentBackgroundColor = colorForAttribute(ctx, R.attr.contentBackgroundColor);

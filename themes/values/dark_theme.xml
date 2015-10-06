@@ -119,41 +119,40 @@
     </style>
 
     <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">
-        <item name="android:background">?dialogBackgroundColor</item>
-        <item name="android:colorPrimary">?messageTextColor</item>
-        <item name="android:colorAccent">?messageTextColor</item>
-        <item name="android:colorPrimaryDark">?contentBackgroundColor</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="android:textColorPrimary">?navBarHeadingColor</item>
-        <item name="android:textColorSecondary">?navBarSubheadingColor</item>
-        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
-        <item name="colorPrimary">?messageTextColor</item>
-        <item name="colorAccent">?messageTextColor</item>
-        <item name="colorPrimaryDark">?contentBackgroundColor</item>
-        <item name="colorControlNormal">?navBarSubheadingColor</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
+
+        <item name="unreadBlueColor">#1E72FF</item>
+        <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="archivedChannelTextColor">#ccc</item>
+        <item name="archivedBufferTextColor">#eee</item>
+        <item name="selectedArchivesHeadingColor">#ccc</item>
+        <item name="highlightTimestampColor">#ffe0e0</item>
+        <item name="memberListTextColor">#ffffffff</item>
+        <item name="memberListAwayTextColor">#88ffffff</item>
+        <item name="errorBackgroundColor">#b2b234</item>
     </style>
 
     <style name="DarkAppAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:background">?dialogBackgroundColor</item>
-        <item name="android:colorPrimary">?messageTextColor</item>
-        <item name="android:colorAccent">?messageTextColor</item>
-        <item name="android:colorPrimaryDark">?contentBackgroundColor</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="android:textColorPrimary">?navBarHeadingColor</item>
-        <item name="android:textColorSecondary">?navBarSubheadingColor</item>
-        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
-        <item name="colorPrimary">?messageTextColor</item>
-        <item name="colorAccent">?messageTextColor</item>
-        <item name="colorPrimaryDark">?contentBackgroundColor</item>
-        <item name="colorControlNormal">?navBarSubheadingColor</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
+
+        <item name="unreadBlueColor">#1E72FF</item>
+        <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="archivedChannelTextColor">#ccc</item>
+        <item name="archivedBufferTextColor">#eee</item>
+        <item name="selectedArchivesHeadingColor">#ccc</item>
+        <item name="highlightTimestampColor">#ffe0e0</item>
+        <item name="memberListTextColor">#ffffffff</item>
+        <item name="memberListAwayTextColor">#88ffffff</item>
+        <item name="errorBackgroundColor">#b2b234</item>
     </style>
 
     <style name="DarkDialogTitleTextStyle">
