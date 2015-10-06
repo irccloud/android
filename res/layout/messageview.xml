@@ -155,14 +155,14 @@
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/border"
+                android:background="?bufferBorderColor"
                 android:padding="2dp">
 
                 <GridView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/suggestions"
-                    android:background="@drawable/row_bg_blue"
+                    android:background="?bufferBackgroundColor"
                     android:numColumns="auto_fit"
                     android:columnWidth="160dp" />
             </LinearLayout>

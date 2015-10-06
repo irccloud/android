@@ -217,11 +217,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             TextView v = (TextView) super.getView(position, convertView, parent);
 
             if (position == activePos) {
-                v.setTextColor(0xffffffff);
-                v.setBackgroundResource(R.drawable.selected_blue);
+                v.setTextColor(ColorScheme.getInstance().selectedBufferTextColor);
+                v.setBackgroundColor(ColorScheme.getInstance().selectedBufferBackgroundColor);
             } else {
-                v.setTextColor(getResources().getColor(R.color.row_label));
-                v.setBackgroundResource(R.drawable.row_bg_blue);
+                v.setTextColor(ColorScheme.getInstance().bufferTextColor);
+                v.setBackgroundColor(ColorScheme.getInstance().bufferBackgroundColor);
             }
 
             //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
