@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
 
@@ -164,6 +165,9 @@ public class ColorScheme {
         actionBarDrawable = resourceForAttribute(ctx, R.attr.actionbarDrawable);
         colorControlNormal = colorForAttribute(ctx, R.attr.colorControlNormal);
         dialogBackgroundColor = colorForAttribute(ctx, R.attr.dialogBackgroundColor);
+        windowBackgroundDrawable = resourceForAttribute(ctx, R.attr.windowBackgroundDrawable);
+        if(Build.VERSION.SDK_INT >= 21)
+            statusBarColor = colorForAttribute(ctx, android.R.attr.statusBarColor);
         isDarkTheme = colorForAttribute(ctx, R.attr.isDarkTheme) != 0;
     }
 
@@ -267,6 +271,8 @@ public class ColorScheme {
     public int colorControlNormal;
     public int actionBarDrawable;
     public int dialogBackgroundColor;
+    public int windowBackgroundDrawable;
+    public int statusBarColor;
     public String theme;
     public boolean isDarkTheme;
 }

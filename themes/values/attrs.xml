@@ -116,6 +116,7 @@
     <attr name="socketclosedBackgroundDrawable" format="reference"/>
     <attr name="scrollbarDrawable" format="reference"/>
     <attr name="backlogMarkerColor" format="color"/>
+    <attr name="windowBackgroundDrawable" format="reference"/>
 
     <declare-styleable name="AppCompatListPreference">
         <!-- The human-readable array to present as a list. Each entry must have a corresponding

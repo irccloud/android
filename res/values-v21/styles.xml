@@ -179,4 +179,9 @@
         <item name="colorAccent">#fff</item>
     </style>
 
+    <style name="LaunchTheme" parent="AppThemeNoActionBar">
+        <item name="android:statusBarColor">@color/loginTopBackgroundColor</item>
+        <item name="android:navigationBarColor">@color/loginTopBackgroundColor</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
 </resources>

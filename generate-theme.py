@@ -66,8 +66,23 @@ def theme(f, t, parent):
     f.write(style("archivedBufferHighlightColor", "background5"))
     f.write(style("selectedArchivedBufferHighlightColor", "text6"))
     f.write(style("selectedArchivedBufferBackgroundColor", "text6"))
-    f.write(style("listItemBackgroundColor", "background4"))
+    f.write(style("listItemBackgroundColor", "background5"))
     f.write(style("backlogMarkerColor", "border1"))
+    
+    f.write(style("colorPrimary", "background5"))
+    f.write(style("colorPrimaryDark", "background7"))
+    f.write(style("colorAccent", "text6"))
+    f.write(style("colorControlNormal", "text6"))
+    f.write(style("colorControlActivated", "text2"))
+    f.write(style("colorSwitchThumbNormal", "text6"))
+    f.write(style("android:colorPrimary", "background5"))
+    f.write(style("android:colorPrimaryDark", "background7"))
+    f.write(style("android:colorAccent", "text6"))
+    f.write(style("android:colorControlNormal", "text6"))
+    f.write(style("android:colorControlActivated", "text2"))
+    f.write(style("android:colorForeground", "text6"))
+    f.write(style("android:textColorPrimary", "text1"))
+    f.write(style("android:textColorSecondary", "text4"))
     
     f.write("\t\t<item name=\"actionbarDrawable\">@drawable/actionbar_" + themename + "</item>\n")
     f.write("\t\t<item name=\"buffersDrawerBackgroundDrawable\">@drawable/buffers_drawer_bg_" + themename + "</item>\n")
@@ -85,6 +100,7 @@ def theme(f, t, parent):
     f.write("\t\t<item name=\"android:alertDialogTheme\">@style/" + themename + "Alert</item>\n")
     f.write("\t\t<item name=\"alertDialogTheme\">@style/" + themename + "Alert</item>\n")
     f.write("\t\t<item name=\"scrollbarDrawable\">@drawable/scrollbar_" + themename + "</item>\n")
+    f.write("\t\t<item name=\"windowBackgroundDrawable\">@drawable/windowBackground_" + themename + "</item>\n")
     
     f.write("\t</style>\n\n")
     
@@ -161,6 +177,7 @@ f.write("\t<drawable name=\"bufferBorderDrawable_" + themename + "\">@color/" + 
 f.write("\t<drawable name=\"serverBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
 f.write("\t<drawable name=\"selectedBackgroundDrawable_" + themename + "\">@color/" + themename + "_text3</drawable>\n")
 f.write("\t<drawable name=\"selectedBorderDrawable_" + themename + "\">@color/" + themename + "_text6</drawable>\n")
+f.write("\t<drawable name=\"windowBackground_" + themename + "\">@color/" + themename + "_background7</drawable>\n")
 
 f.write("""
 \t<style name="{theme}PrefsTheme" parent="{theme}NoActionBar">

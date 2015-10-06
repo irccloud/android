@@ -84,7 +84,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
                 cloud.recycle();
             }
+            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         }
+        getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Auth.CREDENTIALS_API)

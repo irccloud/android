@@ -64,8 +64,22 @@
 		<item name="archivedBufferHighlightColor">@color/ash_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/ash_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
-		<item name="listItemBackgroundColor">@color/ash_background4</item>
+		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="colorPrimary">@color/ash_background5</item>
+		<item name="colorPrimaryDark">@color/ash_background7</item>
+		<item name="colorAccent">@color/ash_text6</item>
+		<item name="colorControlNormal">@color/ash_text6</item>
+		<item name="colorControlActivated">@color/ash_text2</item>
+		<item name="colorSwitchThumbNormal">@color/ash_text6</item>
+		<item name="android:colorPrimary">@color/ash_background5</item>
+		<item name="android:colorPrimaryDark">@color/ash_background7</item>
+		<item name="android:colorAccent">@color/ash_text6</item>
+		<item name="android:colorControlNormal">@color/ash_text6</item>
+		<item name="android:colorControlActivated">@color/ash_text2</item>
+		<item name="android:colorForeground">@color/ash_text6</item>
+		<item name="android:textColorPrimary">@color/ash_text1</item>
+		<item name="android:textColorSecondary">@color/ash_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_ash</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_ash</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
@@ -82,6 +96,7 @@
 		<item name="android:alertDialogTheme">@style/ashAlert</item>
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
 	</style>
 
 	<style name="ashNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -133,8 +148,22 @@
 		<item name="archivedBufferHighlightColor">@color/ash_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/ash_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
-		<item name="listItemBackgroundColor">@color/ash_background4</item>
+		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="colorPrimary">@color/ash_background5</item>
+		<item name="colorPrimaryDark">@color/ash_background7</item>
+		<item name="colorAccent">@color/ash_text6</item>
+		<item name="colorControlNormal">@color/ash_text6</item>
+		<item name="colorControlActivated">@color/ash_text2</item>
+		<item name="colorSwitchThumbNormal">@color/ash_text6</item>
+		<item name="android:colorPrimary">@color/ash_background5</item>
+		<item name="android:colorPrimaryDark">@color/ash_background7</item>
+		<item name="android:colorAccent">@color/ash_text6</item>
+		<item name="android:colorControlNormal">@color/ash_text6</item>
+		<item name="android:colorControlActivated">@color/ash_text2</item>
+		<item name="android:colorForeground">@color/ash_text6</item>
+		<item name="android:textColorPrimary">@color/ash_text1</item>
+		<item name="android:textColorSecondary">@color/ash_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_ash</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_ash</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
@@ -151,6 +180,7 @@
 		<item name="android:alertDialogTheme">@style/ashAlert</item>
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
 	</style>
 
 	<style name="ashDialog" parent="DarkAppDialogTheme">
@@ -202,8 +232,22 @@
 		<item name="archivedBufferHighlightColor">@color/ash_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/ash_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
-		<item name="listItemBackgroundColor">@color/ash_background4</item>
+		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="colorPrimary">@color/ash_background5</item>
+		<item name="colorPrimaryDark">@color/ash_background7</item>
+		<item name="colorAccent">@color/ash_text6</item>
+		<item name="colorControlNormal">@color/ash_text6</item>
+		<item name="colorControlActivated">@color/ash_text2</item>
+		<item name="colorSwitchThumbNormal">@color/ash_text6</item>
+		<item name="android:colorPrimary">@color/ash_background5</item>
+		<item name="android:colorPrimaryDark">@color/ash_background7</item>
+		<item name="android:colorAccent">@color/ash_text6</item>
+		<item name="android:colorControlNormal">@color/ash_text6</item>
+		<item name="android:colorControlActivated">@color/ash_text2</item>
+		<item name="android:colorForeground">@color/ash_text6</item>
+		<item name="android:textColorPrimary">@color/ash_text1</item>
+		<item name="android:textColorSecondary">@color/ash_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_ash</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_ash</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
@@ -220,6 +264,7 @@
 		<item name="android:alertDialogTheme">@style/ashAlert</item>
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
 	</style>
 
 	<style name="ashAlert" parent="DarkAppAlertTheme">
@@ -271,8 +316,22 @@
 		<item name="archivedBufferHighlightColor">@color/ash_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/ash_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/ash_text6</item>
-		<item name="listItemBackgroundColor">@color/ash_background4</item>
+		<item name="listItemBackgroundColor">@color/ash_background5</item>
 		<item name="backlogMarkerColor">@color/ash_border1</item>
+		<item name="colorPrimary">@color/ash_background5</item>
+		<item name="colorPrimaryDark">@color/ash_background7</item>
+		<item name="colorAccent">@color/ash_text6</item>
+		<item name="colorControlNormal">@color/ash_text6</item>
+		<item name="colorControlActivated">@color/ash_text2</item>
+		<item name="colorSwitchThumbNormal">@color/ash_text6</item>
+		<item name="android:colorPrimary">@color/ash_background5</item>
+		<item name="android:colorPrimaryDark">@color/ash_background7</item>
+		<item name="android:colorAccent">@color/ash_text6</item>
+		<item name="android:colorControlNormal">@color/ash_text6</item>
+		<item name="android:colorControlActivated">@color/ash_text2</item>
+		<item name="android:colorForeground">@color/ash_text6</item>
+		<item name="android:textColorPrimary">@color/ash_text1</item>
+		<item name="android:textColorSecondary">@color/ash_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_ash</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_ash</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_ash</item>
@@ -289,6 +348,7 @@
 		<item name="android:alertDialogTheme">@style/ashAlert</item>
 		<item name="alertDialogTheme">@style/ashAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_ash</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_ash</item>
 	</style>
 
 	<color name="ash_border1">#8C8C8C</color>
@@ -328,6 +388,7 @@
 	<drawable name="serverBorderDrawable_ash">@color/ash_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_ash">@color/ash_text3</drawable>
 	<drawable name="selectedBorderDrawable_ash">@color/ash_text6</drawable>
+	<drawable name="windowBackground_ash">@color/ash_background7</drawable>
 
 	<style name="ashPrefsTheme" parent="ashNoActionBar">
 		<item name="android:windowNoTitle">false</item>

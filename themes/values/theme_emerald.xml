@@ -64,8 +64,22 @@
 		<item name="archivedBufferHighlightColor">@color/emerald_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
-		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="colorPrimary">@color/emerald_background5</item>
+		<item name="colorPrimaryDark">@color/emerald_background7</item>
+		<item name="colorAccent">@color/emerald_text6</item>
+		<item name="colorControlNormal">@color/emerald_text6</item>
+		<item name="colorControlActivated">@color/emerald_text2</item>
+		<item name="colorSwitchThumbNormal">@color/emerald_text6</item>
+		<item name="android:colorPrimary">@color/emerald_background5</item>
+		<item name="android:colorPrimaryDark">@color/emerald_background7</item>
+		<item name="android:colorAccent">@color/emerald_text6</item>
+		<item name="android:colorControlNormal">@color/emerald_text6</item>
+		<item name="android:colorControlActivated">@color/emerald_text2</item>
+		<item name="android:colorForeground">@color/emerald_text6</item>
+		<item name="android:textColorPrimary">@color/emerald_text1</item>
+		<item name="android:textColorSecondary">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -82,6 +96,7 @@
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
 	</style>
 
 	<style name="emeraldNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -133,8 +148,22 @@
 		<item name="archivedBufferHighlightColor">@color/emerald_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
-		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="colorPrimary">@color/emerald_background5</item>
+		<item name="colorPrimaryDark">@color/emerald_background7</item>
+		<item name="colorAccent">@color/emerald_text6</item>
+		<item name="colorControlNormal">@color/emerald_text6</item>
+		<item name="colorControlActivated">@color/emerald_text2</item>
+		<item name="colorSwitchThumbNormal">@color/emerald_text6</item>
+		<item name="android:colorPrimary">@color/emerald_background5</item>
+		<item name="android:colorPrimaryDark">@color/emerald_background7</item>
+		<item name="android:colorAccent">@color/emerald_text6</item>
+		<item name="android:colorControlNormal">@color/emerald_text6</item>
+		<item name="android:colorControlActivated">@color/emerald_text2</item>
+		<item name="android:colorForeground">@color/emerald_text6</item>
+		<item name="android:textColorPrimary">@color/emerald_text1</item>
+		<item name="android:textColorSecondary">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -151,6 +180,7 @@
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
 	</style>
 
 	<style name="emeraldDialog" parent="DarkAppDialogTheme">
@@ -202,8 +232,22 @@
 		<item name="archivedBufferHighlightColor">@color/emerald_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
-		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="colorPrimary">@color/emerald_background5</item>
+		<item name="colorPrimaryDark">@color/emerald_background7</item>
+		<item name="colorAccent">@color/emerald_text6</item>
+		<item name="colorControlNormal">@color/emerald_text6</item>
+		<item name="colorControlActivated">@color/emerald_text2</item>
+		<item name="colorSwitchThumbNormal">@color/emerald_text6</item>
+		<item name="android:colorPrimary">@color/emerald_background5</item>
+		<item name="android:colorPrimaryDark">@color/emerald_background7</item>
+		<item name="android:colorAccent">@color/emerald_text6</item>
+		<item name="android:colorControlNormal">@color/emerald_text6</item>
+		<item name="android:colorControlActivated">@color/emerald_text2</item>
+		<item name="android:colorForeground">@color/emerald_text6</item>
+		<item name="android:textColorPrimary">@color/emerald_text1</item>
+		<item name="android:textColorSecondary">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -220,6 +264,7 @@
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
 	</style>
 
 	<style name="emeraldAlert" parent="DarkAppAlertTheme">
@@ -271,8 +316,22 @@
 		<item name="archivedBufferHighlightColor">@color/emerald_background5</item>
 		<item name="selectedArchivedBufferHighlightColor">@color/emerald_text6</item>
 		<item name="selectedArchivedBufferBackgroundColor">@color/emerald_text6</item>
-		<item name="listItemBackgroundColor">@color/emerald_background4</item>
+		<item name="listItemBackgroundColor">@color/emerald_background5</item>
 		<item name="backlogMarkerColor">@color/emerald_border1</item>
+		<item name="colorPrimary">@color/emerald_background5</item>
+		<item name="colorPrimaryDark">@color/emerald_background7</item>
+		<item name="colorAccent">@color/emerald_text6</item>
+		<item name="colorControlNormal">@color/emerald_text6</item>
+		<item name="colorControlActivated">@color/emerald_text2</item>
+		<item name="colorSwitchThumbNormal">@color/emerald_text6</item>
+		<item name="android:colorPrimary">@color/emerald_background5</item>
+		<item name="android:colorPrimaryDark">@color/emerald_background7</item>
+		<item name="android:colorAccent">@color/emerald_text6</item>
+		<item name="android:colorControlNormal">@color/emerald_text6</item>
+		<item name="android:colorControlActivated">@color/emerald_text2</item>
+		<item name="android:colorForeground">@color/emerald_text6</item>
+		<item name="android:textColorPrimary">@color/emerald_text1</item>
+		<item name="android:textColorSecondary">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -289,6 +348,7 @@
 		<item name="android:alertDialogTheme">@style/emeraldAlert</item>
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
+		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
 	</style>
 
 	<color name="emerald_border1">#62CB4D</color>
@@ -328,6 +388,7 @@
 	<drawable name="serverBorderDrawable_emerald">@color/emerald_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_emerald">@color/emerald_text3</drawable>
 	<drawable name="selectedBorderDrawable_emerald">@color/emerald_text6</drawable>
+	<drawable name="windowBackground_emerald">@color/emerald_background7</drawable>
 
 	<style name="emeraldPrefsTheme" parent="emeraldNoActionBar">
 		<item name="android:windowNoTitle">false</item>

@@ -107,7 +107,10 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
             cloud.recycle();
+            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         }
+        getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.actionbar_prefs);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.actionbar);
