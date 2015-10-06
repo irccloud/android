@@ -18,9 +18,14 @@ package com.irccloud.android.activity;
 
 
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationManagerCompat;
@@ -40,6 +45,7 @@ import android.widget.TextView;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
@@ -139,10 +145,12 @@ public class QuickReplyActivity extends AppCompatActivity {
                }
                holder.timestamp.setMinWidth(timestamp_width);
                holder.timestamp.setText(formatter.format(calendar.getTime()));
+               holder.timestamp.setTextColor(ColorScheme.getInstance().timestampColor);
             }
             holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(msg.nick, null, nickColors)) + "</b> " + msg.message, true, server));
             holder.message.setMovementMethod(LinkMovementMethod.getInstance());
-            holder.message.setLinkTextColor(getResources().getColor(R.color.linkColor));
+            holder.message.setTextColor(ColorScheme.getInstance().messageTextColor);
+            holder.message.setLinkTextColor(ColorScheme.getInstance().linkColor);
             return row;
         }
     }
@@ -164,6 +172,15 @@ public class QuickReplyActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(ColorScheme.getDialogTheme(ColorScheme.getUserTheme()));
+        ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
+        if (Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
+            cloud.recycle();
+            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+        }
         setContentView(R.layout.activity_quick_reply);
 
         if(getIntent().hasExtra("cid") && getIntent().hasExtra("bid")) {
@@ -194,7 +211,7 @@ public class QuickReplyActivity extends AppCompatActivity {
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(message.getText() != null && message.getText().length() > 0) {
+                if (message.getText() != null && message.getText().length() > 0) {
                     Intent i = new Intent(RemoteInputService.ACTION_REPLY);
                     i.setComponent(new ComponentName(getPackageName(), RemoteInputService.class.getName()));
                     i.putExtras(getIntent());
@@ -204,6 +221,7 @@ public class QuickReplyActivity extends AppCompatActivity {
                 }
             }
         });
+        send.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
 
         ListView listView = (ListView) findViewById(R.id.conversation);
         listView.setAdapter(adapter);

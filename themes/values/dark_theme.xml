@@ -155,9 +155,10 @@
         <item name="errorBackgroundColor">#b2b234</item>
     </style>
 
-    <style name="DarkDialogTitleTextStyle">
+    <style name="DarkDialogTitleTextStyle" parent="android:Widget.TextView">
         <item name="android:textColor">?navBarHeadingColor</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
+        <item name="android:background">?dialogBackgroundColor</item>
     </style>
 
     <color name="opersHoverColor_dark">#43260f</color>
