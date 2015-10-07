@@ -34,8 +34,10 @@
         <TextView
             android:id="@+id/key"
             android:layout_width="16dp"
-            android:layout_height="wrap_content"
+            android:layout_height="16dp"
             android:layout_marginRight="2dp"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
             style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
             android:textSize="16sp"
             android:visibility="gone" />

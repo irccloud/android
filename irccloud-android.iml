@@ -127,8 +127,8 @@
     <orderEntry type="library" exported="" name="cardview-v7-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="fabric-1.3.5" level="project" />
     <orderEntry type="library" exported="" name="play-services-gcm-8.1.0" level="project" />
-    <orderEntry type="library" exported="" name="handy-uri-templates-2.0.2" level="project" />
     <orderEntry type="library" exported="" name="baseLibrary-1.0-rc2" level="project" />
+    <orderEntry type="library" exported="" name="handy-uri-templates-2.0.2" level="project" />
     <orderEntry type="library" exported="" name="design-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="crashlytics-core-2.3.3" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.5.4" level="project" />

@@ -28,6 +28,7 @@
 
     <WebView
         android:id="@+id/image"
+        android:background="?contentBackgroundColor"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_below="@+id/toolbar" />

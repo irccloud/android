@@ -3010,7 +3010,7 @@ public class NetworkConnection {
                     if (ni != null && ni.getType() == ConnectivityManager.TYPE_WIFI) {
                         Crashlytics.log(Log.DEBUG, TAG, "Loading via WiFi");
                         conn.setConnectTimeout(2500);
-                        conn.setReadTimeout(5000);
+                        conn.setReadTimeout(10000);
                     } else {
                         Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
                         conn.setConnectTimeout(5000);

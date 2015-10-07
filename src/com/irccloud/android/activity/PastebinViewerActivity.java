@@ -48,6 +48,7 @@ import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -138,6 +139,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mWebView = (WebView) findViewById(R.id.image);
+        mWebView.setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
         mWebView.getSettings().setBuiltInZoomControls(true);
         if (Integer.parseInt(Build.VERSION.SDK) >= 19)
             mWebView.getSettings().setDisplayZoomControls(false);
@@ -171,7 +173,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 if(!url.contains("?"))
                     url += "?";
                 try {
-                    url += "&mobile=android&version=" + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                    url += "&mobile=android&version=" + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "&theme=" + ColorScheme.getUserTheme();
                 } catch (PackageManager.NameNotFoundException e) {
                 }
                 new FetchPastebinTask().execute();
