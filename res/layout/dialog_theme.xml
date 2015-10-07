@@ -33,6 +33,13 @@
         <android.support.v7.widget.AppCompatRadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Dawn"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:id="@+id/dawn"/>
+
+        <android.support.v7.widget.AppCompatRadioButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="Dusk"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:id="@+id/dusk"/>

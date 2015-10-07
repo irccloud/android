@@ -29,7 +29,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
@@ -52,6 +51,7 @@ import android.widget.Toast;
 import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.irccloud.android.AppCompatEditTextPreference;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
@@ -279,17 +279,17 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             if (conn.getUserInfo() != null)
                 findPreference("name").setSummary(conn.getUserInfo().name);
             else
-                findPreference("name").setSummary(((EditTextPreference) findPreference("name")).getText());
+                findPreference("name").setSummary(((AppCompatEditTextPreference) findPreference("name")).getText());
             findPreference("email").setOnPreferenceChangeListener(settingstoggle);
             if (conn.getUserInfo() != null)
                 findPreference("email").setSummary(conn.getUserInfo().email);
             else
-                findPreference("email").setSummary(((EditTextPreference) findPreference("email")).getText());
+                findPreference("email").setSummary(((AppCompatEditTextPreference) findPreference("email")).getText());
             findPreference("highlights").setOnPreferenceChangeListener(settingstoggle);
             if (conn.getUserInfo() != null)
                 findPreference("highlights").setSummary(conn.getUserInfo().highlights);
             else
-                findPreference("highlights").setSummary(((EditTextPreference) findPreference("highlights")).getText());
+                findPreference("highlights").setSummary(((AppCompatEditTextPreference) findPreference("highlights")).getText());
 
             switch (Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("notify_type", "1"))) {
                 case 0:
@@ -371,11 +371,11 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            ((EditTextPreference) findPreference("name")).setText(userInfo.name);
+                            ((AppCompatEditTextPreference) findPreference("name")).setText(userInfo.name);
                             findPreference("name").setSummary(userInfo.name);
-                            ((EditTextPreference) findPreference("email")).setText(userInfo.email);
+                            ((AppCompatEditTextPreference) findPreference("email")).setText(userInfo.email);
                             findPreference("email").setSummary(userInfo.email);
-                            ((EditTextPreference) findPreference("highlights")).setText(userInfo.highlights);
+                            ((AppCompatEditTextPreference) findPreference("highlights")).setText(userInfo.highlights);
                             findPreference("highlights").setSummary(userInfo.highlights);
                             ((CheckBoxPreference) findPreference("autoaway")).setChecked(userInfo.auto_away);
                             if (prefs != null) {
@@ -877,6 +877,15 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
             View v = getLayoutInflater().inflate(R.layout.dialog_theme, null);
 
+            ((AppCompatRadioButton)v.findViewById(R.id.dawn)).setSupportButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{}
+                    },
+                    new int[] {
+                            getResources().getColor(R.color.dawn_theme_preview),
+                    }
+            ));
+
             ((AppCompatRadioButton)v.findViewById(R.id.dusk)).setSupportButtonTintList(new ColorStateList(
                     new int[][]{
                             new int[]{}
@@ -942,6 +951,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
             final RadioGroup group = (RadioGroup) v.findViewById(R.id.radioGroup);
             switch(ColorScheme.getUserTheme()) {
+                case "dawn":
+                    group.check(R.id.dawn);
+                    break;
                 case "dusk":
                     group.check(R.id.dusk);
                     break;
@@ -970,6 +982,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 public void onClick(DialogInterface dialog, int which) {
                     String theme = ColorScheme.getUserTheme();
                     switch(group.getCheckedRadioButtonId()) {
+                        case R.id.dawn:
+                            theme = "dawn";
+                            break;
                         case R.id.dusk:
                             theme = "dusk";
                             break;
