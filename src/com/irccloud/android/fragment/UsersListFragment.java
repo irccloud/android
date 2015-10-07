@@ -46,6 +46,7 @@ import com.irccloud.android.databinding.RowUserBinding;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -141,6 +142,13 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             row.setUser(e);
             row.getRoot().setOnLongClickListener(new OnItemLongClickListener(position));
             row.getRoot().setOnClickListener(new OnItemClickListener(position));
+
+            try {
+                JSONObject prefs = conn.getUserInfo().prefs;
+                row.setMono(prefs.has("font") && prefs.getString("font").equals("mono"));
+            } catch (Exception e1) {
+                row.setMono(false);
+            }
 
             if (e.type == TYPE_HEADING) {
                 row.getRoot().setFocusable(false);

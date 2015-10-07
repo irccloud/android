@@ -195,6 +195,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 
         findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
+        findPreference("monospace").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
@@ -488,6 +489,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
                 if (preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
+                else if(preference.getKey().equals("monospace"))
+                    prefs.put("font", ((Boolean)newValue)?"mono":"sans");
                 else
                     prefs.put(preference.getKey(), (Boolean) newValue);
 

@@ -1779,6 +1779,8 @@ public class NetworkConnection {
                     prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("pastebin-disableprompt")));
                     if(userInfo.prefs.has("theme"))
                         prefs.putString("theme", userInfo.prefs.getString("theme"));
+                    if(userInfo.prefs.has("font"))
+                        prefs.putBoolean("monospace", userInfo.prefs.getString("font").equals("mono"));
                 } else {
                     prefs.putBoolean("time-24hr", false);
                     prefs.putBoolean("time-seconds", false);

@@ -558,7 +558,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
+                boolean mono = false;
+                try {
+                    JSONObject prefs = conn.getUserInfo().prefs;
+                    mono = (prefs.has("font") && prefs.getString("font").equals("mono"));
+                } catch (Exception e1) {
+
+                }
+
                 if (holder.timestamp != null) {
+                    holder.timestamp.setTypeface(mono ? Typeface.MONOSPACE : Typeface.DEFAULT);
                     if (e.row_type == ROW_TIMESTAMP) {
                         holder.timestamp.setTextSize(textSize);
                     } else {
@@ -600,7 +609,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (holder.message != null && e.html != null) {
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
-                    if (e.msg != null && e.msg.startsWith("<pre>"))
+                    if (mono || (e.msg != null && e.msg.startsWith("<pre>")))
                         holder.message.setTypeface(Typeface.MONOSPACE);
                     else
                         holder.message.setTypeface(Typeface.DEFAULT);
