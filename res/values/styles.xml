@@ -126,4 +126,8 @@
     <style name="ActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">?navBarHeadingColor</item>
     </style>
+
+    <style name="mediumText" parent="@style/TextAppearance.AppCompat.Medium">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
 </resources>

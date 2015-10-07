@@ -33,6 +33,7 @@
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">?contentBackgroundColor</item>
+        <item name="android:textAppearanceMedium">@style/mediumText</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
@@ -101,6 +102,7 @@
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">?contentBackgroundColor</item>
+        <item name="android:textAppearanceMedium">@style/mediumText</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
@@ -167,6 +169,7 @@
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">?contentBackgroundColor</item>
+        <item name="android:textAppearanceMedium">@style/mediumText</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>

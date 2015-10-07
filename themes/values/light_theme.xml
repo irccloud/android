@@ -33,6 +33,7 @@
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">#000</item>
+        <item name="android:textAppearanceMedium">@style/mediumText</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
@@ -96,6 +97,7 @@
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">#000</item>
+        <item name="android:textAppearanceMedium">@style/mediumText</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
@@ -158,6 +160,7 @@
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">#000</item>
+        <item name="android:textAppearanceMedium">@style/mediumText</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
