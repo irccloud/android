@@ -80,8 +80,7 @@
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
         <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
-        <item name="android:actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:windowBackground">?windowBackgroundDrawable</item>
+        <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
         <item name="actionModeBackground">?actionbarDrawable</item>
         <item name="windowActionModeOverlay">true</item>
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
@@ -235,7 +234,7 @@
     <style name="LightDialogTitleTextStyle" parent="android:Widget.TextView">
         <item name="android:textColor">?navBarHeadingColor</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
-        <item name="android:background">?dialogBackgroundColor</item>
+        <item name="android:background">@color/material_grey_50</item>
     </style>
 
     <color name="opersHoverColor_light">#FEAF62</color>
