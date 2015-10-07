@@ -21,6 +21,13 @@
     android:orientation="vertical"
     android:gravity="center">
 
+    <android.support.v7.widget.Toolbar
+        android:visibility="gone"
+        android:id="@+id/toolbar"
+        android:background="?navBarColor"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"
