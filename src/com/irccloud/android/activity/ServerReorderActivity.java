@@ -33,11 +33,6 @@ public class ServerReorderActivity extends BaseActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
         setContentView(R.layout.activity_reorder_servers);
         getSupportActionBar().setTitle("Connections");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

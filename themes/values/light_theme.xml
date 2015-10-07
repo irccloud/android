@@ -34,6 +34,8 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">#000</item>
         <item name="android:textAppearanceMedium">@style/mediumText</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
@@ -98,6 +100,8 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">#000</item>
         <item name="android:textAppearanceMedium">@style/mediumText</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
@@ -161,6 +165,8 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">#000</item>
         <item name="android:textAppearanceMedium">@style/mediumText</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
@@ -211,6 +217,8 @@
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
@@ -229,6 +237,8 @@
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
         <item name="android:background">?dialogBackgroundColor</item>
+        <item name="android:colorControlNormal">?navBarSubheadingColor</item>
+        <item name="colorControlNormal">?navBarSubheadingColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
