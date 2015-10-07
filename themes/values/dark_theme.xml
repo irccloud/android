@@ -36,6 +36,7 @@
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="contentBorderColorBottom">?contentBackgroundColor</item>
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
@@ -101,6 +102,7 @@
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="contentBorderColorBottom">?contentBackgroundColor</item>
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
@@ -166,6 +168,7 @@
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="contentBorderColorBottom">?contentBackgroundColor</item>
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
@@ -216,6 +219,7 @@
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="contentBorderColorBottom">?contentBackgroundColor</item>
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>
@@ -235,6 +239,7 @@
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
+        <item name="contentBorderColorBottom">?contentBackgroundColor</item>
         <item name="archivedChannelTextColor">#ccc</item>
         <item name="archivedBufferTextColor">#eee</item>
         <item name="selectedArchivesHeadingColor">#ccc</item>

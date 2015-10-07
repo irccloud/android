@@ -42,6 +42,7 @@
         <item name="memberListTextColor">#222</item>
         <item name="memberListAwayTextColor">#aaa</item>
         <item name="errorBackgroundColor">#FFFEE9</item>
+        <item name="contentBorderColorBottom">#ccc</item>
 
         <item name="opersHoverColor">@color/opersHoverColor_light</item>
         <item name="ownersHoverColor">@color/ownersHoverColor_light</item>
@@ -102,6 +103,7 @@
         <item name="memberListTextColor">#222</item>
         <item name="memberListAwayTextColor">#aaa</item>
         <item name="errorBackgroundColor">#FFFEE9</item>
+        <item name="contentBorderColorBottom">#ccc</item>
 
         <item name="opersHoverColor">@color/opersHoverColor_light</item>
         <item name="ownersHoverColor">@color/ownersHoverColor_light</item>
@@ -163,6 +165,7 @@
         <item name="memberListTextColor">#222</item>
         <item name="memberListAwayTextColor">#aaa</item>
         <item name="errorBackgroundColor">#FFFEE9</item>
+        <item name="contentBorderColorBottom">#ccc</item>
 
         <item name="opersHoverColor">@color/opersHoverColor_light</item>
         <item name="ownersHoverColor">@color/ownersHoverColor_light</item>
@@ -235,7 +238,7 @@
     <style name="LightDialogTitleTextStyle" parent="android:Widget.TextView">
         <item name="android:textColor">?navBarHeadingColor</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
-        <item name="android:background">@color/material_grey_50</item>
+        <item name="android:background">?dialogBackgroundColor</item>
     </style>
 
     <color name="opersHoverColor_light">#FEAF62</color>

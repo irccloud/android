@@ -1245,7 +1245,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
         if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
             super.onResume();
-            Toast.makeText(this, "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -2145,7 +2145,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_USERINFO:
                 if(conn != null && conn.ready && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
-                    Toast.makeText(this, "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
                     Intent i = (getIntent() != null)?getIntent():new Intent(this, MainActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     i.putExtra("nosplash", true);
@@ -2619,7 +2619,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     menu.findItem(R.id.menu_archive).setVisible(false);
                     menu.findItem(R.id.menu_archive).setEnabled(false);
                 }
-                if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry") || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis")))) {
+                if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry") || server.getStatus().equalsIgnoreCase("queued") || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis")))) {
                     if (menu.findItem(R.id.menu_disconnect) != null)
                         menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
                     if (menu.findItem(R.id.menu_delete) != null) {
@@ -2876,7 +2876,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         drawerLayout.openDrawer(Gravity.RIGHT);
                     }
                     if (!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
-                        Toast.makeText(this, "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putBoolean("userSwipeTip", true);
                         editor.commit();
@@ -3439,11 +3439,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message", text_to_copy);
                             clipboard.setPrimaryClip(clip);
                         } else {
-                            Toast.makeText(MainActivity.this, "Unable to copy message. Please try again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to copy message. Please try again.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     }
-                    Toast.makeText(MainActivity.this, "Message copied to clipboard", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if (items[item].equals("Copy Hostmask")) {
                     if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -3453,7 +3453,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", selected_user.nick + "!" + selected_user.hostmask);
                         clipboard.setPrimaryClip(clip);
                     }
-                    Toast.makeText(MainActivity.this, "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if (items[item].equals("Copy URL") && text_to_copy != null) {
                     final ArrayList<String> urlListItems = new ArrayList<String>();
 
@@ -3475,7 +3475,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(0), urlListItems.get(0));
                             clipboard.setPrimaryClip(clip);
                         }
-                        Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                     } else {
                         builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
@@ -3492,7 +3492,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(i), urlListItems.get(i));
                                     clipboard.setPrimaryClip(clip);
                                 }
-                                Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                             }
                         });
                         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -3512,7 +3512,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     conn.say(buffer.getCid(), null, "/query " + selected_user.nick);
                 } else if (items[item].equals("Mention")) {
                     if (!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
-                        Toast.makeText(MainActivity.this, "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putBoolean("mentionTip", true);
                         editor.commit();
