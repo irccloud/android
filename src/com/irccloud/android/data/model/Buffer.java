@@ -16,9 +16,12 @@
 
 package com.irccloud.android.data.model;
 
+import android.content.res.ColorStateList;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 
+import com.irccloud.android.ColorScheme;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
@@ -45,14 +48,13 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public static final String TYPE_CONVERSATION = "conversation";
     public static final String TYPE_ARCHIVES_HEADER = "archives_header";
     public static final String TYPE_JOIN_CHANNEL = "join_channel";
-    public static final String TYPE_ADD_NETWORK = "add_network";
-    public static final String TYPE_REORDER = "reorder";
 
     private enum Type {
         CONSOLE, CHANNEL, CONVERSATION, ARCHIVES_HEADER, JOIN_CHANNEL, OTHER
     }
 
     private Server server = null;
+    private ColorScheme colorScheme = ColorScheme.getInstance();
 
     public Server getServer() {
         if(server == null)
@@ -398,73 +400,83 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getTextColor() {
         if (type_int == Type.ARCHIVES_HEADER) {
-            return R.color.row_label_archives_heading;
+            return colorScheme.archivesHeadingTextColor;
         } else if (type_int == Type.JOIN_CHANNEL) {
             return R.color.row_label_join;
         } else if (getArchived() == 1) {
-            return R.color.row_label_archived;
+            return (type_int == Type.CHANNEL) ? colorScheme.archivedChannelTextColor : colorScheme.archivedBufferTextColor;
         } else if (isConsole()) {
             if(getServer().isFailed())
-                return R.color.row_label_failed;
+                return colorScheme.networkErrorColor;
             else if(!getServer().isConnected())
-                return R.color.row_label_inactive;
+                return colorScheme.inactiveBufferTextColor;
             else
-                return R.color.row_label;
+                return colorScheme.bufferTextColor;
         } else if (isChannel() && !isJoined()) {
-            return R.color.row_label_inactive;
-        } else if (unread > 0) {
-            return R.color.row_label_unread;
+            return colorScheme.inactiveBufferTextColor;
         } else {
-            return R.color.row_label;
+            return colorScheme.bufferTextColor;
         }
     }
 
     @Bindable
-    public int getIcon() {
-        switch(type) {
-            case TYPE_JOIN_CHANNEL:
-                return R.drawable.add;
-            case TYPE_REORDER:
-                return R.drawable.move;
-            case TYPE_ADD_NETWORK:
-                return R.drawable.world_add;
-            case TYPE_CHANNEL:
-                Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
-                if(c != null && c.hasMode("k"))
-                    return R.drawable.lock;
-                break;
-            default:
-                break;
+    public String getIcon() {
+        if(type.equals(TYPE_CHANNEL)) {
+            Channel c = ChannelsList.getInstance().getChannelForBuffer(bid);
+            if(c != null && c.hasMode("k"))
+                return FontAwesome.LOCK;
         }
-        return 0;
+        return null;
     }
 
     @Bindable
     public int getBackgroundResource() {
         if(isChannel() || isConversation())
-            return (getArchived() == 0)?R.drawable.row_buffer_bg:R.drawable.row_buffer_bg_archived;
+            return colorScheme.bufferBackgroundDrawable;
         else if(isConsole())
-            return getServer().isFailed() ? R.drawable.row_failed_bg : R.drawable.row_buffergroup_bg;
+            return getServer().isFailed() ? R.drawable.row_failed_bg : colorScheme.serverBackgroundDrawable;
         else if(type_int == Type.JOIN_CHANNEL)
-            return R.drawable.row_buffer_bg_join;
+            return colorScheme.bufferBackgroundDrawable;
         else if(type_int == Type.ARCHIVES_HEADER)
-            return (getArchived() == 0)?R.drawable.row_buffer_bg:R.drawable.archived_bg_selected;
+            return (getArchived() == 0)?colorScheme.bufferBackgroundDrawable:R.drawable.archived_bg_selected;
         else
-            return R.drawable.row_buffergroup_bg;
+            return colorScheme.serverBackgroundDrawable;
     }
 
     @Bindable
     public int getSelectedBackgroundResource() {
         if(isConsole())
-            return getServer().isFailed() ? R.drawable.status_fail_bg : R.drawable.selected_blue;
+            return getServer().isFailed() ? R.drawable.status_fail_bg : colorScheme.selectedBackgroundDrawable;
         else
-            return ((getArchived() == 0)) ? R.drawable.selected_blue : R.drawable.archived_bg_selected;
+            return colorScheme.selectedBackgroundDrawable;
+    }
+
+    @Bindable
+    public int getSelectedBorderResource() {
+        if(isConsole())
+            return getServer().isFailed() ? R.drawable.status_fail_bg : colorScheme.selectedBorderDrawable;
+        else
+            return colorScheme.selectedBorderDrawable;
+    }
+
+    @Bindable
+    public int getBorderResource() {
+        if(isConsole())
+            return getServer().isFailed() ? R.drawable.networkErrorBorder : colorScheme.serverBorderDrawable;
+        else
+            return colorScheme.bufferBorderDrawable;
     }
 
     @Bindable
     public int getSelectedTextColor() {
-        return R.color.selected_white;
+        if(type_int == Type.ARCHIVES_HEADER)
+            return colorScheme.selectedArchivesHeadingColor;
+        else
+            return colorScheme.selectedBufferTextColor;
     }
+
+    @Bindable
+    public int getUnreadColor() { return R.drawable.row_unread_border; }
 
     @Bindable
     public boolean getShowAddBtn() {

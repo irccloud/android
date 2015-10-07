@@ -18,11 +18,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:minWidth="320dp"
+    android:background="?contentBackgroundColor"
     android:orientation="vertical" >
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:background="@drawable/row_bg_blue"
+        android:background="?navBarColor"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize" />
 
@@ -30,7 +32,7 @@
         android:id="@android:id/tabhost"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/actionbar" />
+        android:background="?actionbarDrawable" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -94,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="4dp"
-                android:textColor="#000"
+                android:textColor="?timestampColor"
                 android:text="Text will be sent as 1 message"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_marginTop="@dimen/activity_vertical_margin"

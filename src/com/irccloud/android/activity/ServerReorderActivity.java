@@ -23,30 +23,30 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.irccloud.android.R;
 import com.irccloud.android.fragment.ServerReorderFragment;
 
-public class ServerReorderActivity extends AppCompatActivity {
+public class ServerReorderActivity extends BaseActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
         setContentView(R.layout.activity_reorder_servers);
         getSupportActionBar().setTitle("Connections");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
         getSupportActionBar().setElevation(0);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final ServerReorderFragment newFragment = new ServerReorderFragment();
         ft.replace(R.id.reorderFragment, newFragment);
         ft.commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
     }
 
     @Override

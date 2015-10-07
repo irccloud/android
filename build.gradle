@@ -20,7 +20,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:1.3.+"
+        classpath "com.android.tools.build:gradle:1.3+"
         classpath "com.android.databinding:dataBinder:+"
         classpath 'io.fabric.tools:gradle:1.+'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.5'
@@ -54,7 +54,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "23.0.1"
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
@@ -250,9 +250,9 @@ android {
         main.resources.srcDirs = ['src']
         main.aidl.srcDirs = ['src']
         main.renderscript.srcDirs = ['src']
-        enterprisedebug.res.srcDirs = ['enterprise-res']
-        enterpriserelease.res.srcDirs = ['enterprise-res']
-        main.res.srcDirs = ['res']
+        enterprisedebug.res.srcDirs = ['enterprise-res', 'themes']
+        enterpriserelease.res.srcDirs = ['enterprise-res', 'themes']
+        main.res.srcDirs = ['res', 'themes']
         main.assets.srcDirs = ['assets']
         debug.java.srcDirs = ['debug-src']
         enterprisedebug.java.srcDirs = ['debug-src']

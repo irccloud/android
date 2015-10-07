@@ -18,18 +18,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/socketclosed_bg"
+    android:background="?lastSeenEIDBackgroundDrawable"
     android:gravity="center"
     android:minHeight="28dp" >
 
     <TextView
-        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#fff"
+        android:background="?contentBackgroundColor"
         android:paddingLeft="6dp"
         android:paddingRight="6dp"
         android:text="New Messages"
-        android:textColor="#aaa" />
+        android:textColor="?timestampColor" />
 
 </LinearLayout>

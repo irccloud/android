@@ -24,6 +24,7 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:cardBackgroundColor="?listItemBackgroundColor"
         app:contentPaddingLeft="@dimen/activity_horizontal_margin"
         app:contentPaddingRight="@dimen/activity_horizontal_margin"
         app:contentPaddingBottom="6dp"
@@ -46,7 +47,7 @@
 
            <TextView
                android:text="@{ mask }"
-               android:textColor="#000"
+               android:textColor="?navBarHeadingColor"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:textSize="16sp" />
@@ -55,7 +56,7 @@
                 android:text="@{ setBy }"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/timestamp"
+                android:textColor="?navBarSubheadingColor"
                 android:textSize="14sp"
                 android:textStyle="italic" />
 

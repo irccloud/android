@@ -27,6 +27,7 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:cardBackgroundColor="?listItemBackgroundColor"
         app:contentPaddingLeft="16dp"
         app:contentPaddingRight="16dp"
         app:contentPaddingBottom="16dp"
@@ -50,13 +51,13 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#000"
+                android:textColor="?navBarHeadingColor"
                 android:text="@{ nick }"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:textColor="#000"
+                android:textColor="?navBarHeadingColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dp"
@@ -70,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{ server }"
-            android:textColor="@color/timestamp"
+            android:textColor="?navBarSubheadingColor"
             android:textSize="14sp"
             android:visibility="@{ server.length() > 0 ? View.VISIBLE : View.GONE }"
             android:textStyle="italic" />
@@ -79,7 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{ mask }"
-            android:textColor="@color/timestamp"
+            android:textColor="?navBarSubheadingColor"
             android:textSize="14sp"
             android:textStyle="italic" />
 

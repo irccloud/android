@@ -32,10 +32,10 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/action_done"
         style="@style/EditEventCustomActionButton">
 
         <TextView
+            android:id="@+id/action_done"
             android:text="DONE"
             android:drawableLeft="@drawable/ic_action_save"
             style="@style/EditEventCustomActionButtonText"

@@ -18,8 +18,8 @@
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/row_bg_blue"
-    android:textColor="@color/row_label"
+    android:background="?bufferBackgroundDrawable"
+    android:textColor="?bufferTextColor"
     android:gravity="center"
     android:textSize="20sp"
     android:padding="6dp"

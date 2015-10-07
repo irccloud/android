@@ -31,18 +31,20 @@ import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.OnErrorListener;
 import com.irccloud.android.data.model.Pastebin;
 
-public class PastebinEditorActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
+public class PastebinEditorActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
 
     private OnErrorListener<Pastebin> pastebinOnErrorListener = new OnErrorListener<Pastebin>() {
         @Override
@@ -92,11 +94,7 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
+        setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         setContentView(R.layout.activity_pastebineditor);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -203,7 +201,6 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
 
         if(pastebin.getId() != null) {
             setTitle(R.string.title_activity_pastebin_editor_edit);
-            toolbar.setBackgroundResource(R.drawable.actionbar);
         } else {
             setTitle(R.string.title_activity_pastebin_editor);
         }
@@ -260,7 +257,8 @@ public class PastebinEditorActivity extends AppCompatActivity implements Network
             menu.findItem(R.id.action_save).setVisible(false);
             menu.findItem(R.id.action_send).setVisible(true);
         }
-        return super.onCreateOptionsMenu(menu);
+        setMenuColorFilter(menu);
+        return true;
     }
 
     @Override

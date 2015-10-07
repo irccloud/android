@@ -52,7 +52,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/dawn" >
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
@@ -188,7 +188,7 @@
         <activity
             android:name=".activity.PastebinViewerActivity"
             android:label="@string/title_activity_pastebin"
-            android:theme="@style/AppThemeNoActionBar" >
+            android:theme="@style/dawnNoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -201,7 +201,7 @@
         <activity
             android:name=".activity.PreferencesActivity"
             android:label="@string/menu_settings"
-            android:theme="@style/PrefsTheme" >
+            android:theme="@style/dawnPrefsTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -221,12 +221,12 @@
         <activity
             android:name=".activity.UploadsActivity"
             android:label="@string/title_activity_uploads"
-            android:theme="@style/DialogWhenLargeTheme" >
+            android:theme="@style/dawnDialogWhenLarge" >
         </activity>
         <activity
             android:name=".activity.PastebinsActivity"
             android:label="@string/title_activity_pastebins"
-            android:theme="@style/DialogWhenLargeTheme" >
+            android:theme="@style/dawnDialogWhenLarge" >
         </activity>
 
         <receiver
@@ -333,7 +333,7 @@
         </activity>
         <activity
             android:name=".activity.PastebinEditorActivity"
-            android:theme="@style/PastebinEditorTheme"
+            android:theme="@style/dawnDialogWhenLarge"
             android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -353,7 +353,7 @@
         <activity
             android:name=".activity.ShareChooserActivity"
             android:excludeFromRecents="true"
-            android:theme="@style/DialogTheme" >
+            android:theme="@style/dawnDialog" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -372,7 +372,7 @@
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:taskAffinity=""
-            android:theme="@style/DialogTheme"
+            android:theme="@style/dawnDialog"
             android:windowSoftInputMode="stateVisible|adjustResize" >
         </activity>
 

@@ -16,13 +16,12 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
-    android:layout_height="200dp" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="org.c99.wear_imessage.QuickReplyActivity"
+    android:layout_height="200dp"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              tools:context="org.c99.wear_imessage.QuickReplyActivity"
     android:orientation="vertical"
-    android:weightSum="1">
+    android:weightSum="1"
+              android:background="?dialogBackgroundColor">
 
     <ListView
         android:layout_width="match_parent"
@@ -35,38 +34,49 @@
         android:stackFromBottom="true"
         android:transcriptMode="normal"
         android:layout_marginTop="6dp"
-        android:layout_marginLeft="6dp" />
+        android:layout_marginLeft="6dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:background="?attr/textareaBackgroundColor"
         android:gravity="bottom"
-        android:paddingTop="2dp"
-        android:layout_weight="0">
+        android:paddingBottom="8dp"
+        android:paddingLeft="@dimen/activity_horizontal_margin">
 
         <com.irccloud.android.ActionEditText
             android:id="@+id/messageTxt"
             style="@style/messageTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
             android:layout_weight="1"
             android:ems="10"
-            android:maxLines="3"
+            android:maxLines="@integer/max_input_lines"
             android:hint="Message"
-            android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage">
-            <requestFocus/>
-        </com.irccloud.android.ActionEditText>
+            android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
+            android:background="?attr/textareaBackgroundColor"
+            android:minHeight="32dp"
+            android:padding="4dp"
+            android:layout_marginBottom="2dp"/>
 
         <ImageButton
             style="@style/Widget.Styled.ImageButton"
             android:id="@+id/sendBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="4dp"
             android:scaleType="fitEnd"
             android:contentDescription="Send"
             android:src="@drawable/ic_action_send"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:padding="4dp" />
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:paddingTop="4dp"/>
     </LinearLayout>
 
 </LinearLayout>

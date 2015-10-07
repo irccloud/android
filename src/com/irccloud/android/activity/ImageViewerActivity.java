@@ -31,6 +31,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
@@ -340,6 +341,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.ImageViewerTheme);
         mHideTimer = new Timer("actionbar-hide-timer");
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
@@ -506,28 +508,30 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 @Override
                 public void surfaceCreated(SurfaceHolder surfaceHolder) {
                     try {
-                        player.setDisplay(surfaceHolder);
-                        player.prepare();
+                        if(player != null) {
+                            player.setDisplay(surfaceHolder);
+                            player.prepare();
 
-                        int videoWidth = player.getVideoWidth();
-                        int videoHeight = player.getVideoHeight();
+                            int videoWidth = player.getVideoWidth();
+                            int videoHeight = player.getVideoHeight();
 
-                        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-                        int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+                            int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+                            int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
 
-                        int scaledWidth = (int) (((float)videoWidth / (float)videoHeight) * (float)screenHeight);
-                        int scaledHeight = (int) (((float)videoHeight / (float)videoWidth) * (float)screenWidth);
+                            int scaledWidth = (int) (((float) videoWidth / (float) videoHeight) * (float) screenHeight);
+                            int scaledHeight = (int) (((float) videoHeight / (float) videoWidth) * (float) screenWidth);
 
-                        android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
-                        lp.width = screenWidth;
-                        lp.height = scaledHeight;
-                        if(lp.height > screenHeight && scaledWidth < screenWidth) {
-                            lp.width = scaledWidth;
-                            lp.height = screenHeight;
+                            android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+                            lp.width = screenWidth;
+                            lp.height = scaledHeight;
+                            if (lp.height > screenHeight && scaledWidth < screenWidth) {
+                                lp.width = scaledWidth;
+                                lp.height = screenHeight;
+                            }
+                            v.setLayoutParams(lp);
+
+                            player.start();
                         }
-                        v.setLayoutParams(lp);
-
-                        player.start();
                     } catch (IOException e) {
                         fail();
                     }
@@ -752,6 +756,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if (item.getItemId() == R.id.action_browser) {
+            Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Open in Browser"));
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             startActivity(intent);
             finish();
@@ -760,11 +765,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             DownloadManager d = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
             if(d != null) {
                 DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, getIntent().getData().getLastPathSegment());
                 if(Build.VERSION.SDK_INT >= 11) {
                     r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                     r.allowScanningByMediaScanner();
                 }
                 d.enqueue(r);
+                Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Download"));
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
@@ -777,6 +784,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 clipboard.setPrimaryClip(clip);
             }
             Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+            Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
         }
         return super.onOptionsItemSelected(item);
     }

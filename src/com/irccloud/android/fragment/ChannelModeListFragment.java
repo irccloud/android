@@ -20,6 +20,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -36,6 +37,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -109,12 +111,17 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
         @Override
         public void onBindViewHolder(ViewHolder holder, final int position) {
             RowChannelmodeBinding row = holder.binding;
-            row.setMask(Html.fromHtml(data.get(position).get(mask).asText()));
-            row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(data.get(position).get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
-                    + " by " + data.get(position).get("usermask").asText());
+            JsonNode node = data.get(position);
+            row.setMask(Html.fromHtml(node.get(mask).asText()));
+            if(node.get("usermask").asText() != null)
+                row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(node.get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
+                    + " by " + node.get("usermask").asText());
+            else
+                row.setSetBy("");
             if (canChangeMode) {
                 row.removeBtn.setVisibility(View.VISIBLE);
                 row.removeBtn.setOnClickListener(removeClickListener);
+                row.removeBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
                 row.removeBtn.setTag(position);
             } else {
                 row.removeBtn.setVisibility(View.GONE);

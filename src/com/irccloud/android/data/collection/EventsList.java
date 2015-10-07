@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteException;
 import android.text.TextUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Event;
@@ -45,6 +46,7 @@ public class EventsList {
     private final HashMap<Integer, TreeMap<Long, Event>> events;
     private HashSet<Integer> loaded_bids = new HashSet<>();
     private static EventsList instance = null;
+    private ColorScheme colorScheme = ColorScheme.getInstance();
 
     public synchronized static EventsList getInstance() {
         if (instance == null)
@@ -126,59 +128,69 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 e.linkify = false;
-                if (event.has("pool_lost"))
-                    e.msg = "Connection pool lost";
-                else if (event.has("server_ping_timeout"))
-                    e.msg = "Server PING timed out";
-                else if (event.has("reason") && event.getString("reason").length() > 0)
-                    e.msg = "Connection lost: " + reason(event.getString("reason"));
-                else if (event.has("abnormal"))
-                    e.msg = "Connection closed unexpectedly";
-                else
-                    e.msg = "";
+                if(event != null) {
+                    if (event.has("pool_lost"))
+                        e.msg = "Connection pool lost";
+                    else if (event.has("server_ping_timeout"))
+                        e.msg = "Server PING timed out";
+                    else if (event.has("reason") && event.getString("reason").length() > 0)
+                        e.msg = "Connection lost: " + reason(event.getString("reason"));
+                    else if (event.has("abnormal"))
+                        e.msg = "Connection closed unexpectedly";
+                    else
+                        e.msg = "";
+                }
             }
         });
 
         put("user_channel_mode", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.target_mode = event.getString("newmode");
-                e.chan = event.getString("channel");
+                if(event != null) {
+                    e.target_mode = event.getString("newmode");
+                    e.chan = event.getString("channel");
+                }
             }
         });
 
         put("buffer_me_msg", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.nick = e.from;
-                e.from = "";
+                if(event != null) {
+                    e.nick = e.from;
+                    e.from = "";
+                }
             }
         });
 
         put("nickname_in_use", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("nick");
+                if(event != null) {
+                    e.from = event.getString("nick");
+                }
                 e.msg = "is already in use";
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("unhandled_line", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                StringBuilder msg = new StringBuilder();
-                if (event.has("command"))
-                    msg.append(event.getString("command")).append(" ");
-                if (event.has("raw"))
-                    msg.append(event.getString("raw"));
-                else
-                    msg.append(event.getString("msg"));
-                e.msg = msg.toString();
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = "";
+                    StringBuilder msg = new StringBuilder();
+                    if (event.has("command"))
+                        msg.append(event.getString("command")).append(" ");
+                    if (event.has("raw"))
+                        msg.append(event.getString("raw"));
+                    else
+                        msg.append(event.getString("msg"));
+                    e.msg = msg.toString();
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
         put("unparsed_line", get("unhandled_line"));
@@ -188,7 +200,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "Cancelled";
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -196,14 +208,16 @@ public class EventsList {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
                 e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 e.from = "";
                 e.linkify = false;
-                String reason = reason(event.getString("reason"));
-                if (reason != null) {
-                    e.msg = "Failed to connect: " + reason;
-                } else {
-                    e.msg = "Failed to connect.";
+                if(event != null) {
+                    String reason = reason(event.getString("reason"));
+                    if (reason != null) {
+                        e.msg = "Failed to connect: " + reason;
+                    } else {
+                        e.msg = "Failed to connect.";
+                    }
                 }
             }
         });
@@ -213,7 +227,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "⇐ You disconnected";
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 e.self = false;
             }
         });
@@ -221,9 +235,11 @@ public class EventsList {
         put("self_details", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "<pre>Your hostmask: <b>" + event.getString("usermask") + "</b></pre>";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "<pre>Your hostmask: <b>" + event.getString("usermask") + "</b></pre>";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -231,16 +247,18 @@ public class EventsList {
         put("myinfo", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                StringBuilder msg = new StringBuilder();
-                msg.append("Host: ").append(event.getString("server")).append("\n");
-                msg.append("IRCd: ").append(event.getString("version")).append("\n");
-                msg.append("User modes: ").append(event.getString("user_modes")).append("\n");
-                msg.append("Channel modes: ").append(event.getString("channel_modes")).append("\n");
-                if (event.has("rest") && event.getString("rest").length() > 0)
-                    msg.append("Parametric channel modes: ").append(event.getString("rest")).append("\n");
-                e.msg = "<pre>" + TextUtils.htmlEncode(msg.toString()) + "</pre>";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    StringBuilder msg = new StringBuilder();
+                    msg.append("Host: ").append(event.getString("server")).append("\n");
+                    msg.append("IRCd: ").append(event.getString("version")).append("\n");
+                    msg.append("User modes: ").append(event.getString("user_modes")).append("\n");
+                    msg.append("Channel modes: ").append(event.getString("channel_modes")).append("\n");
+                    if (event.has("rest") && event.getString("rest").length() > 0)
+                        msg.append("Parametric channel modes: ").append(event.getString("rest")).append("\n");
+                    e.msg = "<pre>" + TextUtils.htmlEncode(msg.toString()) + "</pre>";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -248,33 +266,39 @@ public class EventsList {
         put("user_mode", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "<pre>Your user mode is: <b>+" + event.getString("newmode") + "</b></pre>";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "<pre>Your user mode is: <b>+" + event.getString("newmode") + "</b></pre>";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
             }
         });
 
         put("your_unique_id", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "<pre>Your unique ID is: <b>" + event.getString("unique_id") + "</b></pre>";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "<pre>Your unique ID is: <b>" + event.getString("unique_id") + "</b></pre>";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
             }
         });
 
         put("kill", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "You were killed";
-                if (event.has("from"))
-                    e.msg += " by " + event.getString("from");
-                if (event.has("killer_hostmask"))
-                    e.msg += " (" + event.getString("killer_hostmask") + ")";
-                if (event.has("reason"))
-                    e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "You were killed";
+                    if (event.has("from"))
+                        e.msg += " by " + event.getString("from");
+                    if (event.has("killer_hostmask"))
+                        e.msg += " (" + event.getString("killer_hostmask") + ")";
+                    if (event.has("reason"))
+                        e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -282,13 +306,15 @@ public class EventsList {
         put("banned", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "You were banned";
-                if (event.has("server"))
-                    e.msg += " from " + event.getString("server");
-                if (event.has("reason"))
-                    e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "You were banned";
+                    if (event.has("server"))
+                        e.msg += " from " + event.getString("server");
+                    if (event.has("reason"))
+                        e.msg += ": " + TextUtils.htmlEncode(event.getString("reason"));
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -296,25 +322,29 @@ public class EventsList {
         put("channel_topic", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                if (event.has("author"))
-                    e.from = event.getString("author");
-                else
-                    e.from = event.getString("server");
-                if (event.getString("topic") != null && event.getString("topic").length() > 0)
-                    e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
-                else
-                    e.msg = "cleared the topic";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    if (event.has("author"))
+                        e.from = event.getString("author");
+                    else
+                        e.from = event.getString("server");
+                    if (event.getString("topic") != null && event.getString("topic").length() > 0)
+                        e.msg = "set the topic: " + TextUtils.htmlEncode(event.getString("topic"));
+                    else
+                        e.msg = "cleared the topic";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
             }
         });
 
         put("channel_mode", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.nick = e.from;
-                e.from = "";
-                e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.nick = e.from;
+                    e.from = "";
+                    e.msg = "Channel mode set to: <b>" + event.getString("diff") + "</b>";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
                 e.self = false;
             }
@@ -323,12 +353,14 @@ public class EventsList {
         put("channel_mode_is", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                if (event.getString("diff") != null && event.getString("diff").length() > 0)
-                    e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
-                else
-                    e.msg = "No channel mode";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    if (event.getString("diff") != null && event.getString("diff").length() > 0)
+                        e.msg = "Channel mode is: <b>" + event.getString("diff") + "</b>";
+                    else
+                        e.msg = "No channel mode";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -336,12 +368,14 @@ public class EventsList {
         put("kicked_channel", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.from_mode = null;
-                e.old_nick = event.getString("nick");
-                e.nick = event.getString("kicker");
-                e.hostmask = event.getString("kicker_hostmask");
-                e.color = R.color.timestamp;
+                if(event != null) {
+                    e.from = "";
+                    e.from_mode = null;
+                    e.old_nick = event.getString("nick");
+                    e.nick = event.getString("kicker");
+                    e.hostmask = event.getString("kicker_hostmask");
+                }
+                e.color = colorScheme.timestampColor;
                 e.linkify = false;
                 if (e.self)
                     e.row_type = MessageViewFragment.ROW_SOCKETCLOSED;
@@ -352,78 +386,80 @@ public class EventsList {
         put("channel_mode_list_change", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                boolean unknown = true;
-                JsonNode ops = event.getJsonObject("ops");
-                if (ops != null) {
-                    JsonNode add = ops.get("add");
-                    if (add != null && add.size() > 0) {
-                        JsonNode op = add.get(0);
-                        if (op.get("mode").asText().equals("b")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>+b</font>)";
-                            unknown = false;
-                        } else if (op.get("mode").asText().equals("e")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>+e</font>)";
-                            unknown = false;
-                        } else if (op.get("mode").asText().equals("q")) {
-                            if (op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
+                if(event != null) {
+                    boolean unknown = true;
+                    JsonNode ops = event.getJsonObject("ops");
+                    if (ops != null) {
+                        JsonNode add = ops.get("add");
+                        if (add != null && add.size() > 0) {
+                            JsonNode op = add.get(0);
+                            if (op.get("mode").asText().equals("b")) {
                                 e.nick = e.from;
                                 e.from = "";
-                                e.msg = "quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>+q</font>)";
-                            } else {
-                                e.type = "user_channel_mode";
-                                e.chan = event.getString("channel");
-                                e.nick = op.get("param").asText();
-                            }
-                            unknown = false;
-                        } else if (op.get("mode").asText().equals("I")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "added <b>" + op.get("param").asText() + "</b> to the invite list (<font color=#808080>+I</font>)";
-                            unknown = false;
-                        }
-                    }
-                    JsonNode remove = ops.get("remove");
-                    if (remove != null && remove.size() > 0) {
-                        JsonNode op = remove.get(0);
-                        if (op.get("mode").asText().equals("b")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "un-banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>-b</font>)";
-                            unknown = false;
-                        } else if (op.get("mode").asText().equals("e")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "un-exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>-e</font>)";
-                            unknown = false;
-                        } else if (op.get("mode").asText().equals("q")) {
-                            if (op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
+                                e.msg = "banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>+b</font>)";
+                                unknown = false;
+                            } else if (op.get("mode").asText().equals("e")) {
                                 e.nick = e.from;
                                 e.from = "";
-                                e.msg = "un-quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>-q</font>)";
-                            } else {
-                                e.type = "user_channel_mode";
-                                e.chan = event.getString("channel");
-                                e.nick = op.get("param").asText();
+                                e.msg = "exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>+e</font>)";
+                                unknown = false;
+                            } else if (op.get("mode").asText().equals("q")) {
+                                if (op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
+                                    e.nick = e.from;
+                                    e.from = "";
+                                    e.msg = "quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>+q</font>)";
+                                } else {
+                                    e.type = "user_channel_mode";
+                                    e.chan = event.getString("channel");
+                                    e.nick = op.get("param").asText();
+                                }
+                                unknown = false;
+                            } else if (op.get("mode").asText().equals("I")) {
+                                e.nick = e.from;
+                                e.from = "";
+                                e.msg = "added <b>" + op.get("param").asText() + "</b> to the invite list (<font color=#808080>+I</font>)";
+                                unknown = false;
                             }
-                            unknown = false;
-                        } else if (op.get("mode").asText().equals("I")) {
-                            e.nick = e.from;
-                            e.from = "";
-                            e.msg = "removed <b>" + op.get("param").asText() + "</b> from the invite list (<font color=#808080>-I</font>)";
-                            unknown = false;
+                        }
+                        JsonNode remove = ops.get("remove");
+                        if (remove != null && remove.size() > 0) {
+                            JsonNode op = remove.get(0);
+                            if (op.get("mode").asText().equals("b")) {
+                                e.nick = e.from;
+                                e.from = "";
+                                e.msg = "un-banned <b>" + op.get("param").asText() + "</b> (<font color=#808080>-b</font>)";
+                                unknown = false;
+                            } else if (op.get("mode").asText().equals("e")) {
+                                e.nick = e.from;
+                                e.from = "";
+                                e.msg = "un-exempted <b>" + op.get("param").asText() + "</b> from bans (<font color=#808080>-e</font>)";
+                                unknown = false;
+                            } else if (op.get("mode").asText().equals("q")) {
+                                if (op.get("param").asText().contains("@") || op.get("param").asText().contains("$")) {
+                                    e.nick = e.from;
+                                    e.from = "";
+                                    e.msg = "un-quieted <b>" + op.get("param").asText() + "</b> (<font color=#808080>-q</font>)";
+                                } else {
+                                    e.type = "user_channel_mode";
+                                    e.chan = event.getString("channel");
+                                    e.nick = op.get("param").asText();
+                                }
+                                unknown = false;
+                            } else if (op.get("mode").asText().equals("I")) {
+                                e.nick = e.from;
+                                e.from = "";
+                                e.msg = "removed <b>" + op.get("param").asText() + "</b> from the invite list (<font color=#808080>-I</font>)";
+                                unknown = false;
+                            }
                         }
                     }
+                    if (unknown) {
+                        e.nick = e.from;
+                        e.from = "";
+                        e.msg = "set channel mode: <b>" + event.getString("diff") + "</b>";
+                    }
                 }
-                if (unknown) {
-                    e.nick = e.from;
-                    e.from = "";
-                    e.msg = "set channel mode: <b>" + event.getString("diff") + "</b>";
-                }
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
                 e.self = false;
             }
@@ -432,19 +468,21 @@ public class EventsList {
         put("motd_response", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                JsonNode lines = event.getJsonNode("lines");
-                e.from = "";
-                if (lines != null) {
-                    StringBuilder builder = new StringBuilder("<pre>");
-                    if (event.has("start"))
-                        builder.append(event.getString("start")).append("<br/>");
-                    for (int i = 0; i < lines.size(); i++) {
-                        builder.append(TextUtils.htmlEncode(lines.get(i).asText()).replace("  ", " &nbsp;")).append("<br/>");
+                if(event != null) {
+                    JsonNode lines = event.getJsonNode("lines");
+                    e.from = "";
+                    if (lines != null) {
+                        StringBuilder builder = new StringBuilder("<pre>");
+                        if (event.has("start"))
+                            builder.append(event.getString("start")).append("<br/>");
+                        for (int i = 0; i < lines.size(); i++) {
+                            builder.append(TextUtils.htmlEncode(lines.get(i).asText()).replace("  ", " &nbsp;")).append("<br/>");
+                        }
+                        builder.append("</pre>");
+                        e.msg = builder.toString();
                     }
-                    builder.append("</pre>");
-                    e.msg = builder.toString();
                 }
-                e.bg_color = R.color.self;
+                e.bg_color = colorScheme.selfBackgroundColor;
             }
         });
         put("server_motd", get("motd_response"));
@@ -453,129 +491,155 @@ public class EventsList {
         put("notice", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.chan = event.getString("target");
-                e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.chan = event.getString("target");
+                    e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("newsflash", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("invited", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("inviter");
-                e.msg = "<pre>invited " + event.getString("invitee") + " to join " + event.getString("channel") + "</pre>";
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.from = event.getString("inviter");
+                    e.msg = "<pre>invited " + event.getString("invitee") + " to join " + event.getString("channel") + "</pre>";
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("generic_server_info", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("rehashed_config", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.msg = "Rehashed config: " + event.getString("file") + "(" + e.msg + ")";
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.msg = "Rehashed config: " + event.getString("file") + "(" + e.msg + ")";
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("knock", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                if (e.nick != null && e.nick.length() > 0) {
-                    e.from = e.nick;
-                    if (e.hostmask != null && e.hostmask.length() > 0)
-                        e.msg += " (" + e.hostmask + ")";
-                } else {
-                    e.msg = event.getString("userhost") + " " + e.msg;
+                if(event != null) {
+                    if (e.nick != null && e.nick.length() > 0) {
+                        e.from = e.nick;
+                        if (e.hostmask != null && e.hostmask.length() > 0)
+                            e.msg += " (" + e.hostmask + ")";
+                    } else {
+                        e.msg = event.getString("userhost") + " " + e.msg;
+                    }
+                    e.msg = "<pre>" + e.msg + "</pre>";
                 }
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("hidden_host_set", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
-                e.from = "";
-                e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "<b>" + event.getString("hidden_host") + "</b> " + e.msg;
+                }
             }
         });
 
         put("inviting_to_channel", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "<pre>You invited " + event.getString("recipient") + " to join " + event.getString("channel") + "</pre>";
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "<pre>You invited " + event.getString("recipient") + " to join " + event.getString("channel") + "</pre>";
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("channel_invite", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
-                e.old_nick = event.getString("channel");
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.msg = "<pre>Invite to join " + event.getString("channel") + "</pre>";
+                    e.old_nick = event.getString("channel");
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("callerid", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = e.nick;
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.highlight = true;
-                e.linkify = false;
-                e.hostmask = event.getString("usermask");
+                if(event != null) {
+                    e.from = e.nick;
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                    e.highlight = true;
+                    e.linkify = false;
+                    e.hostmask = event.getString("usermask");
+                }
             }
         });
 
         put("target_callerid", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("target_nick");
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = event.getString("target_nick");
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("target_notified", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("target_nick");
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = event.getString("target_nick");
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("link_channel", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                if (event.has("invalid_chan")) {
-                    if (event.has("valid_chan")) {
-                        e.msg = event.getString("invalid_chan") + " → " + event.getString("valid_chan") + " " + e.msg;
-                    } else {
-                        e.msg = event.getString("invalid_chan") + " " + e.msg;
+                if(event != null) {
+                    if (event.has("invalid_chan")) {
+                        if (event.has("valid_chan")) {
+                            e.msg = event.getString("invalid_chan") + " → " + event.getString("valid_chan") + " " + e.msg;
+                        } else {
+                            e.msg = event.getString("invalid_chan") + " " + e.msg;
+                        }
                     }
                 }
-                e.bg_color = R.color.error;
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
@@ -612,11 +676,13 @@ public class EventsList {
         Formatter statusFormatter = new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.from = "";
-                if (!e.type.equals("server_motd") && !e.type.equals("zurna_motd"))
-                    e.linkify = false;
+                e.bg_color = colorScheme.statusBackgroundColor;
+                if(event != null) {
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                    e.from = "";
+                    if (!e.type.equals("server_motd") && !e.type.equals("zurna_motd"))
+                        e.linkify = false;
+                }
             }
         };
         for (String status : statuses)
@@ -628,12 +694,14 @@ public class EventsList {
         Formatter statsFormatter = new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                if (event.has("parts") && event.getString("parts").length() > 0)
-                    e.msg = event.getString("parts") + ": " + e.msg;
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    if (event.has("parts") && event.getString("parts").length() > 0)
+                        e.msg = event.getString("parts") + ": " + e.msg;
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
-                e.msg = "<pre>" + e.msg + "</pre>";
             }
         };
         for (String stat : stats)
@@ -645,32 +713,34 @@ public class EventsList {
         Formatter capsFormatter = new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.bg_color = R.color.status_bg;
-                e.linkify = false;
-                switch (e.type) {
-                    case "cap_ls":
-                        e.msg = "<b>CAP</b> Server supports: ";
-                        break;
-                    case "cap_req":
-                        e.msg = "<b>CAP</b> Requesting: ";
-                        break;
-                    case "cap_ack":
-                        e.msg = "<b>CAP</b> Acknowledged: ";
-                        break;
-                    case "cap_raw":
-                        e.msg = "<b>CAP</b> " + event.getString("line");
-                        break;
-                }
-                JsonNode caps = event.getJsonNode("caps");
-                if (caps != null) {
-                    for (int i = 0; i < caps.size(); i++) {
-                        if (i > 0)
-                            e.msg += " | ";
-                        e.msg += caps.get(i).asText();
+                if(event != null) {
+                    e.from = "";
+                    e.linkify = false;
+                    switch (e.type) {
+                        case "cap_ls":
+                            e.msg = "<b>CAP</b> Server supports: ";
+                            break;
+                        case "cap_req":
+                            e.msg = "<b>CAP</b> Requesting: ";
+                            break;
+                        case "cap_ack":
+                            e.msg = "<b>CAP</b> Acknowledged: ";
+                            break;
+                        case "cap_raw":
+                            e.msg = "<b>CAP</b> " + event.getString("line");
+                            break;
                     }
+                    JsonNode caps = event.getJsonNode("caps");
+                    if (caps != null) {
+                        for (int i = 0; i < caps.size(); i++) {
+                            if (i > 0)
+                                e.msg += " | ";
+                            e.msg += caps.get(i).asText();
+                        }
+                    }
+                    e.msg = "<pre>" + e.msg + "</pre>";
                 }
-                e.msg = "<pre>" + e.msg + "</pre>";
+                e.bg_color = colorScheme.statusBackgroundColor;
             }
         };
         for (String cap : caps)
@@ -682,9 +752,11 @@ public class EventsList {
         Formatter helpsFormatter = new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.from = "";
+                e.bg_color = colorScheme.statusBackgroundColor;
+                if(event != null) {
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                    e.from = "";
+                }
             }
         };
         for (String help : helps)
@@ -696,8 +768,10 @@ public class EventsList {
         Formatter errorFormatter = new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = "";
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         };
         for (String error : errors)
@@ -706,9 +780,11 @@ public class EventsList {
         put("version", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                e.msg = "<pre><b>" + event.getString("server_version") + "</b> " + event.getString("comments") + "</pre>";
-                e.bg_color = R.color.status_bg;
+                if(event != null) {
+                    e.from = "";
+                    e.msg = "<pre><b>" + event.getString("server_version") + "</b> " + event.getString("comments") + "</pre>";
+                }
+                e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
             }
         });
@@ -716,81 +792,99 @@ public class EventsList {
         put("services_down", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("services_name");
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = event.getString("services_name");
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("unknown_umode", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = "";
-                if (event.has("flag"))
-                    e.msg = "<b>" + event.getString("flag") + "</b> " + e.msg;
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = "";
+                    if (event.has("flag"))
+                        e.msg = "<b>" + event.getString("flag") + "</b> " + e.msg;
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("kill_deny", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("channel");
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = event.getString("channel");
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("chan_own_priv_needed", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("channel");
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = event.getString("channel");
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("chan_forbidden", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.from = event.getString("channel");
-                e.bg_color = R.color.error;
+                if(event != null) {
+                    e.from = event.getString("channel");
+                }
+                e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
 
         put("list_usage", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.msg = "<pre>" + e.msg + "</pre>";
-                e.bg_color = R.color.notice;
+                if(event != null) {
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
+                e.bg_color = colorScheme.noticeBackgroundColor;
             }
         });
 
         put("time", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
-                e.msg = "<pre>" + event.getString("time_string");
-                if (event.has("time_stamp") && event.getString("time_stamp").length() > 0)
-                    e.msg += " (" + event.getString("time_stamp") + ")";
-                e.msg += " — <b>" + event.getString("time_server") + "</b></pre>";
-                e.linkify = false;
+                e.bg_color = colorScheme.statusBackgroundColor;
+                if(event != null) {
+                    e.msg = "<pre>" + event.getString("time_string");
+                    if (event.has("time_stamp") && event.getString("time_stamp").length() > 0)
+                        e.msg += " (" + event.getString("time_stamp") + ")";
+                    e.msg += " — <b>" + event.getString("time_server") + "</b></pre>";
+                    e.linkify = false;
+                }
             }
         });
 
         put("watch_status", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
-                e.from = event.getString("watch_nick");
-                e.msg = "<pre>" + e.msg + " (" + event.getString("username") + "@" + event.getString("userhost") + ")</pre>";
-                e.linkify = false;
+                e.bg_color = colorScheme.statusBackgroundColor;
+                if(event != null) {
+                    e.from = event.getString("watch_nick");
+                    e.msg = "<pre>" + e.msg + " (" + event.getString("username") + "@" + event.getString("userhost") + ")</pre>";
+                    e.linkify = false;
+                }
             }
         });
 
         put("sqline_nick", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                e.bg_color = R.color.status_bg;
-                e.from = event.getString("charset");
-                e.msg = "<pre>" + e.msg + "</pre>";
+                e.bg_color = colorScheme.statusBackgroundColor;
+                if(event != null) {
+                    e.from = event.getString("charset");
+                    e.msg = "<pre>" + e.msg + "</pre>";
+                }
             }
         });
 
@@ -839,6 +933,8 @@ public class EventsList {
             e.bid = event.bid();
             e.eid = event.eid();
             e.type = event.type();
+            e.color = colorScheme.messageTextColor;
+            e.bg_color = colorScheme.contentBackgroundColor;
             e.msg = event.getString("msg");
             e.hostmask = event.getString("hostmask");
             e.from = event.getString("from");
@@ -880,10 +976,10 @@ public class EventsList {
             }
 
             if (e.highlight)
-                e.bg_color = R.color.highlight;
+                e.bg_color = colorScheme.highlightBackgroundColor;
 
             if (e.self)
-                e.bg_color = R.color.self;
+                e.bg_color = colorScheme.selfBackgroundColor;
 
             return e;
         }
@@ -965,9 +1061,20 @@ public class EventsList {
             for (int bid : events.keySet()) {
                 if (events.containsKey(bid) && events.get(bid) != null) {
                     for (Event e : events.get(bid).values()) {
+                        e.color = colorScheme.messageTextColor;
+                        e.bg_color = colorScheme.contentBackgroundColor;
                         e.timestamp = null;
                         e.html = null;
                         e.formatted = null;
+                        Formatter f = formatterMap.get(e.type);
+                        if (f != null)
+                            f.format(null, e);
+
+                        if (e.highlight)
+                            e.bg_color = colorScheme.highlightBackgroundColor;
+
+                        if (e.self)
+                            e.bg_color = colorScheme.selfBackgroundColor;
                     }
                 }
             }

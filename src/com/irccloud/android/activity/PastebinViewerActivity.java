@@ -36,6 +36,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -58,7 +60,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         @Override
         protected String doInBackground(Void... params) {
             try {
-                return NetworkConnection.getInstance().fetch(new URL(url), null, null, null, null);
+                return NetworkConnection.getInstance().fetch(new URL(url), null, NetworkConnection.getInstance().session, null, null);
             } catch (Exception e) {
             }
             return null;
@@ -125,11 +127,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
@@ -139,7 +136,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
 
         mWebView = (WebView) findViewById(R.id.image);
         mWebView.getSettings().setBuiltInZoomControls(true);
@@ -222,6 +218,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_pastebin, menu);
+        setMenuColorFilter(menu);
         return true;
     }
 

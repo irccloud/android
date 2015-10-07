@@ -31,7 +31,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.nfc.NdefMessage;
@@ -45,6 +48,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -85,6 +89,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -98,7 +103,9 @@ import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.DrawerArrowDrawable;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -162,14 +169,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     Buffer buffer;
     Server server;
     ActionEditText messageTxt;
-    View sendBtn;
-    View photoBtn;
+    ImageButton sendBtn;
+    ImageButton photoBtn;
     User selected_user;
     View userListView;
     View buffersListView;
     TextView title;
     TextView subtitle;
-    ImageView key;
+    TextView key;
     LinearLayout messageContainer;
     DrawerLayout drawerLayout;
     NetworkConnection conn;
@@ -210,11 +217,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             TextView v = (TextView) super.getView(position, convertView, parent);
 
             if (position == activePos) {
-                v.setTextColor(0xffffffff);
-                v.setBackgroundResource(R.drawable.selected_blue);
+                v.setTextColor(ColorScheme.getInstance().selectedBufferTextColor);
+                v.setBackgroundColor(ColorScheme.getInstance().selectedBufferBackgroundColor);
             } else {
-                v.setTextColor(getResources().getColor(R.color.row_label));
-                v.setBackgroundResource(R.drawable.row_bg_blue);
+                v.setTextColor(ColorScheme.getInstance().bufferTextColor);
+                v.setBackgroundColor(ColorScheme.getInstance().bufferBackgroundColor);
             }
 
             //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
@@ -233,10 +240,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ImgurUploadTask imgurTask = null;
     private FileUploadTask fileUploadTask = null;
 
-    private DrawerArrowDrawable upDrawable;
-    private int redColor;
-    private int blueColor;
-    private int greyColor = 0;
+    private Drawable upDrawable;
 
     private HashMap<Integer, Event> pendingEvents = new HashMap<Integer, Event>();
 
@@ -244,8 +248,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @SuppressWarnings({"deprecation", "unchecked"})
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.AppThemeNoActionBar);
         super.onCreate(savedInstanceState);
+        setTheme(ColorScheme.getTheme(ColorScheme.getUserTheme(), false));
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
 
@@ -253,13 +257,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenReceiver, filter);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            if(cloud != null) {
-                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-                cloud.recycle();
-            }
-        }
         setContentView(R.layout.activity_message);
         final View splash = findViewById(R.id.splash);
         if(Build.VERSION.SDK_INT < 16 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {
@@ -283,9 +280,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         buffersListView = findViewById(R.id.BuffersList);
         messageContainer = (LinearLayout) findViewById(R.id.messageContainer);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
-
-        redColor = getResources().getColor(R.color.highlight_red);
-        blueColor = getResources().getColor(R.color.dark_blue);
 
         messageTxt = (ActionEditText) findViewById(R.id.messageTxt);
         messageTxt.setOnKeyListener(new OnKeyListener() {
@@ -345,12 +339,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 if (s.length() > 0 && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED) {
                     sendBtn.setEnabled(true);
-                    if (Build.VERSION.SDK_INT >= 11)
-                        sendBtn.setAlpha(1);
                 } else {
                     sendBtn.setEnabled(false);
-                    if (Build.VERSION.SDK_INT >= 11)
-                        sendBtn.setAlpha(0.5f);
                 }
                 String text = s.toString();
                 if (text.endsWith("\t")) { //Workaround for Swype
@@ -387,7 +377,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         };
         messageTxt.addTextChangedListener(textWatcher);
-        sendBtn = findViewById(R.id.sendBtn);
+        sendBtn = (ImageButton)findViewById(R.id.sendBtn);
+        sendBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
         sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -397,8 +388,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        photoBtn = findViewById(R.id.photoBtn);
+        photoBtn = (ImageButton)findViewById(R.id.photoBtn);
         if (photoBtn != null) {
+            photoBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             photoBtn.setFocusable(false);
             photoBtn.setOnClickListener(new OnClickListener() {
                 @Override
@@ -420,8 +412,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (drawerLayout != null) {
             if (findViewById(R.id.usersListFragment2) == null) {
-                upDrawable = new DrawerArrowDrawable(this);
-                greyColor = upDrawable.getColor();
+                upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
+                upDrawable.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
                 drawerLayout.setDrawerListener(mDrawerListener);
@@ -435,7 +427,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         title = (TextView) v.findViewById(R.id.title);
         subtitle = (TextView) v.findViewById(R.id.subtitle);
-        key = (ImageView) v.findViewById(R.id.key);
+        key = (TextView) v.findViewById(R.id.key);
+        key.setTypeface(FontAwesome.getTypeface());
 
         if (savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             server = ServersList.getInstance().getServer(savedInstanceState.getInt("cid"));
@@ -958,8 +951,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPreExecute() {
             if (conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED && messageTxt.getText() != null && messageTxt.getText().length() > 0 && buffer != null && server != null) {
                 sendBtn.setEnabled(false);
-                if (Build.VERSION.SDK_INT >= 11)
-                    sendBtn.setAlpha(0.5f);
                 String msg = messageTxt.getText().toString();
                 if (msg.startsWith("//"))
                     msg = msg.substring(1);
@@ -1083,8 +1074,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             } else {
                 sendBtn.setEnabled(true);
-                if (Build.VERSION.SDK_INT >= 11)
-                    sendBtn.setAlpha(1);
             }
         }
     }
@@ -1147,11 +1136,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPostExecute(Void result) {
             if (!isCancelled() && upDrawable != null) {
                 if (highlights > 0) {
-                    upDrawable.setColor(redColor);
+                    upDrawable.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
                 } else if (unread > 0) {
-                    upDrawable.setColor(blueColor);
+                    upDrawable.setColorFilter(ColorScheme.getInstance().unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
                 } else {
-                    upDrawable.setColor(greyColor);
+                    upDrawable.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
                 }
                 refreshUpIndicatorTask = null;
             }
@@ -1254,6 +1243,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
+        if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+            super.onResume();
+            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
+            Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
+            Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.putExtra("nosplash", true);
+            finish();
+            startActivity(i);
+            return;
+        }
+
         if(conn == null) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
@@ -1272,12 +1273,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 getSupportActionBar().setHomeButtonEnabled(false);
             }
             sendBtn.setEnabled(false);
-            if (Build.VERSION.SDK_INT >= 11)
-                sendBtn.setAlpha(0.5f);
             if(conn.config == null) {
                 photoBtn.setEnabled(false);
-                if (Build.VERSION.SDK_INT >= 11)
-                    photoBtn.setAlpha(0.5f);
             }
         } else {
             if (drawerLayout != null) {
@@ -1286,12 +1283,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if (messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 sendBtn.setEnabled(true);
-                if (Build.VERSION.SDK_INT >= 11)
-                    sendBtn.setAlpha(1);
             }
             photoBtn.setEnabled(true);
-            if (Build.VERSION.SDK_INT >= 11)
-                photoBtn.setAlpha(1);
         }
 
         if (server == null || launchURI != null || (getIntent() != null && (getIntent().hasExtra("bid") || getIntent().getData() != null))) {
@@ -1360,8 +1353,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         sendBtn.setEnabled(messageTxt.getText().length() > 0);
-        if (Build.VERSION.SDK_INT >= 11 && messageTxt.getText().length() == 0)
-            sendBtn.setAlpha(0.5f);
 
         if (drawerLayout != null)
             drawerLayout.closeDrawers();
@@ -1599,7 +1590,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         subtitle.setVisibility(View.GONE);
                     }
                     if (c != null && c.key) {
-                        key.setImageResource(R.drawable.lock);
+                        key.setText(FontAwesome.LOCK);
                         key.setVisibility(View.VISIBLE);
                     } else {
                         key.setVisibility(View.GONE);
@@ -1610,9 +1601,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     title.setContentDescription("Network " + server.getName());
                     subtitle.setContentDescription(".");
                     if (server.getSsl() > 0)
-                        key.setImageResource(R.drawable.world_shield);
+                        key.setText(FontAwesome.SHIELD);
                     else
-                        key.setImageResource(R.drawable.world);
+                        key.setText(FontAwesome.GLOBE);
                     key.setVisibility(View.VISIBLE);
                 }
 
@@ -1839,8 +1830,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     sendBtn.setEnabled(true);
-                                    if (Build.VERSION.SDK_INT >= 11)
-                                        sendBtn.setAlpha(1);
                                 }
                             });
                         }
@@ -1853,11 +1842,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     getSupportActionBar().setHomeButtonEnabled(false);
                                 }
                                 sendBtn.setEnabled(false);
-                                if (Build.VERSION.SDK_INT >= 11)
-                                    sendBtn.setAlpha(0.5f);
                                 photoBtn.setEnabled(false);
-                                if (Build.VERSION.SDK_INT >= 11)
-                                    photoBtn.setAlpha(0.5f);
                             }
                         });
                         if (conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.ready && server == null) {
@@ -2159,19 +2144,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 });
                 break;
             case NetworkConnection.EVENT_USERINFO:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateUsersListFragmentVisibility();
-                        supportInvalidateOptionsMenu();
-                        if (refreshUpIndicatorTask != null)
-                            refreshUpIndicatorTask.cancel(true);
-                        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                        refreshUpIndicatorTask.execute((Void) null);
-                    }
-                });
-                if (launchBid == -1 && server == null && conn != null && conn.getUserInfo() != null)
-                    launchBid = conn.getUserInfo().last_selected_bid;
+                if(conn != null && conn.ready && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
+                    Intent i = (getIntent() != null)?getIntent():new Intent(this, MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.putExtra("nosplash", true);
+                    finish();
+                    startActivity(i);
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateUsersListFragmentVisibility();
+                            supportInvalidateOptionsMenu();
+                            if (refreshUpIndicatorTask != null)
+                                refreshUpIndicatorTask.cancel(true);
+                            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                            refreshUpIndicatorTask.execute((Void) null);
+                        }
+                    });
+                    if (launchBid == -1 && server == null && conn != null && conn.getUserInfo() != null)
+                        launchBid = conn.getUserInfo().last_selected_bid;
+                }
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
                 try {
@@ -2258,60 +2252,66 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        errorMsg.setVisibility(View.GONE);
-                        error = null;
-                        if (progressBar.getVisibility() == View.VISIBLE) {
-                            if (Build.VERSION.SDK_INT >= 16) {
-                                progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressBar.setVisibility(View.GONE);
-                                    }
-                                });
-                            } else {
-                                progressBar.setVisibility(View.GONE);
+                if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+                    Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.putExtra("nosplash", true);
+                    finish();
+                    startActivity(i);
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            errorMsg.setVisibility(View.GONE);
+                            error = null;
+                            if (progressBar.getVisibility() == View.VISIBLE) {
+                                if (Build.VERSION.SDK_INT >= 16) {
+                                    progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressBar.setVisibility(View.GONE);
+                                        }
+                                    });
+                                } else {
+                                    progressBar.setVisibility(View.GONE);
+                                }
                             }
-                        }
-                        getSupportActionBar().setDisplayShowTitleEnabled(false);
-                        getSupportActionBar().setDisplayShowCustomEnabled(true);
-                        if (drawerLayout != null) {
-                            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                            getSupportActionBar().setHomeButtonEnabled(true);
-                            updateUsersListFragmentVisibility();
-                        }
-                        if (ServersList.getInstance().count() < 1) {
-                            Crashlytics.log(Log.DEBUG, "IRCCloud", "No servers configured, launching add dialog");
-                            addNetwork();
-                        } else {
-                            if (server == null || launchURI != null || launchBid != -1) {
-                                Crashlytics.log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
-                                if (launchURI == null || !open_uri(launchURI)) {
-                                    if (launchBid == -1 || !open_bid(launchBid)) {
-                                        if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-                                            if (!open_bid(BuffersList.getInstance().firstBid())) {
-                                                if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
-                                                    drawerLayout.openDrawer(Gravity.LEFT);
+                            getSupportActionBar().setDisplayShowTitleEnabled(false);
+                            getSupportActionBar().setDisplayShowCustomEnabled(true);
+                            if (drawerLayout != null) {
+                                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                                getSupportActionBar().setHomeButtonEnabled(true);
+                                updateUsersListFragmentVisibility();
+                            }
+                            if (ServersList.getInstance().count() < 1) {
+                                Crashlytics.log(Log.DEBUG, "IRCCloud", "No servers configured, launching add dialog");
+                                addNetwork();
+                            } else {
+                                if (server == null || launchURI != null || launchBid != -1) {
+                                    Crashlytics.log(Log.DEBUG, "IRCCloud", "Backlog loaded and we're waiting for a buffer, switching now");
+                                    if (launchURI == null || !open_uri(launchURI)) {
+                                        if (launchBid == -1 || !open_bid(launchBid)) {
+                                            if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
+                                                if (!open_bid(BuffersList.getInstance().firstBid())) {
+                                                    if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
+                                                        drawerLayout.openDrawer(Gravity.LEFT);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
+                                update_subtitle();
                             }
-                            update_subtitle();
+                            if (refreshUpIndicatorTask != null)
+                                refreshUpIndicatorTask.cancel(true);
+                            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                            refreshUpIndicatorTask.execute((Void) null);
+                            photoBtn.setEnabled(true);
                         }
-                        if (refreshUpIndicatorTask != null)
-                            refreshUpIndicatorTask.cancel(true);
-                        refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                        refreshUpIndicatorTask.execute((Void) null);
-                        photoBtn.setEnabled(true);
-                        if (Build.VERSION.SDK_INT >= 11)
-                            photoBtn.setAlpha(1);
-                    }
-                });
-                //TODO: prune and pop the back stack if the current BID has disappeared
+                    });
+                    //TODO: prune and pop the back stack if the current BID has disappeared
+                }
                 break;
             case NetworkConnection.EVENT_CONNECTIONDELETED:
             case NetworkConnection.EVENT_DELETEBUFFER:
@@ -2483,14 +2483,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (e.bid != buffer.getBid() && upDrawable != null) {
                             Buffer buf = BuffersList.getInstance().getBuffer(e.bid);
                             if (e.isImportant(buf.getType())) {
-                                if (upDrawable.getColor() != redColor && (e.highlight || buf.isConversation())) {
+                                if (/*upDrawable.getColor() != redColor &&*/ (e.highlight || buf.isConversation())) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upDrawable.setColor(redColor);
+                                            upDrawable.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
                                         }
                                     });
-                                } else if (upDrawable.getColor() == greyColor) {
+                                } else /*if (grey)*/ {
                                     JSONObject channelDisabledMap = null;
                                     JSONObject bufferDisabledMap = null;
                                     if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
@@ -2511,7 +2511,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upDrawable.setColor(blueColor);
+                                            upDrawable.setColorFilter(ColorScheme.getInstance().unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
                                         }
                                     });
                                 }
@@ -2619,7 +2619,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     menu.findItem(R.id.menu_archive).setVisible(false);
                     menu.findItem(R.id.menu_archive).setEnabled(false);
                 }
-                if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry") || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis")))) {
+                if (server != null && server.getStatus() != null && (server.getStatus().equalsIgnoreCase("waiting_to_retry") || server.getStatus().equalsIgnoreCase("queued") || (server.getStatus().contains("connected") && !server.getStatus().startsWith("dis")))) {
                     if (menu.findItem(R.id.menu_disconnect) != null)
                         menu.findItem(R.id.menu_disconnect).setTitle(R.string.menu_disconnect);
                     if (menu.findItem(R.id.menu_delete) != null) {
@@ -2876,7 +2876,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         drawerLayout.openDrawer(Gravity.RIGHT);
                     }
                     if (!getSharedPreferences("prefs", 0).getBoolean("userSwipeTip", false)) {
-                        Toast.makeText(this, "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Drag from the edge of the screen to quickly open and close the user list", Toast.LENGTH_LONG).show();
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putBoolean("userSwipeTip", true);
                         editor.commit();
@@ -3132,6 +3132,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
             itemList.add("Mark All As Read");
+            itemList.add("Add A Network");
+            itemList.add("Reorder Connections");
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -3239,6 +3241,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog = builder.create();
                     dialog.setOwnerActivity(MainActivity.this);
                     dialog.show();
+                } else if (items[item].equals("Add A Network")) {
+                    addNetwork();
+                } else if (items[item].equals("Reorder Connections")) {
+                    reorder();
                 }
             }
         });
@@ -3433,11 +3439,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             android.content.ClipData clip = android.content.ClipData.newPlainText("IRCCloud Message", text_to_copy);
                             clipboard.setPrimaryClip(clip);
                         } else {
-                            Toast.makeText(MainActivity.this, "Unable to copy message. Please try again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Unable to copy message. Please try again.", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     }
-                    Toast.makeText(MainActivity.this, "Message copied to clipboard", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Message copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if (items[item].equals("Copy Hostmask")) {
                     if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -3447,7 +3453,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         android.content.ClipData clip = android.content.ClipData.newPlainText("Hostmask", selected_user.nick + "!" + selected_user.hostmask);
                         clipboard.setPrimaryClip(clip);
                     }
-                    Toast.makeText(MainActivity.this, "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Hostmask copied to clipboard", Toast.LENGTH_SHORT).show();
                 } else if (items[item].equals("Copy URL") && text_to_copy != null) {
                     final ArrayList<String> urlListItems = new ArrayList<String>();
 
@@ -3469,7 +3475,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(0), urlListItems.get(0));
                             clipboard.setPrimaryClip(clip);
                         }
-                        Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                     } else {
                         builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
@@ -3486,7 +3492,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     android.content.ClipData clip = android.content.ClipData.newPlainText(urlListItems.get(i), urlListItems.get(i));
                                     clipboard.setPrimaryClip(clip);
                                 }
-                                Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "URL copied to clipboard", Toast.LENGTH_SHORT).show();
                             }
                         });
                         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -3506,7 +3512,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     conn.say(buffer.getCid(), null, "/query " + selected_user.nick);
                 } else if (items[item].equals("Mention")) {
                     if (!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
-                        Toast.makeText(MainActivity.this, "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
+                        Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
                         SharedPreferences.Editor editor = getSharedPreferences("prefs", 0).edit();
                         editor.putBoolean("mentionTip", true);
                         editor.commit();

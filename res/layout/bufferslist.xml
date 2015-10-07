@@ -19,21 +19,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/bg"
-    android:id="@+id/BuffersListFragment"
-    tools:context=".BuffersListFragment" >
+                android:id="@+id/BuffersListFragment"
+    tools:context=".BuffersListFragment"
+                android:background="?buffersDrawerBackgroundDrawable">
 
     <android.support.v7.widget.RecyclerView
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:cacheColorHint="#D9E7FF"
+        android:cacheColorHint="?attr/bufferBackgroundColor"
         android:descendantFocusability="blocksDescendants"
         android:divider="#00000000"
         android:dividerHeight="0dip"
-        android:fadingEdge="none"
-        android:scrollbarThumbVertical="@drawable/scrollbar"
-        android:scrollbarSize="@dimen/scrollbar_size"/>
+        android:scrollbars="vertical"
+        android:fadingEdge="none"/>
 
     <LinearLayout
         android:id="@+id/topUnreadIndicator"
@@ -75,6 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="11dip"
                 android:gravity="bottom"
+                android:orientation="horizontal"
                 android:background="@drawable/selected_blue"/>
         </LinearLayout>
     </LinearLayout>
@@ -83,8 +83,5 @@
         android:layout_width="1dp"
         android:layout_height="fill_parent"
         android:layout_alignParentRight="true"
-        android:background="@color/border" >
-
-    </LinearLayout>
-
+        android:background="?attr/contentBorderColor" />
 </RelativeLayout>

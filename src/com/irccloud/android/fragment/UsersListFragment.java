@@ -18,13 +18,11 @@ package com.irccloud.android.fragment;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,6 +32,7 @@ import android.widget.Toast;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -47,6 +46,7 @@ import com.irccloud.android.databinding.RowUserBinding;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -66,6 +66,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
     private TimerTask tapTimerTask = null;
     private RecyclerView recyclerView = null;
 
+    private ColorScheme colorScheme = ColorScheme.getInstance();
+
     public RecyclerView getRecyclerView() {
         return recyclerView;
     }
@@ -74,9 +76,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         public int type;
         public String text;
         public String count;
-        public int color;
         public int bg_color;
-        public int static_bg_color;
+        public int heading_color;
         public boolean away;
         public boolean last;
     }
@@ -101,14 +102,13 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             data = items;
         }
 
-        public UserListEntry buildItem(int type, String text, String count, int color, int bg_color, int static_bg_color, boolean away, boolean last) {
+        public UserListEntry buildItem(int type, String text, String count, int bg_color, int heading_color, boolean away, boolean last) {
             UserListEntry e = new UserListEntry();
             e.type = type;
             e.text = text;
             e.count = count;
-            e.color = color;
             e.bg_color = bg_color;
-            e.static_bg_color = static_bg_color;
+            e.heading_color = heading_color;
             e.away = away;
             e.last = last;
             return e;
@@ -143,6 +143,13 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             row.getRoot().setOnLongClickListener(new OnItemLongClickListener(position));
             row.getRoot().setOnClickListener(new OnItemClickListener(position));
 
+            try {
+                JSONObject prefs = conn.getUserInfo().prefs;
+                row.setMono(prefs.has("font") && prefs.getString("font").equals("mono"));
+            } catch (Exception e1) {
+                row.setMono(false);
+            }
+
             if (e.type == TYPE_HEADING) {
                 row.getRoot().setFocusable(false);
                 row.getRoot().setEnabled(false);
@@ -154,12 +161,12 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         }
     }
 
-    private void addUsersFromList(ArrayList<UserListEntry> entries, ArrayList<User> users, String heading, String symbol, int heading_color, int bg_color, int heading_bg_color) {
+    private void addUsersFromList(ArrayList<UserListEntry> entries, ArrayList<User> users, String heading, String symbol, int bg_color, int heading_color) {
         if (users.size() > 0 && symbol != null) {
-            entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, heading_color, heading_bg_color, heading_bg_color, false, false));
+            entries.add(adapter.buildItem(TYPE_HEADING, heading, users.size() > 0 ? symbol + String.valueOf(users.size()) : null, bg_color, heading_color, false, false));
             for (int i = 0; i < users.size(); i++) {
                 User user = users.get(i);
-                entries.add(adapter.buildItem(TYPE_USER, user.nick, null, R.color.row_user, bg_color, heading_bg_color, user.away > 0, i == users.size() - 1));
+                entries.add(adapter.buildItem(TYPE_USER, user.nick, null, bg_color, heading_color, user.away > 0, bg_color != colorScheme.row_members_bg_drawable && i == users.size() - 1));
             }
         }
     }
@@ -229,71 +236,71 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         if (opers.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OPER : "Y"))
-                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", R.color.heading_oper, R.drawable.row_opers_bg, R.drawable.oper_bg);
+                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
                 else
-                    addUsersFromList(entries, opers, "OPER", "", R.color.heading_oper, R.drawable.row_opers_bg, R.drawable.oper_bg);
+                    addUsersFromList(entries, opers, "OPER", "", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
             } else {
-                addUsersFromList(entries, opers, "OPER", "• ", R.color.heading_oper, R.drawable.row_opers_bg, R.drawable.oper_bg);
+                addUsersFromList(entries, opers, "OPER", "", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
             }
         }
 
         if (owners.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OWNER : "q"))
-                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s != null ? s.MODE_OWNER : "q").asText() + " ", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+                    addUsersFromList(entries, owners, "OWNER", PREFIX.get(s != null ? s.MODE_OWNER : "q").asText() + " ", colorScheme.row_owners_bg_drawable, colorScheme.ownersHeadingColor);
                 else
-                    addUsersFromList(entries, owners, "OWNER", "", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+                    addUsersFromList(entries, owners, "OWNER", "", colorScheme.row_owners_bg_drawable, colorScheme.ownersHeadingColor);
             } else {
-                addUsersFromList(entries, owners, "OWNER", "• ", R.color.heading_owner, R.drawable.row_owners_bg, R.drawable.owner_bg);
+                addUsersFromList(entries, owners, "OWNER", "", colorScheme.row_owners_bg_drawable, colorScheme.ownersHeadingColor);
             }
         }
 
         if (admins.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_ADMIN : "a"))
-                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s != null ? s.MODE_ADMIN : "a").asText() + " ", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+                    addUsersFromList(entries, admins, "ADMINS", PREFIX.get(s != null ? s.MODE_ADMIN : "a").asText() + " ", colorScheme.row_admins_bg_drawable, colorScheme.adminsHeadingColor);
                 else
-                    addUsersFromList(entries, admins, "ADMINS", "", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+                    addUsersFromList(entries, admins, "ADMINS", "", colorScheme.row_admins_bg_drawable, colorScheme.adminsHeadingColor);
             } else {
-                addUsersFromList(entries, admins, "ADMINS", "• ", R.color.heading_admin, R.drawable.row_admins_bg, R.drawable.admin_bg);
+                addUsersFromList(entries, admins, "ADMINS", "", colorScheme.row_admins_bg_drawable, colorScheme.adminsHeadingColor);
             }
         }
 
         if (ops.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OP : "o"))
-                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s != null ? s.MODE_OP : "o").asText() + " ", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+                    addUsersFromList(entries, ops, "OPS", PREFIX.get(s != null ? s.MODE_OP : "o").asText() + " ", colorScheme.row_ops_bg_drawable, colorScheme.opsHeadingColor);
                 else
-                    addUsersFromList(entries, ops, "OPS", "", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+                    addUsersFromList(entries, ops, "OPS", "", colorScheme.row_ops_bg_drawable, colorScheme.opsHeadingColor);
             } else {
-                addUsersFromList(entries, ops, "OPS", "• ", R.color.heading_operators, R.drawable.row_operator_bg, R.drawable.operator_bg);
+                addUsersFromList(entries, ops, "OPS", "", colorScheme.row_ops_bg_drawable, colorScheme.opsHeadingColor);
             }
         }
 
         if (halfops.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_HALFOP : "h"))
-                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s != null ? s.MODE_HALFOP : "h").asText() + " ", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+                    addUsersFromList(entries, halfops, "HALF OPS", PREFIX.get(s != null ? s.MODE_HALFOP : "h").asText() + " ", colorScheme.row_halfops_bg_drawable, colorScheme.halfopsHeadingColor);
                 else
-                    addUsersFromList(entries, halfops, "HALF OPS", "", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+                    addUsersFromList(entries, halfops, "HALF OPS", "", colorScheme.row_halfops_bg_drawable, colorScheme.halfopsHeadingColor);
             } else {
-                addUsersFromList(entries, halfops, "HALF OPS", "• ", R.color.heading_halfop, R.drawable.row_halfops_bg, R.drawable.halfop_bg);
+                addUsersFromList(entries, halfops, "HALF OPS", "", colorScheme.row_halfops_bg_drawable, colorScheme.halfopsHeadingColor);
             }
         }
 
         if (voiced.size() > 0) {
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_VOICED : "v"))
-                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s != null ? s.MODE_VOICED : "v").asText() + " ", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+                    addUsersFromList(entries, voiced, "VOICED", PREFIX.get(s != null ? s.MODE_VOICED : "v").asText() + " ", colorScheme.row_voiced_bg_drawable, colorScheme.voicedHeadingColor);
                 else
-                    addUsersFromList(entries, voiced, "VOICED", "", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+                    addUsersFromList(entries, voiced, "VOICED", "", colorScheme.row_voiced_bg_drawable, colorScheme.voicedHeadingColor);
             } else {
-                addUsersFromList(entries, voiced, "VOICED", "• ", R.color.heading_voiced, R.drawable.row_voiced_bg, R.drawable.voiced_bg);
+                addUsersFromList(entries, voiced, "VOICED", "", colorScheme.row_voiced_bg_drawable, colorScheme.voicedHeadingColor);
             }
         }
 
         if (members.size() > 0) {
-            addUsersFromList(entries, members, "MEMBERS", "", R.color.heading_members, R.drawable.row_members_bg, R.drawable.background_blue);
+            addUsersFromList(entries, members, "MEMBERS", "", colorScheme.row_members_bg_drawable, colorScheme.membersHeadingColor);
         }
 
         adapter.setItems(entries);

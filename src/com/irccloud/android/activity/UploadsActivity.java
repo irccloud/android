@@ -22,12 +22,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.net.http.HttpResponseCache;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -51,6 +53,7 @@ import com.crashlytics.android.Crashlytics;
 import com.damnhandy.uri.template.UriTemplate;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -292,6 +295,7 @@ public class UploadsActivity extends BaseActivity {
                     holder.progress.setVisibility(View.GONE);
                 }
                 holder.delete.setOnClickListener(deleteClickListener);
+                holder.delete.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
                 holder.delete.setTag(i);
                 if(f.deleting) {
                     holder.delete.setVisibility(View.GONE);
@@ -405,11 +409,7 @@ public class UploadsActivity extends BaseActivity {
         if(ColorFormatter.file_uri_template != null)
             template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
+        setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
 
         if(Build.VERSION.SDK_INT >= 14) {
             try {
@@ -422,10 +422,13 @@ public class UploadsActivity extends BaseActivity {
         }
         setContentView(R.layout.listview);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setVisibility(View.VISIBLE);
+        setSupportActionBar(toolbar);
+
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
             getSupportActionBar().setElevation(0);
         }
 

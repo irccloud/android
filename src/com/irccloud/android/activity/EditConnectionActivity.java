@@ -20,15 +20,20 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -36,24 +41,26 @@ import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.fragment.EditConnectionFragment;
 
-public class EditConnectionActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler {
+public class EditConnectionActivity extends BaseActivity implements NetworkConnection.IRCEventHandler {
     int reqid = -1;
     int cidToOpen = -1;
     int cid = -1;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
         setContentView(R.layout.activity_edit_connection);
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
         getSupportActionBar().setCustomView(R.layout.actionbar_edit_connection);
         getSupportActionBar().setElevation(0);
+
+        TextView t = (TextView)findViewById(R.id.action_cancel);
+        Drawable d = t.getCompoundDrawables()[0];
+        d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
+
+        t = (TextView)findViewById(R.id.action_done);
+        d = t.getCompoundDrawables()[0];
+        d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final EditConnectionFragment newFragment = new EditConnectionFragment();
@@ -99,6 +106,11 @@ public class EditConnectionActivity extends AppCompatActivity implements Network
     protected void onDestroy() {
         super.onDestroy();
         NetworkConnection.getInstance().removeHandler(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return false;
     }
 
     public void onIRCEvent(int what, Object o) {

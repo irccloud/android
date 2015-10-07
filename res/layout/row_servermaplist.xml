@@ -28,7 +28,7 @@
 
         <TextView
             android:text="@{ server }"
-            android:textColor="#000"
+            android:textColor="?navBarHeadingColor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="14sp"

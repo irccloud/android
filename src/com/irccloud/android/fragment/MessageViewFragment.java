@@ -59,6 +59,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
+import com.irccloud.android.ColorScheme;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.Ignore;
@@ -69,7 +71,6 @@ import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
-import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.fragment.BuffersListFragment.OnBufferSelectedListener;
 import com.squareup.leakcanary.RefWatcher;
 
@@ -119,6 +120,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private TextView globalMsg = null;
     private ProgressBar spinner = null;
     private final Handler mHandler = new Handler();
+    private ColorScheme colorScheme = ColorScheme.getInstance();
 
     public static final int ROW_MESSAGE = 0;
     public static final int ROW_TIMESTAMP = 1;
@@ -177,7 +179,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             int type;
             TextView timestamp;
             TextView message;
-            ImageView expandable;
+            TextView expandable;
             ImageView failed;
         }
 
@@ -251,7 +253,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         e.eid = buffer.getLast_seen_eid() + 1;
                         e.type = TYPE_LASTSEENEID;
                         e.row_type = ROW_LASTSEENEID;
-                        e.bg_color = R.drawable.socketclosed_bg;
+                        e.bg_color = colorScheme.socketclosedBackgroundDrawable;
                         data.add(lastSeenEidMarkerPosition + 1, e);
                         EventsList.getInstance().addEvent(e);
                         for (int i = 0; i < data.size(); i++) {
@@ -441,7 +443,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 d.row_type = ROW_TIMESTAMP;
                 d.eid = eid - 1;
                 d.timestamp = formatter.format(calendar.getTime());
-                d.bg_color = R.drawable.row_timestamp_bg;
+                d.bg_color = colorScheme.timestampBackgroundDrawable;
                 d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
                 data.add(insert_pos, d);
                 if (currentGroupPosition > -1)
@@ -493,6 +495,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         @Override
+        public int getItemViewType(int position) {
+            return data.get(position).row_type;
+        }
+
+        @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (position >= data.size() || ctx == null)
                 return null;
@@ -521,7 +528,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder = new ViewHolder();
                     holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
                     holder.message = (TextView) row.findViewById(R.id.message);
-                    holder.expandable = (ImageView) row.findViewById(R.id.expandable);
+                    holder.expandable = (TextView) row.findViewById(R.id.expandable);
+                    if(holder.expandable != null)
+                        holder.expandable.setTypeface(FontAwesome.getTypeface());
                     holder.failed = (ImageView) row.findViewById(R.id.failed);
                     holder.type = e.row_type;
 
@@ -540,16 +549,25 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if (e.row_type == ROW_MESSAGE) {
-                    if (e.bg_color == R.color.message_bg)
+                    if (e.bg_color == colorScheme.contentBackgroundColor)
                         row.setBackgroundDrawable(null);
                     else
-                        row.setBackgroundResource(e.bg_color);
+                        row.setBackgroundColor(e.bg_color);
                     if (e.contentDescription != null && e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
                         row.setContentDescription("Message from " + e.from + " at " + e.timestamp + ": " + e.contentDescription);
                     }
                 }
 
+                boolean mono = false;
+                try {
+                    JSONObject prefs = conn.getUserInfo().prefs;
+                    mono = (prefs.has("font") && prefs.getString("font").equals("mono"));
+                } catch (Exception e1) {
+
+                }
+
                 if (holder.timestamp != null) {
+                    holder.timestamp.setTypeface(mono ? Typeface.MONOSPACE : Typeface.DEFAULT);
                     if (e.row_type == ROW_TIMESTAMP) {
                         holder.timestamp.setTextSize(textSize);
                     } else {
@@ -573,9 +591,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.timestamp.setMinWidth(timestamp_width);
                     }
                     if (e.highlight && !e.self)
-                        holder.timestamp.setTextColor(getSafeResources().getColor(R.color.highlight_timestamp));
+                        holder.timestamp.setTextColor(colorScheme.highlightTimestampColor);
                     else if (e.row_type != ROW_TIMESTAMP)
-                        holder.timestamp.setTextColor(getSafeResources().getColor(R.color.timestamp));
+                        holder.timestamp.setTextColor(colorScheme.timestampColor);
                     holder.timestamp.setText(e.timestamp);
                 }
                 if (e.row_type == ROW_SOCKETCLOSED) {
@@ -591,19 +609,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (holder.message != null && e.html != null) {
                     holder.message.setMovementMethod(linkMovementMethodNoLongPress);
                     holder.message.setOnClickListener(new OnItemClickListener(position));
-                    if (e.msg != null && e.msg.startsWith("<pre>"))
+                    if (mono || (e.msg != null && e.msg.startsWith("<pre>")))
                         holder.message.setTypeface(Typeface.MONOSPACE);
                     else
                         holder.message.setTypeface(Typeface.DEFAULT);
                     try {
-                        holder.message.setTextColor(getSafeResources().getColorStateList(e.color));
+                        holder.message.setTextColor(e.color);
                     } catch (Exception e1) {
 
                     }
                     if (e.color == R.color.timestamp || e.pending)
-                        holder.message.setLinkTextColor(getSafeResources().getColor(R.color.lightLinkColor));
+                        holder.message.setLinkTextColor(colorScheme.lightLinkColor);
                     else
-                        holder.message.setLinkTextColor(getSafeResources().getColor(R.color.linkColor));
+                        holder.message.setLinkTextColor(colorScheme.linkColor);
                     holder.message.setText(e.formatted);
                     if (e.from != null && e.from.length() > 0 && e.msg != null && e.msg.length() > 0) {
                         holder.message.setContentDescription(e.from + ": " + e.contentDescription);
@@ -615,22 +633,23 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (e.group_eid > 0 && (e.group_eid != e.eid || expandedSectionEids.contains(e.group_eid))) {
                         if (expandedSectionEids.contains(e.group_eid)) {
                             if (e.group_eid == e.eid + 1) {
-                                holder.expandable.setImageResource(R.drawable.bullet_toggle_minus);
+                                holder.expandable.setText(FontAwesome.MINUS_SQUARE_O);
                                 holder.expandable.setContentDescription("expanded");
-                                row.setBackgroundResource(R.color.status_bg);
+                                row.setBackgroundColor(colorScheme.collapsedHeadingBackgroundColor);
                             } else {
-                                holder.expandable.setImageResource(R.drawable.tiny_plus);
+                                holder.expandable.setText(FontAwesome.ANGLE_RIGHT);
                                 holder.expandable.setContentDescription("collapse");
-                                row.setBackgroundResource(R.drawable.expanded_row_bg);
+                                row.setBackgroundColor(colorScheme.contentBackgroundColor);
                             }
                         } else {
-                            holder.expandable.setImageResource(R.drawable.bullet_toggle_plus);
+                            holder.expandable.setText(FontAwesome.PLUS_SQUARE_O);
                             holder.expandable.setContentDescription("expand");
                         }
                         holder.expandable.setVisibility(View.VISIBLE);
                     } else {
                         holder.expandable.setVisibility(View.GONE);
                     }
+                    holder.expandable.setTextColor(colorScheme.expandCollapseIndicatorColor);
                 }
 
                 if (holder.failed != null)
@@ -1115,11 +1134,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         collapsedEvents.clear();
 
                     if ((currentCollapsedEid == event.eid || shouldExpand) && type.equals("user_channel_mode")) {
-                        event.color = R.color.row_message_label;
-                        event.bg_color = R.color.status_bg;
+                        event.color = colorScheme.messageTextColor;
+                        event.bg_color = colorScheme.collapsedHeadingBackgroundColor;
                     } else {
-                        event.color = R.color.timestamp;
-                        event.bg_color = R.color.message_bg;
+                        event.color = colorScheme.collapsedRowTextColor;
+                        event.bg_color = colorScheme.contentBackgroundColor;
                     }
 
                     String msg;
@@ -1147,8 +1166,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             heading.bid = event.bid;
                             heading.eid = currentCollapsedEid - 1;
                             heading.group_msg = group_msg;
-                            heading.color = R.color.timestamp;
-                            heading.bg_color = R.color.message_bg;
+                            heading.color = colorScheme.timestampColor;
+                            heading.bg_color = colorScheme.contentBackgroundColor;
                             heading.linkify = false;
                             adapter.addItem(currentCollapsedEid - 1, heading);
                             if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
@@ -1175,8 +1194,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                     if (!expandedSectionEids.contains(currentCollapsedEid)) {
                         if (eid != currentCollapsedEid) {
-                            event.color = R.color.timestamp;
-                            event.bg_color = R.color.message_bg;
+                            event.color = colorScheme.timestampColor;
+                            event.bg_color = colorScheme.contentBackgroundColor;
                         }
                         eid = currentCollapsedEid;
                     }
@@ -2046,6 +2065,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             statusRefreshRunnable = null;
         }
 
+        statusView.setTextColor(colorScheme.connectionBarTextColor);
+        statusView.setBackgroundColor(colorScheme.connectionBarColor);
+
         switch (status) {
             case "connected_ready":
                 statusView.setVisibility(View.GONE);
@@ -2054,8 +2076,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case "quitting":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Disconnecting");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "disconnected":
                 statusView.setVisibility(View.VISIBLE);
@@ -2076,43 +2096,33 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             text += reason_txt(fail_info.get("reason").asText());
                     }
                     statusView.setText(text);
-                    statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-                    statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                    statusView.setTextColor(colorScheme.networkErrorColor);
+                    statusView.setBackgroundColor(colorScheme.networkErrorBackgroundColor);
                 } else {
                     statusView.setText("Disconnected. Tap to reconnect.");
-                    statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                    statusView.setBackgroundResource(R.drawable.background_blue);
                 }
                 break;
             case "queued":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connection queued");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "connecting":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connecting");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "connected":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connected");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "connected_joining":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connected: Joining Channels");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
             case "pool_unavailable":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Connection temporarily unavailable");
-                statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-                statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                statusView.setTextColor(colorScheme.networkErrorColor);
+                statusView.setBackgroundColor(colorScheme.networkErrorBackgroundColor);
                 break;
             case "waiting_to_retry":
                 try {
@@ -2155,14 +2165,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (attempts > 1)
                             text += " (" + ordinal(attempts) + " attempt)";
                         statusView.setText(text);
-                        statusView.setTextColor(getSafeResources().getColor(R.color.status_fail_text));
-                        statusView.setBackgroundResource(R.drawable.status_fail_bg);
+                        statusView.setTextColor(colorScheme.networkErrorColor);
+                        statusView.setBackgroundColor(colorScheme.networkErrorBackgroundColor);
                         statusRefreshRunnable = new StatusRefreshRunnable(status, fail_info);
                     } else {
                         statusView.setVisibility(View.VISIBLE);
                         statusView.setText("Ready to connect, waiting our turn…");
-                        statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                        statusView.setBackgroundResource(R.drawable.background_blue);
                     }
                     mHandler.postDelayed(statusRefreshRunnable, 500);
                 } catch (Exception e) {
@@ -2172,8 +2180,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case "ip_retry":
                 statusView.setVisibility(View.VISIBLE);
                 statusView.setText("Trying another IP address");
-                statusView.setTextColor(getSafeResources().getColor(R.color.dark_blue));
-                statusView.setBackgroundResource(R.drawable.background_blue);
                 break;
         }
 

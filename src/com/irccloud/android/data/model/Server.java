@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.irccloud.android.FontAwesome;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
@@ -348,11 +349,11 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     }
 
     @Bindable
-    public int getIcon() {
+    public String getIcon() {
         if(ssl > 0)
-            return R.drawable.world_shield;
+            return FontAwesome.SHIELD;
         else
-            return R.drawable.world;
+            return FontAwesome.GLOBE;
     }
 
     /*@Override

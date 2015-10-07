@@ -30,10 +30,10 @@
     <integer name="default_text_size">14</integer>
     <dimen name="message_row_spacing">0dp</dimen>
     <integer name="max_input_lines">4</integer>
-    <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="buffer_min_height">52dp</dimen>
-    <dimen name="buffergroup_min_height">60dp</dimen>
-    <dimen name="usergroup_padding">8dp</dimen>
+    <dimen name="buffer_min_height">48dp</dimen>
+    <dimen name="buffergroup_min_height">56dp</dimen>
+    <dimen name="usergroup_border">2dp</dimen>
+    <dimen name="buffers_margin">8dp</dimen>
 </resources>

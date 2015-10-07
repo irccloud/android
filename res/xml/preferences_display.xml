@@ -20,6 +20,14 @@
     xmlns:robobunny="http://robobunny.com">
 
 	<PreferenceCategory android:title="Display">
+        <Preference
+            android:title="Theme"
+            android:key="theme"
+            />
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="monospace"
+            android:defaultValue="false"
+            android:title="Monospace Font"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="time-24hr"
 			android:defaultValue="false"

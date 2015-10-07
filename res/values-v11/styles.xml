@@ -15,62 +15,9 @@
   -->
 
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="AppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
-        <item name="actionModeBackground">@drawable/actionbar</item>
-        <item name="windowActionModeOverlay">true</item>
-        <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
     <style name="ImageViewerTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="colorAccent">#fff</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="DialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/dark_blue</item>
-        <item name="colorAccent">@color/dark_blue</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
-        <item name="android:textColorHighlight">@color/light_blue</item>
-    </style>
-    <style name="PastebinEditorTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
-        <item name="windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
-        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
-        <item name="colorPrimary">@color/light_blue</item>
-        <item name="colorAccent">#888</item>
-        <item name="colorPrimaryDark">#000</item>
-        <item name="dialogTheme">@style/AppDialogTheme</item>
-        <item name="alertDialogTheme">@style/AppAlertTheme</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/main_fastscroll_thumb_holo</item>
         <item name="android:textColorHighlight">@color/light_blue</item>
     </style>
     <style name="messageTxt">
@@ -80,9 +27,6 @@
         <item name="android:progressDrawable">@drawable/login_progress_horizontal_holo_dark</item>
         <item name="android:indeterminateDrawable">@drawable/login_progress_indeterminate_horizontal_holo_dark</item>
     </style>
-    <style name="Widget.Styled.ActionBar" parent="android:Widget.Holo.ActionBar">
-        <item name="android:background">@drawable/actionbar</item>
-    </style>
     <style name="Widget.Styled.ImageButton" parent="android:Widget.Holo.Light.ImageButton">
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
@@ -90,5 +34,15 @@
         <item name="android:progressDrawable">@drawable/main_scrubber_progress_horizontal_holo_light</item>
         <item name="android:indeterminateDrawable">@drawable/main_scrubber_progress_horizontal_holo_light</item>
         <item name="android:thumb">@drawable/main_scrubber_control_selector_holo_light</item>
+    </style>
+
+    <style name="ThemedActionBar" parent="@style/Widget.AppCompat.ActionBar">
+        <item name="android:titleTextStyle">@style/ActionBarTitleText</item>
+        <item name="titleTextStyle">@style/ActionBarTitleText</item>
+        <item name="background">?actionbarDrawable</item>
+    </style>
+
+    <style name="ActionBarTitleText" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">?navBarHeadingColor</item>
     </style>
 </resources>

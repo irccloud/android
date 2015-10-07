@@ -21,10 +21,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +40,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.OnErrorListener;
@@ -157,6 +160,7 @@ public class PastebinsActivity extends BaseActivity {
 
             binding.setPastebin(pastebins.get(i));
             binding.delete.setOnClickListener(deleteClickListener);
+            binding.delete.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             binding.delete.setTag(i);
             binding.executePendingBindings();
             return binding.getRoot();
@@ -222,18 +226,16 @@ public class PastebinsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 21) {
-            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-            setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xFFF2F7FC));
-            cloud.recycle();
-        }
-
+        setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         setContentView(R.layout.listview);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setVisibility(View.VISIBLE);
+        setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-            getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
             getSupportActionBar().setElevation(0);
         }
 

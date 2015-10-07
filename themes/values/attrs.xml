@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015 IRCCloud, Ltd.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <attr name="isDarkTheme" format="boolean"/>
+    <attr name="contentBackgroundColor" format="color"/>
+    <attr name="messageTextColor" format="color"/>
+    <attr name="opersGroupColor" format="color"/>
+    <attr name="ownersGroupColor" format="color"/>
+    <attr name="adminsGroupColor" format="color"/>
+    <attr name="opsGroupColor" format="color"/>
+    <attr name="halfopsGroupColor" format="color"/>
+    <attr name="voicedGroupColor" format="color"/>
+    <attr name="membersGroupColor" format="color"/>
+    <attr name="opersHoverColor" format="color"/>
+    <attr name="ownersHoverColor" format="color"/>
+    <attr name="adminsHoverColor" format="color"/>
+    <attr name="opsHoverColor" format="color"/>
+    <attr name="halfopsHoverColor" format="color"/>
+    <attr name="voicedHoverColor" format="color"/>
+    <attr name="membersHoverColor" format="color"/>
+    <attr name="opersHeadingColor" format="color"/>
+    <attr name="ownersHeadingColor" format="color"/>
+    <attr name="adminsHeadingColor" format="color"/>
+    <attr name="opsHeadingColor" format="color"/>
+    <attr name="halfopsHeadingColor" format="color"/>
+    <attr name="voicedHeadingColor" format="color"/>
+    <attr name="membersHeadingColor" format="color"/>
+    <attr name="memberListTextColor" format="color"/>
+    <attr name="memberListAwayTextColor" format="color"/>
+    <attr name="timestampColor" format="color"/>
+    <attr name="darkBlueColor" format="color"/>
+    <attr name="networkErrorBackgroundColor" format="color"/>
+    <attr name="networkErrorColor" format="color"/>
+    <attr name="errorBackgroundColor" format="color"/>
+    <attr name="statusBackgroundColor" format="color"/>
+    <attr name="selfBackgroundColor" format="color"/>
+    <attr name="highlightBackgroundColor" format="color"/>
+    <attr name="highlightTimestampColor" format="color"/>
+    <attr name="noticeBackgroundColor" format="color"/>
+    <attr name="timestampBackgroundColor" format="color"/>
+    <attr name="newMsgsBackgroundColor" format="color"/>
+    <attr name="collapsedRowTextColor" format="color"/>
+    <attr name="collapsedHeadingBackgroundColor" format="color"/>
+    <attr name="navBarColor" format="color"/>
+    <attr name="navBarHeadingColor" format="color"/>
+    <attr name="navBarSubheadingColor" format="color"/>
+    <attr name="navBarBorderColor" format="color"/>
+    <attr name="textareaTextColor" format="color"/>
+    <attr name="textareaBackgroundColor" format="color"/>
+    <attr name="linkColor" format="color"/>
+    <attr name="lightLinkColor" format="color"/>
+    <attr name="serverBackgroundColor" format="color"/>
+    <attr name="bufferBackgroundColor" format="color"/>
+    <attr name="unreadBorderColor" format="color"/>
+    <attr name="highlightBorderColor" format="color"/>
+    <attr name="networkErrorBorderColor" format="color"/>
+    <attr name="bufferTextColor" format="color"/>
+    <attr name="inactiveBufferTextColor" format="color"/>
+    <attr name="unreadBufferTextColor" format="color"/>
+    <attr name="selectedBufferTextColor" format="color"/>
+    <attr name="selectedBufferBackgroundColor" format="color"/>
+    <attr name="bufferBorderColor" format="color"/>
+    <attr name="selectedBufferBorderColor" format="color"/>
+    <attr name="backlogDividerColor" format="color"/>
+    <attr name="chatterBarTextColor" format="color"/>
+    <attr name="chatterBarColor" format="color"/>
+    <attr name="awayBarTextColor" format="color"/>
+    <attr name="awayBarColor" format="color"/>
+    <attr name="connectionBarTextColor" format="color"/>
+    <attr name="connectionBarColor" format="color"/>
+    <attr name="placeholderColor" format="color"/>
+    <attr name="unreadBlueColor" format="color"/>
+    <attr name="serverBorderColor" format="color"/>
+    <attr name="failedServerBorderColor" format="color"/>
+    <attr name="archivesHeadingTextColor" format="color"/>
+    <attr name="archivedChannelTextColor" format="color"/>
+    <attr name="archivedBufferTextColor" format="color"/>
+    <attr name="selectedArchivesHeadingColor" format="color"/>
+    <attr name="timestampTopBorderColor" format="color"/>
+    <attr name="timestampBottomBorderColor" format="color"/>
+    <attr name="expandCollapseIndicatorColor" format="color"/>
+    <attr name="bufferHighlightColor" format="color"/>
+    <attr name="selectedBufferHighlightColor" format="color"/>
+    <attr name="archivedBufferHighlightColor" format="color"/>
+    <attr name="selectedArchivedBufferHighlightColor" format="color"/>
+    <attr name="selectedArchivedBufferBackgroundColor" format="color"/>
+    <attr name="contentBorderColor" format="color"/>
+    <attr name="contentBorderColorBottom" format="color"/>
+    <attr name="listItemBackgroundColor" format="color"/>
+    <attr name="dialogBackgroundColor" format="color"/>
+    <attr name="usersDrawerBackground" format="reference"/>
+    <attr name="actionbarDrawable" format="reference"/>
+    <attr name="buffersDrawerBackgroundDrawable" format="reference"/>
+    <attr name="bufferBorderDrawable" format="reference"/>
+    <attr name="serverBorderDrawable" format="reference"/>
+    <attr name="selectedBorderDrawable" format="reference"/>
+    <attr name="bufferBackgroundDrawable" format="reference"/>
+    <attr name="serverBackgroundDrawable" format="reference"/>
+    <attr name="selectedBackgroundDrawable" format="reference"/>
+    <attr name="lastSeenEIDBackgroundDrawable" format="reference"/>
+    <attr name="timestampBackgroundDrawable" format="reference"/>
+    <attr name="socketclosedBackgroundDrawable" format="reference"/>
+    <attr name="scrollbarDrawable" format="reference"/>
+    <attr name="backlogMarkerColor" format="color"/>
+    <attr name="windowBackgroundDrawable" format="reference"/>
+
+    <attr name="row_opers_bg_drawable" format="reference"/>
+    <attr name="row_owners_bg_drawable" format="reference"/>
+    <attr name="row_admins_bg_drawable" format="reference"/>
+    <attr name="row_ops_bg_drawable" format="reference"/>
+    <attr name="row_halfops_bg_drawable" format="reference"/>
+    <attr name="row_voiced_bg_drawable" format="reference"/>
+    <attr name="row_members_bg_drawable" format="reference"/>
+
+    <declare-styleable name="AppCompatListPreference">
+        <!-- The human-readable array to present as a list. Each entry must have a corresponding
+             index in entryValues. -->
+        <attr name="entries" format="reference"/>
+        <!-- The array to find the value to save for a preference when an entry from
+             entries is selected. If a user clicks on the second item in entries, the
+             second item in this array will be saved to the preference. -->
+        <attr name="entryValues" format="reference" />
+    </declare-styleable>
+</resources>

@@ -28,6 +28,7 @@
         android:layout_marginLeft="6dp"
         android:layout_marginRight="6dp"
         android:descendantFocusability="blocksDescendants"
+        app:cardBackgroundColor="?listItemBackgroundColor"
         app:cardUseCompatPadding="true"
         app:cardElevation="2dp"
         android:elevation="2dp">
@@ -51,7 +52,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="#000"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?navBarHeadingColor"
                     android:maxLines="1"
                     android:text="@{ pastebin.name }"
                     android:visibility="@{ pastebin.name != null &amp;&amp; pastebin.name.length() > 0 ? View.VISIBLE : View.GONE }"
@@ -62,6 +64,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@{ pastebin.body }"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="?messageTextColor"
                     android:maxLines="6"
                     android:ellipsize="end"
                     android:layout_marginBottom="6dp" />
@@ -69,7 +73,8 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/timestamp"
+                    android:textColor="?timestampColor"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
                     android:text="@{ pastebin.metadata }"
                     android:maxLines="1"
                     android:layout_weight="1" />

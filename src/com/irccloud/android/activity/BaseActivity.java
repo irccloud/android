@@ -16,11 +16,16 @@
 
 package com.irccloud.android.activity;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -45,9 +50,11 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.irccloud.android.BackgroundTaskService;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 
@@ -61,6 +68,26 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        boolean themeChanged = false;
+        String theme = ColorScheme.getUserTheme();
+        if(ColorScheme.getInstance().theme == null || !ColorScheme.getInstance().theme.equals(theme)) {
+            themeChanged = true;
+        }
+        setTheme(ColorScheme.getTheme(theme, true));
+        ColorScheme.getInstance().setThemeFromContext(this, theme);
+        if(themeChanged)
+            EventsList.getInstance().clearCaches();
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            if(cloud != null) {
+                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
+                cloud.recycle();
+            }
+            getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+        }
+        getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Auth.CREDENTIALS_API)
@@ -437,8 +464,19 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_base, menu);
-
+        setMenuColorFilter(menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    public void setMenuColorFilter(final Menu menu) {
+        for(int i = 0; i < menu.size(); i++) {
+            MenuItem menuItem = menu.getItem(i);
+            Drawable d = menuItem.getIcon();
+            if(d != null) {
+                d.mutate();
+                d.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
+            }
+        }
     }
 
     @Override

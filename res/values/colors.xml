@@ -22,12 +22,6 @@
     <drawable name="row_bg_blue">#F2F7FC</drawable>
     <drawable name="selected_blue">#527DFF</drawable>
     <drawable name="highlighted_blue">#C6DAFF</drawable>
-    <drawable name="oper_bg">#FFDBC7</drawable>
-    <drawable name="owner_bg">#FFFFD1</drawable>
-    <drawable name="admin_bg">#EDCCFF</drawable>
-    <drawable name="operator_bg">#FEF2F2</drawable>
-    <drawable name="halfop_bg">#FEEDDA</drawable>
-    <drawable name="voiced_bg">#F4FFED</drawable>
     <drawable name="compose_bar_bg">#FFF</drawable>
     <color name="light_blue">#E2EDFF</color>
     <color name="dark_blue">#527DFF</color>
@@ -48,13 +42,6 @@
     <drawable name="highlight_red">#ff1f1a</drawable>
     <color name="highlight_red">#ff1f1a</color>
     <color name="border">#C0D2FF</color>
-    <color name="heading_oper">#E02305</color>
-    <color name="heading_owner">#E7AA00</color>
-    <color name="heading_admin">#6500A5</color>
-    <color name="heading_operators">#BA1719</color>
-    <color name="heading_halfop">#B55900</color>
-    <color name="heading_voiced">#25B100</color>
-    <color name="heading_members">#666</color>
     <drawable name="expanded_row_bg">#f5f5f5</drawable>
     <drawable name="join_bg_highlighted">#daf5aa</drawable>
     <color name="lightLinkColor">#9CC7FF</color>
