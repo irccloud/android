@@ -56,6 +56,7 @@
                             android:id="@+id/topic"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:textColor="?android:textColorSecondary"
                             android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textSize="16sp"
                         android:textColorLink="?linkColor" />
@@ -64,7 +65,7 @@
                         android:id="@+id/setBy"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="?timestampColor"
+                        android:textColor="?android:textColorSecondary"
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:textStyle="italic"
                         android:visibility="gone" />
@@ -110,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?timestampColor"
+                    android:textColor="?android:textColorSecondary"
                     android:text="Members must be invited to join this channel." />
 
             </LinearLayout>
@@ -144,7 +145,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?timestampColor"
+                    android:textColor="?android:textColorSecondary"
                     android:id="@+id/key" />
 
             </LinearLayout>
@@ -178,7 +179,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?timestampColor"
+                    android:textColor="?android:textColorSecondary"
                     android:text="Only ops and voiced members may talk." />
 
             </LinearLayout>
@@ -212,7 +213,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?timestampColor"
+                    android:textColor="?android:textColorSecondary"
                     android:text="No messages allowed from outside the channel." />
 
             </LinearLayout>
@@ -246,7 +247,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?timestampColor"
+                    android:textColor="?android:textColorSecondary"
                     android:text="Membership is only visible to other members." />
 
             </LinearLayout>
@@ -280,7 +281,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?timestampColor"
+                    android:textColor="?android:textColorSecondary"
                     android:text="This channel is unlisted and membership is only visible to other members." />
 
             </LinearLayout>
@@ -314,7 +315,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="?timestampColor"
+                    android:textColor="?android:textColorSecondary"
                     android:text="Only ops can set the topic." />
 
             </LinearLayout>
