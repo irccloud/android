@@ -28,6 +28,7 @@
         android:divider="#00000000"
         android:dividerHeight="0dp"
         android:fadingEdge="none"
+        android:scrollbars="vertical"
         android:fastScrollEnabled="true" />
 
     <LinearLayout
