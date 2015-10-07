@@ -220,6 +220,7 @@
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
+        <item name="android:background">?dialogBackgroundColor</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="archivedChannelTextColor">#aaa</item>
