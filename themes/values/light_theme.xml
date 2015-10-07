@@ -78,6 +78,9 @@
         <item name="row_halfops_bg_drawable">@drawable/row_halfops_bg_light</item>
         <item name="row_voiced_bg_drawable">@drawable/row_voiced_bg_light</item>
         <item name="row_members_bg_drawable">@drawable/row_members_bg_light</item>
+
+        <item name="networkErrorColor">#632800</item>
+        <item name="networkErrorBackgroundColor">#F8DF26</item>
     </style>
 
     <style name="LightAppDialogWhenLargeTheme" parent="Theme.AppCompat.Light.DialogWhenLarge">
@@ -144,6 +147,9 @@
         <item name="row_halfops_bg_drawable">@drawable/row_halfops_bg_light</item>
         <item name="row_voiced_bg_drawable">@drawable/row_voiced_bg_light</item>
         <item name="row_members_bg_drawable">@drawable/row_members_bg_light</item>
+
+        <item name="networkErrorColor">#632800</item>
+        <item name="networkErrorBackgroundColor">#F8DF26</item>
     </style>
 
     <style name="LightAppThemeNoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
@@ -209,6 +215,9 @@
         <item name="row_halfops_bg_drawable">@drawable/row_halfops_bg_light</item>
         <item name="row_voiced_bg_drawable">@drawable/row_voiced_bg_light</item>
         <item name="row_members_bg_drawable">@drawable/row_members_bg_light</item>
+
+        <item name="networkErrorColor">#632800</item>
+        <item name="networkErrorBackgroundColor">#F8DF26</item>
     </style>
 
     <style name="LightAppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
@@ -228,6 +237,8 @@
         <item name="memberListTextColor">#222</item>
         <item name="memberListAwayTextColor">#aaa</item>
         <item name="errorBackgroundColor">#FFFEE9</item>
+        <item name="networkErrorColor">#632800</item>
+        <item name="networkErrorBackgroundColor">#F8DF26</item>
     </style>
 
     <style name="LightAppAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
@@ -248,6 +259,8 @@
         <item name="memberListTextColor">#222</item>
         <item name="memberListAwayTextColor">#aaa</item>
         <item name="errorBackgroundColor">#FFFEE9</item>
+        <item name="networkErrorColor">#632800</item>
+        <item name="networkErrorBackgroundColor">#F8DF26</item>
     </style>
 
     <style name="LightDialogTitleTextStyle" parent="android:Widget.TextView">

@@ -462,7 +462,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getBorderResource() {
         if(isConsole())
-            return colorScheme.serverBorderDrawable;
+            return getServer().isFailed() ? R.drawable.networkErrorBorder : colorScheme.serverBorderDrawable;
         else
             return colorScheme.bufferBorderDrawable;
     }

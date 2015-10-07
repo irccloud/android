@@ -35,6 +35,8 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.WindowManager;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 
 import com.codebutler.android_websockets.WebSocketClient;
 import com.crashlytics.android.Crashlytics;

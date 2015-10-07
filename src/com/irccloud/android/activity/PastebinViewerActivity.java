@@ -161,15 +161,6 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             }
         });
 
-        CookieManager.getInstance().setAcceptCookie(true);
-        CookieSyncManager sm = CookieSyncManager.createInstance(this);
-        CookieManager cm = CookieManager.getInstance();
-        cm.removeSessionCookie();
-        cm.setCookie("https://www.irccloud.com/", "session=" + NetworkConnection.getInstance().session);
-        android.util.Log.e("IRCCloud", "Cookie: " + cm.getCookie("https://www.irccloud.com"));
-        cm.flush();
-        sm.sync();
-
         if(savedInstanceState != null && savedInstanceState.containsKey("url")) {
             url = savedInstanceState.getString("url");
             html = savedInstanceState.getString("html");
