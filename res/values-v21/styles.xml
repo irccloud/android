@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <style name="LoginTheme" parent="Theme.AppCompat">
+    <style name="LoginTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
         <item name="android:navigationBarColor">#4480FA</item>

@@ -117,9 +117,7 @@
                 android:nextFocusLeft="@id/photoBtn"
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
                 android:background="?attr/textareaBackgroundColor"
-                android:minHeight="32dp"
-                android:padding="4dp"
-                android:layout_marginBottom="2dp"/>
+                android:minHeight="32dp"/>
 
             <ImageButton
                 style="@style/Widget.Styled.ImageButton"
