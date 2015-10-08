@@ -2562,8 +2562,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if (buffer.isChannel()) {
                 if (ChannelsList.getInstance().getChannelForBuffer(buffer.getBid()) == null) {
-                    if (menu.findItem(R.id.menu_leave) != null)
+                    if (menu.findItem(R.id.menu_leave) != null) {
                         menu.findItem(R.id.menu_leave).setTitle(R.string.menu_rejoin);
+                        if(Build.VERSION.SDK_INT > 10)
+                            menu.findItem(R.id.menu_leave).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                    }
 
                     if (menu.findItem(R.id.menu_archive) != null) {
                         menu.findItem(R.id.menu_archive).setVisible(true);
@@ -2582,8 +2585,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         menu.findItem(R.id.menu_ban_list).setEnabled(false);
                     }
                 } else {
-                    if (menu.findItem(R.id.menu_leave) != null)
+                    if (menu.findItem(R.id.menu_leave) != null) {
                         menu.findItem(R.id.menu_leave).setTitle(R.string.menu_leave);
+                        if(Build.VERSION.SDK_INT > 10)
+                            menu.findItem(R.id.menu_leave).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+                    }
                     if (menu.findItem(R.id.menu_archive) != null) {
                         menu.findItem(R.id.menu_archive).setVisible(false);
                         menu.findItem(R.id.menu_archive).setEnabled(false);
