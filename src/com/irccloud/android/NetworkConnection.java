@@ -28,6 +28,7 @@ import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -777,11 +778,29 @@ public class NetworkConnection {
                 prefs.commit();
                 ColorFormatter.file_uri_template = config.getString("file_uri_template");
                 ColorFormatter.pastebin_uri_template = config.getString("pastebin_uri_template");
+                set_pastebin_cookie();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return config;
+    }
+
+    public void set_pastebin_cookie() {
+        try {
+            if (config != null) {
+                CookieManager.getInstance().setAcceptCookie(true);
+                CookieSyncManager sm = CookieSyncManager.createInstance(IRCCloudApplication.getInstance().getApplicationContext());
+                CookieManager cm = CookieManager.getInstance();
+                cm.removeSessionCookie();
+                Uri u = Uri.parse(config.getString("pastebin_uri_template"));
+                cm.setCookie(u.getScheme() + "://" + u.getHost() + "/", "session=" + session);
+                if (Build.VERSION.SDK_INT >= 21)
+                    cm.flush();
+                sm.sync();
+            }
+        } catch (Exception e) {
+        }
     }
 
     public JSONObject registerGCM(String regId, String sk) throws IOException {

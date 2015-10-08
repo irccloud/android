@@ -57,10 +57,10 @@ import java.net.URL;
 
 public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
     private class FetchPastebinTask extends AsyncTaskEx<Void, Void, String> {
-
         @Override
         protected String doInBackground(Void... params) {
             try {
+                Thread.sleep(1000);
                 return NetworkConnection.getInstance().fetch(new URL(url), null, NetworkConnection.getInstance().session, null, null);
             } catch (Exception e) {
             }

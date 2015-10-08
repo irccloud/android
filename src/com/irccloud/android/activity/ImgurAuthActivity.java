@@ -49,6 +49,7 @@ public class ImgurAuthActivity extends AppCompatActivity implements NetworkConne
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.removeAllCookie();
         cookieManager.setAcceptCookie(true);
+        NetworkConnection.getInstance().set_pastebin_cookie();
         mWebView.getSettings().setSaveFormData(false);
         mWebView.getSettings().setSavePassword(false);
         mWebView.getSettings().setJavaScriptEnabled(true);
