@@ -919,7 +919,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tapTimer = new Timer("message-tap-timer");
+        if(tapTimer == null)
+            tapTimer = new Timer("message-tap-timer");
         conn = NetworkConnection.getInstance();
     }
 
@@ -931,6 +932,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement MessageViewListener");
         }
+        if(tapTimer == null)
+            tapTimer = new Timer("message-tap-timer");
     }
 
     @Override
@@ -942,6 +945,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if (tapTimerTask != null)
             tapTimerTask.cancel();
         tapTimerTask = null;
+        if(tapTimer == null)
+            tapTimer = new Timer("message-tap-timer");
         if (buffer != null && buffer.getBid() != args.getInt("bid", -1) && adapter != null)
             adapter.clearLastSeenEIDMarker();
         buffer = BuffersList.getInstance().getBuffer(args.getInt("bid", -1));
@@ -1365,7 +1370,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (pos < 0 || pos >= adapter.data.size())
                 return;
 
-            if (adapter != null && tapTimer != null) {
+            if(tapTimer == null)
+                tapTimer = new Timer("message-tap-timer");
+
+            if (adapter != null) {
                 if (tapTimerTask != null) {
                     tapTimerTask.cancel();
                     tapTimerTask = null;
