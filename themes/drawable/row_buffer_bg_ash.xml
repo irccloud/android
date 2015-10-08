@@ -16,8 +16,8 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/highlighted_blue" android:state_pressed="true"/>
-    <item android:drawable="@drawable/selected_blue" android:state_selected="true"/>
-    <item android:drawable="@drawable/highlighted_blue" android:state_focused="true"/>
+    <item android:drawable="@color/ash_background2" android:state_pressed="true"/>
+    <item android:drawable="@color/ash_text3" android:state_selected="true"/>
+    <item android:drawable="@color/ash_background2" android:state_focused="true"/>
     <item android:drawable="@color/ash_background4"/>
 </selector>

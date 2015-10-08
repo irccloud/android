@@ -490,7 +490,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 }
                 if (firstUnreadPosition != -1 && first > firstUnreadPosition) {
                     topUnreadIndicator.setVisibility(View.VISIBLE);
-                    topUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+                    topUnreadIndicatorColor.setBackgroundResource(R.drawable.row_unread_border);
                     topUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
                 }
                 if ((lastHighlightPosition != -1 && first > lastHighlightPosition) ||
@@ -510,7 +510,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
                 }
                 if (lastUnreadPosition != -1 && last < lastUnreadPosition) {
                     bottomUnreadIndicator.setVisibility(View.VISIBLE);
-                    bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.selected_blue);
+                    bottomUnreadIndicatorColor.setBackgroundResource(R.drawable.row_unread_border);
                     bottomUnreadIndicatorBorder.setBackgroundResource(R.drawable.unreadBorder);
                 }
                 if ((firstHighlightPosition != -1 && last < firstHighlightPosition) ||

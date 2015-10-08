@@ -1,4 +1,17 @@
 # Generate Android style XML values for a given hue
+# Copyright (c) 2015 IRCCloud, Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import sys
 import colorsys
@@ -235,9 +248,9 @@ f.truncate()
 f.write("""<?xml version="1.0" encoding="utf-8"?>
 {license}
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/highlighted_blue" android:state_pressed="true"/>
-    <item android:drawable="@drawable/selected_blue" android:state_selected="true"/>
-    <item android:drawable="@drawable/highlighted_blue" android:state_focused="true"/>
+    <item android:drawable="@color/{theme}_background2" android:state_pressed="true"/>
+    <item android:drawable="@color/{theme}_text3" android:state_selected="true"/>
+    <item android:drawable="@color/{theme}_background2" android:state_focused="true"/>
     <item android:drawable="@color/{theme}_background4"/>
 </selector>
 """.format(**params))
@@ -259,9 +272,9 @@ f.truncate()
 f.write("""<?xml version="1.0" encoding="utf-8"?>
 {license}
 <selector xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@drawable/highlighted_blue" android:state_pressed="true"/>
-    <item android:drawable="@drawable/selected_blue" android:state_selected="true"/>
-    <item android:drawable="@drawable/highlighted_blue" android:state_focused="true"/>
+    <item android:drawable="@color/{theme}_background2" android:state_pressed="true"/>
+    <item android:drawable="@color/{theme}_text3" android:state_selected="true"/>
+    <item android:drawable="@color/{theme}_background2" android:state_focused="true"/>
     <item android:drawable="@color/{theme}_background6"/>
 </selector>
 """.format(**params))

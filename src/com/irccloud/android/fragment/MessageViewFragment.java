@@ -201,7 +201,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public void clearPending() {
             for (int i = 0; i < data.size(); i++) {
-                if (data.get(i).reqid != -1 && data.get(i).color == R.color.timestamp) {
+                if (data.get(i).reqid != -1 && data.get(i).color == colorScheme.timestampColor) {
                     data.remove(i);
                     i--;
                 }
@@ -618,7 +618,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     } catch (Exception e1) {
 
                     }
-                    if (e.color == R.color.timestamp || e.pending)
+                    if (e.color == colorScheme.timestampColor || e.pending)
                         holder.message.setLinkTextColor(colorScheme.lightLinkColor);
                     else
                         holder.message.setLinkTextColor(colorScheme.linkColor);
@@ -1606,7 +1606,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             backlogMarker.type = TYPE_BACKLOGMARKER;
                             backlogMarker.row_type = ROW_BACKLOGMARKER;
                             backlogMarker.html = "__backlog__";
-                            backlogMarker.bg_color = R.color.message_bg;
+                            backlogMarker.bg_color = colorScheme.contentBackgroundColor;
                             events.put(backlog_eid, backlogMarker);
                         }
                         adapter = new MessageAdapter(MessageViewFragment.this, events.size());

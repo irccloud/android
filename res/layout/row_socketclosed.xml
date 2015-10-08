@@ -30,7 +30,7 @@
 	        android:layout_height="wrap_content"
 	        android:gravity="center_horizontal|top"
 	        android:paddingLeft="4dp"
-	        android:textColor="@color/timestamp"
+	        android:textColor="?timestampColor"
             android:paddingRight="4dp"/>
 
         <TextView

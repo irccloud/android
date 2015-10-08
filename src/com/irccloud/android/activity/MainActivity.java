@@ -197,7 +197,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private String error = null;
     private TextWatcher textWatcher = null;
     private Intent pastebinResult = null;
-
+    private ColorScheme colorScheme = ColorScheme.getInstance();
+    
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
             super(MainActivity.this, R.layout.row_suggestion);
@@ -217,11 +218,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             TextView v = (TextView) super.getView(position, convertView, parent);
 
             if (position == activePos) {
-                v.setTextColor(ColorScheme.getInstance().selectedBufferTextColor);
-                v.setBackgroundColor(ColorScheme.getInstance().selectedBufferBackgroundColor);
+                v.setTextColor(colorScheme.selectedBufferTextColor);
+                v.setBackgroundColor(colorScheme.selectedBufferBackgroundColor);
             } else {
-                v.setTextColor(ColorScheme.getInstance().bufferTextColor);
-                v.setBackgroundColor(ColorScheme.getInstance().bufferBackgroundColor);
+                v.setTextColor(colorScheme.bufferTextColor);
+                v.setBackgroundColor(colorScheme.bufferBackgroundColor);
             }
 
             //This will prevent GridView from stealing focus from the EditText by bypassing the check on line 1397 of GridView.java in the Android Source
@@ -378,7 +379,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         };
         messageTxt.addTextChangedListener(textWatcher);
         sendBtn = (ImageButton)findViewById(R.id.sendBtn);
-        sendBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+        sendBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
         sendBtn.setFocusable(false);
         sendBtn.setOnClickListener(new OnClickListener() {
             @Override
@@ -390,7 +391,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         photoBtn = (ImageButton)findViewById(R.id.photoBtn);
         if (photoBtn != null) {
-            photoBtn.setColorFilter(ColorScheme.getInstance().colorControlNormal, PorterDuff.Mode.SRC_ATOP);
+            photoBtn.setColorFilter(colorScheme.colorControlNormal, PorterDuff.Mode.SRC_ATOP);
             photoBtn.setFocusable(false);
             photoBtn.setOnClickListener(new OnClickListener() {
                 @Override
@@ -413,7 +414,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null) {
             if (findViewById(R.id.usersListFragment2) == null) {
                 upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
-                upDrawable.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
+                upDrawable.setColorFilter(colorScheme.navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
                 drawerLayout.setDrawerListener(mDrawerListener);
@@ -491,7 +492,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             e.expiration_timer = null;
             e.failed = true;
-            e.bg_color = R.color.error;
+            e.bg_color = colorScheme.errorBackgroundColor;
         }
         pendingEvents.clear();
     }
@@ -987,11 +988,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else {
                     e.type = "buffer_msg";
                 }
-                e.color = R.color.timestamp;
+                e.color = colorScheme.timestampColor;
                 if (title.getText() != null && title.getText().equals(server.getNick()))
-                    e.bg_color = R.color.message_bg;
+                    e.bg_color = colorScheme.contentBackgroundColor;
                 else
-                    e.bg_color = R.color.self;
+                    e.bg_color = colorScheme.timestampColor;
                 e.row_type = 0;
                 e.html = null;
                 e.group_msg = null;
@@ -1059,7 +1060,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (pendingEvents.containsKey(e.reqid)) {
                             pendingEvents.remove(e.reqid);
                             e.failed = true;
-                            e.bg_color = R.color.error;
+                            e.bg_color = colorScheme.errorBackgroundColor;
                             e.expiration_timer = null;
                             if (conn != null)
                                 conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
@@ -1138,9 +1139,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (highlights > 0) {
                     upDrawable.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
                 } else if (unread > 0) {
-                    upDrawable.setColorFilter(ColorScheme.getInstance().unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
+                    upDrawable.setColorFilter(colorScheme.unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
                 } else {
-                    upDrawable.setColorFilter(ColorScheme.getInstance().navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
+                    upDrawable.setColorFilter(colorScheme.navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
                 }
                 refreshUpIndicatorTask = null;
             }
@@ -1243,7 +1244,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
-        if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+        if(!colorScheme.theme.equals(ColorScheme.getUserTheme())) {
             super.onResume();
             Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
@@ -1813,7 +1814,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                             e.expiration_timer = null;
                             e.failed = true;
-                            e.bg_color = R.color.error;
+                            e.bg_color = colorScheme.errorBackgroundColor;
                         }
                         if (drawerLayout != null && NetworkConnection.getInstance().ready) {
                             runOnUiThread(new Runnable() {
@@ -2144,7 +2145,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 });
                 break;
             case NetworkConnection.EVENT_USERINFO:
-                if(conn != null && conn.ready && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+                if(conn != null && conn.ready && !colorScheme.theme.equals(ColorScheme.getUserTheme())) {
                     Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
                     Intent i = (getIntent() != null)?getIntent():new Intent(this, MainActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -2252,7 +2253,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
-                if(!ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme())) {
+                if(!colorScheme.theme.equals(ColorScheme.getUserTheme())) {
                     Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     i.putExtra("nosplash", true);
@@ -2434,7 +2435,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         EventsList.getInstance().deleteEvent(e.eid, e.bid);
                         pendingEvents.remove(event.getInt("_reqid"));
                         e.failed = true;
-                        e.bg_color = R.color.error;
+                        e.bg_color = colorScheme.errorBackgroundColor;
                         if (e.expiration_timer != null)
                             e.expiration_timer.cancel();
                         conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
@@ -2511,7 +2512,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upDrawable.setColorFilter(ColorScheme.getInstance().unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
+                                            upDrawable.setColorFilter(colorScheme.unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
                                         }
                                     });
                                 }
@@ -3328,7 +3329,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     pendingEvents.remove(e.reqid);
                     e.pending = true;
                     e.failed = false;
-                    e.bg_color = R.color.self;
+                    e.bg_color = colorScheme.selfBackgroundColor;
                     e.reqid = NetworkConnection.getInstance().say(e.cid, e.chan, e.command);
                     if (e.reqid >= 0) {
                         pendingEvents.put(e.reqid, e);
@@ -3338,7 +3339,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 if (pendingEvents.containsKey(e.reqid)) {
                                     pendingEvents.remove(e.reqid);
                                     e.failed = true;
-                                    e.bg_color = R.color.error;
+                                    e.bg_color = colorScheme.errorBackgroundColor;
                                     e.expiration_timer = null;
                                     NetworkConnection.getInstance().notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
                                 }
@@ -4466,7 +4467,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     .setProgress(0, 0, true)
                     .setLocalOnly(true)
                     .setOngoing(true)
-                    .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.dark_blue))
+                    .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.notification_icon_bg))
                     .addAction(R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT))
                     .setSmallIcon(android.R.drawable.stat_sys_upload);
 

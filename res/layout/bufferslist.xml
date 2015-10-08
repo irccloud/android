@@ -50,7 +50,7 @@
                 android:id="@+id/topUnreadIndicatorColor"
                 android:layout_width="match_parent"
                 android:layout_height="11dip"
-                android:background="@drawable/selected_blue"/>
+                android:background="@drawable/row_unread_border"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -75,7 +75,7 @@
                 android:layout_height="11dip"
                 android:gravity="bottom"
                 android:orientation="horizontal"
-                android:background="@drawable/selected_blue"/>
+                android:background="@drawable/row_unread_border"/>
         </LinearLayout>
     </LinearLayout>
 

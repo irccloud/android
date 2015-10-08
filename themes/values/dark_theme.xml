@@ -17,8 +17,6 @@
 <resources>
     <style name="DarkAppTheme" parent="Theme.AppCompat">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="android:actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:windowBackground">?windowBackgroundDrawable</item>
         <item name="actionModeBackground">?actionbarDrawable</item>
@@ -86,8 +84,6 @@
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="android:actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:windowBackground">?windowBackgroundDrawable</item>
         <item name="actionModeBackground">?actionbarDrawable</item>
@@ -153,8 +149,6 @@
 
     <style name="DarkAppThemeNoActionBar" parent="Theme.AppCompat.NoActionBar">
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="android:actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:windowBackground">?windowBackgroundDrawable</item>
         <item name="actionModeBackground">?actionbarDrawable</item>
@@ -216,8 +210,6 @@
     </style>
 
     <style name="DarkAppDialogTheme" parent="Theme.AppCompat.Dialog">
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
@@ -236,8 +228,6 @@
 
     <style name="DarkAppAlertTheme" parent="Theme.AppCompat.Dialog.Alert">
         <item name="android:background">?dialogBackgroundColor</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
@@ -259,28 +249,4 @@
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
         <item name="android:background">?dialogBackgroundColor</item>
     </style>
-
-    <color name="opersHoverColor_dark">#43260f</color>
-    <color name="ownersHoverColor_dark">#3f3722</color>
-    <color name="adminsHoverColor_dark">#281c31</color>
-    <color name="opsHoverColor_dark">#451c1c</color>
-    <color name="halfopsHoverColor_dark">#372e20</color>
-    <color name="voicedHoverColor_dark">#27331f</color>
-    <color name="membersHoverColor_dark">#1b2432</color>
-    
-    <color name="opersGroupColor_dark">#76400a</color>
-    <color name="ownersGroupColor_dark">#6b5814</color>
-    <color name="adminsGroupColor_dark">#553384</color>
-    <color name="opsGroupColor_dark">#843e3e</color>
-    <color name="halfopsGroupColor_dark">#684f27</color>
-    <color name="voicedGroupColor_dark">#335700</color>
-    <color name="membersGroupColor_dark">#2b3854</color>
-
-    <drawable name="row_opers_border_dark">@color/opersGroupColor_dark</drawable>
-    <drawable name="row_owners_border_dark">@color/ownersGroupColor_dark</drawable>
-    <drawable name="row_admins_border_dark">@color/adminsGroupColor_dark</drawable>
-    <drawable name="row_ops_border_dark">@color/opsGroupColor_dark</drawable>
-    <drawable name="row_halfops_border_dark">@color/halfopsGroupColor_dark</drawable>
-    <drawable name="row_voiced_border_dark">@color/voicedGroupColor_dark</drawable>
-    <drawable name="row_members_border_dark">@color/membersGroupColor_dark</drawable>
 </resources>

@@ -17,43 +17,66 @@
   -->
 
 <resources>
-    <drawable name="background_blue">#D9E7FF</drawable>
-    <drawable name="heading_bg_blue">#E2EDFF</drawable>
-    <drawable name="row_bg_blue">#F2F7FC</drawable>
-    <drawable name="selected_blue">#527DFF</drawable>
-    <drawable name="highlighted_blue">#C6DAFF</drawable>
-    <drawable name="compose_bar_bg">#FFF</drawable>
-    <color name="light_blue">#E2EDFF</color>
-    <color name="dark_blue">#527DFF</color>
-    <drawable name="status_fail_bg">#F8DF26</drawable>
-    <drawable name="network_fail_bg">#ffee97</drawable>
-    <color name="status_fail_text">#632800</color>
-    <color name="timestamp">#AAAAAA</color>
-    <color name="message_bg">#FFFFFF</color>
-    <color name="status_bg">#EEEEEE</color>
-    <color name="highlight">#C0DBFF</color>
-    <color name="highlight_timestamp">#600000</color>
-    <color name="self">#e2edff</color>
-    <color name="error">#FFEE97</color>
-    <color name="notice">#d9e7ff</color>
-    <drawable name="archived_bg">#F4F4F4</drawable>
-    <drawable name="archived_bg_selected">#666</drawable>
-    <drawable name="archived_bg_highlighted">#eee</drawable>
-    <drawable name="highlight_red">#ff1f1a</drawable>
-    <color name="highlight_red">#ff1f1a</color>
-    <color name="border">#C0D2FF</color>
-    <drawable name="expanded_row_bg">#f5f5f5</drawable>
-    <drawable name="join_bg_highlighted">#daf5aa</drawable>
-    <color name="lightLinkColor">#9CC7FF</color>
-    <color name="linkColor">#1D40FF</color>
-    <drawable name="actionbar_translucent">#66000000</drawable>
-    <drawable name="unreadBorder">#123e92</drawable>
-    <drawable name="networkErrorBorder">#dbb300</drawable>
-    <drawable name="highlightBorder">#d20004</drawable>
+    <drawable name="row_unread_border">#1E72FF</drawable>
     <color name="loginBackgroundColor">#4480FA</color>
     <color name="loginTopBackgroundColor">#0b2e60</color>
-    <color name="dialogLinkColor">@color/linkColor</color>
-    <color name="dialog_bg">#fff</color>
+    <drawable name="actionbar_translucent">#66000000</drawable>
+    <drawable name="unreadBorder">#123e92</drawable>
     <drawable name="dismiss_blue">#56A4F7</drawable>
-    <color name="selected_white">#FFF</color>
+    <color name="notification_icon_bg">#527DFF</color>
+    <color name="light_blue">#E2EDFF</color>
+    <drawable name="archived_bg_selected">#666</drawable>
+    <drawable name="status_fail_bg">#F8DF26</drawable>
+    <drawable name="network_fail_bg">#ffee97</drawable>
+    <drawable name="networkErrorBorder">#dbb300</drawable>
+    <drawable name="highlightBorder">#d20004</drawable>
+    <drawable name="highlight_red">#ff1f1a</drawable>
+
+    <color name="opersHoverColor_dark">#43260f</color>
+    <color name="ownersHoverColor_dark">#3f3722</color>
+    <color name="adminsHoverColor_dark">#281c31</color>
+    <color name="opsHoverColor_dark">#451c1c</color>
+    <color name="halfopsHoverColor_dark">#372e20</color>
+    <color name="voicedHoverColor_dark">#27331f</color>
+    <color name="membersHoverColor_dark">#1b2432</color>
+
+    <color name="opersGroupColor_dark">#76400a</color>
+    <color name="ownersGroupColor_dark">#6b5814</color>
+    <color name="adminsGroupColor_dark">#553384</color>
+    <color name="opsGroupColor_dark">#843e3e</color>
+    <color name="halfopsGroupColor_dark">#684f27</color>
+    <color name="voicedGroupColor_dark">#335700</color>
+    <color name="membersGroupColor_dark">#2b3854</color>
+
+    <drawable name="row_opers_border_dark">@color/opersGroupColor_dark</drawable>
+    <drawable name="row_owners_border_dark">@color/ownersGroupColor_dark</drawable>
+    <drawable name="row_admins_border_dark">@color/adminsGroupColor_dark</drawable>
+    <drawable name="row_ops_border_dark">@color/opsGroupColor_dark</drawable>
+    <drawable name="row_halfops_border_dark">@color/halfopsGroupColor_dark</drawable>
+    <drawable name="row_voiced_border_dark">@color/voicedGroupColor_dark</drawable>
+    <drawable name="row_members_border_dark">@color/membersGroupColor_dark</drawable>
+
+    <color name="opersHoverColor_light">#FEAF62</color>
+    <color name="ownersHoverColor_light">#FEE374</color>
+    <color name="adminsHoverColor_light">#C69DFF</color>
+    <color name="opsHoverColor_light">#FAC9CB</color>
+    <color name="halfopsHoverColor_light">#FFE7BF</color>
+    <color name="voicedHoverColor_light">#C7FF7A</color>
+    <color name="membersHoverColor_light">#B3CFFF</color>
+
+    <color name="opersGroupColor_light">#FFFFD1</color>
+    <color name="ownersGroupColor_light">#FFFFD1</color>
+    <color name="adminsGroupColor_light">#EDCCFF</color>
+    <color name="opsGroupColor_light">#FEF2F2</color>
+    <color name="halfopsGroupColor_light">#FFFAF2</color>
+    <color name="voicedGroupColor_light">#F4FFED</color>
+    <color name="membersGroupColor_light">#D9E7FF</color>
+
+    <drawable name="row_opers_border_light">@color/opersGroupColor_light</drawable>
+    <drawable name="row_owners_border_light">@color/ownersGroupColor_light</drawable>
+    <drawable name="row_admins_border_light">@color/adminsGroupColor_light</drawable>
+    <drawable name="row_ops_border_light">@color/opsGroupColor_light</drawable>
+    <drawable name="row_halfops_border_light">@color/halfopsGroupColor_light</drawable>
+    <drawable name="row_voiced_border_light">@color/voicedGroupColor_light</drawable>
+    <drawable name="row_members_border_light">@color/membersGroupColor_light</drawable>
 </resources>

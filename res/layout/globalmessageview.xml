@@ -18,7 +18,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/error"
+    android:background="?networkErrorBackgroundColor"
     android:orientation="vertical"
     android:padding="4dp" >
 
@@ -29,6 +29,7 @@
         android:layout_marginBottom="2dp"
         android:gravity="center"
         android:accessibilityLiveRegion="polite"
+        android:textColor="?networkErrorColor"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button

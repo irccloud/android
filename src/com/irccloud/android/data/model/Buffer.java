@@ -479,11 +479,6 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public int getUnreadColor() { return R.drawable.row_unread_border; }
 
     @Bindable
-    public boolean getShowAddBtn() {
-        return isConsole() && getServer() != null && getServer().isConnected();
-    }
-
-    @Bindable
     public boolean getShowSpinner() {
         return (isConsole() && getServer() != null)? getServer().isConnecting() : (this.timeout > 0);
     }

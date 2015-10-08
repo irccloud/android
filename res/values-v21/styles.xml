@@ -20,8 +20,6 @@
         <item name="android:windowBackground">@color/loginBackgroundColor</item>
         <item name="android:navigationBarColor">#4480FA</item>
         <item name="android:colorPrimaryDark">#0b2e60</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb_material</item>
-        <item name="android:fastScrollTrackDrawable">@drawable/fastscroll_track_material</item>
         <item name="colorPrimaryDark">#0b2e60</item>
         <item name="android:textColorHighlight">@color/light_blue</item>
     </style>

@@ -26,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal|top"
-        android:textColor="@color/timestamp"
+        android:textColor="?timestampColor"
         android:includeFontPadding="false"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp" />

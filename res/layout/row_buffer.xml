@@ -38,7 +38,7 @@
 			android:layout_height="match_parent"
 			android:layout_marginTop='@{ ( buffer.isGroupHeading ) ? @dimen/buffers_margin : 0 }'
 			android:layout_marginRight="@dimen/buffers_margin"
-			android:background="@{ (!readOnly &amp;&amp; (buffer.unread > 0)) ? buffer.unreadColor : (selected==buffer.bid)?buffer.selectedBorderResource:buffer.borderResource }"
+			android:background="@{ (!readOnly &amp;&amp; (selected!=buffer.bid &amp;&amp; buffer.unread > 0)) ? buffer.unreadColor : (selected==buffer.bid)?buffer.selectedBorderResource:buffer.borderResource }"
 			android:paddingLeft="8dp" >
 
 				<LinearLayout
@@ -83,7 +83,7 @@
 						android:minHeight="24dp"
 						android:minWidth="24dp"
 						android:padding="4dp"
-						android:textColor="@color/selected_white"
+						android:textColor="@android:color/white"
 						android:text="@{buffer.highlightsString}"
 						android:visibility="@{(!readOnly &amp;&amp; buffer.highlights > 0) ? View.VISIBLE : View.GONE }"
 						android:textStyle="bold" />

@@ -115,9 +115,6 @@
         <item name="actionModeShareDrawable">@drawable/ic_action_share</item>
     </style>
 
-    <color name="white">#fff</color>
-    <drawable name="row_unread_border">#1E72FF</drawable>
-
     <style name="ThemedActionBar" parent="@style/Widget.AppCompat.ActionBar">
         <item name="titleTextStyle">@style/ActionBarTitleText</item>
         <item name="background">?actionbarDrawable</item>
