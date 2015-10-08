@@ -2857,8 +2857,12 @@ public class NetworkConnection {
                     notifierSockerTimerTask = null;
                     if(!notifier && state == STATE_CONNECTED) {
                         disconnect();
-                        notifier = true;
-                        connect();
+                        try {
+                            Thread.sleep(1000);
+                            notifier = true;
+                            connect();
+                        } catch (Exception e) {
+                        }
                     }
                 }
             };
