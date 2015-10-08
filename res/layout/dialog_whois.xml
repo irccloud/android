@@ -35,6 +35,7 @@
 
         <TextView
             android:id="@+id/name"
+            android:textColor="?android:attr/textColorSecondary"
             android:textColorLink="?linkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -49,6 +50,7 @@
 
         <TextView
             android:id="@+id/away"
+            android:textColor="?android:attr/textColorSecondary"
             android:textColorLink="?linkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -62,6 +64,7 @@
 
         <TextView
             android:id="@+id/mask"
+            android:textColor="?android:attr/textColorSecondary"
             android:textColorLink="?linkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -75,6 +78,7 @@
 
         <TextView
             android:id="@+id/server"
+            android:textColor="?android:attr/textColorSecondary"
             android:textColorLink="?linkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -89,6 +93,7 @@
 
         <TextView
             android:id="@+id/time"
+            android:textColor="?android:attr/textColorSecondary"
             android:textColorLink="?linkColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />

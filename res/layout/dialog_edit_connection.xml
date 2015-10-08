@@ -30,7 +30,7 @@
         <LinearLayout android:id="@+id/unverified"
             android:orientation="vertical" android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/error"
+            android:background="?networkErrorBackgroundColor"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:padding="6dp"
             android:visibility="gone">
@@ -39,6 +39,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?networkErrorColor"
                 android:text="Confirm Your Email"
                 android:id="@+id/textView"
                 android:textStyle="bold"
@@ -49,6 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?networkErrorColor"
                 android:text="You can&apos;t connect to external servers until you confirm your email address."
                 android:gravity="center"
                 android:layout_marginBottom="6dp" />
