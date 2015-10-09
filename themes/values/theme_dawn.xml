@@ -26,7 +26,7 @@
 		<item name="highlightBackgroundColor">#C0DBFF</item>
 		<item name="selfBackgroundColor">#e2edff</item>
 		<item name="contentBackgroundColor">#fff</item>
-		<item name="dialogBackgroundColor">#D9E7FF</item>
+		<item name="dialogBackgroundColor">#eee</item>
 		<item name="messageTextColor">#333</item>
 		<item name="serverBackgroundColor">#F2F7FC</item>
 		<item name="bufferBackgroundColor">#D9E7FF</item>
@@ -100,7 +100,7 @@
 		<item name="highlightBackgroundColor">#C0DBFF</item>
 		<item name="selfBackgroundColor">#e2edff</item>
 		<item name="contentBackgroundColor">#fff</item>
-		<item name="dialogBackgroundColor">#D9E7FF</item>
+		<item name="dialogBackgroundColor">#eee</item>
 		<item name="messageTextColor">#333</item>
 		<item name="serverBackgroundColor">#F2F7FC</item>
 		<item name="bufferBackgroundColor">#D9E7FF</item>
@@ -174,7 +174,7 @@
 		<item name="highlightBackgroundColor">#C0DBFF</item>
 		<item name="selfBackgroundColor">#e2edff</item>
 		<item name="contentBackgroundColor">#fff</item>
-		<item name="dialogBackgroundColor">#D9E7FF</item>
+		<item name="dialogBackgroundColor">#eee</item>
 		<item name="messageTextColor">#333</item>
 		<item name="serverBackgroundColor">#F2F7FC</item>
 		<item name="bufferBackgroundColor">#D9E7FF</item>
@@ -248,7 +248,7 @@
 		<item name="highlightBackgroundColor">#C0DBFF</item>
 		<item name="selfBackgroundColor">#e2edff</item>
 		<item name="contentBackgroundColor">#fff</item>
-		<item name="dialogBackgroundColor">#D9E7FF</item>
+		<item name="dialogBackgroundColor">#eee</item>
 		<item name="messageTextColor">#333</item>
 		<item name="serverBackgroundColor">#F2F7FC</item>
 		<item name="bufferBackgroundColor">#D9E7FF</item>
@@ -322,7 +322,7 @@
 		<item name="highlightBackgroundColor">#C0DBFF</item>
 		<item name="selfBackgroundColor">#e2edff</item>
 		<item name="contentBackgroundColor">#fff</item>
-		<item name="dialogBackgroundColor">#D9E7FF</item>
+		<item name="dialogBackgroundColor">#eee</item>
 		<item name="messageTextColor">#333</item>
 		<item name="serverBackgroundColor">#F2F7FC</item>
 		<item name="bufferBackgroundColor">#D9E7FF</item>

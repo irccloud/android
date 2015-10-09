@@ -2149,16 +2149,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case NetworkConnection.EVENT_USERINFO:
                 if(conn != null && conn.ready && !colorScheme.theme.equals(ColorScheme.getUserTheme())) {
                     runOnUiThread(new Runnable() {
-                                      @Override
-                                      public void run() {
-                                          Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
-                                      }
-                                  });
-                    Intent i = (getIntent() != null)?getIntent():new Intent(this, MainActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    i.putExtra("nosplash", true);
-                    finish();
-                    startActivity(i);
+                        @Override
+                        public void run() {
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
+                            Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            i.putExtra("nosplash", true);
+                            startActivity(i);
+                            finish();
+                        }
+                    });
                 } else {
                     runOnUiThread(new Runnable() {
                         @Override
@@ -2261,11 +2261,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_BACKLOG_END:
                 if(!colorScheme.theme.equals(ColorScheme.getUserTheme())) {
-                    Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    i.putExtra("nosplash", true);
-                    finish();
-                    startActivity(i);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
+                            Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            i.putExtra("nosplash", true);
+                            startActivity(i);
+                            finish();
+                        }
+                    });
                 } else {
                     runOnUiThread(new Runnable() {
                         @Override
