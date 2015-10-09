@@ -174,7 +174,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
 
             if (row == null) {
                 LayoutInflater inflater = ctx.getLayoutInflater();
-                row = inflater.inflate(R.layout.row_server, null);
+                row = inflater.inflate(R.layout.row_server, parent, false);
 
                 holder = new ViewHolder();
                 holder.network = (TextView) row.findViewById(R.id.network);
@@ -196,6 +196,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
                 holder.network.setText(s.network);
                 holder.hostname.setText(s.host);
                 holder.hostname.setVisibility(View.VISIBLE);
+                holder.lock.setVisibility(View.VISIBLE);
                 if (s.port == 6697) {
                     holder.lock.setText(FontAwesome.SHIELD);
                 } else {
