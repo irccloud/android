@@ -19,6 +19,7 @@
     android:id="@+id/actionTitleArea"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:paddingLeft="@dimen/abc_action_bar_default_padding_start_material"
     android:gravity="center_vertical|left"
     android:orientation="vertical"
     android:minHeight="?attr/actionBarSize">
@@ -49,7 +50,8 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:gravity="center_vertical"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            android:text="IRCCloud"/>
 
     </LinearLayout>
 

@@ -389,7 +389,7 @@
 	<drawable name="serverBorderDrawable_dawn">#D9E7FF</drawable>
 	<drawable name="selectedBackgroundDrawable_dawn">#1E72FF</drawable>
 	<drawable name="selectedBorderDrawable_dawn">#3E0CFF</drawable>
-	<drawable name="windowBackground_dawn">#D9E7FF</drawable>
+	<drawable name="windowBackground_dawn">#EEE</drawable>
 	<drawable name="bufferBackgroundDrawable_dawn">#D9E7FF</drawable>
 	<drawable name="serverBackgroundDrawable_dawn">#F2F7FC</drawable>
 	<drawable name="bufferHighlightDrawable_dawn">#C6DAFF</drawable>

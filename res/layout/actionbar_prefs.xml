@@ -17,6 +17,7 @@
 
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/actionbar"
+    android:paddingLeft="@dimen/abc_action_bar_default_padding_start_material"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:minHeight="?attr/actionBarSize"
     android:background="?attr/colorPrimary"/>

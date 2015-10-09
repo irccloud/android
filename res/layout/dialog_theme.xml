@@ -31,6 +31,7 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Dawn"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
@@ -108,6 +109,7 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Ash"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/ash"/>
