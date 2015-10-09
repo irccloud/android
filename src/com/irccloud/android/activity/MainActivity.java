@@ -992,7 +992,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (title.getText() != null && title.getText().equals(server.getNick()))
                     e.bg_color = colorScheme.contentBackgroundColor;
                 else
-                    e.bg_color = colorScheme.timestampColor;
+                    e.bg_color = colorScheme.selfBackgroundColor;
                 e.row_type = 0;
                 e.html = null;
                 e.group_msg = null;
@@ -1060,7 +1060,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (pendingEvents.containsKey(e.reqid)) {
                             pendingEvents.remove(e.reqid);
                             e.failed = true;
+                            e.color = colorScheme.networkErrorColor;
                             e.bg_color = colorScheme.errorBackgroundColor;
+                            e.formatted = null;
                             e.expiration_timer = null;
                             if (conn != null)
                                 conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
