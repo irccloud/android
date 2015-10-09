@@ -888,6 +888,13 @@ public class EventsList {
             }
         });
 
+        put("error", new Formatter() {
+            @Override
+            public void format(IRCCloudJSONObject event, Event e) {
+                e.bg_color = colorScheme.errorBackgroundColor;
+            }
+        });
+
     }};
 
     private String reason(String reason) {
