@@ -1251,7 +1251,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             i.putExtra("nosplash", true);
             finish();
             startActivity(i);
@@ -2153,7 +2153,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         public void run() {
                             Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
                             Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             i.putExtra("nosplash", true);
                             startActivity(i);
                             finish();
@@ -2266,7 +2266,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         public void run() {
                             Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
                             Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             i.putExtra("nosplash", true);
                             startActivity(i);
                             finish();

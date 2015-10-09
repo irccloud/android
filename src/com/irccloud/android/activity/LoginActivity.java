@@ -627,7 +627,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
             Intent i = new Intent(LoginActivity.this, MainActivity.class);
             i.putExtra("nosplash", true);
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                 i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             if (getIntent() != null) {
@@ -706,7 +706,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
 
                     final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.putExtra("nosplash", true);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH)
                         i.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                     if (getIntent() != null) {
