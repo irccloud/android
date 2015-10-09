@@ -468,6 +468,8 @@
 	<color name="emerald_background6">#204F16</color>
 	<color name="emerald_background6a">#1B4313</color>
 	<color name="emerald_background7">#183B11</color>
+	<drawable name="bufferBackgroundDrawable_emerald">@color/emerald_background4</drawable>
+	<drawable name="serverBackgroundDrawable_emerald">@color/emerald_background6</drawable>
 	<drawable name="bufferBorderDrawable_emerald">@color/emerald_border9</drawable>
 	<drawable name="serverBorderDrawable_emerald">@color/emerald_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_emerald">@color/emerald_text3</drawable>

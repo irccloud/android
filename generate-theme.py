@@ -187,6 +187,8 @@ f.write(color("background6", 0.20))
 f.write(color("background6a", 0.17))
 f.write(color("background7", 0.15))
 
+f.write("\t<drawable name=\"bufferBackgroundDrawable_" + themename + "\">@color/" + themename + "_background4</drawable>\n")
+f.write("\t<drawable name=\"serverBackgroundDrawable_" + themename + "\">@color/" + themename + "_background6</drawable>\n")
 f.write("\t<drawable name=\"bufferBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
 f.write("\t<drawable name=\"serverBorderDrawable_" + themename + "\">@color/" + themename + "_border9</drawable>\n")
 f.write("\t<drawable name=\"selectedBackgroundDrawable_" + themename + "\">@color/" + themename + "_text3</drawable>\n")
@@ -262,7 +264,7 @@ f.write("""<?xml version="1.0" encoding="utf-8"?>
 {license}
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?android:attr/colorControlHighlight">
-    <item android:drawable="@drawable/row_buffer_bgcolor" />
+    <item android:drawable="@drawable/bufferBackgroundDrawable_{theme}" />
 </ripple>
 """.format(**params))
 f.close()
@@ -286,7 +288,7 @@ f.write("""<?xml version="1.0" encoding="utf-8"?>
 {license}
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?android:attr/colorControlHighlight">
-    <item android:drawable="@drawable/row_server_bgcolor" />
+    <item android:drawable="@drawable/serverBackgroundDrawable_{theme}" />
 </ripple>
 """.format(**params))
 f.close()

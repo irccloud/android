@@ -468,6 +468,8 @@
 	<color name="orchid_background6">#4F1641</color>
 	<color name="orchid_background6a">#431338</color>
 	<color name="orchid_background7">#3B1131</color>
+	<drawable name="bufferBackgroundDrawable_orchid">@color/orchid_background4</drawable>
+	<drawable name="serverBackgroundDrawable_orchid">@color/orchid_background6</drawable>
 	<drawable name="bufferBorderDrawable_orchid">@color/orchid_border9</drawable>
 	<drawable name="serverBorderDrawable_orchid">@color/orchid_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_orchid">@color/orchid_text3</drawable>

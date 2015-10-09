@@ -468,6 +468,8 @@
 	<color name="rust_background6">#4F1616</color>
 	<color name="rust_background6a">#431313</color>
 	<color name="rust_background7">#3B1111</color>
+	<drawable name="bufferBackgroundDrawable_rust">@color/rust_background4</drawable>
+	<drawable name="serverBackgroundDrawable_rust">@color/rust_background6</drawable>
 	<drawable name="bufferBorderDrawable_rust">@color/rust_border9</drawable>
 	<drawable name="serverBorderDrawable_rust">@color/rust_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_rust">@color/rust_text3</drawable>

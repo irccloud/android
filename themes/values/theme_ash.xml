@@ -468,6 +468,8 @@
 	<color name="ash_background6">#333333</color>
 	<color name="ash_background6a">#2B2B2B</color>
 	<color name="ash_background7">#262626</color>
+	<drawable name="bufferBackgroundDrawable_ash">@color/ash_background4</drawable>
+	<drawable name="serverBackgroundDrawable_ash">@color/ash_background6</drawable>
 	<drawable name="bufferBorderDrawable_ash">@color/ash_border9</drawable>
 	<drawable name="serverBorderDrawable_ash">@color/ash_border9</drawable>
 	<drawable name="selectedBackgroundDrawable_ash">@color/ash_text3</drawable>
