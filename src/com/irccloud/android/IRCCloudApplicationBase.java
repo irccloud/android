@@ -19,6 +19,7 @@ package com.irccloud.android;
 
 
 import android.app.Application;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.media.MediaScannerConnection;
@@ -26,6 +27,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -86,7 +88,7 @@ public class IRCCloudApplicationBase extends Application {
         }
 
         if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS);
+            File path = getFilesDir();
             File file = new File(path, "IRCCloud.mp3");
             try {
                 path.mkdirs();
@@ -97,11 +99,16 @@ public class IRCCloudApplicationBase extends Application {
                 os.write(data);
                 is.close();
                 os.close();
+                file.setReadable(true, false);
                 MediaScannerConnection.scanFile(this,
                         new String[]{file.toString()}, null,
                         new MediaScannerConnection.OnScanCompletedListener() {
                             @Override
                             public void onScanCompleted(String path, Uri uri) {
+                                ContentValues values = new ContentValues();
+                                values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
+                                getContentResolver().update(uri, values, null, null);
+
                                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                                 SharedPreferences.Editor editor = prefs.edit();
                                 if (!prefs.contains("notify_ringtone")) {
