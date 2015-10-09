@@ -16,73 +16,100 @@
   -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:scrollbars="vertical"
-    android:minWidth="200dp">
+    android:scrollbars="vertical">
 
     <RadioGroup
         android:id="@+id/radioGroup"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Dawn"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/dawn"/>
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Dusk"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/dusk"/>
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Tropic"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/tropic"/>
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Emerald"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/emerald"/>
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Sand"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/sand"/>
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Rust"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/rust"/>
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Orchid"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/orchid"/>
 
-        <android.support.v7.widget.AppCompatRadioButton
+        <RadioButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:button="@null"
+            android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Ash"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:id="@+id/ash"/>
 
     </RadioGroup>

@@ -393,7 +393,7 @@
 	<drawable name="bufferBackgroundDrawable_dawn">#D9E7FF</drawable>
 	<drawable name="serverBackgroundDrawable_dawn">#F2F7FC</drawable>
 	<drawable name="bufferHighlightDrawable_dawn">#C6DAFF</drawable>
-	<color name="dawn_theme_preview">#F2F7FC</color>
+	<color name="dawn_theme_preview">#B3CFFF</color>
 
 	<style name="dawnPrefsTheme" parent="dawnNoActionBar">
 		<item name="android:windowNoTitle">false</item>
