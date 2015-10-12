@@ -85,6 +85,7 @@
 		<item name="android:alertDialogTheme">@style/dawnAlert</item>
 		<item name="alertDialogTheme">@style/dawnAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
@@ -159,6 +160,7 @@
 		<item name="android:alertDialogTheme">@style/dawnAlert</item>
 		<item name="alertDialogTheme">@style/dawnAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
@@ -233,6 +235,7 @@
 		<item name="android:alertDialogTheme">@style/dawnAlert</item>
 		<item name="alertDialogTheme">@style/dawnAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
@@ -307,6 +310,7 @@
 		<item name="android:alertDialogTheme">@style/dawnAlert</item>
 		<item name="alertDialogTheme">@style/dawnAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
@@ -381,6 +385,7 @@
 		<item name="android:alertDialogTheme">@style/dawnAlert</item>
 		<item name="alertDialogTheme">@style/dawnAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_dawn</item>
+		<item name="scrollbarColor">@color/scrollbarColor_dawn</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_dawn</item>
 		<item name="contentBorderColor">#679FFF</item>
 	</style>
@@ -394,6 +399,7 @@
 	<drawable name="serverBackgroundDrawable_dawn">#F2F7FC</drawable>
 	<drawable name="bufferHighlightDrawable_dawn">#C6DAFF</drawable>
 	<color name="dawn_theme_preview">#B3CFFF</color>
+	<color name="scrollbarColor_dawn">#679fff</color>
 
 	<style name="dawnPrefsTheme" parent="dawnNoActionBar">
 		<item name="android:windowNoTitle">false</item>

@@ -80,6 +80,7 @@
 		<item name="android:colorForeground">@color/tropic_text6</item>
 		<item name="android:textColorPrimary">@color/tropic_text1</item>
 		<item name="android:textColorSecondary">@color/tropic_text4</item>
+		<item name="android:colorEdgeEffect">@color/tropic_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -164,6 +165,7 @@
 		<item name="android:colorForeground">@color/tropic_text6</item>
 		<item name="android:textColorPrimary">@color/tropic_text1</item>
 		<item name="android:textColorSecondary">@color/tropic_text4</item>
+		<item name="android:colorEdgeEffect">@color/tropic_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -248,6 +250,7 @@
 		<item name="android:colorForeground">@color/tropic_text6</item>
 		<item name="android:textColorPrimary">@color/tropic_text1</item>
 		<item name="android:textColorSecondary">@color/tropic_text4</item>
+		<item name="android:colorEdgeEffect">@color/tropic_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -332,6 +335,7 @@
 		<item name="android:colorForeground">@color/tropic_text6</item>
 		<item name="android:textColorPrimary">@color/tropic_text1</item>
 		<item name="android:textColorSecondary">@color/tropic_text4</item>
+		<item name="android:colorEdgeEffect">@color/tropic_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>
@@ -416,6 +420,7 @@
 		<item name="android:colorForeground">@color/tropic_text6</item>
 		<item name="android:textColorPrimary">@color/tropic_text1</item>
 		<item name="android:textColorSecondary">@color/tropic_text4</item>
+		<item name="android:colorEdgeEffect">@color/tropic_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_tropic</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_tropic</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_tropic</item>

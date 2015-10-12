@@ -80,6 +80,7 @@
 		<item name="android:colorForeground">@color/sand_text6</item>
 		<item name="android:textColorPrimary">@color/sand_text1</item>
 		<item name="android:textColorSecondary">@color/sand_text4</item>
+		<item name="android:colorEdgeEffect">@color/sand_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_sand</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_sand</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
@@ -164,6 +165,7 @@
 		<item name="android:colorForeground">@color/sand_text6</item>
 		<item name="android:textColorPrimary">@color/sand_text1</item>
 		<item name="android:textColorSecondary">@color/sand_text4</item>
+		<item name="android:colorEdgeEffect">@color/sand_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_sand</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_sand</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
@@ -248,6 +250,7 @@
 		<item name="android:colorForeground">@color/sand_text6</item>
 		<item name="android:textColorPrimary">@color/sand_text1</item>
 		<item name="android:textColorSecondary">@color/sand_text4</item>
+		<item name="android:colorEdgeEffect">@color/sand_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_sand</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_sand</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
@@ -332,6 +335,7 @@
 		<item name="android:colorForeground">@color/sand_text6</item>
 		<item name="android:textColorPrimary">@color/sand_text1</item>
 		<item name="android:textColorSecondary">@color/sand_text4</item>
+		<item name="android:colorEdgeEffect">@color/sand_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_sand</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_sand</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>
@@ -416,6 +420,7 @@
 		<item name="android:colorForeground">@color/sand_text6</item>
 		<item name="android:textColorPrimary">@color/sand_text1</item>
 		<item name="android:textColorSecondary">@color/sand_text4</item>
+		<item name="android:colorEdgeEffect">@color/sand_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_sand</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_sand</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_sand</item>

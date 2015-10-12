@@ -22,6 +22,6 @@
     android:insetBottom="@dimen/scrollbar_inset">
     <shape>
         <corners android:radius="4dp" />
-        <solid android:color="#679fff" />
+        <solid android:color="@color/scrollbarColor_dawn" />
     </shape>
 </inset>

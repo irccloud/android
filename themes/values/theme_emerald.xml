@@ -80,6 +80,7 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
+		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -164,6 +165,7 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
+		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -248,6 +250,7 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
+		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -332,6 +335,7 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
+		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -416,6 +420,7 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
+		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
