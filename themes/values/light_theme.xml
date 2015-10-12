@@ -24,7 +24,7 @@
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
         <item name="actionMenuTextColor">?navBarHeadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
@@ -92,7 +92,7 @@
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
         <item name="actionMenuTextColor">?navBarHeadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
@@ -159,7 +159,7 @@
         <item name="actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
         <item name="actionMenuTextColor">?navBarHeadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
@@ -219,7 +219,7 @@
 
     <style name="LightAppDialogTheme" parent="Theme.AppCompat.Light.Dialog">
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
         <item name="android:colorControlNormal">?navBarSubheadingColor</item>
         <item name="colorControlNormal">?navBarSubheadingColor</item>
@@ -239,7 +239,7 @@
 
     <style name="LightAppAlertTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="actionBarStyle">@style/ThemedActionBar</item>
-        <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBarMain</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
         <item name="android:background">?dialogBackgroundColor</item>
         <item name="android:colorControlNormal">?navBarSubheadingColor</item>

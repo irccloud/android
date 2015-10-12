@@ -48,6 +48,9 @@
         <item name="colorAccent">#fff</item>
     </style>
 
+    <style name="ProgressBarMain" parent="Widget.AppCompat.ProgressBar.Horizontal">
+    </style>
+
     <style name="LaunchTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:statusBarColor">@color/loginTopBackgroundColor</item>
         <item name="android:navigationBarColor">@color/loginTopBackgroundColor</item>
