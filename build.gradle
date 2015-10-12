@@ -62,7 +62,7 @@ android {
         versionCode 40
         versionName "2.0"
         minSdkVersion 10
-        targetSdkVersion 22
+        targetSdkVersion 23
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"

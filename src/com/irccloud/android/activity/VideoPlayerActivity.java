@@ -16,6 +16,7 @@
 
 package com.irccloud.android.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
@@ -28,6 +29,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
@@ -304,14 +306,18 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                         .setPositiveButton("Download", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                                if (d != null) {
-                                    DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
-                                    if (Build.VERSION.SDK_INT >= 11) {
-                                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                                        r.allowScanningByMediaScanner();
+                                if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(VideoPlayerActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                    ActivityCompat.requestPermissions(VideoPlayerActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+                                } else {
+                                    DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                                    if (d != null) {
+                                        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+                                        if (Build.VERSION.SDK_INT >= 11) {
+                                            r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                                            r.allowScanningByMediaScanner();
+                                        }
+                                        d.enqueue(r);
                                     }
-                                    d.enqueue(r);
                                 }
                             }
                         })
@@ -421,16 +427,20 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if (item.getItemId() == R.id.action_download) {
-            DownloadManager d = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-            if(d != null) {
-                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
-                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
-                if(Build.VERSION.SDK_INT >= 11) {
-                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                    r.allowScanningByMediaScanner();
+            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},0);
+            } else {
+                DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                if (d != null) {
+                    DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+                    r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
+                    if (Build.VERSION.SDK_INT >= 11) {
+                        r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                        r.allowScanningByMediaScanner();
+                    }
+                    d.enqueue(r);
+                    Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
                 }
-                d.enqueue(r);
-                Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
             }
             return true;
         } else if (item.getItemId() == R.id.action_copy) {
@@ -454,6 +464,24 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             handler.removeCallbacks(mHideRunnable);
         } else {
             hide_actionbar();
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+            if (d != null) {
+                DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+                r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
+                if (Build.VERSION.SDK_INT >= 11) {
+                    r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                    r.allowScanningByMediaScanner();
+                }
+                d.enqueue(r);
+                Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Download"));
+            }
+        } else {
+            Toast.makeText(this, "Unable to download: permission denied", Toast.LENGTH_SHORT).show();
         }
     }
 }

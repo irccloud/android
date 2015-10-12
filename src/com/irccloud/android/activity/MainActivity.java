@@ -16,6 +16,7 @@
 
 package com.irccloud.android.activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -28,6 +29,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -48,6 +50,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.NotificationCompat;
@@ -198,7 +201,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private TextWatcher textWatcher = null;
     private Intent pastebinResult = null;
     private ColorScheme colorScheme = ColorScheme.getInstance();
-    
+
+    private static final int REQUEST_EXTERNAL_MEDIA_IMGUR = 1;
+    private static final int REQUEST_EXTERNAL_MEDIA_IRCCLOUD = 2;
+    private static final int REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO = 3;
+    private static final int REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO = 4;
+    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 5;
+    private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT = 6;
+
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
             super(MainActivity.this, R.layout.row_suggestion);
@@ -1215,7 +1225,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
                 } else {
                     fileUploadTask = new FileUploadTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), this);
-                    fileUploadTask.execute((Void) null);
+                    if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                    } else {
+                        fileUploadTask.execute((Void) null);
+                    }
                 }
             }
 
@@ -1367,7 +1383,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (fileUploadTask != null) {
             fileUploadTask.setActivity(this);
-            if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet)
+            if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
                 fileUploadTask.show_dialog();
         }
         messageTxt.clearFocus();
@@ -2729,7 +2745,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         new ImgurRefreshTask(imageCaptureURI).execute((Void) null);
                     } else {
                         fileUploadTask = new FileUploadTask(imageCaptureURI, this);
-                        fileUploadTask.execute((Void) null);
+                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                        } else {
+                            fileUploadTask.execute((Void) null);
+                        }
                     }
 
                     if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && imageCaptureURI.toString().startsWith("file://")) {
@@ -2745,14 +2767,26 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         new ImgurRefreshTask(selectedImage).execute((Void) null);
                     } else {
                         fileUploadTask = new FileUploadTask(selectedImage, this);
-                        fileUploadTask.execute((Void) null);
+                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                        } else {
+                            fileUploadTask.execute((Void) null);
+                        }
                     }
                 }
             } else if (requestCode == REQUEST_DOCUMENT && resultCode == RESULT_OK) {
                 Uri selectedFile = imageReturnedIntent.getData();
                 if (selectedFile != null) {
                     fileUploadTask = new FileUploadTask(selectedFile, this);
-                    fileUploadTask.execute((Void) null);
+                    if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                    } else {
+                        fileUploadTask.execute((Void) null);
+                    }
                 }
             } else if (requestCode == REQUEST_UPLOADS && resultCode == RESULT_OK) {
                 buffer.setDraft("");
@@ -2765,6 +2799,83 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     messageTxt.setText(buffer.getDraft());
                 }
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        Intent i;
+
+        if(grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+            switch (requestCode) {
+                case REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO:
+                    try {
+                        File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                        imageDir.mkdirs();
+                        new File(imageDir, ".nomedia").createNewFile();
+                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
+                        i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                        startActivityForResult(i, REQUEST_CAMERA);
+                    } catch (IOException e) {
+                    }
+                    break;
+                case REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO:
+                    try {
+                        File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                        imageDir.mkdirs();
+                        new File(imageDir, ".nomedia").createNewFile();
+                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".mp4", imageDir));
+                        i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                        startActivityForResult(i, REQUEST_CAMERA);
+                    } catch (IOException e) {
+                    }
+                    break;
+                case REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO:
+                    i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("image/*");
+                    startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                    break;
+                case REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT:
+                    i = new Intent(Intent.ACTION_GET_CONTENT);
+                    i.addCategory(Intent.CATEGORY_OPENABLE);
+                    i.setType("*/*");
+                    startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
+                    break;
+                case REQUEST_EXTERNAL_MEDIA_IRCCLOUD:
+                    if(fileUploadTask != null) {
+                        fileUploadTask.setActivity(this);
+                        fileUploadTask.execute((Void) null);
+                        if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet)
+                            fileUploadTask.show_dialog();
+                    }
+                    break;
+                case REQUEST_EXTERNAL_MEDIA_IMGUR:
+                    if(imgurTask != null) {
+                        imgurTask.setActivity(this);
+                        imgurTask.execute((Void)null);
+                    }
+                    break;
+            }
+        } else {
+            if(fileUploadTask != null) {
+                if(fileUploadTask.metadataDialog != null) {
+                    try {
+                        fileUploadTask.metadataDialog.cancel();
+                    } catch (Exception e) {
+
+                    }
+                }
+                fileUploadTask.cancel(true);
+                fileUploadTask = null;
+            }
+            if(imgurTask != null) {
+                imgurTask.cancel(true);
+                imgurTask = null;
+            }
+            Toast.makeText(this, "Upload cancelled: permission denied", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -2791,41 +2902,65 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(buffer != null) {
                     switch(dialogItems[which]) {
                         case "Take a Photo":
-                            try {
-                                File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
-                                imageDir.mkdirs();
-                                new File(imageDir, ".nomedia").createNewFile();
-                                imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
-                                i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                                startActivityForResult(i, REQUEST_CAMERA);
-                            } catch (IOException e) {
+                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO);
+                            } else {
+                                try {
+                                    File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                                    imageDir.mkdirs();
+                                    new File(imageDir, ".nomedia").createNewFile();
+                                    imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
+                                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                    startActivityForResult(i, REQUEST_CAMERA);
+                                } catch (IOException e) {
+                                }
                             }
                             break;
                         case "Record a Video":
-                            try {
-                                File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
-                                imageDir.mkdirs();
-                                new File(imageDir, ".nomedia").createNewFile();
-                                imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".mp4", imageDir));
-                                i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
-                                startActivityForResult(i, REQUEST_CAMERA);
-                            } catch (IOException e) {
+                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_EXTERNAL_MEDIA_RECORD_VIDEO);
+                            } else {
+                                try {
+                                    File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
+                                    imageDir.mkdirs();
+                                    new File(imageDir, ".nomedia").createNewFile();
+                                    imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".mp4", imageDir));
+                                    i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                    startActivityForResult(i, REQUEST_CAMERA);
+                                } catch (IOException e) {
+                                }
                             }
                             break;
                         case "Choose Existing":
                         case "Choose Existing Photo":
-                            i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                            i.addCategory(Intent.CATEGORY_OPENABLE);
-                            i.setType("image/*");
-                            startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO);
+                            } else {
+                                i = new Intent(Intent.ACTION_GET_CONTENT, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                i.addCategory(Intent.CATEGORY_OPENABLE);
+                                i.setType("image/*");
+                                startActivityForResult(Intent.createChooser(i, "Select Picture"), REQUEST_PHOTO);
+                            }
                             break;
                         case "Choose Existing Document":
-                            i = new Intent(Intent.ACTION_GET_CONTENT);
-                            i.addCategory(Intent.CATEGORY_OPENABLE);
-                            i.setType("*/*");
-                            startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
+                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT);
+                            } else {
+                                i = new Intent(Intent.ACTION_GET_CONTENT);
+                                i.addCategory(Intent.CATEGORY_OPENABLE);
+                                i.setType("*/*");
+                                startActivityForResult(Intent.createChooser(i, "Select A Document"), REQUEST_DOCUMENT);
+                            }
                             break;
                         case "Start a Pastebin":
                             show_pastebin_prompt();
@@ -4101,13 +4236,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         prefs.commit();
                         if (mImageUri != null) {
                             imgurTask = new ImgurUploadTask(mImageUri);
-                            imgurTask.execute((Void) null);
+                            if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                        REQUEST_EXTERNAL_MEDIA_IMGUR);
+                            } else {
+                                imgurTask.execute((Void) null);
+                            }
                         }
                     }
                 } else {
                     if (mImageUri != null) {
                         imgurTask = new ImgurUploadTask(mImageUri);
-                        imgurTask.execute((Void) null);
+                        if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                    REQUEST_EXTERNAL_MEDIA_IMGUR);
+                        } else {
+                            imgurTask.execute((Void) null);
+                        }
                     }
                 }
             } catch (JSONException e) {
@@ -4396,7 +4543,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         private Uri mFileUri;  // local Uri to upload
         private int total = 0;
         private TextView fileSize;
-        private AlertDialog metadataDialog;
+        public AlertDialog metadataDialog;
         public MainActivity activity;
         public Buffer mBuffer;
         public int reqid = -1;
@@ -4496,7 +4643,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             i.setData(Uri.parse("bid://" + mBuffer.getBid()));
             notification.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
 
-            show_dialog();
+            if(ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                show_dialog();
 
             Crashlytics.log(Log.INFO, "IRCCloud", "Uploading file to IRCCloud: " + original_filename + " " + type);
         }

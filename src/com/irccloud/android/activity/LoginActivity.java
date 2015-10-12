@@ -16,6 +16,7 @@
 
 package com.irccloud.android.activity;
 
+import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.ActivityManager;
@@ -33,6 +34,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.text.method.LinkMovementMethod;
@@ -142,11 +144,14 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         email = (AutoCompleteTextView) findViewById(R.id.email);
         if (BuildConfig.ENTERPRISE)
             email.setHint(R.string.email_enterprise);
+
         ArrayList<String> accounts = new ArrayList<String>();
-        AccountManager am = (AccountManager) getSystemService(Context.ACCOUNT_SERVICE);
-        for (Account a : am.getAccounts()) {
-            if (a.name.contains("@") && !accounts.contains(a.name))
-                accounts.add(a.name);
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
+            AccountManager am = (AccountManager) getSystemService(Context.ACCOUNT_SERVICE);
+            for (Account a : am.getAccounts()) {
+                if (a.name.contains("@") && !accounts.contains(a.name))
+                    accounts.add(a.name);
+            }
         }
         if (accounts.size() > 0)
             email.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts.toArray(new String[accounts.size()])));
