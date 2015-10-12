@@ -101,7 +101,7 @@ public class GCMService extends GcmListenerService {
                 if (server_name == null || server_name.length() == 0)
                     server_name = data.getString("server_hostname");
 
-                NotificationsList.getInstance().addNotification(cid, bid, eid, from, msg, chan, buffer_type, type, server_name);
+                NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name);
 
                 if (from == null || from.length() == 0)
                     NotificationsList.getInstance().showNotifications(server_name + ": " + msg);

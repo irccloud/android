@@ -2124,6 +2124,10 @@ public class NetworkConnection {
                                 String server_name = b.getServer().getName();
                                 if(server_name == null || server_name.length() == 0)
                                     server_name = b.getServer().getHostname();
+                                String from = event.nick;
+                                if(from == null)
+                                    from = (event.from != null) ? event.from : event.server;
+
                                 NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name);
                                 switch (b.getType()) {
                                     case "conversation":
