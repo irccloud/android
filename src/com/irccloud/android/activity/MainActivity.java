@@ -4107,9 +4107,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         Uri out = null;
         try {
             int MAX_IMAGE_SIZE = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(this).getString("photo_size", "1024"));
-            File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
-            imageDir.mkdirs();
-            new File(imageDir, ".nomedia").createNewFile();
 
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
@@ -4132,7 +4129,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             Bitmap bmp = BitmapFactory.decodeStream(IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in), null, o);
 
             //ExifInterface can only work on local files, so make a temporary copy on the SD card
-            out = Uri.fromFile(File.createTempFile("irccloudcapture-original", ".jpg", imageDir));
+            out = Uri.fromFile(File.createTempFile("irccloudcapture-original", ".jpg", getCacheDir()));
             InputStream is = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(in);
             OutputStream os = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out);
             byte[] buffer = new byte[8192];
@@ -4147,7 +4144,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
             new File(new URI(out.toString())).delete();
 
-            out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", imageDir));
+            out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", getCacheDir()));
             if (orientation > 1) {
                 Matrix matrix = new Matrix();
                 switch (orientation) {
