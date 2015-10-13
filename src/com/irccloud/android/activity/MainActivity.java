@@ -34,8 +34,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -202,6 +204,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private Intent pastebinResult = null;
     private ColorScheme colorScheme = ColorScheme.getInstance();
 
+    private ColorFilter highlightsFilter;
+    private ColorFilter unreadFilter;
+    private ColorFilter normalFilter;
+    private ColorFilter upDrawableFilter;
+
     private static final int REQUEST_EXTERNAL_MEDIA_IMGUR = 1;
     private static final int REQUEST_EXTERNAL_MEDIA_IRCCLOUD = 2;
     private static final int REQUEST_EXTERNAL_MEDIA_TAKE_PHOTO = 3;
@@ -263,6 +270,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         setTheme(ColorScheme.getTheme(ColorScheme.getUserTheme(), false));
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
+
+        highlightsFilter = new PorterDuffColorFilter(Color.RED, PorterDuff. Mode.SRC_ATOP);
+        unreadFilter = new PorterDuffColorFilter(colorScheme.unreadBlueColor, PorterDuff. Mode.SRC_ATOP);
+        normalFilter = new PorterDuffColorFilter(colorScheme.navBarSubheadingColor, PorterDuff. Mode.SRC_ATOP);
 
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
         filter.addAction(Intent.ACTION_SCREEN_OFF);
@@ -424,7 +435,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null) {
             if (findViewById(R.id.usersListFragment2) == null) {
                 upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
-                upDrawable.setColorFilter(colorScheme.navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
+                upDrawable.setColorFilter(normalFilter);
+                upDrawableFilter = normalFilter;
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
                 ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
                 drawerLayout.setDrawerListener(mDrawerListener);
@@ -1149,11 +1161,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         protected void onPostExecute(Void result) {
             if (!isCancelled() && upDrawable != null) {
                 if (highlights > 0) {
-                    upDrawable.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
+                    upDrawable.setColorFilter(highlightsFilter);
+                    upDrawableFilter = highlightsFilter;
                 } else if (unread > 0) {
-                    upDrawable.setColorFilter(colorScheme.unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
+                    upDrawable.setColorFilter(unreadFilter);
+                    upDrawableFilter = unreadFilter;
                 } else {
-                    upDrawable.setColorFilter(colorScheme.navBarSubheadingColor, PorterDuff.Mode.SRC_ATOP);
+                    upDrawable.setColorFilter(normalFilter);
+                    upDrawableFilter = normalFilter;
                 }
                 refreshUpIndicatorTask = null;
             }
@@ -2513,14 +2528,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         if (e.bid != buffer.getBid() && upDrawable != null) {
                             Buffer buf = BuffersList.getInstance().getBuffer(e.bid);
                             if (e.isImportant(buf.getType())) {
-                                if (/*upDrawable.getColor() != redColor &&*/ (e.highlight || buf.isConversation())) {
+                                if (!upDrawableFilter.equals(highlightsFilter) && (e.highlight || buf.isConversation())) {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upDrawable.setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
+                                            upDrawable.setColorFilter(highlightsFilter);
+                                            upDrawableFilter = highlightsFilter;
                                         }
                                     });
-                                } else /*if (grey)*/ {
+                                } else if (upDrawableFilter.equals(normalFilter)) {
                                     JSONObject channelDisabledMap = null;
                                     JSONObject bufferDisabledMap = null;
                                     if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
@@ -2541,7 +2557,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            upDrawable.setColorFilter(colorScheme.unreadBlueColor, PorterDuff.Mode.SRC_ATOP);
+                                            upDrawable.setColorFilter(unreadFilter);
+                                            upDrawableFilter = unreadFilter;
                                         }
                                     });
                                 }
