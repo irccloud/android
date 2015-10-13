@@ -80,7 +80,6 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
-		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -98,6 +97,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
 	<style name="emeraldNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -165,7 +165,6 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
-		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -183,6 +182,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
 	<style name="emeraldDialog" parent="DarkAppDialogTheme">
@@ -250,7 +250,6 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
-		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -268,6 +267,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
 	<style name="emeraldAlert" parent="DarkAppAlertTheme">
@@ -335,7 +335,6 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
-		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -353,6 +352,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
 	<style name="emeraldDialogWhenLarge" parent="DarkAppDialogWhenLargeTheme">
@@ -420,7 +420,6 @@
 		<item name="android:colorForeground">@color/emerald_text6</item>
 		<item name="android:textColorPrimary">@color/emerald_text1</item>
 		<item name="android:textColorSecondary">@color/emerald_text4</item>
-		<item name="android:colorEdgeEffect">@color/emerald_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_emerald</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_emerald</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_emerald</item>
@@ -438,6 +437,7 @@
 		<item name="alertDialogTheme">@style/emeraldAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_emerald</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_emerald</item>
+		<item name="editTextTheme">@style/emeraldEditText</item>
 	</style>
 
 	<color name="emerald_border1">#62CB4D</color>
@@ -482,9 +482,15 @@
 	<drawable name="windowBackground_emerald">@color/emerald_background7</drawable>
 
 	<style name="emeraldPrefsTheme" parent="emeraldNoActionBar">
+		<item name="editTextTheme">@style/emeraldEditText</item>
 		<item name="android:windowNoTitle">false</item>
 		<item name="android:windowTitleSize">?attr/actionBarSize</item>
 		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
 		<item name="android:seekBarStyle">@style/SeekBarmain</item>
+	</style>
+
+	<style name="emeraldEditText" parent="emerald">
+		<item name="android:colorControlActivated">?colorControlNormal</item>
+		<item name="colorControlActivated">?colorControlNormal</item>
 	</style>
 </resources>

@@ -87,6 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Network"
+            android:theme="?editTextTheme"
             android:lines="1"
             android:maxLines="1" />
         </android.support.design.widget.TextInputLayout>
@@ -115,6 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="6dp"
                 android:hint="Nickname"
+                android:theme="?editTextTheme"
                 android:lines="1"
                 android:maxLines="1" />
             </android.support.design.widget.TextInputLayout>
@@ -128,6 +130,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Real Name"
+                android:theme="?editTextTheme"
                 android:inputType="textPersonName" />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
@@ -151,6 +154,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="#testchannel password, #feedback"
+                android:theme="?editTextTheme"
                 android:inputType="textMultiLine" />
         </LinearLayout>
 
@@ -171,6 +175,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
             android:hint="NickServ password"
+            android:theme="?editTextTheme"
             android:inputType="textPassword"
             android:lines="1"
             android:maxLines="1" />
@@ -186,6 +191,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
             android:hint="Server password"
+            android:theme="?editTextTheme"
             android:inputType="textPassword"
             android:lines="1"
             android:maxLines="1" />
@@ -200,6 +206,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:theme="?editTextTheme"
             android:hint="Commands to run on connect"
             android:inputType="textMultiLine" />
         </android.support.design.widget.TextInputLayout>

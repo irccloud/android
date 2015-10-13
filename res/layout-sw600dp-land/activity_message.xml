@@ -113,6 +113,7 @@
                 android:ems="10"
                 android:maxLines="@integer/max_input_lines"
                 android:hint="Message"
+                android:theme="?editTextTheme"
                 android:enabled="false"
                 android:nextFocusLeft="@id/photoBtn"
                 android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"

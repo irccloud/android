@@ -80,7 +80,6 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
-		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -98,6 +97,7 @@
 		<item name="alertDialogTheme">@style/rustAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_rust</item>
+		<item name="editTextTheme">@style/rustEditText</item>
 	</style>
 
 	<style name="rustNoActionBar" parent="DarkAppThemeNoActionBar">
@@ -165,7 +165,6 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
-		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -183,6 +182,7 @@
 		<item name="alertDialogTheme">@style/rustAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_rust</item>
+		<item name="editTextTheme">@style/rustEditText</item>
 	</style>
 
 	<style name="rustDialog" parent="DarkAppDialogTheme">
@@ -250,7 +250,6 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
-		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -268,6 +267,7 @@
 		<item name="alertDialogTheme">@style/rustAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_rust</item>
+		<item name="editTextTheme">@style/rustEditText</item>
 	</style>
 
 	<style name="rustAlert" parent="DarkAppAlertTheme">
@@ -335,7 +335,6 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
-		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -353,6 +352,7 @@
 		<item name="alertDialogTheme">@style/rustAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_rust</item>
+		<item name="editTextTheme">@style/rustEditText</item>
 	</style>
 
 	<style name="rustDialogWhenLarge" parent="DarkAppDialogWhenLargeTheme">
@@ -420,7 +420,6 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
-		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -438,6 +437,7 @@
 		<item name="alertDialogTheme">@style/rustAlert</item>
 		<item name="scrollbarDrawable">@drawable/scrollbar_rust</item>
 		<item name="windowBackgroundDrawable">@drawable/windowBackground_rust</item>
+		<item name="editTextTheme">@style/rustEditText</item>
 	</style>
 
 	<color name="rust_border1">#CB4D4D</color>
@@ -482,9 +482,15 @@
 	<drawable name="windowBackground_rust">@color/rust_background7</drawable>
 
 	<style name="rustPrefsTheme" parent="rustNoActionBar">
+		<item name="editTextTheme">@style/rustEditText</item>
 		<item name="android:windowNoTitle">false</item>
 		<item name="android:windowTitleSize">?attr/actionBarSize</item>
 		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
 		<item name="android:seekBarStyle">@style/SeekBarmain</item>
+	</style>
+
+	<style name="rustEditText" parent="rust">
+		<item name="android:colorControlActivated">?colorControlNormal</item>
+		<item name="colorControlActivated">?colorControlNormal</item>
 	</style>
 </resources>

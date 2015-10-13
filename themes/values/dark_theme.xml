@@ -32,6 +32,7 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">?contentBackgroundColor</item>
         <item name="android:textAppearanceMedium">@style/mediumText</item>
+        <item name="android:textColorHighlight">?colorSwitchThumbNormal</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
@@ -99,6 +100,7 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">?contentBackgroundColor</item>
         <item name="android:textAppearanceMedium">@style/mediumText</item>
+        <item name="android:textColorHighlight">?colorSwitchThumbNormal</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
@@ -164,6 +166,7 @@
         <item name="android:colorBackground">?dialogBackgroundColor</item>
         <item name="android:statusBarColor">?contentBackgroundColor</item>
         <item name="android:textAppearanceMedium">@style/mediumText</item>
+        <item name="android:textColorHighlight">?colorSwitchThumbNormal</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
@@ -213,6 +216,7 @@
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
+        <item name="android:textColorHighlight">?colorSwitchThumbNormal</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>
@@ -231,6 +235,7 @@
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
         <item name="android:windowTitleStyle">@style/DarkDialogTitleTextStyle</item>
+        <item name="android:textColorHighlight">?colorSwitchThumbNormal</item>
 
         <item name="unreadBlueColor">#1E72FF</item>
         <item name="contentBorderColor">?contentBackgroundColor</item>

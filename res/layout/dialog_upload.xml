@@ -50,6 +50,7 @@
             android:layout_height="wrap_content"
             android:lines="1"
             android:hint="Filename"
+            android:theme="?editTextTheme"
             android:nextFocusDown="@+id/message"
             android:inputType="textUri"/>
         </android.support.design.widget.TextInputLayout>
@@ -69,6 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Message (optional)"
+            android:theme="?editTextTheme"
             android:lines="0"
             android:nextFocusUp="@id/filename"
             android:inputType="text" />

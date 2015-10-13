@@ -30,6 +30,7 @@
               style="?android:attr/textAppearanceSmall"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
+              android:theme="?editTextTheme"
               android:textColor="?android:attr/textColorSecondary" />
 
   </LinearLayout>

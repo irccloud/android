@@ -119,6 +119,7 @@
     <attr name="scrollbarColor" format="color"/>
     <attr name="backlogMarkerColor" format="color"/>
     <attr name="windowBackgroundDrawable" format="reference"/>
+    <attr name="editTextTheme" format="reference"/>
 
     <attr name="row_opers_bg_drawable" format="reference"/>
     <attr name="row_owners_bg_drawable" format="reference"/>

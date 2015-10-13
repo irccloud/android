@@ -55,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/paste"
                     android:hint="Text"
+                    android:theme="?editTextTheme"
                     android:inputType="textMultiLine"><requestFocus/></EditText>
             </android.support.design.widget.TextInputLayout>
 
@@ -70,6 +71,7 @@
                     android:layout_height="wrap_content"
                     android:lines="1"
                     android:hint="Filename (optional)"
+                    android:theme="?editTextTheme"
                     android:nextFocusDown="@+id/message"
                     android:inputType="textUri"/>
 
@@ -87,6 +89,7 @@
                     android:layout_height="wrap_content"
                     android:lines="0"
                     android:hint="Message (optional)"
+                    android:theme="?editTextTheme"
                     android:nextFocusUp="@id/filename"
                     android:inputType="text" />
 

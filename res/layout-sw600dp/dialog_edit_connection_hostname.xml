@@ -30,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="6dp"
+            android:theme="?editTextTheme"
             android:hint="Hostname" />
     </android.support.design.widget.TextInputLayout>
 
@@ -46,6 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="6dp"
             android:hint="Port"
+            android:theme="?editTextTheme"
             android:inputType="number" />
     </android.support.design.widget.TextInputLayout>
 

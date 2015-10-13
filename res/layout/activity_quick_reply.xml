@@ -57,6 +57,7 @@
             android:ems="10"
             android:maxLines="@integer/max_input_lines"
             android:hint="Message"
+            android:theme="?editTextTheme"
             android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textShortMessage"
             android:background="?attr/textareaBackgroundColor"
             android:minHeight="32dp"

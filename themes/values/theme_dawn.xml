@@ -17,6 +17,7 @@
 <resources>
 	<style name="dawn" parent="LightAppTheme">
 		<item name="isDarkTheme">false</item>
+		<item name="editTextTheme">@style/dawn</item>
 		<item name="bufferTextColor">#1d40ff</item>
 		<item name="navBarSubheadingColor">#777</item>
 		<item name="inactiveBufferTextColor">#9CC7FF</item>
@@ -68,6 +69,7 @@
 		<item name="android:colorAccent">#1E72FF</item>
 		<item name="android:textColorPrimary">#000</item>
 		<item name="android:textColorSecondary">#aaa</item>
+		<item name="android:textColorHighlight">#D9E7FF</item>
 
 		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
@@ -92,6 +94,7 @@
 
 	<style name="dawnNoActionBar" parent="LightAppThemeNoActionBar">
 		<item name="isDarkTheme">false</item>
+		<item name="editTextTheme">@style/dawnNoActionBar</item>
 		<item name="bufferTextColor">#1d40ff</item>
 		<item name="navBarSubheadingColor">#777</item>
 		<item name="inactiveBufferTextColor">#9CC7FF</item>
@@ -143,6 +146,7 @@
 		<item name="android:colorAccent">#1E72FF</item>
 		<item name="android:textColorPrimary">#000</item>
 		<item name="android:textColorSecondary">#aaa</item>
+		<item name="android:textColorHighlight">#D9E7FF</item>
 
 		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
@@ -167,6 +171,7 @@
 
 	<style name="dawnDialog" parent="LightAppDialogTheme">
 		<item name="isDarkTheme">false</item>
+		<item name="editTextTheme">@style/dawnDialog</item>
 		<item name="bufferTextColor">#1d40ff</item>
 		<item name="navBarSubheadingColor">#777</item>
 		<item name="inactiveBufferTextColor">#9CC7FF</item>
@@ -218,6 +223,7 @@
 		<item name="android:colorAccent">#1E72FF</item>
 		<item name="android:textColorPrimary">#000</item>
 		<item name="android:textColorSecondary">#aaa</item>
+		<item name="android:textColorHighlight">#D9E7FF</item>
 
 		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
@@ -242,6 +248,7 @@
 
 	<style name="dawnAlert" parent="LightAppAlertTheme">
 		<item name="isDarkTheme">false</item>
+		<item name="editTextTheme">@style/dawnAlert</item>
 		<item name="bufferTextColor">#1d40ff</item>
 		<item name="navBarSubheadingColor">#777</item>
 		<item name="inactiveBufferTextColor">#9CC7FF</item>
@@ -293,6 +300,7 @@
 		<item name="android:colorAccent">#1E72FF</item>
 		<item name="android:textColorPrimary">#000</item>
 		<item name="android:textColorSecondary">#aaa</item>
+		<item name="android:textColorHighlight">#D9E7FF</item>
 
 		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
@@ -317,6 +325,7 @@
 
 	<style name="dawnDialogWhenLarge" parent="LightAppDialogWhenLargeTheme">
 		<item name="isDarkTheme">false</item>
+		<item name="editTextTheme">@style/dawnDialogWhenLarge</item>
 		<item name="bufferTextColor">#1d40ff</item>
 		<item name="navBarSubheadingColor">#777</item>
 		<item name="inactiveBufferTextColor">#9CC7FF</item>
@@ -368,6 +377,7 @@
 		<item name="android:colorAccent">#1E72FF</item>
 		<item name="android:textColorPrimary">#000</item>
 		<item name="android:textColorSecondary">#aaa</item>
+		<item name="android:textColorHighlight">#D9E7FF</item>
 
 		<item name="actionbarDrawable">@drawable/actionbar_dawn</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_dawn</item>
@@ -402,6 +412,7 @@
 	<color name="scrollbarColor_dawn">#679fff</color>
 
 	<style name="dawnPrefsTheme" parent="dawnNoActionBar">
+		<item name="editTextTheme">@style/dawnPrefsTheme</item>
 		<item name="android:windowNoTitle">false</item>
 		<item name="android:windowTitleSize">?attr/actionBarSize</item>
 		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
