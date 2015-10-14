@@ -201,6 +201,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
         findPreference("pastebin-disableprompt").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("hideJoinPart").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("expandJoinPart").setOnPreferenceChangeListener(prefstoggle);
         if (findPreference("emoji-disableconvert") != null) {
             findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
@@ -388,6 +390,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                     ((SwitchPreferenceCompat) findPreference("pastebin-disableprompt")).setChecked(!(prefs.has("pastebin-disableprompt") && prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && prefs.getBoolean("pastebin-disableprompt")));
                                     if (findPreference("emoji-disableconvert") != null)
                                         ((SwitchPreferenceCompat) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
+                                    ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
+                                    ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
@@ -488,7 +492,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     conn.getUserInfo().prefs = prefs;
                 }
 
-                if (preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt"))
+                if (preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");
@@ -832,7 +836,29 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                             "\n" +
                             "http://www.apache.org/licenses/LICENSE-2.0\n" +
                             "Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.\n" +
-                            "\n" + GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this)
+                            "\n" +
+                            "DBFlow" +
+                            "The MIT License (MIT)\n" +
+                            "Copyright (c) 2014 Raizlabs\n" +
+                            "\n" +
+                            "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
+                            "of this software and associated documentation files (the \"Software\"), to deal\n" +
+                            "in the Software without restriction, including without limitation the rights\n" +
+                            "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
+                            "copies of the Software, and to permit persons to whom the Software is\n" +
+                            "furnished to do so, subject to the following conditions:\n" +
+                            "\n" +
+                            "The above copyright notice and this permission notice shall be included in all\n" +
+                            "copies or substantial portions of the Software.\n" +
+                            "\n" +
+                            "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
+                            "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
+                            "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
+                            "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
+                            "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
+                            "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
+                            "SOFTWARE.\n"
+                            + GooglePlayServicesUtil.getOpenSourceSoftwareLicenseInfo(PreferencesActivity.this)
             );
             builder.setView(v);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);

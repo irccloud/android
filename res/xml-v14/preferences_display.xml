@@ -54,6 +54,15 @@
             android:summaryOn="Prompt before sending multi-line messages"
             android:summaryOff="Always send multi-line messages as text"
             android:title="Ask to pastebin"/>
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="hideJoinPart"
+            android:defaultValue="true"
+            android:title="Show nick changes, joins, parts"/>
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="expandJoinPart"
+            android:defaultValue="true"
+            android:dependency="hideJoinPart"
+            android:title="Collapse nick changes, joins, parts"/>
         <com.robobunny.SeekBarPreference
             android:key="textSize"
             android:title="Text Size"

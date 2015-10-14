@@ -1798,6 +1798,8 @@ public class NetworkConnection {
                     prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("nick-colors"));
                     prefs.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("emoji-disableconvert")));
                     prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("pastebin-disableprompt")));
+                    prefs.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("hideJoinPart")));
+                    prefs.putBoolean("expandJoinPart", !(userInfo.prefs.has("expandJoinPart") && userInfo.prefs.get("expandJoinPart").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("expandJoinPart")));
                     if(userInfo.prefs.has("theme"))
                         prefs.putString("theme", userInfo.prefs.getString("theme"));
                     if(userInfo.prefs.has("font"))

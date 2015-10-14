@@ -1085,7 +1085,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         }
 
-                        if (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid()))) {
+                        if ((conn.getUserInfo().prefs.has("hideJoinPart") && conn.getUserInfo().prefs.getBoolean("hideJoinPart")) || (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())))) {
                             adapter.removeItem(event.eid);
                             if (!backlog)
                                 adapter.notifyDataSetChanged();
@@ -1105,7 +1105,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         }
 
-                        if (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid()))) {
+                        if ((conn.getUserInfo().prefs.has("expandJoinPart") && conn.getUserInfo().prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid())))) {
                             shouldExpand = true;
                         }
                     }
