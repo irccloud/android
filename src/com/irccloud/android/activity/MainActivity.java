@@ -1431,6 +1431,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (fileUploadTask != null)
             fileUploadTask.setActivity(null);
 
+        if(shouldMarkAsRead()) {
+            Long eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid());
+            if (eid >= buffer.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid);
+                buffer.setLast_seen_eid(eid);
+                buffer.setUnread(0);
+                buffer.setHighlights(0);
+            }
+        }
+
         try {
             if (excludeBIDTask != null)
                 excludeBIDTask.cancel(true);
@@ -3373,7 +3383,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
                     if (blf != null)
                         blf.refresh();
-                    if(conn != null && buffer != null)
+                    if (conn != null && buffer != null)
                         conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
                 } else if (items[item].equals("Delete")) {
                     builder = new AlertDialog.Builder(MainActivity.this);
@@ -3812,6 +3822,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         dialog.show();
     }
 
+    private boolean shouldMarkAsRead() {
+        if (buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has(buffer.getType().equals("channel")?"channel-enableReadOnSelect":"buffer-enableReadOnSelect")) {
+            try {
+                JSONObject markAsReadMap = conn.getUserInfo().prefs.getJSONObject(buffer.getType().equals("channel")?"channel-enableReadOnSelect":"buffer-enableReadOnSelect");
+                if (markAsReadMap.has(String.valueOf(buffer.getBid())) && markAsReadMap.getBoolean(String.valueOf(buffer.getBid()))) {
+                    return true;
+                }
+            } catch (JSONException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onBufferSelected(int bid) {
         launchBid = -1;
@@ -3838,6 +3863,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer != null && buffer.getBid() >= 0 && bid != buffer.getBid()) {
             backStack.add(0, buffer.getBid());
             buffer.setDraft(messageTxt.getText().toString());
+
+            if(shouldMarkAsRead()) {
+                Long eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid());
+                if (eid >= buffer.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid);
+                    buffer.setLast_seen_eid(eid);
+                    buffer.setUnread(0);
+                    buffer.setHighlights(0);
+                }
+            }
         }
         if (buffer != null && buffer.getBid() == bid && findViewById(R.id.splash).getVisibility() == View.GONE)
             shouldFadeIn = false;

@@ -30,21 +30,28 @@
             android:id="@+id/unread"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Track unread messages"
+            android:text="Show unread message indicator"
+            android:textSize="16sp" />
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/readOnSelect"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Mark as read automatically"
             android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/joinpart"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Show nick changes, joins, and parts"
+            android:text="Show nick changes, joins, parts"
             android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/collapse"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:text="Collapse nick changes, joins, and parts"
+            android:text="Collapse nick changes, joins, parts"
             android:textSize="16sp" />
 
         <android.support.v7.widget.SwitchCompat

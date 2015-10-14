@@ -46,6 +46,7 @@ public class ChannelOptionsFragment extends DialogFragment {
     SwitchCompat collapse;
     SwitchCompat notifyAll;
     SwitchCompat autosuggest;
+    SwitchCompat readOnSelect;
     int cid;
     int bid;
 
@@ -61,7 +62,7 @@ public class ChannelOptionsFragment extends DialogFragment {
 
     public JSONObject updatePref(JSONObject prefs, SwitchCompat control, String key) throws JSONException {
         boolean checked = control.isChecked();
-        if (control == notifyAll)
+        if (control == notifyAll || control == readOnSelect)
             checked = !checked;
         if (!checked) {
             JSONObject map;
@@ -98,6 +99,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
                     prefs = updatePref(prefs, notifyAll, "channel-notifications-all");
                     prefs = updatePref(prefs, autosuggest, "channel-disableAutoSuggest");
+                    prefs = updatePref(prefs, readOnSelect, "channel-enableReadOnSelect");
 
                     NetworkConnection.getInstance().set_prefs(prefs.toString());
                 } else {
@@ -172,6 +174,15 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         autosuggest.setChecked(true);
                     }
+                    if (prefs.has("channel-enableReadOnSelect")) {
+                        JSONObject readOnSelectMap = prefs.getJSONObject("channel-enableReadOnSelect");
+                        if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
+                            readOnSelect.setChecked(true);
+                        else
+                            readOnSelect.setChecked(false);
+                    } else {
+                        readOnSelect.setChecked(false);
+                    }
                 } else {
                     notifyAll.setChecked(false);
                     joinpart.setChecked(true);
@@ -179,6 +190,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     members.setChecked(true);
                     collapse.setChecked(true);
                     autosuggest.setChecked(true);
+                    readOnSelect.setChecked(false);
                 }
             } else {
                 notifyAll.setChecked(false);
@@ -187,6 +199,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                 members.setChecked(true);
                 collapse.setChecked(true);
                 autosuggest.setChecked(true);
+                readOnSelect.setChecked(false);
             }
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
                 members.setVisibility(View.GONE);
@@ -212,6 +225,7 @@ public class ChannelOptionsFragment extends DialogFragment {
         joinpart = (SwitchCompat) v.findViewById(R.id.joinpart);
         collapse = (SwitchCompat) v.findViewById(R.id.collapse);
         autosuggest = (SwitchCompat) v.findViewById(R.id.autosuggest);
+        readOnSelect = (SwitchCompat) v.findViewById(R.id.readOnSelect);
 
         return new AlertDialog.Builder(ctx)
                 .setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)

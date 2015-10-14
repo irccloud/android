@@ -44,6 +44,7 @@ public class BufferOptionsFragment extends DialogFragment {
     SwitchCompat joinpart;
     SwitchCompat collapse;
     SwitchCompat expandDisco;
+    SwitchCompat readOnSelect;
     int cid;
     int bid;
     String type;
@@ -60,7 +61,10 @@ public class BufferOptionsFragment extends DialogFragment {
     }
 
     public JSONObject updatePref(JSONObject prefs, SwitchCompat control, String key) throws JSONException {
-        if (!control.isChecked()) {
+        boolean checked = control.isChecked();
+        if (control == readOnSelect)
+            checked = !checked;
+        if (!checked) {
             JSONObject map;
             if (prefs.has(key))
                 map = prefs.getJSONObject(key);
@@ -90,6 +94,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     }
 
                     prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");
+                    prefs = updatePref(prefs, readOnSelect, "buffer-enableReadOnSelect");
                     if (!type.equalsIgnoreCase("console")) {
                         prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
                         prefs = updatePref(prefs, collapse, "buffer-expandJoinPart");
@@ -151,11 +156,21 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         expandDisco.setChecked(true);
                     }
+                    if (prefs.has("buffer-enableReadOnSelect")) {
+                        JSONObject readOnSelectMap = prefs.getJSONObject("buffer-enableReadOnSelect");
+                        if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
+                            readOnSelect.setChecked(true);
+                        else
+                            readOnSelect.setChecked(false);
+                    } else {
+                        readOnSelect.setChecked(false);
+                    }
                 } else {
                     joinpart.setChecked(true);
                     unread.setChecked(true);
                     collapse.setChecked(true);
                     expandDisco.setChecked(true);
+                    readOnSelect.setChecked(false);
                 }
             }
         } catch (JSONException e) {
@@ -174,6 +189,7 @@ public class BufferOptionsFragment extends DialogFragment {
         joinpart = (SwitchCompat) v.findViewById(R.id.joinpart);
         collapse = (SwitchCompat) v.findViewById(R.id.collapse);
         expandDisco = (SwitchCompat) v.findViewById(R.id.expandDisco);
+        readOnSelect = (SwitchCompat) v.findViewById(R.id.readOnSelect);
 
         if (savedInstanceState != null && bid == -1 && savedInstanceState.containsKey("bid")) {
             bid = savedInstanceState.getInt("bid");
