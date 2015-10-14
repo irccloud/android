@@ -224,17 +224,15 @@
                 android:inputType="textPersonName"
                 android:textColorHint="#2857ad" />
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="34dp"
-                android:completionThreshold="1"
                 android:ems="10"
                 android:hint="@string/email"
                 android:imeOptions="actionNext"
                 android:inputType="textEmailAddress"
                 android:background="@drawable/login_mid_input"
-                android:password="false"
                 android:textAppearance="@android:style/TextAppearance.Medium"
                 android:textColorHint="#2857ad" />
 

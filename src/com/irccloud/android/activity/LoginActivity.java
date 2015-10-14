@@ -84,7 +84,7 @@ import java.util.ArrayList;
 public class LoginActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private View login = null;
     private View loading = null;
-    private AutoCompleteTextView email;
+    private EditText email;
     private EditText password;
     private EditText host;
     private EditText name;
@@ -141,20 +141,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         name = (EditText) findViewById(R.id.name);
         if (savedInstanceState != null && savedInstanceState.containsKey("name"))
             name.setText(savedInstanceState.getString("name"));
-        email = (AutoCompleteTextView) findViewById(R.id.email);
+        email = (EditText) findViewById(R.id.email);
         if (BuildConfig.ENTERPRISE)
             email.setHint(R.string.email_enterprise);
-
-        ArrayList<String> accounts = new ArrayList<String>();
-        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED) {
-            AccountManager am = (AccountManager) getSystemService(Context.ACCOUNT_SERVICE);
-            for (Account a : am.getAccounts()) {
-                if (a.name.contains("@") && !accounts.contains(a.name))
-                    accounts.add(a.name);
-            }
-        }
-        if (accounts.size() > 0)
-            email.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, accounts.toArray(new String[accounts.size()])));
 
         if (savedInstanceState != null && savedInstanceState.containsKey("email"))
             email.setText(savedInstanceState.getString("email"));
