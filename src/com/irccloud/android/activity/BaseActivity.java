@@ -111,6 +111,16 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         } catch (SsdkUnsupportedException e) {
         }
     }
+
+    public boolean isMultiWindow() {
+        return (mMultiWindowActivity != null && mMultiWindowActivity.isMultiWindow());
+    }
+
+    public void makeMultiWindowIntent(Intent i) {
+        if(mMultiWindowActivity != null)
+            SMultiWindowActivity.makeMultiWindowIntent(i, SMultiWindowActivity.ZONE_A);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();

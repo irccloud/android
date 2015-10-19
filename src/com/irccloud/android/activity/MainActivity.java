@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -279,7 +280,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenReceiver, filter);
 
-        setContentView(R.layout.activity_message);
+        setContentView((isMultiWindow() || !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true)) ? R.layout.activity_message_multiwindow : R.layout.activity_message);
         final View splash = findViewById(R.id.splash);
         if(Build.VERSION.SDK_INT < 16 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {
             splash.setVisibility(View.GONE);
@@ -1277,12 +1278,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
-        if(!colorScheme.theme.equals(ColorScheme.getUserTheme())) {
+        boolean needsRelaunch = !colorScheme.theme.equals(ColorScheme.getUserTheme());
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && findViewById(R.id.usersListFragment2) != null)
+            needsRelaunch = true;
+
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && findViewById(R.id.usersListFragment2) == null)
+            needsRelaunch = true;
+
+        if(needsRelaunch) {
             super.onResume();
-            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            if(isMultiWindow())
+                makeMultiWindowIntent(i);
             i.putExtra("nosplash", true);
             finish();
             startActivity(i);
@@ -2192,9 +2202,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
                             Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
                             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            if(isMultiWindow())
+                                makeMultiWindowIntent(i);
                             i.putExtra("nosplash", true);
                             startActivity(i);
                             finish();
@@ -2305,9 +2316,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Switching to theme: " + ColorScheme.getUserTheme(), Toast.LENGTH_SHORT).show();
                             Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
                             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            if(isMultiWindow())
+                                makeMultiWindowIntent(i);
                             i.putExtra("nosplash", true);
                             startActivity(i);
                             finish();
