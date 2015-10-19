@@ -96,6 +96,7 @@ def theme(f, t, parent):
     f.write(style("android:colorForeground", "text6"))
     f.write(style("android:textColorPrimary", "text1"))
     f.write(style("android:textColorSecondary", "text4"))
+    f.write(style("android:colorEdgeEffect", "text4"))
     
     f.write("\t\t<item name=\"actionbarDrawable\">@drawable/actionbar_" + themename + "</item>\n")
     f.write("\t\t<item name=\"buffersDrawerBackgroundDrawable\">@drawable/buffers_drawer_bg_" + themename + "</item>\n")
@@ -202,7 +203,6 @@ f.write("""
 \t\t<item name="android:windowNoTitle">false</item>
 \t\t<item name="android:windowTitleSize">?attr/actionBarSize</item>
 \t\t<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-\t\t<item name="android:seekBarStyle">@style/SeekBarmain</item>
 \t</style>
 """.format(**params))
 

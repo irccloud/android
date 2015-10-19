@@ -80,6 +80,7 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
+		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -165,6 +166,7 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
+		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -250,6 +252,7 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
+		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -335,6 +338,7 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
+		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -420,6 +424,7 @@
 		<item name="android:colorForeground">@color/rust_text6</item>
 		<item name="android:textColorPrimary">@color/rust_text1</item>
 		<item name="android:textColorSecondary">@color/rust_text4</item>
+		<item name="android:colorEdgeEffect">@color/rust_text4</item>
 		<item name="actionbarDrawable">@drawable/actionbar_rust</item>
 		<item name="buffersDrawerBackgroundDrawable">@drawable/buffers_drawer_bg_rust</item>
 		<item name="bufferBorderDrawable">@drawable/bufferBorderDrawable_rust</item>
@@ -486,7 +491,6 @@
 		<item name="android:windowNoTitle">false</item>
 		<item name="android:windowTitleSize">?attr/actionBarSize</item>
 		<item name="android:windowTitleBackgroundStyle">@style/PrefsWindowTitleBackground</item>
-		<item name="android:seekBarStyle">@style/SeekBarmain</item>
 	</style>
 
 	<style name="rustEditText" parent="rust">

@@ -19,11 +19,11 @@ package com.robobunny;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.Preference;
+import android.support.v7.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -45,7 +45,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
     private int mCurrentValue;
     private String mUnitsLeft = "";
     private String mUnitsRight = "";
-    private SeekBar mSeekBar;
+    private AppCompatSeekBar mSeekBar;
 
     private TextView mStatusText;
 
@@ -61,7 +61,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 
     private void initPreference(Context context, AttributeSet attrs) {
         setValuesFromXml(attrs);
-        mSeekBar = new SeekBar(context, attrs);
+        mSeekBar = new AppCompatSeekBar(context, attrs);
         mSeekBar.setMax(mMaxValue - mMinValue);
         mSeekBar.setOnSeekBarChangeListener(this);
 
@@ -112,7 +112,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
         super.onBindView(view);
         if(view != null)
         {
-            mSeekBar = (SeekBar)view.findViewById(R.id.seekBarPrefSeekBar);
+            mSeekBar = (AppCompatSeekBar)view.findViewById(R.id.seekBarPrefSeekBar);
             mSeekBar.setMax(mMaxValue - mMinValue);
             mSeekBar.setOnSeekBarChangeListener(this);
         }
