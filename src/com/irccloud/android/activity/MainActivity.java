@@ -1280,10 +1280,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
         boolean needsRelaunch = !colorScheme.theme.equals(ColorScheme.getUserTheme());
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && findViewById(R.id.usersListFragment2) != null)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) || isMultiWindow()) && findViewById(R.id.usersListFragment2) != null)
             needsRelaunch = true;
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && findViewById(R.id.usersListFragment2) == null)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow() && findViewById(R.id.usersListFragment2) == null)
             needsRelaunch = true;
 
         if(needsRelaunch) {
