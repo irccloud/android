@@ -323,6 +323,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.0@aar') {
         transitive = true;
     }
+    compile fileTree(dir: 'libs', include: ['*.jar'])
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
     enterprisedebugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'

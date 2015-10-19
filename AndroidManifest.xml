@@ -37,6 +37,7 @@
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="com.sonyericsson.extras.liveware.aef.EXTENSION_PERMISSION" />
+    <uses-permission android:name="com.samsung.android.providers.context.permission.WRITE_USE_APP_FEATURE_SURVEY"/>
 
     <supports-screens
         android:anyDensity="true"
@@ -52,6 +53,11 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:theme="@style/dawn" >
+        <meta-data android:name="com.samsung.android.sdk.multiwindow.enable" android:value="true" />
+        <meta-data android:name="com.samsung.android.sdk.multiwindow.multiinstance.enable" android:value="false" />
+        <meta-data android:name="com.sec.android.multiwindow.STYLE" android:value="fixedRatio"/>
+        <meta-data android:name="com.sec.android.support.multiwindow" android:value="true"/>
+
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"
@@ -59,8 +65,8 @@
             android:theme="@style/LaunchTheme" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

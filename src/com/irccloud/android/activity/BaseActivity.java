@@ -57,6 +57,9 @@ import com.irccloud.android.R;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
+import com.samsung.android.sdk.SsdkUnsupportedException;
+import com.samsung.android.sdk.multiwindow.SMultiWindow;
+import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
 
 public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     NetworkConnection conn;
@@ -64,6 +67,9 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError;
     private static final int REQUEST_RESOLVE_ERROR = 1001;
+
+    private SMultiWindow mMultiWindow = null;
+    private SMultiWindowActivity mMultiWindowActivity = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +103,13 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
 
         if(ServersList.getInstance().count() == 0)
             NetworkConnection.getInstance().load();
+
+        try {
+            mMultiWindow = new SMultiWindow();
+            mMultiWindow.initialize(this);
+            mMultiWindowActivity = new SMultiWindowActivity(this);
+        } catch (SsdkUnsupportedException e) {
+        }
     }
     @Override
     protected void onStart() {
