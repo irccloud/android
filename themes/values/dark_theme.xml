@@ -25,8 +25,8 @@
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
-        <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
-        <item name="actionMenuTextColor">?navBarHeadingColor</item>
+        <item name="android:actionMenuTextColor">?navBarSubheadingColor</item>
+        <item name="actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
@@ -93,8 +93,8 @@
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
-        <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
-        <item name="actionMenuTextColor">?navBarHeadingColor</item>
+        <item name="android:actionMenuTextColor">?navBarSubheadingColor</item>
+        <item name="actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
@@ -159,8 +159,8 @@
         <item name="android:actionBarWidgetTheme">@style/CustomShareIcon</item>
         <item name="actionBarStyle">@style/ThemedActionBar</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarLogin</item>
-        <item name="android:actionMenuTextColor">?navBarHeadingColor</item>
-        <item name="actionMenuTextColor">?navBarHeadingColor</item>
+        <item name="android:actionMenuTextColor">?navBarSubheadingColor</item>
+        <item name="actionMenuTextColor">?navBarSubheadingColor</item>
         <item name="android:scrollbarThumbVertical">?scrollbarDrawable</item>
         <item name="android:scrollbarSize">@dimen/scrollbar_size</item>
         <item name="android:colorBackground">?dialogBackgroundColor</item>
