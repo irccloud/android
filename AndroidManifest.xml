@@ -56,8 +56,9 @@
         android:theme="@style/dawn" >
         <meta-data android:name="com.samsung.android.sdk.multiwindow.enable" android:value="true" />
         <meta-data android:name="com.samsung.android.sdk.multiwindow.multiinstance.enable" android:value="false" />
-        <meta-data android:name="com.sec.android.multiwindow.STYLE" android:value="fixedRatio"/>
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true"/>
+        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="320dp" />
+        <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="400dp" />
 
         <activity
             android:name=".activity.MainActivity"

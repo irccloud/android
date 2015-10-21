@@ -183,7 +183,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     TextView title;
     TextView subtitle;
     TextView key;
-    LinearLayout messageContainer;
     DrawerLayout drawerLayout;
     NetworkConnection conn;
     private boolean shouldFadeIn = false;
@@ -280,28 +279,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenReceiver, filter);
 
-        setContentView((isMultiWindow() || !PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true)) ? R.layout.activity_message_multiwindow : R.layout.activity_message);
-        final View splash = findViewById(R.id.splash);
-        if(Build.VERSION.SDK_INT < 16 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {
-            splash.setVisibility(View.GONE);
-        } else {
-            splash.animate().alpha(0).withEndAction(new Runnable() {
-                @Override
-                public void run() {
-                    splash.setVisibility(View.GONE);
-                }
-            });
-        }
-        try {
-            setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        } catch (Throwable t) {
-        }
+        setContentView(R.layout.activity_message);
 
         suggestionsAdapter = new SuggestionsAdapter();
         progressBar = (ProgressBar) findViewById(R.id.progress);
         errorMsg = (TextView) findViewById(R.id.errorMsg);
         buffersListView = findViewById(R.id.BuffersList);
-        messageContainer = (LinearLayout) findViewById(R.id.messageContainer);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
         messageTxt = (ActionEditText) findViewById(R.id.messageTxt);
@@ -431,22 +414,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 show_topic_popup();
             }
         });
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setCustomView(v);
 
-        if (drawerLayout != null) {
-            if (findViewById(R.id.usersListFragment2) == null) {
-                upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
-                upDrawable.setColorFilter(normalFilter);
-                upDrawableFilter = normalFilter;
-                ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
-                ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
-                drawerLayout.setDrawerListener(mDrawerListener);
-                if (refreshUpIndicatorTask != null)
-                    refreshUpIndicatorTask.cancel(true);
-                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-                refreshUpIndicatorTask.execute((Void) null);
-            }
-        }
+        upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
+        upDrawable.setColorFilter(normalFilter);
+        upDrawableFilter = normalFilter;
+        drawerLayout.setDrawerListener(mDrawerListener);
+
         messageTxt.setDrawerLayout(drawerLayout);
 
         title = (TextView) v.findViewById(R.id.title);
@@ -482,6 +457,40 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(conn == null) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
+        }
+
+        adjustTabletLayout();
+
+        final View splash = findViewById(R.id.splash);
+        if(Build.VERSION.SDK_INT < 16 || savedInstanceState != null || (getIntent() != null && getIntent().hasExtra("nosplash"))) {
+            splash.setVisibility(View.GONE);
+        } else {
+            splash.animate().alpha(0).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    splash.setVisibility(View.GONE);
+                }
+            });
+        }
+    }
+
+    @Override
+    public void multiWindowStateChanged(boolean state) {
+        adjustTabletLayout();
+    }
+
+    private void adjustTabletLayout() {
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+            ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(null);
+            findViewById(R.id.BuffersListDocked).setVisibility(View.VISIBLE);
+        } else {
+            ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
+            ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
+            findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
+            if (refreshUpIndicatorTask != null)
+                refreshUpIndicatorTask.cancel(true);
+            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+            refreshUpIndicatorTask.execute((Void) null);
         }
     }
 
@@ -939,27 +948,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) { //Back key pressed
-            if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
-                drawerLayout.closeDrawers();
-                return true;
-            }
-            while (backStack != null && backStack.size() > 0) {
-                Integer bid = backStack.get(0);
-                backStack.remove(0);
-                if(buffer == null || bid != buffer.getBid()) {
-                    Buffer b = BuffersList.getInstance().getBuffer(bid);
-                    if (b != null) {
-                        onBufferSelected(bid);
-                        if (backStack.size() > 0)
-                            backStack.remove(0);
-                        return true;
-                    }
+    public void onBackPressed() {
+        if (drawerLayout != null && (drawerLayout.isDrawerOpen(Gravity.LEFT) || drawerLayout.isDrawerOpen(Gravity.RIGHT))) {
+            drawerLayout.closeDrawers();
+            return;
+        }
+        while (backStack != null && backStack.size() > 0) {
+            Integer bid = backStack.get(0);
+            backStack.remove(0);
+            if(buffer == null || bid != buffer.getBid()) {
+                Buffer b = BuffersList.getInstance().getBuffer(bid);
+                if (b != null) {
+                    onBufferSelected(bid);
+                    if (backStack.size() > 0)
+                        backStack.remove(0);
+                    return;
                 }
             }
         }
-        return super.onKeyDown(keyCode, event);
     }
 
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
@@ -1278,15 +1284,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
-        boolean needsRelaunch = !colorScheme.theme.equals(ColorScheme.getUserTheme());
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) || isMultiWindow()) && findViewById(R.id.usersListFragment2) != null)
-            needsRelaunch = true;
-
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow() && findViewById(R.id.usersListFragment2) == null)
-            needsRelaunch = true;
-
-        if(needsRelaunch) {
+        if(!colorScheme.theme.equals(ColorScheme.getUserTheme())) {
             super.onResume();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
@@ -1338,10 +1337,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else if (conn.getUserInfo() != null && conn.ready) {
                 if (launchURI == null || !open_uri(launchURI)) {
                     if (!open_bid(conn.getUserInfo().last_selected_bid)) {
-                        if (!open_bid(BuffersList.getInstance().firstBid())) {
-                            if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null)
-                                drawerLayout.openDrawer(Gravity.LEFT);
-                        }
+                        open_bid(BuffersList.getInstance().firstBid());
                     }
                 }
             }
@@ -1355,6 +1351,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
 
+        adjustTabletLayout();
         updateUsersListFragmentVisibility();
         update_subtitle();
 
@@ -1673,7 +1670,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
     private void updateUsersListFragmentVisibility() {
         boolean hide = true;
-        if (userListView != null) {
+        View usersListFragmentDocked = findViewById(R.id.usersListFragmentDocked);
+        if (usersListFragmentDocked != null) {
             Channel c = null;
             if (buffer != null && buffer.isChannel()) {
                 c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
@@ -1681,7 +1679,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     hide = false;
             }
             try {
-                if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && findViewById(R.id.usersListFragment2) != null) {
+                if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                     JSONObject hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hiddenMembers");
                     if (hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())))
                         hide = true;
@@ -1693,20 +1691,20 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 hide = true;
 
             if (hide) {
-                userListView.setVisibility(View.GONE);
+                usersListFragmentDocked.setVisibility(View.GONE);
                 if (drawerLayout != null) {
-                    if (findViewById(R.id.usersListFragment2) != null && c != null)
+                    if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow() && c != null)
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                     else
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
                 }
             } else {
-                userListView.setVisibility(View.VISIBLE);
-                if (drawerLayout != null) {
-                    if (findViewById(R.id.usersListFragment2) != null)
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
-                    else
-                        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+                    usersListFragmentDocked.setVisibility(View.VISIBLE);
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.RIGHT);
+                } else {
+                    usersListFragmentDocked.setVisibility(View.GONE);
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                 }
             }
         }
@@ -1905,11 +1903,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-                                        if (!open_bid(BuffersList.getInstance().firstBid())) {
-                                            if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
-                                                drawerLayout.openDrawer(Gravity.LEFT);
-                                            }
-                                        }
+                                        open_bid(BuffersList.getInstance().firstBid());
                                     }
                                 }
                             });
@@ -2359,11 +2353,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     if (launchURI == null || !open_uri(launchURI)) {
                                         if (launchBid == -1 || !open_bid(launchBid)) {
                                             if (conn == null || conn.getUserInfo() == null || !open_bid(conn.getUserInfo().last_selected_bid)) {
-                                                if (!open_bid(BuffersList.getInstance().firstBid())) {
-                                                    if (drawerLayout != null && NetworkConnection.getInstance().ready && findViewById(R.id.usersListFragment2) == null) {
-                                                        drawerLayout.openDrawer(Gravity.LEFT);
-                                                    }
-                                                }
+                                                open_bid(BuffersList.getInstance().firstBid());
                                             }
                                         }
                                     }
@@ -2670,7 +2660,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         menu.findItem(R.id.menu_ban_list).setVisible(true);
                         menu.findItem(R.id.menu_ban_list).setEnabled(true);
                     }
-                    if (menu.findItem(R.id.menu_userlist) != null && findViewById(R.id.usersListFragment2) != null) {
+                    if (menu.findItem(R.id.menu_userlist) != null && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
                         boolean hide = true;
                         try {
                             if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
@@ -2752,20 +2742,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         @Override
         public void onDrawerStateChanged(int i) {
             if (i != DrawerLayout.STATE_SETTLING) {
-                if (findViewById(R.id.usersListFragment2) != null) {
-                    drawerLayout.bringChildToFront(findViewById(R.id.usersListFragment2));
-                } else {
-                    if (buffersListView != null)
-                        drawerLayout.bringChildToFront(buffersListView);
-                    if (userListView != null)
-                        drawerLayout.bringChildToFront(userListView);
-                }
+                if (buffersListView != null)
+                    buffersListView.setVisibility(View.VISIBLE);
+                if (userListView != null)
+                    userListView.setVisibility(View.VISIBLE);
                 drawerLayout.setScrimColor(0x99000000);
             }
         }
     }
-
-    ;
 
     private ToggleListener mDrawerListener = new ToggleListener();
 
@@ -3032,7 +3016,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (drawerLayout != null && findViewById(R.id.usersListFragment2) == null) {
+                if (drawerLayout != null) {
                     if (drawerLayout.isDrawerOpen(Gravity.LEFT))
                         drawerLayout.closeDrawer(Gravity.LEFT);
                     else if(drawerLayout.getDrawerLockMode(Gravity.LEFT) == DrawerLayout.LOCK_MODE_UNLOCKED)
@@ -3064,8 +3048,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     if (drawerLayout.isDrawerOpen(Gravity.RIGHT)) {
                         drawerLayout.closeDrawers();
                     } else {
-                        if (findViewById(R.id.usersListFragment2) == null)
-                            drawerLayout.closeDrawer(Gravity.LEFT);
+                        drawerLayout.closeDrawer(Gravity.LEFT);
                         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.RIGHT);
                         drawerLayout.openDrawer(Gravity.RIGHT);
                     }
@@ -3941,13 +3924,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         b.putInt("bid", bid);
         b.putBoolean("fade", shouldFadeIn);
         BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+        BuffersListFragment blf2 = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersListDocked);
         final MessageViewFragment mvf = (MessageViewFragment) getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
         UsersListFragment ulf = (UsersListFragment) getSupportFragmentManager().findFragmentById(R.id.usersListFragment);
-        UsersListFragment ulf2 = (UsersListFragment) getSupportFragmentManager().findFragmentById(R.id.usersListFragment2);
+        UsersListFragment ulf2 = (UsersListFragment) getSupportFragmentManager().findFragmentById(R.id.usersListFragmentDocked);
         if (mvf != null)
             mvf.ready = false;
         if (blf != null)
             blf.setSelectedBid(bid);
+        if (blf2 != null)
+            blf2.setSelectedBid(bid);
         if (ulf != null)
             ulf.setArguments(b);
         if (ulf2 != null)

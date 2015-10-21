@@ -25,6 +25,7 @@ import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -108,12 +109,32 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             mMultiWindow = new SMultiWindow();
             mMultiWindow.initialize(this);
             mMultiWindowActivity = new SMultiWindowActivity(this);
+            mMultiWindowActivity.setStateChangeListener(new SMultiWindowActivity.StateChangeListener() {
+                @Override
+                public void onModeChanged(boolean b) {
+                    multiWindowStateChanged(b);
+                }
+
+                @Override
+                public void onZoneChanged(int i) {
+
+                }
+
+                @Override
+                public void onSizeChanged(Rect rect) {
+
+                }
+            });
         } catch (SsdkUnsupportedException e) {
         }
     }
 
+    public void multiWindowStateChanged(boolean state) {
+
+    }
+
     public boolean isMultiWindow() {
-        return (mMultiWindowActivity != null && mMultiWindowActivity.isMultiWindow());
+        return (mMultiWindowActivity != null && !mMultiWindowActivity.isNormalWindow());
     }
 
     public void makeMultiWindowIntent(Intent i) {
