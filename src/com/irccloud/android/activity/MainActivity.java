@@ -482,6 +482,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             @Override
             public void onGlobalLayout() {
                 adjustTabletLayout();
+                updateUsersListFragmentVisibility();
             }
         });
     }
@@ -973,6 +974,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         }
+        finish();
     }
 
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
