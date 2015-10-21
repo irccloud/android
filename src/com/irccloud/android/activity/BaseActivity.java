@@ -43,6 +43,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
@@ -111,18 +112,40 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             mMultiWindowActivity = new SMultiWindowActivity(this);
             mMultiWindowActivity.setStateChangeListener(new SMultiWindowActivity.StateChangeListener() {
                 @Override
-                public void onModeChanged(boolean b) {
-                    multiWindowStateChanged(b);
+                public void onModeChanged(boolean arg0) {
+                    // TODO Auto-generated method stub
+                    if (arg0) {
+                        Toast.makeText(BaseActivity.this,
+                                "MultiWindow Mode is changed to Multi-Window",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(BaseActivity.this,
+                                "MultiWindow Mode is changed to Normal-Window",
+                                Toast.LENGTH_LONG).show();
+                    }
+                    multiWindowStateChanged(arg0);
                 }
 
                 @Override
-                public void onZoneChanged(int i) {
-
+                public void onZoneChanged(int arg0) {
+                    // TODO Auto-generated method stub
+                    String zoneInfo = "Free zone";
+                    if (arg0 == SMultiWindowActivity.ZONE_A) {
+                        zoneInfo = "Zone A";
+                    } else if (arg0 == SMultiWindowActivity.ZONE_B) {
+                        zoneInfo = "Zone B";
+                    }
+                    Toast.makeText(BaseActivity.this,
+                            "Activity zone info is changed to " + zoneInfo,
+                            Toast.LENGTH_LONG).show();
                 }
 
                 @Override
-                public void onSizeChanged(Rect rect) {
-
+                public void onSizeChanged(Rect arg0) {
+                    // TODO Auto-generated method stub
+                    Toast.makeText(BaseActivity.this,
+                            "Activity size info is changed to " + arg0,
+                            Toast.LENGTH_LONG).show();
                 }
             });
         } catch (SsdkUnsupportedException e) {

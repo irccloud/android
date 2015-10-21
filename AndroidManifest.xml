@@ -57,6 +57,8 @@
         <meta-data android:name="com.samsung.android.sdk.multiwindow.enable" android:value="true" />
         <meta-data android:name="com.samsung.android.sdk.multiwindow.multiinstance.enable" android:value="false" />
         <meta-data android:name="com.sec.android.support.multiwindow" android:value="true"/>
+        <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_W" android:value="632dp" />
+        <meta-data android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H" android:value="598dp" />
         <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="320dp" />
         <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="400dp" />
 
