@@ -1298,12 +1298,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 recreate();
             } else {
                 Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 if (isMultiWindow())
                     makeMultiWindowIntent(i);
                 i.putExtra("nosplash", true);
                 finish();
+                overridePendingTransition(0, 0);
                 startActivity(i);
+                overridePendingTransition(0, 0);
             }
             return;
         }
@@ -2210,12 +2212,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 recreate();
                             } else {
                                 Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                 if (isMultiWindow())
                                     makeMultiWindowIntent(i);
                                 i.putExtra("nosplash", true);
                                 finish();
+                                overridePendingTransition(0, 0);
                                 startActivity(i);
+                                overridePendingTransition(0, 0);
                             }
                         }
                     });
@@ -2328,12 +2332,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 recreate();
                             } else {
                                 Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                 if (isMultiWindow())
                                     makeMultiWindowIntent(i);
                                 i.putExtra("nosplash", true);
                                 finish();
+                                overridePendingTransition(0, 0);
                                 startActivity(i);
+                                overridePendingTransition(0, 0);
                             }
                         }
                     });
