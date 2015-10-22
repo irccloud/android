@@ -3710,7 +3710,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } else if (items[item].equals("Whois…")) {
                     conn.whois(buffer.getCid(), selected_user.nick, null);
                 } else if (items[item].equals("Send a message")) {
-                    conn.say(buffer.getCid(), null, "/query " + selected_user.nick);
+                    drawerLayout.closeDrawers();
+                    drawerLayout.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            conn.say(buffer.getCid(), null, "/query " + selected_user.nick);
+                        }
+                    }, 200);
                 } else if (items[item].equals("Mention")) {
                     if (!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
                         Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();
