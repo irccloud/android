@@ -55,12 +55,14 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
         getSupportActionBar().setElevation(0);
 
         TextView t = (TextView)findViewById(R.id.action_cancel);
-        Drawable d = t.getCompoundDrawables()[0];
+        Drawable d = getResources().getDrawable(R.drawable.ic_action_cancel).mutate();
         d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
+        t.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 
         t = (TextView)findViewById(R.id.action_done);
-        d = t.getCompoundDrawables()[0];
+        d = getResources().getDrawable(R.drawable.ic_action_save).mutate();
         d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
+        t.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         final EditConnectionFragment newFragment = new EditConnectionFragment();

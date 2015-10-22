@@ -25,7 +25,7 @@
         <TextView
             android:id="@+id/action_cancel"
             android:text="CANCEL"
-            android:drawableLeft="@drawable/ic_action_cancel"
+            android:textColor="?navBarHeadingColor"
             style="@style/EditEventCustomActionButtonText"
             android:gravity="center_vertical" />
 
@@ -37,7 +37,7 @@
         <TextView
             android:id="@+id/action_done"
             android:text="DONE"
-            android:drawableLeft="@drawable/ic_action_save"
+            android:textColor="?navBarHeadingColor"
             style="@style/EditEventCustomActionButtonText"
             android:gravity="center_vertical" />
 
