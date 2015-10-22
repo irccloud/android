@@ -3716,7 +3716,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         public void run() {
                             conn.say(buffer.getCid(), null, "/query " + selected_user.nick);
                         }
-                    }, 200);
+                    }, 300);
                 } else if (items[item].equals("Mention")) {
                     if (!getSharedPreferences("prefs", 0).getBoolean("mentionTip", false)) {
                         Toast.makeText(IRCCloudApplication.getInstance().getApplicationContext(), "Double-tap a message to quickly reply to the sender", Toast.LENGTH_LONG).show();

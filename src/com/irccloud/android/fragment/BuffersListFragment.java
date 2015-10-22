@@ -734,7 +734,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_LISTRESPONSEFETCHING:
             case NetworkConnection.EVENT_LISTRESPONSE:
             case NetworkConnection.EVENT_LISTRESPONSETOOMANY:
-            case NetworkConnection.EVENT_CONNECTIONLAG:
             case NetworkConnection.EVENT_GLOBALMSG:
             case NetworkConnection.EVENT_ACCEPTLIST:
             case NetworkConnection.EVENT_NAMESLIST:

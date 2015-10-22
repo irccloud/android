@@ -1287,7 +1287,15 @@ public class NetworkConnection {
         try {
             JSONObject o = new JSONObject();
             o.put("cid", cid);
-            return send("reconnect", o);
+            int reqid = send("reconnect", o);
+            if(reqid > 0) {
+                Server s = mServers.getServer(cid);
+                if(s != null) {
+                    s.setStatus("queued");
+                    notifyHandlers(EVENT_CONNECTIONLAG, new IRCCloudJSONObject(o));
+                }
+            }
+            return reqid;
         } catch (JSONException e) {
             e.printStackTrace();
             return -1;
