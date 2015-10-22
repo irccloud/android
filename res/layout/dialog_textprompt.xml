@@ -29,7 +29,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="?messageTextColor"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        />
 
     <EditText
         android:id="@+id/textInput"
