@@ -1301,13 +1301,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(!colorScheme.theme.equals(ColorScheme.getUserTheme())) {
             super.onResume();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
-            Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            if(isMultiWindow())
-                makeMultiWindowIntent(i);
-            i.putExtra("nosplash", true);
-            finish();
-            startActivity(i);
+            if(Build.VERSION.SDK_INT >= 11) {
+                recreate();
+            } else {
+                Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (isMultiWindow())
+                    makeMultiWindowIntent(i);
+                i.putExtra("nosplash", true);
+                finish();
+                startActivity(i);
+            }
             return;
         }
 
@@ -2209,13 +2213,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            if(isMultiWindow())
-                                makeMultiWindowIntent(i);
-                            i.putExtra("nosplash", true);
-                            startActivity(i);
-                            finish();
+                            if(Build.VERSION.SDK_INT >= 11) {
+                                recreate();
+                            } else {
+                                Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                if (isMultiWindow())
+                                    makeMultiWindowIntent(i);
+                                i.putExtra("nosplash", true);
+                                finish();
+                                startActivity(i);
+                            }
                         }
                     });
                 } else {
@@ -2323,13 +2331,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
-                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                            if(isMultiWindow())
-                                makeMultiWindowIntent(i);
-                            i.putExtra("nosplash", true);
-                            startActivity(i);
-                            finish();
+                            if(Build.VERSION.SDK_INT >= 11) {
+                                recreate();
+                            } else {
+                                Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                if (isMultiWindow())
+                                    makeMultiWindowIntent(i);
+                                i.putExtra("nosplash", true);
+                                finish();
+                                startActivity(i);
+                            }
                         }
                     });
                 } else {
