@@ -101,8 +101,16 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     public void onCreate(Bundle icicle) {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
-        setTheme(ColorScheme.getPrefsTheme(ColorScheme.getUserTheme()));
-        ColorScheme.getInstance().setThemeFromContext(this, ColorScheme.getUserTheme());
+        boolean themeChanged = false;
+        String theme = ColorScheme.getUserTheme();
+        if(ColorScheme.getInstance().theme == null || !ColorScheme.getInstance().theme.equals(theme)) {
+            themeChanged = true;
+        }
+        setTheme(ColorScheme.getTheme(theme, true));
+        ColorScheme.getInstance().setThemeFromContext(this, theme);
+        if(themeChanged)
+            EventsList.getInstance().clearCaches();
+
         getDelegate().installViewFactory();
         getDelegate().onCreate(icicle);
         if (Build.VERSION.SDK_INT >= 21) {
@@ -392,10 +400,13 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                         ((SwitchPreferenceCompat) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
                                     ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
+                                    findPreference("theme").setSummary(ColorScheme.getUserTheme());
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
                             }
+                            if(Build.VERSION.SDK_INT >= 11 && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme()))
+                                recreate();
                         }
                     });
                 }

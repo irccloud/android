@@ -19,7 +19,6 @@ package com.irccloud.android.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -53,9 +52,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -72,24 +69,19 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SearchEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.view.WindowManager;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -102,7 +94,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -115,7 +106,6 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
-import com.irccloud.android.DrawerArrowDrawable;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
@@ -221,6 +211,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_PHOTO = 5;
     private static final int REQUEST_EXTERNAL_MEDIA_CHOOSE_DOCUMENT = 6;
 
+    private String theme;
+
     private class SuggestionsAdapter extends ArrayAdapter<String> {
         public SuggestionsAdapter() {
             super(MainActivity.this, R.layout.row_suggestion);
@@ -272,7 +264,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(ColorScheme.getTheme(ColorScheme.getUserTheme(), false));
+        theme = ColorScheme.getUserTheme();
+        setTheme(ColorScheme.getTheme(theme, false));
         suggestionsTimer = new Timer("suggestions-timer");
         countdownTimer = new Timer("messsage-countdown-timer");
 
@@ -1298,7 +1291,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     public void onResume() {
         Crashlytics.log(Log.DEBUG, "IRCCloud", "Resuming app");
 
-        if(!colorScheme.theme.equals(ColorScheme.getUserTheme())) {
+        if(!theme.equals(ColorScheme.getUserTheme())) {
             super.onResume();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             if(Build.VERSION.SDK_INT >= 11) {
