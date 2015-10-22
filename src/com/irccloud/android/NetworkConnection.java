@@ -3186,6 +3186,7 @@ public class NetworkConnection {
             if (Build.VERSION.SDK_INT >= 14)
                 TrafficStats.clearThreadStatsTag();
             notifyHandlers(EVENT_BACKLOG_FAILED, null);
+            backlog = false;
             if (bid == -1) {
                 Crashlytics.log(Log.ERROR, TAG, "Failed to fetch the initial backlog, reconnecting!");
                 streamId = null;
