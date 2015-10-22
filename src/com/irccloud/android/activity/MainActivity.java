@@ -483,6 +483,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onGlobalLayout() {
                 adjustTabletLayout();
                 updateUsersListFragmentVisibility();
+                supportInvalidateOptionsMenu();
             }
         });
     }
@@ -491,10 +492,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
             ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(null);
             findViewById(R.id.BuffersListDocked).setVisibility(View.VISIBLE);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
         } else {
             ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
             ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
             findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+            getSupportActionBar().setHomeButtonEnabled(true);
             if (refreshUpIndicatorTask != null)
                 refreshUpIndicatorTask.cancel(true);
             refreshUpIndicatorTask = new RefreshUpIndicatorTask();
@@ -4016,7 +4020,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null)
             new RefreshUpIndicatorTask().execute((Void) null);
         if (buffer != null && buffer.getCid() != -1) {
-            if (drawerLayout != null) {
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+            } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
                 getSupportActionBar().setHomeButtonEnabled(true);
             }
