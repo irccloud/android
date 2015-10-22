@@ -128,6 +128,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(ColorScheme.getTheme(ColorScheme.getUserTheme(), false));
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
