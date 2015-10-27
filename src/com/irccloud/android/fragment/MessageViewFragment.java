@@ -322,12 +322,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
                     try {
                         JSONObject prefs = conn.getUserInfo().prefs;
-                        if (prefs.has("time-24hr") && prefs.getBoolean("time-24hr")) {
-                            if (prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
+                        if (prefs.has("time-24hr") && prefs.get("time-24hr") instanceof Boolean && prefs.getBoolean("time-24hr")) {
+                            if (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds"))
                                 formatter = new SimpleDateFormat("H:mm:ss");
                             else
                                 formatter = new SimpleDateFormat("H:mm");
-                        } else if (prefs.has("time-seconds") && prefs.getBoolean("time-seconds")) {
+                        } else if (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds")) {
                             formatter = new SimpleDateFormat("h:mm:ss a");
                         }
                     } catch (JSONException e1) {
@@ -1048,7 +1048,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         synchronized (adapterLock) {
             try {
                 boolean colors = false;
-                if (!event.self && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("nick-colors") && conn.getUserInfo().prefs.getBoolean("nick-colors"))
+                if (!event.self && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("nick-colors") && conn.getUserInfo().prefs.get("nick-colors") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("nick-colors"))
                     colors = true;
 
                 long start = System.currentTimeMillis();
@@ -1085,7 +1085,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         }
 
-                        if ((conn.getUserInfo().prefs.has("hideJoinPart") && conn.getUserInfo().prefs.getBoolean("hideJoinPart")) || (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())))) {
+                        if ((conn.getUserInfo().prefs.has("hideJoinPart") && conn.getUserInfo().prefs.get("hideJoinPart") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("hideJoinPart")) || (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())))) {
                             adapter.removeItem(event.eid);
                             if (!backlog)
                                 adapter.notifyDataSetChanged();
@@ -1105,7 +1105,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             }
                         }
 
-                        if ((conn.getUserInfo().prefs.has("expandJoinPart") && conn.getUserInfo().prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid())))) {
+                        if ((conn.getUserInfo().prefs.has("expandJoinPart") && conn.getUserInfo().prefs.get("expandJoinPart") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid())))) {
                             shouldExpand = true;
                         }
                     }

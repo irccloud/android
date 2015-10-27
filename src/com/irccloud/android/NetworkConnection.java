@@ -1800,14 +1800,14 @@ public class NetworkConnection {
                 prefs.putString("highlights", userInfo.highlights);
                 prefs.putBoolean("autoaway", userInfo.auto_away);
                 if (userInfo.prefs != null) {
-                    prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.get("time-24hr").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("time-24hr"));
-                    prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("time-seconds"));
-                    prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("mode-showsymbol"));
-                    prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("nick-colors"));
-                    prefs.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("emoji-disableconvert")));
-                    prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("pastebin-disableprompt")));
-                    prefs.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("hideJoinPart")));
-                    prefs.putBoolean("expandJoinPart", !(userInfo.prefs.has("expandJoinPart") && userInfo.prefs.get("expandJoinPart").getClass().equals(Boolean.class) && userInfo.prefs.getBoolean("expandJoinPart")));
+                    prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.get("time-24hr") instanceof Boolean && userInfo.prefs.getBoolean("time-24hr"));
+                    prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds") instanceof Boolean && userInfo.prefs.getBoolean("time-seconds"));
+                    prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol") instanceof Boolean && userInfo.prefs.getBoolean("mode-showsymbol"));
+                    prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors") instanceof Boolean && userInfo.prefs.getBoolean("nick-colors"));
+                    prefs.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert") instanceof Boolean && userInfo.prefs.getBoolean("emoji-disableconvert")));
+                    prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt") instanceof Boolean && userInfo.prefs.getBoolean("pastebin-disableprompt")));
+                    prefs.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("hideJoinPart")));
+                    prefs.putBoolean("expandJoinPart", !(userInfo.prefs.has("expandJoinPart") && userInfo.prefs.get("expandJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("expandJoinPart")));
                     if(userInfo.prefs.has("theme"))
                         prefs.putString("theme", userInfo.prefs.getString("theme"));
                     if(userInfo.prefs.has("font"))
