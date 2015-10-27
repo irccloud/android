@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 
 import com.squareup.leakcanary.AndroidExcludedRefs;
@@ -49,7 +50,7 @@ public class IRCCloudApplication extends IRCCloudApplicationBase {
         super.onCreate();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        if(BuildConfig.DEBUG && prefs.getBoolean("detect_leaks", true)) {
+        if(BuildConfig.DEBUG && prefs.getBoolean("detect_leaks", true) && Build.VERSION.SDK_INT < 23) {
             ExcludedRefs excludedRefs = AndroidExcludedRefs.createAndroidDefaults()
                     .thread("WebViewCoreThread")
                     .thread("CookieSyncManager")
