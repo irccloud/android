@@ -1235,6 +1235,23 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 buffer = null;
                 server = null;
             }
+        } else if (intent.getData() != null && intent.getData().getPath() != null && intent.getData().getPath().equals("/invite")) {
+            try {
+                String uri = "irc";
+                if (intent.getData().getQueryParameter("ssl") != null && intent.getData().getQueryParameter("ssl").equals("1"))
+                    uri += "s";
+                uri += "://" + intent.getData().getQueryParameter("hostname") + ":" + intent.getData().getQueryParameter("port") + "/" + URLEncoder.encode(intent.getData().getQueryParameter("channel"), "UTF-8");
+                if (open_uri(Uri.parse(uri))) {
+                    return;
+                } else {
+                    launchURI = Uri.parse(uri);
+                    buffer = null;
+                    server = null;
+                }
+            } catch(Exception e) {
+                buffer = null;
+                server = null;
+            }
         } else if (intent.hasExtra("cid")) {
             if (buffer == null) {
                 buffer = BuffersList.getInstance().getBufferByName(intent.getIntExtra("cid", 0), intent.getStringExtra("name"));
@@ -3163,6 +3180,68 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     NetworkConnection.getInstance().reconnect(buffer.getCid());
                 }
                 return true;
+            case R.id.menu_invite:
+                View view = getDialogTextPrompt();
+                TextView prompt = (TextView) view.findViewById(R.id.prompt);
+                final EditText input = (EditText) view.findViewById(R.id.textInput);
+                input.setText("");
+                prompt.setText("Invite someone to join " + buffer.getName());
+                builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                builder.setView(view);
+                builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        conn.invite(buffer.getCid(), buffer.getName(), input.getText().toString());
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNeutralButton("Share URL", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String uri;
+                        try {
+                            if (BuildConfig.ENTERPRISE) {
+                                uri = "irc";
+                                if (server.getSsl() > 0)
+                                    uri += "s";
+                                uri += "://" + server.getHostname() + ":" + server.getPort();
+                                if (buffer.isChannel()) {
+                                    uri += "/" + URLEncoder.encode(buffer.getName(), "UTF-8");
+                                    Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
+                                    if (c != null && c.hasMode("k"))
+                                        uri += "," + c.paramForMode("k");
+                                }
+                            } else {
+                                uri = "https://www.irccloud.com/invite?";
+                                uri += "channel=" + URLEncoder.encode(buffer.getName(), "UTF-8");
+                                uri += "&hostname=" + server.getHostname();
+                                uri += "&port=" + server.getPort();
+                                if (server.getSsl() > 0)
+                                    uri += "&ssl=1";
+                            }
+                            Intent i = new Intent(Intent.ACTION_SEND);
+                            i.setType("text/plain");
+                            i.putExtra(Intent.EXTRA_TEXT, uri);
+                            startActivity(Intent.createChooser(i, "Share URL"));
+                        } catch (Exception e) {
+
+                        }
+                        dialog.dismiss();
+                    }
+                });
+                dialog = builder.create();
+                dialog.setOwnerActivity(MainActivity.this);
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                dialog.show();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -3309,11 +3388,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (ChannelsList.getInstance().getChannelForBuffer(b.getBid()) != null) {
                 itemList.add("Leave");
                 itemList.add("Display Options…");
+                itemList.add("Invite to Channel…");
             } else {
                 if (b.isChannel())
                     itemList.add("Join");
                 else if (b.isConsole()) {
                     if (s.getStatus().equalsIgnoreCase("waiting_to_retry") || (s.getStatus().contains("connected") && !s.getStatus().startsWith("dis"))) {
+                        itemList.add("Join a Channel…");
                         itemList.add("Disconnect");
                     } else {
                         itemList.add("Connect");
@@ -3446,6 +3527,95 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     addNetwork();
                 } else if (items[item].equals("Reorder Connections")) {
                     reorder();
+                } else if (items[item].equals("Invite to Channel…")) {
+                    View view = getDialogTextPrompt();
+                    TextView prompt = (TextView) view.findViewById(R.id.prompt);
+                    final EditText input = (EditText) view.findViewById(R.id.textInput);
+                    input.setText("");
+                    prompt.setText("Invite someone to join " + b.getName());
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                    builder.setView(view);
+                    builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            conn.invite(b.getCid(), b.getName(), input.getText().toString());
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNeutralButton("Share URL", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String uri;
+                            try {
+                                Server s = b.getServer();
+                                if (BuildConfig.ENTERPRISE) {
+                                    uri = "irc";
+                                    if (s.getSsl() > 0)
+                                        uri += "s";
+                                    uri += "://" + s.getHostname() + ":" + s.getPort();
+                                    if (b.isChannel()) {
+                                        uri += "/" + URLEncoder.encode(b.getName(), "UTF-8");
+                                        Channel c = ChannelsList.getInstance().getChannelForBuffer(b.getBid());
+                                        if (c != null && c.hasMode("k"))
+                                            uri += "," + c.paramForMode("k");
+                                    }
+                                } else {
+                                    uri = "https://www.irccloud.com/invite?";
+                                    uri += "channel=" + URLEncoder.encode(b.getName(), "UTF-8");
+                                    uri += "&hostname=" + s.getHostname();
+                                    uri += "&port=" + s.getPort();
+                                    if (s.getSsl() > 0)
+                                        uri += "&ssl=1";
+                                }
+                                Intent i = new Intent(Intent.ACTION_SEND);
+                                i.setType("text/plain");
+                                i.putExtra(Intent.EXTRA_TEXT, uri);
+                                startActivity(Intent.createChooser(i, "Share URL"));
+                            } catch (Exception e) {
+
+                            }
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog = builder.create();
+                    dialog.setOwnerActivity(MainActivity.this);
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    dialog.show();
+                } else if (items[item].equals("Join a Channel…")) {
+                    View view = getDialogTextPrompt();
+                    TextView prompt = (TextView) view.findViewById(R.id.prompt);
+                    final EditText input = (EditText) view.findViewById(R.id.textInput);
+                    input.setText("");
+                    prompt.setText("Which channel do you want to join?");
+                    builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
+                    builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
+                    builder.setView(view);
+                    builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            conn.say(b.getCid(), null, "/join " + input.getText().toString());
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    dialog = builder.create();
+                    dialog.setOwnerActivity(MainActivity.this);
+                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    dialog.show();
                 }
             }
         });

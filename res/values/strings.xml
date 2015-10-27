@@ -33,6 +33,7 @@
     <string name="menu_add_network">Add Network</string>
     <string name="menu_display_options">Display Options</string>
     <string name="menu_photo">Insert Photo</string>
+    <string name="menu_invite">Invite to Channel</string>
     <string name="title_activity_message">IRCCloud</string>
     <string name="title_activity_login">Login</string>
     <string name="email">Email Address</string>
