@@ -53,6 +53,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -100,6 +101,8 @@ import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ShareEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
@@ -284,6 +287,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         errorMsg = (TextView) findViewById(R.id.errorMsg);
         buffersListView = findViewById(R.id.BuffersList);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+
+        if(Build.VERSION.SDK_INT >= 23 && theme.equals("dawn"))
+            drawerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
 
         messageTxt = (ActionEditText) findViewById(R.id.messageTxt);
         messageTxt.setOnKeyListener(new OnKeyListener() {
@@ -3578,6 +3584,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 Intent i = new Intent(Intent.ACTION_SEND);
                                 i.setType("text/plain");
                                 i.putExtra(Intent.EXTRA_TEXT, uri);
+                                i.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
+                                i.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                                Answers.getInstance().logShare(new ShareEvent().putContentType("Channel"));
                                 startActivity(Intent.createChooser(i, "Share URL"));
                             } catch (Exception e) {
 

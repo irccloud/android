@@ -16,6 +16,8 @@
 
 <resources>
 	<style name="dawn" parent="LightAppTheme">
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="android:statusBarColor">@color/dawnStatusBarColor</item>
 		<item name="isDarkTheme">false</item>
 		<item name="editTextTheme">@style/dawn</item>
 		<item name="bufferTextColor">#1d40ff</item>
@@ -93,6 +95,8 @@
 	</style>
 
 	<style name="dawnNoActionBar" parent="LightAppThemeNoActionBar">
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="android:statusBarColor">@color/dawnStatusBarColor</item>
 		<item name="isDarkTheme">false</item>
 		<item name="editTextTheme">@style/dawnNoActionBar</item>
 		<item name="bufferTextColor">#1d40ff</item>
@@ -324,6 +328,8 @@
 	</style>
 
 	<style name="dawnDialogWhenLarge" parent="LightAppDialogWhenLargeTheme">
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="android:statusBarColor">@color/dawnStatusBarColor</item>
 		<item name="isDarkTheme">false</item>
 		<item name="editTextTheme">@style/dawnDialogWhenLarge</item>
 		<item name="bufferTextColor">#1d40ff</item>
@@ -410,6 +416,7 @@
 	<drawable name="bufferHighlightDrawable_dawn">#C6DAFF</drawable>
 	<color name="dawn_theme_preview">#B3CFFF</color>
 	<color name="scrollbarColor_dawn">#679fff</color>
+	<color name="dawnStatusBarColor">#000</color>
 
 	<style name="dawnPrefsTheme" parent="dawnNoActionBar">
 		<item name="editTextTheme">@style/dawnPrefsTheme</item>

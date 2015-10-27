@@ -286,7 +286,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
-            overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
 
             if (conn.getUserInfo() != null)
                 findPreference("name").setSummary(conn.getUserInfo().name);
@@ -367,8 +366,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         if (conn != null) {
             conn.removeHandler(this);
         }
-
-        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
 
     @SuppressWarnings("deprecation")
