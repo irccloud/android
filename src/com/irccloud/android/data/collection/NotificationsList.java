@@ -347,15 +347,15 @@ public class NotificationsList {
             for (Notification n : notifications) {
                 if (!n.shown) {
                     if (n.message_type.equals("callerid")) {
-                        title = "Callerid: " + n.nick + " (" + n.network + ")";
-                        text = n.nick + " " + n.message;
+                        title = n.nick;
+                        text = "Callerid: " + n.nick + " " + n.message;
                         ticker = n.nick + " " + n.message;
                     } else {
-                        title = n.nick + " (" + n.network + ")";
+                        title = n.nick;
                         text = n.message;
                         ticker = n.message;
                     }
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, Html.fromHtml(text), 1, null, null, title, null));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, Html.fromHtml(text), 1, null, null, n.network, null));
                     n.shown = true;
                 }
             }

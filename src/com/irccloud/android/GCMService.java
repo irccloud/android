@@ -91,6 +91,8 @@ public class GCMService extends GcmListenerService {
 
                 String from = data.getString("from_nick");
                 String msg = data.getString("msg");
+                if(type.equals("channel_invite"))
+                    msg = "Invitation to join " + data.getString("channel");
                 if (msg != null)
                     msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(msg))).toString();
                 String chan = data.getString("chan");
