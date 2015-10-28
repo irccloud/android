@@ -355,15 +355,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         }
         if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 19)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
-        else if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
-            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) toolbar.getLayoutParams();
-            int resid = getResources().getIdentifier("status_bar_height", "dimen", "android");
-            if (resid > 0)
-                lp.topMargin = getResources().getDimensionPixelSize(resid);
-            else
-                lp.topMargin = getResources().getDimensionPixelSize(R.dimen.status_bar_height);
-            toolbar.setLayoutParams(lp);
-        }
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_translucent));
@@ -676,7 +667,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     private void hide_actionbar() {
-        if (mHideTimer != null) {
+        /*if (mHideTimer != null) {
             if (mHideTimerTask != null)
                 mHideTimerTask.cancel();
             mHideTimerTask = new TimerTask() {
@@ -700,7 +691,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 }
             };
             mHideTimer.schedule(mHideTimerTask, 3000);
-        }
+        }*/
     }
 
     @Override
