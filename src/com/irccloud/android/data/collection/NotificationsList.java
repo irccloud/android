@@ -355,7 +355,8 @@ public class NotificationsList {
                         text = n.message;
                         ticker = n.message;
                     }
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, Html.fromHtml(text), 1, null, null, n.network, null));
+                    if(title != null && text != null)
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, Html.fromHtml(text), 1, null, null, n.network, null));
                     n.shown = true;
                 }
             }

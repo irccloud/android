@@ -1006,22 +1006,26 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                             break;
                     }
 
-                    JSONObject prefs = conn.getUserInfo().prefs;
-                    try {
-                        if (prefs == null) {
-                            prefs = new JSONObject();
-                            conn.getUserInfo().prefs = prefs;
+                    if(conn != null && conn.getUserInfo() != null) {
+                        JSONObject prefs = conn.getUserInfo().prefs;
+                        try {
+                            if (prefs == null) {
+                                prefs = new JSONObject();
+                                conn.getUserInfo().prefs = prefs;
+                            }
+
+                            prefs.put("theme", theme);
+
+                            if (savePreferencesTask != null)
+                                savePreferencesTask.cancel(true);
+                            savePreferencesTask = new SavePreferencesTask();
+                            savePreferencesTask.execute((Void) null);
+                        } catch (JSONException e) {
+                            Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: theme");
+                            Crashlytics.logException(e);
+                            Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                         }
-
-                        prefs.put("theme", theme);
-
-                        if (savePreferencesTask != null)
-                            savePreferencesTask.cancel(true);
-                        savePreferencesTask = new SavePreferencesTask();
-                        savePreferencesTask.execute((Void) null);
-                    } catch (JSONException e) {
-                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: theme");
-                        Crashlytics.logException(e);
+                    } else {
                         Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                     }
                 }

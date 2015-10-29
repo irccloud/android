@@ -113,7 +113,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
             RowChannelmodeBinding row = holder.binding;
             JsonNode node = data.get(position);
             row.setMask(Html.fromHtml(node.get(mask).asText()));
-            if(node.get("usermask").asText() != null)
+            if(node.has("usermask") && node.get("usermask") != null && node.get("usermask").asText() != null)
                 row.setSetBy("Set " + DateUtils.getRelativeTimeSpanString(node.get("time").asLong() * 1000L, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS)
                     + " by " + node.get("usermask").asText());
             else
