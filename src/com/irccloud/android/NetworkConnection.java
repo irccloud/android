@@ -789,8 +789,8 @@ public class NetworkConnection {
     public void set_pastebin_cookie() {
         try {
             if (config != null) {
-                CookieManager.getInstance().setAcceptCookie(true);
                 CookieSyncManager sm = CookieSyncManager.createInstance(IRCCloudApplication.getInstance().getApplicationContext());
+                CookieManager.getInstance().setAcceptCookie(true);
                 CookieManager cm = CookieManager.getInstance();
                 cm.removeSessionCookie();
                 Uri u = Uri.parse(config.getString("pastebin_uri_template"));
