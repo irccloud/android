@@ -790,14 +790,13 @@ public class NetworkConnection {
         try {
             if (config != null) {
                 CookieSyncManager sm = CookieSyncManager.createInstance(IRCCloudApplication.getInstance().getApplicationContext());
-                CookieManager.getInstance().setAcceptCookie(true);
                 CookieManager cm = CookieManager.getInstance();
-                cm.removeSessionCookie();
                 Uri u = Uri.parse(config.getString("pastebin_uri_template"));
                 cm.setCookie(u.getScheme() + "://" + u.getHost() + "/", "session=" + session);
                 if (Build.VERSION.SDK_INT >= 21)
                     cm.flush();
                 sm.sync();
+                cm.setAcceptCookie(true);
             }
         } catch (Exception e) {
         }

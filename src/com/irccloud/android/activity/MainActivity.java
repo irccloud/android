@@ -261,6 +261,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private Drawable upDrawable;
 
     private HashMap<Integer, Event> pendingEvents = new HashMap<Integer, Event>();
+    private int lastDrawerWidth = 0;
 
     @SuppressLint("NewApi")
     @SuppressWarnings({"deprecation", "unchecked"})
@@ -480,9 +481,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         drawerLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                adjustTabletLayout();
-                updateUsersListFragmentVisibility();
-                supportInvalidateOptionsMenu();
+                if(drawerLayout.getWidth() != lastDrawerWidth) {
+                    lastDrawerWidth = drawerLayout.getWidth();
+                    adjustTabletLayout();
+                    updateUsersListFragmentVisibility();
+                    supportInvalidateOptionsMenu();
+                }
             }
         });
     }
@@ -1318,7 +1322,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             super.onResume();
             Crashlytics.log(Log.DEBUG, "IRCCloud", "Theme changed, relaunching");
             if(Build.VERSION.SDK_INT >= 11) {
-                recreate();
+                drawerLayout.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        recreate();
+                    }
+                }, 250);
             } else {
                 Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
@@ -1329,8 +1338,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 overridePendingTransition(0, 0);
                 startActivity(i);
                 overridePendingTransition(0, 0);
+                return;
             }
-            return;
         }
 
         if(conn == null) {
@@ -1494,8 +1503,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             channelsListDialog.dismiss();
         if (conn != null)
             conn.removeHandler(this);
-        suggestionsAdapter.clear();
         conn = null;
+        suggestionsAdapter.clear();
         progressBar.setVisibility(View.GONE);
         errorMsg.setVisibility(View.GONE);
         error = null;
