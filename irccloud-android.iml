@@ -106,8 +106,8 @@
     <orderEntry type="library" exported="" name="haha-2.0.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-8.1.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-8.1.0" level="project" />
-    <orderEntry type="library" exported="" name="leakcanary-watcher-1.4-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="DBFlow-Core-2.2.1" level="project" />
+    <orderEntry type="library" exported="" name="leakcanary-watcher-1.4-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="linear-layout-manager-0.5" level="project" />
     <orderEntry type="library" exported="" name="jackson-annotations-2.5.0" level="project" />
