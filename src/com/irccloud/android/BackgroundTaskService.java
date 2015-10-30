@@ -20,7 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -45,6 +47,7 @@ public class BackgroundTaskService extends GcmTaskService {
     public static void registerGCM(Context context) {
         List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER)).queryList();
         for(BackgroundTask t : tasks) {
+            Crashlytics.log(Log.INFO, "IRCCloud", "Removing old GCM registration task: " + t.tag);
             GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
             t.delete();
         }
@@ -54,6 +57,7 @@ public class BackgroundTaskService extends GcmTaskService {
         task.session = NetworkConnection.getInstance().session;
         task.save();
 
+        Crashlytics.log(Log.INFO, "IRCCloud", "Scheduled GCM registration task: " + task.tag);
         GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
                 .setTag(task.tag)
                 .setExecutionWindow(1, GCM_INTERVAL)
@@ -134,6 +138,7 @@ public class BackgroundTaskService extends GcmTaskService {
 
     @Override
     public int onRunTask(TaskParams taskParams) {
+        Crashlytics.log(Log.INFO, "IRCCloud", "Executing background task with tag: " + taskParams.getTag());
         BackgroundTask task = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TAG).is(taskParams.getTag())).querySingle();
         if(task != null) {
             switch(task.type) {
@@ -145,6 +150,8 @@ public class BackgroundTaskService extends GcmTaskService {
                     sendBroadcast(new Intent(this, SyncReceiver.class));
                     return GcmNetworkManager.RESULT_SUCCESS;
             }
+        } else {
+            Crashlytics.log(Log.ERROR, "IRCCloud", "Task not found");
         }
 
         return GcmNetworkManager.RESULT_FAILURE;
@@ -152,7 +159,7 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private int onGcmRegister(BackgroundTask task) {
         try {
-            android.util.Log.i("IRCCloud", "Registering for GCM");
+            Crashlytics.log(Log.INFO, "IRCCloud", "Registering for GCM");
             String token = task.data;
             if(token == null || token.length() == 0) {
                 token = InstanceID.getInstance(this).getToken(BuildConfig.GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);
@@ -166,11 +173,11 @@ public class BackgroundTaskService extends GcmTaskService {
                 JSONObject result = NetworkConnection.getInstance().registerGCM(token, task.session);
                 if (result.has("success")) {
                     if(result.getBoolean("success")) {
-                        android.util.Log.i("IRCCloud", "Device successfully registered");
+                        Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully registered");
                         task.delete();
                         return GcmNetworkManager.RESULT_SUCCESS;
                     } else {
-                        android.util.Log.e("IRCCloud", "Unable to register device: " + result.toString());
+                        Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to register device: " + result.toString());
                         return GcmNetworkManager.RESULT_RESCHEDULE;
                     }
                 }
@@ -178,7 +185,7 @@ public class BackgroundTaskService extends GcmTaskService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        android.util.Log.e("IRCCloud", "GCM registration failed");
+        Crashlytics.log(Log.ERROR, "IRCCloud", "GCM registration failed");
         task.delete();
 
         return GcmNetworkManager.RESULT_FAILURE;
@@ -186,25 +193,25 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private int onGcmUnregister(BackgroundTask task) {
         try {
-            android.util.Log.i("IRCCloud", "Unregistering GCM");
+            Crashlytics.log(Log.INFO, "IRCCloud", "Unregistering GCM");
             JSONObject result = NetworkConnection.getInstance().unregisterGCM(task.data, task.session);
             if (result.has("success")) {
                 if(result.getBoolean("success")) {
-                    android.util.Log.i("IRCCloud", "Device successfully unregistered");
+                    Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
                     task.delete();
                     SharedPreferences.Editor e = getSharedPreferences("prefs", 0).edit();
                     e.remove(task.data);
                     e.commit();
                     return GcmNetworkManager.RESULT_SUCCESS;
                 } else {
-                    android.util.Log.e("IRCCloud", "Unable to unregister device: " + result.toString());
+                    Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to unregister device: " + result.toString());
                     return GcmNetworkManager.RESULT_RESCHEDULE;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        android.util.Log.e("IRCCloud", "GCM unregistration failed");
+        Crashlytics.log(Log.ERROR, "IRCCloud", "GCM unregistration failed");
         task.delete();
 
         return GcmNetworkManager.RESULT_FAILURE;

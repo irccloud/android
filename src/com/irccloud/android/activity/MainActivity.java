@@ -106,6 +106,7 @@ import com.crashlytics.android.answers.ShareEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
+import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
@@ -489,6 +490,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         });
+
+        if(BuildConfig.GCM_ID.length() > 0)
+            BackgroundTaskService.registerGCM(MainActivity.this);
     }
 
     private void adjustTabletLayout() {
