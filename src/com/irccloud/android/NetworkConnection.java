@@ -2315,7 +2315,7 @@ public class NetworkConnection {
                 JsonNode users = object.getJsonNode("members");
                 for (int i = 0; i < users.size(); i++) {
                     JsonNode user = users.get(i);
-                    User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("away").asBoolean() ? 1 : 0, false);
+                    User u = mUsers.createUser(object.cid(), object.bid(), user.get("nick").asText(), user.get("usermask").asText(), user.get("mode").asText(), user.get("ircserver").asText(), user.get("away").asBoolean() ? 1 : 0, false);
                 }
                 mBuffers.dirty = true;
                 if (!backlog)
@@ -2363,7 +2363,7 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 Event event = mEvents.addEvent(object);
                 if (!backlog) {
-                    User u = mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", 0);
+                    User u = mUsers.createUser(object.cid(), object.bid(), object.getString("nick"), object.getString("hostmask"), "", object.getString("ircserver"), 0);
                     notifyHandlers(EVENT_JOIN, object);
                 }
             }

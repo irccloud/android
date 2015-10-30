@@ -62,6 +62,9 @@ public class User /*extends BaseModel*/ {
     public String away_msg;
 
     @Column
+    public String ircserver;
+
+    @Column
     public int joined;
 
     @Column

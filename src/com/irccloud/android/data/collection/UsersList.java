@@ -98,11 +98,11 @@ public class UsersList {
         }*/
     }
 
-    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away) {
-        return createUser(cid, bid, nick, hostmask, mode, away, true);
+    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, String ircserver, int away) {
+        return createUser(cid, bid, nick, hostmask, mode, ircserver, away, true);
     }
 
-    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, int away, boolean find_old) {
+    public synchronized User createUser(int cid, int bid, String nick, String hostmask, String mode, String ircserver, int away, boolean find_old) {
         User u = null;
         if (find_old)
             u = getUser(bid, nick);
@@ -120,6 +120,7 @@ public class UsersList {
         u.nick_lowercase = nick.toLowerCase();
         u.hostmask = hostmask;
         u.mode = mode;
+        u.ircserver = ircserver;
         u.away = away;
         u.joined = 1;
         return u;

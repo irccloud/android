@@ -3081,7 +3081,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case R.id.menu_whois:
-                NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), null);
+                User u = UsersList.getInstance().findUserOnConnection(buffer.getCid(), buffer.getName());
+                if(u != null)
+                    if(u.ircserver != null && u.ircserver.length() > 0)
+                        NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), u.ircserver);
+                    else
+                        NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), (u.joined > 0)?buffer.getName():null);
+                else
+                    NetworkConnection.getInstance().whois(buffer.getCid(), buffer.getName(), null);
                 break;
             case R.id.menu_identify:
                 NickservFragment nsFragment = new NickservFragment();
@@ -3654,11 +3661,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         User user = UsersList.getInstance().getUser(buffer.getBid(), from);
 
+        if(user == null)
+            user = UsersList.getInstance().findUserOnConnection(buffer.getCid(), from);
+
         if (user == null && from != null && event.hostmask != null) {
             user = new User();
             user.nick = from;
             user.hostmask = event.hostmask;
             user.mode = "";
+            user.joined = 0;
         }
 
         if (user == null && event.html == null)
@@ -3898,7 +3909,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         dialog.show();
                     }
                 } else if (items[item].equals("Whois…")) {
-                    conn.whois(buffer.getCid(), selected_user.nick, null);
+                    if(selected_user.ircserver != null && selected_user.ircserver.length() > 0)
+                        conn.whois(buffer.getCid(), selected_user.nick, selected_user.ircserver);
+                    else
+                        conn.whois(buffer.getCid(), selected_user.nick, (selected_user.joined > 0)?selected_user.nick:null);
                 } else if (items[item].equals("Send a message")) {
                     drawerLayout.closeDrawers();
                     drawerLayout.postDelayed(new Runnable() {
