@@ -305,7 +305,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
 
         adapter.setItems(entries);
 
-        if (recyclerView != null && entries.size() > 0)
+        if (recyclerView != null && entries.size() > 0 && recyclerView.getAdapter() != adapter)
             recyclerView.setAdapter(adapter);
         else
             adapter.notifyDataSetChanged();
@@ -355,6 +355,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
 
     @Override
     public void setArguments(Bundle args) {
+        if(args.getInt("bid", 0) != bid && recyclerView != null)
+            recyclerView.scrollToPosition(0);
         cid = args.getInt("cid", 0);
         bid = args.getInt("bid", 0);
         channel = args.getString("name");
