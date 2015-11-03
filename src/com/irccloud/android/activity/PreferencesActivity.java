@@ -211,6 +211,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("pastebin-disableprompt").setOnPreferenceChangeListener(prefstoggle);
         findPreference("hideJoinPart").setOnPreferenceChangeListener(prefstoggle);
         findPreference("expandJoinPart").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("notifications_all").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("disableTrackUnread").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("enableReadOnSelect").setOnPreferenceChangeListener(prefstoggle);
         if (findPreference("emoji-disableconvert") != null) {
             findPreference("emoji-disableconvert").setOnPreferenceChangeListener(prefstoggle);
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
@@ -500,10 +503,12 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     conn.getUserInfo().prefs = prefs;
                 }
 
-                if (preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart"))
+                if (preference.getKey().equals("disableTrackUnread") ||preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");
+                else if(preference.getKey().equals("notifications_all"))
+                    prefs.put("notifications-all", (Boolean) newValue);
                 else
                     prefs.put(preference.getKey(), (Boolean) newValue);
 

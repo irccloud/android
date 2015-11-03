@@ -328,6 +328,8 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     public int getUnread() {
         JSONObject channelDisabledMap = null;
         JSONObject bufferDisabledMap = null;
+        JSONObject channelEnabledMap = null;
+        JSONObject bufferEnabledMap = null;
         NetworkConnection conn = NetworkConnection.getInstance();
 
         if (conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
@@ -336,6 +338,10 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
                     channelDisabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
                 if (conn.getUserInfo().prefs.has("buffer-disableTrackUnread"))
                     bufferDisabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                if (conn.getUserInfo().prefs.has("channel-enableTrackUnread"))
+                    channelEnabledMap = conn.getUserInfo().prefs.getJSONObject("channel-enableTrackUnread");
+                if (conn.getUserInfo().prefs.has("buffer-enableTrackUnread"))
+                    bufferEnabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-enableTrackUnread");
             } catch (JSONException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
@@ -346,6 +352,12 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
             if (type.equals(TYPE_CHANNEL) && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(bid)) && channelDisabledMap.getBoolean(String.valueOf(bid))) {
                 return 0;
             } else if(bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(bid)) && bufferDisabledMap.getBoolean(String.valueOf(bid))) {
+                return 0;
+            } else if (type.equals(TYPE_CHANNEL) && channelEnabledMap != null && channelEnabledMap.has(String.valueOf(bid)) && channelEnabledMap.getBoolean(String.valueOf(bid))) {
+                return unread;
+            } else if(bufferEnabledMap != null && bufferEnabledMap.has(String.valueOf(bid)) && bufferEnabledMap.getBoolean(String.valueOf(bid))) {
+                return unread;
+            } else if(conn.getUserInfo().prefs.has("disableTrackUnread") && conn.getUserInfo().prefs.get("disableTrackUnread") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("disableTrackUnread")) {
                 return 0;
             }
         } catch (JSONException e) {

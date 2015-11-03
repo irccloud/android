@@ -60,10 +60,7 @@ public class BufferOptionsFragment extends DialogFragment {
         this.type = type;
     }
 
-    public JSONObject updatePref(JSONObject prefs, SwitchCompat control, String key) throws JSONException {
-        boolean checked = control.isChecked();
-        if (control == readOnSelect)
-            checked = !checked;
+    public JSONObject updatePref(JSONObject prefs, boolean checked, String key) throws JSONException {
         if (!checked) {
             JSONObject map;
             if (prefs.has(key))
@@ -93,13 +90,15 @@ public class BufferOptionsFragment extends DialogFragment {
                         prefs = new JSONObject();
                     }
 
-                    prefs = updatePref(prefs, unread, "buffer-disableTrackUnread");
-                    prefs = updatePref(prefs, readOnSelect, "buffer-enableReadOnSelect");
+                    prefs = updatePref(prefs, unread.isChecked(), "buffer-disableTrackUnread");
+                    prefs = updatePref(prefs, !unread.isChecked(), "buffer-enableTrackUnread");
+                    prefs = updatePref(prefs, readOnSelect.isChecked(), "buffer-disableReadOnSelect");
+                    prefs = updatePref(prefs, !readOnSelect.isChecked(), "buffer-enableReadOnSelect");
                     if (!type.equalsIgnoreCase("console")) {
-                        prefs = updatePref(prefs, joinpart, "buffer-hideJoinPart");
-                        prefs = updatePref(prefs, collapse, "buffer-expandJoinPart");
+                        prefs = updatePref(prefs, joinpart.isChecked(), "buffer-hideJoinPart");
+                        prefs = updatePref(prefs, collapse.isChecked(), "buffer-expandJoinPart");
                     } else {
-                        prefs = updatePref(prefs, expandDisco, "buffer-expandDisco");
+                        prefs = updatePref(prefs, expandDisco.isChecked(), "buffer-expandDisco");
                     }
                     NetworkConnection.getInstance().set_prefs(prefs.toString());
                 } else {
@@ -129,15 +128,18 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         joinpart.setChecked(true);
                     }
+                    boolean enabled = !(prefs.has("disableTrackUnread") && prefs.get("disableTrackUnread") instanceof Boolean && prefs.getBoolean("disableTrackUnread"));
                     if (prefs.has("buffer-disableTrackUnread")) {
                         JSONObject unreadMap = prefs.getJSONObject("buffer-disableTrackUnread");
                         if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
-                            unread.setChecked(false);
-                        else
-                            unread.setChecked(true);
-                    } else {
-                        unread.setChecked(true);
+                            enabled = false;
                     }
+                    if (prefs.has("buffer-enableTrackUnread")) {
+                        JSONObject unreadMap = prefs.getJSONObject("buffer-enableTrackUnread");
+                        if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
+                    }
+                    unread.setChecked(enabled);
                     if (prefs.has("buffer-expandJoinPart")) {
                         JSONObject expandMap = prefs.getJSONObject("buffer-expandJoinPart");
                         if (expandMap.has(String.valueOf(bid)) && expandMap.getBoolean(String.valueOf(bid)))
@@ -156,15 +158,18 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         expandDisco.setChecked(true);
                     }
+                    enabled = !(prefs.has("enableReadOnSelect") && prefs.get("enableReadOnSelect") instanceof Boolean && prefs.getBoolean("enableReadOnSelect"));
                     if (prefs.has("buffer-enableReadOnSelect")) {
                         JSONObject readOnSelectMap = prefs.getJSONObject("buffer-enableReadOnSelect");
                         if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
-                            readOnSelect.setChecked(true);
-                        else
-                            readOnSelect.setChecked(false);
-                    } else {
-                        readOnSelect.setChecked(false);
+                            enabled = true;
                     }
+                    if (prefs.has("buffer-disableReadOnSelect")) {
+                        JSONObject readOnSelectMap = prefs.getJSONObject("buffer-disableReadOnSelect");
+                        if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    readOnSelect.setChecked(enabled);
                 } else {
                     joinpart.setChecked(true);
                     unread.setChecked(true);

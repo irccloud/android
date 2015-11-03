@@ -1113,6 +1113,8 @@ public class NetworkConnection {
             @Override
             public void onDisconnect(int code, String reason) {
                 Crashlytics.log(Log.DEBUG, TAG, "WebSocket disconnected");
+                if(wifiLock.isHeld())
+                    wifiLock.release();
                 ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo ni = cm.getActiveNetworkInfo();
                 if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
@@ -1148,6 +1150,8 @@ public class NetworkConnection {
             @Override
             public void onError(Exception error) {
                 Crashlytics.log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
+                if(wifiLock.isHeld())
+                    wifiLock.release();
                 if (state == STATE_DISCONNECTING)
                     cancel_idle_timer();
                 else {
@@ -1807,6 +1811,9 @@ public class NetworkConnection {
                     prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt") instanceof Boolean && userInfo.prefs.getBoolean("pastebin-disableprompt")));
                     prefs.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("hideJoinPart")));
                     prefs.putBoolean("expandJoinPart", !(userInfo.prefs.has("expandJoinPart") && userInfo.prefs.get("expandJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("expandJoinPart")));
+                    prefs.putBoolean("notifications_all", (userInfo.prefs.has("notifications-all") && userInfo.prefs.get("notifications-all") instanceof Boolean && userInfo.prefs.getBoolean("notifications-all")));
+                    prefs.putBoolean("disableTrackUnread", !(userInfo.prefs.has("disableTrackUnread") && userInfo.prefs.get("disableTrackUnread") instanceof Boolean && userInfo.prefs.getBoolean("disableTrackUnread")));
+                    prefs.putBoolean("enableReadOnSelect", (userInfo.prefs.has("enableReadOnSelect") && userInfo.prefs.get("enableReadOnSelect") instanceof Boolean && userInfo.prefs.getBoolean("enableReadOnSelect")));
                     if(userInfo.prefs.has("theme"))
                         prefs.putString("theme", userInfo.prefs.getString("theme"));
                     if(userInfo.prefs.has("font"))

@@ -60,10 +60,7 @@ public class ChannelOptionsFragment extends DialogFragment {
         this.bid = bid;
     }
 
-    public JSONObject updatePref(JSONObject prefs, SwitchCompat control, String key) throws JSONException {
-        boolean checked = control.isChecked();
-        if (control == notifyAll || control == readOnSelect)
-            checked = !checked;
+    public JSONObject updatePref(JSONObject prefs, boolean checked, String key) throws JSONException {
         if (!checked) {
             JSONObject map;
             if (prefs.has(key))
@@ -93,13 +90,15 @@ public class ChannelOptionsFragment extends DialogFragment {
                         prefs = new JSONObject();
                     }
 
-                    prefs = updatePref(prefs, members, "channel-hiddenMembers");
-                    prefs = updatePref(prefs, unread, "channel-disableTrackUnread");
-                    prefs = updatePref(prefs, joinpart, "channel-hideJoinPart");
-                    prefs = updatePref(prefs, collapse, "channel-expandJoinPart");
-                    prefs = updatePref(prefs, notifyAll, "channel-notifications-all");
-                    prefs = updatePref(prefs, autosuggest, "channel-disableAutoSuggest");
-                    prefs = updatePref(prefs, readOnSelect, "channel-enableReadOnSelect");
+                    prefs = updatePref(prefs, members.isChecked(), "channel-hiddenMembers");
+                    prefs = updatePref(prefs, unread.isChecked(), "channel-disableTrackUnread");
+                    prefs = updatePref(prefs, !unread.isChecked(), "channel-enableTrackUnread");
+                    prefs = updatePref(prefs, joinpart.isChecked(), "channel-hideJoinPart");
+                    prefs = updatePref(prefs, collapse.isChecked(), "channel-expandJoinPart");
+                    prefs = updatePref(prefs, !notifyAll.isChecked(), "channel-notifications-all");
+                    prefs = updatePref(prefs, autosuggest.isChecked(), "channel-disableAutoSuggest");
+                    prefs = updatePref(prefs, readOnSelect.isChecked(), "channel-disableReadOnSelect");
+                    prefs = updatePref(prefs, !readOnSelect.isChecked(), "channel-enableReadOnSelect");
 
                     NetworkConnection.getInstance().set_prefs(prefs.toString());
                 } else {
@@ -129,15 +128,18 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         joinpart.setChecked(true);
                     }
+                    boolean enabled = !(prefs.has("disableTrackUnread") && prefs.get("disableTrackUnread") instanceof Boolean && prefs.getBoolean("disableTrackUnread"));
                     if (prefs.has("channel-disableTrackUnread")) {
                         JSONObject unreadMap = prefs.getJSONObject("channel-disableTrackUnread");
                         if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
-                            unread.setChecked(false);
-                        else
-                            unread.setChecked(true);
-                    } else {
-                        unread.setChecked(true);
+                            enabled = false;
                     }
+                    if (prefs.has("channel-enableTrackUnread")) {
+                        JSONObject unreadMap = prefs.getJSONObject("channel-enableTrackUnread");
+                        if (unreadMap.has(String.valueOf(bid)) && unreadMap.getBoolean(String.valueOf(bid)))
+                            enabled = true;
+                    }
+                    unread.setChecked(enabled);
                     if (prefs.has("channel-hiddenMembers")) {
                         JSONObject membersMap = prefs.getJSONObject("channel-hiddenMembers");
                         if (membersMap.has(String.valueOf(bid)) && membersMap.getBoolean(String.valueOf(bid)))
@@ -174,15 +176,18 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         autosuggest.setChecked(true);
                     }
+                    enabled = !(prefs.has("disableTrackUnread") && prefs.get("disableTrackUnread") instanceof Boolean && prefs.getBoolean("disableTrackUnread"));
                     if (prefs.has("channel-enableReadOnSelect")) {
                         JSONObject readOnSelectMap = prefs.getJSONObject("channel-enableReadOnSelect");
                         if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
-                            readOnSelect.setChecked(true);
-                        else
-                            readOnSelect.setChecked(false);
-                    } else {
-                        readOnSelect.setChecked(false);
+                            enabled = true;
                     }
+                    if (prefs.has("channel-disableReadOnSelect")) {
+                        JSONObject readOnSelectMap = prefs.getJSONObject("channel-disableReadOnSelect");
+                        if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    readOnSelect.setChecked(enabled);
                 } else {
                     notifyAll.setChecked(false);
                     joinpart.setChecked(true);

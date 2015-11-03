@@ -2611,22 +2611,36 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 } else if (upDrawableFilter.equals(normalFilter)) {
                                     JSONObject channelDisabledMap = null;
                                     JSONObject bufferDisabledMap = null;
+                                    JSONObject channelEnabledMap = null;
+                                    JSONObject bufferEnabledMap = null;
                                     if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
                                         try {
                                             if (NetworkConnection.getInstance().getUserInfo().prefs.has("channel-disableTrackUnread"))
                                                 channelDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
                                             if (NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-disableTrackUnread"))
                                                 bufferDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
+                                            if (NetworkConnection.getInstance().getUserInfo().prefs.has("channel-enableTrackUnread"))
+                                                channelEnabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-enableTrackUnread");
+                                            if (NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-enableTrackUnread"))
+                                                bufferEnabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-enableTrackUnread");
                                         } catch (Exception e1) {
                                             // TODO Auto-generated catch block
                                             e1.printStackTrace();
                                         }
                                     }
+
+                                    boolean enabled = !(conn.getUserInfo().prefs.has("disableTrackUnread") && conn.getUserInfo().prefs.get("disableTrackUnread") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("disableTrackUnread"));
                                     if (buf.isChannel() && channelDisabledMap != null && channelDisabledMap.has(String.valueOf(buf.getBid())) && channelDisabledMap.getBoolean(String.valueOf(buf.getBid())))
-                                        break;
+                                        enabled = false;
                                     else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(buf.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(buf.getBid())))
-                                        break;
-                                    runOnUiThread(new Runnable() {
+                                        enabled = false;
+                                    else if (buf.isChannel() && channelEnabledMap != null && channelEnabledMap.has(String.valueOf(buf.getBid())) && channelEnabledMap.getBoolean(String.valueOf(buf.getBid())))
+                                        enabled = true;
+                                    else if (bufferEnabledMap != null && bufferEnabledMap.has(String.valueOf(buf.getBid())) && bufferEnabledMap.getBoolean(String.valueOf(buf.getBid())))
+                                        enabled = true;
+
+                                    if(enabled)
+                                        runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
                                             upDrawable.setColorFilter(unreadFilter);
@@ -4056,16 +4070,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private boolean shouldMarkAsRead() {
-        if (buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has(buffer.getType().equals("channel")?"channel-enableReadOnSelect":"buffer-enableReadOnSelect")) {
-            try {
-                JSONObject markAsReadMap = conn.getUserInfo().prefs.getJSONObject(buffer.getType().equals("channel")?"channel-enableReadOnSelect":"buffer-enableReadOnSelect");
-                if (markAsReadMap.has(String.valueOf(buffer.getBid())) && markAsReadMap.getBoolean(String.valueOf(buffer.getBid()))) {
-                    return true;
+        try {
+            if (buffer != null && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
+                if(conn.getUserInfo().prefs.has(buffer.getType().equals("channel")?"channel-enableReadOnSelect":"buffer-enableReadOnSelect")) {
+                    JSONObject markAsReadMap = conn.getUserInfo().prefs.getJSONObject(buffer.getType().equals("channel") ? "channel-enableReadOnSelect" : "buffer-enableReadOnSelect");
+                    if (markAsReadMap.has(String.valueOf(buffer.getBid())) && markAsReadMap.getBoolean(String.valueOf(buffer.getBid()))) {
+                        return true;
+                    }
                 }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                if(conn.getUserInfo().prefs.has(buffer.getType().equals("channel")?"channel-disableReadOnSelect":"buffer-disableReadOnSelect")) {
+                    JSONObject markAsReadMap = conn.getUserInfo().prefs.getJSONObject(buffer.getType().equals("channel") ? "channel-disableReadOnSelect" : "buffer-disableReadOnSelect");
+                    if (markAsReadMap.has(String.valueOf(buffer.getBid())) && markAsReadMap.getBoolean(String.valueOf(buffer.getBid()))) {
+                        return false;
+                    }
+                }
+                return (conn.getUserInfo().prefs.has("enableReadOnSelect") && conn.getUserInfo().prefs.get("enableReadOnSelect") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("enableReadOnSelect"));
             }
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
         return false;
     }

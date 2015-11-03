@@ -721,7 +721,6 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             case NetworkConnection.EVENT_AWAY:
             case NetworkConnection.EVENT_SELFBACK:
             case NetworkConnection.EVENT_CHANNELTIMESTAMP:
-            case NetworkConnection.EVENT_SELFDETAILS:
             case NetworkConnection.EVENT_USERMODE:
             case NetworkConnection.EVENT_SETIGNORES:
             case NetworkConnection.EVENT_BADCHANNELKEY:

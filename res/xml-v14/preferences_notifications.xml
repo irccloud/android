@@ -44,5 +44,17 @@
 			android:defaultValue="true"
 			android:summary="Quickly reply to messages from the notification tray"
 			android:title="Quick Reply"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="notifications_all"
+			android:defaultValue="false"
+			android:title="Notify on all channel messages"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="disableTrackUnread"
+			android:defaultValue="true"
+			android:title="Show unread message indicators"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="enableReadOnSelect"
+			android:defaultValue="false"
+			android:title="Mark as read automatically"/>
 	</PreferenceCategory>
 </PreferenceScreen>
