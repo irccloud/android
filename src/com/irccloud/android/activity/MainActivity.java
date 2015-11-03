@@ -2775,6 +2775,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         }
+        if (menu.findItem(R.id.menu_userlist) != null && menu.findItem(R.id.menu_userlist).isVisible() && userListView != null)
+            userListView.setVisibility(View.VISIBLE);
+
         return super.onPrepareOptionsMenu(menu);
     }
 
