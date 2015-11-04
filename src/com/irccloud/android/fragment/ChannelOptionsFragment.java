@@ -95,6 +95,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     prefs = updatePref(prefs, !unread.isChecked(), "channel-enableTrackUnread");
                     prefs = updatePref(prefs, joinpart.isChecked(), "channel-hideJoinPart");
                     prefs = updatePref(prefs, collapse.isChecked(), "channel-expandJoinPart");
+                    prefs = updatePref(prefs, notifyAll.isChecked(), "channel-notifications-all-disable");
                     prefs = updatePref(prefs, !notifyAll.isChecked(), "channel-notifications-all");
                     prefs = updatePref(prefs, autosuggest.isChecked(), "channel-disableAutoSuggest");
                     prefs = updatePref(prefs, readOnSelect.isChecked(), "channel-disableReadOnSelect");
@@ -158,15 +159,18 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         collapse.setChecked(true);
                     }
+                    enabled = !(prefs.has("notifications-all") && prefs.get("notifications-all") instanceof Boolean && prefs.getBoolean("notifications-all"));
                     if (prefs.has("channel-notifications-all")) {
                         JSONObject notifyAllMap = prefs.getJSONObject("channel-notifications-all");
                         if (notifyAllMap.has(String.valueOf(bid)) && notifyAllMap.getBoolean(String.valueOf(bid)))
-                            notifyAll.setChecked(true);
-                        else
-                            notifyAll.setChecked(false);
-                    } else {
-                        notifyAll.setChecked(false);
+                            enabled = true;
                     }
+                    if (prefs.has("channel-notifications-all-disable")) {
+                        JSONObject notifyAllMap = prefs.getJSONObject("channel-notifications-all-disable");
+                        if (notifyAllMap.has(String.valueOf(bid)) && notifyAllMap.getBoolean(String.valueOf(bid)))
+                            enabled = false;
+                    }
+                    notifyAll.setChecked(enabled);
                     if (prefs.has("channel-disableAutoSuggest")) {
                         JSONObject suggestMap = prefs.getJSONObject("channel-disableAutoSuggest");
                         if (suggestMap.has(String.valueOf(bid)) && suggestMap.getBoolean(String.valueOf(bid)))
