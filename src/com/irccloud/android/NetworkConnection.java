@@ -3142,10 +3142,13 @@ public class NetworkConnection {
 
                             ArrayList<Buffer> buffers = mBuffers.getBuffers();
                             for (Buffer b : buffers) {
-                                if (b.getTimeout() > 0 && bid == -1) {
+                                if (b.getTimeout() > 0) {
                                     Crashlytics.log(Log.DEBUG, TAG, "Requesting backlog for timed-out buffer: " + b.getName());
                                     request_backlog(b.getCid(), b.getBid(), 0);
                                 }
+
+                                if(oobTasks.size() > 10)
+                                    break;
                             }
                             NotificationsList.getInstance().deleteOldNotifications();
                             schedule_idle_timer();

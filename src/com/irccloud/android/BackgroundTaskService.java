@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
@@ -90,18 +91,26 @@ public class BackgroundTaskService extends GcmTaskService {
                     .setService(BackgroundTaskService.class)
                     .build());
         }
-        new AsyncTask<Void, Void, Void>() {
+        if(Looper.myLooper() == Looper.getMainLooper()) {
+            new AsyncTask<Void, Void, Void>() {
 
-            @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    InstanceID.getInstance(context).deleteInstanceID();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    try {
+                        InstanceID.getInstance(context).deleteInstanceID();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
                 }
-                return null;
+            }.execute((Void) null);
+        } else {
+            try {
+                InstanceID.getInstance(context).deleteInstanceID();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }.execute((Void) null);
+        }
     }
 
     public static void scheduleBacklogSync(Context context) {

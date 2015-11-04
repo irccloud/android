@@ -667,7 +667,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             @Override
             public void onClick(View v) {
                 if (buffer != null && conn != null && server != null && server.getStatus() != null && server.getStatus().equalsIgnoreCase("disconnected")) {
-                    conn.reconnect(buffer.getCid());
+                    NetworkConnection.getInstance().reconnect(buffer.getCid());
                 }
             }
 
@@ -678,7 +678,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             @Override
             public void onClick(View v) {
-                conn.back(buffer.getCid());
+                NetworkConnection.getInstance().back(buffer.getCid());
             }
 
         });
@@ -765,7 +765,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     backlogFailed.setVisibility(View.GONE);
                     loadBacklogButton.setVisibility(View.GONE);
                     headerView.setVisibility(View.VISIBLE);
-                    conn.request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
+                    NetworkConnection.getInstance().request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
                 }
             }
         });

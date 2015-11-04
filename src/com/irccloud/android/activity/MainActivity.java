@@ -5061,15 +5061,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
                         @Override
                         public void onCancel(DialogInterface dialog) {
-                            if (activity.fileUploadTask != null)
-                                activity.fileUploadTask.cancel(true);
-                            activity.fileUploadTask = null;
+                            if (activity != null) {
+                                if (activity.fileUploadTask != null)
+                                    activity.fileUploadTask.cancel(true);
+                                activity.fileUploadTask = null;
+                                hide_progress();
+                                if (activity.buffer != null)
+                                    activity.buffer.setDraft(messageinput.getText().toString());
+                                if (activity.messageTxt != null)
+                                    activity.messageTxt.setText(messageinput.getText());
+                            }
                             dialog.dismiss();
-                            hide_progress();
-                            if (activity.buffer != null)
-                                activity.buffer.setDraft(messageinput.getText().toString());
-                            if (activity.messageTxt != null)
-                                activity.messageTxt.setText(messageinput.getText());
                             metadataDialog = null;
                         }
                     });
@@ -5341,12 +5343,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         private void hide_progress() {
-            if (activity.progressBar != null && activity.progressBar.getVisibility() == View.VISIBLE) {
+            if (activity != null && activity.progressBar != null && activity.progressBar.getVisibility() == View.VISIBLE) {
                 if (Build.VERSION.SDK_INT >= 16) {
                     activity.progressBar.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
                         @Override
                         public void run() {
-                            activity.progressBar.setVisibility(View.GONE);
+                            if(activity != null && activity.progressBar != null)
+                                activity.progressBar.setVisibility(View.GONE);
                         }
                     });
                 } else {
