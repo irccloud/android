@@ -353,7 +353,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
         }
-        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 19)
+        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21)
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
