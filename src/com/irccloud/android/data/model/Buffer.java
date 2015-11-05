@@ -357,7 +357,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
                 return unread;
             } else if(bufferEnabledMap != null && bufferEnabledMap.has(String.valueOf(bid)) && bufferEnabledMap.getBoolean(String.valueOf(bid))) {
                 return unread;
-            } else if(conn.getUserInfo().prefs.has("disableTrackUnread") && conn.getUserInfo().prefs.get("disableTrackUnread") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("disableTrackUnread")) {
+            } else if(conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("disableTrackUnread") && conn.getUserInfo().prefs.get("disableTrackUnread") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("disableTrackUnread")) {
                 return 0;
             }
         } catch (JSONException e) {
