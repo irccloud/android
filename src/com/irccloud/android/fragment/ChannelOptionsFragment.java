@@ -159,7 +159,7 @@ public class ChannelOptionsFragment extends DialogFragment {
                     } else {
                         collapse.setChecked(true);
                     }
-                    enabled = !(prefs.has("notifications-all") && prefs.get("notifications-all") instanceof Boolean && prefs.getBoolean("notifications-all"));
+                    enabled = (prefs.has("notifications-all") && prefs.get("notifications-all") instanceof Boolean && prefs.getBoolean("notifications-all"));
                     if (prefs.has("channel-notifications-all")) {
                         JSONObject notifyAllMap = prefs.getJSONObject("channel-notifications-all");
                         if (notifyAllMap.has(String.valueOf(bid)) && notifyAllMap.getBoolean(String.valueOf(bid)))

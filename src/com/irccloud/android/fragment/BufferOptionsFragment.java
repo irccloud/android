@@ -158,7 +158,7 @@ public class BufferOptionsFragment extends DialogFragment {
                     } else {
                         expandDisco.setChecked(true);
                     }
-                    enabled = !(prefs.has("enableReadOnSelect") && prefs.get("enableReadOnSelect") instanceof Boolean && prefs.getBoolean("enableReadOnSelect"));
+                    enabled = (prefs.has("enableReadOnSelect") && prefs.get("enableReadOnSelect") instanceof Boolean && prefs.getBoolean("enableReadOnSelect"));
                     if (prefs.has("buffer-enableReadOnSelect")) {
                         JSONObject readOnSelectMap = prefs.getJSONObject("buffer-enableReadOnSelect");
                         if (readOnSelectMap.has(String.valueOf(bid)) && readOnSelectMap.getBoolean(String.valueOf(bid)))
