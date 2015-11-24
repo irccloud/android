@@ -28,7 +28,6 @@ import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.gcm.OneoffTask;
-import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.TaskParams;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.model.BackgroundTask;
@@ -66,8 +65,7 @@ public class BackgroundTaskService extends GcmTaskService {
                 .build());
     }
 
-    public static void unregisterGCM(final Context context) {
-        String token = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_token", null);
+    private static void scheduleUnregister(final Context context, String token, String session) {
         if(token != null && token.length() > 0) {
             List<BackgroundTask> tasks = new Select().from(BackgroundTask.class).where(Condition.column(BackgroundTask$Table.TYPE).is(BackgroundTask.TYPE_GCM_REGISTER))
                     .and(Condition.column(BackgroundTask$Table.DATA).is(token))
@@ -82,7 +80,7 @@ public class BackgroundTaskService extends GcmTaskService {
             task.type = BackgroundTask.TYPE_GCM_UNREGISTER;
             task.tag = Long.toString(System.currentTimeMillis());
             task.data = token;
-            task.session = NetworkConnection.getInstance().session;
+            task.session = session;
             task.save();
 
             GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
@@ -91,11 +89,18 @@ public class BackgroundTaskService extends GcmTaskService {
                     .setService(BackgroundTaskService.class)
                     .build());
         }
+    }
+
+    public static void unregisterGCM(final Context context) {
+        final String session = NetworkConnection.getInstance().session;
+        final String token = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("gcm_token", null);
         if(Looper.myLooper() == Looper.getMainLooper()) {
             new AsyncTask<Void, Void, Void>() {
 
                 @Override
                 protected Void doInBackground(Void... voids) {
+                    if(onGcmUnregister(context, token, session) != GcmNetworkManager.RESULT_SUCCESS)
+                        scheduleUnregister(context, token, session);
                     try {
                         InstanceID.getInstance(context).deleteInstanceID();
                     } catch (IOException e) {
@@ -106,6 +111,8 @@ public class BackgroundTaskService extends GcmTaskService {
             }.execute((Void) null);
         } else {
             try {
+                if(onGcmUnregister(context, token, session) != GcmNetworkManager.RESULT_SUCCESS)
+                    scheduleUnregister(context, token, session);
                 InstanceID.getInstance(context).deleteInstanceID();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -154,7 +161,10 @@ public class BackgroundTaskService extends GcmTaskService {
                 case BackgroundTask.TYPE_GCM_REGISTER:
                     return onGcmRegister(task);
                 case BackgroundTask.TYPE_GCM_UNREGISTER:
-                    return onGcmUnregister(task);
+                    int result = onGcmUnregister(this, task.data, task.session);
+                    if(result != GcmNetworkManager.RESULT_RESCHEDULE)
+                        task.delete();
+                    return result;
                 case BackgroundTask.TYPE_BACKLOG_SYNC:
                     sendBroadcast(new Intent(this, SyncReceiver.class));
                     return GcmNetworkManager.RESULT_SUCCESS;
@@ -200,16 +210,15 @@ public class BackgroundTaskService extends GcmTaskService {
         return GcmNetworkManager.RESULT_FAILURE;
     }
 
-    private int onGcmUnregister(BackgroundTask task) {
+    private static int onGcmUnregister(Context context, String token, String session) {
         try {
             Crashlytics.log(Log.INFO, "IRCCloud", "Unregistering GCM");
-            JSONObject result = NetworkConnection.getInstance().unregisterGCM(task.data, task.session);
+            JSONObject result = NetworkConnection.getInstance().unregisterGCM(token, session);
             if (result.has("success")) {
                 if(result.getBoolean("success")) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
-                    task.delete();
-                    SharedPreferences.Editor e = getSharedPreferences("prefs", 0).edit();
-                    e.remove(task.data);
+                    SharedPreferences.Editor e = context.getSharedPreferences("prefs", 0).edit();
+                    e.remove(session);
                     e.commit();
                     return GcmNetworkManager.RESULT_SUCCESS;
                 } else {
@@ -221,7 +230,6 @@ public class BackgroundTaskService extends GcmTaskService {
             e.printStackTrace();
         }
         Crashlytics.log(Log.ERROR, "IRCCloud", "GCM unregistration failed");
-        task.delete();
 
         return GcmNetworkManager.RESULT_FAILURE;
     }
