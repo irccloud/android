@@ -46,6 +46,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
@@ -1193,9 +1194,13 @@ public class NetworkConnection {
     public void logout() {
         streamId = null;
         disconnect();
-        BackgroundTaskService.cancelBacklogSync(IRCCloudApplication.getInstance().getApplicationContext());
-        if(BuildConfig.GCM_ID.length() > 0) {
-            BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
+        try {
+            GcmNetworkManager.getInstance(IRCCloudApplication.getInstance()).cancelAllTasks(BackgroundTaskService.class);
+            if(BuildConfig.GCM_ID.length() > 0) {
+                BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         ready = false;
         accrued = 0;
