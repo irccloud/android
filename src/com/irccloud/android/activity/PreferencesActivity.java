@@ -123,6 +123,13 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.actionbar_prefs);
 
+        if(Build.VERSION.SDK_INT >= 23) {
+            if(theme.equals("dawn"))
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            else
+                getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.actionbar);
         toolbar.setBackgroundResource(ColorScheme.getInstance().actionBarDrawable);
         toolbar.setTitle(getTitle());

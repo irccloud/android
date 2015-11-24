@@ -290,9 +290,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         buffersListView = findViewById(R.id.BuffersList);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
-        if(Build.VERSION.SDK_INT >= 23 && theme.equals("dawn"))
-            drawerLayout.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
         messageTxt = (ActionEditText) findViewById(R.id.messageTxt);
         messageTxt.setOnKeyListener(new OnKeyListener() {
             @Override

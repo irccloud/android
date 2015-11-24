@@ -50,8 +50,6 @@ public class AppCompatListPreference extends AppCompatDialogPreference {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AppCompatListPreference, 0, 0);
         mEntries = a.getTextArray(R.styleable.AppCompatListPreference_entries);
         mEntryValues = a.getTextArray(R.styleable.AppCompatListPreference_entryValues);
-
-        android.util.Log.e("IRCCloud", "init with entries: " + Arrays.toString(mEntries) + " : " + Arrays.toString(mEntryValues));
         a.recycle();
     }
 
