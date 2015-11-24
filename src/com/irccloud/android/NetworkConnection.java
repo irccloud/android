@@ -1057,6 +1057,11 @@ public class NetworkConnection {
 
         Crashlytics.log(Log.DEBUG, TAG, "Attempt: " + failCount);
 
+        if(client != null) {
+            client.setListener(null);
+            client.disconnect();
+        }
+
         client = new WebSocketClient(URI.create(url), new WebSocketClient.Listener() {
             @Override
             public void onConnect() {
@@ -1144,7 +1149,6 @@ public class NetworkConnection {
                         e.printStackTrace();
                     }
                 }
-                client = null;
             }
 
             @Override
@@ -1168,7 +1172,6 @@ public class NetworkConnection {
 
                 state = STATE_DISCONNECTED;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
-                client = null;
             }
         }, extraHeaders);
 
