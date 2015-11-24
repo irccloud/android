@@ -49,6 +49,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.NotificationsList;
+import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Channel;
@@ -59,6 +60,7 @@ import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
 import com.irccloud.android.data.model.User;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -1196,6 +1198,7 @@ public class NetworkConnection {
         disconnect();
         try {
             GcmNetworkManager.getInstance(IRCCloudApplication.getInstance()).cancelAllTasks(BackgroundTaskService.class);
+            Delete.table(BackgroundTask.class);
             if(BuildConfig.GCM_ID.length() > 0) {
                 BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
             }
