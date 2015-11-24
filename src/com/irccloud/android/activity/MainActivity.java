@@ -3819,6 +3819,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 itemList.add("Deop");
                             else
                                 itemList.add("Op");
+                            if (selected_user.mode.contains(server != null ? server.MODE_VOICED : "v"))
+                                itemList.add("Devoice");
+                            else
+                                itemList.add("Voice");
                         }
                         if (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")) {
                             itemList.add("Kick…");
@@ -4004,6 +4008,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     conn.mode(buffer.getCid(), buffer.getName(), "+" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
                 } else if (items[item].equals("Deop")) {
                     conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_OP : "o") + " " + selected_user.nick);
+                } else if (items[item].equals("Voice")) {
+                    conn.mode(buffer.getCid(), buffer.getName(), "+" + (server != null ? server.MODE_VOICED : "v") + " " + selected_user.nick);
+                } else if (items[item].equals("Devoice")) {
+                    conn.mode(buffer.getCid(), buffer.getName(), "-" + (server != null ? server.MODE_VOICED : "v") + " " + selected_user.nick);
                 } else if (items[item].equals("Kick…")) {
                     view = getDialogTextPrompt();
                     prompt = (TextView) view.findViewById(R.id.prompt);
