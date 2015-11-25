@@ -72,6 +72,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
         private String provider = null;
+        private String giphy_fallback = null;
 
         @Override
         protected String doInBackground(String... params) {
@@ -79,6 +80,9 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 JSONObject o = NetworkConnection.getInstance().fetchJSON(params[0]);
                 if (o.has("provider_name"))
                     provider = o.getString("provider_name");
+
+                if (provider != null && provider.equals("Giphy") && o.has("image") && o.getString("image").endsWith(".gif"))
+                    giphy_fallback = o.getString("image");
 
                 if ((provider != null && provider.equals("Giphy")) || o.getString("type").equalsIgnoreCase("photo"))
                     return o.getString("url");
@@ -91,7 +95,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         protected void onPostExecute(String url) {
             if (url != null) {
                 if (provider != null && provider.equals("Giphy"))
-                    new GiphyTask().execute(url.substring(url.indexOf("/gifs/") + 6));
+                    new GiphyTask().execute(url.substring(url.indexOf("/gifs/") + 6), giphy_fallback);
                 else
                     loadImage(url);
             } else {
@@ -228,7 +232,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 }
             } catch (Exception e) {
             }
-            return null;
+            return params[1];
         }
 
         @Override
