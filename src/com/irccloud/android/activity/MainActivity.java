@@ -5361,8 +5361,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     activity.progressBar.setVisibility(View.GONE);
                 }
             }
-            activity.getSupportActionBar().setDisplayShowCustomEnabled(true);
-            activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            if(activity != null && activity.getSupportActionBar() != null) {
+                activity.getSupportActionBar().setDisplayShowCustomEnabled(true);
+                activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
         }
 

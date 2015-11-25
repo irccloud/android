@@ -569,8 +569,12 @@ public class NetworkConnection {
         }
         if (idleTimerTask != null)
             idleTimerTask.cancel();
-        if (wifiLock.isHeld())
-            wifiLock.release();
+        try {
+            if (wifiLock.isHeld())
+                wifiLock.release();
+        } catch (RuntimeException e) {
+
+        }
         reconnect_timestamp = 0;
         synchronized (oobTasks) {
             for (Integer bid : oobTasks.keySet()) {
@@ -1121,8 +1125,12 @@ public class NetworkConnection {
             @Override
             public void onDisconnect(int code, String reason) {
                 Crashlytics.log(Log.DEBUG, TAG, "WebSocket disconnected");
-                if(wifiLock.isHeld())
-                    wifiLock.release();
+                try {
+                    if (wifiLock.isHeld())
+                        wifiLock.release();
+                } catch (RuntimeException e) {
+
+                }
                 ConnectivityManager cm = (ConnectivityManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo ni = cm.getActiveNetworkInfo();
                 if (state == STATE_DISCONNECTING || ni == null || !ni.isConnected())
@@ -1157,8 +1165,12 @@ public class NetworkConnection {
             @Override
             public void onError(Exception error) {
                 Crashlytics.log(Log.ERROR, TAG, "The WebSocket encountered an error: " + error.toString());
-                if(wifiLock.isHeld())
-                    wifiLock.release();
+                try {
+                    if (wifiLock.isHeld())
+                        wifiLock.release();
+                } catch (RuntimeException e) {
+
+                }
                 if (state == STATE_DISCONNECTING)
                     cancel_idle_timer();
                 else {
@@ -2447,7 +2459,8 @@ public class NetworkConnection {
                 if (!backlog) {
                     mUsers.updateNick(object.bid(), object.getString("oldnick"), object.getString("newnick"));
                     if (object.type().equals("you_nickchange")) {
-                        mServers.getServer(object.cid).setNick(object.getString("newnick"));
+                        if(mServers.getServer(object.cid) != null)
+                            mServers.getServer(object.cid).setNick(object.getString("newnick"));
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
                 }
