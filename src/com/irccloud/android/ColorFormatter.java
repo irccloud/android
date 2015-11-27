@@ -1539,28 +1539,91 @@ public class ColorFormatter {
         while (pos < builder.length()) {
             if (builder.charAt(pos) == 2) { //Bold
                 String html = "";
-                if (bold)
+                if (bold) {
                     html += "</b>";
-                else
+                    if (fg.length() > 0) {
+                        html += "</font>";
+                    }
+                    if (bg.length() > 0) {
+                        html += "</_bg" + bg + ">";
+                    }
+                    if (italics)
+                        html += "</i>";
+                    if (underline)
+                        html += "</u>";
+                    if (fg.length() > 0) {
+                        html += "<font color=\"#" + fg + "\">";
+                    }
+                    if (bg.length() > 0) {
+                        html += "</_bg" + bg + ">";
+                    }
+                    if (italics)
+                        html += "<i>";
+                    if (underline)
+                        html += "<u>";
+                } else {
                     html += "<b>";
+                }
                 bold = !bold;
                 builder.deleteCharAt(pos);
                 builder.insert(pos, html);
             } else if (builder.charAt(pos) == 22 || builder.charAt(pos) == 29) { //Italics
                 String html = "";
-                if (italics)
+                if (italics) {
                     html += "</i>";
-                else
+                    if (fg.length() > 0) {
+                        html += "</font>";
+                    }
+                    if (bg.length() > 0) {
+                        html += "</_bg" + bg + ">";
+                    }
+                    if (bold)
+                        html += "</b>";
+                    if (underline)
+                        html += "</u>";
+                    if (fg.length() > 0) {
+                        html += "<font color=\"#" + fg + "\">";
+                    }
+                    if (bg.length() > 0) {
+                        html += "</_bg" + bg + ">";
+                    }
+                    if (bold)
+                        html += "<b>";
+                    if (underline)
+                        html += "<u>";
+                } else {
                     html += "<i>";
+                }
                 italics = !italics;
                 builder.deleteCharAt(pos);
                 builder.insert(pos, html);
             } else if (builder.charAt(pos) == 31) { //Underline
                 String html = "";
-                if (underline)
+                if (underline) {
                     html += "</u>";
-                else
+                    if (fg.length() > 0) {
+                        html += "</font>";
+                    }
+                    if (bg.length() > 0) {
+                        html += "</_bg" + bg + ">";
+                    }
+                    if (bold)
+                        html += "</b>";
+                    if (italics)
+                        html += "</i>";
+                    if (fg.length() > 0) {
+                        html += "<font color=\"#" + fg + "\">";
+                    }
+                    if (bg.length() > 0) {
+                        html += "</_bg" + bg + ">";
+                    }
+                    if (bold)
+                        html += "<b>";
+                    if (italics)
+                        html += "<i>";
+                } else {
                     html += "<u>";
+                }
                 underline = !underline;
                 builder.deleteCharAt(pos);
                 builder.insert(pos, html);
