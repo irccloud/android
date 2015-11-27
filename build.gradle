@@ -260,8 +260,10 @@ android {
         enterprisedebug.java.srcDirs = ['debug-src']
         release.java.srcDirs = ['release-src']
         enterpriserelease.java.srcDirs = ['release-src']
+        debugTest.java.srcDirs = ['release-src']
 
         androidTest {
+            manifest.srcFile 'tests/AndroidManifest.xml'
             java.srcDirs = ['tests/src']
             res.srcDirs = ['tests/res']
             assets.srcDirs = ['tests/assets']
@@ -333,4 +335,5 @@ dependencies {
     enterprisedebugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
     enterprisereleaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
+    debugTestCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
 }

@@ -88,32 +88,32 @@ public class CollapsedEventsList {
         }
 
         public boolean addMode(String mode) {
-            if (mode.equalsIgnoreCase(server != null ? server.MODE_OPER : "Y")) {
+            if (mode.equals(server != null ? server.MODE_OPER : "Y")) {
                 if (modes[MODE_DEOPER])
                     modes[MODE_DEOPER] = false;
                 else
                     modes[MODE_OPER] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_OWNER : "q")) {
+            } else if (mode.equals(server != null ? server.MODE_OWNER : "q")) {
                 if (modes[MODE_DEOWNER])
                     modes[MODE_DEOWNER] = false;
                 else
                     modes[MODE_OWNER] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_ADMIN : "a")) {
+            } else if (mode.equals(server != null ? server.MODE_ADMIN : "a")) {
                 if (modes[MODE_DEADMIN])
                     modes[MODE_DEADMIN] = false;
                 else
                     modes[MODE_ADMIN] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_OP : "o")) {
+            } else if (mode.equals(server != null ? server.MODE_OP : "o")) {
                 if (modes[MODE_DEOP])
                     modes[MODE_DEOP] = false;
                 else
                     modes[MODE_OP] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_HALFOP : "h")) {
+            } else if (mode.equals(server != null ? server.MODE_HALFOP : "h")) {
                 if (modes[MODE_DEHALFOP])
                     modes[MODE_DEHALFOP] = false;
                 else
                     modes[MODE_HALFOP] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_VOICED : "v")) {
+            } else if (mode.equals(server != null ? server.MODE_VOICED : "v")) {
                 if (modes[MODE_DEVOICE])
                     modes[MODE_DEVOICE] = false;
                 else
@@ -127,32 +127,32 @@ public class CollapsedEventsList {
         }
 
         public boolean removeMode(String mode) {
-            if (mode.equalsIgnoreCase(server != null ? server.MODE_OPER : "Y")) {
+            if (mode.equals(server != null ? server.MODE_OPER : "Y")) {
                 if (modes[MODE_OPER])
                     modes[MODE_OPER] = false;
                 else
                     modes[MODE_DEOPER] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_OWNER : "q")) {
+            } else if (mode.equals(server != null ? server.MODE_OWNER : "q")) {
                 if (modes[MODE_OWNER])
                     modes[MODE_OWNER] = false;
                 else
                     modes[MODE_DEOWNER] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_ADMIN : "a")) {
+            } else if (mode.equals(server != null ? server.MODE_ADMIN : "a")) {
                 if (modes[MODE_ADMIN])
                     modes[MODE_ADMIN] = false;
                 else
                     modes[MODE_DEADMIN] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_OP : "o")) {
+            } else if (mode.equals(server != null ? server.MODE_OP : "o")) {
                 if (modes[MODE_OP])
                     modes[MODE_OP] = false;
                 else
                     modes[MODE_DEOP] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_HALFOP : "h")) {
+            } else if (mode.equals(server != null ? server.MODE_HALFOP : "h")) {
                 if (modes[MODE_HALFOP])
                     modes[MODE_HALFOP] = false;
                 else
                     modes[MODE_DEHALFOP] = true;
-            } else if (mode.equalsIgnoreCase(server != null ? server.MODE_VOICED : "v")) {
+            } else if (mode.equals(server != null ? server.MODE_VOICED : "v")) {
                 if (modes[MODE_VOICE])
                     modes[MODE_VOICE] = false;
                 else

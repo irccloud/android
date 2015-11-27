@@ -16,14 +16,15 @@
 
 package com.irccloud.android.test;
 
+import android.test.AndroidTestCase;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.data.collection.ServersList;
+import com.irccloud.android.data.model.Server;
 
-import junit.framework.TestCase;
-
-public class IgnoreTests extends TestCase {
+public class IgnoreTests extends AndroidTestCase {
 
 	public void testNoNickWithDot() {
         ArrayNode ignores = new ObjectMapper().createArrayNode();
