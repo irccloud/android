@@ -120,11 +120,11 @@ public class IRCCloudApplicationBase extends Application {
 
             getContentResolver().delete(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    MediaStore.Audio.Media.IS_NOTIFICATION + " == 1 AND " + MediaStore.Audio.Media.TITLE + " == \"IRCCloud\"",
+                    MediaStore.Audio.Media.TITLE + " = 'IRCCloud'",
                     null);
         }
 
-        if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {
+        if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION + 1) {
             SharedPreferences.Editor editor = prefs.edit();
             File path = getFilesDir();
             File file = new File(path, "IRCCloud.mp3");
@@ -147,7 +147,12 @@ public class IRCCloudApplicationBase extends Application {
                         null);
 
                 if(c != null && c.moveToFirst()) {
-                    Log.d("IRCCloud", "Notification sound is already in the media database");
+                    do {
+                        ContentValues values = new ContentValues();
+                        values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
+                        values.put(MediaStore.Audio.Media.IS_MUSIC, "0");
+                        getContentResolver().update(MediaStore.Audio.Media.INTERNAL_CONTENT_URI.buildUpon().appendPath(c.getString(0)).build(), values, null, null);
+                    } while(c.moveToNext());
                     c.close();
                 } else {
                     ContentValues values = new ContentValues();
@@ -157,7 +162,6 @@ public class IRCCloudApplicationBase extends Application {
                     values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
                     values.put(MediaStore.Audio.Media.IS_MUSIC, "0");
                     Uri uri = getContentResolver().insert(MediaStore.Audio.Media.getContentUriForPath(file.getAbsolutePath()), values);
-                    Log.d("IRCCloud", "Inserted notification: " + uri);
 
                     if (uri != null && prefs.getString("notify_ringtone", "").length() == 0) {
                         editor.putString("notify_ringtone", uri.toString());
