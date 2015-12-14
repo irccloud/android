@@ -46,7 +46,7 @@ import java.io.OutputStream;
 
 import io.fabric.sdk.android.Fabric;@SuppressWarnings("unused")
 public class IRCCloudApplicationBase extends Application {
-    private static final int RINGTONE_VERSION = 3;
+    private static final int RINGTONE_VERSION = 4;
 
     private NetworkConnection conn = null;
 
@@ -107,11 +107,13 @@ public class IRCCloudApplicationBase extends Application {
                             public void onScanCompleted(String path, Uri uri) {
                                 ContentValues values = new ContentValues();
                                 values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
+                                values.put(MediaStore.Audio.Media.IS_MUSIC, "0");
                                 getContentResolver().update(uri, values, null, null);
 
                                 SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                Log.e("IRCCloud", "Scanned ringtone URI: " + uri + " Pref: " + prefs.getString("notify_ringtone", ""));
                                 SharedPreferences.Editor editor = prefs.edit();
-                                if (!prefs.contains("notify_ringtone")) {
+                                if (prefs.getString("notify_ringtone", "").length() == 0) {
                                     editor.putString("notify_ringtone", uri.toString());
                                 }
                                 editor.putInt("ringtone_version", RINGTONE_VERSION);
