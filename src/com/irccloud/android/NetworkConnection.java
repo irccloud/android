@@ -1221,7 +1221,11 @@ public class NetworkConnection {
         accrued = 0;
         highest_eid = -1;
         SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-        prefs.clear();
+        prefs.remove("name");
+        prefs.remove("email");
+        prefs.remove("highlights");
+        prefs.remove("theme");
+        prefs.remove("monospace");
         prefs.commit();
         SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
         editor.clear();
@@ -1820,36 +1824,37 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 userInfo = new UserInfo(object);
                 Crashlytics.setUserIdentifier("uid" + userInfo.id);
-                SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).edit();
-                prefs.putString("name", userInfo.name);
-                prefs.putString("email", userInfo.email);
-                prefs.putString("highlights", userInfo.highlights);
-                prefs.putBoolean("autoaway", userInfo.auto_away);
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putString("name", userInfo.name);
+                editor.putString("email", userInfo.email);
+                editor.putString("highlights", userInfo.highlights);
+                editor.putBoolean("autoaway", userInfo.auto_away);
                 if (userInfo.prefs != null) {
-                    prefs.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.get("time-24hr") instanceof Boolean && userInfo.prefs.getBoolean("time-24hr"));
-                    prefs.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds") instanceof Boolean && userInfo.prefs.getBoolean("time-seconds"));
-                    prefs.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol") instanceof Boolean && userInfo.prefs.getBoolean("mode-showsymbol"));
-                    prefs.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors") instanceof Boolean && userInfo.prefs.getBoolean("nick-colors"));
-                    prefs.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert") instanceof Boolean && userInfo.prefs.getBoolean("emoji-disableconvert")));
-                    prefs.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt") instanceof Boolean && userInfo.prefs.getBoolean("pastebin-disableprompt")));
-                    prefs.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("hideJoinPart")));
-                    prefs.putBoolean("expandJoinPart", !(userInfo.prefs.has("expandJoinPart") && userInfo.prefs.get("expandJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("expandJoinPart")));
-                    prefs.putBoolean("notifications_all", (userInfo.prefs.has("notifications-all") && userInfo.prefs.get("notifications-all") instanceof Boolean && userInfo.prefs.getBoolean("notifications-all")));
-                    prefs.putBoolean("disableTrackUnread", !(userInfo.prefs.has("disableTrackUnread") && userInfo.prefs.get("disableTrackUnread") instanceof Boolean && userInfo.prefs.getBoolean("disableTrackUnread")));
-                    prefs.putBoolean("enableReadOnSelect", (userInfo.prefs.has("enableReadOnSelect") && userInfo.prefs.get("enableReadOnSelect") instanceof Boolean && userInfo.prefs.getBoolean("enableReadOnSelect")));
-                    if(userInfo.prefs.has("theme"))
-                        prefs.putString("theme", userInfo.prefs.getString("theme"));
-                    if(userInfo.prefs.has("font"))
-                        prefs.putBoolean("monospace", userInfo.prefs.getString("font").equals("mono"));
+                    editor.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.get("time-24hr") instanceof Boolean && userInfo.prefs.getBoolean("time-24hr"));
+                    editor.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds") instanceof Boolean && userInfo.prefs.getBoolean("time-seconds"));
+                    editor.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol") instanceof Boolean && userInfo.prefs.getBoolean("mode-showsymbol"));
+                    editor.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors") instanceof Boolean && userInfo.prefs.getBoolean("nick-colors"));
+                    editor.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert") instanceof Boolean && userInfo.prefs.getBoolean("emoji-disableconvert")));
+                    editor.putBoolean("pastebin-disableprompt", !(userInfo.prefs.has("pastebin-disableprompt") && userInfo.prefs.get("pastebin-disableprompt") instanceof Boolean && userInfo.prefs.getBoolean("pastebin-disableprompt")));
+                    editor.putBoolean("hideJoinPart", !(userInfo.prefs.has("hideJoinPart") && userInfo.prefs.get("hideJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("hideJoinPart")));
+                    editor.putBoolean("expandJoinPart", !(userInfo.prefs.has("expandJoinPart") && userInfo.prefs.get("expandJoinPart") instanceof Boolean && userInfo.prefs.getBoolean("expandJoinPart")));
+                    editor.putBoolean("notifications_all", (userInfo.prefs.has("notifications-all") && userInfo.prefs.get("notifications-all") instanceof Boolean && userInfo.prefs.getBoolean("notifications-all")));
+                    editor.putBoolean("disableTrackUnread", !(userInfo.prefs.has("disableTrackUnread") && userInfo.prefs.get("disableTrackUnread") instanceof Boolean && userInfo.prefs.getBoolean("disableTrackUnread")));
+                    editor.putBoolean("enableReadOnSelect", (userInfo.prefs.has("enableReadOnSelect") && userInfo.prefs.get("enableReadOnSelect") instanceof Boolean && userInfo.prefs.getBoolean("enableReadOnSelect")));
+                    if(userInfo.prefs.has("theme") && !prefs.contains("theme"))
+                        editor.putString("theme", userInfo.prefs.getString("theme"));
+                    if(userInfo.prefs.has("font") && !prefs.contains("monospace"))
+                        editor.putBoolean("monospace", userInfo.prefs.getString("font").equals("mono"));
                 } else {
-                    prefs.putBoolean("time-24hr", false);
-                    prefs.putBoolean("time-seconds", false);
-                    prefs.putBoolean("mode-showsymbol", false);
-                    prefs.putBoolean("nick-colors", false);
-                    prefs.putBoolean("emoji-disableconvert", true);
-                    prefs.putBoolean("pastebin-disableprompt", true);
+                    editor.putBoolean("time-24hr", false);
+                    editor.putBoolean("time-seconds", false);
+                    editor.putBoolean("mode-showsymbol", false);
+                    editor.putBoolean("nick-colors", false);
+                    editor.putBoolean("emoji-disableconvert", true);
+                    editor.putBoolean("pastebin-disableprompt", true);
                 }
-                prefs.commit();
+                editor.commit();
                 mEvents.clearCaches();
                 notifyHandlers(EVENT_USERINFO, userInfo);
             }

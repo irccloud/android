@@ -57,6 +57,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.DashClock;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -211,7 +212,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 
         findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
-        findPreference("monospace").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
         findPreference("mode-showsymbol").setOnPreferenceChangeListener(prefstoggle);
@@ -412,8 +412,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                     e.printStackTrace();
                                 }
                             }
-                            if(Build.VERSION.SDK_INT >= 11 && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme()))
-                                recreate();
                         }
                     });
                 }
@@ -1018,28 +1016,13 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                             break;
                     }
 
-                    if(conn != null && conn.getUserInfo() != null) {
-                        JSONObject prefs = conn.getUserInfo().prefs;
-                        try {
-                            if (prefs == null) {
-                                prefs = new JSONObject();
-                                conn.getUserInfo().prefs = prefs;
-                            }
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("theme", theme);
+                    editor.commit();
 
-                            prefs.put("theme", theme);
-
-                            if (savePreferencesTask != null)
-                                savePreferencesTask.cancel(true);
-                            savePreferencesTask = new SavePreferencesTask();
-                            savePreferencesTask.execute((Void) null);
-                        } catch (JSONException e) {
-                            Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to set preference: theme");
-                            Crashlytics.logException(e);
-                            Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
-                    }
+                    if(Build.VERSION.SDK_INT >= 11 && !ColorScheme.getInstance().theme.equals(ColorScheme.getUserTheme()))
+                        recreate();
                 }
             });
             builder.setNegativeButton("Cancel", null);

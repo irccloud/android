@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -144,8 +145,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             row.getRoot().setOnClickListener(new OnItemClickListener(position));
 
             try {
-                JSONObject prefs = conn.getUserInfo().prefs;
-                row.setMono(prefs.has("font") && prefs.getString("font").equals("mono"));
+                row.setMono(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("monospace", false));
             } catch (Exception e1) {
                 row.setMono(false);
             }

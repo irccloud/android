@@ -558,13 +558,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                boolean mono = false;
-                try {
-                    JSONObject prefs = conn.getUserInfo().prefs;
-                    mono = (prefs.has("font") && prefs.getString("font").equals("mono"));
-                } catch (Exception e1) {
-
-                }
+                boolean mono = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("monospace", false);
 
                 if (holder.timestamp != null) {
                     holder.timestamp.setTypeface(mono ? Typeface.MONOSPACE : Typeface.DEFAULT);

@@ -124,7 +124,7 @@ public class IRCCloudApplicationBase extends Application {
                     null);
         }
 
-        if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION + 1) {
+        if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {
             SharedPreferences.Editor editor = prefs.edit();
             File path = getFilesDir();
             File file = new File(path, "IRCCloud.mp3");
