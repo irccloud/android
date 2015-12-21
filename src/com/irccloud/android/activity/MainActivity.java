@@ -282,6 +282,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         registerReceiver(screenReceiver, filter);
 
+        filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+        registerReceiver(timeZoneReceiver, filter);
+
         setContentView(R.layout.activity_message);
 
         suggestionsAdapter = new SuggestionsAdapter();
@@ -513,6 +516,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(timeZoneReceiver);
         unregisterReceiver(screenReceiver);
         if(countdownTimer != null) {
             countdownTimer.cancel();
@@ -5462,4 +5466,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private ScreenReceiver screenReceiver = new ScreenReceiver();
+
+    public class TimeZoneReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("IRCCloud", "Time zone changed, refreshing event timestamps");
+            EventsList.getInstance().clearCaches();
+            if(buffer != null)
+                onBufferSelected(buffer.getBid());
+        }
+    }
+    private TimeZoneReceiver timeZoneReceiver = new TimeZoneReceiver();
 }
