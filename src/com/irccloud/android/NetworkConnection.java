@@ -2009,7 +2009,8 @@ public class NetworkConnection {
                 "silence",
                 "no_channel_topic",
                 "invite_only_chan",
-                "channel_full"};
+                "channel_full",
+                "need_registered_nick"};
         for (String event : alerts) {
             put(event, alert);
         }
