@@ -81,7 +81,7 @@ public class NotificationService extends IntentService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Crashlytics.log(Log.ERROR, "IRCCloud", "GCM registration failed");
+        Crashlytics.log(Log.ERROR, "IRCCloud", "Pushy registration failed");
 
         return 2;
 
