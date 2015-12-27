@@ -114,6 +114,7 @@ import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.NotificationService;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Buffer;
@@ -169,6 +170,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.UUID;
+
+import me.pushy.sdk.Pushy;
 
 public class MainActivity extends BaseActivity implements UsersListFragment.OnUserSelectedListener, BuffersListFragment.OnBufferSelectedListener, MessageViewFragment.MessageViewListener, NetworkConnection.IRCEventHandler {
     Buffer buffer;
@@ -269,6 +272,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Pushy.listen(this);
         theme = ColorScheme.getUserTheme();
         setTheme(ColorScheme.getTheme(theme, false));
         suggestionsTimer = new Timer("suggestions-timer");
@@ -491,8 +495,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
 
-        if(BuildConfig.GCM_ID.length() > 0)
-            BackgroundTaskService.registerGCM(MainActivity.this);
+        Intent registerIntent;
+        registerIntent = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), NotificationService.class);
+        registerIntent.setAction("com.irccloud.android.notificationService.registerUser");
+        startService(registerIntent);
     }
 
     private void adjustTabletLayout() {

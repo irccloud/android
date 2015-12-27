@@ -168,7 +168,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             }
         } else {
             if (GooglePlayServicesUtil.isUserRecoverableError(result.getErrorCode())) {
-                GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, REQUEST_RESOLVE_ERROR).show();
+                if(result.getErrorCode() != ConnectionResult.SERVICE_MISSING)
+                     GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, REQUEST_RESOLVE_ERROR).show();
                 mResolvingError = true;
             }
         }
