@@ -2277,7 +2277,7 @@ public class NetworkConnection {
                 "socket_closed",
                 "channel_mode_list_change",
                 "msg_services",
-                "stats", "statslinkinfo", "statscommands", "statscline", "statsnline", "statsiline", "statskline", "statsqline", "statsyline", "statsbline", "statsgline", "statstline", "statseline", "statsvline", "statslline", "statsuptime", "statsoline", "statshline", "statssline", "statsuline", "statsdebug", "endofstats",
+                "stats", "statslinkinfo", "statscommands", "statscline", "statsnline", "statsiline", "statskline", "statsqline", "statsyline", "statsbline", "statsgline", "statstline", "statseline", "statsvline", "statslline", "statsuptime", "statsoline", "statshline", "statssline", "statsuline", "statsdebug", "spamfilter", "endofstats",
                 "inviting_to_channel",
                 "error",
                 "too_fast",
