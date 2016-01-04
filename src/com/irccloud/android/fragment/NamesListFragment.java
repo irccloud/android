@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
@@ -85,7 +86,7 @@ public class NamesListFragment extends DialogFragment {
             else
                 row.setName(new SpannableString(""));
             row.setServer("");
-            row.setMask(users.get(position).get("usermask").asText());
+            row.setMask(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(users.get(position).get("usermask").asText())));
             row.executePendingBindings();
         }
     }

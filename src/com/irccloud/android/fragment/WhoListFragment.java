@@ -88,7 +88,7 @@ public class WhoListFragment extends DialogFragment {
             row.setNick(users.get(position).get("nick").asText());
             row.setName(ColorFormatter.html_to_spanned("&nbsp;(" + ColorFormatter.emojify(ColorFormatter.irc_to_html(TextUtils.htmlEncode(users.get(position).get("realname").asText()))) + ")"));
             row.setServer("Connected via " + users.get(position).get("ircserver").asText());
-            row.setMask(users.get(position).get("usermask").asText());
+            row.setMask(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(users.get(position).get("usermask").asText())));
             row.getRoot().setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {

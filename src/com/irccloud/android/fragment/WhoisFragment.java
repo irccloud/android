@@ -221,7 +221,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
             } else {
                 name.setText("");
             }
-            mask.setText(event.getString("user_username") + "@" + event.getString("user_host"));
+            mask.setText(ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_username"))) + "@" + ColorFormatter.irc_to_html(TextUtils.htmlEncode(event.getString("user_host")))));
             if (event.has("actual_host"))
                 mask.setText(mask.getText() + "/" + event.getString("actual_host"));
             String s = event.getString("server_addr");

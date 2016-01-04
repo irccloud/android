@@ -22,7 +22,7 @@
         <variable name="nick" type="String"/>
         <variable name="name" type="android.text.Spanned"/>
         <variable name="server" type="String"/>
-        <variable name="mask" type="String"/>
+        <variable name="mask" type="android.text.Spanned"/>
     </data>
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"

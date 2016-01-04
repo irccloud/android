@@ -3839,7 +3839,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if (selected_user != null)
             if (selected_user.hostmask != null && selected_user.hostmask.length() > 0)
-                builder.setTitle(selected_user.nick + "\n(" + selected_user.hostmask + ")");
+                builder.setTitle(selected_user.nick + "\n(" + ColorFormatter.strip(selected_user.hostmask) + ")");
             else
                 builder.setTitle(selected_user.nick);
         else

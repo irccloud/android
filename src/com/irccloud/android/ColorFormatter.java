@@ -1243,6 +1243,10 @@ public class ColorFormatter {
         return html_to_spanned(msg, linkify, server, null);
     }
 
+    public static String strip(String msg) {
+        return html_to_spanned(irc_to_html(emojify(msg))).toString();
+    }
+
     public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities) {
         if (msg == null)
             msg = "";
