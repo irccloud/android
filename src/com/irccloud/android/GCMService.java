@@ -36,9 +36,9 @@ public class GCMService extends GcmListenerService {
 
     @Override
     public void onMessageReceived(String id, Bundle data) {
-        super.onMessageReceived(id, data);
+        if(!data.containsKey("type"))
+            super.onMessageReceived(id, data);
 
-        //Log.d("IRCCloud", "GCM K/V pairs: " + data);
         try {
             if(!NetworkConnection.getInstance().ready)
                 NetworkConnection.getInstance().load();

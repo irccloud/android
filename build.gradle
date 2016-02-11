@@ -102,12 +102,14 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
@@ -137,12 +139,14 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
@@ -176,12 +180,14 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String[]", "SSL_FPS", "null"
@@ -212,12 +218,14 @@ android {
                 buildConfigField "String", "IMGUR_KEY", "\"" + props['IMGUR_KEY'] + "\""
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
+                buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY:""]
             }
             buildConfigField "String[]", "SSL_FPS", "null"

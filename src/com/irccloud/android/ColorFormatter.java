@@ -1385,9 +1385,9 @@ public class ColorFormatter {
                                         "(^https?://(www\\.)?leetfiles\\.com/image/.*)|" +
                                         "(^https?://(www\\.)?leetfil\\.es/image/.*)|" +
                                         "(^https?://i.imgur.com/.*\\.gifv$)|" +
-                                        "(^https?://(www\\.)?gfycat.com/[a-z]+$)|" +
-                                        "(^https?://(www\\.)?giphy.com/gifs/.*)|" +
-                                        "(^https?://gph.is/.*)|" +
+                                        "(^https?://(www\\.)?gfycat\\.com/[a-z]+$)|" +
+                                        "(^https?://(www\\.)?giphy\\.com/gifs/.*)|" +
+                                        "(^https?://gph\\.is/.*)|" +
                                         "(^https?://.*\\.steampowered\\.com/ugc/.*)"
                         ) && !lower.matches("(^https?://cl\\.ly/robots\\.txt$)|(^https?://cl\\.ly/image/?$)") && !(lower.contains("imgur.com") && lower.contains(","))) {
                             if (lower.startsWith("http://"))
@@ -1422,7 +1422,9 @@ public class ColorFormatter {
                         }
                     }
 
-                    if (isVideoEnt || lower.matches("(^.*\\/.*\\.3gpp?)|(^.*\\/.*\\.mp4$)|(^.*\\/.*\\.m4v)|(^.*\\/.*\\.webm$)")) {
+                    if (isVideoEnt || lower.matches("(^.*/.*\\.3gpp?)|(^.*/.*\\.mp4$)|(^.*/.*\\.m4v$)|(^.*/.*\\.webm$)") ||
+                            url.toLowerCase().matches("(^https?://(www\\.)?facebook\\.com/video\\.php\\?.*$)|" +
+                                    "(^https?://(www\\.)?facebook\\.com/.*/videos/[0-9]+/?)")) {
                         if (lower.startsWith("http://"))
                             return IRCCloudApplication.getInstance().getApplicationContext().getResources().getString(R.string.VIDEO_SCHEME) + "://" + url.substring(7);
                         else if (lower.startsWith("https://"))
