@@ -1265,16 +1265,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (event.type.startsWith("you_"))
                             event.html += "You";
                         else
-                            event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b>";
+                            event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b> (" + event.hostmask + ")";
                         if (event.type.startsWith("you_"))
                             event.html += " were";
                         else
                             event.html += " was";
                         if (event.hostmask != null && event.hostmask.length() > 0)
-                            event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b> (" + event.hostmask + ")";
+                            event.html += " kicked by <b>" + collapsedEvents.formatNick(event.nick, event.from_mode, false) + "</b>";
                         else
                             event.html += " kicked by the server <b>" + event.nick + "</b>";
-                        if (event.msg != null && event.msg.length() > 0)
+                        if (event.msg != null && event.msg.length() > 0 && !event.msg.equals(event.nick))
                             event.html += ": " + event.msg;
                         break;
                     case "callerid":

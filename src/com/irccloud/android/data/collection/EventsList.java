@@ -370,10 +370,9 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 if(event != null) {
                     e.from = "";
-                    e.from_mode = null;
+                    e.from_mode = event.getString("kicker_mode");
                     e.old_nick = event.getString("nick");
                     e.nick = event.getString("kicker");
-                    e.hostmask = event.getString("kicker_hostmask");
                 }
                 e.color = colorScheme.timestampColor;
                 e.linkify = false;
