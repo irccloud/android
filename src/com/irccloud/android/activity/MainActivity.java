@@ -3889,6 +3889,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         String url = o.getURL();
                         url = url.replace(getResources().getString(R.string.IMAGE_SCHEME) + "://", "http://");
                         url = url.replace(getResources().getString(R.string.IMAGE_SCHEME_SECURE) + "://", "https://");
+                        url = url.replace(getResources().getString(R.string.VIDEO_SCHEME) + "://", "http://");
+                        url = url.replace(getResources().getString(R.string.VIDEO_SCHEME_SECURE) + "://", "https://");
                         if (server != null) {
                             url = url.replace(getResources().getString(R.string.IRCCLOUD_SCHEME) + "://cid/" + server.getCid() + "/", ((server.getSsl() >0)?"ircs://":"irc://") + server.getHostname() + ":" + server.getPort() + "/");
                         }
