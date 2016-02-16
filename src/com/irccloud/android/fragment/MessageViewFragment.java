@@ -1265,7 +1265,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         if (event.type.startsWith("you_"))
                             event.html += "You";
                         else
-                            event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b> (" + event.hostmask + ")";
+                            event.html += "<b>" + collapsedEvents.formatNick(event.old_nick, null, false) + "</b>";
+                        if (event.hostmask != null && event.hostmask.length() > 0)
+                            event.html += " (" + event.hostmask + ")";
                         if (event.type.startsWith("you_"))
                             event.html += " were";
                         else
