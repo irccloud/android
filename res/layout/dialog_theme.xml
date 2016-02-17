@@ -35,6 +35,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/dawn"/>
 
         <RadioButton
@@ -46,6 +47,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/dusk"/>
 
         <RadioButton
@@ -57,6 +59,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/tropic"/>
 
         <RadioButton
@@ -68,6 +71,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/emerald"/>
 
         <RadioButton
@@ -79,6 +83,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/sand"/>
 
         <RadioButton
@@ -90,6 +95,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/rust"/>
 
         <RadioButton
@@ -101,6 +107,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/orchid"/>
 
         <RadioButton
@@ -112,6 +119,7 @@
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:background="?attr/selectableItemBackground"
             android:id="@+id/ash"/>
 
     </RadioGroup>
