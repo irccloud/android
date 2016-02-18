@@ -21,6 +21,10 @@
         android:title="@string/menu_settings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_feedback"
+        android:title="@string/menu_feedback"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_logout"
         android:title="@string/menu_logout"
         app:showAsAction="never" />

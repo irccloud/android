@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -60,6 +61,9 @@ import com.irccloud.android.data.collection.ServersList;
 import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.samsung.android.sdk.multiwindow.SMultiWindow;
 import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
+
+import java.io.File;
+import java.io.FileInputStream;
 
 public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     NetworkConnection conn;
@@ -559,6 +563,53 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             case R.id.menu_settings:
                 Intent i = new Intent(this, PreferencesActivity.class);
                 startActivity(i);
+                break;
+            case R.id.menu_feedback:
+                try {
+                    StringBuilder bugReport = new StringBuilder(
+                        "Briefly describe the issue below:\n\n\n\n" +
+                        "===========\n" +
+                        "UID: " + NetworkConnection.getInstance().getUserInfo().id + "\n" +
+                        "App version: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "\n" +
+                        "Device: " + Build.MODEL + "\n" +
+                        "Android version: " + Build.VERSION.RELEASE + "\n" +
+                        "Firmware fingerprint: " + Build.FINGERPRINT + "\n");
+
+                    File logsDir = new File(getFilesDir(),".Fabric/com.crashlytics.sdk.android.crashlytics-core/log-files/");
+                    File log = null;
+                    long max = Long.MIN_VALUE;
+                    for(File f : logsDir.listFiles()) {
+                        if(f.lastModified() > max) {
+                            max = f.lastModified();
+                            log = f;
+                        }
+                    }
+
+                    if(log != null) {
+                        bugReport.append("===========\nConsole log:\n");
+                        FileInputStream is = new FileInputStream(log);
+                        byte b[] = new byte[1];
+                        while(is.available() > 0 && is.read(b,0,1) > 0) {
+                            if (b[0] == ' ') {
+                                while(is.available() > 0 && is.read(b,0,1) > 0) {
+                                    bugReport.append((char)b[0]);
+                                    if (b[0] == '\n')
+                                        break;
+                                }
+                            }
+                        }
+                        is.close();
+                    }
+
+                    Intent email = new Intent(Intent.ACTION_SENDTO);
+                    email.setData(Uri.parse("mailto:"));
+                    email.putExtra(Intent.EXTRA_EMAIL, new String[]{"IRCCloud Team <team@irccloud.com>"});
+                    email.putExtra(Intent.EXTRA_TEXT, bugReport.toString());
+                    email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
+                    startActivity(Intent.createChooser(email, "Send Feedback:"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
         }
         return super.onOptionsItemSelected(item);
