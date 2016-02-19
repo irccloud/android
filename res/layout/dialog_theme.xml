@@ -31,10 +31,11 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Dawn"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/dawn"/>
 
@@ -44,9 +45,10 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Dusk"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/dusk"/>
 
@@ -56,9 +58,10 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Tropic"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/tropic"/>
 
@@ -68,9 +71,10 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Emerald"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/emerald"/>
 
@@ -80,9 +84,10 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Sand"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/sand"/>
 
@@ -92,9 +97,10 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Rust"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/rust"/>
 
@@ -104,9 +110,10 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Orchid"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/orchid"/>
 
@@ -116,9 +123,11 @@
             android:button="@null"
             android:drawableRight="@drawable/abc_btn_radio_material"
             android:text="Ash"
-            android:layout_marginBottom="@dimen/activity_vertical_margin"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
             android:background="?attr/selectableItemBackground"
             android:id="@+id/ash"/>
 
