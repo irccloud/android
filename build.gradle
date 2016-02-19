@@ -20,7 +20,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:2.0.0-beta2"
+        classpath 'com.android.tools.build:gradle:2.0.0-beta5'
         classpath 'io.fabric.tools:gradle:1.21.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
@@ -123,9 +123,8 @@ android {
             resValue "string", "app_name", "IRCCloud"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
 
-            minifyEnabled true
+            minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
         release {
@@ -202,9 +201,8 @@ android {
             resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
 
             signingConfig signingConfigs.debug
-            minifyEnabled true
+            minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
 
         enterpriserelease {
