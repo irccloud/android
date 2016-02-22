@@ -276,35 +276,41 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     }
 
     public void updateUserModes(String modes) {
-        if (modes != null && modes.length() == 5 && modes.charAt(0) != 'q') {
-            this.MODE_OWNER = modes.substring(0, 1);
+        if (modes != null && modes.length() > 0) {
+            if(isupport != null && isupport.has("OWNER") && isupport.get("OWNER").asText().equals(modes.substring(0,1))) {
+                MODE_OWNER = modes.substring(0, 1);
+                if(MODE_OPER.equals(MODE_OWNER))
+                    MODE_OPER = "";
+            } else if(modes.charAt(0) == 'y') {
+                MODE_OPER = modes.substring(0, 1);
+            }
         }
     }
 
     public void updateIsupport(ObjectNode params) {
-        if(this.isupport == null)
-            this.isupport = new ObjectMapper().createObjectNode();
+        if(isupport == null)
+            isupport = new ObjectMapper().createObjectNode();
 
         if (params != null && !params.isArray())
-            this.isupport.putAll(params);
+            isupport.putAll(params);
         else
-            this.isupport = new ObjectMapper().createObjectNode();
+            isupport = new ObjectMapper().createObjectNode();
 
-        if (this.isupport.has("PREFIX")) {
-            this.PREFIX = (ObjectNode) this.isupport.get("PREFIX");
+        if (isupport.has("PREFIX")) {
+            PREFIX = (ObjectNode) isupport.get("PREFIX");
         } else {
-            this.PREFIX = new ObjectMapper().createObjectNode();
-            this.PREFIX.put(this.MODE_OPER, "!");
-            this.PREFIX.put(this.MODE_OWNER, "~");
-            this.PREFIX.put(this.MODE_ADMIN, "&");
-            this.PREFIX.put(this.MODE_OP, "@");
-            this.PREFIX.put(this.MODE_HALFOP, "%");
-            this.PREFIX.put(this.MODE_VOICED, "+");
+            PREFIX = new ObjectMapper().createObjectNode();
+            PREFIX.put(MODE_OPER, "!");
+            PREFIX.put(MODE_OWNER, "~");
+            PREFIX.put(MODE_ADMIN, "&");
+            PREFIX.put(MODE_OP, "@");
+            PREFIX.put(MODE_HALFOP, "%");
+            PREFIX.put(MODE_VOICED, "+");
         }
-        if (this.isupport.has("CHANTYPES"))
-            this.CHANTYPES = this.isupport.get("CHANTYPES").asText();
+        if (isupport.has("CHANTYPES"))
+            CHANTYPES = isupport.get("CHANTYPES").asText();
         else
-            this.CHANTYPES = null;
+            CHANTYPES = null;
     }
 
     public void updateIgnores(JsonNode ignores) {

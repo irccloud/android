@@ -1938,6 +1938,13 @@ public class NetworkConnection {
                     }
                 });
 
+        put("backlog_cache_init", new Parser() {
+            @Override
+            public void parse(IRCCloudJSONObject object) throws JSONException {
+                mEvents.deleteEventsForBuffer(object.bid());
+            }
+        });
+
         put("backlog_complete", new Parser() {
             @Override
             public void parse(IRCCloudJSONObject object) throws JSONException {
@@ -2065,8 +2072,8 @@ public class NetworkConnection {
             public void parse(IRCCloudJSONObject object) throws JSONException {
                 Server s = mServers.getServer(object.cid());
                 if(s != null) {
-                    s.updateUserModes(object.getString("usermodes"));
                     s.updateIsupport(object.getJsonObject("params"));
+                    s.updateUserModes(object.getString("usermodes"));
                 }
             }
         });
