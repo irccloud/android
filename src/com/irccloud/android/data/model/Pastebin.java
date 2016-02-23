@@ -298,7 +298,7 @@ public class Pastebin extends BaseObservable implements Serializable, NetworkCon
                 return new Pastebin(o);
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         return null;
     }

@@ -100,7 +100,7 @@ public class NotificationsList {
                 //Sony LiveWare was probably removed
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         updateTeslaUnreadCount();
         synchronized (dbLock) {
@@ -326,7 +326,7 @@ public class NotificationsList {
                 mNotificationTimer.schedule(task, 5000);
                 mNotificationTimerTask = task;
             } catch (Exception e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
     }
@@ -529,7 +529,7 @@ public class NotificationsList {
             i.putExtra("notificationData", notificationData);
             IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(i);
         } catch (Exception e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 
@@ -781,7 +781,7 @@ public class NotificationsList {
             IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
         } catch (IllegalArgumentException ex) {
         } catch (Exception ex) {
-            ex.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(ex);
         }
     }
 }

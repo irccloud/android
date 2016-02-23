@@ -18,6 +18,7 @@ package com.irccloud.android.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.irccloud.android.NetworkConnection;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class JsonNodeConverter extends TypeConverter<String, JsonNode> {
             try {
                 return mapper.readValue(data, JsonNode.class);
             } catch (IOException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
         return null;

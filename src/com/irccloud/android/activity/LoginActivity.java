@@ -525,7 +525,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                             try {
                                 startIntentSenderForResult(result.getStatus().getResolution().getIntentSender(), REQUEST_RESOLVE_CREDENTIALS, null, 0, 0, 0);
                             } catch (IntentSender.SendIntentException e) {
-                                e.printStackTrace();
+                                NetworkConnection.printStackTraceToCrashlytics(e);
                                 loading.setVisibility(View.GONE);
                                 connecting.setVisibility(View.GONE);
                                 login.setVisibility(View.VISIBLE);
@@ -726,7 +726,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                     try {
                                         startIntentSenderForResult(status.getResolution().getIntentSender(), REQUEST_RESOLVE_SAVE_CREDENTIALS, null, 0, 0, 0);
                                     } catch (IntentSender.SendIntentException e) {
-                                        e.printStackTrace();
+                                        NetworkConnection.printStackTraceToCrashlytics(e);
                                         startActivity(i);
                                         finish();
                                     }
@@ -751,7 +751,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                             Answers.getInstance().logLogin(new LoginEvent().putMethod("email").putSuccess(true));
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             } else {
                 name.setEnabled(true);
@@ -821,7 +821,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                         }
 
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                     }
                 } else if ((name.getVisibility() == View.VISIBLE && (name.getText() == null || name.getText().length() == 0)) || email.getText() == null || email.getText().length() == 0 || password.getText() == null || password.getText().length() == 0) {
                     if (name.getVisibility() == View.VISIBLE)
@@ -860,9 +860,9 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                 return NetworkConnection.getInstance().impression(AdvertisingIdClient.getAdvertisingIdInfo(LoginActivity.this).getId(), arg0[0], getSharedPreferences("prefs", 0).getString("session_key", ""));
             } catch (IOException e) {
             } catch (GooglePlayServicesNotAvailableException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             } catch (GooglePlayServicesRepairableException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
             return null;
         }
@@ -875,7 +875,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                         impression_id = result.getString("id");
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             }
         }
@@ -934,7 +934,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     if (!BuildConfig.ENTERPRISE)
                         Answers.getInstance().logLogin(new LoginEvent().putMethod("access-link").putSuccess(true));
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             } else {
                 if (!BuildConfig.ENTERPRISE)
@@ -1060,7 +1060,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             try {
                 return NetworkConnection.getInstance().fetchJSON("https://" + NetworkConnection.IRCCLOUD_HOST + "/config");
             } catch (IOException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
                 return null;
             }
         }
@@ -1102,7 +1102,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     return;
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);

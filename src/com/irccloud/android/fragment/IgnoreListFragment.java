@@ -83,7 +83,7 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
                     conn.unignore(cid, ignores.get(position).asText());
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             }
         };

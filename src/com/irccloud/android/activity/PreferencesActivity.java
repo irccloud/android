@@ -270,7 +270,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             });
         } catch (NameNotFoundException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
 
         getListView().setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
@@ -409,7 +409,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
                                     findPreference("theme").setSummary(ColorScheme.getUserTheme());
                                 } catch (JSONException e) {
-                                    e.printStackTrace();
+                                    NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
                             }
                         }

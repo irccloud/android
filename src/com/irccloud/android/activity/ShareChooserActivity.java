@@ -258,7 +258,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                         error = "Your account is temporarily unavailable";
                     updateReconnecting();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             }
         });
@@ -281,7 +281,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                     else
                         i.putExtra(key, getIntent().getStringExtra(key));
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             }
         }

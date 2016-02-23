@@ -85,7 +85,7 @@ public class AcceptListFragment extends DialogFragment {
                     conn.say(cid, null, "/accept *");
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             }
         };

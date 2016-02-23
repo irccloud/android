@@ -82,7 +82,7 @@ public class EventsList {
                     loaded_bids.add(bid);
                 }
             } catch (SQLiteException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             } finally {
                 if(c != null)
                     c.close();

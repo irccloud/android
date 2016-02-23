@@ -179,7 +179,7 @@ public class BufferOptionsFragment extends DialogFragment {
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 

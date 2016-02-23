@@ -412,7 +412,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                     try {
                         name = String.valueOf(getPackageManager().getActivityInfo(intent.getComponent(), 0).loadLabel(getPackageManager()));
                     } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                     }
                     Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod(name));
                     return false;

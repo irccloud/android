@@ -181,7 +181,7 @@ public class PastebinsActivity extends BaseActivity {
                 Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                 return NetworkConnection.getInstance().pastebins(++page);
             } catch (IOException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
                 return null;
             }
         }
@@ -212,7 +212,7 @@ public class PastebinsActivity extends BaseActivity {
                     }
                 } catch (JSONException e) {
                     page--;
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             } else {
                 page--;

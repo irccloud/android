@@ -45,7 +45,7 @@ public class IRCCloudJSONObject {
             ObjectMapper mapper = new ObjectMapper();
             o = mapper.readValue(message, JsonNode.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 
@@ -54,7 +54,7 @@ public class IRCCloudJSONObject {
             ObjectMapper mapper = new ObjectMapper();
             o = mapper.readValue(object.toString(), JsonNode.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 
@@ -128,7 +128,7 @@ public class IRCCloudJSONObject {
         try {
             mapper.writeValue(writer, o);
         } catch (IOException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         return writer.toString();
     }

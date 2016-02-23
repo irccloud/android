@@ -72,6 +72,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -279,7 +281,7 @@ public class NetworkConnection {
                 c.init(kms, tms, null);
                 internalSocketFactory = c.getSocketFactory();
             } catch (Exception e) {
-                e.printStackTrace();
+                printStackTraceToCrashlytics(e);
             }
         }
 
@@ -302,12 +304,14 @@ public class NetworkConnection {
                 socket.setEnabledProtocols(PROTOCOLS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
 
             try {
                 socket.setEnabledCipherSuites(CIPHERS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
             return socket;
         }
@@ -321,12 +325,14 @@ public class NetworkConnection {
                 socket.setEnabledProtocols(PROTOCOLS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
 
             try {
                 socket.setEnabledCipherSuites(CIPHERS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
             return socket;
         }
@@ -340,12 +346,14 @@ public class NetworkConnection {
                 socket.setEnabledProtocols(PROTOCOLS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
 
             try {
                 socket.setEnabledCipherSuites(CIPHERS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
             return socket;
         }
@@ -359,12 +367,14 @@ public class NetworkConnection {
                 socket.setEnabledProtocols(PROTOCOLS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
 
             try {
                 socket.setEnabledCipherSuites(CIPHERS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
             return socket;
         }
@@ -378,12 +388,14 @@ public class NetworkConnection {
                 socket.setEnabledProtocols(PROTOCOLS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
 
             try {
                 socket.setEnabledCipherSuites(CIPHERS);
             } catch (IllegalArgumentException e) {
                 //Not supported on older Android versions
+                printStackTraceToCrashlytics(e);
             }
             return socket;
         }
@@ -443,7 +455,7 @@ public class NetworkConnection {
         try {
             config = new JSONObject(PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getString("config", "{}"));
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             config = new JSONObject();
         }
 
@@ -542,7 +554,7 @@ public class NetworkConnection {
                         if (!matched)
                             throw new CertificateException("Incorrect CN in cert chain");
                     } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
+                        printStackTraceToCrashlytics(e);
                     }
                 }
             }
@@ -611,13 +623,13 @@ public class NetworkConnection {
                 return null;
             }
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             JSONObject o = new JSONObject();
             try {
                 o.put("message", "json_error");
@@ -625,7 +637,7 @@ public class NetworkConnection {
             }
             return o;
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -651,13 +663,13 @@ public class NetworkConnection {
                 return null;
             }
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             JSONObject o = new JSONObject();
             try {
                 o.put("message", "json_error");
@@ -665,7 +677,7 @@ public class NetworkConnection {
             }
             return o;
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -691,13 +703,13 @@ public class NetworkConnection {
                 return null;
             }
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             JSONObject o = new JSONObject();
             try {
                 o.put("message", "json_error");
@@ -705,7 +717,7 @@ public class NetworkConnection {
             }
             return o;
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -725,13 +737,13 @@ public class NetworkConnection {
             }
             return new JSONObject(response);
         } catch (UnknownHostException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return null;
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             JSONObject o = new JSONObject();
             try {
                 o.put("message", "json_error");
@@ -739,7 +751,7 @@ public class NetworkConnection {
             }
             return o;
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -749,7 +761,7 @@ public class NetworkConnection {
             String response = fetch(new URL(url), null, null, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -759,7 +771,7 @@ public class NetworkConnection {
             String response = fetch(new URL(url), postdata, null, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -769,7 +781,7 @@ public class NetworkConnection {
             String response = fetch(new URL(url), null, null, null, headers);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -787,7 +799,7 @@ public class NetworkConnection {
                 set_pastebin_cookie();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return config;
     }
@@ -814,7 +826,7 @@ public class NetworkConnection {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -825,7 +837,7 @@ public class NetworkConnection {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -835,7 +847,7 @@ public class NetworkConnection {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/files?page=" + page), null, session, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -845,7 +857,7 @@ public class NetworkConnection {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/pastebins?page=" + page), null, session, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -858,7 +870,7 @@ public class NetworkConnection {
                     Log.i("IRCCloud", "Invalidating session");
                     fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/logout"), "session=" + sk, sk, null, null);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    printStackTraceToCrashlytics(e);
                 }
             }
         }, 50);
@@ -870,7 +882,7 @@ public class NetworkConnection {
             JSONObject o = new JSONObject(response);
             return o.getJSONArray("networks");
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -881,7 +893,7 @@ public class NetworkConnection {
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
     }
 
@@ -1019,7 +1031,7 @@ public class NetworkConnection {
                 try {
                     oobTasks.get(bid).cancel(true);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    printStackTraceToCrashlytics(e);
                 }
             }
             oobTasks.clear();
@@ -1111,7 +1123,7 @@ public class NetworkConnection {
                     } catch (Exception e) {
                         Log.e(TAG, "Unable to parse: " + message);
                         Crashlytics.logException(e);
-                        e.printStackTrace();
+                        printStackTraceToCrashlytics(e);
                     }
                 }
             }
@@ -1156,7 +1168,7 @@ public class NetworkConnection {
                         o.put("message", "Unable to establish a secure connection to the IRCCloud servers.");
                         notifyHandlers(EVENT_FAILURE_MSG, new IRCCloudJSONObject(o));
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        printStackTraceToCrashlytics(e);
                     }
                 }
             }
@@ -1214,7 +1226,7 @@ public class NetworkConnection {
                 BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         ready = false;
         accrued = 0;
@@ -1267,7 +1279,7 @@ public class NetworkConnection {
             client.send(params.toString());
             return last_reqid;
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1295,7 +1307,7 @@ public class NetworkConnection {
             o.put("seenEids", heartbeat.toString());
             return send("heartbeat", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1307,7 +1319,7 @@ public class NetworkConnection {
             o.put("msg", message);
             return send("disconnect", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1326,7 +1338,7 @@ public class NetworkConnection {
             }
             return reqid;
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1340,7 +1352,7 @@ public class NetworkConnection {
             o.put("msg", message);
             return send("say", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1351,7 +1363,7 @@ public class NetworkConnection {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/say"), postdata, sk, null, null);
             return new JSONObject(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
         return null;
     }
@@ -1364,7 +1376,7 @@ public class NetworkConnection {
             o.put("key", key);
             return send("join", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1377,7 +1389,7 @@ public class NetworkConnection {
             o.put("msg", message);
             return send("part", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1401,7 +1413,7 @@ public class NetworkConnection {
             o.put("id", bid);
             return send("archive-buffer", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1413,7 +1425,7 @@ public class NetworkConnection {
             o.put("id", bid);
             return send("unarchive-buffer", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1425,7 +1437,7 @@ public class NetworkConnection {
             o.put("id", bid);
             return send("delete-buffer", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1436,7 +1448,7 @@ public class NetworkConnection {
             o.put("cid", cid);
             return send("delete-connection", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1447,7 +1459,7 @@ public class NetworkConnection {
             o.put("file", id);
             return send("delete-file", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1458,7 +1470,7 @@ public class NetworkConnection {
             o.put("file", id);
             return send("restore-file", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1479,7 +1491,7 @@ public class NetworkConnection {
             o.put("channels", channels);
             return send("add-server", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1500,7 +1512,7 @@ public class NetworkConnection {
             o.put("cid", cid);
             return send("edit-server", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1512,7 +1524,7 @@ public class NetworkConnection {
             o.put("mask", mask);
             return send("ignore", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1524,7 +1536,7 @@ public class NetworkConnection {
             o.put("mask", mask);
             return send("unignore", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1536,7 +1548,7 @@ public class NetworkConnection {
             o.put("prefs", prefs);
             return send("set-prefs", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1550,7 +1562,7 @@ public class NetworkConnection {
             o.put("autoaway", autoaway ? "1" : "0");
             return send("user-settings", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1561,7 +1573,7 @@ public class NetworkConnection {
             o.put("cid", cid);
             return send("ns-help-register", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1573,7 +1585,7 @@ public class NetworkConnection {
             o.put("nspass", nspass);
             return send("set-nspass", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1587,7 +1599,7 @@ public class NetworkConnection {
                 o.put("server", server);
             return send("whois", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1600,7 +1612,7 @@ public class NetworkConnection {
             o.put("topic", topic);
             return send("topic", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1611,7 +1623,7 @@ public class NetworkConnection {
             o.put("cid", cid);
             return send("back", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1622,7 +1634,7 @@ public class NetworkConnection {
             o.put("cids", cids);
             return send("reorder-connections", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1640,7 +1652,7 @@ public class NetworkConnection {
             o.put("original_filename", original_filename);
             return send("upload-finalise", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1654,7 +1666,7 @@ public class NetworkConnection {
             o.put("extension", extension);
             return send("paste", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1669,7 +1681,7 @@ public class NetworkConnection {
             o.put("extension", extension);
             return send("edit-pastebin", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1680,7 +1692,7 @@ public class NetworkConnection {
             o.put("id", id);
             return send("delete-pastebin", o);
         } catch (JSONException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
             return -1;
         }
     }
@@ -1707,7 +1719,7 @@ public class NetworkConnection {
             else
                 task.execute(new URL("https://" + IRCCLOUD_HOST + "/chat/backlog?cid=" + cid + "&bid=" + bid));
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
     }
 
@@ -1915,7 +1927,7 @@ public class NetworkConnection {
                     t.execute(new URL(url));
                 } catch (MalformedURLException e) {
                     // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    printStackTraceToCrashlytics(e);
                 }
             }
         });
@@ -2766,7 +2778,7 @@ public class NetworkConnection {
                 ostr = conn.getOutputStream();
                 ostr.write(postdata.getBytes());
             } catch (Exception e) {
-                e.printStackTrace();
+                printStackTraceToCrashlytics(e);
             } finally {
                 if (ostr != null)
                     ostr.close();
@@ -2872,7 +2884,7 @@ public class NetworkConnection {
                 Crashlytics.log(Log.DEBUG, TAG, "Loading via mobile");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
 
         try {
@@ -2882,7 +2894,7 @@ public class NetworkConnection {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException e) {
-            e.printStackTrace();
+            printStackTraceToCrashlytics(e);
         }
 
         conn.disconnect();
@@ -3151,7 +3163,7 @@ public class NetworkConnection {
                                     parse_object(o);
                                 } catch (Exception ex) {
                                     Crashlytics.log(Log.ERROR, TAG, "Unable to parse message type: " + o.type());
-                                    ex.printStackTrace();
+                                    printStackTraceToCrashlytics(ex);
                                     Crashlytics.logException(ex);
                                 }
                                 long t = (System.currentTimeMillis() - time);
@@ -3215,7 +3227,7 @@ public class NetworkConnection {
                     throw new Exception("Invalid response code: " + conn.getResponseCode());
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                printStackTraceToCrashlytics(e);
                 if (bid != -1) {
                     if (!isCancelled()) {
                         Buffer b = mBuffers.getBuffer(bid);
@@ -3247,6 +3259,15 @@ public class NetworkConnection {
                     client.disconnect();
             }
             return false;
+        }
+    }
+
+    public static void printStackTraceToCrashlytics(Exception e) {
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String stack = sw.toString();
+        for(String s : stack.split("\n")) {
+            Crashlytics.log(Log.WARN, TAG, s);
         }
     }
 }

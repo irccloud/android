@@ -213,7 +213,7 @@ public class ChannelOptionsFragment extends DialogFragment {
             if (!getActivity().getResources().getBoolean(R.bool.isTablet))
                 members.setVisibility(View.GONE);
         } catch (JSONException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
     }
 

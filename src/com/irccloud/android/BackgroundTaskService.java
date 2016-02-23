@@ -104,7 +104,7 @@ public class BackgroundTaskService extends GcmTaskService {
                     try {
                         InstanceID.getInstance(context).deleteInstanceID();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                     }
                     return null;
                 }
@@ -115,7 +115,7 @@ public class BackgroundTaskService extends GcmTaskService {
                     scheduleUnregister(context, token, session);
                 InstanceID.getInstance(context).deleteInstanceID();
             } catch (IOException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
     }
@@ -202,7 +202,7 @@ public class BackgroundTaskService extends GcmTaskService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         Crashlytics.log(Log.ERROR, "IRCCloud", "GCM registration failed");
         task.delete();
@@ -227,7 +227,7 @@ public class BackgroundTaskService extends GcmTaskService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         Crashlytics.log(Log.ERROR, "IRCCloud", "GCM unregistration failed");
 

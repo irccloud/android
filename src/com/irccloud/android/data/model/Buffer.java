@@ -343,8 +343,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
                 if (conn.getUserInfo().prefs.has("buffer-enableTrackUnread"))
                     bufferEnabledMap = conn.getUserInfo().prefs.getJSONObject("buffer-enableTrackUnread");
             } catch (JSONException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e1);
             }
         }
 
@@ -361,7 +360,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
                 return 0;
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         return unread;
     }

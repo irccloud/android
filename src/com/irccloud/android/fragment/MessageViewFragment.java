@@ -331,7 +331,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             formatter = new SimpleDateFormat("h:mm:ss a");
                         }
                     } catch (JSONException e1) {
-                        e1.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e1);
                     }
                 }
                 e.timestamp = formatter.format(calendar.getTime());
@@ -1347,7 +1347,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
     }
@@ -1586,7 +1586,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 try {
                     events = (TreeMap<Long, Event>) evs.clone();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                     return null;
                 }
                 if (isCancelled())
@@ -1617,10 +1617,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         refresh(adapter, events);
                     } catch (IllegalStateException e) {
                         //The list view doesn't exist yet
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                         Log.e("IRCCloud", "Tried to refresh the message list, but it didn't exist.");
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                         return null;
                     }
                 }
@@ -1705,7 +1705,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     new FormatTask().execute((Void) null);
                 } catch (IllegalStateException e) {
                     //The list view isn't on screen anymore
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
                 refreshTask = null;
                 requestingBacklog = false;
@@ -1909,7 +1909,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             } catch (IllegalStateException e) {
                 //The list view wasn't on screen yet
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
     }
@@ -1923,7 +1923,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
         return true;
@@ -2178,7 +2178,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                     mHandler.postDelayed(statusRefreshRunnable, 500);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
                 break;
             case "ip_retry":
@@ -2257,7 +2257,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         });
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(ex);
                 }
                 break;
             case NetworkConnection.EVENT_STATUSCHANGED:
@@ -2272,7 +2272,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         });
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(ex);
                 }
                 break;
             case NetworkConnection.EVENT_SETIGNORES:

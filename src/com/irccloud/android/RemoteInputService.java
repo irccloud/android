@@ -52,7 +52,7 @@ public class RemoteInputService extends IntentService {
                             JSONObject o = NetworkConnection.getInstance().say(intent.getIntExtra("cid", -1), intent.getStringExtra("to"), reply, sk);
                             success = o.getBoolean("success");
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            NetworkConnection.printStackTraceToCrashlytics(e);
                         }
                     }
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(intent.getIntExtra("bid", 0));

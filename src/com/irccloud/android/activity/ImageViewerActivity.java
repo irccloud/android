@@ -582,7 +582,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             } catch (Exception e) {
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
             fail();
         }
     }
@@ -728,7 +728,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                     try {
                         name = String.valueOf(getPackageManager().getActivityInfo(intent.getComponent(), 0).loadLabel(getPackageManager()));
                     } catch (PackageManager.NameNotFoundException e) {
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                     }
                     Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod(name));
                     return false;

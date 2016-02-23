@@ -254,7 +254,7 @@ public class GingerbreadImageProxy implements Runnable {
             }
         } catch (FileNotFoundException e) {
         } catch (IOException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         } finally {
             client.close();
         }

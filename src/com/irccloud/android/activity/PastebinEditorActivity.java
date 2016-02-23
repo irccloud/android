@@ -227,7 +227,7 @@ public class PastebinEditorActivity extends BaseActivity implements NetworkConne
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         return "txt";
     }

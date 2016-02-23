@@ -279,7 +279,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                                             conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString());
                                     } catch (Exception e) {
                                         // TODO Auto-generated catch block
-                                        e.printStackTrace();
+                                        NetworkConnection.printStackTraceToCrashlytics(e);
                                     }
                                     ((AlertDialog) keyinput.getTag()).dismiss();
                                 }
@@ -290,7 +290,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             prompt.setText("Password for " + o.getString("chan"));
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            NetworkConnection.printStackTraceToCrashlytics(e);
                         }
                         builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                         builder.setView(view);
@@ -301,7 +301,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                                     conn.join(o.cid(), o.getString("chan"), keyinput.getText().toString());
                                 } catch (Exception e) {
                                     // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                                    NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
                                 dialog.dismiss();
                             }
@@ -339,7 +339,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                                         conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
                                     } catch (Exception e) {
                                         // TODO Auto-generated catch block
-                                        e.printStackTrace();
+                                        NetworkConnection.printStackTraceToCrashlytics(e);
                                     }
                                     ((AlertDialog) nickinput.getTag()).dismiss();
                                 }
@@ -354,7 +354,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             prompt.setText(message);
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
-                            e.printStackTrace();
+                            NetworkConnection.printStackTraceToCrashlytics(e);
                         }
                         builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                         builder.setView(view);
@@ -365,7 +365,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                                     conn.say(o.cid(), null, "/nick " + nickinput.getText().toString());
                                 } catch (Exception e) {
                                     // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                                    NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
                                 dialog.dismiss();
                             }
@@ -465,8 +465,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     } else
                         showAlert(o.cid(), o.getString("msg"));
                 } catch (Exception e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e1);
                 }
                 break;
             default:
@@ -629,7 +628,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + getFileStreamPath(LOG_FILENAME).getAbsolutePath()));
                     startActivityForResult(Intent.createChooser(email, "Send Feedback:"), 0);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
                 break;
         }

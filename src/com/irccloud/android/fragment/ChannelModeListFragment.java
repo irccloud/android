@@ -97,7 +97,7 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
                     conn.mode(cid, event.getString("channel"), "-" + mode + " " + data.get(position).get(mask).asText());
                 } catch (Exception e) {
                     // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             }
         };

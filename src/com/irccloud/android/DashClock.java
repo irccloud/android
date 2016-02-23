@@ -51,7 +51,7 @@ public class DashClock extends DashClockExtension {
             try {
                 unregisterReceiver(receiver);
             } catch (Exception e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         IntentFilter intentFilter = new IntentFilter(REFRESH_INTENT);
         receiver = new RefreshReceiver();
@@ -65,7 +65,7 @@ public class DashClock extends DashClockExtension {
             try {
                 unregisterReceiver(receiver);
             } catch (Exception e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
     }
 

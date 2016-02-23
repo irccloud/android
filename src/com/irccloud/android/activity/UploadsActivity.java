@@ -176,7 +176,7 @@ public class UploadsActivity extends BaseActivity {
                                     f.image_failed = true;
                             } catch (Exception e) {
                                 f.image_failed = true;
-                                e.printStackTrace();
+                                NetworkConnection.printStackTraceToCrashlytics(e);
                             }
                             if (f.image_failed && (f.extension == null || f.extension.length() == 0))
                                 f.extension = "IMAGE";
@@ -306,7 +306,7 @@ public class UploadsActivity extends BaseActivity {
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
 
             return row;
@@ -327,7 +327,7 @@ public class UploadsActivity extends BaseActivity {
                 Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
                 return NetworkConnection.getInstance().files(++page);
             } catch (IOException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
                 return null;
             }
         }
@@ -359,7 +359,7 @@ public class UploadsActivity extends BaseActivity {
                     }
                 } catch (JSONException e) {
                     page--;
-                    e.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e);
                 }
             } else {
                 page--;
@@ -514,7 +514,7 @@ public class UploadsActivity extends BaseActivity {
                             });
                             thumbnail.setClickable(true);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            NetworkConnection.printStackTraceToCrashlytics(e);
                         }
                     } else {
                         thumbnail.setVisibility(View.GONE);

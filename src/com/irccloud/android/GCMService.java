@@ -121,7 +121,7 @@ public class GCMService extends GcmListenerService {
             }
             //Log.d("IRCCloud", "Notifications: " + NotificationsList.getInstance().getNotifications());
         } catch (Exception e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
             Log.w("IRCCloud", "Unable to parse GCM message");
         }
     }

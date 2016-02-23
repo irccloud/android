@@ -785,7 +785,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             disableAutoSuggest = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("channel-disableAutoSuggest");
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                     }
                 }
 
@@ -1148,7 +1148,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             bufferDisabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-disableTrackUnread");
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        NetworkConnection.printStackTraceToCrashlytics(e);
                     }
                 }
 
@@ -1165,7 +1165,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 else if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                     u = 0;
                             } catch (JSONException e) {
-                                e.printStackTrace();
+                                NetworkConnection.printStackTraceToCrashlytics(e);
                             }
                             unread += u;
                         }
@@ -1894,7 +1894,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         });
                     }
                 } catch (Exception e2) {
-                    e2.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e2);
                 }
                 break;
             case NetworkConnection.EVENT_CONNECTIVITY:
@@ -2288,7 +2288,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         });
                     }
                 } catch (Exception e1) {
-                    e1.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e1);
                 }
                 break;
             case NetworkConnection.EVENT_MAKESERVER:
@@ -2511,7 +2511,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         });
                     }
                 } catch (Exception e1) {
-                    e1.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(e1);
                 }
                 break;
             case NetworkConnection.EVENT_HEARTBEATECHO:
@@ -2591,7 +2591,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         }
                     });
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    NetworkConnection.printStackTraceToCrashlytics(ex);
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
@@ -2625,8 +2625,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                             if (NetworkConnection.getInstance().getUserInfo().prefs.has("buffer-enableTrackUnread"))
                                                 bufferEnabledMap = NetworkConnection.getInstance().getUserInfo().prefs.getJSONObject("buffer-enableTrackUnread");
                                         } catch (Exception e1) {
-                                            // TODO Auto-generated catch block
-                                            e1.printStackTrace();
+                                            NetworkConnection.printStackTraceToCrashlytics(e1);
                                         }
                                     }
 
@@ -4102,7 +4101,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         } catch (JSONException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         }
         return false;
     }
@@ -4500,7 +4499,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (bmp != null)
                 bmp.recycle();
         } catch (IOException e) {
-            e.printStackTrace();
+            NetworkConnection.printStackTraceToCrashlytics(e);
         } catch (Exception e) {
             Crashlytics.logException(e);
         } catch (OutOfMemoryError e) {
@@ -4539,7 +4538,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     return o;
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
             return null;
         }
@@ -4582,7 +4581,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 }
             } catch (JSONException e) {
-                e.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
     }
@@ -5008,7 +5007,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         } catch (OutOfMemoryError e) {
                             thumbnail.setVisibility(View.GONE);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            NetworkConnection.printStackTraceToCrashlytics(e);
                         }
                     } else {
                         thumbnail.setVisibility(View.GONE);
@@ -5037,7 +5036,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     finalize_upload();
                                 } catch (Exception e) {
                                     // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                                    NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
                                 ((AlertDialog) fileinput.getTag()).dismiss();
                             }
@@ -5056,7 +5055,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 finalize_upload();
                             } catch (Exception e) {
                                 // TODO Auto-generated catch block
-                                e.printStackTrace();
+                                NetworkConnection.printStackTraceToCrashlytics(e);
                             }
                             dialog.dismiss();
                             metadataDialog = null;
@@ -5220,9 +5219,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     Log.e("IRCCloud", "Upload cancelled");
                 }
             } catch (IOException ex) {
-                ex.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(ex);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                NetworkConnection.printStackTraceToCrashlytics(ex);
                 Crashlytics.logException(ex);
                 error = "An unexpected error occurred. Please try again later.";
             } finally {
