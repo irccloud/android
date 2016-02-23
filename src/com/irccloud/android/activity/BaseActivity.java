@@ -64,6 +64,9 @@ import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class BaseActivity extends AppCompatActivity implements NetworkConnection.IRCEventHandler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     NetworkConnection conn;
@@ -71,6 +74,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError;
     private static final int REQUEST_RESOLVE_ERROR = 1001;
+    private static final int REQUEST_SEND_FEEDBACK = 1002;
+    private static final String LOG_FILENAME = "log.txt";
 
     private SMultiWindow mMultiWindow = null;
     private SMultiWindowActivity mMultiWindowActivity = null;
@@ -187,6 +192,11 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     mGoogleApiClient.connect();
                 }
             }
+        } else if(requestCode == REQUEST_SEND_FEEDBACK) {
+            if(getFileStreamPath(LOG_FILENAME).exists()) {
+                android.util.Log.d("IRCCloud", "Removing stale log file");
+                getFileStreamPath(LOG_FILENAME).delete();
+            }
         }
     }
 
@@ -201,6 +211,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     @Override
     public void onResume() {
         super.onResume();
+        if(getFileStreamPath(LOG_FILENAME).exists()) {
+            android.util.Log.d("IRCCloud", "Removing stale log file");
+            getFileStreamPath(LOG_FILENAME).delete();
+        }
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
         if (session != null && session.length() > 0) {
             conn = NetworkConnection.getInstance();
@@ -567,7 +581,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             case R.id.menu_feedback:
                 try {
                     StringBuilder bugReport = new StringBuilder(
-                        "Briefly describe the issue below:\n\n\n\n" +
+                        "Briefly describe the issue below:\n\n\n\n\n" +
                         "===========\n" +
                         "UID: " + NetworkConnection.getInstance().getUserInfo().id + "\n" +
                         "App version: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "\n" +
@@ -586,27 +600,34 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     }
 
                     if(log != null) {
-                        bugReport.append("===========\nConsole log:\n");
+                        byte[] b = new byte[1];
+
+                        FileOutputStream out = openFileOutput(LOG_FILENAME, MODE_WORLD_READABLE);
                         FileInputStream is = new FileInputStream(log);
-                        byte b[] = new byte[1];
+                        is.skip(5);
+
                         while(is.available() > 0 && is.read(b,0,1) > 0) {
                             if (b[0] == ' ') {
                                 while(is.available() > 0 && is.read(b,0,1) > 0) {
-                                    bugReport.append((char)b[0]);
+                                    out.write(b);
                                     if (b[0] == '\n')
                                         break;
                                 }
                             }
                         }
                         is.close();
+                        out.close();
                     }
 
-                    Intent email = new Intent(Intent.ACTION_SENDTO);
+                    Intent email = new Intent(Intent.ACTION_SEND);
                     email.setData(Uri.parse("mailto:"));
+                    email.setType("message/rfc822");
                     email.putExtra(Intent.EXTRA_EMAIL, new String[]{"IRCCloud Team <team@irccloud.com>"});
                     email.putExtra(Intent.EXTRA_TEXT, bugReport.toString());
                     email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
-                    startActivity(Intent.createChooser(email, "Send Feedback:"));
+                    if(log != null)
+                        email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + getFileStreamPath(LOG_FILENAME).getAbsolutePath()));
+                    startActivityForResult(Intent.createChooser(email, "Send Feedback:"), 0);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
