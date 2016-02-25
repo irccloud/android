@@ -1561,7 +1561,7 @@ public class ColorFormatter {
                         html += "<font color=\"#" + fg + "\">";
                     }
                     if (bg.length() > 0) {
-                        html += "</_bg" + bg + ">";
+                        html += "<_bg" + bg + ">";
                     }
                     if (italics)
                         html += "<i>";
@@ -1591,7 +1591,7 @@ public class ColorFormatter {
                         html += "<font color=\"#" + fg + "\">";
                     }
                     if (bg.length() > 0) {
-                        html += "</_bg" + bg + ">";
+                        html += "<_bg" + bg + ">";
                     }
                     if (bold)
                         html += "<b>";
@@ -1621,7 +1621,7 @@ public class ColorFormatter {
                         html += "<font color=\"#" + fg + "\">";
                     }
                     if (bg.length() > 0) {
-                        html += "</_bg" + bg + ">";
+                        html += "<_bg" + bg + ">";
                     }
                     if (bold)
                         html += "<b>";
@@ -1722,54 +1722,50 @@ public class ColorFormatter {
                         new_fg = "clear";
                         new_bg = "clear";
                     }
-                    if (new_fg.length() > 0 && !new_fg.equals(fg) && fg.length() > 0) {
+                    if (new_fg.length() > 0 && fg.length() > 0) {
                         html += "</font>";
                     }
-                    if (new_bg.length() > 0 && !new_bg.equals(bg) && bg.length() > 0) {
+                    if (new_bg.length() > 0 && bg.length() > 0) {
                         html += "</_bg" + bg + ">";
                     }
                     if (new_bg.length() > 0) {
-                        if (!new_bg.equals(bg)) {
-                            if (new_bg.equals("clear")) {
-                                bg = "";
+                        if (new_bg.equals("clear")) {
+                            bg = "";
+                        } else {
+                            bg = "";
+                            if (new_bg.length() == 6) {
+                                bg = new_bg;
+                            } else if (new_bg.length() == 3) {
+                                bg += new_bg.charAt(0);
+                                bg += new_bg.charAt(0);
+                                bg += new_bg.charAt(1);
+                                bg += new_bg.charAt(1);
+                                bg += new_bg.charAt(2);
+                                bg += new_bg.charAt(2);
                             } else {
-                                bg = "";
-                                if (new_bg.length() == 6) {
-                                    bg = new_bg;
-                                } else if (new_bg.length() == 3) {
-                                    bg += new_bg.charAt(0);
-                                    bg += new_bg.charAt(0);
-                                    bg += new_bg.charAt(1);
-                                    bg += new_bg.charAt(1);
-                                    bg += new_bg.charAt(2);
-                                    bg += new_bg.charAt(2);
-                                } else {
-                                    bg = "#ffffff";
-                                }
-                                html += "<_bg" + bg + ">";
+                                bg = "#ffffff";
                             }
+                            html += "<_bg" + bg + ">";
                         }
                     }
                     if (new_fg.length() > 0) {
-                        if (!new_fg.equals(fg)) {
-                            if (new_fg.equals("clear")) {
-                                fg = "";
+                        if (new_fg.equals("clear")) {
+                            fg = "";
+                        } else {
+                            fg = "";
+                            if (new_fg.length() == 6) {
+                                fg = new_fg;
+                            } else if (new_fg.length() == 3) {
+                                fg += new_fg.charAt(0);
+                                fg += new_fg.charAt(0);
+                                fg += new_fg.charAt(1);
+                                fg += new_fg.charAt(1);
+                                fg += new_fg.charAt(2);
+                                fg += new_fg.charAt(2);
                             } else {
-                                fg = "";
-                                if (new_fg.length() == 6) {
-                                    fg = new_fg;
-                                } else if (new_fg.length() == 3) {
-                                    fg += new_fg.charAt(0);
-                                    fg += new_fg.charAt(0);
-                                    fg += new_fg.charAt(1);
-                                    fg += new_fg.charAt(1);
-                                    fg += new_fg.charAt(2);
-                                    fg += new_fg.charAt(2);
-                                } else {
-                                    fg = "#000000";
-                                }
-                                html += "<font color=\"#" + fg + "\">";
+                                fg = "#000000";
                             }
+                            html += "<font color=\"#" + fg + "\">";
                         }
                     }
                     builder.insert(pos, html);
