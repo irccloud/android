@@ -529,7 +529,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
                             player.start();
                         }
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         fail();
                     }
                 }
@@ -764,7 +764,10 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             } else {
                 DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 if (d != null) {
-                    DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                    String uri = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
+                    if(uri.startsWith("https://"))
+                        uri = "http://" + uri.substring(8);
+                    DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                     r.setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, getIntent().getData().getLastPathSegment());
                     if (Build.VERSION.SDK_INT >= 11) {
                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);

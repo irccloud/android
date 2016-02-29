@@ -672,7 +672,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             @Override
             public void onClick(View v) {
-                NetworkConnection.getInstance().back(buffer.getCid());
+                if(buffer != null)
+                    NetworkConnection.getInstance().back(buffer.getCid());
             }
 
         });

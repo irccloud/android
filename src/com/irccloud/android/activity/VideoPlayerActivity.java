@@ -441,7 +441,10 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             } else {
                 DownloadManager d = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
                 if (d != null) {
-                    DownloadManager.Request r = new DownloadManager.Request(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+                    String uri = getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http");
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && uri.startsWith("https://"))
+                        uri = "http://" + uri.substring(8);
+                    DownloadManager.Request r = new DownloadManager.Request(Uri.parse(uri));
                     r.setDestinationInExternalPublicDir(Environment.DIRECTORY_MOVIES, getIntent().getData().getLastPathSegment());
                     if (Build.VERSION.SDK_INT >= 11) {
                         r.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);

@@ -1279,7 +1279,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer == null) {
             server = null;
         } else {
-            if (intent.hasExtra(Intent.EXTRA_STREAM)) {
+            if (intent.hasExtra(Intent.EXTRA_STREAM) && intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
                 String type = getContentResolver().getType((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
                 if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
                     new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
@@ -3556,9 +3556,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (b.isConsole()) {
-                                conn.deleteServer(b.getCid());
+                                NetworkConnection.getInstance().deleteServer(b.getCid());
                             } else {
-                                conn.deleteBuffer(b.getCid(), b.getBid());
+                                NetworkConnection.getInstance().deleteBuffer(b.getCid(), b.getBid());
                             }
                             dialog.dismiss();
                         }
@@ -3583,7 +3583,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.invite(b.getCid(), b.getName(), input.getText().toString());
+                            NetworkConnection.getInstance().invite(b.getCid(), b.getName(), input.getText().toString());
                             dialog.dismiss();
                         }
                     });
@@ -3650,7 +3650,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Join", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.say(b.getCid(), null, "/join " + input.getText().toString());
+                            NetworkConnection.getInstance().say(b.getCid(), null, "/join " + input.getText().toString());
                             dialog.dismiss();
                         }
                     });
@@ -3945,7 +3945,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     drawerLayout.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            conn.say(buffer.getCid(), null, "/query " + selected_user.nick);
+                            NetworkConnection.getInstance().say(buffer.getCid(), null, "/query " + selected_user.nick);
                         }
                     }, 300);
                 } else if (items[item].equals("Mention")) {
@@ -3967,7 +3967,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.invite(buffer.getCid(), input.getText().toString(), selected_user.nick);
+                            NetworkConnection.getInstance().invite(buffer.getCid(), input.getText().toString(), selected_user.nick);
                             dialog.dismiss();
                         }
                     });
@@ -3992,7 +3992,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Ignore", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.ignore(buffer.getCid(), input.getText().toString());
+                            NetworkConnection.getInstance().ignore(buffer.getCid(), input.getText().toString());
                             dialog.dismiss();
                         }
                     });
@@ -4025,7 +4025,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Kick", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.kick(buffer.getCid(), buffer.getName(), selected_user.nick, input.getText().toString());
+                            NetworkConnection.getInstance().kick(buffer.getCid(), buffer.getName(), selected_user.nick, input.getText().toString());
                             dialog.dismiss();
                         }
                     });
@@ -4050,7 +4050,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     builder.setPositiveButton("Ban", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            conn.mode(buffer.getCid(), buffer.getName(), "+b " + input.getText().toString());
+                            NetworkConnection.getInstance().mode(buffer.getCid(), buffer.getName(), "+b " + input.getText().toString());
                             dialog.dismiss();
                         }
                     });

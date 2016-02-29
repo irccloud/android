@@ -123,7 +123,9 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             mMultiWindow = new SMultiWindow();
             mMultiWindow.initialize(this);
             mMultiWindowActivity = new SMultiWindowActivity(this);
-        } catch (SsdkUnsupportedException e) {
+        } catch (Exception e) {
+            mMultiWindow = null;
+            mMultiWindowActivity = null;
         }
     }
 

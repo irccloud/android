@@ -118,10 +118,14 @@ public class IRCCloudApplicationBase extends Application {
                 file.delete();
             }
 
-            getContentResolver().delete(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    MediaStore.Audio.Media.TITLE + " = 'IRCCloud'",
-                    null);
+            try {
+                getContentResolver().delete(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        MediaStore.Audio.Media.TITLE + " = 'IRCCloud'",
+                        null);
+            } catch (Exception e)  {
+                // Ringtone not in media DB
+            }
         }
 
         if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {

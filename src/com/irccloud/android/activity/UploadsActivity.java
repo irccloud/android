@@ -437,11 +437,17 @@ public class UploadsActivity extends BaseActivity {
             to = savedInstanceState.getString("to");
             msg = savedInstanceState.getString("msg");
             page = savedInstanceState.getInt("page");
-            File[] files = (File[])savedInstanceState.getSerializable("adapter");
-            for(File f : files) {
-                adapter.addFile(f);
+            try {
+                File[] files = (File[]) savedInstanceState.getSerializable("adapter");
+                for (File f : files) {
+                    adapter.addFile(f);
+                }
+                adapter.notifyDataSetChanged();
+            } catch (ClassCastException e) {
+                adapter.clear();
+                adapter.notifyDataSetInvalidated();
+                page = 0;
             }
-            adapter.notifyDataSetChanged();
         }
 
         footer = getLayoutInflater().inflate(R.layout.messageview_header, null);
