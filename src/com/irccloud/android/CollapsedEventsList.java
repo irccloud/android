@@ -72,6 +72,7 @@ public class CollapsedEventsList {
         String target_mode;
         String chan;
         boolean netsplit;
+        boolean operIsLower;
         int count;
 
         public String toString() {
@@ -88,32 +89,37 @@ public class CollapsedEventsList {
         }
 
         public boolean addMode(String mode) {
-            if (mode.equals(server != null ? server.MODE_OPER : "Y")) {
+            if (mode.equals(server != null ? server.MODE_OPER.toLowerCase() : "y")) {
+                operIsLower = true;
+            }
+            mode = mode.toLowerCase();
+
+            if (mode.equals(server != null ? server.MODE_OPER.toLowerCase() : "y")) {
                 if (modes[MODE_DEOPER])
                     modes[MODE_DEOPER] = false;
                 else
                     modes[MODE_OPER] = true;
-            } else if (mode.equals(server != null ? server.MODE_OWNER : "q")) {
+            } else if (mode.equals(server != null ? server.MODE_OWNER.toLowerCase() : "q")) {
                 if (modes[MODE_DEOWNER])
                     modes[MODE_DEOWNER] = false;
                 else
                     modes[MODE_OWNER] = true;
-            } else if (mode.equals(server != null ? server.MODE_ADMIN : "a")) {
+            } else if (mode.equals(server != null ? server.MODE_ADMIN.toLowerCase() : "a")) {
                 if (modes[MODE_DEADMIN])
                     modes[MODE_DEADMIN] = false;
                 else
                     modes[MODE_ADMIN] = true;
-            } else if (mode.equals(server != null ? server.MODE_OP : "o")) {
+            } else if (mode.equals(server != null ? server.MODE_OP.toLowerCase() : "o")) {
                 if (modes[MODE_DEOP])
                     modes[MODE_DEOP] = false;
                 else
                     modes[MODE_OP] = true;
-            } else if (mode.equals(server != null ? server.MODE_HALFOP : "h")) {
+            } else if (mode.equals(server != null ? server.MODE_HALFOP.toLowerCase() : "h")) {
                 if (modes[MODE_DEHALFOP])
                     modes[MODE_DEHALFOP] = false;
                 else
                     modes[MODE_HALFOP] = true;
-            } else if (mode.equals(server != null ? server.MODE_VOICED : "v")) {
+            } else if (mode.equals(server != null ? server.MODE_VOICED.toLowerCase() : "v")) {
                 if (modes[MODE_DEVOICE])
                     modes[MODE_DEVOICE] = false;
                 else
@@ -127,32 +133,34 @@ public class CollapsedEventsList {
         }
 
         public boolean removeMode(String mode) {
-            if (mode.equals(server != null ? server.MODE_OPER : "Y")) {
+            mode = mode.toLowerCase();
+
+            if (mode.equals(server != null ? server.MODE_OPER.toLowerCase() : "y")) {
                 if (modes[MODE_OPER])
                     modes[MODE_OPER] = false;
                 else
                     modes[MODE_DEOPER] = true;
-            } else if (mode.equals(server != null ? server.MODE_OWNER : "q")) {
+            } else if (mode.equals(server != null ? server.MODE_OWNER.toLowerCase() : "q")) {
                 if (modes[MODE_OWNER])
                     modes[MODE_OWNER] = false;
                 else
                     modes[MODE_DEOWNER] = true;
-            } else if (mode.equals(server != null ? server.MODE_ADMIN : "a")) {
+            } else if (mode.equals(server != null ? server.MODE_ADMIN.toLowerCase() : "a")) {
                 if (modes[MODE_ADMIN])
                     modes[MODE_ADMIN] = false;
                 else
                     modes[MODE_DEADMIN] = true;
-            } else if (mode.equals(server != null ? server.MODE_OP : "o")) {
+            } else if (mode.equals(server != null ? server.MODE_OP.toLowerCase() : "o")) {
                 if (modes[MODE_OP])
                     modes[MODE_OP] = false;
                 else
                     modes[MODE_DEOP] = true;
-            } else if (mode.equals(server != null ? server.MODE_HALFOP : "h")) {
+            } else if (mode.equals(server != null ? server.MODE_HALFOP.toLowerCase() : "h")) {
                 if (modes[MODE_HALFOP])
                     modes[MODE_HALFOP] = false;
                 else
                     modes[MODE_DEHALFOP] = true;
-            } else if (mode.equals(server != null ? server.MODE_VOICED : "v")) {
+            } else if (mode.equals(server != null ? server.MODE_VOICED.toLowerCase() : "v")) {
                 if (modes[MODE_VOICE])
                     modes[MODE_VOICE] = false;
                 else
@@ -191,7 +199,7 @@ public class CollapsedEventsList {
                             output += ", ";
                         output += mode_msgs[i];
                         if (showSymbol) {
-                            output += " (\u0004" + mode_colors.get(mode_modes[i].substring(1)) + mode_modes[i] + "\u000f)";
+                            output += " (\u0004" + mode_colors.get(mode_modes[i].substring(1).toLowerCase()) + ((i == MODE_OPER && operIsLower)?mode_modes[i].toLowerCase():mode_modes[i]) + "\u000f)";
                         }
                     }
                 }
@@ -229,12 +237,13 @@ public class CollapsedEventsList {
         server = s;
         if (server != null) {
             mode_colors = new HashMap<String, String>() {{
-                put(server.MODE_OPER, "E02305");
-                put(server.MODE_OWNER, "E7AA00");
-                put(server.MODE_ADMIN, "6500A5");
-                put(server.MODE_OP, "BA1719");
-                put(server.MODE_HALFOP, "B55900");
-                put(server.MODE_VOICED, "25B100");
+                if(server.MODE_OPER.length() > 0)
+                    put(server.MODE_OPER.toLowerCase(), "E02305");
+                put(server.MODE_OWNER.toLowerCase(), "E7AA00");
+                put(server.MODE_ADMIN.toLowerCase(), "6500A5");
+                put(server.MODE_OP.toLowerCase(), "BA1719");
+                put(server.MODE_HALFOP.toLowerCase(), "B55900");
+                put(server.MODE_VOICED.toLowerCase(), "25B100");
             }};
             mode_modes = new String[]{
                     "+" + server.MODE_OPER,
@@ -252,7 +261,7 @@ public class CollapsedEventsList {
             };
         } else {
             mode_colors = new HashMap<String, String>() {{
-                put("Y", "E02305");
+                put("y", "E02305");
                 put("q", "E7AA00");
                 put("a", "6500A5");
                 put("o", "BA1719");
@@ -533,7 +542,7 @@ public class CollapsedEventsList {
 
         if (PREFIX == null) {
             PREFIX = new ObjectMapper().createObjectNode();
-            PREFIX.put(server != null ? server.MODE_OPER : "Y", "!");
+            PREFIX.put(server != null ? server.MODE_OPER : "y", "!");
             PREFIX.put(server != null ? server.MODE_OWNER : "q", "~");
             PREFIX.put(server != null ? server.MODE_ADMIN : "a", "&");
             PREFIX.put(server != null ? server.MODE_OP : "o", "@");
@@ -628,8 +637,10 @@ public class CollapsedEventsList {
         }
         String mode = "";
         if (from_mode != null && from_mode.length() > 0) {
-            if (from_mode.contains(server != null ? server.MODE_OPER : "Y"))
-                mode = server != null ? server.MODE_OPER : "Y";
+            if (from_mode.contains((server != null && server.MODE_OPER.length() > 0) ? server.MODE_OPER : "Y"))
+                mode = (server != null && server.MODE_OPER.length() > 0) ? server.MODE_OPER : "Y";
+            else if (from_mode.contains((server != null && server.MODE_OPER.length() > 0) ? server.MODE_OPER.toLowerCase() : "y"))
+                mode = (server != null && server.MODE_OPER.length() > 0) ? server.MODE_OPER.toLowerCase() : "y";
             else if (from_mode.contains(server != null ? server.MODE_OWNER : "q"))
                 mode = server != null ? server.MODE_OWNER : "q";
             else if (from_mode.contains(server != null ? server.MODE_ADMIN : "a"))
@@ -644,13 +655,13 @@ public class CollapsedEventsList {
                 mode = from_mode.substring(0, 1);
         }
         if (mode != null && mode.length() > 0) {
-            if (mode_colors.containsKey(mode))
-                output.append("\u0004").append(mode_colors.get(mode)).append("\u0002");
+            if (mode_colors.containsKey(mode.toLowerCase()))
+                output.append("\u0004").append(mode_colors.get(mode.toLowerCase())).append("\u0002");
             else
                 output.append("\u0002");
             if (showSymbol) {
                 if (PREFIX.has(mode))
-                    output.append(TextUtils.htmlEncode(PREFIX.get(mode).asText()));
+                    output.append(TextUtils.htmlEncode(PREFIX.get(mode.toLowerCase()).asText()));
             } else {
                 output.append("•");
             }

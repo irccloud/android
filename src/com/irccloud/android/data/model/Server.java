@@ -89,7 +89,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     public ObjectNode PREFIX;
 
     @Column
-    public String MODE_OPER = "Y";
+    public String MODE_OPER = "y";
 
     @Column
     public String MODE_OWNER = "q";
@@ -279,10 +279,8 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
         if (modes != null && modes.length() > 0) {
             if(isupport != null && isupport.has("OWNER") && isupport.get("OWNER").asText().equals(modes.substring(0,1))) {
                 MODE_OWNER = modes.substring(0, 1);
-                if(MODE_OPER.equals(MODE_OWNER))
+                if(MODE_OPER.equalsIgnoreCase(MODE_OWNER))
                     MODE_OPER = "";
-            } else if(modes.charAt(0) == 'y') {
-                MODE_OPER = modes.substring(0, 1);
             }
         }
     }

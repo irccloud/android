@@ -72,6 +72,20 @@ public class CollapsedEventsTests extends AndroidTestCase {
         list.addEvent(e);
     }
 
+    public void testOper1() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        addMode(list, "Y", "sam", "ChanServ");
+
+        assertEquals("<b>\u0004E02305\u0002•\u000F sam</b> was promoted to oper (\u0004E02305+Y\u000F) by \u0004E7AA00\u0002•\u000F ChanServ", list.getCollapsedMessage());
+    }
+
+    public void testOper2() {
+        CollapsedEventsList list = new CollapsedEventsList();
+        addMode(list, "y", "sam", "ChanServ");
+
+        assertEquals("<b>\u0004E02305\u0002•\u000F sam</b> was promoted to oper (\u0004E02305+y\u000F) by \u0004E7AA00\u0002•\u000F ChanServ", list.getCollapsedMessage());
+    }
+
     public void testOwner1() {
         CollapsedEventsList list = new CollapsedEventsList();
         addMode(list, "q", "sam", "ChanServ");
@@ -82,6 +96,7 @@ public class CollapsedEventsTests extends AndroidTestCase {
     public void testOwner2() {
         CollapsedEventsList list = new CollapsedEventsList();
         Server s = new Server();
+        s.MODE_OPER = "";
         s.MODE_OWNER = "y";
         list.setServer(s);
         addMode(list, "y", "sam", "ChanServ");
