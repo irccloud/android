@@ -752,14 +752,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (text.startsWith("@")) {
                 suggestionsAdapter.atMention = true;
                 text = text.substring(1);
-                force = true;
             } else {
                 suggestionsAdapter.atMention = false;
             }
             text = text.toLowerCase();
             final ArrayList<String> sugs = new ArrayList<String>();
             HashSet<String> sugs_set = new HashSet<String>();
-            if (text.length() > 2 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
+            if (text.length() > 1 || force || (text.length() > 0 && suggestionsAdapter.activePos != -1)) {
                 ArrayList<Channel> channels = sortedChannels;
                 if (channels == null) {
                     channels = ChannelsList.getInstance().getChannels();
