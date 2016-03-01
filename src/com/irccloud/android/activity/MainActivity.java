@@ -224,6 +224,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
 
         public int activePos = -1;
+        public boolean atMention = false;
 
         @Override
         public void clear() {
@@ -748,6 +749,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
             if (text.endsWith(":"))
                 text = text.substring(0, text.length() - 1);
+            if (text.startsWith("@")) {
+                suggestionsAdapter.atMention = true;
+                text = text.substring(1);
+                force = true;
+            } else {
+                suggestionsAdapter.atMention = false;
+            }
+            android.util.Log.e("IRCCloud", "WOOF: " + suggestionsAdapter.atMention);
             text = text.toLowerCase();
             final ArrayList<String> sugs = new ArrayList<String>();
             HashSet<String> sugs_set = new HashSet<String>();
@@ -937,6 +946,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             String nick = suggestionsAdapter.getItem(suggestionsAdapter.activePos);
             String text = messageTxt.getText().toString();
+            if(suggestionsAdapter.atMention)
+                nick = "@" + nick;
 
             if (text.lastIndexOf(' ') > 0) {
                 messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick);
@@ -1411,6 +1422,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String nick = suggestionsAdapter.getItem(position);
                 String text = messageTxt.getText().toString();
+                android.util.Log.e("IRCCloud", "QUACK: " + suggestionsAdapter.atMention);
+                if(suggestionsAdapter.atMention)
+                    nick = "@" + nick;
 
                 if (text.lastIndexOf(' ') > 0) {
                     messageTxt.setText(text.substring(0, text.lastIndexOf(' ') + 1) + nick + " ");
