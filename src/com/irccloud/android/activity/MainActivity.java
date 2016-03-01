@@ -756,7 +756,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 suggestionsAdapter.atMention = false;
             }
-            android.util.Log.e("IRCCloud", "WOOF: " + suggestionsAdapter.atMention);
             text = text.toLowerCase();
             final ArrayList<String> sugs = new ArrayList<String>();
             HashSet<String> sugs_set = new HashSet<String>();
@@ -1422,7 +1421,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String nick = suggestionsAdapter.getItem(position);
                 String text = messageTxt.getText().toString();
-                android.util.Log.e("IRCCloud", "QUACK: " + suggestionsAdapter.atMention);
                 if(suggestionsAdapter.atMention)
                     nick = "@" + nick;
 
