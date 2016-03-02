@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
+import com.irccloud.android.AlphanumComparator;
 import com.irccloud.android.data.model.User;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.TransactionManager;
@@ -53,6 +54,7 @@ public class UsersList {
         users = new HashMap<>(1000);
         collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
+        comparator = new AlphanumComparator(collator);
     }
 
     public synchronized void clear() {
@@ -126,11 +128,7 @@ public class UsersList {
         return u;
     }
 
-    private Comparator<String> comparator = new Comparator<String>() {
-        public int compare(String o1, String o2) {
-            return collator.compare(o1, o2);
-        }
-    };
+    private AlphanumComparator comparator;
 
     public synchronized void deleteUser(int bid, String nick) {
         User u = getUser(bid, nick);

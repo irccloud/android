@@ -20,6 +20,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.util.SparseArray;
 
+import com.irccloud.android.AlphanumComparator;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Channel;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -61,16 +62,16 @@ public class BuffersList {
             } else if (joined1 != joined2) {
                 return joined2 - joined1;
             } else {
-                if (collator.compare(b1.normalizedName(), b2.normalizedName()) == 0)
+                if (comparator.compare(b1.normalizedName(), b2.normalizedName()) == 0)
                     return (b1.getBid() < b2.getBid()) ? -1 : 1;
-                return collator.compare(b1.normalizedName(), b2.normalizedName());
+                return comparator.compare(b1.normalizedName(), b2.normalizedName());
             }
         }
     }
 
     private ArrayList<Buffer> buffers;
     private SparseArray<Buffer> buffers_indexed;
-    private Collator collator;
+    private AlphanumComparator comparator;
 
     private static BuffersList instance = null;
     public boolean dirty = true;
@@ -84,8 +85,9 @@ public class BuffersList {
     public BuffersList() {
         buffers = new ArrayList<>();
         buffers_indexed = new SparseArray<>();
-        collator = Collator.getInstance();
+        Collator collator = Collator.getInstance();
         collator.setStrength(Collator.SECONDARY);
+        comparator = new AlphanumComparator(collator);
     }
 
     public void clear() {
