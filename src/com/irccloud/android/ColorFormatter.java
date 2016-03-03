@@ -97,7 +97,7 @@ public class ColorFormatter {
                     + "\\-\\.\\+\\!\\*\\'\\(\\)\\,\\_\\^\\{\\}\\[\\]\\<\\>\\|])|(?:\\%[a-fA-F0-9]{2}))*)?"
                     + "(?:\\b|$)");
 
-    private static final String[] COLOR_MAP = {
+    public static final String[] COLOR_MAP_LIGHT = {
             "FFFFFF", //white
             "000000", //black
             "000080", //navy
@@ -115,6 +115,27 @@ public class ColorFormatter {
             "808080", //grey
             "C0C0C0", //silver
     };
+
+    public static final String[] COLOR_MAP_DARK = {
+            "FFFFFF", //white
+            "000000", //black
+            "4682b4", //steelblue
+            "32cd32", //limegreen
+            "FF0000", //red
+            "FA8072", //salmon
+            "DA70D6", //orchid
+            "FFA500", //orange
+            "FFFF00", //yellow
+            "00FF00", //lime
+            "20b2aa", //lightseagreen
+            "00FFFF", //cyan
+            "00BFF9", //deepskyblue
+            "FF00FF", //magenta
+            "808080", //grey
+            "C0C0C0", //silver
+    };
+
+    public static String[] COLOR_MAP = COLOR_MAP_LIGHT;
 
     public static final HashMap<String, String> emojiMap = new HashMap<String, String>() {{
         put("poodle", "\uD83D\uDC29");
