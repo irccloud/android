@@ -617,7 +617,7 @@ public class CollapsedEventsList {
             // typically ` and _ are used on the end alone
             String normalizedNick = nick.toLowerCase().replaceAll("[`_]+$", "");
             //remove |<anything> from the end
-            normalizedNick = normalizedNick.replaceAll("|.*$", "");
+            normalizedNick = normalizedNick.replaceAll("\\|.*$", "");
 
             Double hash = 0.0;
 
