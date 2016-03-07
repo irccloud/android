@@ -3996,7 +3996,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     view = getDialogTextPrompt();
                     prompt = (TextView) view.findViewById(R.id.prompt);
                     input = (EditText) view.findViewById(R.id.textInput);
-                    input.setText("*!" + selected_user.hostmask);
+                    if(selected_user.hostmask != null && selected_user.hostmask.length() > 0)
+                        input.setText("*!" + selected_user.hostmask);
+                    else
+                        input.setText(selected_user.nick + "!*");
                     prompt.setText("Ignore messages for " + selected_user.nick + " at this hostmask");
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
@@ -4054,7 +4057,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     view = getDialogTextPrompt();
                     prompt = (TextView) view.findViewById(R.id.prompt);
                     input = (EditText) view.findViewById(R.id.textInput);
-                    input.setText("*!" + selected_user.hostmask);
+                    if(selected_user.hostmask != null && selected_user.hostmask.length() > 0)
+                        input.setText("*!" + selected_user.hostmask);
+                    else
+                        input.setText(selected_user.nick + "!*");
                     prompt.setText("Add a banmask for " + selected_user.nick);
                     builder.setTitle(server.getName() + " (" + server.getHostname() + ":" + (server.getPort()) + ")");
                     builder.setView(view);
