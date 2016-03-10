@@ -97,7 +97,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             if(cloud != null) {
                 setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
-                cloud.recycle();
             }
             getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
             getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
@@ -124,6 +123,9 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             mMultiWindow.initialize(this);
             mMultiWindowActivity = new SMultiWindowActivity(this);
         } catch (Exception e) {
+            mMultiWindow = null;
+            mMultiWindowActivity = null;
+        } catch (Error e) {
             mMultiWindow = null;
             mMultiWindowActivity = null;
         }

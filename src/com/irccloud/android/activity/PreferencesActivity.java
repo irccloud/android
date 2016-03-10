@@ -117,7 +117,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, ColorScheme.getInstance().navBarColor));
-            cloud.recycle();
             getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
             getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         }

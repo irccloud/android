@@ -120,7 +120,6 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, 0xff0b2e60));
-            cloud.recycle();
         }
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
