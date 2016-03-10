@@ -27,7 +27,7 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
-if(rootProject.file('private.properties').exists()) {
+if (rootProject.file('private.properties').exists()) {
     apply plugin: 'io.fabric'
 }
 
@@ -51,8 +51,8 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 'android-N'
+    buildToolsVersion '24.0.0 rc1'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
@@ -60,7 +60,7 @@ android {
         versionCode 47
         versionName "2.7"
         minSdkVersion 10
-        targetSdkVersion 23
+        targetSdkVersion 'N'
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
@@ -70,7 +70,7 @@ android {
 
     signingConfigs {
         release {
-            if(rootProject.file('keystore.properties').exists()) {
+            if (rootProject.file('keystore.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('keystore.properties')))
 
@@ -95,7 +95,7 @@ android {
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
             versionNameSuffix "-" + getRevision()
             buildConfigField "boolean", "ENTERPRISE", "false"
-            if(rootProject.file('private.properties').exists()) {
+            if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
@@ -103,14 +103,14 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
+                manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:""]
+                manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
@@ -131,7 +131,7 @@ android {
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
             buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
             buildConfigField "boolean", "ENTERPRISE", "false"
-            if(rootProject.file('private.properties').exists()) {
+            if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('private.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
@@ -139,14 +139,14 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
+                manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:""]
+                manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
@@ -158,7 +158,7 @@ android {
             resValue "string", "app_name", "IRCCloud"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud"
 
-            if(rootProject.file('keystore.properties').exists()) {
+            if (rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
             }
 
@@ -172,7 +172,7 @@ android {
             versionNameSuffix "-" + getRevision()
             buildConfigField "String", "HOST", "\"\""
             buildConfigField "boolean", "ENTERPRISE", "true"
-            if(rootProject.file('enterprise.properties').exists()) {
+            if (rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
@@ -180,14 +180,14 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
+                manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:""]
+                manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
@@ -209,7 +209,7 @@ android {
             applicationIdSuffix ".enterprise"
             buildConfigField "String", "HOST", "\"\""
             buildConfigField "boolean", "ENTERPRISE", "true"
-            if(rootProject.file('enterprise.properties').exists()) {
+            if (rootProject.file('enterprise.properties').exists()) {
                 def props = new Properties()
                 props.load(new FileInputStream(file('enterprise.properties')))
                 buildConfigField "String", "GCM_ID", "\"" + props['GCM_ID'] + "\""
@@ -217,14 +217,14 @@ android {
                 buildConfigField "String", "IMGUR_SECRET", "\"" + props['IMGUR_SECRET'] + "\""
                 buildConfigField "String", "MASHAPE_KEY", "\"" + props['MASHAPE_KEY'] + "\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"" + props['FB_ACCESS_TOKEN'] + "\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:props['CRASHLYTICS_KEY']]
+                manifestPlaceholders = [CRASHLYTICS_KEY: props['CRASHLYTICS_KEY']]
             } else {
                 buildConfigField "String", "GCM_ID", "\"\""
                 buildConfigField "String", "IMGUR_KEY", "\"\""
                 buildConfigField "String", "IMGUR_SECRET", "\"\""
                 buildConfigField "String", "MASHAPE_KEY", "\"\""
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
-                manifestPlaceholders = [CRASHLYTICS_KEY:""]
+                manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
             buildConfigField "String[]", "SSL_FPS", "null"
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
@@ -237,7 +237,7 @@ android {
             resValue "string", "app_name", "IRCEnterprise"
             resValue "string", "IRCCLOUD_SCHEME", "irccloud-enterprise"
 
-            if(rootProject.file('keystore.properties').exists()) {
+            if (rootProject.file('keystore.properties').exists()) {
                 signingConfig signingConfigs.release
             }
             minifyEnabled true
@@ -283,9 +283,13 @@ android {
         exclude 'META-INF/ASL-2.0.txt'
         exclude 'META-INF/LGPL-3.0.txt'
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 
-task __filteredResources(type:Copy) {
+task __filteredResources(type: Copy) {
     from('res/') {
         exclude 'drawable-mdpi/ic_launcher.png'
         exclude 'drawable-hdpi/ic_launcher.png'
@@ -314,7 +318,6 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:recyclerview-v7:23.2.0'
-
     compile 'com.google.android.gms:play-services-base:8.3.0'
     compile 'com.google.android.gms:play-services-auth:8.3.0'
     compile 'com.google.android.gms:play-services-identity:8.3.0'
@@ -328,16 +331,17 @@ dependencies {
     compile project(':android-websockets')
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.4'
     apt 'com.raizlabs.android:DBFlow-Compiler:2.2.1'
-    compile "com.raizlabs.android:DBFlow-Core:2.2.1"
-    compile "com.raizlabs.android:DBFlow:2.2.1"
+    compile 'com.raizlabs.android:DBFlow-Core:2.2.1'
+    compile 'com.raizlabs.android:DBFlow:2.2.1'
     compile 'org.solovyev.android.views:linear-layout-manager:0.5@aar'
     compile 'com.crashlytics.sdk.android:crashlytics:2.5.5@aar'
     compile 'com.crashlytics.sdk.android:crashlytics-core:2.3.8@aar'
     compile 'com.crashlytics.sdk.android:beta:1.1.4@aar'
     compile 'com.crashlytics.sdk.android:answers:1.3.6@aar'
     compile 'io.fabric.sdk.android:fabric:1.3.9@aar'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     //debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
+
     //enterprisedebugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-SNAPSHOT'
     compile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'
     enterprisereleaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-SNAPSHOT'

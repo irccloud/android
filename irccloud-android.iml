@@ -67,6 +67,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/jni" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/rs" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/build/filtered_resources" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/assets" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/blame" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/bundles" />
@@ -107,6 +108,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jniLibs" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/manifests" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/pre-dexed" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/proguard-rules" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/rs" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
@@ -114,7 +116,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/outputs" />
       <excludeFolder url="file://$MODULE_DIR$/build/tmp" />
     </content>
-    <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
+    <orderEntry type="jdk" jdkName="Android API 23, N preview Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="sdk-v1.0.0" level="project" />
     <orderEntry type="library" exported="" name="commons-io-2.4" level="project" />
@@ -137,8 +139,8 @@
     <orderEntry type="library" exported="" name="cardview-v7-23.2.0" level="project" />
     <orderEntry type="library" exported="" name="beta-1.1.4" level="project" />
     <orderEntry type="library" exported="" name="handy-uri-templates-2.0.2" level="project" />
-    <orderEntry type="library" exported="" name="kotlin-stdlib-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="jackson-databind-2.5.4" level="project" />
+    <orderEntry type="library" exported="" name="kotlin-stdlib-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="design-23.2.0" level="project" />
     <orderEntry type="library" exported="" name="multiwindow-v1.2.6" level="project" />
     <orderEntry type="library" exported="" name="play-services-basement-8.3.0" level="project" />
@@ -168,6 +170,6 @@
     <orderEntry type="library" exported="" name="kotlin-runtime-1.0.0" level="project" />
     <orderEntry type="library" exported="" name="switch-preference-compat-1.0.0" level="project" />
     <orderEntry type="module" module-name="android-websockets" exported="" />
-    <orderEntry type="library" exported="" name="org.apache.http.legacy-android-23" level="project" />
+    <orderEntry type="library" exported="" name="org.apache.http.legacy-android-N" level="project" />
   </component>
 </module>

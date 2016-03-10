@@ -496,6 +496,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             BackgroundTaskService.registerGCM(MainActivity.this);
     }
 
+    @Override
+    public void onMultiWindowChanged(boolean inMultiWindow) {
+        super.onMultiWindowChanged(inMultiWindow);
+        lastDrawerWidth = drawerLayout.getWidth();
+        adjustTabletLayout();
+        updateUsersListFragmentVisibility();
+        supportInvalidateOptionsMenu();
+    }
+
     private void adjustTabletLayout() {
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
             ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(null);
