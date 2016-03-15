@@ -1781,8 +1781,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         Log.i("IRCCloud", "Cache load started");
-                        getSupportActionBar().setTitle("Loading");
-                        getSupportActionBar().setSubtitle(null);
+                        if(getSupportActionBar() != null) {
+                            getSupportActionBar().setTitle("Loading");
+                            getSupportActionBar().setSubtitle(null);
+                        }
                         progressBar.setVisibility(View.VISIBLE);
                         progressBar.setIndeterminate(true);
                     }
@@ -1800,7 +1802,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                    getSupportActionBar().setHomeButtonEnabled(true);
+                                    if(getSupportActionBar() != null)
+                                        getSupportActionBar().setHomeButtonEnabled(true);
                                     updateUsersListFragmentVisibility();
                                 }
                             });
@@ -1932,7 +1935,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                    getSupportActionBar().setHomeButtonEnabled(true);
+                                    if(getSupportActionBar() != null)
+                                        getSupportActionBar().setHomeButtonEnabled(true);
                                     updateUsersListFragmentVisibility();
                                 }
                             });
@@ -1951,7 +1955,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             public void run() {
                                 if (drawerLayout != null && !NetworkConnection.getInstance().ready) {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                                    getSupportActionBar().setHomeButtonEnabled(false);
+                                    if(getSupportActionBar() != null)
+                                        getSupportActionBar().setHomeButtonEnabled(false);
                                 }
                                 sendBtn.setEnabled(false);
                                 photoBtn.setEnabled(false);
@@ -2409,11 +2414,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     progressBar.setVisibility(View.GONE);
                                 }
                             }
-                            getSupportActionBar().setDisplayShowTitleEnabled(false);
-                            getSupportActionBar().setDisplayShowCustomEnabled(true);
+                            if(getSupportActionBar() != null) {
+                                getSupportActionBar().setDisplayShowTitleEnabled(false);
+                                getSupportActionBar().setDisplayShowCustomEnabled(true);
+                            }
                             if (drawerLayout != null) {
                                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                getSupportActionBar().setHomeButtonEnabled(true);
+                                if(getSupportActionBar() != null)
+                                    getSupportActionBar().setHomeButtonEnabled(true);
                                 updateUsersListFragmentVisibility();
                             }
                             if (ServersList.getInstance().count() < 1) {
@@ -2568,7 +2576,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             e.expiration_timer.cancel();
                         conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e);
                     }
-                } else {
+                } else if (event != null) {
                     if (event.getString("message").equalsIgnoreCase("auth")) {
                         conn.logout();
                         Intent i = new Intent(MainActivity.this, LoginActivity.class);
@@ -2590,19 +2598,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         editor.commit();
                         NetworkConnection.getInstance().connect();
                     }
-                }
-                try {
-                    error = event.getString("message");
-                    if (error.equals("temp_unavailable"))
-                        error = "Your account is temporarily unavailable";
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateReconnecting();
-                        }
-                    });
-                } catch (Exception ex) {
-                    NetworkConnection.printStackTraceToCrashlytics(ex);
+                    try {
+                        error = event.getString("message");
+                        if (error.equals("temp_unavailable"))
+                            error = "Your account is temporarily unavailable";
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateReconnecting();
+                            }
+                        });
+                    } catch (Exception ex) {
+                        NetworkConnection.printStackTraceToCrashlytics(ex);
+                    }
                 }
                 break;
             case NetworkConnection.EVENT_BUFFERMSG:
@@ -4764,8 +4772,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         progressBar.setVisibility(View.GONE);
                     }
                 }
-                getSupportActionBar().setDisplayShowCustomEnabled(true);
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
+                if(getSupportActionBar() != null) {
+                    getSupportActionBar().setDisplayShowCustomEnabled(true);
+                    getSupportActionBar().setDisplayShowTitleEnabled(false);
+                }
             }
             setText(s);
         }
