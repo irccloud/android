@@ -34,6 +34,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.v4.os.BuildCompat;
 import android.util.Log;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
@@ -473,98 +474,100 @@ public class NetworkConnection {
         WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wfm.createWifiLock(TAG);
 
-        kms = new X509ExtendedKeyManager[1];
-        kms[0] = new X509ExtendedKeyManager() {
-            @Override
-            public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
-                return SSLAuthAlias;
-            }
-
-            @Override
-            public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public X509Certificate[] getCertificateChain(String alias) {
-                return SSLAuthCertificateChain;
-            }
-
-            @Override
-            public String[] getClientAliases(String keyType, Principal[] issuers) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public String[] getServerAliases(String keyType, Principal[] issuers) {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public PrivateKey getPrivateKey(String alias) {
-                return SSLAuthKey;
-            }
-        };
-
-        tms = new TrustManager[1];
-        tms[0] = new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                throw new CertificateException("Not implemented");
-            }
-
-            @Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                try {
-                    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("X509");
-                    trustManagerFactory.init((KeyStore) null);
-
-                    for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
-                        if (trustManager instanceof X509TrustManager) {
-                            X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
-                            x509TrustManager.checkServerTrusted(chain, authType);
-                        }
-                    }
-                } catch (KeyStoreException e) {
-                    throw new CertificateException(e);
-                } catch (NoSuchAlgorithmException e) {
-                    throw new CertificateException(e);
+        if(!BuildCompat.isAtLeastN()) {
+            kms = new X509ExtendedKeyManager[1];
+            kms[0] = new X509ExtendedKeyManager() {
+                @Override
+                public String chooseClientAlias(String[] keyTypes, Principal[] issuers, Socket socket) {
+                    return SSLAuthAlias;
                 }
 
-                if (BuildConfig.SSL_FPS != null && BuildConfig.SSL_FPS.length > 0) {
+                @Override
+                public String chooseServerAlias(String keyType, Principal[] issuers, Socket socket) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public X509Certificate[] getCertificateChain(String alias) {
+                    return SSLAuthCertificateChain;
+                }
+
+                @Override
+                public String[] getClientAliases(String keyType, Principal[] issuers) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String[] getServerAliases(String keyType, Principal[] issuers) {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public PrivateKey getPrivateKey(String alias) {
+                    return SSLAuthKey;
+                }
+            };
+
+            tms = new TrustManager[1];
+            tms[0] = new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    throw new CertificateException("Not implemented");
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
                     try {
-                        MessageDigest md = MessageDigest.getInstance("SHA-1");
-                        byte[] sha1 = md.digest(chain[0].getEncoded());
-                        // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
-                        final char[] hexArray = "0123456789ABCDEF".toCharArray();
-                        char[] hexChars = new char[sha1.length * 2];
-                        for (int j = 0; j < sha1.length; j++) {
-                            int v = sha1[j] & 0xFF;
-                            hexChars[j * 2] = hexArray[v >>> 4];
-                            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-                        }
-                        String hexCharsStr = new String(hexChars);
-                        boolean matched = false;
-                        for(String fp : BuildConfig.SSL_FPS) {
-                            if(fp.equals(hexCharsStr)) {
-                                matched = true;
-                                break;
+                        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("X509");
+                        trustManagerFactory.init((KeyStore) null);
+
+                        for (TrustManager trustManager : trustManagerFactory.getTrustManagers()) {
+                            if (trustManager instanceof X509TrustManager) {
+                                X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
+                                x509TrustManager.checkServerTrusted(chain, authType);
                             }
                         }
-                        if (!matched)
-                            throw new CertificateException("Incorrect CN in cert chain");
+                    } catch (KeyStoreException e) {
+                        throw new CertificateException(e);
                     } catch (NoSuchAlgorithmException e) {
-                        printStackTraceToCrashlytics(e);
+                        throw new CertificateException(e);
+                    }
+
+                    if (BuildConfig.SSL_FPS != null && BuildConfig.SSL_FPS.length > 0) {
+                        try {
+                            MessageDigest md = MessageDigest.getInstance("SHA-1");
+                            byte[] sha1 = md.digest(chain[0].getEncoded());
+                            // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
+                            final char[] hexArray = "0123456789ABCDEF".toCharArray();
+                            char[] hexChars = new char[sha1.length * 2];
+                            for (int j = 0; j < sha1.length; j++) {
+                                int v = sha1[j] & 0xFF;
+                                hexChars[j * 2] = hexArray[v >>> 4];
+                                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+                            }
+                            String hexCharsStr = new String(hexChars);
+                            boolean matched = false;
+                            for (String fp : BuildConfig.SSL_FPS) {
+                                if (fp.equals(hexCharsStr)) {
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            if (!matched)
+                                throw new CertificateException("Incorrect CN in cert chain");
+                        } catch (NoSuchAlgorithmException e) {
+                            printStackTraceToCrashlytics(e);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-        };
-        WebSocketClient.setTrustManagers(tms);
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+            };
+            WebSocketClient.setTrustManagers(tms);
+        }
     }
 
     public int getState() {
@@ -2748,7 +2751,7 @@ public class NetworkConnection {
 
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-            if (url.getHost().equals(IRCCLOUD_HOST))
+            if (!BuildCompat.isAtLeastN() && url.getHost().equals(IRCCLOUD_HOST))
                 https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
@@ -2860,7 +2863,7 @@ public class NetworkConnection {
 
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-            if (url.getHost().equals(IRCCLOUD_HOST))
+            if (!BuildCompat.isAtLeastN() && url.getHost().equals(IRCCLOUD_HOST))
                 https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
@@ -3082,7 +3085,8 @@ public class NetworkConnection {
 
                 if (url[0].getProtocol().toLowerCase().equals("https")) {
                     HttpsURLConnection https = (proxy != null) ? (HttpsURLConnection) url[0].openConnection(proxy) : (HttpsURLConnection) url[0].openConnection(Proxy.NO_PROXY);
-                    https.setSSLSocketFactory(IRCCloudSocketFactory);
+                    if(!BuildCompat.isAtLeastN())
+                        https.setSSLSocketFactory(IRCCloudSocketFactory);
                     conn = https;
                 } else {
                     conn = (HttpURLConnection) ((proxy != null) ? url[0].openConnection(proxy) : url[0].openConnection(Proxy.NO_PROXY));
