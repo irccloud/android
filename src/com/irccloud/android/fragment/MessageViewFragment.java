@@ -66,6 +66,7 @@ import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.activity.BaseActivity;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Event;
@@ -2204,17 +2205,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @Override
     public void onPause() {
         super.onPause();
-        if (statusRefreshRunnable != null) {
-            mHandler.removeCallbacks(statusRefreshRunnable);
-            statusRefreshRunnable = null;
+
+        if(getActivity() == null || !((BaseActivity)getActivity()).isMultiWindow()) {
+            if (statusRefreshRunnable != null) {
+                mHandler.removeCallbacks(statusRefreshRunnable);
+                statusRefreshRunnable = null;
+            }
+            if (conn != null)
+                conn.removeHandler(this);
+            try {
+                getListView().setOnScrollListener(null);
+            } catch (Exception e) {
+            }
+            ready = false;
         }
-        if (conn != null)
-            conn.removeHandler(this);
-        try {
-            getListView().setOnScrollListener(null);
-        } catch (Exception e) {
-        }
-        ready = false;
     }
 
     public void onIRCEvent(int what, final Object obj) {

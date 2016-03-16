@@ -255,11 +255,13 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     public void onPause() {
         super.onPause();
 
-        if (conn != null) {
-            conn.removeHandler(this);
-        }
+        if(!isMultiWindow()) {
+            if (conn != null) {
+                conn.removeHandler(this);
+            }
 
-        NetworkConnection.getInstance().unregisterForConnectivity();
+            NetworkConnection.getInstance().unregisterForConnectivity();
+        }
     }
 
     public void onIRCEvent(int what, Object obj) {

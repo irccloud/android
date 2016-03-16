@@ -54,6 +54,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -259,6 +260,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private ArrayList<Channel> sortedChannels = null;
     private ImgurUploadTask imgurTask = null;
     private FileUploadTask fileUploadTask = null;
+    private ActionBar actionBar = null;
 
     private Drawable upDrawable;
 
@@ -422,7 +424,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         });
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        getSupportActionBar().setCustomView(v);
+        actionBar = getSupportActionBar();
+        if(actionBar != null)
+            actionBar.setCustomView(v);
 
         upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
         upDrawable.setColorFilter(normalFilter);
@@ -460,7 +464,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         drawerLayout.setScrimColor(0);
         drawerLayout.closeDrawers();
 
-        getSupportActionBar().setElevation(0);
+        actionBar.setElevation(0);
         if(conn == null) {
             conn = NetworkConnection.getInstance();
             conn.addHandler(this);
@@ -515,7 +519,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
             findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-            getSupportActionBar().setHomeButtonEnabled(true);
+            if(actionBar != null)
+                actionBar.setHomeButtonEnabled(true);
             if (refreshUpIndicatorTask != null)
                 refreshUpIndicatorTask.cancel(true);
             refreshUpIndicatorTask = new RefreshUpIndicatorTask();
@@ -564,11 +569,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             return;
 
         if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
-            getSupportActionBar().setTitle("Loading");
-            getSupportActionBar().setSubtitle(null);
+            actionBar.setTitle("Loading");
+            actionBar.setSubtitle(null);
         } else if (conn.getState() == NetworkConnection.STATE_CONNECTING || conn.getReconnectTimestamp() > 0) {
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            if(actionBar != null) {
+                actionBar.setDisplayShowCustomEnabled(false);
+                actionBar.setDisplayShowTitleEnabled(true);
+            }
             progressBar.setProgress(0);
             progressBar.setIndeterminate(true);
             if (progressBar.getVisibility() != View.VISIBLE) {
@@ -581,12 +588,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED && conn.getReconnectTimestamp() > 0) {
                 int seconds = (int) ((conn.getReconnectTimestamp() - System.currentTimeMillis()) / 1000);
                 if (seconds < 1) {
-                    getSupportActionBar().setTitle("Connecting");
-                    getSupportActionBar().setSubtitle(null);
+                    actionBar.setTitle("Connecting");
+                    actionBar.setSubtitle(null);
                     errorMsg.setVisibility(View.GONE);
                 } else if (seconds >= 10) {
-                    getSupportActionBar().setTitle("Reconnecting in 0:" + seconds);
-                    getSupportActionBar().setSubtitle(null);
+                    actionBar.setTitle("Reconnecting in 0:" + seconds);
+                    actionBar.setSubtitle(null);
                     if (error != null && error.length() > 0) {
                         errorMsg.setText(error);
                         errorMsg.setVisibility(View.VISIBLE);
@@ -595,8 +602,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         error = null;
                     }
                 } else {
-                    getSupportActionBar().setTitle("Reconnecting in 0:0" + seconds);
-                    getSupportActionBar().setSubtitle(null);
+                    actionBar.setTitle("Reconnecting in 0:0" + seconds);
+                    actionBar.setSubtitle(null);
                     errorMsg.setVisibility(View.GONE);
                     error = null;
                 }
@@ -621,8 +628,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 } catch (Exception e) {
                 }
             } else {
-                getSupportActionBar().setTitle("Connecting");
-                getSupportActionBar().setSubtitle(null);
+                actionBar.setTitle("Connecting");
+                actionBar.setSubtitle(null);
                 error = null;
                 errorMsg.setVisibility(View.GONE);
             }
@@ -631,13 +638,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             progressBar.setIndeterminate(false);
             progressBar.setProgress(0);
             if(buffer == null) {
-                getSupportActionBar().setTitle("Offline");
-                getSupportActionBar().setSubtitle(null);
-                getSupportActionBar().setDisplayShowCustomEnabled(false);
-                getSupportActionBar().setDisplayShowTitleEnabled(true);
+                actionBar.setTitle("Offline");
+                actionBar.setSubtitle(null);
+                if(actionBar != null) {
+                    actionBar.setDisplayShowCustomEnabled(false);
+                    actionBar.setDisplayShowTitleEnabled(true);
+                }
             } else {
-                getSupportActionBar().setDisplayShowCustomEnabled(true);
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
+                if(actionBar != null) {
+                    actionBar.setDisplayShowCustomEnabled(true);
+                    actionBar.setDisplayShowTitleEnabled(false);
+                }
                 update_subtitle();
             }
         }
@@ -887,7 +898,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     if (suggestionsContainer.getHeight() < 48) {
-                                        getSupportActionBar().hide();
+                                        if(actionBar != null)
+                                            actionBar.hide();
                                     }
                                 }
                             });
@@ -929,8 +941,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                             sortedUsers = null;
                             sortedChannels = null;
-                            if (!getSupportActionBar().isShowing())
-                                getSupportActionBar().show();
+                            if (actionBar != null && !actionBar.isShowing())
+                                actionBar.show();
                         }
                     }
                 }
@@ -1380,7 +1392,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (conn.getState() != NetworkConnection.STATE_CONNECTED || !NetworkConnection.getInstance().ready) {
             if (drawerLayout != null && !NetworkConnection.getInstance().ready) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                getSupportActionBar().setHomeButtonEnabled(false);
+                if(actionBar != null)
+                    actionBar.setHomeButtonEnabled(false);
             }
             sendBtn.setEnabled(false);
             if(conn.config == null) {
@@ -1389,7 +1402,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         } else {
             if (drawerLayout != null) {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                getSupportActionBar().setHomeButtonEnabled(true);
+                if(actionBar != null)
+                    actionBar.setHomeButtonEnabled(true);
             }
             if (messageTxt.getText() != null && messageTxt.getText().length() > 0) {
                 sendBtn.setEnabled(true);
@@ -1413,9 +1427,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             onBufferSelected(bid);
         }
 
-        if(buffer != null) {
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if(buffer != null && actionBar != null) {
+            actionBar.setDisplayShowCustomEnabled(true);
+            actionBar.setDisplayShowTitleEnabled(false);
         }
 
         adjustTabletLayout();
@@ -1500,41 +1514,50 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         if (imgurTask != null)
             imgurTask.setActivity(null);
         if (fileUploadTask != null)
             fileUploadTask.setActivity(null);
+    }
 
-        if(shouldMarkAsRead()) {
-            Long eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid());
-            if (eid >= buffer.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid);
-                buffer.setLast_seen_eid(eid);
-                buffer.setUnread(0);
-                buffer.setHighlights(0);
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if(!isMultiWindow()) {
+            if (imgurTask != null)
+                imgurTask.setActivity(null);
+            if (fileUploadTask != null)
+                fileUploadTask.setActivity(null);
+
+            if (shouldMarkAsRead()) {
+                Long eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid());
+                if (eid >= buffer.getLast_seen_eid() && conn != null && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    NetworkConnection.getInstance().heartbeat(buffer.getCid(), buffer.getBid(), eid);
+                    buffer.setLast_seen_eid(eid);
+                    buffer.setUnread(0);
+                    buffer.setHighlights(0);
+                }
             }
-        }
 
-        try {
-            if (excludeBIDTask != null)
-                excludeBIDTask.cancel(true);
-        } catch (Exception e) {
+            try {
+                if (excludeBIDTask != null)
+                    excludeBIDTask.cancel(true);
+            } catch (Exception e) {
+            }
+            excludeBIDTask = new ExcludeBIDTask();
+            excludeBIDTask.execute(-1);
+            if (channelsListDialog != null)
+                channelsListDialog.dismiss();
+            suggestionsAdapter.clear();
+            progressBar.setVisibility(View.GONE);
+            errorMsg.setVisibility(View.GONE);
+            error = null;
+            if (buffer != null)
+                backStack.add(0, buffer.getBid());
         }
-        excludeBIDTask = new ExcludeBIDTask();
-        excludeBIDTask.execute(-1);
-        if (channelsListDialog != null)
-            channelsListDialog.dismiss();
-        if (conn != null)
-            conn.removeHandler(this);
-        conn = null;
-        suggestionsAdapter.clear();
-        progressBar.setVisibility(View.GONE);
-        errorMsg.setVisibility(View.GONE);
-        error = null;
-        if(buffer != null)
-            backStack.add(0, buffer.getBid());
     }
 
     public static class ConfigInstance {
@@ -1590,8 +1613,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     } else {
                         onBufferSelected(-1);
                         title.setText(channel);
-                        getSupportActionBar().setTitle(channel);
-                        getSupportActionBar().setSubtitle(null);
+                        actionBar.setTitle(channel);
+                        actionBar.setSubtitle(null);
                         bufferToOpen = channel;
                         conn.join(s.getCid(), channel, key);
                     }
@@ -1649,21 +1672,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if (server.getName().length() > 0) {
                     title.setText(server.getName());
                     if (progressBar.getVisibility() == View.GONE) {
-                        getSupportActionBar().setTitle(server.getName());
-                        getSupportActionBar().setSubtitle(null);
+                        actionBar.setTitle(server.getName());
+                        actionBar.setSubtitle(null);
                     }
                 } else {
                     title.setText(server.getHostname());
                     if (progressBar.getVisibility() == View.GONE) {
-                        getSupportActionBar().setTitle(server.getHostname());
-                        getSupportActionBar().setSubtitle(null);
+                        actionBar.setTitle(server.getHostname());
+                        actionBar.setSubtitle(null);
                     }
                 }
             } else {
                 title.setText(buffer.getName());
                 if (progressBar.getVisibility() == View.GONE) {
-                    getSupportActionBar().setTitle(buffer.getName());
-                    getSupportActionBar().setSubtitle(null);
+                    actionBar.setTitle(buffer.getName());
+                    actionBar.setSubtitle(null);
                 }
             }
 
@@ -1730,7 +1753,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 if(progressBar.getVisibility() == View.GONE && NetworkConnection.getInstance().getState() != NetworkConnection.STATE_CONNECTED) {
                     subtitle.setVisibility(View.VISIBLE);
                     subtitle.setText("(Offline)");
-                    getSupportActionBar().setSubtitle("(Offline)");
+                    actionBar.setSubtitle("(Offline)");
                 }
             }
         }
@@ -1790,9 +1813,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void run() {
                         Log.i("IRCCloud", "Cache load started");
-                        if(getSupportActionBar() != null) {
-                            getSupportActionBar().setTitle("Loading");
-                            getSupportActionBar().setSubtitle(null);
+                        if(actionBar != null) {
+                            actionBar.setTitle("Loading");
+                            actionBar.setSubtitle(null);
                         }
                         progressBar.setVisibility(View.VISIBLE);
                         progressBar.setIndeterminate(true);
@@ -1811,8 +1834,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                    if(getSupportActionBar() != null)
-                                        getSupportActionBar().setHomeButtonEnabled(true);
+                                    if(actionBar != null)
+                                        actionBar.setHomeButtonEnabled(true);
                                     updateUsersListFragmentVisibility();
                                 }
                             });
@@ -1944,8 +1967,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 @Override
                                 public void run() {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                    if(getSupportActionBar() != null)
-                                        getSupportActionBar().setHomeButtonEnabled(true);
+                                    if(actionBar != null)
+                                        actionBar.setHomeButtonEnabled(true);
                                     updateUsersListFragmentVisibility();
                                 }
                             });
@@ -1964,8 +1987,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             public void run() {
                                 if (drawerLayout != null && !NetworkConnection.getInstance().ready) {
                                     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                                    if(getSupportActionBar() != null)
-                                        getSupportActionBar().setHomeButtonEnabled(false);
+                                    if(actionBar != null)
+                                        actionBar.setHomeButtonEnabled(false);
                                 }
                                 sendBtn.setEnabled(false);
                                 photoBtn.setEnabled(false);
@@ -2423,14 +2446,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     progressBar.setVisibility(View.GONE);
                                 }
                             }
-                            if(getSupportActionBar() != null) {
-                                getSupportActionBar().setDisplayShowTitleEnabled(false);
-                                getSupportActionBar().setDisplayShowCustomEnabled(true);
+                            if(actionBar != null) {
+                                actionBar.setDisplayShowTitleEnabled(false);
+                                actionBar.setDisplayShowCustomEnabled(true);
                             }
                             if (drawerLayout != null) {
                                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                                if(getSupportActionBar() != null)
-                                    getSupportActionBar().setHomeButtonEnabled(true);
+                                if(actionBar != null)
+                                    actionBar.setHomeButtonEnabled(true);
                                 updateUsersListFragmentVisibility();
                             }
                             if (ServersList.getInstance().count() < 1) {
@@ -4319,7 +4342,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
             } else {
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-                getSupportActionBar().setHomeButtonEnabled(true);
+                if(actionBar != null)
+                    actionBar.setHomeButtonEnabled(true);
             }
         }
         update_suggestions(false);
@@ -4715,10 +4739,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             activity = a;
             if (a != null) {
                 if (total > 0) {
-                    getSupportActionBar().setTitle("Uploading");
-                    getSupportActionBar().setSubtitle(null);
-                    getSupportActionBar().setDisplayShowCustomEnabled(false);
-                    getSupportActionBar().setDisplayShowTitleEnabled(true);
+                    actionBar.setTitle("Uploading");
+                    actionBar.setSubtitle(null);
+                    actionBar.setDisplayShowCustomEnabled(false);
+                    actionBar.setDisplayShowTitleEnabled(true);
                     progressBar.setProgress(0);
                     progressBar.setIndeterminate(true);
                     if (progressBar.getVisibility() != View.VISIBLE) {
@@ -4737,10 +4761,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (activity != null) {
                 try {
                     if (progressBar.getVisibility() != View.VISIBLE) {
-                        getSupportActionBar().setTitle("Uploading");
-                        getSupportActionBar().setSubtitle(null);
-                        getSupportActionBar().setDisplayShowCustomEnabled(false);
-                        getSupportActionBar().setDisplayShowTitleEnabled(true);
+                        actionBar.setTitle("Uploading");
+                        actionBar.setSubtitle(null);
+                        actionBar.setDisplayShowCustomEnabled(false);
+                        actionBar.setDisplayShowTitleEnabled(true);
                         if (Build.VERSION.SDK_INT >= 16) {
                             progressBar.setAlpha(0);
                             progressBar.animate().alpha(1).setDuration(200);
@@ -4781,9 +4805,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         progressBar.setVisibility(View.GONE);
                     }
                 }
-                if(getSupportActionBar() != null) {
-                    getSupportActionBar().setDisplayShowCustomEnabled(true);
-                    getSupportActionBar().setDisplayShowTitleEnabled(false);
+                if(actionBar != null) {
+                    actionBar.setDisplayShowCustomEnabled(true);
+                    actionBar.setDisplayShowTitleEnabled(false);
                 }
             }
             setText(s);
@@ -5283,10 +5307,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             activity = a;
             if (a != null) {
                 if (total > 0 && !uploadFinished) {
-                    activity.getSupportActionBar().setTitle("Uploading");
-                    activity.getSupportActionBar().setSubtitle(null);
-                    activity.getSupportActionBar().setDisplayShowCustomEnabled(false);
-                    activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
+                    activity.actionBar.setTitle("Uploading");
+                    activity.actionBar.setSubtitle(null);
+                    activity.actionBar.setDisplayShowCustomEnabled(false);
+                    activity.actionBar.setDisplayShowTitleEnabled(true);
                     activity.progressBar.setProgress(0);
                     activity.progressBar.setIndeterminate(true);
                     if (activity.progressBar.getVisibility() != View.VISIBLE) {
@@ -5311,10 +5335,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if (activity != null) {
                 try {
                     if (activity.progressBar.getVisibility() != View.VISIBLE) {
-                        activity.getSupportActionBar().setTitle("Uploading");
-                        activity.getSupportActionBar().setSubtitle(null);
-                        activity.getSupportActionBar().setDisplayShowCustomEnabled(false);
-                        activity.getSupportActionBar().setDisplayShowTitleEnabled(true);
+                        activity.actionBar.setTitle("Uploading");
+                        activity.actionBar.setSubtitle(null);
+                        activity.actionBar.setDisplayShowCustomEnabled(false);
+                        activity.actionBar.setDisplayShowTitleEnabled(true);
                         if (Build.VERSION.SDK_INT >= 16) {
                             activity.progressBar.setAlpha(0);
                             activity.progressBar.animate().alpha(1).setDuration(200);
@@ -5402,9 +5426,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     activity.progressBar.setVisibility(View.GONE);
                 }
             }
-            if(activity != null && activity.getSupportActionBar() != null) {
-                activity.getSupportActionBar().setDisplayShowCustomEnabled(true);
-                activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            if(activity != null && activity.actionBar != null) {
+                activity.actionBar.setDisplayShowCustomEnabled(true);
+                activity.actionBar.setDisplayShowTitleEnabled(false);
             }
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(mBuffer.getBid());
         }
