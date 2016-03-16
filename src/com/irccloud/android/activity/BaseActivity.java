@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -132,7 +133,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     }
 
     public boolean isMultiWindow() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+        if(!BuildCompat.isAtLeastN())
             return (mMultiWindowActivity != null && !mMultiWindowActivity.isNormalWindow());
         else
             return inMultiWindow();
