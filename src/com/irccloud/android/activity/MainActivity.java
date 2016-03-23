@@ -21,6 +21,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
@@ -72,6 +74,7 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -495,6 +498,61 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         });
+
+        if(Build.VERSION.SDK_INT >= 11) {
+            View.OnDragListener dragListener = new View.OnDragListener() {
+                @Override
+                public boolean onDrag(View view, DragEvent dragEvent) {
+                    switch(dragEvent.getAction()) {
+                        case DragEvent.ACTION_DRAG_STARTED:
+                            findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
+                            ClipDescription d = dragEvent.getClipDescription();
+                            for(int i = 0; i < d.getMimeTypeCount(); i++) {
+                                if(d.getMimeType(i).equals("text/plain") || d.getMimeType(i).startsWith("image/"))
+                                    return true;
+                            }
+                            break;
+                        case DragEvent.ACTION_DROP:
+                            requestDropPermissions(dragEvent);
+                            ClipData c = dragEvent.getClipData();
+                            for(int i = 0; i < c.getItemCount(); i++) {
+                                ClipData.Item item = c.getItemAt(i);
+                                if(item.getUri() != null) {
+                                    String type = getContentResolver().getType(item.getUri());
+                                    if(type != null && type.startsWith("image/")) {
+                                        if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
+                                            new ImgurRefreshTask(item.getUri()).execute((Void) null);
+                                        } else {
+                                            fileUploadTask = new FileUploadTask(item.getUri(), MainActivity.this);
+                                            if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                                                ActivityCompat.requestPermissions(MainActivity.this,
+                                                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                                        REQUEST_EXTERNAL_MEDIA_IRCCLOUD);
+                                            } else {
+                                                fileUploadTask.execute((Void) null);
+                                            }
+                                        }
+                                        return true;
+                                    }
+                                } else if(item.getText().length() > 0) {
+                                    messageTxt.setText(item.getText());
+                                    return true;
+                                }
+                            }
+                            return false;
+                        case DragEvent.ACTION_DRAG_ENDED:
+                            findViewById(R.id.drop_target).setVisibility(View.GONE);
+                            return true;
+                    }
+                    return false;
+                }
+            };
+
+            MessageViewFragment mvf = (MessageViewFragment)getSupportFragmentManager().findFragmentById(R.id.messageViewFragment);
+            if(mvf != null && mvf.getView() != null)
+               mvf.getView().setOnDragListener(dragListener);
+            messageTxt.setOnDragListener(dragListener);
+        }
 
         if(BuildConfig.GCM_ID.length() > 0)
             BackgroundTaskService.registerGCM(MainActivity.this);

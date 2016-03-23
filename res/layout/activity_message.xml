@@ -166,6 +166,36 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#88000000"
+        android:id="@+id/drop_target"
+        android:paddingTop="@dimen/status_bar_height"
+        android:visibility="gone">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center"
+            android:gravity="center_vertical|center_horizontal"
+            android:background="@drawable/drop_target_bg"
+            android:padding="32dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Drop files to upload\nand share"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_marginBottom="16dp"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/drop_target"
+                android:layout_gravity="center"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@color/loginTopBackgroundColor"
         android:id="@+id/splash"
         android:paddingTop="@dimen/status_bar_height"
