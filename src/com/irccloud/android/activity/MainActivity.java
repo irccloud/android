@@ -535,6 +535,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                         return true;
                                     }
                                 } else if(item.getText().length() > 0) {
+                                    if(buffer != null)
+                                        buffer.setDraft(item.getText().toString());
                                     messageTxt.setText(item.getText());
                                     return true;
                                 }
