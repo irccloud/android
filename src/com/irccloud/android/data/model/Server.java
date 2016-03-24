@@ -89,7 +89,7 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     public ObjectNode PREFIX;
 
     @Column
-    public String MODE_OPER = "y";
+    public String MODE_OPER = "Y";
 
     @Column
     public String MODE_OWNER = "q";

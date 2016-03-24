@@ -661,6 +661,8 @@ public class CollapsedEventsList {
                 output.append("\u0002");
             if (showSymbol) {
                 if (PREFIX.has(mode))
+                    output.append(TextUtils.htmlEncode(PREFIX.get(mode).asText()));
+                else if (PREFIX.has(mode.toLowerCase()))
                     output.append(TextUtils.htmlEncode(PREFIX.get(mode.toLowerCase()).asText()));
             } else {
                 output.append("•");
