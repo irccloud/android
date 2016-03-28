@@ -595,7 +595,11 @@ public class NotificationsList {
                             big_text.append(l);
                         }
 
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
+                        try {
+                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
+                        } catch (Exception e) {
+                            Crashlytics.logException(e);
+                        }
                     }
                     lastbid = n.bid;
                     text = "";
@@ -742,7 +746,11 @@ public class NotificationsList {
                     big_text.append(l);
                 }
 
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
+                try {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, Html.fromHtml(big_text.toString()), count, replyIntent, Html.fromHtml(weartext), last.network, auto_messages));
+                } catch (Exception e) {
+                    Crashlytics.logException(e);
+                }
             }
         }
     }
