@@ -217,7 +217,7 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
         for (int i = 0; i < users.size(); i++) {
             User user = users.get(i);
             String mode = user.mode.toLowerCase();
-            if (mode.contains(s != null ? s.MODE_OPER.toLowerCase() : "y") && PREFIX.has(s != null ? s.MODE_OPER : "Y")) {
+            if (mode.contains(s != null ? s.MODE_OPER.toLowerCase() : "y") && (PREFIX.has(s != null ? s.MODE_OPER : "Y") || PREFIX.has(s != null ? s.MODE_OPER.toLowerCase() : "y"))) {
                 opers.add(user);
             } else if (mode.contains(s != null ? s.MODE_OWNER.toLowerCase() : "q") && PREFIX.has(s != null ? s.MODE_OWNER : "q")) {
                 owners.add(user);
@@ -238,6 +238,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             if (showSymbol) {
                 if (PREFIX.has(s != null ? s.MODE_OPER : "Y"))
                     addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER : "Y").asText() + " ", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
+                else if (PREFIX.has(s != null ? s.MODE_OPER.toLowerCase() : "y"))
+                    addUsersFromList(entries, opers, "OPER", PREFIX.get(s != null ? s.MODE_OPER.toLowerCase() : "y").asText() + " ", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
                 else
                     addUsersFromList(entries, opers, "OPER", "", colorScheme.row_opers_bg_drawable, colorScheme.opersHeadingColor);
             } else {
