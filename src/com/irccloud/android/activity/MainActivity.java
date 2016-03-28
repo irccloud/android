@@ -1301,11 +1301,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             server = null;
         } else {
             if (intent.hasExtra(Intent.EXTRA_STREAM) && intent.getParcelableExtra(Intent.EXTRA_STREAM) != null) {
-                String type = getContentResolver().getType((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM));
+                Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                String type = getContentResolver().getType(uri);
+                uri = makeTempCopy(uri, this);
+
                 if (type != null && type.startsWith("image/") && (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur"))) {
-                    new ImgurRefreshTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM)).execute((Void) null);
+                    new ImgurRefreshTask(uri).execute((Void) null);
                 } else {
-                    fileUploadTask = new FileUploadTask((Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM), this);
+                    fileUploadTask = new FileUploadTask(uri, this);
                     if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(MainActivity.this,
                                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -2879,6 +2882,70 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     private final int REQUEST_UPLOADS = 4;
     private final int REQUEST_PASTEBIN = 5;
 
+    public static Uri makeTempCopy(Uri fileUri, Context context) {
+        if(fileUri.toString().contains(context.getCacheDir().getAbsolutePath()))
+            return fileUri;
+        String original_filename;
+
+        if (Build.VERSION.SDK_INT < 16) {
+            original_filename = fileUri.getLastPathSegment();
+        } else {
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver().query(fileUri, null, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    original_filename = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                } else {
+                    original_filename = fileUri.getLastPathSegment();
+                }
+            } catch (Exception e) {
+                original_filename = String.valueOf(System.currentTimeMillis());
+            }
+            if(cursor != null)
+                cursor.close();
+        }
+
+        if(original_filename == null || original_filename.length() == 0)
+            original_filename = "file";
+
+        String type = context.getContentResolver().getType(fileUri);
+        if (type == null) {
+            String lower = original_filename.toLowerCase();
+            if (lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
+                type = "image/jpeg";
+            else if (lower.endsWith(".png"))
+                type = "image/png";
+            else if (lower.endsWith(".bmp"))
+                type = "image/bmp";
+            else if (lower.endsWith(".mp4"))
+                type = "video/mp4";
+            else if (lower.endsWith(".3gpp"))
+                type = "video/3gpp";
+            else
+                type = "application/octet-stream";
+        }
+
+        if (!original_filename.contains("."))
+            original_filename += "." + type.substring(type.indexOf("/") + 1);
+
+        try {
+            Uri out = Uri.fromFile(new File(context.getCacheDir(), original_filename));
+            Log.d("IRCCloud", "Copying file to " + out);
+            InputStream is = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openInputStream(fileUri);
+            OutputStream os = IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().openOutputStream(out);
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+            is.close();
+            os.close();
+            return out;
+        } catch (Exception e) {
+            return fileUri;
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         if (buffer != null) {
@@ -2906,6 +2973,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else if (requestCode == REQUEST_PHOTO && resultCode == RESULT_OK) {
                 Uri selectedImage = imageReturnedIntent.getData();
                 if (selectedImage != null) {
+                    selectedImage = makeTempCopy(selectedImage, this);
                     if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud").equals("imgur")) {
                         new ImgurRefreshTask(selectedImage).execute((Void) null);
                     } else {
@@ -2922,6 +2990,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else if (requestCode == REQUEST_DOCUMENT && resultCode == RESULT_OK) {
                 Uri selectedFile = imageReturnedIntent.getData();
                 if (selectedFile != null) {
+                    selectedFile = makeTempCopy(selectedFile, this);
                     fileUploadTask = new FileUploadTask(selectedFile, this);
                     if(Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(MainActivity.this,
@@ -4518,7 +4587,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             ExifInterface exif = new ExifInterface(out.getPath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-            new File(new URI(out.toString())).delete();
+            new File(new URI(out.getPath())).delete();
 
             out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", getCacheDir()));
             if (orientation > 1) {
@@ -4557,14 +4626,19 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("keep_photos", false) && in.toString().contains("irccloudcapture")) {
             try {
-                new File(new URI(in.toString())).delete();
+                new File(in.getPath()).delete();
             } catch (Exception e) {
             }
         }
-        if (out != null)
+        if (out != null) {
+            if(in.toString().contains(getCacheDir().getAbsolutePath())) {
+                Log.i("IRCCloud", "Removing temporary file: " + in);
+                new File(in.getPath()).delete();
+            }
             return out;
-        else
+        } else {
             return in;
+        }
     }
 
     public class ImgurRefreshTask extends AsyncTaskEx<Void, Void, JSONObject> {
@@ -4723,6 +4797,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 try {
                     imageIn.close();
                 } catch (Exception ignore) {
+                }
+                if(mImageUri.toString().contains(getCacheDir().getAbsolutePath())) {
+                    Log.i("IRCCloud", "Removing temporary file: " + mImageUri);
+                    new File(mImageUri.getPath()).delete();
                 }
             }
         }
@@ -5290,6 +5368,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 try {
                     fileIn.close();
                 } catch (Exception ignore) {
+                }
+                if(mFileUri.toString().contains(activity.getCacheDir().getAbsolutePath())) {
+                    Log.i("IRCCloud", "Removing temporary file: " + mFileUri);
+                    new File(mFileUri.getPath()).delete();
                 }
             }
             return null;
