@@ -4587,7 +4587,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
             ExifInterface exif = new ExifInterface(out.getPath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
-            new File(new URI(out.getPath())).delete();
+            new File(out.getPath()).delete();
 
             out = Uri.fromFile(File.createTempFile("irccloudcapture-resized", ".jpg", getCacheDir()));
             if (orientation > 1) {
