@@ -136,12 +136,14 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if(!BuildCompat.isAtLeastN())
             return (mMultiWindowActivity != null && !mMultiWindowActivity.isNormalWindow());
         else
-            return inMultiWindow();
+            return isInMultiWindowMode();
     }
 
     public void makeMultiWindowIntent(Intent i) {
         if(mMultiWindowActivity != null)
             SMultiWindowActivity.makeMultiWindowIntent(i, SMultiWindowActivity.ZONE_A);
+        else if(BuildCompat.isAtLeastN())
+            i.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
     }
 
     @Override

@@ -561,8 +561,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     @Override
-    public void onMultiWindowChanged(boolean inMultiWindow) {
-        super.onMultiWindowChanged(inMultiWindow);
+    public void onMultiWindowModeChanged(boolean inMultiWindow) {
+        super.onMultiWindowModeChanged(inMultiWindow);
         lastDrawerWidth = drawerLayout.getWidth();
         adjustTabletLayout();
         updateUsersListFragmentVisibility();

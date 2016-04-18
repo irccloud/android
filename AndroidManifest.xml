@@ -70,7 +70,8 @@
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"
-                    android:minimalSize="320dp" />
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -126,6 +127,11 @@
             android:label="@string/app_name"
             android:theme="@style/LoginTheme"
             android:windowSoftInputMode="adjustResize" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -162,6 +168,11 @@
         <activity
             android:name=".activity.EditConnectionActivity"
             android:windowSoftInputMode="adjustResize" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
         </activity>
         <activity android:name=".activity.ServerReorderActivity" >
         </activity>
@@ -170,6 +181,11 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_imageviewer"
             android:theme="@style/ImageViewerTheme" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -192,6 +208,11 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_video_player"
             android:theme="@style/ImageViewerTheme" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -213,6 +234,11 @@
             android:name=".activity.PastebinViewerActivity"
             android:label="@string/title_activity_pastebin"
             android:theme="@style/dawnNoActionBar" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -226,6 +252,11 @@
             android:name=".activity.PreferencesActivity"
             android:label="@string/menu_settings"
             android:theme="@style/dawnPrefsTheme" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -251,11 +282,21 @@
             android:name=".activity.UploadsActivity"
             android:label="@string/title_activity_uploads"
             android:theme="@style/dawnDialogWhenLarge" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
         </activity>
         <activity
             android:name=".activity.PastebinsActivity"
             android:label="@string/title_activity_pastebins"
             android:theme="@style/dawnDialogWhenLarge" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
         </activity>
 
         <receiver
@@ -354,6 +395,11 @@
             android:label="@string/title_activity_imgur_auth"
             android:theme="@style/ImgurAuthTheme"
             android:windowSoftInputMode="adjustResize" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -364,6 +410,11 @@
             android:name=".activity.PastebinEditorActivity"
             android:theme="@style/dawnDialogWhenLarge"
             android:windowSoftInputMode="adjustResize" >
+            <layout android:defaultHeight="320dp"
+                    android:defaultWidth="400dp"
+                    android:gravity="top|end"
+                    android:minimalWidth="320dp"
+                    android:minimalHeight="320dp"/>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
