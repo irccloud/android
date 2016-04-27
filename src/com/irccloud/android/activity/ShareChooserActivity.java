@@ -22,6 +22,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -52,6 +53,7 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     private View connecting = null;
     private View buffersList = null;
     private NetworkConnection conn = null;
+    private Uri mUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +103,11 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
             } else {
                 connecting.setVisibility(View.GONE);
                 buffersList.setVisibility(View.VISIBLE);
+            }
+            if(getIntent() != null && getIntent().hasExtra(Intent.EXTRA_STREAM)) {
+                mUri = MainActivity.makeTempCopy((Uri)getIntent().getParcelableExtra(Intent.EXTRA_STREAM), this);
+            } else {
+                mUri = null;
             }
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app before sharing", Toast.LENGTH_SHORT).show();
@@ -273,16 +280,9 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
         if (getIntent() != null && getIntent().getData() != null)
             i.setData(getIntent().getData());
         if (getIntent() != null && getIntent().getExtras() != null) {
-            for(String key : getIntent().getExtras().keySet()) {
-                try {
-                    if(key.equals(Intent.EXTRA_STREAM))
-                        i.putExtra(key, getIntent().getParcelableExtra(key));
-                    else
-                        i.putExtra(key, getIntent().getStringExtra(key));
-                } catch (Exception e) {
-                    NetworkConnection.printStackTraceToCrashlytics(e);
-                }
-            }
+            i.putExtras(getIntent());
+            if(mUri != null)
+                i.putExtra(Intent.EXTRA_STREAM, mUri);
         }
         startActivity(i);
         finish();
