@@ -373,6 +373,7 @@ public class EventsList {
                     e.from_mode = event.getString("kicker_mode");
                     e.old_nick = event.getString("nick");
                     e.nick = event.getString("kicker");
+                    e.hostmask = event.getString("kicker_hostmask");
                 }
                 e.color = colorScheme.timestampColor;
                 e.linkify = false;
