@@ -5369,7 +5369,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     fileIn.close();
                 } catch (Exception ignore) {
                 }
-                if(mFileUri.toString().contains(activity.getCacheDir().getAbsolutePath())) {
+                if(activity != null && mFileUri.toString().contains(IRCCloudApplication.getInstance().getApplicationContext().getCacheDir().getAbsolutePath())) {
                     Log.i("IRCCloud", "Removing temporary file: " + mFileUri);
                     new File(mFileUri.getPath()).delete();
                 }
