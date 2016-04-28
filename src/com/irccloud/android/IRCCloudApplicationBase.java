@@ -157,7 +157,6 @@ public class IRCCloudApplicationBase extends Application {
                         values.put(MediaStore.Audio.Media.IS_MUSIC, "0");
                         getContentResolver().update(MediaStore.Audio.Media.INTERNAL_CONTENT_URI.buildUpon().appendPath(c.getString(0)).build(), values, null, null);
                     } while(c.moveToNext());
-                    c.close();
                 } else {
                     ContentValues values = new ContentValues();
                     values.put(MediaStore.Audio.Media.DATA, file.getAbsolutePath());
@@ -165,16 +164,21 @@ public class IRCCloudApplicationBase extends Application {
                     values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3");
                     values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
                     values.put(MediaStore.Audio.Media.IS_MUSIC, "0");
-                    Uri uri = getContentResolver().insert(MediaStore.Audio.Media.getContentUriForPath(file.getAbsolutePath()), values);
+                    Uri uri = getContentResolver().insert(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, values);
 
                     if (uri != null && prefs.getString("notify_ringtone", "").length() == 0) {
                         editor.putString("notify_ringtone", uri.toString());
                     }
                 }
+
+                if(c != null)
+                    c.close();
+
                 editor.putInt("ringtone_version", RINGTONE_VERSION);
                 editor.commit();
 
-            } catch (IOException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
                 if (!prefs.contains("notify_ringtone")) {
                     editor.putString("notify_ringtone", "content://settings/system/notification_sound");
                     editor.commit();
