@@ -51,18 +51,21 @@ public class BackgroundTaskService extends GcmTaskService {
             GcmNetworkManager.getInstance(context).cancelTask(t.tag, BackgroundTaskService.class);
             t.delete();
         }
-        BackgroundTask task = new BackgroundTask();
-        task.type = BackgroundTask.TYPE_GCM_REGISTER;
-        task.tag = Long.toString(System.currentTimeMillis());
-        task.session = NetworkConnection.getInstance().session;
-        task.save();
 
-        Crashlytics.log(Log.INFO, "IRCCloud", "Scheduled GCM registration task: " + task.tag);
-        GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
-                .setTag(task.tag)
-                .setExecutionWindow(1, GCM_INTERVAL)
-                .setService(BackgroundTaskService.class)
-                .build());
+        if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
+            BackgroundTask task = new BackgroundTask();
+            task.type = BackgroundTask.TYPE_GCM_REGISTER;
+            task.tag = Long.toString(System.currentTimeMillis());
+            task.session = NetworkConnection.getInstance().session;
+            task.save();
+
+            Crashlytics.log(Log.INFO, "IRCCloud", "Scheduled GCM registration task: " + task.tag);
+            GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
+                    .setTag(task.tag)
+                    .setExecutionWindow(1, GCM_INTERVAL)
+                    .setService(BackgroundTaskService.class)
+                    .build());
+        }
     }
 
     private static void scheduleUnregister(final Context context, String token, String session) {
@@ -178,6 +181,9 @@ public class BackgroundTaskService extends GcmTaskService {
 
     private int onGcmRegister(BackgroundTask task) {
         try {
+            if(task.session == null || task.session.length() == 0)
+                return GcmNetworkManager.RESULT_FAILURE;
+
             Crashlytics.log(Log.INFO, "IRCCloud", "Registering for GCM");
             String token = task.data;
             if(token == null || token.length() == 0) {
