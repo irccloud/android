@@ -50,7 +50,7 @@ import java.io.OutputStream;
 
 import io.fabric.sdk.android.Fabric;@SuppressWarnings("unused")
 public class IRCCloudApplicationBase extends Application {
-    private static final int RINGTONE_VERSION = 4;
+    private static final int RINGTONE_VERSION = 5;
 
     private NetworkConnection conn = null;
 
