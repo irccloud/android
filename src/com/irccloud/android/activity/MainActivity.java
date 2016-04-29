@@ -420,7 +420,11 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         v.findViewById(R.id.actionTitleArea).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                show_topic_popup();
+                if(buffer != null) {
+                    Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
+                    if(c != null)
+                        show_topic_popup(c);
+                }
             }
         });
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
@@ -651,14 +655,17 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         startActivityForResult(i, REQUEST_PASTEBIN);
     }
 
-    private void show_topic_popup() {
-        if(buffer == null)
-            return;
-        Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
+    private void show_topic_popup(final Channel c) {
         if (c != null) {
+            Server s = ServersList.getInstance().getServer(c.cid);
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
             View v = getLayoutInflater().inflate(R.layout.dialog_topic, null);
+            String heading = "Topic for " + c.name;
+            if(s != null) {
+                heading += " (" + ((s.getName() != null && s.getName().length() > 0)? s.getName() : s.getHostname()) + ")";
+            }
+            ((TextView) v.findViewById(R.id.topic_heading)).setText(heading);
             if (c.topic_text.length() > 0) {
                 String author = "";
                 if (c.topic_author != null && c.topic_author.length() > 0) {
@@ -673,7 +680,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 ((TextView) v.findViewById(R.id.topic)).setText("No topic set.");
             }
-            if (c.mode.length() > 0) {
+            if (c.mode != null && c.mode.length() > 0) {
                 v.findViewById(R.id.mode).setVisibility(View.VISIBLE);
                 ((TextView) v.findViewById(R.id.mode)).setText("Mode: +" + c.mode);
 
@@ -712,12 +719,14 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     dialog.dismiss();
                 }
             });
-            boolean canEditTopic;
+            boolean canEditTopic = false;
             if (c.hasMode("t")) {
-                User self_user = UsersList.getInstance().getUser(buffer.getBid(), server.getNick());
-                canEditTopic = (self_user != null && (self_user.mode.contains(server != null ? server.MODE_OPER : "Y") || self_user.mode.contains(server != null ? server.MODE_OWNER : "q") || self_user.mode.contains(server != null ? server.MODE_ADMIN : "a") || self_user.mode.contains(server != null ? server.MODE_OP : "o") || self_user.mode.contains(server != null ? server.MODE_HALFOP : "h")));
+                if(s != null) {
+                    User self_user = UsersList.getInstance().getUser(c.bid, s.getNick());
+                    canEditTopic = (self_user != null && (self_user.mode.contains(s.MODE_OPER) || self_user.mode.contains(s.MODE_OWNER) || self_user.mode.contains(s.MODE_ADMIN) || self_user.mode.contains(server.MODE_OP) || self_user.mode.contains(server.MODE_HALFOP)));
+                }
             } else {
-                canEditTopic = true;
+                canEditTopic = c.bid > 0;
             }
 
             if (canEditTopic) {
@@ -726,7 +735,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        editTopic();
+                        editTopic(c);
                     }
                 });
             }
@@ -1802,6 +1811,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         Integer event_bid = 0;
         final IRCCloudJSONObject event;
         final Object o = obj;
+        Buffer b = null;
+        Channel c = null;
         switch (what) {
             case NetworkConnection.EVENT_CACHE_START:
                 runOnUiThread(new Runnable() {
@@ -1882,12 +1893,25 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_CHANNELTOPICIS:
                 event = (IRCCloudJSONObject) obj;
-                if (buffer != null && buffer.getCid() == event.cid() && buffer.getName().equalsIgnoreCase(event.getString("chan"))) {
+                if(buffer != null && buffer.getCid() == event.cid()) {
+                    b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("chan"));
+                    if (b != null) {
+                        c = ChannelsList.getInstance().getChannelForBuffer(b.getBid());
+                    }
+                    if (c == null) {
+                        c = new Channel();
+                        c.cid = event.cid();
+                        c.name = event.getString("chan");
+                        c.topic_author = event.has("author") ? event.getString("author") : event.getString("server");
+                        c.topic_time = event.getLong("time");
+                        c.topic_text = event.getString("text");
+                    }
+                    final Channel channel = c;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             update_subtitle();
-                            show_topic_popup();
+                            show_topic_popup(channel);
                         }
                     });
                 }
@@ -1902,7 +1926,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     return;
                 }
             case NetworkConnection.EVENT_MAKEBUFFER:
-                Buffer b = (Buffer) obj;
+                b = (Buffer) obj;
                 if (cidToOpen == b.getCid() && (bufferToOpen == null || (b.getName().equalsIgnoreCase(bufferToOpen) && (buffer == null || !bufferToOpen.equalsIgnoreCase(buffer.getName()))))) {
                     server = null;
                     final int bid = b.getBid();
@@ -2391,8 +2415,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
                 break;
             case NetworkConnection.EVENT_CHANNELINIT:
-                Channel channel = (Channel) obj;
-                if (channel != null && buffer != null && channel.bid == buffer.getBid()) {
+                c = (Channel) obj;
+                if (c != null && buffer != null && c.bid == buffer.getBid()) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -3401,8 +3425,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         return super.onOptionsItemSelected(item);
     }
 
-    void editTopic() {
-        Channel c = ChannelsList.getInstance().getChannelForBuffer(buffer.getBid());
+    void editTopic(final Channel c) {
         if(c != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setInverseBackgroundForced(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB);
@@ -3411,12 +3434,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             final EditText input = (EditText) view.findViewById(R.id.textInput);
             input.setText(c.topic_text);
             prompt.setVisibility(View.GONE);
-            builder.setTitle("Channel Topic");
+            builder.setTitle("Topic for " + c.name);
             builder.setView(view);
             builder.setPositiveButton("Set Topic", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    conn.topic(buffer.getCid(), buffer.getName(), input.getText().toString());
+                    conn.topic(c.cid, c.name, input.getText().toString());
                     dialog.dismiss();
                 }
             });
