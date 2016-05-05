@@ -303,6 +303,7 @@ task __filteredResources(type:Copy) {
         exclude 'drawable-xhdpi/login_logo.png'
         exclude 'drawable-xxhdpi/login_logo.png'
         exclude 'drawable-xxxhdpi/login_logo.png'
+        exclude 'drawable/notification_icon_bg.xml'
     }
     into 'build/filtered_resources'
     includeEmptyDirs = true
