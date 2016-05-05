@@ -427,7 +427,7 @@ public class NotificationsList {
 
         if (replyIntent != null) {
             WearableExtender extender = new WearableExtender();
-            PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             extender.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_reply,
                     "Reply", replyPendingIntent)
                     .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
