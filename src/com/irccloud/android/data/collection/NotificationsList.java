@@ -643,6 +643,9 @@ public class NotificationsList {
                 if (!n.shown) {
                     n.shown = true;
                     show = true;
+                    synchronized (dbLock) {
+                        n.save();
+                    }
 
                     if (prefs.getBoolean("notify_sony", false)) {
                         long time = System.currentTimeMillis();
