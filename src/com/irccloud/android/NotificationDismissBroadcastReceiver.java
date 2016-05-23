@@ -20,7 +20,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationManagerCompat;
+import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.data.collection.NotificationsList;
 
 public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
@@ -32,10 +34,12 @@ public class NotificationDismissBroadcastReceiver extends BroadcastReceiver {
             long[] eids = i.getLongArrayExtra("eids");
             for (int j = 0; j < eids.length; j++) {
                 if (eids[j] > 0) {
+                    Crashlytics.log(Log.INFO, "IRCCloud", "Dismiss bid" + bid + " eid" + eids[j]);
                     NotificationsList.getInstance().dismiss(bid, eids[j]);
                     NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (eids[j] / 1000));
                 }
             }
+            Crashlytics.log(Log.INFO, "IRCCloud", "Cancel bid" + bid);
             NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
         }
         IRCCloudApplication.getInstance().getApplicationContext().sendBroadcast(new Intent(DashClock.REFRESH_INTENT));

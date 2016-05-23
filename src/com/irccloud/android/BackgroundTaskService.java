@@ -187,7 +187,10 @@ public class BackgroundTaskService extends GcmTaskService {
             Crashlytics.log(Log.INFO, "IRCCloud", "Registering for GCM");
             String token = task.data;
             if(token == null || token.length() == 0) {
-                token = InstanceID.getInstance(this).getToken(BuildConfig.GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+                String GCM_ID = BuildConfig.GCM_ID;
+                if(BuildConfig.ENTERPRISE && getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST).equals("api.irccloud.com"))
+                    GCM_ID = BuildConfig.GCM_ID_IRCCLOUD;
+                token = InstanceID.getInstance(this).getToken(GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);
                 task.data = token;
                 task.save();
                 SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();

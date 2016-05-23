@@ -427,7 +427,7 @@ public class NotificationsList {
             builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
             builder.setDeleteIntent(dismissPendingIntent);
 
-            PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_CANCEL_CURRENT);
+            PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(new android.app.Notification.Action.Builder(R.drawable.ic_reply,
                     "Reply", replyPendingIntent)
                     .addRemoteInput(new android.app.RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
@@ -727,6 +727,9 @@ public class NotificationsList {
                 if (!n.shown) {
                     n.shown = true;
                     show = true;
+                    synchronized (dbLock) {
+                        n.save();
+                    }
 
                     if (prefs.getBoolean("notify_sony", false)) {
                         long time = System.currentTimeMillis();
