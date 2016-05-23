@@ -36,6 +36,8 @@ import android.os.Build;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.os.BuildCompat;
+import android.telecom.TelecomManager;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
@@ -1000,11 +1002,13 @@ public class NetworkConnection {
         saveTimer.schedule(saveTimerTask, delay);*/
     }
 
+    @TargetApi(24)
     public synchronized void connect() {
         Context ctx = IRCCloudApplication.getInstance().getApplicationContext();
         session = ctx.getSharedPreferences("prefs", 0).getString("session_key", "");
         String host = null;
         int port = -1;
+        int limit = 100;
 
         if (session == null || session.length() == 0)
             return;
@@ -1019,6 +1023,14 @@ public class NetworkConnection {
                 reconnect_timestamp = 0;
                 notifyHandlers(EVENT_CONNECTIVITY, null);
                 return;
+            }
+
+            if(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                limit = 50;
+            }
+
+            if(ni.getType() == ConnectivityManager.TYPE_MOBILE && (ni.getSubtype() == TelephonyManager.NETWORK_TYPE_EDGE || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_GPRS || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_CDMA || ni.getSubtype() == TelephonyManager.NETWORK_TYPE_1xRTT)) {
+                limit = 25;
             }
         }
 
@@ -1073,8 +1085,11 @@ public class NetworkConnection {
             url += "?since_id=" + highest_eid + "&stream_id=" + streamId;
             if(notifier)
                 url += "&notifier=1";
+            url += "&limit=" + limit;
         } else if(notifier) {
-            url += "?notifier=1";
+            url += "?notifier=1&limit="+limit;
+        } else {
+            url += "?limit=" + limit;
         }
 
         if (host != null && host.length() > 0 && !host.equalsIgnoreCase("localhost") && !host.equalsIgnoreCase("127.0.0.1") && port > 0) {
@@ -2119,6 +2134,8 @@ public class NetworkConnection {
                         (object.has("min_eid") && !object.getString("min_eid").equalsIgnoreCase("undefined")) ? object.getLong("min_eid") : 0,
                         (object.has("last_seen_eid") && !object.getString("last_seen_eid").equalsIgnoreCase("undefined")) ? object.getLong("last_seen_eid") : -1, object.getString("name"), object.getString("buffer_type"),
                         (object.has("archived") && object.getBoolean("archived")) ? 1 : 0, (object.has("deferred") && object.getBoolean("deferred")) ? 1 : 0, (object.has("timeout") && object.getBoolean("timeout")) ? 1 : 0);
+                if(buffer.getTimeout() == 1 || buffer.getDeferred() == 1)
+                    mEvents.deleteEventsForBuffer(buffer.getBid());
                 NotificationsList.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
