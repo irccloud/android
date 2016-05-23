@@ -828,7 +828,8 @@ public class NetworkConnection {
         String postdata = "device_id=" + regId + "&session=" + sk;
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-register"), postdata, sk, null, null);
-            return new JSONObject(response);
+            if(response.length() > 0)
+                return new JSONObject(response);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
@@ -839,7 +840,8 @@ public class NetworkConnection {
         String postdata = "device_id=" + regId + "&session=" + sk;
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/gcm-unregister"), postdata, sk, null, null);
-            return new JSONObject(response);
+            if(response.length() > 0)
+                return new JSONObject(response);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
@@ -849,7 +851,8 @@ public class NetworkConnection {
     public JSONObject files(int page) throws IOException {
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/files?page=" + page), null, session, null, null);
-            return new JSONObject(response);
+            if(response.length() > 0)
+                return new JSONObject(response);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
@@ -859,7 +862,8 @@ public class NetworkConnection {
     public JSONObject pastebins(int page) throws IOException {
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/pastebins?page=" + page), null, session, null, null);
-            return new JSONObject(response);
+            if(response.length() > 0)
+                return new JSONObject(response);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
@@ -883,8 +887,10 @@ public class NetworkConnection {
     public JSONArray networkPresets() throws IOException {
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/static/networks.json"), null, null, null, null);
-            JSONObject o = new JSONObject(response);
-            return o.getJSONArray("networks");
+            if(response.length() > 0) {
+                JSONObject o = new JSONObject(response);
+                return o.getJSONArray("networks");
+            }
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }

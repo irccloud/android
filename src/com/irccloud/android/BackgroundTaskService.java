@@ -63,6 +63,7 @@ public class BackgroundTaskService extends GcmTaskService {
             GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
                     .setTag(task.tag)
                     .setExecutionWindow(1, GCM_INTERVAL)
+                    .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
                     .setService(BackgroundTaskService.class)
                     .build());
         }
@@ -89,6 +90,7 @@ public class BackgroundTaskService extends GcmTaskService {
             GcmNetworkManager.getInstance(context).schedule(new OneoffTask.Builder()
                     .setTag(task.tag)
                     .setExecutionWindow(1, GCM_INTERVAL)
+                    .setRequiredNetwork(OneoffTask.NETWORK_STATE_CONNECTED)
                     .setService(BackgroundTaskService.class)
                     .build());
         }
@@ -199,7 +201,7 @@ public class BackgroundTaskService extends GcmTaskService {
             }
             if(token != null && token.length() > 0) {
                 JSONObject result = NetworkConnection.getInstance().registerGCM(token, task.session);
-                if (result.has("success")) {
+                if (result != null && result.has("success")) {
                     if(result.getBoolean("success")) {
                         Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully registered");
                         task.delete();
@@ -208,6 +210,9 @@ public class BackgroundTaskService extends GcmTaskService {
                         Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to register device: " + result.toString());
                         return GcmNetworkManager.RESULT_RESCHEDULE;
                     }
+                } else {
+                    Crashlytics.log(Log.INFO, "IRCCloud", "Rescheduling GCM registration");
+                    return GcmNetworkManager.RESULT_RESCHEDULE;
                 }
             }
         } catch (Exception e) {
@@ -223,7 +228,7 @@ public class BackgroundTaskService extends GcmTaskService {
         try {
             Crashlytics.log(Log.INFO, "IRCCloud", "Unregistering GCM");
             JSONObject result = NetworkConnection.getInstance().unregisterGCM(token, session);
-            if (result.has("success")) {
+            if (result != null && result.has("success")) {
                 if(result.getBoolean("success")) {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully unregistered");
                     SharedPreferences.Editor e = context.getSharedPreferences("prefs", 0).edit();
@@ -234,6 +239,9 @@ public class BackgroundTaskService extends GcmTaskService {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "Unable to unregister device: " + result.toString());
                     return GcmNetworkManager.RESULT_RESCHEDULE;
                 }
+            } else {
+                Crashlytics.log(Log.INFO, "IRCCloud", "Rescheduling GCM unregistration");
+                return GcmNetworkManager.RESULT_RESCHEDULE;
             }
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);

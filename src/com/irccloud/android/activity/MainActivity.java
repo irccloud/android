@@ -46,6 +46,7 @@ import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
@@ -108,6 +109,9 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ShareEvent;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BackgroundTaskService;
@@ -559,9 +563,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                mvf.getView().setOnDragListener(dragListener);
             messageTxt.setOnDragListener(dragListener);
         }
-
-        if(BuildConfig.GCM_ID.length() > 0)
-            BackgroundTaskService.registerGCM(MainActivity.this);
     }
 
     @Override
@@ -1582,6 +1583,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             t.forceText = true;
             t.execute((Void) null);
             pastebinResult = null;
+        }
+
+        if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
+            new GcmTask().execute((Void)null);
         }
     }
 
@@ -5716,4 +5721,40 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
     }
     private TimeZoneReceiver timeZoneReceiver = new TimeZoneReceiver();
+
+    private class GcmTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                Crashlytics.log(Log.INFO, "IRCCloud", "Registering for GCM");
+                String GCM_ID = BuildConfig.GCM_ID;
+                if(BuildConfig.ENTERPRISE && getSharedPreferences("prefs", 0).getString("host", BuildConfig.HOST).equals("api.irccloud.com"))
+                    GCM_ID = BuildConfig.GCM_ID_IRCCLOUD;
+                String token = InstanceID.getInstance(MainActivity.this).getToken(GCM_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE);
+                SharedPreferences.Editor editor = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).edit();
+                editor.putString("gcm_token", token);
+                editor.commit();
+                if(token != null && token.length() > 0) {
+                    JSONObject result = NetworkConnection.getInstance().registerGCM(token, NetworkConnection.getInstance().session);
+                    if (result != null && result.has("success")) {
+                        return result.getBoolean("success");
+                    }
+                }
+            } catch (Exception e) {
+                NetworkConnection.printStackTraceToCrashlytics(e);
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(result) {
+                Crashlytics.log(Log.INFO, "IRCCloud", "Device successfully registered");
+            } else {
+                Crashlytics.log(Log.ERROR, "IRCCloud", "GCM registration failed, scheduling background task");
+                BackgroundTaskService.registerGCM(MainActivity.this);
+            }
+        }
+    }
 }
