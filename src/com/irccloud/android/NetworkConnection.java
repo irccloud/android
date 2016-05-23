@@ -17,6 +17,7 @@
 package com.irccloud.android;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -2917,7 +2918,10 @@ public class NetworkConnection {
         }
     }
 
+    @TargetApi(24)
     public synchronized void removeHandler(IRCEventHandler handler) {
+        final ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
         synchronized (handlers) {
             handlers.remove(handler);
             if (notifierSockerTimerTask != null)
@@ -2928,17 +2932,24 @@ public class NetworkConnection {
                     notifierSockerTimerTask = null;
                     if(!notifier && state == STATE_CONNECTED) {
                         disconnect();
-                        try {
-                            Thread.sleep(1000);
-                            notifier = true;
-                            connect();
-                        } catch (Exception e) {
+                        if(!(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
+                            try {
+                                Thread.sleep(1000);
+                                notifier = true;
+                                connect();
+                            } catch (Exception e) {
+                            }
                         }
                     }
                 }
             };
 
-            idleTimer.schedule(notifierSockerTimerTask, 300000);
+            if(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                idleTimer.schedule(notifierSockerTimerTask, 5000);
+            } else {
+                idleTimer.schedule(notifierSockerTimerTask, 300000);
+            }
+
         }
     }
 
