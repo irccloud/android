@@ -454,7 +454,7 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         }
     }
 
-    public void setSelectedBid(int bid) {
+    public void setSelectedBid(final int bid) {
         int last_bid = selected_bid;
         selected_bid = bid;
         if (adapter != null) {
@@ -464,6 +464,15 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             b = BuffersList.getInstance().getBuffer(bid);
             if (b != null)
                 adapter.updateBuffer(b);
+
+            recyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    int pos = adapter.positionForBid(bid);
+                    if(pos < layoutManager.findFirstCompletelyVisibleItemPosition() || pos > layoutManager.findLastCompletelyVisibleItemPosition())
+                        recyclerView.scrollToPosition(pos);
+                }
+            });
         } else {
             Crashlytics.log(Log.WARN, "IRCCloud", "BufferListFragment: Request to set BID but I don't have an adapter yet, refreshing");
             RefreshTask t = new RefreshTask();
@@ -804,6 +813,44 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
             refreshTask.cancel(true);
         refreshTask = new RefreshTask();
         refreshTask.execute((Void) null);
+    }
+
+    public void prev(boolean unread) {
+        int pos = adapter.positionForBid(selected_bid);
+        if(unread)
+            pos = adapter.unreadPositionAbove(pos);
+        else
+            pos--;
+
+        Buffer b;
+        do {
+            if(pos >= 0)
+                b = (Buffer) adapter.getItem(pos);
+            else
+                b = null;
+            pos--;
+        } while(b != null && (b.getType().equals(Buffer.TYPE_ARCHIVES_HEADER) || b.getType().equals(Buffer.TYPE_JOIN_CHANNEL)));
+        if(b != null)
+            mListener.onBufferSelected(b.getBid());
+    }
+
+    public void next(boolean unread) {
+        int pos = adapter.positionForBid(selected_bid);
+        if(unread)
+            pos = adapter.unreadPositionBelow(pos);
+        else
+            pos++;
+
+        Buffer b;
+        do {
+            if(pos < adapter.getItemCount())
+                b = (Buffer) adapter.getItem(pos);
+            else
+                b = null;
+            pos++;
+        } while(b != null && (b.getType().equals(Buffer.TYPE_ARCHIVES_HEADER) || b.getType().equals(Buffer.TYPE_JOIN_CHANNEL)));
+        if(b != null)
+            mListener.onBufferSelected(b.getBid());
     }
 
     public Resources getSafeResources() {

@@ -18,6 +18,7 @@ package com.irccloud.android.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -78,6 +79,8 @@ import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.KeyboardShortcutGroup;
+import android.view.KeyboardShortcutInfo;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -171,6 +174,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Timer;
@@ -1087,6 +1091,22 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         finish();
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        BuffersListFragment blf = (BuffersListFragment) getSupportFragmentManager().findFragmentById(R.id.BuffersList);
+        if(blf != null) {
+            if (keyCode == KeyEvent.KEYCODE_DPAD_UP && event.isAltPressed()) {
+                blf.prev(event.isShiftPressed());
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN && event.isAltPressed()) {
+                blf.next(event.isShiftPressed());
+                return true;
+            }
+        }
+
+        return super.onKeyUp(keyCode, event);
     }
 
     private class SendTask extends AsyncTaskEx<Void, Void, Void> {
@@ -2935,6 +2955,21 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             userListView.setVisibility(View.VISIBLE);
 
         return super.onPrepareOptionsMenu(menu);
+    }
+
+    @TargetApi(24)
+    @Override
+    public void onProvideKeyboardShortcuts(List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
+        super.onProvideKeyboardShortcuts(data, menu, deviceId);
+
+        KeyboardShortcutGroup group = new KeyboardShortcutGroup("IRCCloud");
+        group.addItem(new KeyboardShortcutInfo("Switch to previous channel", KeyEvent.KEYCODE_DPAD_UP, KeyEvent.META_ALT_ON));
+        group.addItem(new KeyboardShortcutInfo("Switch to next channel", KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.META_ALT_ON));
+        group.addItem(new KeyboardShortcutInfo("Switch to previous unread channel", KeyEvent.KEYCODE_DPAD_UP, KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON));
+        group.addItem(new KeyboardShortcutInfo("Switch to next unread channel", KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON));
+        group.addItem(new KeyboardShortcutInfo("Complete nicknames and channels", KeyEvent.KEYCODE_TAB, 0));
+
+        data.add(group);
     }
 
     private class ToggleListener implements DrawerLayout.DrawerListener {
