@@ -437,6 +437,20 @@ public class NetworkConnection {
         }
     };
 
+    BroadcastReceiver dataSaverListener = new BroadcastReceiver() {
+        @TargetApi(24)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            if(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+                if(!isVisible() && state == STATE_CONNECTED) {
+                    notifier = false;
+                    disconnect();
+                }
+            }
+        }
+    };
+
     @SuppressWarnings("deprecation")
     public NetworkConnection() {
         session = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("session_key", "");
@@ -586,6 +600,8 @@ public class NetworkConnection {
         }
         if (idleTimerTask != null)
             idleTimerTask.cancel();
+        if (notifierSockerTimerTask != null)
+            notifierSockerTimerTask.cancel();
         try {
             if (wifiLock.isHeld())
                 wifiLock.release();
@@ -899,11 +915,17 @@ public class NetworkConnection {
         return null;
     }
 
+    @TargetApi(24)
     public void registerForConnectivity() {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
+            if(BuildCompat.isAtLeastN()) {
+                intentFilter = new IntentFilter();
+                intentFilter.addAction(ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED);
+                IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(dataSaverListener, intentFilter);
+            }
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }
@@ -912,6 +934,11 @@ public class NetworkConnection {
     public void unregisterForConnectivity() {
         try {
             IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(connectivityListener);
+        } catch (IllegalArgumentException e) {
+            //The broadcast receiver hasn't been registered yet
+        }
+        try {
+            IRCCloudApplication.getInstance().getApplicationContext().unregisterReceiver(dataSaverListener);
         } catch (IllegalArgumentException e) {
             //The broadcast receiver hasn't been registered yet
         }
