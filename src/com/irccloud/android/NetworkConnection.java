@@ -2164,6 +2164,8 @@ public class NetworkConnection {
                 if(buffer.getTimeout() == 1 || buffer.getDeferred() == 1)
                     mEvents.deleteEventsForBuffer(buffer.getBid());
                 NotificationsList.getInstance().updateLastSeenEid(buffer.getBid(), buffer.getLast_seen_eid());
+                if(buffer.getTimeout() == 1 || buffer.getDeferred() == 1)
+                    mEvents.deleteEventsForBuffer(buffer.getBid());
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKEBUFFER, buffer);
                 }
