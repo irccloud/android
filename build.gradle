@@ -66,6 +66,7 @@ android {
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
 
         resConfigs "en"
+        vectorDrawables.useSupportLibrary = true
     }
 
     signingConfigs {

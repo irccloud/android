@@ -66,7 +66,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/removeBtn"
-            android:src="@drawable/ic_action_cancel"
+            app:srcCompat="@drawable/ic_action_cancel"
             android:contentDescription="delete"
             android:background="@null"
             android:layout_marginLeft="16dp" />

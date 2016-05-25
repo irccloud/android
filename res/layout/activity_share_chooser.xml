@@ -15,6 +15,7 @@
   -->
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -54,7 +55,7 @@
                 android:id="@+id/splashlogo"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:src="@drawable/login_logo" />
+                app:srcCompat="@drawable/login_logo" />
 
             <LinearLayout
                 android:orientation="horizontal"
