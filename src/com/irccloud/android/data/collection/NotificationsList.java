@@ -416,7 +416,7 @@ public class NotificationsList {
                     .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.notification_icon_bg))
                     .setVisibility(android.app.Notification.VISIBILITY_PRIVATE)
                     .setCategory(android.app.Notification.CATEGORY_MESSAGE)
-                    .setPriority(hasTouchWiz() ? android.app.Notification.PRIORITY_DEFAULT : android.app.Notification.PRIORITY_HIGH)
+                    .setPriority((ticker == null || hasTouchWiz()) ? android.app.Notification.PRIORITY_DEFAULT : android.app.Notification.PRIORITY_HIGH)
                     .setOnlyAlertOnce(false);
 
             if (ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 10000) {
@@ -425,6 +425,8 @@ public class NotificationsList {
                 String ringtone = prefs.getString("notify_ringtone", "content://settings/system/notification_sound");
                 if (ringtone != null && ringtone.length() > 0)
                     builder.setSound(Uri.parse(ringtone));
+            } else {
+                builder.setVibrate(null);
             }
 
             int led_color = Integer.parseInt(prefs.getString("notify_led_color", "1"));
@@ -463,6 +465,18 @@ public class NotificationsList {
                         style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
                     }
                 }
+
+                ArrayList<String> history = new ArrayList<>(messages.length);
+                for(int j = messages.length - 1; j >= 0; j--) {
+                    Notification n = messages[j];
+                    if(n != null) {
+                        if(n.nick == null)
+                            history.add(n.message);
+                        else
+                            break;
+                    }
+                }
+                builder.setRemoteInputHistory(history.toArray(new String[history.size()]));
                 builder.setStyle(style);
             }
 
@@ -849,7 +863,7 @@ public class NotificationsList {
                 }
 
                 try {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages));
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }
