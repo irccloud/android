@@ -2098,6 +2098,8 @@ public class NetworkConnection {
                         object.getString("realname"), object.getString("server_pass"), object.getString("nickserv_pass"), object.getString("join_commands"),
                         object.getJsonObject("fail_info"), away, object.getJsonNode("ignores"), (object.has("order") && !object.getString("order").equals("undefined")) ? object.getInt("order") : 0);
 
+                NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("nick"));
+
                 if (!backlog) {
                     notifyHandlers(EVENT_MAKESERVER, server);
                 }
@@ -2539,8 +2541,9 @@ public class NetworkConnection {
                 if (!backlog) {
                     mUsers.updateNick(object.bid(), object.getString("oldnick"), object.getString("newnick"));
                     if (object.type().equals("you_nickchange")) {
-                        if(mServers.getServer(object.cid) != null)
-                            mServers.getServer(object.cid).setNick(object.getString("newnick"));
+                        if(mServers.getServer(object.cid()) != null)
+                            mServers.getServer(object.cid()).setNick(object.getString("newnick"));
+                        NotificationsList.getInstance().updateServerNick(object.cid(), object.getString("newnick"));
                     }
                     notifyHandlers(EVENT_NICKCHANGE, object);
                 }

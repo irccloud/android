@@ -67,6 +67,6 @@ public class Notification extends BaseModel {
     public boolean shown = false;
 
     public String toString() {
-        return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + " shown: " + shown + "}";
+        return "{cid: " + cid + ", bid: " + bid + ", eid: " + eid + ", nick: " + nick + ", message: " + message + ", network: " + network + ", chan: " + chan + " shown: " + shown + "}";
     }
 }

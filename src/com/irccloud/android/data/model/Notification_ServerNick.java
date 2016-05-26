@@ -14,11 +14,25 @@
  * limitations under the License.
  */
 
-package com.irccloud.android.data;
-import com.raizlabs.android.dbflow.annotation.Database;
+package com.irccloud.android.data.model;
 
-@Database(name = IRCCloudDatabase.NAME, version = IRCCloudDatabase.VERSION)
-public class IRCCloudDatabase {
-    public static final String NAME = "irccloud";
-    public static final int VERSION = 2;
+import com.irccloud.android.data.IRCCloudDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
+@Table(databaseName = IRCCloudDatabase.NAME)
+public class Notification_ServerNick extends BaseModel {
+    @Column
+    @PrimaryKey
+    public int cid;
+
+    @Column
+    public String nick;
+
+    @Override
+    public String toString() {
+        return nick;
+    }
 }

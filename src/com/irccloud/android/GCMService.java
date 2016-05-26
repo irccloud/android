@@ -27,7 +27,9 @@ import com.google.android.gms.gcm.GcmListenerService;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.collection.NotificationsList;
+import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.model.Buffer;
+import com.irccloud.android.data.model.Server;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -97,12 +99,13 @@ public class GCMService extends GcmListenerService {
                     msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(msg))).toString();
                 String chan = data.getString("chan");
                 if (chan == null)
-                    chan = "";
+                    chan = from;
                 String buffer_type = data.getString("buffer_type");
                 String server_name = data.getString("server_name");
                 if (server_name == null || server_name.length() == 0)
                     server_name = data.getString("server_hostname");
 
+                NotificationsList.getInstance().updateServerNick(cid, data.getString("server_nick"));
                 NotificationsList.getInstance().addNotification(cid, bid, eid, (from == null)?data.getString("server_hostname"):from, msg, chan, buffer_type, type, server_name);
 
                 if (from == null || from.length() == 0)

@@ -55,18 +55,13 @@ public class RemoteInputService extends IntentService {
                             NetworkConnection.printStackTraceToCrashlytics(e);
                         }
                     }
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(intent.getIntExtra("bid", 0));
-                    if (intent.hasExtra("eids")) {
-                        int bid = intent.getIntExtra("bid", -1);
-                        long[] eids = intent.getLongArrayExtra("eids");
-                        for (int j = 0; j < eids.length; j++) {
-                            if (eids[j] > 0) {
-                                NotificationsList.getInstance().dismiss(bid, eids[j]);
-                            }
-                        }
+
+                    if (success) {
+                        NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis() * 1000, null, reply, intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), "buffer_msg", intent.getStringExtra("network"));
+                        NotificationsList.getInstance().showNotificationsNow();
+                    } else {
+                        NotificationsList.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/") ? "Please launch the IRCCloud app to send this command" : "Your message was not sent. Please try again shortly.");
                     }
-                    if (!success)
-                        NotificationsList.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/")?"Please launch the IRCCloud app to send this command":"Your message was not sent. Please try again shortly.");
                 } else {
                     Crashlytics.log(Log.ERROR, "IRCCloud", "RemoteInputService received no remoteinput");
                 }

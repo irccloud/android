@@ -20,6 +20,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
+        classpath 'com.google.gms:google-services:3.0.0'
         classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'io.fabric.tools:gradle:1.21.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
@@ -52,7 +53,7 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 'android-N'
-    buildToolsVersion '24.0.0 rc1'
+    buildToolsVersion '24.0.0 rc4'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
