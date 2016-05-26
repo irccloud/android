@@ -54,3 +54,5 @@
 -keepnames class * implements android.os.Parcelable {
     public static final ** CREATOR;
 }
+-dontwarn com.fasterxml.**
+-keep class com.fasterxml.** { *; }

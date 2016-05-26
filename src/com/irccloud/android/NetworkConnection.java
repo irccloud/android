@@ -48,6 +48,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.iid.InstanceID;
+import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.NotificationService;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.Buffer;
@@ -842,6 +844,28 @@ public class NetworkConnection {
         return null;
     }
 
+    public JSONObject registerPushy(String regId, String sk) throws IOException {
+        String postdata = "device_id=" + regId + "&session=" + sk;
+        try {
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/pushy-register"), postdata, sk, null, null);
+            return new JSONObject(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public JSONObject unregisterPushy(String regId, String sk) throws IOException {
+        String postdata = "device_id=" + regId + "&session=" + sk;
+        try {
+            String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/pushy-unregister"), postdata, sk, null, null);
+            return new JSONObject(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public JSONObject files(int page) throws IOException {
         try {
             String response = fetch(new URL("https://" + IRCCLOUD_HOST + "/chat/files?page=" + page), null, session, null, null);
@@ -1220,11 +1244,12 @@ public class NetworkConnection {
         streamId = null;
         disconnect();
         try {
-            GcmNetworkManager.getInstance(IRCCloudApplication.getInstance()).cancelAllTasks(BackgroundTaskService.class);
             Delete.table(BackgroundTask.class);
-            if(BuildConfig.GCM_ID.length() > 0) {
-                BackgroundTaskService.unregisterGCM(IRCCloudApplication.getInstance().getApplicationContext());
-            }
+            GcmNetworkManager.getInstance(IRCCloudApplication.getInstance()).cancelAllTasks(BackgroundTaskService.class);
+            Intent unregisterIntent;
+            unregisterIntent = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), NotificationService.class);
+            unregisterIntent.setAction("com.irccloud.android.notificationService.unregisterUser");
+            IRCCloudApplication.getInstance().getApplicationContext().startService(unregisterIntent);
         } catch (Exception e) {
             printStackTraceToCrashlytics(e);
         }

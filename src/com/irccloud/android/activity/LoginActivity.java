@@ -72,8 +72,11 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.NotificationService;
 import com.irccloud.android.R;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -584,7 +587,8 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
             }
         } else {
             if (GooglePlayServicesUtil.isUserRecoverableError(result.getErrorCode())) {
-                GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, REQUEST_RESOLVE_ERROR).show();
+                if(result.getErrorCode() != ConnectionResult.SERVICE_MISSING)
+                    GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), this, REQUEST_RESOLVE_ERROR).show();
                 mResolvingError = true;
             }
             login_or_connect();
@@ -736,8 +740,11 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                                 }
                             }
                         });
-                        if(BuildConfig.GCM_ID.length() > 0)
-                            BackgroundTaskService.registerGCM(LoginActivity.this);
+       	                 Intent registerIntent;
+                         registerIntent = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), NotificationService.class);
+                         registerIntent.setAction("com.irccloud.android.notificationService.registerUser");
+                         startService(registerIntent);
+
                     } else {
                         startActivity(i);
                         finish();
