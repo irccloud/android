@@ -100,6 +100,13 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     @SuppressWarnings("deprecation")
     @Override
     public void onCreate(Bundle icicle) {
+        if(getIntent() != null && getIntent().hasExtra(":android:show_fragment")) {
+            getIntent().removeExtra(":android:show_fragment");
+            super.onCreate(icicle);
+            finish();
+            return;
+        }
+
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         super.onCreate(icicle);
         boolean themeChanged = false;
