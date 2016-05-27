@@ -1103,6 +1103,28 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else if (keyCode == KeyEvent.KEYCODE_DPAD_DOWN && event.isAltPressed()) {
                 blf.next(event.isShiftPressed());
                 return true;
+            } else if (keyCode == KeyEvent.KEYCODE_R && event.isAltPressed()) {
+                if(event.isShiftPressed()) {
+                    ArrayList<Integer> cids = new ArrayList<Integer>();
+                    ArrayList<Integer> bids = new ArrayList<Integer>();
+                    ArrayList<Long> eids = new ArrayList<Long>();
+
+                    for (Buffer b : BuffersList.getInstance().getBuffers()) {
+                        if (b.getUnread() == 1 && EventsList.getInstance().lastEidForBuffer(b.getBid()) > 0) {
+                            b.setUnread(0);
+                            b.setHighlights(0);
+                            b.setLast_seen_eid(EventsList.getInstance().lastEidForBuffer(b.getBid()));
+                            cids.add(b.getCid());
+                            bids.add(b.getBid());
+                            eids.add(b.getLast_seen_eid());
+                        }
+                    }
+                    if (conn != null && buffer != null)
+                        conn.heartbeat(buffer.getBid(), cids.toArray(new Integer[cids.size()]), bids.toArray(new Integer[bids.size()]), eids.toArray(new Long[eids.size()]));
+                } else {
+                    if (conn != null)
+                        conn.heartbeat(buffer.getCid(), buffer.getBid(), EventsList.getInstance().lastEidForBuffer(buffer.getBid()));
+                }
             }
         }
 
@@ -2968,6 +2990,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         group.addItem(new KeyboardShortcutInfo("Switch to previous unread channel", KeyEvent.KEYCODE_DPAD_UP, KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON));
         group.addItem(new KeyboardShortcutInfo("Switch to next unread channel", KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON));
         group.addItem(new KeyboardShortcutInfo("Complete nicknames and channels", KeyEvent.KEYCODE_TAB, 0));
+        group.addItem(new KeyboardShortcutInfo("Mark channel as read", KeyEvent.KEYCODE_R, KeyEvent.META_ALT_ON));
+        group.addItem(new KeyboardShortcutInfo("Mark all channels as read", KeyEvent.KEYCODE_R, KeyEvent.META_ALT_ON | KeyEvent.META_SHIFT_ON));
 
         data.add(group);
     }
