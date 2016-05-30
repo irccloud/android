@@ -73,29 +73,37 @@ public class DashClock extends DashClockExtension {
     protected void onUpdateData(int reason) {
         long count = NotificationsList.getInstance().count();
         if (count > 0) {
-            if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("dashclock_showmsgs", false)) {
-                String msg = "";
-                List<Notification> msgs = NotificationsList.getInstance().getMessageNotifications();
-                for (Notification n : msgs) {
+            String msg = "";
+            List<Notification> msgs = NotificationsList.getInstance().getMessageNotifications();
+            count = 0;
+            for (Notification n : msgs) {
+                if(n.nick != null) {
                     if (n.message_type.equals("buffer_me_msg"))
                         msg += "— " + n.nick + " " + Html.fromHtml(n.message) + "\n";
                     else
                         msg += "<" + n.nick + "> " + Html.fromHtml(n.message) + "\n";
+                    count++;
                 }
-                publishUpdate(new ExtensionData()
-                        .visible(true)
-                        .icon(R.drawable.ic_stat_notify)
-                        .status(String.valueOf(count))
-                        .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1) ? "s" : ""))
-                        .expandedBody(msg)
-                        .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
+            }
+            if(count > 0) {
+                if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("dashclock_showmsgs", false)) {
+                    publishUpdate(new ExtensionData()
+                            .visible(true)
+                            .icon(R.drawable.ic_stat_notify)
+                            .status(String.valueOf(count))
+                            .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1) ? "s" : ""))
+                            .expandedBody(msg)
+                            .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
+                } else {
+                    publishUpdate(new ExtensionData()
+                            .visible(true)
+                            .icon(R.drawable.ic_stat_notify)
+                            .status(String.valueOf(count))
+                            .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1) ? "s" : ""))
+                            .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
+                }
             } else {
-                publishUpdate(new ExtensionData()
-                        .visible(true)
-                        .icon(R.drawable.ic_stat_notify)
-                        .status(String.valueOf(count))
-                        .expandedTitle(String.valueOf(count) + " unread highlight" + ((count > 1) ? "s" : ""))
-                        .clickIntent(new Intent(IRCCloudApplication.getInstance().getApplicationContext(), MainActivity.class)));
+                publishUpdate(null);
             }
         } else {
             publishUpdate(null);

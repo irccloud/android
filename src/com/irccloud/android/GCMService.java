@@ -41,6 +41,7 @@ public class GCMService extends GcmListenerService {
         if(!data.containsKey("type"))
             super.onMessageReceived(id, data);
 
+        //Log.d("IRCCloud", "GCM K/V pairs: " + data);
         try {
             if(!NetworkConnection.getInstance().ready)
                 NetworkConnection.getInstance().load();
@@ -93,11 +94,14 @@ public class GCMService extends GcmListenerService {
 
                 String from = data.getString("from_nick");
                 String msg = data.getString("msg");
-                if(type.equals("channel_invite"))
-                    msg = "Invitation to join " + data.getString("channel");
+                String chan = data.getString("chan");
+                if(from == null && data.containsKey("nick"))
+                    from = data.getString("nick");
+                if(type.equals("channel_invite")) {
+                    chan = data.getString("channel");
+                }
                 if (msg != null)
                     msg = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(TextUtils.htmlEncode(msg))).toString();
-                String chan = data.getString("chan");
                 if (chan == null)
                     chan = from;
                 String buffer_type = data.getString("buffer_type");
@@ -122,7 +126,6 @@ public class GCMService extends GcmListenerService {
                         NotificationsList.getInstance().showNotifications(from + ": " + msg);
                 }
             }
-            //Log.d("IRCCloud", "Notifications: " + NotificationsList.getInstance().getNotifications());
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
             Log.w("IRCCloud", "Unable to parse GCM message");

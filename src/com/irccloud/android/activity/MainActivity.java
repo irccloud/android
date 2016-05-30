@@ -1362,6 +1362,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (NetworkConnection.getInstance().ready)
             setIntent(new Intent(this, MainActivity.class));
 
+        if(intent.hasExtra("eid"))
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int)(intent.getLongExtra("eid", -1) / 1000));
+
         if (intent.hasExtra("bid")) {
             int new_bid = intent.getIntExtra("bid", 0);
             if (NetworkConnection.getInstance().ready && NetworkConnection.getInstance().getState() == NetworkConnection.STATE_CONNECTED && BuffersList.getInstance().getBuffer(new_bid) == null) {
@@ -2074,7 +2077,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     bufferToOpen = event.getString("name");
                     cidToOpen = event.cid();
                     b = BuffersList.getInstance().getBufferByName(cidToOpen, bufferToOpen);
-                    if (b != null && !bufferToOpen.equalsIgnoreCase(buffer.getName())) {
+                    if (b != null && buffer != null && !bufferToOpen.equalsIgnoreCase(buffer.getName())) {
                         server = null;
                         bufferToOpen = null;
                         cidToOpen = -1;

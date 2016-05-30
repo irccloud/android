@@ -147,7 +147,10 @@ public class QuickReplyActivity extends AppCompatActivity {
                holder.timestamp.setText(formatter.format(calendar.getTime()));
                holder.timestamp.setTextColor(ColorScheme.getInstance().timestampColor);
             }
-            holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(msg.nick, null, nickColors)) + "</b> " + msg.message, true, server));
+           String nick = msg.nick;
+           if(nick == null)
+               nick = NotificationsList.getInstance().getServerNick(msg.cid);
+            holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(nick, null, nickColors)) + "</b> " + msg.message, true, server));
             holder.message.setMovementMethod(LinkMovementMethod.getInstance());
             holder.message.setTextColor(ColorScheme.getInstance().messageTextColor);
             holder.message.setLinkTextColor(ColorScheme.getInstance().linkColor);
@@ -216,7 +219,7 @@ public class QuickReplyActivity extends AppCompatActivity {
                     i.putExtras(getIntent());
                     i.putExtra("reply", message.getText().toString());
                     startService(i);
-                    finish();
+                    message.setText("");
                 }
             }
         });
@@ -243,11 +246,25 @@ public class QuickReplyActivity extends AppCompatActivity {
 
         NotificationManagerCompat.from(this).cancel(bid);
         NotificationsList.getInstance().excludeBid(bid);
+        NotificationsList.getInstance().notificationAddedListener = new NotificationsList.NotificationAddedListener() {
+            @Override
+            public void onNotificationAdded(Notification notification) {
+                if(notification.cid == cid && notification.bid == bid) {
+                    findViewById(R.id.conversation).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.loadMessages(cid, bid);
+                        }
+                    });
+                }
+            }
+        };
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         NotificationsList.getInstance().excludeBid(-1);
+        NotificationsList.getInstance().notificationAddedListener = null;
     }
 }
