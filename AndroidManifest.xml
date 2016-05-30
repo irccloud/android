@@ -61,6 +61,7 @@
         <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="320dp" />
         <meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="400dp" />
         <meta-data android:name="android.security.net.config" android:resource="@xml/network_security_config" />
+        <meta-data android:name="com.lge.support.SPLIT_WINDOW" android:value="true"/>
 
         <activity
             android:name=".activity.MainActivity"
