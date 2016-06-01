@@ -3078,7 +3078,7 @@ public class NetworkConnection {
             auto_away = object.getBoolean("autoaway");
             uploads_disabled = object.has("uploads_disabled") && object.getBoolean("uploads_disabled");
 
-            if (object.has("prefs") && !object.getString("prefs").equals("null")) {
+            if (object.has("prefs") && object.getString("prefs").length() > 0 && !object.getString("prefs").equals("null")) {
                 try {
                     Crashlytics.log(Log.INFO, "IRCCloud", "Prefs: " + object.getString("prefs"));
                     prefs = new JSONObject(object.getString("prefs"));
