@@ -33,9 +33,11 @@ import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
@@ -128,12 +130,19 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTheme(ColorScheme.getTheme(ColorScheme.getUserTheme(), false));
+        setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
+        onMultiWindowModeChanged(isMultiWindow());
         if (savedInstanceState == null)
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle("");
@@ -183,6 +192,20 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
                 finish();
             }
         }
+    }
+
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode);
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        if(getWindowManager().getDefaultDisplay().getWidth() > 800 && !isMultiWindow()) {
+            params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+            params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+        } else {
+            params.width = -1;
+            params.height = -1;
+        }
+        getWindow().setAttributes(params);
     }
 
     @Override

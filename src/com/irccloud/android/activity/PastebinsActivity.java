@@ -28,10 +28,12 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -227,10 +229,18 @@ public class PastebinsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
+        onMultiWindowModeChanged(isMultiWindow());
+
         setContentView(R.layout.listview);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setVisibility(View.VISIBLE);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null) {
@@ -296,6 +306,20 @@ public class PastebinsActivity extends BaseActivity {
         });
 
         Toast.makeText(this, "Tap a pastebin to view full text with syntax highlighting", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode);
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        if(getWindowManager().getDefaultDisplay().getWidth() > 800 && !isMultiWindow()) {
+            params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+            params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+        } else {
+            params.width = -1;
+            params.height = -1;
+        }
+        getWindow().setAttributes(params);
     }
 
     @Override

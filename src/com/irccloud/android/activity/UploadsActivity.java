@@ -32,6 +32,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -410,6 +411,7 @@ public class UploadsActivity extends BaseActivity {
             template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
+        onMultiWindowModeChanged(isMultiWindow());
 
         if(Build.VERSION.SDK_INT >= 14) {
             try {
@@ -427,10 +429,16 @@ public class UploadsActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         if(getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
             getSupportActionBar().setElevation(0);
         }
+
+        toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
 
         if(savedInstanceState != null && savedInstanceState.containsKey("cid")) {
             cid = savedInstanceState.getInt("cid");
@@ -564,6 +572,20 @@ public class UploadsActivity extends BaseActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode);
+        WindowManager.LayoutParams params = getWindow().getAttributes();
+        if(getWindowManager().getDefaultDisplay().getWidth() > 800 && !isMultiWindow()) {
+            params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+            params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
+        } else {
+            params.width = -1;
+            params.height = -1;
+        }
+        getWindow().setAttributes(params);
     }
 
     @Override
