@@ -76,6 +76,7 @@ import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -4628,7 +4629,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (drawerLayout != null) {
             drawerLayout.closeDrawers();
         }
-        if (getWindowManager().getDefaultDisplay().getWidth() < 800) {
+        if (getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics())) {
             Intent i = new Intent(this, EditConnectionActivity.class);
             startActivity(i);
         } else {

@@ -132,7 +132,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         onMultiWindowModeChanged(isMultiWindow());
-        if(savedInstanceState == null && (getWindowManager().getDefaultDisplay().getWidth() < 800 || isMultiWindow()))
+        if(savedInstanceState == null && (getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow()))
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
@@ -200,7 +200,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
         super.onMultiWindowModeChanged(isInMultiWindowMode);
         WindowManager.LayoutParams params = getWindow().getAttributes();
-        if(getWindowManager().getDefaultDisplay().getWidth() > 800 && !isMultiWindow()) {
+        if(getWindowManager().getDefaultDisplay().getWidth() > TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) && !isMultiWindow()) {
             params.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
             params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics());
         } else {
@@ -240,7 +240,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if(getWindowManager().getDefaultDisplay().getWidth() < 800 || isMultiWindow())
+        if(getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow())
             overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
 
@@ -267,7 +267,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
-            if(getWindowManager().getDefaultDisplay().getWidth() < 800 || isMultiWindow())
+            if(getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow())
                 overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if(item.getItemId() == R.id.delete) {
