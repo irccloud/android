@@ -234,7 +234,7 @@
         <activity
             android:name=".activity.PastebinViewerActivity"
             android:label="@string/title_activity_pastebin"
-            android:theme="@style/dawnNoActionBar" >
+            android:theme="@style/dawnDialogWhenLarge" >
             <layout android:defaultHeight="320dp"
                     android:defaultWidth="400dp"
                     android:gravity="top|end"

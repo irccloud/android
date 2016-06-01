@@ -132,18 +132,20 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         super.onCreate(savedInstanceState);
         setTheme(ColorScheme.getDialogWhenLargeTheme(ColorScheme.getUserTheme()));
         onMultiWindowModeChanged(isMultiWindow());
-        if (savedInstanceState == null)
+        if(savedInstanceState == null && (getWindowManager().getDefaultDisplay().getWidth() < 800 || isMultiWindow()))
             overridePendingTransition(R.anim.slide_in_right, R.anim.fade_out);
         setContentView(R.layout.activity_pastebin);
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        toolbar.setNavigationIcon(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
             }
         });
-        setSupportActionBar(toolbar);
 
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -238,7 +240,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
+        if(getWindowManager().getDefaultDisplay().getWidth() < 800 || isMultiWindow())
+            overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
     }
 
     @Override
@@ -264,7 +267,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
-            overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
+            if(getWindowManager().getDefaultDisplay().getWidth() < 800 || isMultiWindow())
+                overridePendingTransition(R.anim.fade_in, R.anim.slide_out_right);
             return true;
         } else if(item.getItemId() == R.id.delete) {
             if(Uri.parse(url).getQueryParameter("own_paste").equals("1")) {
