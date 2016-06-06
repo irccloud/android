@@ -56,6 +56,7 @@ import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
+import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.EventsList;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
@@ -91,9 +92,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         }
         setTheme(ColorScheme.getTheme(theme, true));
         ColorScheme.getInstance().setThemeFromContext(this, theme);
-        if(themeChanged)
+        if(themeChanged) {
             EventsList.getInstance().clearCaches();
-
+            AvatarsList.getInstance().clear();
+        }
         if (Build.VERSION.SDK_INT >= 21) {
             Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
             if(cloud != null) {

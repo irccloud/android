@@ -20,7 +20,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'io.fabric.tools:gradle:1.21.2'
         classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
     }
@@ -327,12 +327,12 @@ dependencies {
     compile 'com.android.support:design:24.0.0-beta1'
     compile 'com.android.support:recyclerview-v7:24.0.0-beta1'
 
-    compile 'com.google.android.gms:play-services-base:9.0.1'
-    compile 'com.google.android.gms:play-services-auth:9.0.1'
-    compile 'com.google.android.gms:play-services-identity:9.0.1'
-    compile 'com.google.android.gms:play-services-ads:9.0.1'
-    compile 'com.google.android.gms:play-services-gcm:9.0.1'
-    compile 'com.google.android.gms:play-services-wearable:9.0.1'
+    compile 'com.google.android.gms:play-services-base:9.0.2'
+    compile 'com.google.android.gms:play-services-auth:9.0.2'
+    compile 'com.google.android.gms:play-services-identity:9.0.2'
+    compile 'com.google.android.gms:play-services-ads:9.0.2'
+    compile 'com.google.android.gms:play-services-gcm:9.0.2'
+    compile 'com.google.android.gms:play-services-wearable:9.0.2'
     compile 'com.google.android.apps.dashclock:dashclock-api:+'
     compile 'com.vandalsoftware.android:dslv:+'
     compile 'com.infstory:switch-preference-compat:1.0.+'

@@ -67,6 +67,8 @@ import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.BaseActivity;
+import com.irccloud.android.data.collection.AvatarsList;
+import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Event;
@@ -182,6 +184,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             TextView message;
             TextView expandable;
             ImageView failed;
+            ImageView avatar;
         }
 
         public MessageAdapter(ListFragment context, int capacity) {
@@ -649,6 +652,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (holder.failed != null)
                     holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
+
+                if (holder.avatar != null) {
+                    if(e.from != null && e.from.length() > 0) {
+                        Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
+                        holder.avatar.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme));
+                    } else {
+                        holder.avatar.setImageBitmap(null);
+                    }
+                }
                 return row;
             }
         }
@@ -1035,6 +1047,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (b != buffer)
                 EventsList.getInstance().pruneEvents(b.getBid());
         }
+        AvatarsList.getInstance().clear();
     }
 
     private JSONObject hiddenMap = null;
@@ -1435,8 +1448,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
         update_global_msg();
-        if (buffer != null && adapter != null && buffer.getUnread() == 0 && !buffer.getScrolledUp()) {
-            adapter.clearLastSeenEIDMarker();
+        if (buffer != null && adapter != null) {
+            if(buffer.getUnread() == 0 && !buffer.getScrolledUp())
+                adapter.clearLastSeenEIDMarker();
             adapter.notifyDataSetChanged();
         }
     }
@@ -2219,6 +2233,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
             ready = false;
         }
+        AvatarsList.getInstance().clear();
     }
 
     public void onIRCEvent(int what, final Object obj) {

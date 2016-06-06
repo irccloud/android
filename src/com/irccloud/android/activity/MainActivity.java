@@ -126,6 +126,7 @@ import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Buffer;

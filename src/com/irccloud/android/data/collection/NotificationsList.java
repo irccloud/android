@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.SQLException;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -441,7 +442,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false)));
                 }
                 n.delete();
             }
@@ -458,7 +459,7 @@ public class NotificationsList {
     }
 
     @SuppressLint("NewApi")
-    private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, Notification messages[], NotificationCompat.Action otherAction) {
+    private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, Notification messages[], NotificationCompat.Action otherAction, Bitmap largeIcon) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
@@ -468,6 +469,7 @@ public class NotificationsList {
                 .setTicker(ticker)
                 .setWhen(eids[0] / 1000)
                 .setSmallIcon(R.drawable.ic_stat_notify)
+                .setLargeIcon(largeIcon)
                 .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.notification_icon_bg))
                 .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
                 .setCategory(NotificationCompat.CATEGORY_MESSAGE)
@@ -631,7 +633,6 @@ public class NotificationsList {
             long[] eids = new long[notifications.size()];
             Notification[] messages = new Notification[notifications.size()];
             Notification last = null;
-            count = 0;
             boolean show = false;
             for (Notification n : notifications) {
                 if (n.bid != lastbid) {
@@ -651,7 +652,7 @@ public class NotificationsList {
                         replyIntent.putExtra("buffer_type", last.buffer_type);
                         replyIntent.putExtra("to", last.chan);
 
-                        String body = "";
+                        String body;
                         if (last.buffer_type.equals("channel")) {
                             if (last.message_type.equals("buffer_me_msg"))
                                 body = "<b>— " + ((last.nick != null)?last.nick:getServerNick(last.cid)) + "</b> " + last.message;
@@ -668,15 +669,8 @@ public class NotificationsList {
                         while(lines.size() > 3)
                             lines.remove(0);
 
-                        StringBuilder big_text = new StringBuilder();
-                        for(String l : lines) {
-                            if(big_text.length() > 0)
-                                big_text.append("<br/>");
-                            big_text.append(l);
-                        }
-
                         try {
-                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null));
+                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false)));
                         } catch (Exception e) {
                             Crashlytics.logException(e);
                         }
@@ -800,15 +794,8 @@ public class NotificationsList {
                 while(lines.size() > 3)
                     lines.remove(0);
 
-                StringBuilder big_text = new StringBuilder();
-                for(String l : lines) {
-                    if(big_text.length() > 0)
-                        big_text.append("<br/>");
-                    big_text.append(l);
-                }
-
                 try {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false)));
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }
