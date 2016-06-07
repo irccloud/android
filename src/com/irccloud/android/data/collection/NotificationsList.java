@@ -442,7 +442,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false)));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 320)));
                 }
                 n.delete();
             }
@@ -670,7 +670,7 @@ public class NotificationsList {
                             lines.remove(0);
 
                         try {
-                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false)));
+                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 320)));
                         } catch (Exception e) {
                             Crashlytics.logException(e);
                         }
@@ -795,7 +795,7 @@ public class NotificationsList {
                     lines.remove(0);
 
                 try {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false)));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 320)));
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }

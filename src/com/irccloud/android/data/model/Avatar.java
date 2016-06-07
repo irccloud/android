@@ -26,54 +26,56 @@ import android.text.TextPaint;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
 
+import java.util.HashMap;
+
 public class Avatar {
-    private static final int AVATAR_SIZE = 320;
-    private Bitmap bitmap;
+    private HashMap<Integer, Bitmap> bitmaps = new HashMap<>();
     private static Typeface font = null;
 
     public long lastAccessTime = 0;
     public int cid;
     public String nick;
 
-    public Bitmap getBitmap(boolean isDarkTheme) {
+    public Bitmap getBitmap(boolean isDarkTheme, int size) {
         lastAccessTime = System.currentTimeMillis();
-        if(bitmap == null && nick != null && nick.length() > 0) {
+        if(!bitmaps.containsKey(size) && nick != null && nick.length() > 0) {
             if(font == null) {
                 font = Typeface.createFromAsset(IRCCloudApplication.getInstance().getApplicationContext().getAssets(), "SourceSansPro-Regular.otf");
             }
 
-            bitmap = Bitmap.createBitmap(AVATAR_SIZE, AVATAR_SIZE, Bitmap.Config.ARGB_8888);
+            Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
             Canvas c = new Canvas(bitmap);
             Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
             p.setStyle(Paint.Style.FILL);
 
             if(isDarkTheme) {
                 p.setColor(Color.parseColor("#" + ColorScheme.colorForNick(nick, true)));
-                c.drawCircle(AVATAR_SIZE / 2, AVATAR_SIZE / 2, AVATAR_SIZE / 2, p);
+                c.drawCircle(size / 2, size / 2, size / 2, p);
             } else {
                 float[] hsv = new float[3];
                 int color = Color.parseColor("#" + ColorScheme.colorForNick(nick, false));
                 Color.colorToHSV(color, hsv);
                 hsv[2] *= 0.8f;
                 p.setColor(Color.HSVToColor(hsv));
-                c.drawCircle(AVATAR_SIZE / 2, AVATAR_SIZE / 2, (AVATAR_SIZE / 2) - 4, p);
+                c.drawCircle(size / 2, size / 2, (size / 2) - 4, p);
                 p.setColor(color);
-                c.drawCircle(AVATAR_SIZE / 2, (AVATAR_SIZE / 2) - 4, (AVATAR_SIZE / 2) - 4, p);
+                c.drawCircle(size / 2, (size / 2) - 4, (size / 2) - 4, p);
             }
             TextPaint tp = new TextPaint();
             tp.setTextAlign(Paint.Align.CENTER);
             tp.setTypeface(font);
-            tp.setTextSize((AVATAR_SIZE / 3) * 2);
+            tp.setTextSize((size / 3) * 2);
             tp.setFakeBoldText(true);
             if (isDarkTheme) {
                 tp.setColor(ColorScheme.getInstance().contentBackgroundColor);
-                c.drawText(nick.toUpperCase().substring(0, 1), AVATAR_SIZE /2, (AVATAR_SIZE /2) - ((tp.descent() + tp.ascent()) / 2), tp);
+                c.drawText(nick.toUpperCase().substring(0, 1), size/2, (size/2) - ((tp.descent() + tp.ascent()) / 2), tp);
             } else {
                 tp.setColor(0xFFFFFFFF);
-                c.drawText(nick.toUpperCase().substring(0, 1), AVATAR_SIZE /2, (AVATAR_SIZE /2) - 4 - ((tp.descent() + tp.ascent()) / 2), tp);
+                c.drawText(nick.toUpperCase().substring(0, 1), size/2, (size/2) - 4 - ((tp.descent() + tp.ascent()) / 2), tp);
             }
+            bitmaps.put(size, bitmap);
         }
-        return bitmap;
+        return bitmaps.get(size);
     }
 
     public String toString() {
@@ -82,10 +84,12 @@ public class Avatar {
 
     protected void finalize() throws Throwable {
         try {
-            if(bitmap != null && !bitmap.isRecycled()) {
-                bitmap.recycle();
-                bitmap = null;
+            for(Bitmap bitmap : bitmaps.values()) {
+                if (bitmap != null && !bitmap.isRecycled()) {
+                    bitmap.recycle();
+                }
             }
+            bitmaps.clear();
         } finally {
             super.finalize();
         }

@@ -678,7 +678,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.avatar.setLayoutParams(lp);
                         if (e.from != null && e.from.length() > 0) {
                             Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
-                            holder.avatar.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme));
+                            holder.avatar.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width));
                         } else {
                             holder.avatar.setImageBitmap(null);
                         }
