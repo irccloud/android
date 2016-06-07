@@ -33,6 +33,16 @@
         android:includeFontPadding="false"
         android:layout_marginRight="4dp" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/avatar"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="2dp"
+        android:layout_marginRight="4dp"
+        android:contentDescription="user icon"
+        android:visibility="gone"/>
+
     <TextView
         android:layout_width="16dp"
         android:layout_height="16dp"
@@ -77,5 +87,6 @@
         android:gravity="center_horizontal|top"
         android:textColor="?timestampColor"
         android:includeFontPadding="false"
-        android:layout_marginLeft="4dp" />
+        android:layout_marginLeft="4dp"
+        android:visibility="gone"/>
 </LinearLayout>

@@ -233,6 +233,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         }
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-left").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("avatars-off").setOnPreferenceChangeListener(prefstoggle);
         findPreference("faq").setOnPreferenceClickListener(urlClick);
         findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
@@ -516,7 +517,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     conn.getUserInfo().prefs = prefs;
                 }
 
-                if (preference.getKey().equals("disableTrackUnread") ||preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left"))
+                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");

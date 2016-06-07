@@ -32,6 +32,7 @@ import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -49,6 +50,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -161,6 +163,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_nickColors = false;
     private boolean pref_hideJoinPart = false;
     private boolean pref_expandJoinPart = false;
+    private boolean pref_avatarsOff = false;
 
     private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
         @Override
@@ -541,6 +544,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if(holder.expandable != null)
                         holder.expandable.setTypeface(FontAwesome.getTypeface());
                     holder.failed = (ImageView) row.findViewById(R.id.failed);
+                    holder.avatar = (ImageView) row.findViewById(R.id.avatar);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -664,11 +668,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
 
                 if (holder.avatar != null) {
-                    if(e.from != null && e.from.length() > 0) {
-                        Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
-                        holder.avatar.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme));
-                    } else {
+                    if(pref_avatarsOff || e.group_eid > 0) {
+                        holder.avatar.setVisibility(View.GONE);
                         holder.avatar.setImageBitmap(null);
+                    } else {
+                        holder.avatar.setVisibility(View.VISIBLE);
+                        ViewGroup.LayoutParams lp = holder.avatar.getLayoutParams();
+                        lp.width = lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize, getResources().getDisplayMetrics());
+                        holder.avatar.setLayoutParams(lp);
+                        if (e.from != null && e.from.length() > 0) {
+                            Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
+                            holder.avatar.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme));
+                        } else {
+                            holder.avatar.setImageBitmap(null);
+                        }
                     }
                 }
                 return row;
@@ -1735,6 +1748,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_nickColors = false;
         pref_hideJoinPart = false;
         pref_expandJoinPart = false;
+        pref_avatarsOff = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -1742,6 +1756,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_seconds = (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds"));
                 pref_timeLeft = (prefs.has("time-left") && prefs.get("time-left") instanceof Boolean && prefs.getBoolean("time-left"));
                 pref_nickColors = (prefs.has("nick-colors") && prefs.get("nick-colors") instanceof Boolean && prefs.getBoolean("nick-colors"));
+                pref_avatarsOff = (prefs.has("avatars-off") && prefs.get("avatars-off") instanceof Boolean && prefs.getBoolean("avatars-off"));
                 JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
                 if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {
                     pref_trackUnread = false;

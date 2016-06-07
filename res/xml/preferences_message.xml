@@ -33,6 +33,10 @@
 			android:defaultValue="false"
 			android:title="Right hand side timestamps"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="avatars-off"
+			android:defaultValue="true"
+			android:title="User icons"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="mode-showsymbol"
 			android:defaultValue="false"
 			android:summary="\@, +, etc." android:title="Show usermode symbols"/>
