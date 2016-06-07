@@ -17,19 +17,20 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    >
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingRight="4dp"
+            android:orientation="horizontal"
+            >
 
     <TextView
-        android:id="@+id/timestamp"
+        android:id="@+id/timestamp_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal|top"
         android:textColor="?timestampColor"
         android:includeFontPadding="false"
-        android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp" />
 
     <TextView
@@ -69,4 +70,12 @@
             android:contentDescription="failed"
             android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/timestamp_right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|top"
+        android:textColor="?timestampColor"
+        android:includeFontPadding="false"
+        android:layout_marginLeft="4dp" />
 </LinearLayout>

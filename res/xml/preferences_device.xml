@@ -41,5 +41,11 @@
             android:summaryOn="Image URLs will open in IRCCloud"
             android:summaryOff="Image URLs will open in your browser"
             android:title="Image Viewer" />
+        <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+            android:key="pastebin-disableprompt"
+            android:defaultValue="true"
+            android:summaryOn="Prompt before sending multi-line messages"
+            android:summaryOff="Always send multi-line messages as text"
+            android:title="Ask to pastebin"/>
     </PreferenceCategory>
 </PreferenceScreen>

@@ -154,6 +154,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     public View suggestionsContainer = null;
     public GridView suggestions = null;
 
+    private boolean pref_24hr = false;
+    private boolean pref_seconds = false;
+    private boolean pref_trackUnread = true;
+    private boolean pref_timeLeft = false;
+    private boolean pref_nickColors = false;
+    private boolean pref_hideJoinPart = false;
+    private boolean pref_expandJoinPart = false;
+
     private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
         @Override
         public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
@@ -181,6 +189,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         private class ViewHolder {
             int type;
             TextView timestamp;
+            TextView timestamp_left;
+            TextView timestamp_right;
             TextView message;
             TextView expandable;
             ImageView failed;
@@ -323,20 +333,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             SimpleDateFormat formatter = null;
             if (e.timestamp == null || e.timestamp.length() == 0) {
                 formatter = new SimpleDateFormat("h:mm a");
-                if (conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                    try {
-                        JSONObject prefs = conn.getUserInfo().prefs;
-                        if (prefs.has("time-24hr") && prefs.get("time-24hr") instanceof Boolean && prefs.getBoolean("time-24hr")) {
-                            if (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds"))
-                                formatter = new SimpleDateFormat("H:mm:ss");
-                            else
-                                formatter = new SimpleDateFormat("H:mm");
-                        } else if (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds")) {
-                            formatter = new SimpleDateFormat("h:mm:ss a");
-                        }
-                    } catch (JSONException e1) {
-                        NetworkConnection.printStackTraceToCrashlytics(e1);
-                    }
+                if (pref_24hr) {
+                    if (pref_seconds)
+                        formatter = new SimpleDateFormat("H:mm:ss");
+                    else
+                        formatter = new SimpleDateFormat("H:mm");
+                } else if (pref_seconds) {
+                    formatter = new SimpleDateFormat("h:mm:ss a");
                 }
                 e.timestamp = formatter.format(calendar.getTime());
             }
@@ -531,6 +534,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     holder = new ViewHolder();
                     holder.timestamp = (TextView) row.findViewById(R.id.timestamp);
+                    holder.timestamp_left = (TextView) row.findViewById(R.id.timestamp_left);
+                    holder.timestamp_right = (TextView) row.findViewById(R.id.timestamp_right);
                     holder.message = (TextView) row.findViewById(R.id.message);
                     holder.expandable = (TextView) row.findViewById(R.id.expandable);
                     if(holder.expandable != null)
@@ -564,6 +569,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 boolean mono = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("monospace", false);
 
+                if(holder.timestamp_left != null) {
+                    if(pref_timeLeft) {
+                        holder.timestamp_left.setVisibility(View.VISIBLE);
+                        holder.timestamp_right.setVisibility(View.GONE);
+                        holder.timestamp = holder.timestamp_left;
+                    } else {
+                        holder.timestamp_left.setVisibility(View.GONE);
+                        holder.timestamp_right.setVisibility(View.VISIBLE);
+                        holder.timestamp = holder.timestamp_right;
+                    }
+                }
+
                 if (holder.timestamp != null) {
                     holder.timestamp.setTypeface(mono ? Typeface.MONOSPACE : Typeface.DEFAULT);
                     if (e.row_type == ROW_TIMESTAMP) {
@@ -573,17 +590,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                         if (timestamp_width == -1) {
                             String s = "888:888";
-                            if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                                try {
-                                    JSONObject prefs = conn.getUserInfo().prefs;
-                                    if (prefs.has("time-seconds") && prefs.getBoolean("time-seconds"))
-                                        s += ":88";
-                                    if (!prefs.has("time-24hr") || !prefs.getBoolean("time-24hr"))
-                                        s += " 88";
-                                } catch (Exception e1) {
-
-                                }
-                            }
+                            if (pref_seconds)
+                                s += ":88";
+                            if (!pref_24hr)
+                                s += " 88";
                             timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
                         }
                         holder.timestamp.setMinWidth(timestamp_width);
@@ -1050,14 +1060,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         AvatarsList.getInstance().clear();
     }
 
-    private JSONObject hiddenMap = null;
-    private JSONObject expandMap = null;
-
     private synchronized void insertEvent(final MessageAdapter adapter, Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized (adapterLock) {
             try {
                 boolean colors = false;
-                if (!event.self && conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("nick-colors") && conn.getUserInfo().prefs.get("nick-colors") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("nick-colors"))
+                if (!event.self && pref_nickColors)
                     colors = true;
 
                 long start = System.currentTimeMillis();
@@ -1081,48 +1088,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     type = type.substring(4);
 
                 if (type.equals("joined_channel") || type.equals("parted_channel") || type.equals("nickchange") || type.equals("quit") || type.equals("user_channel_mode") || type.equals("socket_closed") || type.equals("connecting_cancelled") || type.equals("connecting_failed")) {
-                    boolean shouldExpand = false;
                     collapsedEvents.showChan = !buffer.isChannel();
-                    if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null) {
-                        if (hiddenMap == null) {
-                            if (buffer.isChannel()) {
-                                if (conn.getUserInfo().prefs.has("channel-hideJoinPart"))
-                                    hiddenMap = conn.getUserInfo().prefs.getJSONObject("channel-hideJoinPart");
-                            } else {
-                                if (conn.getUserInfo().prefs.has("buffer-hideJoinPart"))
-                                    hiddenMap = conn.getUserInfo().prefs.getJSONObject("buffer-hideJoinPart");
-                            }
-                        }
-
-                        if ((conn.getUserInfo().prefs.has("hideJoinPart") && conn.getUserInfo().prefs.get("hideJoinPart") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("hideJoinPart")) || (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())))) {
-                            adapter.removeItem(event.eid);
-                            if (!backlog)
-                                adapter.notifyDataSetChanged();
-                            return;
-                        }
-
-                        if (expandMap == null) {
-                            if (buffer.isChannel()) {
-                                if (conn.getUserInfo().prefs.has("channel-expandJoinPart"))
-                                    expandMap = conn.getUserInfo().prefs.getJSONObject("channel-expandJoinPart");
-                            } else if (buffer.isConsole()) {
-                                if (conn.getUserInfo().prefs.has("buffer-expandDisco"))
-                                    expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandDisco");
-                            } else {
-                                if (conn.getUserInfo().prefs.has("buffer-expandJoinPart"))
-                                    expandMap = conn.getUserInfo().prefs.getJSONObject("buffer-expandJoinPart");
-                            }
-                        }
-
-                        if ((conn.getUserInfo().prefs.has("expandJoinPart") && conn.getUserInfo().prefs.get("expandJoinPart") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid())))) {
-                            shouldExpand = true;
-                        }
+                    if (pref_hideJoinPart) {
+                        adapter.removeItem(event.eid);
+                        if (!backlog)
+                            adapter.notifyDataSetChanged();
+                        return;
                     }
 
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTimeInMillis(eid / 1000);
 
-                    if (shouldExpand)
+                    if (pref_expandJoinPart)
                         expandedSectionEids.clear();
 
                     if (event.type.equals("socket_closed") || event.type.equals("connecting_failed") || event.type.equals("connecting_cancelled")) {
@@ -1135,7 +1112,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             currentCollapsedEid = -1;
                     }
 
-                    if (currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || shouldExpand) {
+                    if (currentCollapsedEid == -1 || calendar.get(Calendar.DAY_OF_YEAR) != lastCollapsedDay || pref_expandJoinPart) {
                         collapsedEvents.clear();
                         currentCollapsedEid = eid;
                         lastCollapsedDay = calendar.get(Calendar.DAY_OF_YEAR);
@@ -1147,7 +1124,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (!collapsedEvents.addEvent(event))
                         collapsedEvents.clear();
 
-                    if ((currentCollapsedEid == event.eid || shouldExpand) && type.equals("user_channel_mode")) {
+                    if ((currentCollapsedEid == event.eid || pref_expandJoinPart) && type.equals("user_channel_mode")) {
                         event.color = colorScheme.messageTextColor;
                         event.bg_color = colorScheme.collapsedHeadingBackgroundColor;
                     } else {
@@ -1751,10 +1728,53 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private synchronized void refresh(MessageAdapter adapter, TreeMap<Long, Event> events) {
-        synchronized (adapterLock) {
-            hiddenMap = null;
-            expandMap = null;
+        pref_24hr = false;
+        pref_seconds = false;
+        pref_trackUnread = true;
+        pref_timeLeft = false;
+        pref_nickColors = false;
+        pref_hideJoinPart = false;
+        pref_expandJoinPart = false;
+        if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
+            try {
+                JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
+                pref_24hr = (prefs.has("time-24hr") && prefs.get("time-24hr") instanceof Boolean && prefs.getBoolean("time-24hr"));
+                pref_seconds = (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds"));
+                pref_timeLeft = (prefs.has("time-left") && prefs.get("time-left") instanceof Boolean && prefs.getBoolean("time-left"));
+                pref_nickColors = (prefs.has("nick-colors") && prefs.get("nick-colors") instanceof Boolean && prefs.getBoolean("nick-colors"));
+                JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
+                if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {
+                    pref_trackUnread = false;
+                }
+                JSONObject hiddenMap = null;
+                if (buffer.isChannel()) {
+                    if (prefs.has("channel-hideJoinPart"))
+                        hiddenMap = prefs.getJSONObject("channel-hideJoinPart");
+                } else {
+                    if (prefs.has("buffer-hideJoinPart"))
+                        hiddenMap = prefs.getJSONObject("buffer-hideJoinPart");
+                }
 
+                pref_hideJoinPart = (prefs.has("hideJoinPart") && prefs.get("hideJoinPart") instanceof Boolean && prefs.getBoolean("hideJoinPart")) || (hiddenMap != null && hiddenMap.has(String.valueOf(buffer.getBid())) && hiddenMap.getBoolean(String.valueOf(buffer.getBid())));
+
+                JSONObject expandMap = null;
+                if (buffer.isChannel()) {
+                    if (prefs.has("channel-expandJoinPart"))
+                        expandMap = prefs.getJSONObject("channel-expandJoinPart");
+                } else if (buffer.isConsole()) {
+                    if (prefs.has("buffer-expandDisco"))
+                        expandMap = prefs.getJSONObject("buffer-expandDisco");
+                } else {
+                    if (prefs.has("buffer-expandJoinPart"))
+                        expandMap = prefs.getJSONObject("buffer-expandJoinPart");
+                }
+
+                pref_expandJoinPart = ((conn.getUserInfo().prefs.has("expandJoinPart") && conn.getUserInfo().prefs.get("expandJoinPart") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid()))));
+            } catch (JSONException e1) {
+                NetworkConnection.printStackTraceToCrashlytics(e1);
+            }
+        }
+        synchronized (adapterLock) {
             if (getActivity() != null)
                 textSize = PreferenceManager.getDefaultSharedPreferences(getActivity()).getInt("textSize", getActivity().getResources().getInteger(R.integer.default_text_size));
             timestamp_width = -1;
@@ -1846,7 +1866,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             try {
                 int markerPos = adapter.getLastSeenEIDPosition();
                 if (markerPos >= 0 && first > (markerPos + 1) && buffer.getUnread() > 0) {
-                    if (shouldTrackUnread()) {
+                    if (pref_trackUnread) {
                         int highlights = adapter.getUnreadHighlightsAbovePosition(first);
                         int count = (first - markerPos - 1) - highlights;
                         StringBuilder txt = new StringBuilder();
@@ -1928,21 +1948,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 NetworkConnection.printStackTraceToCrashlytics(e);
             }
         }
-    }
-
-    private boolean shouldTrackUnread() {
-        if (conn != null && conn.getUserInfo() != null && conn.getUserInfo().prefs != null && conn.getUserInfo().prefs.has("channel-disableTrackUnread")) {
-            try {
-                JSONObject disabledMap = conn.getUserInfo().prefs.getJSONObject("channel-disableTrackUnread");
-                if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {
-                    return false;
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                NetworkConnection.printStackTraceToCrashlytics(e);
-            }
-        }
-        return true;
     }
 
     private class UnreadRefreshRunnable implements Runnable {
@@ -2312,7 +2317,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_HEARTBEATECHO:
                 try {
                     if (buffer != null && adapter != null && adapter.data.size() > 0) {
-                        if (buffer.getLast_seen_eid() == adapter.data.get(adapter.data.size() - 1).eid || !shouldTrackUnread()) {
+                        if (buffer.getLast_seen_eid() == adapter.data.get(adapter.data.size() - 1).eid || !pref_trackUnread) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

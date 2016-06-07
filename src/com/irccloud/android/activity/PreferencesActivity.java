@@ -57,7 +57,6 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.DashClock;
-import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -154,6 +153,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         conn = NetworkConnection.getInstance();
         addPreferencesFromResource(R.xml.preferences_account);
         addPreferencesFromResource(R.xml.preferences_display);
+        addPreferencesFromResource(R.xml.preferences_message);
         addPreferencesFromResource(R.xml.preferences_device);
         addPreferencesFromResource(R.xml.preferences_photos);
         addPreferencesFromResource(R.xml.preferences_notifications);
@@ -232,6 +232,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
         }
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("time-left").setOnPreferenceChangeListener(prefstoggle);
         findPreference("faq").setOnPreferenceClickListener(urlClick);
         findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
@@ -413,6 +414,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                         ((SwitchPreferenceCompat) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
                                     ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
+                                    ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(!(prefs.has("time-left") && prefs.get("time-left").getClass().equals(Boolean.class) && prefs.getBoolean("time-left")));
                                     findPreference("theme").setSummary(ColorScheme.getUserTheme());
                                 } catch (JSONException e) {
                                     NetworkConnection.printStackTraceToCrashlytics(e);
@@ -514,7 +516,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     conn.getUserInfo().prefs = prefs;
                 }
 
-                if (preference.getKey().equals("disableTrackUnread") ||preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart"))
+                if (preference.getKey().equals("disableTrackUnread") ||preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");
