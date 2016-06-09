@@ -164,6 +164,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_hideJoinPart = false;
     private boolean pref_expandJoinPart = false;
     private boolean pref_avatarsOff = false;
+    private boolean pref_chatOneLine = false;
+    private boolean pref_norealname = false;
 
     private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
         @Override
@@ -196,6 +198,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             TextView timestamp_right;
             TextView message;
             TextView expandable;
+            TextView nickname;
+            TextView realname;
             ImageView failed;
             ImageView avatar;
         }
@@ -455,9 +459,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 d.timestamp = formatter.format(calendar.getTime());
                 d.bg_color = colorScheme.timestampBackgroundDrawable;
                 d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-                data.add(insert_pos, d);
+                data.add(insert_pos++, d);
                 if (currentGroupPosition > -1)
                     currentGroupPosition++;
+            }
+
+            if(insert_pos > 0) {
+                Event prev = data.get(insert_pos - 1);
+                if(prev.from == null || !prev.from.equals(e.from))
+                    e.header = true;
+            }
+
+            if(insert_pos < (data.size() - 1)) {
+                Event next = data.get(insert_pos + 1);
+                if(next.from != null && next.from.equals(e.from))
+                    next.header = false;
             }
         }
 
@@ -496,6 +512,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server, e.entities);
                                 if (e.msg != null && e.msg.length() > 0)
                                     e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
+                                if (e.from != null && e.from.length() > 0) {
+                                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, pref_nickColors)) + "</b>");
+                                }
                             } catch (Exception ex) {
                             }
                         }
@@ -543,6 +562,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.expandable = (TextView) row.findViewById(R.id.expandable);
                     if(holder.expandable != null)
                         holder.expandable.setTypeface(FontAwesome.getTypeface());
+                    holder.nickname = (TextView) row.findViewById(R.id.nickname);
+                    holder.realname = (TextView) row.findViewById(R.id.realname);
                     holder.failed = (ImageView) row.findViewById(R.id.failed);
                     holder.avatar = (ImageView) row.findViewById(R.id.avatar);
                     holder.type = e.row_type;
@@ -561,6 +582,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                 }
 
+                if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
+                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, pref_nickColors)) + "</b>");
+                }
+
                 if (e.row_type == ROW_MESSAGE) {
                     if (e.bg_color == colorScheme.contentBackgroundColor)
                         row.setBackgroundDrawable(null);
@@ -574,7 +599,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 boolean mono = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("monospace", false);
 
                 if(holder.timestamp_left != null) {
-                    if(pref_timeLeft) {
+                    if(pref_timeLeft && pref_chatOneLine) {
                         holder.timestamp_left.setVisibility(View.VISIBLE);
                         holder.timestamp_right.setVisibility(View.GONE);
                         holder.timestamp = holder.timestamp_left;
@@ -668,22 +693,55 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.failed.setVisibility(e.failed ? View.VISIBLE : View.GONE);
 
                 if (holder.avatar != null) {
-                    if(pref_avatarsOff || e.group_eid > 0) {
-                        holder.avatar.setVisibility(View.GONE);
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.avatar.getLayoutParams();
+                    if(pref_avatarsOff) {
                         holder.avatar.setImageBitmap(null);
+                        lp.topMargin = lp.width = lp.height = 0;
                     } else {
-                        holder.avatar.setVisibility(View.VISIBLE);
-                        ViewGroup.LayoutParams lp = holder.avatar.getLayoutParams();
-                        lp.width = lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize, getResources().getDisplayMetrics());
-                        holder.avatar.setLayoutParams(lp);
+                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (pref_chatOneLine ? 1 : 4), getResources().getDisplayMetrics());
+                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize * (pref_chatOneLine ? 1 : 2), getResources().getDisplayMetrics());
+                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize * ((pref_chatOneLine || !e.header) ? 1 : 2), getResources().getDisplayMetrics());
                         if (e.from != null && e.from.length() > 0) {
                             Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
                             holder.avatar.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width));
+                            holder.avatar.setVisibility(View.VISIBLE);
                         } else {
                             holder.avatar.setImageBitmap(null);
                         }
                     }
+                    holder.avatar.setLayoutParams(lp);
                 }
+
+                if(!pref_chatOneLine && e.header && e.formatted_nick != null && e.formatted_nick.length() > 0) {
+                    if (holder.nickname != null) {
+                        holder.nickname.setVisibility(pref_chatOneLine ? View.GONE : View.VISIBLE);
+                        if (mono)
+                            holder.nickname.setTypeface(Typeface.MONOSPACE);
+                        else
+                            holder.nickname.setTypeface(Typeface.DEFAULT);
+                        holder.nickname.setTextSize(textSize);
+                        holder.nickname.setText(e.formatted_nick);
+                    }
+
+                    if (holder.realname != null) {
+                        holder.realname.setVisibility((pref_chatOneLine || pref_norealname) ? View.GONE : View.VISIBLE);
+                        if (mono)
+                            holder.realname.setTypeface(Typeface.MONOSPACE);
+                        else
+                            holder.realname.setTypeface(Typeface.DEFAULT);
+                        holder.realname.setTextSize(textSize);
+                        holder.realname.setTextColor(colorScheme.timestampColor);
+                        holder.realname.setText(e.from_realname);
+                    }
+                } else {
+                    if (holder.nickname != null)
+                        holder.nickname.setVisibility(View.GONE);
+                    if (holder.realname != null)
+                        holder.realname.setVisibility(View.GONE);
+                    if (holder.avatar != null)
+                        holder.avatar.setVisibility(pref_avatarsOff ? View.GONE : (pref_chatOneLine ? View.VISIBLE : View.INVISIBLE));
+                }
+
                 return row;
             }
         }
@@ -1218,12 +1276,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
                     if (event.html == null) {
-                        if (event.from != null && event.from.length() > 0)
+                        if (pref_chatOneLine && event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, colors) + "</b> " + event.msg;
-                        else if (event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
+                        else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + event.msg;
                         else
                             event.html = event.msg;
+                    }
+
+                    if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
+                        event.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, pref_nickColors)) + "</b>");
                     }
                 }
 
@@ -1255,7 +1317,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, colors) + "</b> " + event.msg + "</i>";
                         break;
                     case "notice":
-                        if (event.from != null && event.from.length() > 0)
+                        if (pref_chatOneLine && event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
                         else
                             event.html = "";
@@ -1749,6 +1811,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         pref_hideJoinPart = false;
         pref_expandJoinPart = false;
         pref_avatarsOff = false;
+        pref_chatOneLine = false;
+        pref_norealname = false;
         if (NetworkConnection.getInstance().getUserInfo() != null && NetworkConnection.getInstance().getUserInfo().prefs != null) {
             try {
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
@@ -1757,6 +1821,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_timeLeft = (prefs.has("time-left") && prefs.get("time-left") instanceof Boolean && prefs.getBoolean("time-left"));
                 pref_nickColors = (prefs.has("nick-colors") && prefs.get("nick-colors") instanceof Boolean && prefs.getBoolean("nick-colors"));
                 pref_avatarsOff = (prefs.has("avatars-off") && prefs.get("avatars-off") instanceof Boolean && prefs.getBoolean("avatars-off"));
+                pref_chatOneLine = (prefs.has("chat-oneline") && prefs.get("chat-oneline") instanceof Boolean && prefs.getBoolean("chat-oneline"));
+                pref_norealname = (prefs.has("chat-norealname") && prefs.get("chat-norealname") instanceof Boolean && prefs.getBoolean("chat-norealname"));
                 JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
                 if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {
                     pref_trackUnread = false;

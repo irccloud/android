@@ -234,6 +234,8 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-left").setOnPreferenceChangeListener(prefstoggle);
         findPreference("avatars-off").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("chat-oneline").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("chat-norealname").setOnPreferenceChangeListener(prefstoggle);
         findPreference("faq").setOnPreferenceClickListener(urlClick);
         findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
@@ -371,6 +373,14 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 findPreference("image_service").setSummary(PreferenceManager.getDefaultSharedPreferences(this).getString("image_service", "IRCCloud"));
             if(findPreference("theme") != null)
                 findPreference("theme").setSummary(ColorScheme.getUserTheme());
+            if(findPreference("chat-oneline") != null) {
+                if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
+                    ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(true);
+                    findPreference("time-left").setEnabled(false);
+                } else {
+                    findPreference("time-left").setEnabled(true);
+                }
+            }
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
@@ -416,7 +426,18 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                     ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(!(prefs.has("time-left") && prefs.get("time-left").getClass().equals(Boolean.class) && prefs.getBoolean("time-left")));
+                                    ((SwitchPreferenceCompat) findPreference("chat-oneline")).setChecked(!(prefs.has("chat-oneline") && prefs.get("chat-oneline").getClass().equals(Boolean.class) && prefs.getBoolean("chat-oneline")));
+                                    ((SwitchPreferenceCompat) findPreference("chat-norealname")).setChecked(!(prefs.has("chat-norealname") && prefs.get("chat-norealname").getClass().equals(Boolean.class) && prefs.getBoolean("chat-norealname")));
+                                    ((SwitchPreferenceCompat) findPreference("avatars-off")).setChecked(!(prefs.has("avatars-off") && prefs.get("avatars-off").getClass().equals(Boolean.class) && prefs.getBoolean("avatars-off")));
                                     findPreference("theme").setSummary(ColorScheme.getUserTheme());
+                                    if(findPreference("chat-oneline") != null) {
+                                        if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
+                                            ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(true);
+                                            findPreference("time-left").setEnabled(false);
+                                        } else {
+                                            findPreference("time-left").setEnabled(true);
+                                        }
+                                    }
                                 } catch (JSONException e) {
                                     NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
@@ -506,6 +527,14 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
     Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
+            if(findPreference("chat-oneline") != null) {
+                if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
+                    ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(true);
+                    findPreference("time-left").setEnabled(false);
+                } else {
+                    findPreference("time-left").setEnabled(true);
+                }
+            }
             if (conn == null || conn.getUserInfo() == null) {
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;
@@ -517,7 +546,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     conn.getUserInfo().prefs = prefs;
                 }
 
-                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off"))
+                if (preference.getKey().equals("disableTrackUnread") || preference.getKey().equals("emoji-disableconvert") || preference.getKey().equals("pastebin-disableprompt") || preference.getKey().equals("hideJoinPart") || preference.getKey().equals("expandJoinPart") || preference.getKey().equals("time-left") || preference.getKey().equals("avatars-off") || preference.getKey().equals("chat-oneline") || preference.getKey().equals("chat-norealname"))
                     prefs.put(preference.getKey(), !(Boolean) newValue);
                 else if(preference.getKey().equals("monospace"))
                     prefs.put("font", ((Boolean)newValue)?"mono":"sans");

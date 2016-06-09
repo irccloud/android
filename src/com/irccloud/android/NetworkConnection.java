@@ -1898,6 +1898,8 @@ public class NetworkConnection {
                     editor.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds") instanceof Boolean && userInfo.prefs.getBoolean("time-seconds"));
                     editor.putBoolean("time-left", !(userInfo.prefs.has("time-left") && userInfo.prefs.get("time-left") instanceof Boolean && userInfo.prefs.getBoolean("time-left")));
                     editor.putBoolean("avatars-off", !(userInfo.prefs.has("avatars-off") && userInfo.prefs.get("avatars-off") instanceof Boolean && userInfo.prefs.getBoolean("avatars-off")));
+                    editor.putBoolean("chat-oneline", !(userInfo.prefs.has("chat-oneline") && userInfo.prefs.get("chat-oneline") instanceof Boolean && userInfo.prefs.getBoolean("chat-oneline")));
+                    editor.putBoolean("chat-norealname", !(userInfo.prefs.has("chat-norealname") && userInfo.prefs.get("chat-norealname") instanceof Boolean && userInfo.prefs.getBoolean("chat-norealname")));
                     editor.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol") instanceof Boolean && userInfo.prefs.getBoolean("mode-showsymbol"));
                     editor.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors") instanceof Boolean && userInfo.prefs.getBoolean("nick-colors"));
                     editor.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert") instanceof Boolean && userInfo.prefs.getBoolean("emoji-disableconvert")));
@@ -1916,6 +1918,8 @@ public class NetworkConnection {
                     editor.putBoolean("time-seconds", false);
                     editor.putBoolean("time-left", true);
                     editor.putBoolean("avatars-off", true);
+                    editor.putBoolean("chat-oneline", true);
+                    editor.putBoolean("chat-norealname", true);
                     editor.putBoolean("mode-showsymbol", false);
                     editor.putBoolean("nick-colors", false);
                     editor.putBoolean("emoji-disableconvert", true);

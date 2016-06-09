@@ -29,6 +29,15 @@
 			android:defaultValue="false"
 			android:title="Show seconds"/>
 		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="chat-oneline"
+			android:defaultValue="true"
+			android:title="Nicknames on a separate line"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
+			android:key="chat-norealname"
+			android:defaultValue="true"
+			android:dependency="chat-oneline"
+			android:title="Show real names"/>
+		<com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="time-left"
 			android:defaultValue="true"
 			android:title="Right hand side timestamps"/>

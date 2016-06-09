@@ -945,6 +945,10 @@ public class EventsList {
             e.hostmask = event.getString("hostmask");
             e.from = event.getString("from");
             e.from_mode = event.getString("from_mode");
+            e.from_realname = event.getString("from_realname");
+            if(e.from_realname != null && e.from_realname.length() > 0 && e.from_realname.equals(e.from))
+                e.from_realname = null;
+
             e.chan = event.getString("chan");
             if (event.has("newnick"))
                 e.nick = event.getString("newnick");
@@ -1072,6 +1076,7 @@ public class EventsList {
                         e.timestamp = null;
                         e.html = null;
                         e.formatted = null;
+                        e.formatted_nick = null;
                         Formatter f = formatterMap.get(e.type);
                         if (f != null)
                             f.format(null, e);

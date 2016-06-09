@@ -67,6 +67,9 @@ public class Event /*extends ObservableBaseModel*/ {
     public String from_mode;
 
     @Column
+    public String from_realname;
+
+    @Column
     public String nick;
 
     @Column
@@ -141,7 +144,9 @@ public class Event /*extends ObservableBaseModel*/ {
     public String timestamp;
     public String html;
     public Spanned formatted;
+    public Spanned formatted_nick;
     public TimerTask expiration_timer;
+    public boolean header;
 
     public String toString() {
         return "{" +

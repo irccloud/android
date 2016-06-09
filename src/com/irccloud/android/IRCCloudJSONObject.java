@@ -103,7 +103,10 @@ public class IRCCloudJSONObject {
     }
 
     public String getString(String name) {
-        return o.path(name).asText();
+        if(o.path(name).isNull())
+            return null;
+        else
+            return o.path(name).asText();
     }
 
     public JsonNode getJsonNode(String name) {
