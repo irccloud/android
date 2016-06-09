@@ -25,6 +25,7 @@ import android.text.TextPaint;
 
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.data.collection.ServersList;
 
 import java.util.HashMap;
 
@@ -37,6 +38,10 @@ public class Avatar {
     public String nick;
 
     public Bitmap getBitmap(boolean isDarkTheme, int size) {
+        return getBitmap(isDarkTheme, size, false);
+    }
+
+    public Bitmap getBitmap(boolean isDarkTheme, int size, boolean self) {
         lastAccessTime = System.currentTimeMillis();
         if(!bitmaps.containsKey(size) && nick != null && nick.length() > 0) {
             if(font == null) {
@@ -49,11 +54,11 @@ public class Avatar {
             p.setStyle(Paint.Style.FILL);
 
             if(isDarkTheme) {
-                p.setColor(Color.parseColor("#" + ColorScheme.colorForNick(nick, true)));
+                p.setColor(self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, true)));
                 c.drawCircle(size / 2, size / 2, size / 2, p);
             } else {
                 float[] hsv = new float[3];
-                int color = Color.parseColor("#" + ColorScheme.colorForNick(nick, false));
+                int color = self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, false));
                 Color.colorToHSV(color, hsv);
                 hsv[2] *= 0.8f;
                 p.setColor(Color.HSVToColor(hsv));

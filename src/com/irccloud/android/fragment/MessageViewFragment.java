@@ -514,7 +514,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 if (e.msg != null && e.msg.length() > 0)
                                     e.contentDescription = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(e.msg), e.linkify, server).toString();
                                 if (e.from != null && e.from.length() > 0) {
-                                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, pref_nickColors)) + "</b>");
+                                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors)) + "</b>");
                                 }
                             } catch (Exception ex) {
                             }
@@ -584,7 +584,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
-                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, pref_nickColors)) + "</b>");
+                    e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors)) + "</b>");
                 }
 
                 if (e.row_type == ROW_MESSAGE) {
@@ -704,7 +704,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         Bitmap b = null;
                         if (e.from != null && e.from.length() > 0) {
                             Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
-                            b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width);
+                            b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
                             holder.avatar.setVisibility(View.VISIBLE);
                         }
                         holder.avatar.setImageBitmap(b);
@@ -1135,10 +1135,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private synchronized void insertEvent(final MessageAdapter adapter, Event event, boolean backlog, boolean nextIsGrouped) {
         synchronized (adapterLock) {
             try {
-                boolean colors = false;
-                if (!event.self && pref_nickColors)
-                    colors = true;
-
                 long start = System.currentTimeMillis();
                 if (event.eid <= buffer.getMin_eid()) {
                     runOnUiThread(new Runnable() {
@@ -1278,7 +1274,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     collapsedEvents.clear();
                     if (event.html == null) {
                         if (pref_chatOneLine && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, colors) + "</b> " + event.msg;
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg;
                         else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + event.msg;
                         else
@@ -1286,7 +1282,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
-                        event.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, pref_nickColors)) + "</b>");
+                        event.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors)) + "</b>");
                     }
                 }
 
@@ -1315,7 +1311,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html = event.msg + " by the server <b>" + event.server + "</b>";
                         break;
                     case "buffer_me_msg":
-                        event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, colors) + "</b> " + event.msg + "</i>";
+                        event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg + "</i>";
                         break;
                     case "notice":
                         if (pref_chatOneLine && event.from != null && event.from.length() > 0)
