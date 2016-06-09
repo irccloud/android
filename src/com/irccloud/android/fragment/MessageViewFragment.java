@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -618,7 +619,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.timestamp.setTextSize(textSize - 2);
 
                         if (timestamp_width == -1) {
-                            String s = "888:888";
+                            String s = "88:88";
                             if (pref_seconds)
                                 s += ":88";
                             if (!pref_24hr)
@@ -698,16 +699,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.avatar.setImageBitmap(null);
                         lp.topMargin = lp.width = lp.height = 0;
                     } else {
-                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (pref_chatOneLine ? 1 : 4), getResources().getDisplayMetrics());
-                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize * (pref_chatOneLine ? 1 : 2), getResources().getDisplayMetrics());
-                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, textSize * ((pref_chatOneLine || !e.header) ? 1 : 2), getResources().getDisplayMetrics());
+                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (pref_chatOneLine ? 0 : 2), getResources().getDisplayMetrics());
+                        lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * (pref_chatOneLine ? 1 : 2), getResources().getDisplayMetrics());
+                        Bitmap b = null;
                         if (e.from != null && e.from.length() > 0) {
                             Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
-                            holder.avatar.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width));
+                            b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width);
                             holder.avatar.setVisibility(View.VISIBLE);
-                        } else {
-                            holder.avatar.setImageBitmap(null);
                         }
+                        holder.avatar.setImageBitmap(b);
+                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * ((pref_chatOneLine || !e.header || b == null) ? 1 : 2), getResources().getDisplayMetrics());
                     }
                     holder.avatar.setLayoutParams(lp);
                 }
@@ -739,7 +740,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (holder.realname != null)
                         holder.realname.setVisibility(View.GONE);
                     if (holder.avatar != null)
-                        holder.avatar.setVisibility(pref_avatarsOff ? View.GONE : (pref_chatOneLine ? View.VISIBLE : View.INVISIBLE));
+                        holder.avatar.setVisibility((pref_avatarsOff || (pref_chatOneLine && e.group_eid > 0)) ? View.GONE : (pref_chatOneLine ? View.VISIBLE : View.INVISIBLE));
                 }
 
                 return row;

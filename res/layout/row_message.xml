@@ -19,8 +19,8 @@
               xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:orientation="horizontal"
             >
 
@@ -30,7 +30,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal|top"
         android:textColor="?timestampColor"
-        android:layout_marginRight="4dp"
+        android:layout_marginRight="8dp"
         android:includeFontPadding="false" />
 
     <ImageView
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/avatar"
         android:layout_gravity="right|top"
-        android:layout_marginRight="4dp"
+        android:layout_marginRight="8dp"
         android:contentDescription="user icon"
         android:visibility="gone"/>
 
@@ -107,7 +107,7 @@
                 android:id="@+id/failed"
                 app:srcCompat="@drawable/send_fail"
                 android:layout_gravity="right|top"
-                android:layout_marginRight="4dp"
+                android:layout_marginRight="8dp"
                 android:contentDescription="failed"
                 android:visibility="gone"/>
 
@@ -118,7 +118,7 @@
                 android:gravity="right|top"
                 android:textColor="?timestampColor"
                 android:includeFontPadding="false"
-                android:layout_marginLeft="4dp"
+                android:layout_marginLeft="8dp"
                 android:visibility="gone"/>
         </LinearLayout>
     </LinearLayout>
