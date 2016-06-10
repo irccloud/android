@@ -23,6 +23,7 @@ import android.app.DownloadManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
@@ -394,7 +395,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_videoplayer, menu);
 
-        if (getIntent() != null && getIntent().getDataString() != null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && getIntent() != null && getIntent().getDataString() != null) {
             Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));
@@ -419,6 +420,9 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
                 }
             });
             share.setShareIntent(intent);
+        } else {
+            MenuItem shareItem = menu.findItem(R.id.action_share);
+            shareItem.getIcon().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
         }
         return true;
     }
@@ -466,6 +470,15 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             }
             Toast.makeText(VideoPlayerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
             Answers.getInstance().logShare(new ShareEvent().putContentType("Video").putMethod("Copy to Clipboard"));
+        } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && item.getItemId() == R.id.action_share) {
+            Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http"));
+            intent.putExtra(ShareCompat.EXTRA_CALLING_PACKAGE, getPackageName());
+            intent.putExtra(ShareCompat.EXTRA_CALLING_ACTIVITY, getPackageManager().getLaunchIntentForPackage(getPackageName()).getComponent());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(Intent.createChooser(intent, "Share Video"));
+            Answers.getInstance().logShare(new ShareEvent().putContentType("Video"));
         }
         return super.onOptionsItemSelected(item);
     }
