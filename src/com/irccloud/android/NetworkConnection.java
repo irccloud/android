@@ -53,6 +53,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.iid.InstanceID;
 import com.irccloud.android.data.collection.NotificationsList;
+import com.irccloud.android.data.collection.RecentConversationsList;
 import com.irccloud.android.data.model.BackgroundTask;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
@@ -60,6 +61,7 @@ import com.irccloud.android.data.model.Channel;
 import com.irccloud.android.data.collection.ChannelsList;
 import com.irccloud.android.data.model.Event;
 import com.irccloud.android.data.collection.EventsList;
+import com.irccloud.android.data.model.RecentConversation;
 import com.irccloud.android.data.model.Server;
 import com.irccloud.android.data.collection.ServersList;
 import com.irccloud.android.data.collection.UsersList;
@@ -125,6 +127,7 @@ public class NetworkConnection {
     private static final ChannelsList mChannels = ChannelsList.getInstance();
     private static final UsersList mUsers = UsersList.getInstance();
     private static final EventsList mEvents = EventsList.getInstance();
+    private static final RecentConversationsList mRecentConversations = RecentConversationsList.getInstance();
 
     public static final int WEBSOCKET_TAG = 0x50C37;
     public static final int BACKLOG_TAG = 0xB4C106;
@@ -2026,6 +2029,7 @@ public class NetworkConnection {
                 mBuffers.purgeInvalidBIDs();
                 mChannels.purgeInvalidChannels();
                 NotificationsList.getInstance().deleteOldNotifications();
+                mRecentConversations.prune();
                 if (userInfo != null && userInfo.connections > 0 && (mServers.count() == 0 || mBuffers.count() == 0)) {
                     Log.e("IRCCloud", "Failed to load buffers list, reconnecting");
                     notifyHandlers(EVENT_BACKLOG_FAILED, null);
@@ -2314,6 +2318,9 @@ public class NetworkConnection {
                 } else if(event.self && b != null && b.isConversation()) {
                     mEvents.clearPendingEvents(event.bid);
                 }
+
+                if(event.self)
+                    mRecentConversations.updateConversation(event.cid, event.bid, event.eid/1000);
 
                 if (!backlog) {
                     notifyHandlers(EVENT_BUFFERMSG, event);

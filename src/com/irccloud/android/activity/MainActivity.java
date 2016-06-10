@@ -129,6 +129,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
+import com.irccloud.android.data.collection.RecentConversationsList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.model.Channel;
@@ -1199,6 +1200,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     e.msg = TextUtils.htmlEncode(e.msg);
                     EventsList.getInstance().addEvent(e);
                     conn.notifyHandlers(NetworkConnection.EVENT_BUFFERMSG, e, MainActivity.this);
+                    RecentConversationsList.getInstance().updateConversation(e.cid, e.bid, System.currentTimeMillis());
                 }
             }
         }
@@ -1457,6 +1459,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             launchBid = intent.getIntExtra("bid", -1);
         } else {
             onBufferSelected(buffer.getBid());
+            if(server == null)
+                launchBid = buffer.getBid();
         }
     }
 

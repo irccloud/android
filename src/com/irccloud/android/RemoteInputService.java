@@ -26,6 +26,7 @@ import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.irccloud.android.data.collection.NotificationsList;
+import com.irccloud.android.data.collection.RecentConversationsList;
 import com.squareup.leakcanary.RefWatcher;
 
 import org.json.JSONObject;
@@ -75,6 +76,7 @@ public class RemoteInputService extends IntentService {
                                 NotificationsList.getInstance().addNotification(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis() * 1000, null, reply, intent.getStringExtra("chan"), intent.getStringExtra("buffer_type"), type, intent.getStringExtra("network"));
                         }
                         NotificationsList.getInstance().showNotificationsNow();
+                        RecentConversationsList.getInstance().updateConversation(intent.getIntExtra("cid", -1), intent.getIntExtra("bid", -1), System.currentTimeMillis());
                     } else {
                         NotificationsList.getInstance().alert(intent.getIntExtra("bid", -1), "Sending Failed", reply.startsWith("/") ? "Please launch the IRCCloud app to send this command" : "Your message was not sent. Please try again shortly.");
                     }
