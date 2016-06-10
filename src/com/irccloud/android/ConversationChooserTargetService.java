@@ -29,6 +29,7 @@ import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.RecentConversationsList;
+import com.irccloud.android.data.model.Avatar;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.RecentConversation;
 
@@ -37,6 +38,8 @@ import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.M)
 public class ConversationChooserTargetService extends ChooserTargetService {
+    private static final Icon channelIcon = Icon.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, 320));
+
     @Override
     public List<ChooserTarget> onGetChooserTargets(ComponentName componentName, IntentFilter intentFilter) {
         ComponentName cn = new ComponentName(getPackageName(), MainActivity.class.getCanonicalName());
@@ -50,7 +53,7 @@ public class ConversationChooserTargetService extends ChooserTargetService {
             }
             Bundle extras = new Bundle();
             extras.putInt("bid", c.bid);
-            targets.add(new ChooserTarget(c.name, Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name).getBitmap(false, 320)), 0.5f, cn, extras));
+            targets.add(new ChooserTarget(c.name, c.type.equals("channel")?channelIcon:Icon.createWithBitmap(AvatarsList.getInstance().getAvatar(c.cid, c.name).getBitmap(false, 320)), 0.5f, cn, extras));
         }
 
         return targets;

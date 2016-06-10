@@ -25,17 +25,50 @@ import android.text.TextPaint;
 
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
-import com.irccloud.android.data.collection.ServersList;
 
 import java.util.HashMap;
 
 public class Avatar {
-    private HashMap<Integer, Bitmap> bitmaps = new HashMap<>();
+    private HashMap<Integer, Bitmap> bitmaps_dark = new HashMap<>();
+    private HashMap<Integer, Bitmap> bitmaps_light = new HashMap<>();
     private static Typeface font = null;
 
     public long lastAccessTime = 0;
     public int cid;
     public String nick;
+
+    public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size) {
+        Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bitmap);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setStyle(Paint.Style.FILL);
+
+        if(isDarkTheme) {
+            p.setColor(bgColor);
+            c.drawCircle(size / 2, size / 2, size / 2, p);
+        } else {
+            float[] hsv = new float[3];
+            Color.colorToHSV(bgColor, hsv);
+            hsv[2] *= 0.8f;
+            p.setColor(Color.HSVToColor(hsv));
+            c.drawCircle(size / 2, size / 2, (size / 2) - 4, p);
+            p.setColor(bgColor);
+            c.drawCircle(size / 2, (size / 2) - 4, (size / 2) - 4, p);
+        }
+        TextPaint tp = new TextPaint();
+        tp.setTextAlign(Paint.Align.CENTER);
+        tp.setTypeface(font);
+        tp.setTextSize((size / 3) * 2);
+        tp.setFakeBoldText(true);
+        tp.setColor(textColor);
+        if (isDarkTheme) {
+            c.drawText(text, size/2, (size/2) - ((tp.descent() + tp.ascent()) / 2), tp);
+        } else {
+            c.drawText(text, size/2, (size/2) - 4 - ((tp.descent() + tp.ascent()) / 2), tp);
+        }
+
+        return bitmap;
+    }
 
     public Bitmap getBitmap(boolean isDarkTheme, int size) {
         return getBitmap(isDarkTheme, size, false);
@@ -43,42 +76,22 @@ public class Avatar {
 
     public Bitmap getBitmap(boolean isDarkTheme, int size, boolean self) {
         lastAccessTime = System.currentTimeMillis();
+        HashMap<Integer, Bitmap> bitmaps = isDarkTheme?bitmaps_dark:bitmaps_light;
+
         if(!bitmaps.containsKey(size) && nick != null && nick.length() > 0) {
+            String normalizedNick = nick.toUpperCase().replaceAll("[_\\W]+", "");
+            if(normalizedNick.length() == 0)
+                normalizedNick = nick.toUpperCase();
+
             if(font == null) {
                 font = Typeface.createFromAsset(IRCCloudApplication.getInstance().getApplicationContext().getAssets(), "SourceSansPro-Regular.otf");
             }
 
-            Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(bitmap);
-            Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-            p.setStyle(Paint.Style.FILL);
-
             if(isDarkTheme) {
-                p.setColor(self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, true)));
-                c.drawCircle(size / 2, size / 2, size / 2, p);
+                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), ColorScheme.getInstance().contentBackgroundColor, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, true)), true, size));
             } else {
-                float[] hsv = new float[3];
-                int color = self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, false));
-                Color.colorToHSV(color, hsv);
-                hsv[2] *= 0.8f;
-                p.setColor(Color.HSVToColor(hsv));
-                c.drawCircle(size / 2, size / 2, (size / 2) - 4, p);
-                p.setColor(color);
-                c.drawCircle(size / 2, (size / 2) - 4, (size / 2) - 4, p);
+                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), 0xFFFFFFFF, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, false)), false, size));
             }
-            TextPaint tp = new TextPaint();
-            tp.setTextAlign(Paint.Align.CENTER);
-            tp.setTypeface(font);
-            tp.setTextSize((size / 3) * 2);
-            tp.setFakeBoldText(true);
-            if (isDarkTheme) {
-                tp.setColor(ColorScheme.getInstance().contentBackgroundColor);
-                c.drawText(nick.toUpperCase().substring(0, 1), size/2, (size/2) - ((tp.descent() + tp.ascent()) / 2), tp);
-            } else {
-                tp.setColor(0xFFFFFFFF);
-                c.drawText(nick.toUpperCase().substring(0, 1), size/2, (size/2) - 4 - ((tp.descent() + tp.ascent()) / 2), tp);
-            }
-            bitmaps.put(size, bitmap);
         }
         return bitmaps.get(size);
     }
@@ -89,12 +102,18 @@ public class Avatar {
 
     protected void finalize() throws Throwable {
         try {
-            for(Bitmap bitmap : bitmaps.values()) {
+            for(Bitmap bitmap : bitmaps_dark.values()) {
                 if (bitmap != null && !bitmap.isRecycled()) {
                     bitmap.recycle();
                 }
             }
-            bitmaps.clear();
+            bitmaps_dark.clear();
+            for(Bitmap bitmap : bitmaps_light.values()) {
+                if (bitmap != null && !bitmap.isRecycled()) {
+                    bitmap.recycle();
+                }
+            }
+            bitmaps_light.clear();
         } finally {
             super.finalize();
         }
