@@ -480,6 +480,10 @@ public class NetworkConnection {
             config = new JSONObject();
         }
 
+        String userinfojson = IRCCloudApplication.getInstance().getApplicationContext().getSharedPreferences("prefs", 0).getString("userinfo", null);
+        if(userinfojson != null)
+            userInfo = new UserInfo(new IRCCloudJSONObject(userinfojson));
+
         useragent = "IRCCloud" + version + " (" + android.os.Build.MODEL + "; " + Locale.getDefault().getCountry().toLowerCase() + "; "
                 + "Android " + android.os.Build.VERSION.RELEASE;
 
