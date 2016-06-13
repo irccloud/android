@@ -135,4 +135,10 @@ public class IRCCloudJSONObject {
         }
         return writer.toString();
     }
+
+    public void remove(String key) {
+        if(o instanceof ObjectNode) {
+            ((ObjectNode)o).remove(key);
+        }
+    }
 }

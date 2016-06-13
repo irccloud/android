@@ -2414,7 +2414,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             case NetworkConnection.EVENT_QUIT:
             case NetworkConnection.EVENT_KICK:
             case NetworkConnection.EVENT_CHANNELMODE:
-            case NetworkConnection.EVENT_SELFDETAILS:
             case NetworkConnection.EVENT_USERMODE:
             case NetworkConnection.EVENT_USERCHANNELMODE:
                 e = (IRCCloudJSONObject) obj;
@@ -2429,6 +2428,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     });
                 }
                 break;
+            case NetworkConnection.EVENT_SELFDETAILS:
             case NetworkConnection.EVENT_BUFFERMSG:
                 final Event event = (Event) obj;
                 if (buffer != null && event.bid == buffer.getBid()) {

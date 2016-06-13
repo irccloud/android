@@ -2646,9 +2646,12 @@ public class NetworkConnection {
                 Server s = mServers.getServer(object.cid());
                 if(s != null)
                     s.setUsermask(object.getString("usermask"));
-                Event event = mEvents.addEvent(object);
+                Event e = mEvents.addEvent(object);
                 if (!backlog) {
-                    notifyHandlers(EVENT_SELFDETAILS, object);
+                    notifyHandlers(EVENT_SELFDETAILS, e);
+                    e = mEvents.getEvent(e.eid + 1, e.bid);
+                    if(e != null)
+                        notifyHandlers(EVENT_SELFDETAILS, e);
                 }
             }
         });

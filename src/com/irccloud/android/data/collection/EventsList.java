@@ -235,12 +235,24 @@ public class EventsList {
         put("self_details", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
-                if(event != null) {
-                    e.from = "";
-                    e.msg = "<pre>Your hostmask: <b>" + event.getString("usermask") + "</b></pre>";
-                }
                 e.bg_color = colorScheme.statusBackgroundColor;
                 e.linkify = false;
+                if(event != null) {
+                    e.from = "";
+                    if(event.has("usermask") && event.has("user") && event.getString("user").length() > 0) {
+                        e.msg = "<pre>Your hostmask: <b>" + event.getString("usermask") + "</b></pre>";
+                        if(event.has("server_realname")) {
+                            Event e1 = new Event(e);
+                            e1.eid++;
+                            e1.msg = "<pre>Your name: <b>" + event.getString("server_realname") + "</b></pre>";
+                            e1.linkify = true;
+                            addEvent(e1);
+                        }
+                    } else if(event.has("server_realname")) {
+                        e.msg = "<pre>Your name: <b>" + event.getString("server_realname") + "</b></pre>";
+                        e.linkify = true;
+                    }
+                }
             }
         });
 

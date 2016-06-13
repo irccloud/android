@@ -148,6 +148,46 @@ public class Event /*extends ObservableBaseModel*/ {
     public TimerTask expiration_timer;
     public boolean header;
 
+    public Event() {
+
+    }
+
+    public Event(Event e) {
+        cid = e.cid;
+        bid = e.bid;
+        eid = e.eid;
+        type = e.type;
+        msg = e.msg;
+        hostmask = e.hostmask;
+        from = e.from;
+        from_mode = e.from_mode;
+        from_realname = e.from_realname;
+        nick = e.nick;
+        old_nick = e.old_nick;
+        server = e.server;
+        diff = e.diff;
+        chan = e.chan;
+        highlight = e.highlight;
+        self = e.self;
+        to_chan = e.to_chan;
+        to_buffer = e.to_buffer;
+        color = e.color;
+        bg_color = e.bg_color;
+        ops = e.ops.deepCopy();
+        group_eid = e.group_eid;
+        row_type = e.row_type;
+        group_msg = e.group_msg;
+        linkify = e.linkify;
+        target_mode = e.target_mode;
+        reqid = e.reqid;
+        pending = e.pending;
+        failed = e.failed;
+        command = e.command;
+        day = e.day;
+        contentDescription = e.contentDescription;
+        entities = e.entities;
+    }
+
     public String toString() {
         return "{" +
                 "cid: " + cid +
