@@ -442,7 +442,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 320)));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400)));
                 }
                 n.delete();
             }
@@ -512,12 +512,21 @@ public class NotificationsList {
         builder.setContentIntent(PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT));
         builder.setDeleteIntent(dismissPendingIntent);
 
+        WearableExtender wearableExtender = new WearableExtender();
         if(messages != null && messages.length > 0) {
-            NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(getServerNick(messages[0].cid));
+            String weartext = "";
+            String servernick = getServerNick(messages[0].cid);
+            NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(servernick);
             style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
             for(Notification n : messages) {
                 if(n != null && n.message != null && n.message.length() > 0) {
                     style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
+                    if (weartext.length() > 0)
+                        weartext += "<br/><br/>";
+                    if (n.message_type.equals("buffer_me_msg"))
+                        weartext += "<b>— " + ((n.nick == null)?servernick:n.nick) + "</b> " + n.message;
+                    else
+                        weartext += "<b>&lt;" + ((n.nick == null)?servernick:n.nick) + "&gt;</b> " + n.message;
                 }
             }
 
@@ -533,9 +542,12 @@ public class NotificationsList {
             }
             builder.setRemoteInputHistory(history.toArray(new String[history.size()]));
             builder.setStyle(style);
+
+            if(messages.length > 1) {
+                wearableExtender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(Html.fromHtml(weartext)).extend(new WearableExtender().setStartScrollBottom(true)).build());
+            }
         }
 
-        WearableExtender wearableExtender = new WearableExtender();
         if (replyIntent != null) {
             PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             builder.addAction(new NotificationCompat.Action.Builder(0,
@@ -670,7 +682,7 @@ public class NotificationsList {
                             lines.remove(0);
 
                         try {
-                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 320)));
+                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400)));
                         } catch (Exception e) {
                             Crashlytics.logException(e);
                         }
@@ -760,7 +772,8 @@ public class NotificationsList {
                 }
                 messages[count] = n;
                 eids[count++] = n.eid;
-                last = n;
+                if(n.nick != null)
+                    last = n;
             }
 
             if (show) {
@@ -795,7 +808,7 @@ public class NotificationsList {
                     lines.remove(0);
 
                 try {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 320)));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400)));
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }
