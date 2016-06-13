@@ -343,9 +343,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 formatter = new SimpleDateFormat("h:mm a");
                 if (pref_24hr) {
                     if (pref_seconds)
-                        formatter = new SimpleDateFormat("H:mm:ss");
+                        formatter = new SimpleDateFormat("HH:mm:ss");
                     else
-                        formatter = new SimpleDateFormat("H:mm");
+                        formatter = new SimpleDateFormat("HH:mm");
                 } else if (pref_seconds) {
                     formatter = new SimpleDateFormat("h:mm:ss a");
                 }
