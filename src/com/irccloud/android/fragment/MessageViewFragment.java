@@ -713,7 +713,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.avatar.setLayoutParams(lp);
                 }
 
-                if(!pref_chatOneLine && e.header && e.formatted_nick != null && e.formatted_nick.length() > 0) {
+                if(!pref_chatOneLine && e.header && e.formatted_nick != null && e.formatted_nick.length() > 0 && e.group_eid < 1) {
                     if (holder.nickname != null) {
                         holder.nickname.setVisibility(pref_chatOneLine ? View.GONE : View.VISIBLE);
                         if (mono)
