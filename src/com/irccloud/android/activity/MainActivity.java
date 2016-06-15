@@ -56,6 +56,7 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.ActionBar;
@@ -446,7 +447,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(actionBar != null)
             actionBar.setCustomView(v);
 
-        upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu).mutate();
+        upDrawable = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_navigation_menu, null).mutate();
         upDrawable.setColorFilter(normalFilter);
         upDrawableFilter = normalFilter;
         drawerLayout.setDrawerListener(mDrawerListener);

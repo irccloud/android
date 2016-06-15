@@ -43,7 +43,7 @@
                 android:id="@+id/splashlogo"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                app:srcCompat="@drawable/login_logo" />
+                android:src="@drawable/login_logo" />
 
             <LinearLayout
                 android:orientation="horizontal"

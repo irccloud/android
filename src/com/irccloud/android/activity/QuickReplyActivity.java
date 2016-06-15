@@ -80,6 +80,8 @@ public class QuickReplyActivity extends AppCompatActivity {
         private ArrayList<Notification> msgs = new ArrayList<>();
 
         public void loadMessages(int cid, int bid) {
+            msgs.clear();
+
             List<Notification> notifications = NotificationsList.getInstance().getNotifications();
 
             for(Notification n : notifications) {
@@ -115,7 +117,7 @@ public class QuickReplyActivity extends AppCompatActivity {
                 row = inflater.inflate(R.layout.row_message, viewGroup, false);
 
                 holder = new ViewHolder();
-                holder.timestamp = (TextView)row.findViewById(R.id.timestamp_left);
+                holder.timestamp = (TextView)row.findViewById(R.id.timestamp_right);
                 holder.message = (TextView)row.findViewById(R.id.message);
 
                 row.setTag(holder);
