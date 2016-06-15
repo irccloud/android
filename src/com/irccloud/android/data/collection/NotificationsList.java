@@ -522,7 +522,7 @@ public class NotificationsList {
                 if(n != null && n.message != null && n.message.length() > 0) {
                     style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
                     if (weartext.length() > 0)
-                        weartext += "<br/><br/>";
+                        weartext += "<br/>";
                     if (n.message_type.equals("buffer_me_msg"))
                         weartext += "<b>— " + ((n.nick == null)?servernick:n.nick) + "</b> " + n.message;
                     else
@@ -546,22 +546,62 @@ public class NotificationsList {
             if(messages.length > 1) {
                 wearableExtender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(Html.fromHtml(weartext)).extend(new WearableExtender().setStartScrollBottom(true)).build());
             }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                weartext = "";
+                int j = 0;
+                for(Notification n : messages) {
+                    if(n != null && n.message != null && n.message.length() > 0) {
+                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
+                        if (weartext.length() > 0)
+                            weartext += "<br/>";
+                        if (n.message_type.equals("buffer_me_msg"))
+                            weartext += "<b>— " + ((n.nick == null)?servernick:n.nick) + "</b> " + n.message;
+                        else
+                            weartext += "<b>&lt;" + ((n.nick == null)?servernick:n.nick) + "&gt;</b> " + n.message;
+                    }
+                    if(++j > 2)
+                        break;
+                }
+
+                RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
+                bigContentView.setTextViewText(R.id.title, title + (!title.equals(network) ? (" (" + network + ")") : ""));
+                bigContentView.setTextViewText(R.id.text, Html.fromHtml(weartext));
+                bigContentView.setImageViewBitmap(R.id.image, largeIcon);
+                bigContentView.setLong(R.id.time, "setTime", eids[0] / 1000);
+                if (count > 3) {
+                    bigContentView.setViewVisibility(R.id.more, View.VISIBLE);
+                    bigContentView.setTextViewText(R.id.more, "+" + (count - 3) + " more");
+                } else {
+                    bigContentView.setViewVisibility(R.id.more, View.GONE);
+                }
+                if(replyIntent != null && prefs.getBoolean("notify_quickreply", true)) {
+                    bigContentView.setViewVisibility(R.id.actions, View.VISIBLE);
+                    bigContentView.setViewVisibility(R.id.action_divider, View.VISIBLE);
+                    i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
+                    i.setData(Uri.parse("irccloud-bid://" + bid));
+                    i.putExtras(replyIntent);
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+                    bigContentView.setOnClickPendingIntent(R.id.action_reply, quickReplyIntent);
+                }
+                builder.setCustomBigContentView(bigContentView);
+            }
         }
 
         if (replyIntent != null) {
             PendingIntent replyPendingIntent = PendingIntent.getService(IRCCloudApplication.getInstance().getApplicationContext(), bid + 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(new NotificationCompat.Action.Builder(0,
-                    "Reply", replyPendingIntent)
-                    .setAllowGeneratedReplies(true)
-                    .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
 
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                builder.addAction(new NotificationCompat.Action.Builder(0,
+                        "Reply", replyPendingIntent)
+                        .setAllowGeneratedReplies(true)
+                        .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
+            }
             wearableExtender.addAction(new NotificationCompat.Action.Builder(R.drawable.ic_wearable_reply,
                     "Reply", replyPendingIntent)
                     .setAllowGeneratedReplies(true)
                     .addRemoteInput(new RemoteInput.Builder("extra_reply").setLabel("Reply to " + title).build()).build());
-
-            //if (count > 1 && wear_text != null)
-            //    extender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(wear_text).extend(new WearableExtender().setStartScrollBottom(true)).build());
 
             NotificationCompat.CarExtender.UnreadConversation.Builder unreadConvBuilder =
                     new NotificationCompat.CarExtender.UnreadConversation.Builder(title + ((network != null) ? (" (" + network + ")") : ""))
@@ -599,7 +639,7 @@ public class NotificationsList {
             i.putExtras(replyIntent);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             PendingIntent quickReplyIntent = PendingIntent.getActivity(IRCCloudApplication.getInstance().getApplicationContext(), 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.addAction(0, "Quick Reply", quickReplyIntent);
+            builder.addAction(R.drawable.ic_action_reply, "Quick Reply", quickReplyIntent);
         }
 
         if(otherAction != null) {

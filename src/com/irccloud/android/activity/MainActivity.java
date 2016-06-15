@@ -1649,6 +1649,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             imgurTask.setActivity(null);
         if (fileUploadTask != null)
             fileUploadTask.setActivity(null);
+        if (conn != null)
+            conn.removeHandler(this);
+        conn = null;
+        try {
+            if (excludeBIDTask != null)
+                excludeBIDTask.cancel(true);
+        } catch (Exception e) {
+        }
+        excludeBIDTask = new ExcludeBIDTask();
+        excludeBIDTask.execute(-1);
     }
 
     @Override

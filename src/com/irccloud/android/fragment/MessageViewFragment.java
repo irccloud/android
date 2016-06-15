@@ -1820,9 +1820,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 pref_avatarsOff = (prefs.has("avatars-off") && prefs.get("avatars-off") instanceof Boolean && prefs.getBoolean("avatars-off"));
                 pref_chatOneLine = (prefs.has("chat-oneline") && prefs.get("chat-oneline") instanceof Boolean && prefs.getBoolean("chat-oneline"));
                 pref_norealname = (prefs.has("chat-norealname") && prefs.get("chat-norealname") instanceof Boolean && prefs.getBoolean("chat-norealname"));
-                JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
-                if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {
-                    pref_trackUnread = false;
+                if(prefs.has("channel-disableTrackUnread")) {
+                    JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
+                    if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {
+                        pref_trackUnread = false;
+                    }
                 }
                 JSONObject hiddenMap = null;
                 if (buffer.isChannel()) {
@@ -1847,7 +1849,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         expandMap = prefs.getJSONObject("buffer-expandJoinPart");
                 }
 
-                pref_expandJoinPart = ((conn.getUserInfo().prefs.has("expandJoinPart") && conn.getUserInfo().prefs.get("expandJoinPart") instanceof Boolean && conn.getUserInfo().prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid()))));
+                pref_expandJoinPart = ((prefs.has("expandJoinPart") && prefs.get("expandJoinPart") instanceof Boolean && prefs.getBoolean("expandJoinPart")) || (expandMap != null && expandMap.has(String.valueOf(buffer.getBid())) && expandMap.getBoolean(String.valueOf(buffer.getBid()))));
             } catch (JSONException e1) {
                 NetworkConnection.printStackTraceToCrashlytics(e1);
             }
