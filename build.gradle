@@ -51,7 +51,7 @@ def getRevision = { ->
 }
 
 android {
-    compileSdkVersion 'android-N'
+    compileSdkVersion 24
     buildToolsVersion '24.0.0 rc4'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
@@ -60,7 +60,7 @@ android {
         versionCode 51
         versionName "2.9"
         minSdkVersion 10
-        targetSdkVersion 'N'
+        targetSdkVersion 24
         applicationId "com.irccloud.android"
         testApplicationId "com.irccloud.android.test"
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
@@ -321,11 +321,11 @@ tasks.whenTaskAdded { task ->
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:24.0.0-beta1'
-    compile 'com.android.support:appcompat-v7:24.0.0-beta1'
-    compile 'com.android.support:cardview-v7:24.0.0-beta1'
-    compile 'com.android.support:design:24.0.0-beta1'
-    compile 'com.android.support:recyclerview-v7:24.0.0-beta1'
+    compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'com.android.support:cardview-v7:24.0.0'
+    compile 'com.android.support:design:24.0.0'
+    compile 'com.android.support:recyclerview-v7:24.0.0'
 
     compile 'com.google.android.gms:play-services-base:9.0.2'
     compile 'com.google.android.gms:play-services-auth:9.0.2'

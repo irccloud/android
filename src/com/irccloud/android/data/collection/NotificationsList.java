@@ -593,7 +593,7 @@ public class NotificationsList {
             builder.extend(new NotificationCompat.CarExtender().setUnreadConversation(unreadConvBuilder.build()));
         }
 
-        if (replyIntent != null && prefs.getBoolean("notify_quickreply", true) && !BuildCompat.isAtLeastN()) {
+        if (replyIntent != null && prefs.getBoolean("notify_quickreply", true) && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             i = new Intent(IRCCloudApplication.getInstance().getApplicationContext(), QuickReplyActivity.class);
             i.setData(Uri.parse("irccloud-bid://" + bid));
             i.putExtras(replyIntent);

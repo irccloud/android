@@ -445,7 +445,7 @@ public class NetworkConnection {
         @Override
         public void onReceive(Context context, Intent intent) {
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            if(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
                 if(!isVisible() && state == STATE_CONNECTED) {
                     notifier = false;
                     disconnect();
@@ -498,7 +498,7 @@ public class NetworkConnection {
         WifiManager wfm = (WifiManager) IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiLock = wfm.createWifiLock(TAG);
 
-        if(!BuildCompat.isAtLeastN()) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             kms = new X509ExtendedKeyManager[1];
             kms[0] = new X509ExtendedKeyManager() {
                 @Override
@@ -928,7 +928,7 @@ public class NetworkConnection {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(connectivityListener, intentFilter);
-            if(BuildCompat.isAtLeastN()) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 intentFilter = new IntentFilter();
                 intentFilter.addAction(ConnectivityManager.ACTION_RESTRICT_BACKGROUND_CHANGED);
                 IRCCloudApplication.getInstance().getApplicationContext().registerReceiver(dataSaverListener, intentFilter);
@@ -1059,7 +1059,7 @@ public class NetworkConnection {
                 return;
             }
 
-            if(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
                 limit = 50;
             }
 
@@ -2829,7 +2829,7 @@ public class NetworkConnection {
 
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-            if (!BuildCompat.isAtLeastN() && url.getHost().equals(IRCCLOUD_HOST))
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N && url.getHost().equals(IRCCLOUD_HOST))
                 https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
@@ -2941,7 +2941,7 @@ public class NetworkConnection {
 
         if (url.getProtocol().toLowerCase().equals("https")) {
             HttpsURLConnection https = (HttpsURLConnection) ((proxy != null) ? url.openConnection(proxy) : url.openConnection(Proxy.NO_PROXY));
-            if (!BuildCompat.isAtLeastN() && url.getHost().equals(IRCCLOUD_HOST))
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N && url.getHost().equals(IRCCLOUD_HOST))
                 https.setSSLSocketFactory(IRCCloudSocketFactory);
             conn = https;
         } else {
@@ -3009,7 +3009,7 @@ public class NetworkConnection {
                     notifierSockerTimerTask = null;
                     if(!notifier && state == STATE_CONNECTED) {
                         disconnect();
-                        if(!(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
+                        if(!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
                             try {
                                 Thread.sleep(1000);
                                 notifier = true;
@@ -3021,7 +3021,7 @@ public class NetworkConnection {
                 }
             };
 
-            if(BuildCompat.isAtLeastN() && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
                 idleTimer.schedule(notifierSockerTimerTask, 5000);
             } else {
                 idleTimer.schedule(notifierSockerTimerTask, 300000);
@@ -3173,7 +3173,7 @@ public class NetworkConnection {
 
                 if (url[0].getProtocol().toLowerCase().equals("https")) {
                     HttpsURLConnection https = (proxy != null) ? (HttpsURLConnection) url[0].openConnection(proxy) : (HttpsURLConnection) url[0].openConnection(Proxy.NO_PROXY);
-                    if(!BuildCompat.isAtLeastN())
+                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
                         https.setSSLSocketFactory(IRCCloudSocketFactory);
                     conn = https;
                 } else {

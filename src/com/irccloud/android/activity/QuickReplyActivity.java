@@ -115,7 +115,7 @@ public class QuickReplyActivity extends AppCompatActivity {
                 row = inflater.inflate(R.layout.row_message, viewGroup, false);
 
                 holder = new ViewHolder();
-                holder.timestamp = (TextView)row.findViewById(R.id.timestamp);
+                holder.timestamp = (TextView)row.findViewById(R.id.timestamp_left);
                 holder.message = (TextView)row.findViewById(R.id.message);
 
                 row.setTag(holder);
@@ -143,6 +143,7 @@ public class QuickReplyActivity extends AppCompatActivity {
                    }
                    timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
                }
+               holder.timestamp.setVisibility(View.VISIBLE);
                holder.timestamp.setMinWidth(timestamp_width);
                holder.timestamp.setText(formatter.format(calendar.getTime()));
                holder.timestamp.setTextColor(ColorScheme.getInstance().timestampColor);
