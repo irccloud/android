@@ -447,10 +447,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if(actionBar != null)
             actionBar.setCustomView(v);
 
-        upDrawable = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_navigation_menu, null).mutate();
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            upDrawable = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_navigation_menu, null).mutate();
+        else
+            upDrawable = getResources().getDrawable(R.drawable.ic_action_navigation_menu, null).mutate();
         upDrawable.setColorFilter(normalFilter);
         upDrawableFilter = normalFilter;
         drawerLayout.setDrawerListener(mDrawerListener);
+        ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
+        ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
 
         messageTxt.setDrawerLayout(drawerLayout);
 
