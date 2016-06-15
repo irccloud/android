@@ -551,17 +551,17 @@ public class NotificationsList {
                 weartext = "";
                 int j = 0;
                 for(Notification n : messages) {
-                    if(n != null && n.message != null && n.message.length() > 0) {
-                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
-                        if (weartext.length() > 0)
-                            weartext += "<br/>";
-                        if (n.message_type.equals("buffer_me_msg"))
-                            weartext += "<b>— " + ((n.nick == null)?servernick:n.nick) + "</b> " + n.message;
-                        else
-                            weartext += "<b>&lt;" + ((n.nick == null)?servernick:n.nick) + "&gt;</b> " + n.message;
+                    if(messages.length - ++j < 3) {
+                        if (n != null && n.message != null && n.message.length() > 0) {
+                            style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
+                            if (weartext.length() > 0)
+                                weartext += "<br/>";
+                            if (n.message_type.equals("buffer_me_msg"))
+                                weartext += "<b>— " + ((n.nick == null) ? servernick : n.nick) + "</b> " + n.message;
+                            else
+                                weartext += "<b>&lt;" + ((n.nick == null) ? servernick : n.nick) + "&gt;</b> " + n.message;
+                        }
                     }
-                    if(++j > 2)
-                        break;
                 }
 
                 RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
