@@ -454,8 +454,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         upDrawable.setColorFilter(normalFilter);
         upDrawableFilter = normalFilter;
         drawerLayout.setDrawerListener(mDrawerListener);
-        ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
-        ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
 
         messageTxt.setDrawerLayout(drawerLayout);
 
