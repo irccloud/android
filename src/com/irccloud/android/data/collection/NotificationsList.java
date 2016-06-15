@@ -192,7 +192,7 @@ public class NotificationsList {
         n.cid = cid;
         n.eid = eid;
         n.nick = from;
-        n.message = TextUtils.htmlEncode(ColorFormatter.emojify(message));
+        n.message = TextUtils.htmlEncode(ColorFormatter.strip(message));
         n.chan = chan;
         n.buffer_type = buffer_type;
         n.message_type = message_type;
@@ -520,13 +520,15 @@ public class NotificationsList {
             style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
             for(Notification n : messages) {
                 if(n != null && n.message != null && n.message.length() > 0) {
-                    style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
                     if (weartext.length() > 0)
                         weartext += "<br/>";
-                    if (n.message_type.equals("buffer_me_msg"))
-                        weartext += "<b>— " + ((n.nick == null)?servernick:n.nick) + "</b> " + n.message;
-                    else
-                        weartext += "<b>&lt;" + ((n.nick == null)?servernick:n.nick) + "&gt;</b> " + n.message;
+                    if (n.message_type.equals("buffer_me_msg")) {
+                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, "— " + n.nick);
+                        weartext += "<b>— " + ((n.nick == null) ? servernick : n.nick) + "</b> " + n.message;
+                    } else {
+                        style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
+                        weartext += "<b>&lt;" + ((n.nick == null) ? servernick : n.nick) + "&gt;</b> " + n.message;
+                    }
                 }
             }
 
