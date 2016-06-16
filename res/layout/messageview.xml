@@ -44,6 +44,19 @@
             android:fadingEdge="none"
             android:stackFromBottom="true"/>
 
+        <com.irccloud.android.OffsetLinearLayout
+            android:id="@+id/avatarContainer"
+            android:background="?contentBackgroundColor"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/avatar"
+                android:layout_marginTop="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </com.irccloud.android.OffsetLinearLayout>
+
         <LinearLayout
             android:id="@+id/unreadTop"
             android:layout_width="match_parent"

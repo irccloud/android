@@ -4549,8 +4549,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     }
                 });
                 try {
-                    if(mvf != null)
+                    if(mvf != null) {
                         mvf.getListView().startAnimation(anim);
+                        mvf.avatar.startAnimation(anim);
+                    }
 
                     if(ulf != null)
                         ulf.getRecyclerView().startAnimation(anim);
@@ -4558,16 +4560,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
                 }
             } else {
-                if(mvf != null)
+                if(mvf != null) {
+                    mvf.avatar.animate().alpha(0);
                     mvf.getListView().animate().alpha(0).withEndAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        mvf.setArguments(b);
-                        messageTxt.setText("");
-                        if (buffer != null && buffer.getDraft() != null)
-                            messageTxt.append(buffer.getDraft());
-                    }
-                });
+                        @Override
+                        public void run() {
+                            mvf.setArguments(b);
+                            messageTxt.setText("");
+                            if (buffer != null && buffer.getDraft() != null)
+                                messageTxt.append(buffer.getDraft());
+                        }
+                    });
+                }
                 if(ulf != null)
                     ulf.getRecyclerView().animate().alpha(0);
             }
@@ -4614,11 +4618,15 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 anim.setFillAfter(true);
                 if (mvf != null && mvf.getListView() != null)
                     mvf.getListView().startAnimation(anim);
+                if (mvf != null && mvf.avatar != null)
+                    mvf.avatar.startAnimation(anim);
                 if (ulf != null && ulf.getRecyclerView() != null)
                     ulf.getRecyclerView().startAnimation(anim);
             } else {
                 if (mvf != null && mvf.getListView() != null)
                     mvf.getListView().animate().alpha(1);
+                if (mvf != null && mvf.avatar != null)
+                    mvf.avatar.animate().alpha(1);
                 if (ulf != null && ulf.getRecyclerView() != null)
                     ulf.getRecyclerView().animate().alpha(1);
             }

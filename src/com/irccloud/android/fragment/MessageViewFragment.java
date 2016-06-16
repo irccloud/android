@@ -22,6 +22,8 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -68,6 +70,7 @@ import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
+import com.irccloud.android.OffsetLinearLayout;
 import com.irccloud.android.R;
 import com.irccloud.android.activity.BaseActivity;
 import com.irccloud.android.data.collection.AvatarsList;
@@ -108,6 +111,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private View unreadBottomView;
     private TextView highlightsTopLabel;
     private TextView highlightsBottomLabel;
+    public ImageView avatar;
+    private OffsetLinearLayout avatarContainer;
     public Buffer buffer;
     private Server server;
     private long earliest_eid;
@@ -862,6 +867,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         ((ListView) v.findViewById(android.R.id.list)).addHeaderView(headerViewContainer);
         footerViewContainer = new View(getActivity());
         ((ListView) v.findViewById(android.R.id.list)).addFooterView(footerViewContainer, null, false);
+        avatarContainer = (OffsetLinearLayout) v.findViewById(R.id.avatarContainer);
+        avatar = (ImageView) v.findViewById(R.id.avatar);
         return v;
     }
 
@@ -945,11 +952,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if (!ready || buffer == null || !conn.ready || adapter == null || requestingBacklog)
+        public void onScroll(final AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (!ready || buffer == null || adapter == null)
                 return;
 
-            if (headerView != null && buffer.getMin_eid() > 0) {
+            if (conn.ready && !requestingBacklog && headerView != null && buffer.getMin_eid() > 0) {
                 if (firstVisibleItem == 0 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     requestingBacklog = true;
                     conn.request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
@@ -983,19 +990,67 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 buffer.setScrolledUp(false);
                 buffer.setScrollPosition(-1);
             }
-            if (adapter != null && adapter.data.size() > 0 && unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
-                update_top_unread(firstVisibleItem);
-                int markerPos = -1;
-                if (adapter != null)
-                    markerPos = adapter.getLastSeenEIDPosition();
-                if (markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
-                    unreadTopView.setVisibility(View.GONE);
-                    if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                        if (heartbeatTask != null)
-                            heartbeatTask.cancel(true);
-                        heartbeatTask = new HeartbeatTask();
-                        heartbeatTask.execute((Void) null);
+
+            if (adapter != null && adapter.data.size() > 0) {
+                if(unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
+                    update_top_unread(firstVisibleItem);
+                    int markerPos = -1;
+                    if (adapter != null)
+                        markerPos = adapter.getLastSeenEIDPosition();
+                    if (markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
+                        unreadTopView.setVisibility(View.GONE);
+                        if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                            if (heartbeatTask != null)
+                                heartbeatTask.cancel(true);
+                            heartbeatTask = new HeartbeatTask();
+                            heartbeatTask.execute((Void) null);
+                        }
                     }
+                }
+
+                if(!pref_chatOneLine && !pref_avatarsOff) {
+                    int first = firstVisibleItem - ((ListView) view).getHeaderViewsCount();
+                    int offset = (unreadTopView.getVisibility() == View.VISIBLE) ? unreadTopView.getHeight() : 0;
+                    View v = view.getChildAt(0);
+                    MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
+                    Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
+                    if (first > 0 && vh != null && vh.avatar != null && v.getTop() < offset - 1 && e != null && e.group_eid < 1) {
+                        for (int i = first; i < adapter.getCount(); i++) {
+                            e = (Event) adapter.getItem(i);
+                            Event e1 = (Event) adapter.getItem(i + 1);
+                            if (e.from.equals(e1.from) && e1.group_eid < 1) {
+                                View v1 = view.getChildAt(i - first + 1);
+                                if (v1 != null) {
+                                    MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v.getTag();
+                                    if (vh1 != null && vh1.avatar != null) {
+                                        v = v1;
+                                        vh = vh1;
+                                    }
+                                }
+                            } else {
+                                break;
+                            }
+                            if (i - first > 4)
+                                break;
+                        }
+                        avatar.setImageDrawable(vh.avatar.getDrawable());
+                        if (((BitmapDrawable) vh.avatar.getDrawable()).getBitmap() != null) {
+                            int topMargin, leftMargin;
+                            int height = ((BitmapDrawable) vh.avatar.getDrawable()).getBitmap().getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
+                            if (v.getHeight() + v.getTop() <= (height + offset)) {
+                                topMargin = offset + v.getTop() + v.getHeight() - height;
+                            } else {
+                                topMargin = offset;
+                            }
+                            leftMargin = vh.avatar.getLeft();
+                            avatarContainer.offset(leftMargin, topMargin);
+                            avatarContainer.setVisibility(View.VISIBLE);
+                        }
+                    } else if (e == null || (first == 0 && v.getTop() > 0) || vh == null || vh.avatar == null || e.group_eid > 0) {
+                        avatarContainer.setVisibility(View.INVISIBLE);
+                    }
+                } else {
+                    avatarContainer.setVisibility(View.INVISIBLE);
                 }
             }
         }
@@ -1066,6 +1121,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             collapsedEvents.setServer(server);
             update_status(server.getStatus(), server.getFail_info());
         }
+        if (avatar != null)
+            avatarContainer.setVisibility(View.INVISIBLE);
         if (unreadTopView != null)
             unreadTopView.setVisibility(View.GONE);
         backlogFailed.setVisibility(View.GONE);
@@ -2008,6 +2065,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 txt.append(count).append(" unread messages");
                         }
                         unreadTopLabel.setText(txt);
+                        Log.e("IRCCloud", "Show top unread");
                         showView(unreadTopView);
                     } else {
                         hideView(unreadTopView);
