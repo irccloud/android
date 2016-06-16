@@ -2017,7 +2017,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         public void run() {
                             progressBar.setIndeterminate(false);
                             progressBar.setProgress((int) progress);
-                            if (progressBar.getVisibility() != View.VISIBLE) {
+                            if (progressBar.getVisibility() != View.VISIBLE && progress < 1000) {
                                 progressBar.setVisibility(View.VISIBLE);
                             }
                         }
