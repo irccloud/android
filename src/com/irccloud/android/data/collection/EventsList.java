@@ -1089,6 +1089,7 @@ public class EventsList {
                         e.html = null;
                         e.formatted = null;
                         e.formatted_nick = null;
+                        e.formatted_realname = null;
                         Formatter f = formatterMap.get(e.type);
                         if (f != null)
                             f.format(null, e);

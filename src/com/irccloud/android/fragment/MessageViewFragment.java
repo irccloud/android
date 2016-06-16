@@ -521,6 +521,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 if (e.from != null && e.from.length() > 0) {
                                     e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors)) + "</b>");
                                 }
+                                if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
+                                    e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
+                                }
                             } catch (Exception ex) {
                             }
                         }
@@ -590,6 +593,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (e.formatted_nick == null && e.from != null && e.from.length() > 0) {
                     e.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(e.from, e.from_mode, !e.self && pref_nickColors)) + "</b>");
+                }
+
+                if (e.formatted_realname == null && e.from_realname != null && e.from_realname.length() > 0) {
+                    e.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(e.from_realname)), true, null);
                 }
 
                 if (e.row_type == ROW_MESSAGE) {
@@ -730,6 +737,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     if (holder.realname != null) {
+                        holder.realname.setMovementMethod(linkMovementMethodNoLongPress);
                         holder.realname.setVisibility((pref_chatOneLine || pref_norealname) ? View.GONE : View.VISIBLE);
                         if (mono)
                             holder.realname.setTypeface(Typeface.MONOSPACE);
@@ -737,7 +745,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             holder.realname.setTypeface(Typeface.DEFAULT);
                         holder.realname.setTextSize(textSize);
                         holder.realname.setTextColor(colorScheme.timestampColor);
-                        holder.realname.setText(e.from_realname);
+                        holder.realname.setText(e.formatted_realname);
                     }
                 } else {
                     if (holder.nickname != null)
@@ -1340,6 +1348,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                     if (event.formatted_nick == null && event.from != null && event.from.length() > 0) {
                         event.formatted_nick = Html.fromHtml("<b>" + ColorFormatter.irc_to_html(collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors)) + "</b>");
+                    }
+
+                    if (event.formatted_realname == null && event.from_realname != null && event.from_realname.length() > 0) {
+                        event.formatted_realname = ColorFormatter.html_to_spanned(ColorFormatter.irc_to_html(ColorFormatter.emojify(event.from_realname)), true, null);
                     }
                 }
 

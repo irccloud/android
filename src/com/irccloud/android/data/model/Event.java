@@ -145,6 +145,7 @@ public class Event /*extends ObservableBaseModel*/ {
     public String html;
     public Spanned formatted;
     public Spanned formatted_nick;
+    public Spanned formatted_realname;
     public TimerTask expiration_timer;
     public boolean header;
 
