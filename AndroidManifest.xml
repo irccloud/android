@@ -47,6 +47,8 @@
         android:smallScreens="true"
         android:xlargeScreens="true" />
 
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
     <application
         android:name=".IRCCloudApplication"
         android:allowBackup="false"

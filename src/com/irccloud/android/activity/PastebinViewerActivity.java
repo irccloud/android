@@ -154,7 +154,7 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         mWebView.setBackgroundColor(ColorScheme.getInstance().contentBackgroundColor);
         mWebView.getSettings().setBuiltInZoomControls(true);
         if (Integer.parseInt(Build.VERSION.SDK) >= 19)
-            mWebView.getSettings().setDisplayZoomControls(false);
+            mWebView.getSettings().setDisplayZoomControls(!getPackageManager().hasSystemFeature("android.hardware.touchscreen"));
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.addJavascriptInterface(new JSInterface(), "Android");
         mWebView.getSettings().setLoadWithOverviewMode(false);

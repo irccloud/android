@@ -369,7 +369,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         mImage.addJavascriptInterface(new JSInterface(), "Android");
         mImage.getSettings().setBuiltInZoomControls(true);
         if (Integer.parseInt(Build.VERSION.SDK) >= 19)
-            mImage.getSettings().setDisplayZoomControls(false);
+            mImage.getSettings().setDisplayZoomControls(!getPackageManager().hasSystemFeature("android.hardware.touchscreen"));
         mImage.getSettings().setJavaScriptEnabled(true);
         mImage.getSettings().setLoadWithOverviewMode(true);
         mImage.getSettings().setUseWideViewPort(true);
