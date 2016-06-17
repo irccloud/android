@@ -71,7 +71,7 @@ public class OffsetLinearLayout extends LinearLayout implements ViewTreeObserver
             lp.leftMargin = offset_left;
             lp.topMargin = offset_top;
             setLayoutParams(lp);
-            //requestLayout();
+            requestLayout();
         }
     }
 
