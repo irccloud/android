@@ -20,6 +20,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -30,6 +31,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsServiceConnection;
+import android.support.customtabs.CustomTabsSession;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -57,6 +61,7 @@ import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
 
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONObject;
 
 public class VideoPlayerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
@@ -364,6 +369,30 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         handler.removeCallbacks(mUpdateRunnable);
     }
 
+    CustomTabsSession mCustomTabsSession = null;
+    CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
+        @Override
+        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+            client.warmup(0);
+            mCustomTabsSession = client.newSession(null);
+            mCustomTabsSession.mayLaunchUrl(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")), null, null);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            CustomTabsClient.bindCustomTabsService(this, CustomTabsHelper.getPackageNameToUse(this), mCustomTabsConnection);
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -538,6 +567,8 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         @Override
         protected void onPostExecute(String url) {
             if (url != null) {
+                if(mCustomTabsSession != null)
+                    mCustomTabsSession.mayLaunchUrl(Uri.parse(url), null, null);
                 video.setVideoURI(Uri.parse(url));
             } else {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")));

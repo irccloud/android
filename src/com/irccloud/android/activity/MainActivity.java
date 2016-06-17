@@ -56,6 +56,8 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
@@ -126,6 +128,7 @@ import com.irccloud.android.ColorScheme;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.AvatarsList;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -158,6 +161,7 @@ import com.irccloud.android.fragment.UsersListFragment;
 import com.irccloud.android.fragment.WhoListFragment;
 import com.irccloud.android.fragment.WhoisFragment;
 
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -827,7 +831,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             dialog.setOwnerActivity(MainActivity.this);
             dialog.show();
 
-            ((TextView) v.findViewById(R.id.topic)).setMovementMethod(new LinkMovementMethod() {
+            ((TextView) v.findViewById(R.id.topic)).setMovementMethod(new IRCCloudLinkMovementMethod() {
                 @Override
                 public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
                     if (super.onTouchEvent(widget, buffer, event) && event.getAction() == MotionEvent.ACTION_UP) {
@@ -1645,6 +1649,27 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         if(NetworkConnection.getInstance().session != null && NetworkConnection.getInstance().session.length() > 0) {
             new GcmTask().execute((Void)null);
+        }
+    }
+
+    CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
+        @Override
+        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+            client.warmup(0);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            CustomTabsClient.bindCustomTabsService(this, CustomTabsHelper.getPackageNameToUse(this), mCustomTabsConnection);
         }
     }
 

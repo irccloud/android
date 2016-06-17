@@ -47,6 +47,7 @@ import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.IRCCloudApplication;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.R;
 import com.irccloud.android.RemoteInputService;
@@ -154,7 +155,7 @@ public class QuickReplyActivity extends AppCompatActivity {
            if(nick == null)
                nick = NotificationsList.getInstance().getServerNick(msg.cid);
             holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(nick, null, nickColors)) + "</b> " + msg.message, true, server));
-            holder.message.setMovementMethod(LinkMovementMethod.getInstance());
+            holder.message.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
             holder.message.setTextColor(ColorScheme.getInstance().messageTextColor);
             holder.message.setLinkTextColor(ColorScheme.getInstance().linkColor);
             return row;

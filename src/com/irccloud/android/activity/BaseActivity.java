@@ -142,10 +142,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     }
 
     public void makeMultiWindowIntent(Intent i) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            i.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
         if(mMultiWindowActivity != null)
             SMultiWindowActivity.makeMultiWindowIntent(i, SMultiWindowActivity.ZONE_A);
-        else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            i.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
     }
 
     @Override

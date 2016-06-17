@@ -22,6 +22,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.DownloadManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.PorterDuff;
@@ -34,6 +35,10 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.customtabs.CustomTabsServiceConnection;
+import android.support.customtabs.CustomTabsSession;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -57,11 +62,13 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.ColorScheme;
 import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
 
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -496,6 +503,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
     private void loadVideo(String urlStr) {
         try {
+            if(mCustomTabsSession != null)
+                mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Animation"));
             player = new MediaPlayer();
             final SurfaceView v = (SurfaceView) findViewById(R.id.video);
@@ -590,6 +599,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
     private void loadImage(String urlStr) {
         try {
+            if(mCustomTabsSession != null)
+                mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Image"));
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && urlStr.startsWith("https://")) {
                 GingerbreadImageProxy proxy = new GingerbreadImageProxy();
@@ -645,6 +656,29 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             }
             player.release();
             player = null;
+        }
+    }
+
+    CustomTabsSession mCustomTabsSession = null;
+    CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
+        @Override
+        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+            client.warmup(0);
+            mCustomTabsSession = client.newSession(null);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            CustomTabsClient.bindCustomTabsService(this, CustomTabsHelper.getPackageNameToUse(this), mCustomTabsConnection);
         }
     }
 
@@ -758,8 +792,23 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             return true;
         } else if (item.getItemId() == R.id.action_browser) {
             Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Open in Browser"));
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
-            startActivity(intent);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
+                builder.addDefaultShareMenuItem();
+                CustomTabsIntent intent = builder.build();
+                intent.intent.setData(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                if(Build.VERSION.SDK_INT >= 22)
+                    intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
+                if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
+                    startActivity(intent.intent, intent.startAnimationBundle);
+                } else {
+                    startActivity(intent.intent);
+                }
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                startActivity(intent);
+            }
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_save) {

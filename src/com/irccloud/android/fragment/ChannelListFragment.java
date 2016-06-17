@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.model.Server;
@@ -115,8 +116,8 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
             ChannelRow c = channels.get(position);
 
             row.setChannel(c);
-            row.name.setMovementMethod(LinkMovementMethod.getInstance());
-            row.topic.setMovementMethod(LinkMovementMethod.getInstance());
+            row.name.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
+            row.topic.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
             row.executePendingBindings();
         }
     }

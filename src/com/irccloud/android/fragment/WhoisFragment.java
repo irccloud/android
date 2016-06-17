@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.R;
 import com.irccloud.android.data.collection.ServersList;
 import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends DialogFragment {
@@ -62,7 +63,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
         away = (TextView) v.findViewById(R.id.away);
         operTitle = (TextView) v.findViewById(R.id.operTitle);
         operChannels = (TextView) v.findViewById(R.id.operChannels);
-        operChannels.setMovementMethod(LinkMovementMethod.getInstance());
+        operChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         operChannels.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,7 +72,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
         });
         ownerTitle = (TextView) v.findViewById(R.id.ownerTitle);
         ownerChannels = (TextView) v.findViewById(R.id.ownerChannels);
-        ownerChannels.setMovementMethod(LinkMovementMethod.getInstance());
+        ownerChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         ownerChannels.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +81,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
         });
         adminTitle = (TextView) v.findViewById(R.id.adminTitle);
         adminChannels = (TextView) v.findViewById(R.id.adminChannels);
-        adminChannels.setMovementMethod(LinkMovementMethod.getInstance());
+        adminChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         adminChannels.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,7 +90,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
         });
         opTitle = (TextView) v.findViewById(R.id.opTitle);
         opChannels = (TextView) v.findViewById(R.id.opChannels);
-        opChannels.setMovementMethod(LinkMovementMethod.getInstance());
+        opChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         opChannels.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,7 +99,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
         });
         halfopTitle = (TextView) v.findViewById(R.id.halfopTitle);
         halfopChannels = (TextView) v.findViewById(R.id.halfopChannels);
-        halfopChannels.setMovementMethod(LinkMovementMethod.getInstance());
+        halfopChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         halfopChannels.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,7 +108,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
         });
         voicedTitle = (TextView) v.findViewById(R.id.voicedTitle);
         voicedChannels = (TextView) v.findViewById(R.id.voicedChannels);
-        voicedChannels.setMovementMethod(LinkMovementMethod.getInstance());
+        voicedChannels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         voicedChannels.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,7 +117,7 @@ import com.squareup.leakcanary.RefWatcher;public class WhoisFragment extends Dia
         });
         channelsTitle = (TextView) v.findViewById(R.id.channelsTitle);
         channels = (TextView) v.findViewById(R.id.channels);
-        channels.setMovementMethod(LinkMovementMethod.getInstance());
+        channels.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
         channels.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

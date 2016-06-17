@@ -15,8 +15,9 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.irccloud.android"
-    android:installLocation="auto" >
+          xmlns:tools="http://schemas.android.com/tools"
+          package="com.irccloud.android"
+          android:installLocation="auto">
 
     <permission
         android:name="${applicationId}.permission.C2D_MESSAGE"
@@ -48,6 +49,8 @@
         android:xlargeScreens="true" />
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <uses-sdk tools:overrideLibrary="android.support.customtabs"/>
 
     <application
         android:name=".IRCCloudApplication"

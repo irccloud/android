@@ -19,6 +19,7 @@ package com.irccloud.android.activity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -30,6 +31,9 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsClient;
+import android.support.customtabs.CustomTabsIntent;
+import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -54,6 +58,9 @@ import com.irccloud.android.ColorScheme;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
+import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
+
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
 
 import java.net.URL;
 
@@ -237,6 +244,28 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         }
     }
 
+    CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
+        @Override
+        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
+            client.warmup(0);
+            client.newSession(null).mayLaunchUrl(Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url), null, null);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            CustomTabsClient.bindCustomTabsService(this, CustomTabsHelper.getPackageNameToUse(this), mCustomTabsConnection);
+        }
+    }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -297,8 +326,23 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             item.setChecked(!item.isChecked());
             mWebView.loadUrl("javascript:window.PASTEVIEW.doToggleLines()");
         } else if (item.getItemId() == R.id.action_browser) {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
-            startActivity(intent);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
+                builder.addDefaultShareMenuItem();
+                CustomTabsIntent intent = builder.build();
+                intent.intent.setData(Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
+                if(Build.VERSION.SDK_INT >= 22)
+                    intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
+                if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
+                    startActivity(intent.intent, intent.startAnimationBundle);
+                } else {
+                    startActivity(intent.intent);
+                }
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.contains("?")?url.substring(0, url.indexOf("?")):url));
+                startActivity(intent);
+            }
             finish();
             return true;
         } else if (item.getItemId() == R.id.action_copy) {

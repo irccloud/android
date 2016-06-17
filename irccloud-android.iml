@@ -85,6 +85,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/24.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/appcompat-v7/24.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/cardview-v7/24.0.0/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/customtabs/24.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/design/24.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/24.0.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.android.support/support-v4/24.0.0/jars" />
@@ -134,11 +135,12 @@
     <orderEntry type="library" exported="" name="compiler-2.1.2" level="project" />
     <orderEntry type="library" exported="" name="antlr4-4.5" level="project" />
     <orderEntry type="library" exported="" name="support-v4-24.0.0" level="project" />
+    <orderEntry type="library" exported="" name="customtabs-24.0.0" level="project" />
     <orderEntry type="library" exported="" name="baseLibrary-2.1.2" level="project" />
     <orderEntry type="library" exported="" name="design-24.0.0" level="project" />
     <orderEntry type="library" exported="" name="leakcanary-android-no-op-1.4-SNAPSHOT" level="project" />
-    <orderEntry type="library" exported="" name="antlr4-runtime-4.5" level="project" />
     <orderEntry type="library" exported="" name="antlr4-annotations-4.5" level="project" />
+    <orderEntry type="library" exported="" name="antlr4-runtime-4.5" level="project" />
     <orderEntry type="library" exported="" name="play-services-wearable-9.0.2" level="project" />
     <orderEntry type="library" exported="" name="linear-layout-manager-0.5" level="project" />
     <orderEntry type="library" exported="" name="org.abego.treelayout.core-1.0.1" level="project" />

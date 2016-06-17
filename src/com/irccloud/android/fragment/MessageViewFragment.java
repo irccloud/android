@@ -77,6 +77,7 @@ import com.irccloud.android.ColorScheme;
 import com.irccloud.android.FontAwesome;
 import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.Ignore;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.OffsetLinearLayout;
@@ -182,44 +183,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private boolean pref_chatOneLine = false;
     private boolean pref_norealname = false;
 
-    private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
+    private class LinkMovementMethodNoLongPress extends IRCCloudLinkMovementMethod {
         @Override
         public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
             int action = event.getAction();
 
             if (!longPressOverride && (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN)) {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-                x -= widget.getTotalPaddingLeft();
-                y -= widget.getTotalPaddingTop();
-                x += widget.getScrollX();
-                y += widget.getScrollY();
-                Layout layout = widget.getLayout();
-                int line = layout.getLineForVertical(y);
-                int off = layout.getOffsetForHorizontal(line, x);
-                URLSpan[] link = buffer.getSpans(off, off, URLSpan.class);
-                if (link.length != 0) {
-                    if (action == MotionEvent.ACTION_UP) {
-                        Uri uri = Uri.parse(link[0].getURL());
-                        Context context = widget.getContext();
-                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                        intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
-                        if(!uri.getScheme().startsWith("irc"))
-                            ((BaseActivity)getActivity()).makeMultiWindowIntent(intent);
-                        try {
-                            context.startActivity(intent);
-                        } catch (ActivityNotFoundException e) {
-                            Log.w("IRCCloud", "Actvity was not found for intent, " + intent.toString());
-                        }
-                    } else {
-                        Selection.setSelection(buffer,
-                                buffer.getSpanStart(link[0]),
-                                buffer.getSpanEnd(link[0]));
-                    }
-                    return true;
-                } else {
-                    Selection.removeSelection(buffer);
-                }
+                return super.onTouchEvent(widget, buffer, event);
             }
             return false;
         }

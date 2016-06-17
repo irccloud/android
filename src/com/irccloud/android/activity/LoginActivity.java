@@ -72,6 +72,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudLinkMovementMethod;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 
@@ -214,7 +215,7 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         });
 
         TOS = (TextView) findViewById(R.id.TOS);
-        TOS.setMovementMethod(new LinkMovementMethod());
+        TOS.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
 
         forgotPassword = (TextView) findViewById(R.id.forgotPassword);
         forgotPassword.setOnClickListener(forgotPasswordClickListener);
