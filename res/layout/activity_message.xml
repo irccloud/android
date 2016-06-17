@@ -173,8 +173,8 @@
         android:visibility="gone">
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
+            android:layout_width="260dp"
+            android:layout_height="260dp"
             android:layout_gravity="center"
             android:gravity="center_vertical|center_horizontal"
             android:background="@drawable/drop_target_bg"
@@ -185,7 +185,8 @@
                 android:text="Drop files to upload\nand share"
                 android:textSize="20sp"
                 android:gravity="center"
-                android:layout_marginBottom="16dp"/>
+                android:textColor="#fff"
+                android:layout_marginBottom="4dp"/>
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
