@@ -1027,7 +1027,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
                     MessageAdapter.ViewHolder top_vh = vh;
                     Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
-                    if (first > 0 && vh != null && vh.avatar != null && v.getTop() < offset - 1 && e != null && e.group_eid < 1) {
+                    if (first > 0 && vh != null && vh.avatar != null && v.getTop() < offset - 1 && e != null && e.group_eid < 1 && e.from != null && e.from.length() > 0) {
                         for (int i = first; i < adapter.getCount(); i++) {
                             e = (Event) adapter.getItem(i);
                             Event e1 = (Event) adapter.getItem(i + 1);
@@ -1064,7 +1064,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             avatar.setTag(top_vh.avatar);
                             avatar.setImageBitmap(bitmap);
                             avatarContainer.setVisibility(View.VISIBLE);
-                            vh.avatar.setVisibility(View.INVISIBLE);
+                            top_vh.avatar.setVisibility(View.INVISIBLE);
                         }
                     } else if (e == null || (first == 0 && v.getTop() > 0) || vh == null || vh.avatar == null || e.group_eid > 0) {
                         if(avatarContainer.getVisibility() != View.GONE)
