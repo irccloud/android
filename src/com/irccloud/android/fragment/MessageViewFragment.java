@@ -18,22 +18,30 @@ package com.irccloud.android.fragment;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Browser;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
+import android.text.Layout;
+import android.text.Selection;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -177,11 +185,40 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private class LinkMovementMethodNoLongPress extends LinkMovementMethod {
         @Override
         public boolean onTouchEvent(TextView widget, Spannable buffer, MotionEvent event) {
-            if (!longPressOverride && event.getAction() == MotionEvent.ACTION_UP) {
-                try {
-                    return super.onTouchEvent(widget, buffer, event);
-                } catch (ActivityNotFoundException e) {
-                    // No app installed to handle this URL
+            int action = event.getAction();
+
+            if (!longPressOverride && (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN)) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+                x -= widget.getTotalPaddingLeft();
+                y -= widget.getTotalPaddingTop();
+                x += widget.getScrollX();
+                y += widget.getScrollY();
+                Layout layout = widget.getLayout();
+                int line = layout.getLineForVertical(y);
+                int off = layout.getOffsetForHorizontal(line, x);
+                URLSpan[] link = buffer.getSpans(off, off, URLSpan.class);
+                if (link.length != 0) {
+                    if (action == MotionEvent.ACTION_UP) {
+                        Uri uri = Uri.parse(link[0].getURL());
+                        Context context = widget.getContext();
+                        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                        intent.putExtra(Browser.EXTRA_APPLICATION_ID, context.getPackageName());
+                        if(!uri.getScheme().startsWith("irc"))
+                            ((BaseActivity)getActivity()).makeMultiWindowIntent(intent);
+                        try {
+                            context.startActivity(intent);
+                        } catch (ActivityNotFoundException e) {
+                            Log.w("IRCCloud", "Actvity was not found for intent, " + intent.toString());
+                        }
+                    } else {
+                        Selection.setSelection(buffer,
+                                buffer.getSpanStart(link[0]),
+                                buffer.getSpanEnd(link[0]));
+                    }
+                    return true;
+                } else {
+                    Selection.removeSelection(buffer);
                 }
             }
             return false;
