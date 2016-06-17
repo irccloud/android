@@ -46,8 +46,7 @@
 
         <com.irccloud.android.OffsetLinearLayout
             android:id="@+id/avatarContainer"
-            android:background="?contentBackgroundColor"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <ImageView

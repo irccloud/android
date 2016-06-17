@@ -42,6 +42,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -224,6 +225,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             currentGroupPosition = -1;
             data.clear();
             unseenHighlightPositions.clear();
+            avatarContainer.setVisibility(View.GONE);
+            avatar.setTag(null);
         }
 
         public void clearPending() {
@@ -714,13 +717,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (pref_chatOneLine ? 0 : 4), getResources().getDisplayMetrics());
                         lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * (pref_chatOneLine ? 1 : 2), getResources().getDisplayMetrics());
                         Bitmap b = null;
-                        if (e.from != null && e.from.length() > 0) {
+                        if (e.group_eid < 1 && e.from != null && e.from.length() > 0 && (pref_chatOneLine || e.header)) {
                             Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
                             b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
                             holder.avatar.setVisibility(View.VISIBLE);
                         }
                         holder.avatar.setImageBitmap(b);
-                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * ((pref_chatOneLine || !e.header || b == null) ? 1 : 2), getResources().getDisplayMetrics());
+                        lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * ((pref_chatOneLine || !e.header || b == null || e.group_eid > 0) ? 1 : 2), getResources().getDisplayMetrics());
                     }
                     holder.avatar.setLayoutParams(lp);
                 }
@@ -753,7 +756,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     if (holder.realname != null)
                         holder.realname.setVisibility(View.GONE);
                     if (holder.avatar != null)
-                        holder.avatar.setVisibility((pref_avatarsOff || (pref_chatOneLine && e.group_eid > 0)) ? View.GONE : (pref_chatOneLine ? View.VISIBLE : View.INVISIBLE));
+                        holder.avatar.setVisibility((pref_avatarsOff || (pref_chatOneLine && e.group_eid > 0)) ? View.GONE : View.VISIBLE);
                 }
 
                 return row;
@@ -977,7 +980,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             if (unreadBottomView != null && adapter.data.size() > 0) {
                 if (firstVisibleItem + visibleItemCount >= totalItemCount) {
-                    unreadBottomView.setVisibility(View.GONE);
+                    if(unreadBottomView.getVisibility() != View.GONE)
+                        unreadBottomView.setVisibility(View.GONE);
                     if (unreadTopView.getVisibility() == View.GONE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                         if (heartbeatTask != null)
                             heartbeatTask.cancel(true);
@@ -1021,6 +1025,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     int offset = (unreadTopView.getVisibility() == View.VISIBLE) ? unreadTopView.getHeight() : 0;
                     View v = view.getChildAt(0);
                     MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
+                    MessageAdapter.ViewHolder top_vh = vh;
                     Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
                     if (first > 0 && vh != null && vh.avatar != null && v.getTop() < offset - 1 && e != null && e.group_eid < 1) {
                         for (int i = first; i < adapter.getCount(); i++) {
@@ -1041,24 +1046,41 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             if (i - first > 4)
                                 break;
                         }
-                        avatar.setImageDrawable(vh.avatar.getDrawable());
-                        if (((BitmapDrawable) vh.avatar.getDrawable()).getBitmap() != null) {
-                            int topMargin, leftMargin;
-                            int height = ((BitmapDrawable) vh.avatar.getDrawable()).getBitmap().getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
-                            if (v.getHeight() + v.getTop() <= (height + offset)) {
-                                topMargin = offset + v.getTop() + v.getHeight() - height;
-                            } else {
-                                topMargin = offset;
-                            }
-                            leftMargin = vh.avatar.getLeft();
-                            avatarContainer.offset(leftMargin, topMargin);
+                        if(avatar.getTag() != null && avatar.getTag() != top_vh.avatar) {
+                            ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
+                        }
+
+                        Bitmap bitmap = AvatarsList.getInstance().getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * 2, getResources().getDisplayMetrics()));
+                        int topMargin, leftMargin;
+                        int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
+                        if (v.getHeight() + v.getTop() < (height + offset)) {
+                            topMargin = offset + v.getTop() + v.getHeight() - height;
+                        } else {
+                            topMargin = offset;
+                        }
+                        leftMargin = vh.avatar.getLeft();
+                        avatarContainer.offset(leftMargin, topMargin);
+                        if(avatar.getTag() != top_vh.avatar) {
+                            avatar.setTag(top_vh.avatar);
+                            avatar.setImageBitmap(bitmap);
                             avatarContainer.setVisibility(View.VISIBLE);
+                            vh.avatar.setVisibility(View.INVISIBLE);
                         }
                     } else if (e == null || (first == 0 && v.getTop() > 0) || vh == null || vh.avatar == null || e.group_eid > 0) {
-                        avatarContainer.setVisibility(View.INVISIBLE);
+                        if(avatarContainer.getVisibility() != View.GONE)
+                            avatarContainer.setVisibility(View.GONE);
+                        if(avatar.getTag() != null) {
+                            ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
+                            avatar.setTag(null);
+                        }
                     }
                 } else {
-                    avatarContainer.setVisibility(View.INVISIBLE);
+                    if(avatarContainer.getVisibility() != View.GONE)
+                        avatarContainer.setVisibility(View.GONE);
+                    if(avatar.getTag() != null) {
+                        ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
+                        avatar.setTag(null);
+                    }
                 }
             }
         }
@@ -1129,8 +1151,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             collapsedEvents.setServer(server);
             update_status(server.getStatus(), server.getFail_info());
         }
-        if (avatar != null)
-            avatarContainer.setVisibility(View.INVISIBLE);
+        if (avatar != null) {
+            avatarContainer.setVisibility(View.GONE);
+            avatar.setTag(null);
+        }
         if (unreadTopView != null)
             unreadTopView.setVisibility(View.GONE);
         backlogFailed.setVisibility(View.GONE);
@@ -1792,6 +1816,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         protected void onPostExecute(Void result) {
             if (!isCancelled() && adapter != null) {
                 try {
+                    avatarContainer.setVisibility(View.GONE);
+                    avatar.setTag(null);
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) headerView.getLayoutParams();
                     if (adapter.getLastSeenEIDPosition() == 0)
                         lp.topMargin = (int) getSafeResources().getDimension(R.dimen.top_bar_height);

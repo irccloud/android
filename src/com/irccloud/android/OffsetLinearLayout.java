@@ -20,28 +20,37 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 
-public class OffsetLinearLayout extends LinearLayout {
+public class OffsetLinearLayout extends LinearLayout implements ViewTreeObserver.OnGlobalLayoutListener {
     private int offset_left;
     private int offset_top;
 
     public OffsetLinearLayout(Context context) {
         super(context);
+        init();
     }
 
     public OffsetLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public OffsetLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public OffsetLinearLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+    }
+
+    private void init() {
+        getViewTreeObserver().addOnGlobalLayoutListener(this);
     }
 
     public void offset(int left, int top) {
@@ -62,7 +71,12 @@ public class OffsetLinearLayout extends LinearLayout {
             lp.leftMargin = offset_left;
             lp.topMargin = offset_top;
             setLayoutParams(lp);
-            requestLayout();
+            //requestLayout();
         }
+    }
+
+    @Override
+    public void onGlobalLayout() {
+        layout();
     }
 }
