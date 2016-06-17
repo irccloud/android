@@ -526,7 +526,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         case DragEvent.ACTION_DRAG_STARTED:
                             ClipDescription d = dragEvent.getClipDescription();
                             for(int i = 0; i < d.getMimeTypeCount(); i++) {
-                                if(d.getMimeType(i).equals("text/plain") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
+                                if(d.getMimeType(i).startsWith("text/") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
                                     findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
                                     return true;
                                 }
@@ -540,7 +540,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 ClipData.Item item = c.getItemAt(i);
                                 if(item.getUri() != null) {
                                     String type = getContentResolver().getType(item.getUri());
-                                    if(type != null && (type.startsWith("image/") || type.startsWith("video/") || type.startsWith("application/"))) {
+                                    if(type != null) {
                                         Uri uri = makeTempCopy(item.getUri(), MainActivity.this);
                                         if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
                                             new ImgurRefreshTask(uri).execute((Void) null);
