@@ -533,7 +533,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             }
                             break;
                         case DragEvent.ACTION_DROP:
-                            requestDragAndDropPermissions(dragEvent);
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                                requestDragAndDropPermissions(dragEvent);
                             ClipData c = dragEvent.getClipData();
                             for(int i = 0; i < c.getItemCount(); i++) {
                                 ClipData.Item item = c.getItemAt(i);
