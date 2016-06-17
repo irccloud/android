@@ -524,11 +524,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 public boolean onDrag(View view, DragEvent dragEvent) {
                     switch(dragEvent.getAction()) {
                         case DragEvent.ACTION_DRAG_STARTED:
-                            findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
                             ClipDescription d = dragEvent.getClipDescription();
                             for(int i = 0; i < d.getMimeTypeCount(); i++) {
-                                if(d.getMimeType(i).equals("text/plain") || d.getMimeType(i).startsWith("image/"))
+                                if(d.getMimeType(i).equals("text/plain") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
+                                    findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
                                     return true;
+                                }
                             }
                             break;
                         case DragEvent.ACTION_DROP:
@@ -538,11 +539,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 ClipData.Item item = c.getItemAt(i);
                                 if(item.getUri() != null) {
                                     String type = getContentResolver().getType(item.getUri());
-                                    if(type != null && type.startsWith("image/")) {
+                                    if(type != null && (type.startsWith("image/") || type.startsWith("video/") || type.startsWith("application/"))) {
+                                        Uri uri = makeTempCopy(item.getUri(), MainActivity.this);
                                         if (!NetworkConnection.getInstance().uploadsAvailable() || PreferenceManager.getDefaultSharedPreferences(MainActivity.this).getString("image_service", "IRCCloud").equals("imgur")) {
-                                            new ImgurRefreshTask(item.getUri()).execute((Void) null);
+                                            new ImgurRefreshTask(uri).execute((Void) null);
                                         } else {
-                                            fileUploadTask = new FileUploadTask(item.getUri(), MainActivity.this);
+                                            fileUploadTask = new FileUploadTask(uri, MainActivity.this);
                                             if (Build.VERSION.SDK_INT >= 16 && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                                                 ActivityCompat.requestPermissions(MainActivity.this,
                                                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -3091,6 +3093,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     original_filename = fileUri.getLastPathSegment();
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 original_filename = String.valueOf(System.currentTimeMillis());
             }
             if(cursor != null)
@@ -3134,6 +3137,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             os.close();
             return out;
         } catch (Exception e) {
+            e.printStackTrace();
             return fileUri;
         }
     }
