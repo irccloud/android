@@ -70,6 +70,14 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                         intent.intent.setData(uri);
                         if(Build.VERSION.SDK_INT >= 22)
                             intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            intent.intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT);
+                        } else {
+                            try {
+                                SMultiWindowActivity.makeMultiWindowIntent(intent.intent, SMultiWindowActivity.ZONE_A);
+                            } catch (Throwable e) {
+                            }
+                        }
                         if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
                             context.startActivity(intent.intent, intent.startAnimationBundle);
                         } else {

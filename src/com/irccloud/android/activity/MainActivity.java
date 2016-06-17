@@ -528,11 +528,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 public boolean onDrag(View view, DragEvent dragEvent) {
                     switch(dragEvent.getAction()) {
                         case DragEvent.ACTION_DRAG_STARTED:
-                            ClipDescription d = dragEvent.getClipDescription();
-                            for(int i = 0; i < d.getMimeTypeCount(); i++) {
-                                if(d.getMimeType(i).startsWith("text/") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
-                                    findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
-                                    return true;
+                            if(dragEvent.getLocalState() == null) {
+                                ClipDescription d = dragEvent.getClipDescription();
+                                for (int i = 0; i < d.getMimeTypeCount(); i++) {
+                                    if (d.getMimeType(i).startsWith("text/") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
+                                        findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
+                                        return true;
+                                    }
                                 }
                             }
                             break;
