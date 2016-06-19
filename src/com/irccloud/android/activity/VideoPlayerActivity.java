@@ -19,11 +19,14 @@ package com.irccloud.android.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.DownloadManager;
 import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -74,6 +77,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     private Toolbar toolbar;
     private Handler handler = new Handler();
     private ShareActionProviderHax share;
+    private String mVideoURL = null;
 
     private Runnable mHideRunnable = new Runnable() {
         @Override
@@ -152,8 +156,19 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
         }
-        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 19)
+        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        } else if(Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            if(cloud != null) {
+                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, getResources().getColor(android.R.color.black)));
+            }
+            getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+            if(Build.VERSION.SDK_INT >= 23) {
+                getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+        }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if(Build.VERSION.SDK_INT > 16) {
             getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {

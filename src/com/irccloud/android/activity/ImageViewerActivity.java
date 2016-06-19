@@ -21,10 +21,13 @@ package com.irccloud.android.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.DownloadManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -77,6 +80,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
+    private MediaPlayer player = null;
+    private String mVideoURL = null;
+    private String mImageURL = null;
 
     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
         private String provider = null;
@@ -140,8 +146,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if (url != null) {
                 if (url.endsWith(".mp4")) {
                     loadVideo(url);
-                    player.setLooping(true);
-                    player.setVolume(0, 0);
                 } else {
                     loadImage(url);
                 }
@@ -180,8 +184,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if (url != null) {
                 if (url.endsWith(".mp4")) {
                     loadVideo(url);
-                    player.setLooping(true);
-                    player.setVolume(0, 0);
                 } else {
                     loadImage(url);
                 }
@@ -214,8 +216,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if (url != null) {
                 if (url.endsWith(".mp4")) {
                     loadVideo(url);
-                    player.setLooping(true);
-                    player.setVolume(0, 0);
                 } else {
                     loadImage(url);
                 }
@@ -248,8 +248,6 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             if (url != null) {
                 if (url.endsWith(".mp4")) {
                     loadVideo(url);
-                    player.setLooping(true);
-                    player.setVolume(0, 0);
                 } else {
                     loadImage(url);
                 }
@@ -351,6 +349,16 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mImageURL != null)
+            outState.putString("imageURL", mImageURL);
+
+        if(mVideoURL != null)
+            outState.putString("videoURL", mVideoURL);
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -365,8 +373,19 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             setSupportActionBar(toolbar);
         } catch (Throwable t) {
         }
-        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21)
+        if (Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 21) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        } else if(Build.VERSION.SDK_INT >= 21) {
+            Bitmap cloud = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            if(cloud != null) {
+                setTaskDescription(new ActivityManager.TaskDescription(getResources().getString(R.string.app_name), cloud, getResources().getColor(android.R.color.black)));
+            }
+            getWindow().setStatusBarColor(getResources().getColor(android.R.color.black));
+            getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
+            if(Build.VERSION.SDK_INT >= 23) {
+                getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() &~ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+        }
         getSupportActionBar().setTitle("Image Viewer");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar_translucent));
@@ -408,6 +427,60 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         });
         mSpinner = (ProgressBar) findViewById(R.id.spinner);
         mProgress = (ProgressBar) findViewById(R.id.progress);
+        final SurfaceView v = (SurfaceView) findViewById(R.id.video);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+            v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+        v.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder surfaceHolder) {
+                try {
+                    if (player != null) {
+                        player.setDisplay(surfaceHolder);
+                        player.prepare();
+
+                        int videoWidth = player.getVideoWidth();
+                        int videoHeight = player.getVideoHeight();
+
+                        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+                        int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
+
+                        int scaledWidth = (int) (((float) videoWidth / (float) videoHeight) * (float) screenHeight);
+                        int scaledHeight = (int) (((float) videoHeight / (float) videoWidth) * (float) screenWidth);
+
+                        android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
+                        lp.width = screenWidth;
+                        lp.height = scaledHeight;
+                        if (lp.height > screenHeight && scaledWidth < screenWidth) {
+                            lp.width = scaledWidth;
+                            lp.height = screenHeight;
+                        }
+                        v.setLayoutParams(lp);
+
+                        player.start();
+                    }
+                } catch (Exception e) {
+                    fail();
+                }
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
+                if (player != null) {
+                    try {
+                        player.stop();
+                    } catch (IllegalStateException e) {
+                    }
+                    player.release();
+                    player = null;
+                }
+            }
+        });
 
         findViewById(R.id.video).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -436,7 +509,11 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             }
         });
 
-        if (getIntent() != null && getIntent().getDataString() != null) {
+        if(savedInstanceState != null && savedInstanceState.containsKey("imageURL")) {
+            loadImage(savedInstanceState.getString("imageURL"));
+        } else if(savedInstanceState != null && savedInstanceState.containsKey("videoURL")) {
+            loadVideo(savedInstanceState.getString("videoURL"));
+        } else if (getIntent() != null && getIntent().getDataString() != null) {
             String url = getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http");
             String lower = url.toLowerCase().replace("https://", "").replace("http://", "");
             if (lower.startsWith("www.dropbox.com/")) {
@@ -499,69 +576,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         }
     }
 
-    private MediaPlayer player;
-
     private void loadVideo(String urlStr) {
         try {
             if(mCustomTabsSession != null)
                 mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Animation"));
             player = new MediaPlayer();
-            final SurfaceView v = (SurfaceView) findViewById(R.id.video);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
-                v.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-            v.getHolder().addCallback(new SurfaceHolder.Callback() {
-                @Override
-                public void surfaceCreated(SurfaceHolder surfaceHolder) {
-                    try {
-                        if (player != null) {
-                            player.setDisplay(surfaceHolder);
-                            player.prepare();
-
-                            int videoWidth = player.getVideoWidth();
-                            int videoHeight = player.getVideoHeight();
-
-                            int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
-                            int screenHeight = getWindowManager().getDefaultDisplay().getHeight();
-
-                            int scaledWidth = (int) (((float) videoWidth / (float) videoHeight) * (float) screenHeight);
-                            int scaledHeight = (int) (((float) videoHeight / (float) videoWidth) * (float) screenWidth);
-
-                            android.view.ViewGroup.LayoutParams lp = v.getLayoutParams();
-                            lp.width = screenWidth;
-                            lp.height = scaledHeight;
-                            if (lp.height > screenHeight && scaledWidth < screenWidth) {
-                                lp.width = scaledWidth;
-                                lp.height = screenHeight;
-                            }
-                            v.setLayoutParams(lp);
-
-                            player.start();
-                        }
-                    } catch (Exception e) {
-                        fail();
-                    }
-                }
-
-                @Override
-                public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-                    if (player != null) {
-                        try {
-                            player.stop();
-                        } catch (IllegalStateException e) {
-                        }
-                        player.release();
-                        player = null;
-                    }
-                }
-            });
-            v.setVisibility(View.VISIBLE);
+            findViewById(R.id.video).setVisibility(View.VISIBLE);
 
             player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -575,12 +596,15 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             player.setOnErrorListener(new MediaPlayer.OnErrorListener() {
                 @Override
                 public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-                    fail();
+                    if(mediaPlayer == player)
+                        fail();
                     return false;
                 }
             });
 
             player.setDataSource(ImageViewerActivity.this, Uri.parse(urlStr));
+            player.setLooping(true);
+            player.setVolume(0, 0);
 
             try {
                 if (Build.VERSION.SDK_INT >= 16) {
@@ -591,6 +615,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 }
             } catch (Exception e) {
             }
+
+            mVideoURL = urlStr;
         } catch (Exception e) {
             NetworkConnection.printStackTraceToCrashlytics(e);
             fail();
@@ -628,6 +654,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 }
             } catch (Exception e) {
             }
+            mImageURL = urlStr;
         } catch (Exception e) {
             fail();
         }
@@ -644,24 +671,18 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         super.onResume();
         if (mSpinner != null && mSpinner.getVisibility() == View.GONE)
             hide_actionbar();
+        if(mVideoURL != null)
+            loadVideo(mVideoURL);
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
             try {
                 unbindService(mCustomTabsConnection);
             } catch (Exception e) {
             }
-        }
-        if (player != null) {
-            try {
-                player.stop();
-            } catch (IllegalStateException e) {
-            }
-            player.release();
-            player = null;
         }
     }
 

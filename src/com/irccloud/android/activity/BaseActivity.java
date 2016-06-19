@@ -514,9 +514,11 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                             }
                         }
                     });
-                    AlertDialog dialog = builder.create();
-                    dialog.setOwnerActivity(BaseActivity.this);
-                    dialog.show();
+                    if(!BaseActivity.this.isFinishing()) {
+                        AlertDialog dialog = builder.create();
+                        dialog.setOwnerActivity(BaseActivity.this);
+                        dialog.show();
+                    }
                 }
             });
     }
