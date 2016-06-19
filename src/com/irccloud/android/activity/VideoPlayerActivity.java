@@ -364,8 +364,8 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         handler.removeCallbacks(mUpdateRunnable);
     }
 
@@ -456,7 +456,7 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             share.setShareIntent(intent);
         } else {
             MenuItem shareItem = menu.findItem(R.id.action_share);
-            shareItem.getIcon().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
+            shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
         }
         return true;
     }

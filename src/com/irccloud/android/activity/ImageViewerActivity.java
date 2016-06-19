@@ -647,8 +647,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         if (player != null) {
             try {
                 player.stop();
@@ -777,7 +777,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             share.setShareIntent(intent);
         } else {
             MenuItem shareItem = menu.findItem(R.id.action_share);
-            shareItem.getIcon().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
+            shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
         }
         return true;
     }
