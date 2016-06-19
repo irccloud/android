@@ -677,8 +677,13 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     protected void onStart() {
         super.onStart();
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            CustomTabsClient.bindCustomTabsService(this, CustomTabsHelper.getPackageNameToUse(this), mCustomTabsConnection);
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                String packageName = CustomTabsHelper.getPackageNameToUse(this);
+                if (packageName != null && packageName.length() > 0)
+                    CustomTabsClient.bindCustomTabsService(this, packageName, mCustomTabsConnection);
+            }
+        } catch (Exception e) {
         }
     }
 
