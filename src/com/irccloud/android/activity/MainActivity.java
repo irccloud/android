@@ -583,6 +583,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                mvf.getView().setOnDragListener(dragListener);
             messageTxt.setOnDragListener(dragListener);
         }
+
+        ImageView img = (ImageView)findViewById(R.id.drop_target_icon);
+        img.getDrawable().mutate().setColorFilter(0xFFFFFFFF, PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override

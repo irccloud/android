@@ -199,10 +199,12 @@
                 android:textColor="#fff"
                 android:layout_marginBottom="4dp"/>
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/drop_target"
-                android:layout_gravity="center"/>
+                android:id="@+id/drop_target_icon"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                app:srcCompat="@drawable/ic_action_photo"
+                android:layout_gravity="center"
+                />
         </LinearLayout>
     </FrameLayout>
 
