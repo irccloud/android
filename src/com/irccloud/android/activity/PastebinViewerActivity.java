@@ -272,6 +272,17 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            try {
+                unbindService(mCustomTabsConnection);
+            } catch (Exception e) {
+            }
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         super.onBackPressed();
         if(getWindowManager().getDefaultDisplay().getWidth() < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 800, getResources().getDisplayMetrics()) || isMultiWindow())

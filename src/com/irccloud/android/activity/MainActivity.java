@@ -1697,6 +1697,12 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         }
         excludeBIDTask = new ExcludeBIDTask();
         excludeBIDTask.execute(-1);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            try {
+                unbindService(mCustomTabsConnection);
+            } catch (Exception e) {
+            }
+        }
     }
 
     @Override

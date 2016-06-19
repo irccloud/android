@@ -649,6 +649,12 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     @Override
     public void onStop() {
         super.onStop();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            try {
+                unbindService(mCustomTabsConnection);
+            } catch (Exception e) {
+            }
+        }
         if (player != null) {
             try {
                 player.stop();

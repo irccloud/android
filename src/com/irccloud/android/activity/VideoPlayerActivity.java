@@ -364,8 +364,14 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
         super.onStop();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            try {
+                unbindService(mCustomTabsConnection);
+            } catch (Exception e) {
+            }
+        }
         handler.removeCallbacks(mUpdateRunnable);
     }
 
