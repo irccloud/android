@@ -57,6 +57,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.DashClock;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.data.collection.NotificationsList;
@@ -93,6 +94,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (conn != null) {
+            conn.removeHandler(this);
+        }
         getDelegate().onDestroy();
     }
 
@@ -151,6 +155,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             toolbar.setElevation(0);
 
         conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
         addPreferencesFromResource(R.xml.preferences_account);
         addPreferencesFromResource(R.xml.preferences_display);
         addPreferencesFromResource(R.xml.preferences_message);
@@ -298,15 +303,18 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        IRCCloudApplication.getInstance().onPause(this);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        IRCCloudApplication.getInstance().onResume(this);
 
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
         if (session != null && session.length() > 0) {
-
-            conn = NetworkConnection.getInstance();
-            conn.addHandler(this);
-
             if (conn.getUserInfo() != null)
                 findPreference("name").setSummary(conn.getUserInfo().name);
             else
@@ -384,15 +392,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         } else {
             Toast.makeText(this, "You must login to the IRCCloud app first", Toast.LENGTH_SHORT).show();
             finish();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (conn != null) {
-            conn.removeHandler(this);
         }
     }
 

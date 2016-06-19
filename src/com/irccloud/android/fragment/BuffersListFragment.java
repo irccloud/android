@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -532,11 +533,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
         }
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        conn = NetworkConnection.getInstance();
         view = inflater.inflate(R.layout.bufferslist, null);
         recyclerView = (RecyclerView)view.findViewById(android.R.id.list);
         layoutManager = new LinearLayoutManager(view.getContext());
@@ -625,23 +632,17 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
     public void onResume() {
         super.onResume();
-        conn.addHandler(this);
         ready = conn.ready;
         refresh();
     }
 
     @Override public void onDestroy() {
         super.onDestroy();
+        if (conn != null)
+            conn.removeHandler(this);
         RefWatcher refWatcher = IRCCloudApplication.getRefWatcher(getActivity());
         if(refWatcher != null)
             refWatcher.watch(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (conn != null)
-            conn.removeHandler(this);
     }
 
     @Override

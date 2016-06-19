@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -89,15 +90,23 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
                 ((TextView) v).setTypeface(SourceSansProRegular);
             }
         }
+
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        IRCCloudApplication.getInstance().onPause(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        IRCCloudApplication.getInstance().onResume(this);
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
         if (session.length() > 0) {
-            conn = NetworkConnection.getInstance();
-            conn.addHandler(this);
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING) {
                 conn.connect();
             } else {
@@ -119,15 +128,10 @@ public class ShareChooserActivity extends FragmentActivity implements NetworkCon
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (conn != null)
-            conn.removeHandler(this);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (conn != null)
+            conn.removeHandler(this);
         if(countdownTimer != null) {
             countdownTimer.cancel();
             countdownTimer = null;

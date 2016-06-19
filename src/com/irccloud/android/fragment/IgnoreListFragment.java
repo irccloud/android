@@ -23,6 +23,7 @@ import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -184,6 +185,19 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
         }
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(conn != null)
+            conn.removeHandler(this);
+    }
 
     @Override
     public void onSaveInstanceState(Bundle state) {
@@ -214,9 +228,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
 
     public void onResume() {
         super.onResume();
-        conn = NetworkConnection.getInstance();
-        conn.addHandler(this);
-
         if (ignores == null && cid > 0) {
             ignores = ServersList.getInstance().getServer(cid).raw_ignores;
             adapter = new IgnoresAdapter();
@@ -229,13 +240,6 @@ public class IgnoreListFragment extends DialogFragment implements NetworkConnect
                 recyclerView.setVisibility(View.GONE);
             }
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (conn != null)
-            conn.removeHandler(this);
     }
 
     public void onIRCEvent(int what, Object obj) {

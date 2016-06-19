@@ -306,6 +306,7 @@ public class PastebinsActivity extends BaseActivity {
         });
 
         Toast.makeText(this, "Tap a pastebin to view full text with syntax highlighting", Toast.LENGTH_LONG).show();
+        NetworkConnection.getInstance().addHandler(this);
     }
 
     @Override
@@ -323,22 +324,11 @@ public class PastebinsActivity extends BaseActivity {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        NetworkConnection.getInstance().addHandler(this);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        NetworkConnection.getInstance().removeHandler(this);
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         if(adapter != null)
             adapter.clear();
+        NetworkConnection.getInstance().removeHandler(this);
     }
 
     @Override

@@ -154,7 +154,6 @@ public class NetworkConnection {
     //private static final Timer saveTimer = new Timer("backlog-save-timer");
     private TimerTask idleTimerTask = null;
     private TimerTask saveTimerTask = null;
-    private TimerTask notifierSockerTimerTask = null;
     private TimerTask disconnectSockerTimerTask = null;
     public long idle_interval = 1000;
     private volatile int failCount = 0;
@@ -607,8 +606,7 @@ public class NetworkConnection {
         }
         if (idleTimerTask != null)
             idleTimerTask.cancel();
-        if (notifierSockerTimerTask != null)
-            notifierSockerTimerTask.cancel();
+        IRCCloudApplication.getInstance().cancelNotifierTimer();
         try {
             if (wifiLock.isHeld())
                 wifiLock.release();
@@ -2988,45 +2986,14 @@ public class NetworkConnection {
                 handlers.add(handler);
             if (saveTimerTask != null)
                 saveTimerTask.cancel();
-            if (notifierSockerTimerTask != null)
-                notifierSockerTimerTask.cancel();
             saveTimerTask = null;
-            notifierSockerTimerTask = null;
         }
     }
 
     @TargetApi(24)
     public synchronized void removeHandler(IRCEventHandler handler) {
-        final ConnectivityManager cm = (ConnectivityManager)IRCCloudApplication.getInstance().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
         synchronized (handlers) {
             handlers.remove(handler);
-            if (notifierSockerTimerTask != null)
-                notifierSockerTimerTask.cancel();
-            notifierSockerTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    notifierSockerTimerTask = null;
-                    if(!notifier && state == STATE_CONNECTED) {
-                        disconnect();
-                        if(!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
-                            try {
-                                Thread.sleep(1000);
-                                notifier = true;
-                                connect();
-                            } catch (Exception e) {
-                            }
-                        }
-                    }
-                }
-            };
-
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
-                idleTimer.schedule(notifierSockerTimerTask, 5000);
-            } else {
-                idleTimer.schedule(notifierSockerTimerTask, 300000);
-            }
-
         }
     }
 

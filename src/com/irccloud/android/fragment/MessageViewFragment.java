@@ -971,7 +971,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
         public void onScroll(final AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if (!ready || buffer == null || adapter == null)
+            if (!ready || buffer == null || adapter == null || visibleItemCount < 0)
                 return;
 
             if (conn.ready && !requestingBacklog && headerView != null && buffer.getMin_eid() > 0) {
@@ -1106,6 +1106,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         if(tapTimer == null)
             tapTimer = new Timer("message-tap-timer");
         conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
     }
 
     @Override
@@ -1595,7 +1596,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @SuppressWarnings("unchecked")
     public void onResume() {
         super.onResume();
-        conn.addHandler(this);
         getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
         update_global_msg();
@@ -1640,6 +1640,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             tapTimer.cancel();
             tapTimer = null;
         }
+        if(conn != null)
+            conn.removeHandler(this);
         mListener = null;
         heartbeatTask = null;
     }
@@ -2414,8 +2416,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 mHandler.removeCallbacks(statusRefreshRunnable);
                 statusRefreshRunnable = null;
             }
-            if (conn != null)
-                conn.removeHandler(this);
             try {
                 getListView().setOnScrollListener(null);
             } catch (Exception e) {

@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -101,6 +102,7 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
             }
 
         });
+
         NetworkConnection.getInstance().addHandler(this);
     }
 
@@ -108,6 +110,18 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
     protected void onDestroy() {
         super.onDestroy();
         NetworkConnection.getInstance().removeHandler(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        IRCCloudApplication.getInstance().onPause(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IRCCloudApplication.getInstance().onResume(this);
     }
 
     @Override

@@ -67,6 +67,7 @@ import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BuildConfig;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.GingerbreadImageProxy;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -667,12 +668,19 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        IRCCloudApplication.getInstance().onPause(this);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         if (mSpinner != null && mSpinner.getVisibility() == View.GONE)
             hide_actionbar();
         if(mVideoURL != null)
             loadVideo(mVideoURL);
+        IRCCloudApplication.getInstance().onResume(this);
     }
 
     @Override

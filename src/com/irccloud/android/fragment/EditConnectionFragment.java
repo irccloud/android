@@ -407,6 +407,7 @@ import java.util.ArrayList;public class EditConnectionFragment extends DialogFra
         super.onDestroy();
         if(presets != null)
             presets.setOnItemSelectedListener(null);
+        NetworkConnection.getInstance().removeHandler(EditConnectionFragment.this);
     }
 
     @Override

@@ -21,6 +21,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.SparseArray;
@@ -253,10 +254,22 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
         return d;
     }
 
-    public void onResume() {
-        super.onResume();
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         conn = NetworkConnection.getInstance();
         conn.addHandler(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(conn != null)
+            conn.removeHandler(this);
+    }
+
+    public void onResume() {
+        super.onResume();
         ArrayList<Server> servers = new ArrayList<Server>();
         SparseArray<Server> s = ServersList.getInstance().getServers();
         for (int i = 0; i < s.size(); i++) {
@@ -264,12 +277,6 @@ public class ServerReorderFragment extends DialogFragment implements NetworkConn
         }
         Collections.sort(servers);
         refresh(servers);
-    }
-
-    public void onPause() {
-        super.onPause();
-        if (conn != null)
-            conn.removeHandler(this);
     }
 
     @Override

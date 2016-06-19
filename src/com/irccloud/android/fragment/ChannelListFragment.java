@@ -19,6 +19,7 @@ package com.irccloud.android.fragment;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v7.widget.RecyclerView;
@@ -124,9 +125,6 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
 
     @Override
     public View onCreateView(LayoutInflater i, ViewGroup container, Bundle savedInstanceState) {
-        conn = NetworkConnection.getInstance();
-        conn.addHandler(this);
-
         Context ctx = getActivity();
         if (ctx == null)
             return null;
@@ -138,6 +136,20 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
         empty = (TextView) v.findViewById(android.R.id.empty);
         empty.setText("Loading channel list…");
         return v;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (conn != null)
+            conn.removeHandler(this);
     }
 
     @Override
@@ -165,11 +177,6 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
 
     public void onResume() {
         super.onResume();
-        if (conn == null) {
-            conn = NetworkConnection.getInstance();
-            conn.addHandler(this);
-        }
-
         if (adapter == null) {
             adapter = new ChannelsAdapter();
             recyclerView.setAdapter(adapter);
@@ -181,14 +188,6 @@ public class ChannelListFragment extends Fragment implements NetworkConnection.I
                 recyclerView.setVisibility(View.GONE);
             }
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (conn != null)
-            conn.removeHandler(this);
-        conn = null;
     }
 
     public void onIRCEvent(int what, Object obj) {

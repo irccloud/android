@@ -29,6 +29,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -104,15 +105,27 @@ public class ImgurAuthActivity extends AppCompatActivity implements NetworkConne
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         NetworkConnection.getInstance().addHandler(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        NetworkConnection.getInstance().removeHandler(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        NetworkConnection.getInstance().removeHandler(this);
+        IRCCloudApplication.getInstance().onPause(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        IRCCloudApplication.getInstance().onResume(this);
     }
 
     @Override

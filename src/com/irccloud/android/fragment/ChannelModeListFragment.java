@@ -23,6 +23,7 @@ import android.databinding.DataBindingUtil;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
@@ -277,8 +278,6 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
 
     public void onResume() {
         super.onResume();
-        conn = NetworkConnection.getInstance();
-        conn.addHandler(this);
 
         if (cid > 0) {
             adapter = new Adapter();
@@ -301,8 +300,15 @@ public class ChannelModeListFragment extends DialogFragment implements NetworkCo
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         if (conn != null)
             conn.removeHandler(this);
     }

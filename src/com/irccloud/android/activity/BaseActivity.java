@@ -53,6 +53,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.IRCCloudApplication;
 import com.irccloud.android.IRCCloudJSONObject;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
@@ -118,8 +119,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                 .addOnConnectionFailedListener(this)
                 .build();
 
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
         if(ServersList.getInstance().count() == 0)
-            NetworkConnection.getInstance().load();
+            conn.getInstance().load();
 
         try {
             mMultiWindow = new SMultiWindow();
@@ -131,6 +134,14 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         } catch (Error e) {
             mMultiWindow = null;
             mMultiWindowActivity = null;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (conn != null) {
+            conn.removeHandler(this);
         }
     }
 
@@ -155,6 +166,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if (!mResolvingError) {
             mGoogleApiClient.connect();
         }
+        NetworkConnection.getInstance().registerForConnectivity();
     }
 
     @Override
@@ -164,6 +176,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("background_sync", true)) {
             BackgroundTaskService.scheduleBacklogSync(this);
         }
+        NetworkConnection.getInstance().unregisterForConnectivity();
     }
 
     @Override
@@ -221,16 +234,21 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        IRCCloudApplication.getInstance().onPause(this);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
+        IRCCloudApplication.getInstance().onResume(this);
         if(getFileStreamPath(LOG_FILENAME).exists()) {
             android.util.Log.d("IRCCloud", "Removing stale log file");
             getFileStreamPath(LOG_FILENAME).delete();
         }
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
-        if (session != null && session.length() > 0) {
-            conn = NetworkConnection.getInstance();
-            conn.addHandler(this);
+        if (session.length() > 0) {
             if(conn.notifier) {
                 android.util.Log.d("IRCCloud", "Upgrading notifier websocket");
                 conn.upgrade();
@@ -251,20 +269,6 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
         if(conn != null){
             if (conn.getState() == NetworkConnection.STATE_DISCONNECTED || conn.getState() == NetworkConnection.STATE_DISCONNECTING)
                 conn.connect();
-            conn.registerForConnectivity();
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if(!isMultiWindow()) {
-            if (conn != null) {
-                conn.removeHandler(this);
-            }
-
-            NetworkConnection.getInstance().unregisterForConnectivity();
         }
     }
 

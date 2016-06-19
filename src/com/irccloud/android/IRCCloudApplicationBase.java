@@ -19,13 +19,17 @@ package com.irccloud.android;
 
 
 import android.*;
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -47,12 +51,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import io.fabric.sdk.android.Fabric;@SuppressWarnings("unused")
 public class IRCCloudApplicationBase extends Application {
     private static final int RINGTONE_VERSION = 5;
 
     private NetworkConnection conn = null;
+    private TimerTask notifierSockerTimerTask = null;
+    private static final Timer notifierTimer = new Timer("notifier-timer");
 
     @Override
     public void onCreate() {
@@ -251,6 +259,53 @@ public class IRCCloudApplicationBase extends Application {
     public void onTerminate() {
         NetworkConnection.getInstance().save(1);
         super.onTerminate();
+    }
+
+    public void onPause(final Activity context) {
+        final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (notifierSockerTimerTask != null)
+            notifierSockerTimerTask.cancel();
+        notifierSockerTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                notifierSockerTimerTask = null;
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                    for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
+                        if(info.processName.equals(context.getPackageName()) && info.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND)
+                            return;
+                    }
+                }
+                if(!conn.notifier && conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                    conn.disconnect();
+                    if(!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED)) {
+                        try {
+                            Thread.sleep(1000);
+                            conn.notifier = true;
+                            conn.connect();
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+            }
+        };
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && cm.isActiveNetworkMetered() && cm.getRestrictBackgroundStatus() == ConnectivityManager.RESTRICT_BACKGROUND_STATUS_ENABLED) {
+            notifierTimer.schedule(notifierSockerTimerTask, 5000);
+        } else {
+            notifierTimer.schedule(notifierSockerTimerTask, 300000);
+        }
+    }
+
+    public void onResume(Activity context) {
+        cancelNotifierTimer();
+    }
+
+    public void cancelNotifierTimer() {
+        if(notifierSockerTimerTask != null) {
+            notifierSockerTimerTask.cancel();
+            notifierSockerTimerTask = null;
+        }
     }
 
     @Override

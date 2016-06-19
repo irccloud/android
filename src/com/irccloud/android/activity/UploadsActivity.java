@@ -572,6 +572,7 @@ public class UploadsActivity extends BaseActivity {
                 }
             }
         });
+        NetworkConnection.getInstance().addHandler(this);
     }
 
     @Override
@@ -593,19 +594,12 @@ public class UploadsActivity extends BaseActivity {
         if(ColorFormatter.file_uri_template != null)
             template = UriTemplate.fromTemplate(ColorFormatter.file_uri_template);
         super.onResume();
-        NetworkConnection.getInstance().addHandler(this);
 
         if(cid == -1) {
             cid = getIntent().getIntExtra("cid", -1);
             to = getIntent().getStringExtra("to");
             msg = getIntent().getStringExtra("msg");
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        NetworkConnection.getInstance().removeHandler(this);
     }
 
     @Override
@@ -622,6 +616,7 @@ public class UploadsActivity extends BaseActivity {
                 cache.flush();
             }
         }
+        NetworkConnection.getInstance().removeHandler(this);
     }
 
     @Override

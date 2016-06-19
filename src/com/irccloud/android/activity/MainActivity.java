@@ -647,6 +647,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             e.bg_color = colorScheme.errorBackgroundColor;
         }
         pendingEvents.clear();
+        if (conn != null)
+            conn.removeHandler(this);
+        conn = null;
     }
 
     private void updateReconnecting() {
@@ -1514,10 +1517,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
 
-        if(conn == null) {
-            conn = NetworkConnection.getInstance();
-            conn.addHandler(this);
-        }
         super.onResume();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (prefs.getBoolean("screenlock", false)) {
@@ -1687,9 +1686,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             imgurTask.setActivity(null);
         if (fileUploadTask != null)
             fileUploadTask.setActivity(null);
-        if (conn != null)
-            conn.removeHandler(this);
-        conn = null;
         try {
             if (excludeBIDTask != null)
                 excludeBIDTask.cancel(true);
@@ -1745,9 +1741,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         excludeBIDTask.execute(-1);
         if (channelsListDialog != null)
             channelsListDialog.dismiss();
-        if (conn != null)
-            conn.removeHandler(this);
-        conn = null;
         suggestionsAdapter.clear();
         progressBar.setVisibility(View.GONE);
         errorMsg.setVisibility(View.GONE);

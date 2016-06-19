@@ -317,6 +317,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        conn = NetworkConnection.getInstance();
+        conn.addHandler(this);
         if (tapTimer == null)
             tapTimer = new Timer("users-tap-timer");
 
@@ -338,8 +340,6 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
 
     public void onResume() {
         super.onResume();
-        conn = NetworkConnection.getInstance();
-        conn.addHandler(this);
         ArrayList<User> users = UsersList.getInstance().getUsersForBuffer(bid);
         refresh(users);
     }
@@ -354,6 +354,8 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
             tapTimer.cancel();
             tapTimer = null;
         }
+        if (conn != null)
+            conn.removeHandler(this);
     }
 
     @Override
@@ -388,12 +390,6 @@ public class UsersListFragment extends Fragment implements NetworkConnection.IRC
                     });
             }
         }, 100);
-    }
-
-    public void onPause() {
-        super.onPause();
-        if (conn != null)
-            conn.removeHandler(this);
     }
 
     @Override
