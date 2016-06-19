@@ -34,6 +34,8 @@ import android.widget.Toast;
 
 import com.samsung.android.sdk.multiwindow.SMultiWindowActivity;
 
+import org.chromium.customtabsclient.shared.CustomTabsHelper;
+
 public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
     private static IRCCloudLinkMovementMethod instance = null;
 
@@ -62,7 +64,7 @@ public class IRCCloudLinkMovementMethod extends LinkMovementMethod {
                 if (action == MotionEvent.ACTION_UP) {
                     Uri uri = Uri.parse(link[0].getURL());
                     Context context = widget.getContext();
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 && uri.getScheme().startsWith("http")) {
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1 && uri.getScheme().startsWith("http") && CustomTabsHelper.getPackageNameToUse(context) != null) {
                         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                         builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
                         builder.addDefaultShareMenuItem();

@@ -1028,20 +1028,24 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if(!pref_chatOneLine && !pref_avatarsOff) {
-                    int first = firstVisibleItem - ((ListView) view).getHeaderViewsCount();
                     int offset = (unreadTopView.getVisibility() == View.VISIBLE) ? unreadTopView.getHeight() : 0;
-                    View v = view.getChildAt(0);
+                    View v;
+                    int i = 0;
+                    do {
+                        v = view.getChildAt(i++);
+                    } while(v.getTop() + v.getHeight() <= offset - 1);
+                    int first = firstVisibleItem - ((ListView) view).getHeaderViewsCount() + i - 1;
                     MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
                     MessageAdapter.ViewHolder top_vh = vh;
                     Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
                     if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.from != null && e.from.length() > 0) {
-                        for (int i = first; i < adapter.getCount(); i++) {
+                        for (i = first; i < adapter.getCount(); i++) {
                             e = (Event) adapter.getItem(i);
                             Event e1 = (Event) adapter.getItem(i + 1);
                             if (e.from.equals(e1.from) && e1.group_eid < 1) {
-                                View v1 = view.getChildAt(i - first + 1);
+                                View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
                                 if (v1 != null) {
-                                    MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v.getTag();
+                                    MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
                                     if (vh1 != null && vh1.avatar != null) {
                                         v = v1;
                                         vh = vh1;
@@ -1050,8 +1054,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             } else {
                                 break;
                             }
-                            if (i - first > 4)
-                                break;
                         }
                         if(avatar.getTag() != null && avatar.getTag() != top_vh.avatar) {
                             ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
@@ -1061,7 +1063,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         int topMargin, leftMargin;
                         int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
                         if (v.getHeight() + v.getTop() < (height + offset)) {
-                            topMargin = offset + v.getTop() + v.getHeight() - height;
+                            topMargin = v.getTop() + v.getHeight() - height;
                         } else {
                             topMargin = offset;
                         }
@@ -2110,7 +2112,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                 txt.append(count).append(" unread messages");
                         }
                         unreadTopLabel.setText(txt);
-                        Log.e("IRCCloud", "Show top unread");
                         showView(unreadTopView);
                     } else {
                         hideView(unreadTopView);
