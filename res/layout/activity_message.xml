@@ -157,24 +157,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <fragment
-        android:id="@+id/BuffersList"
-        android:name="com.irccloud.android.fragment.BuffersListFragment"
-        android:layout_width="@dimen/drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="left"
-        android:visibility="gone"
-        tools:layout="@layout/bufferslist" />
-
-    <fragment
-        android:id="@+id/usersListFragment"
-        android:name="com.irccloud.android.fragment.UsersListFragment"
-        android:layout_width="@dimen/drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        android:visibility="gone"
-        tools:layout="@layout/userslist" />
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -207,6 +189,24 @@
                 />
         </LinearLayout>
     </FrameLayout>
+
+    <fragment
+        android:id="@+id/BuffersList"
+        android:name="com.irccloud.android.fragment.BuffersListFragment"
+        android:layout_width="@dimen/drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        android:visibility="gone"
+        tools:layout="@layout/bufferslist" />
+
+    <fragment
+        android:id="@+id/usersListFragment"
+        android:name="com.irccloud.android.fragment.UsersListFragment"
+        android:layout_width="@dimen/drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:visibility="gone"
+        tools:layout="@layout/userslist" />
 
     <FrameLayout
         android:layout_width="match_parent"
