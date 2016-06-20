@@ -202,6 +202,7 @@ public class GingerbreadImageProxy implements Runnable {
             return;
         }
         URL url = new URL(request.getRequestLine().getUri());
+        //Log.d(LOG_TAG, "Loading via proxy: " + url);
 
         HttpURLConnection conn = null;
 
@@ -260,7 +261,6 @@ public class GingerbreadImageProxy implements Runnable {
         }
 
         conn.disconnect();
-        stop();
     }
 
     private class IcyLineParser extends BasicLineParser {

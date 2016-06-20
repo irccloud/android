@@ -26,6 +26,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
@@ -47,6 +48,7 @@ import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -59,6 +61,7 @@ import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.ColorScheme;
+import com.irccloud.android.GingerbreadImageProxy;
 import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.ShareActionProviderHax;
@@ -69,6 +72,8 @@ import org.chromium.customtabsclient.shared.CustomTabsHelper;
 import java.net.URL;
 
 public class PastebinViewerActivity extends BaseActivity implements ShareActionProviderHax.OnShareActionProviderSubVisibilityChangedListener {
+    private GingerbreadImageProxy proxy = null;
+
     private class FetchPastebinTask extends AsyncTaskEx<Void, Void, String> {
         @Override
         protected String doInBackground(Void... params) {
@@ -83,6 +88,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         @Override
         protected void onPostExecute(String html) {
             if (html != null) {
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && proxy != null)
+                    html = html.replace("https://static.irccloud-cdn.com/", "http://127.0.0.1:" + proxy.getPort() + "/https://static.irccloud-cdn.com/");
                 PastebinViewerActivity.this.html = html;
                 mWebView.loadDataWithBaseURL(url, html, "text/html", "UTF-8", null);
 
@@ -193,9 +200,18 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             }
         });
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            proxy = new GingerbreadImageProxy();
+            proxy.init();
+            proxy.start();
+        }
+
         if(savedInstanceState != null && savedInstanceState.containsKey("url")) {
             url = savedInstanceState.getString("url");
             html = savedInstanceState.getString("html");
+            if(savedInstanceState.containsKey("proxy") && savedInstanceState.getString("proxy") != null) {
+                html = html.replace(savedInstanceState.getString("proxy"), "http://127.0.0.1:" + proxy.getPort() + "/");
+            }
             mWebView.loadDataWithBaseURL(url, html, "text/html", "UTF-8", null);
         } else {
             if (getIntent() != null && getIntent().getDataString() != null) {
@@ -233,6 +249,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
         super.onSaveInstanceState(outState);
         outState.putString("url", url);
         outState.putString("html", html);
+        if(proxy != null)
+            outState.putString("proxy", "http://127.0.0.1:" + proxy.getPort() + "/");
     }
 
     private void fail() {
@@ -253,6 +271,8 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
             mWebView.setWebViewClient(null);
             mWebView.setWebChromeClient(null);
         }
+        if(proxy != null)
+            proxy.stop();
     }
 
     CustomTabsServiceConnection mCustomTabsConnection = new CustomTabsServiceConnection() {
