@@ -122,6 +122,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private TextView highlightsTopLabel;
     private TextView highlightsBottomLabel;
     public ImageView avatar;
+    private AvatarsList mAvatarsList = AvatarsList.getInstance();
     private OffsetLinearLayout avatarContainer;
     public Buffer buffer;
     private Server server;
@@ -725,9 +726,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         lp.width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * (pref_chatOneLine ? 1 : 2), getResources().getDisplayMetrics());
                         Bitmap b = null;
                         if (e.group_eid < 1 && e.from != null && e.from.length() > 0 && (pref_chatOneLine || e.header)) {
-                            Avatar a = AvatarsList.getInstance().getAvatar(e.cid, e.from);
+                            Avatar a = mAvatarsList.getAvatar(e.cid, e.from);
                             b = a.getBitmap(ColorScheme.getInstance().isDarkTheme, lp.width, e.self);
                             holder.avatar.setVisibility(View.VISIBLE);
+                            holder.avatar.setTag(a);
                         }
                         holder.avatar.setImageBitmap(b);
                         lp.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * ((pref_chatOneLine || !e.header || b == null || e.group_eid > 0) ? 1 : 2), getResources().getDisplayMetrics());
@@ -1059,7 +1061,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
                         }
 
-                        Bitmap bitmap = AvatarsList.getInstance().getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * 2, getResources().getDisplayMetrics()));
+                        Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * 2, getResources().getDisplayMetrics()));
                         int topMargin, leftMargin;
                         int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
                         if (v.getHeight() + v.getTop() < (height + offset)) {
@@ -1228,7 +1230,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (b != buffer)
                 EventsList.getInstance().pruneEvents(b.getBid());
         }
-        AvatarsList.getInstance().clear();
     }
 
     private synchronized void insertEvent(final MessageAdapter adapter, Event event, boolean backlog, boolean nextIsGrouped) {
@@ -1841,6 +1842,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         lp.topMargin = 0;
                     backlogFailed.setLayoutParams(lp);
+                    mAvatarsList.clear();
                     setListAdapter(adapter);
                     MessageViewFragment.this.adapter = adapter;
                     if (events != null && events.size() > 0) {
@@ -2422,7 +2424,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
             ready = false;
         }
-        AvatarsList.getInstance().clear();
     }
 
     public void onIRCEvent(int what, final Object obj) {
