@@ -16,19 +16,14 @@
 
 package com.irccloud.android;
 
-
-
-import android.*;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.MediaScannerConnection;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
@@ -40,24 +35,17 @@ import android.util.Log;
 import android.webkit.WebView;
 
 import com.crashlytics.android.Crashlytics;
-import com.irccloud.android.data.collection.NotificationsList;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.collection.BuffersList;
 import com.irccloud.android.data.collection.EventsList;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import io.fabric.sdk.android.Fabric;@SuppressWarnings("unused")
 public class IRCCloudApplicationBase extends Application {
-    private static final int RINGTONE_VERSION = 5;
-
     private NetworkConnection conn = null;
     private TimerTask notifierSockerTimerTask = null;
     private static final Timer notifierTimer = new Timer("notifier-timer");
@@ -136,62 +124,39 @@ public class IRCCloudApplicationBase extends Application {
             }
         }
 
-        if (prefs.getInt("ringtone_version", 0) < RINGTONE_VERSION) {
-            SharedPreferences.Editor editor = prefs.edit();
-            File path = getFilesDir();
-            File file = new File(path, "IRCCloud.mp3");
-            try {
-                path.mkdirs();
-                InputStream is = getResources().openRawResource(R.raw.digit);
-                OutputStream os = new FileOutputStream(file);
-                byte[] data = new byte[is.available()];
-                is.read(data);
-                os.write(data);
-                is.close();
-                os.close();
-                file.setReadable(true, false);
+        String notification_uri = prefs.getString("notify_ringtone", "");
+        if (notification_uri.startsWith("content://media/")) {
+            Cursor c = getContentResolver().query(
+                    Uri.parse(notification_uri),
+                    new String[]{MediaStore.Audio.Media.TITLE},
+                    null,
+                    null,
+                    null);
 
-                Cursor c = getContentResolver().query(
-                        MediaStore.Audio.Media.INTERNAL_CONTENT_URI,
-                        new String[] { MediaStore.Audio.Media._ID },
-                        MediaStore.Audio.Media.IS_NOTIFICATION + " == 1 AND " + MediaStore.Audio.Media.TITLE + " == \"IRCCloud\"",
-                        null,
-                        null);
-
-                if(c != null && c.moveToFirst()) {
-                    do {
-                        ContentValues values = new ContentValues();
-                        values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
-                        values.put(MediaStore.Audio.Media.IS_MUSIC, "0");
-                        getContentResolver().update(MediaStore.Audio.Media.INTERNAL_CONTENT_URI.buildUpon().appendPath(c.getString(0)).build(), values, null, null);
-                    } while(c.moveToNext());
-                } else {
-                    ContentValues values = new ContentValues();
-                    values.put(MediaStore.Audio.Media.DATA, file.getAbsolutePath());
-                    values.put(MediaStore.Audio.Media.TITLE, "IRCCloud");
-                    values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/mp3");
-                    values.put(MediaStore.Audio.Media.IS_NOTIFICATION, "1");
-                    values.put(MediaStore.Audio.Media.IS_MUSIC, "0");
-                    Uri uri = getContentResolver().insert(MediaStore.Audio.Media.INTERNAL_CONTENT_URI, values);
-
-                    if (uri != null && prefs.getString("notify_ringtone", "").length() == 0) {
-                        editor.putString("notify_ringtone", uri.toString());
-                    }
-                }
-
-                if(c != null)
-                    c.close();
-
-                editor.putInt("ringtone_version", RINGTONE_VERSION);
-                editor.commit();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (!prefs.contains("notify_ringtone")) {
-                    editor.putString("notify_ringtone", "content://settings/system/notification_sound");
+            if (c != null && c.moveToFirst()) {
+                if (c.getString(0).equals("IRCCloud")) {
+                    Log.d("IRCCloud", "Migrating notification ringtone setting: " + notification_uri);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.remove("notify_ringtone");
                     editor.commit();
                 }
+                c.close();
             }
+        }
+
+        try {
+            getContentResolver().delete(
+                    MediaStore.Audio.Media.INTERNAL_CONTENT_URI,
+                    MediaStore.Audio.Media.TITLE + " = 'IRCCloud'",
+                    null);
+        } catch (Exception e)  {
+            // Ringtone not in media DB
+            e.printStackTrace();
+        }
+
+        File file = new File(getFilesDir(), "IRCCloud.mp3");
+        if(file.exists()) {
+            file.delete();
         }
 
         if (prefs.contains("notify_pebble")) {

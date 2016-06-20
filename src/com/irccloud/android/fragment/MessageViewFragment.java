@@ -1027,7 +1027,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
                 }
 
-                if(!pref_chatOneLine && !pref_avatarsOff) {
+                if(!pref_chatOneLine && !pref_avatarsOff && firstVisibleItem > ((ListView) view).getHeaderViewsCount()) {
                     int offset = (unreadTopView.getVisibility() == View.VISIBLE) ? unreadTopView.getHeight() : 0;
                     View v;
                     int i = 0;

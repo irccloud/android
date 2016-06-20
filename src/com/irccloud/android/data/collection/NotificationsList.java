@@ -479,8 +479,8 @@ public class NotificationsList {
         if (ticker != null && (System.currentTimeMillis() - prefs.getLong("lastNotificationTime", 0)) > 2000) {
             if (prefs.getBoolean("notify_vibrate", true))
                 builder.setDefaults(android.app.Notification.DEFAULT_VIBRATE);
-            String ringtone = prefs.getString("notify_ringtone", "content://settings/system/notification_sound");
-            if (ringtone != null && ringtone.length() > 0)
+            String ringtone = prefs.getString("notify_ringtone", "android.resource://" + IRCCloudApplication.getInstance().getApplicationContext().getPackageName() + "/" + R.raw.digit);
+            if (ringtone.length() > 0)
                 builder.setSound(Uri.parse(ringtone));
         }
 

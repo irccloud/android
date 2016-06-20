@@ -22,10 +22,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -69,6 +72,11 @@ import com.sonyericsson.extras.liveware.extension.util.notification.Notification
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class PreferencesActivity extends PreferenceActivity implements AppCompatCallback, NetworkConnection.IRCEventHandler {
     NetworkConnection conn;
@@ -247,6 +255,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("imageviewer").setOnPreferenceChangeListener(imageviewertoggle);
         findPreference("imgur_account_username").setOnPreferenceClickListener(imgurClick);
         findPreference("theme").setOnPreferenceClickListener(themesClick);
+        findPreference("notify_ringtone").setOnPreferenceClickListener(ringtoneClick);
         //findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
         //findPreference("changes").setOnPreferenceClickListener(urlClick);
         findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
@@ -1069,4 +1078,94 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             return false;
         }
     };
+
+    private static class Ringtone {
+        public String uri;
+        public String title;
+    }
+
+    Preference.OnPreferenceClickListener ringtoneClick = new Preference.OnPreferenceClickListener() {
+        MediaPlayer mp = new MediaPlayer();
+
+        public boolean onPreferenceClick(Preference preference) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(PreferencesActivity.this);
+            builder.setTitle("Notification Ringtones");
+
+            RingtoneManager rm = new RingtoneManager(PreferencesActivity.this);
+            rm.setType(RingtoneManager.TYPE_NOTIFICATION);
+            Cursor c = rm.getCursor();
+            final ArrayList<Ringtone> ringtones = new ArrayList<>(c.getCount() + 2);
+            while(c.moveToNext()) {
+                Ringtone r = new Ringtone();
+                r.uri = c.getString(RingtoneManager.URI_COLUMN_INDEX) + "/" + c.getString(RingtoneManager.ID_COLUMN_INDEX);
+                r.title = c.getString(RingtoneManager.TITLE_COLUMN_INDEX);
+                ringtones.add(r);
+            }
+            c.close();
+
+            Ringtone r = new Ringtone();
+            r.title = "IRCCloud";
+            r.uri = "android.resource://" + getPackageName() + "/" + R.raw.digit;
+            ringtones.add(r);
+
+            Collections.sort(ringtones, new Comparator<Ringtone>() {
+                @Override
+                public int compare(Ringtone r1, Ringtone r2) {
+                    return r1.title.compareTo(r2.title);
+                }
+            });
+
+            r = new Ringtone();
+            r.title = "Default ringtone";
+            r.uri = "content://settings/system/notification_sound";
+            ringtones.add(0, r);
+
+            r = new Ringtone();
+            r.title = "Silent";
+            r.uri = "";
+            ringtones.add(1, r);
+
+            String notification_uri = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this).getString("notify_ringtone", "android.resource://" + getPackageName() + "/" + R.raw.digit);
+            int i = 0;
+            int selection = 0;
+            String[] items = new String[ringtones.size()];
+            for(Ringtone j : ringtones) {
+                if(j.uri.equals(notification_uri))
+                    selection = i;
+                items[i++] = j.title;
+            }
+
+            builder.setSingleChoiceItems(items, selection, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if(mp.isPlaying())
+                        mp.stop();
+                    mp.reset();
+                    if(ringtones.get(i).uri.length() > 0) {
+                        try {
+                            mp.setDataSource(PreferencesActivity.this, Uri.parse(ringtones.get(i).uri));
+                            mp.prepare();
+                            mp.start();
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+            });
+
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(PreferencesActivity.this);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("notify_ringtone", ringtones.get(((AlertDialog)dialog).getListView().getCheckedItemPosition()).uri);
+                    editor.commit();
+                }
+            });
+            builder.setNegativeButton("Cancel", null);
+
+            builder.show();
+            return false;
+        }
+    };
+
 }

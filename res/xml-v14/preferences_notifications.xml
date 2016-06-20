@@ -23,11 +23,9 @@
 		    android:title="Notifications" android:key="notify_type"
 		    app:entryValues="@array/pref_notify_values"
 		    android:defaultValue="1" />
-		<RingtonePreference android:showDefault="true"
+		<Preference
 			android:key="notify_ringtone" android:title="Notification ringtone"
-			android:defaultValue="content://settings/system/notification_sound"
-			android:summary="Choose an alert ringtone"
-			android:ringtoneType="notification"/>
+			android:summary="Choose an alert ringtone"/>
 	    <com.cgollner.unclouded.preferences.SwitchPreferenceCompat
 			android:key="notify_vibrate"
 			android:defaultValue="true"

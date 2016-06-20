@@ -61,6 +61,7 @@ import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ShareCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v4.app.NotificationCompat;
@@ -3256,9 +3257,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
                         imageDir.mkdirs();
                         new File(imageDir, ".nomedia").createNewFile();
-                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
+                        File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
+                        imageCaptureURI = Uri.fromFile(tempFile);
                         i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                        else
+                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                         startActivityForResult(i, REQUEST_CAMERA);
                     } catch (IOException e) {
                     }
@@ -3268,9 +3273,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
                         imageDir.mkdirs();
                         new File(imageDir, ".nomedia").createNewFile();
-                        imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".mp4", imageDir));
-                        i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                        File tempFile = File.createTempFile("irccloudcapture", ".mp4", imageDir);
+                        imageCaptureURI = Uri.fromFile(tempFile);
+                        i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                        else
+                            i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                         startActivityForResult(i, REQUEST_CAMERA);
                     } catch (IOException e) {
                     }
@@ -3354,9 +3363,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
                                     imageDir.mkdirs();
                                     new File(imageDir, ".nomedia").createNewFile();
-                                    imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".jpg", imageDir));
+                                    File tempFile = File.createTempFile("irccloudcapture", ".jpg", imageDir);
+                                    imageCaptureURI = Uri.fromFile(tempFile);
                                     i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                    else
+                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                                     startActivityForResult(i, REQUEST_CAMERA);
                                 } catch (IOException e) {
                                 }
@@ -3372,9 +3385,13 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                     File imageDir = new File(Environment.getExternalStorageDirectory(), "IRCCloud");
                                     imageDir.mkdirs();
                                     new File(imageDir, ".nomedia").createNewFile();
-                                    imageCaptureURI = Uri.fromFile(File.createTempFile("irccloudcapture", ".mp4", imageDir));
-                                    i = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-                                    i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                    File tempFile = File.createTempFile("irccloudcapture", ".mp4", imageDir);
+                                    imageCaptureURI = Uri.fromFile(tempFile);
+                                    i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                                    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, imageCaptureURI);
+                                    else
+                                        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT, FileProvider.getUriForFile(MainActivity.this,getPackageName() + ".fileprovider",tempFile));
                                     startActivityForResult(i, REQUEST_CAMERA);
                                 } catch (IOException e) {
                                 }
