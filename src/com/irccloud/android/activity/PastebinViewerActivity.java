@@ -37,19 +37,23 @@ import android.support.customtabs.CustomTabsServiceConnection;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.ConsoleMessage;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.ShareEvent;
@@ -179,6 +183,13 @@ public class PastebinViewerActivity extends BaseActivity implements ShareActionP
 
             @Override
             public void onLoadResource(WebView view, String url) {
+            }
+        });
+        mWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Crashlytics.log(consoleMessage.messageLevel() == ConsoleMessage.MessageLevel.ERROR ? Log.ERROR : Log.WARN, "IRCCloud", "Javascript error - line: " + consoleMessage.lineNumber() + " message: " + consoleMessage.message());
+                return super.onConsoleMessage(consoleMessage);
             }
         });
 
