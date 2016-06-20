@@ -483,8 +483,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             if(insert_pos > 0) {
                 Event prev = data.get(insert_pos - 1);
-                if(prev.from == null || !prev.from.equals(e.from))
-                    e.header = true;
+                e.header = (prev.from == null || !prev.from.equals(e.from));
             }
 
             if(insert_pos < (data.size() - 1)) {
@@ -973,13 +972,26 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
         public void onScroll(final AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if (!ready || buffer == null || adapter == null || visibleItemCount < 0)
+            if (!ready || buffer == null || adapter == null || visibleItemCount < 0) {
+                if(avatarContainer.getVisibility() != View.GONE)
+                    avatarContainer.setVisibility(View.GONE);
+                if(avatar.getTag() != null) {
+                    ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
+                    avatar.setTag(null);
+                }
                 return;
+            }
 
             if (conn.ready && !requestingBacklog && headerView != null && buffer.getMin_eid() > 0) {
                 if (firstVisibleItem == 0 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     requestingBacklog = true;
                     conn.request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
+                    if(avatarContainer.getVisibility() != View.GONE)
+                        avatarContainer.setVisibility(View.GONE);
+                    if(avatar.getTag() != null) {
+                        ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
+                        avatar.setTag(null);
+                    }
                     return;
                 } else if(firstVisibleItem > 0 && loadBacklogButton.getVisibility() == View.VISIBLE) {
                     loadBacklogButton.setVisibility(View.GONE);
@@ -1044,7 +1056,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         for (i = first; i < adapter.getCount(); i++) {
                             e = (Event) adapter.getItem(i);
                             Event e1 = (Event) adapter.getItem(i + 1);
-                            if (e.from.equals(e1.from) && e1.group_eid < 1) {
+                            if (e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
                                 View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
                                 if (v1 != null) {
                                     MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
@@ -1092,6 +1104,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
                         avatar.setTag(null);
                     }
+                }
+            } else {
+                if(avatarContainer.getVisibility() != View.GONE)
+                    avatarContainer.setVisibility(View.GONE);
+                if(avatar.getTag() != null) {
+                    ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
+                    avatar.setTag(null);
                 }
             }
         }
@@ -1842,7 +1861,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     else
                         lp.topMargin = 0;
                     backlogFailed.setLayoutParams(lp);
-                    mAvatarsList.clear();
                     setListAdapter(adapter);
                     MessageViewFragment.this.adapter = adapter;
                     if (events != null && events.size() > 0) {
