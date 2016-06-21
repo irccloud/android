@@ -292,7 +292,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         e.type = TYPE_LASTSEENEID;
                         e.row_type = ROW_LASTSEENEID;
                         e.bg_color = colorScheme.socketclosedBackgroundDrawable;
-                        data.add(lastSeenEidMarkerPosition + 1, e);
+                        addItem(e.eid, e);
                         EventsList.getInstance().addEvent(e);
                         for (int i = 0; i < data.size(); i++) {
                             if (data.get(i).row_type == ROW_LASTSEENEID && data.get(i) != e) {
@@ -483,13 +483,16 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             if(insert_pos > 0) {
                 Event prev = data.get(insert_pos - 1);
-                e.header = (prev.from == null || !prev.from.equals(e.from));
+                e.header = (e.row_type == ROW_MESSAGE && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from));
             }
 
             if(insert_pos < (data.size() - 1)) {
                 Event next = data.get(insert_pos + 1);
-                if(next.from != null && next.from.equals(e.from))
+                if(e.row_type != ROW_MESSAGE) {
+                    next.header = (next.row_type == ROW_MESSAGE && next.from != null && next.from.length() > 0 && next.group_eid < 1);
+                } else if(next.from != null && next.from.equals(e.from)) {
                     next.header = false;
+                }
             }
         }
 

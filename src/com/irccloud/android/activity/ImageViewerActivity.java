@@ -84,6 +84,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     private MediaPlayer player = null;
     private String mVideoURL = null;
     private String mImageURL = null;
+    private GingerbreadImageProxy proxy = null;
 
     private class OEmbedTask extends AsyncTaskEx<String, Void, String> {
         private String provider = null;
@@ -630,7 +631,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Image"));
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB && urlStr.startsWith("https://")) {
-                GingerbreadImageProxy proxy = new GingerbreadImageProxy();
+                proxy = new GingerbreadImageProxy();
                 proxy.init();
                 proxy.start();
                 urlStr = String.format("http://127.0.0.1:%d/%s", proxy.getPort(), urlStr);
@@ -725,6 +726,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (proxy != null)
+            proxy.stop();
         if (share != null) {
             share.setOnShareTargetSelectedListener(null);
             share.onShareActionProviderSubVisibilityChangedListener = null;
