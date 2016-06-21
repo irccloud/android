@@ -956,7 +956,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 r.title = c.getString(RingtoneManager.TITLE_COLUMN_INDEX);
                 ringtones.add(r);
             }
-            c.close();
 
             Ringtone r = new Ringtone();
             r.title = "IRCCloud";
