@@ -624,7 +624,6 @@ public class NotificationsList {
                             else
                                 unreadConvBuilder.addMessage(n.nick + " said: " + Html.fromHtml(n.message).toString());
                         }
-                        unreadConvBuilder.addMessage(n.message);
                     }
                 }
             } else {
