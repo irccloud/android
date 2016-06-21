@@ -686,7 +686,7 @@ public class NotificationsList {
             int count = 0;
             long[] eids = new long[notifications.size()];
             Notification[] messages = new Notification[notifications.size()];
-            Notification last = null;
+            Notification last = notifications.get(0);
             boolean show = false;
             for (Notification n : notifications) {
                 if (n.bid != lastbid) {
