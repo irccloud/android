@@ -38,6 +38,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatCallback;
 import android.support.v7.app.AppCompatDelegate;
@@ -54,6 +55,8 @@ import android.widget.Toast;
 
 import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.AppCompatEditTextPreference;
 import com.irccloud.android.AsyncTaskEx;
@@ -227,9 +230,15 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 }
             });*/
         }
-        addPreferencesFromResource(R.xml.preferences_about);
-        findPreference("name").setOnPreferenceChangeListener(settingstoggle);
 
+        addPreferencesFromResource(R.xml.preferences_about);
+        if(BuildConfig.DEBUG) {
+            ((PreferenceCategory)findPreference("about")).removePreference(findPreference("beta_invite"));
+        } else {
+            findPreference("beta_invite").setOnPreferenceClickListener(urlClick);
+        }
+
+        findPreference("name").setOnPreferenceChangeListener(settingstoggle);
         findPreference("autoaway").setOnPreferenceChangeListener(settingstoggle);
         findPreference("time-24hr").setOnPreferenceChangeListener(prefstoggle);
         findPreference("time-seconds").setOnPreferenceChangeListener(prefstoggle);
@@ -256,8 +265,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         findPreference("imgur_account_username").setOnPreferenceClickListener(imgurClick);
         findPreference("theme").setOnPreferenceClickListener(themesClick);
         findPreference("notify_ringtone").setOnPreferenceClickListener(ringtoneClick);
-        //findPreference("subscriptions").setOnPreferenceClickListener(urlClick);
-        //findPreference("changes").setOnPreferenceClickListener(urlClick);
+        findPreference("changes").setOnPreferenceClickListener(urlClick);
         findPreference("notify_type").setOnPreferenceChangeListener(notificationstoggle);
         findPreference("notify_led_color").setOnPreferenceChangeListener(ledtoggle);
         findPreference("photo_size").setOnPreferenceChangeListener(photosizetoggle);
@@ -942,23 +950,42 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
     Preference.OnPreferenceClickListener urlClick = new Preference.OnPreferenceClickListener() {
 
         public boolean onPreferenceClick(Preference preference) {
-            Intent i = null;
+            String url = null;
             if (preference.getKey().equals("faq"))
-                i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/faq"));
+                url = "https://www.irccloud.com/faq";
             if (preference.getKey().equals("feedback")) {
                 Server s = ServersList.getInstance().getServer("irc.irccloud.com");
                 if (s != null && s.getSsl() > 0)
-                    i = new Intent(Intent.ACTION_VIEW, Uri.parse("ircs://irc.irccloud.com/%23feedback"));
+                    url = "ircs://irc.irccloud.com/%23feedback";
                 else
-                    i = new Intent(Intent.ACTION_VIEW, Uri.parse("irc://irc.irccloud.com/%23feedback"));
+                    url = "irc://irc.irccloud.com/%23feedback";
             }
-            if (preference.getKey().equals("subscriptions"))
-                i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/#?/upgrade"));
             if (preference.getKey().equals("changes"))
-                i = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.irccloud.com/android-changelog.txt"));
-
-            if (i != null)
-                startActivity(i);
+                url = "https://github.com/irccloud/android/releases";
+            if (preference.getKey().equals("beta_invite")) {
+                Answers.getInstance().logCustom(new CustomEvent("beta_invite"));
+                url = "https://play.google.com/apps/testing/" + getPackageName();
+            }
+            if(url != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
+                    builder.setToolbarColor(ColorScheme.getInstance().navBarColor);
+                    builder.addDefaultShareMenuItem();
+                    CustomTabsIntent intent = builder.build();
+                    intent.intent.setData(Uri.parse(url));
+                    if (Build.VERSION.SDK_INT >= 22)
+                        intent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + getPackageName()));
+                    if (Build.VERSION.SDK_INT >= 16 && intent.startAnimationBundle != null) {
+                        startActivity(intent.intent, intent.startAnimationBundle);
+                    } else {
+                        startActivity(intent.intent);
+                    }
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                }
+            }
+            finish();
             return false;
         }
     };

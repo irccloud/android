@@ -18,7 +18,7 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<PreferenceCategory android:title="About">
+	<PreferenceCategory android:title="About" android:key="about">
 		<Preference
 			android:title="Send Feedback"
 			android:summary="Join us in #feedback"
@@ -31,15 +31,20 @@
 		<!-- <Preference
 			android:title="Subscriptions"
 			android:key="subscriptions"
-			/>
-		<Preference
-			android:title="ChangeLog"
-			android:key="changes"
 			/>-->
+		<Preference
+			android:title="Version History"
+			android:key="changes"
+			/>
         <Preference
                 android:title="Open Source Licenses"
                 android:key="licenses"
                 />
+		<Preference
+			android:title="Become a Beta Tester"
+			android:summary="Opt-in to our beta channel on Google Play and get early access to new features and bug fixes"
+			android:key="beta_invite"
+			/>
 		<Preference
 			android:title="Version"
 			android:key="version"
