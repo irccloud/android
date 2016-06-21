@@ -1478,9 +1478,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (buffer == null) {
             launchBid = intent.getIntExtra("bid", -1);
         } else {
-            onBufferSelected(buffer.getBid());
+            int bid = buffer.getBid();
+            onBufferSelected(bid);
             if(server == null)
-                launchBid = buffer.getBid();
+                launchBid = bid;
         }
     }
 
