@@ -52,13 +52,13 @@ def getRevision = { ->
 
 android {
     compileSdkVersion 24
-    buildToolsVersion '24.0.0 rc4'
+    buildToolsVersion '24.0.0'
     testBuildType 'debugTest'
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         versionCode 52
-        versionName "2.10"
+        versionName "3.0"
         minSdkVersion 10
         targetSdkVersion 24
         applicationId "com.irccloud.android"
@@ -113,11 +113,11 @@ android {
                 buildConfigField "String", "FB_ACCESS_TOKEN", "\"\""
                 manifestPlaceholders = [CRASHLYTICS_KEY: ""]
             }
-            buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
+            buildConfigField "String[]", "SSL_FPS", "{\"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "VIDEO_SCHEME", "irccloud-video"
-            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-video"
+            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-videos"
             resValue "string", "PASTE_SCHEME", "irccloud-paste"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
@@ -131,7 +131,7 @@ android {
 
         release {
             buildConfigField "String", "HOST", "\"api.irccloud.com\""
-            buildConfigField "String[]", "SSL_FPS", "{\"8D3BE1983F75F4A4546F42F5EC189BC65A9D3A42\", \"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
+            buildConfigField "String[]", "SSL_FPS", "{\"E6B8B984CA03D68389A227021B11C496770DE26A\"}"
             buildConfigField "boolean", "ENTERPRISE", "false"
             if (rootProject.file('private.properties').exists()) {
                 def props = new Properties()
@@ -153,7 +153,7 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-images"
             resValue "string", "VIDEO_SCHEME", "irccloud-video"
-            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-video"
+            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-videos"
             resValue "string", "PASTE_SCHEME", "irccloud-paste"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.ACTION_REPLY"
@@ -198,7 +198,7 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
             resValue "string", "VIDEO_SCHEME", "irccloud-enterprise-video"
-            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-enterprise-video"
+            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-enterprise-videos"
             resValue "string", "PASTE_SCHEME", "irccloud-enterprise-paste"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
@@ -237,7 +237,7 @@ android {
             resValue "string", "IMAGE_SCHEME", "irccloud-enterprise-image"
             resValue "string", "IMAGE_SCHEME_SECURE", "irccloud-enterprise-images"
             resValue "string", "VIDEO_SCHEME", "irccloud-enterprise-video"
-            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-enterprise-video"
+            resValue "string", "VIDEO_SCHEME_SECURE", "irccloud-enterprise-videos"
             resValue "string", "PASTE_SCHEME", "irccloud-enterprise-paste"
             resValue "string", "DISMISS_NOTIFICATION", "com.irccloud.android.enterprise.DISMISS_NOTIFICATION"
             resValue "string", "ACTION_REPLY", "com.irccloud.android.enterprise.ACTION_REPLY"
