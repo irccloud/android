@@ -1186,7 +1186,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 e.command = messageTxt.getText().toString();
                 e.cid = buffer.getCid();
                 e.bid = buffer.getBid();
-                e.eid = (System.currentTimeMillis() + conn.clockOffset + 5000) * 1000L;
+                e.eid = (System.currentTimeMillis() + 5000) * 1000L;
                 if (e.eid < EventsList.getInstance().lastEidForBuffer(buffer.getBid()))
                     e.eid = EventsList.getInstance().lastEidForBuffer(buffer.getBid()) + 1000;
                 e.self = true;

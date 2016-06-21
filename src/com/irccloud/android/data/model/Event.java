@@ -20,6 +20,7 @@ import android.text.Spanned;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.irccloud.android.Ignore;
+import com.irccloud.android.NetworkConnection;
 import com.irccloud.android.R;
 import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.collection.ServersList;
@@ -50,6 +51,9 @@ public class Event /*extends ObservableBaseModel*/ {
     @PrimaryKey
     @Unique(unique = false, uniqueGroups = 1)
     public long eid;
+
+    @Column
+    public long server_time;
 
     @Column
     public String type;
@@ -157,6 +161,7 @@ public class Event /*extends ObservableBaseModel*/ {
         cid = e.cid;
         bid = e.bid;
         eid = e.eid;
+        server_time = e.server_time;
         type = e.type;
         msg = e.msg;
         hostmask = e.hostmask;
@@ -203,6 +208,13 @@ public class Event /*extends ObservableBaseModel*/ {
                 " group_msg: " + group_msg +
                 " pending: " + pending +
                 "}";
+    }
+
+    public long getTime() {
+        if(server_time > 0)
+            return server_time;
+        else
+            return (eid / 1000) + NetworkConnection.getInstance().clockOffset;
     }
 
     public synchronized boolean isImportant(String buffer_type) {

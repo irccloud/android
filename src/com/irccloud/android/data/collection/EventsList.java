@@ -960,6 +960,10 @@ public class EventsList {
             e.from_realname = event.getString("from_realname");
             if(e.from_realname != null && e.from_realname.length() > 0 && e.from_realname.equals(e.from))
                 e.from_realname = null;
+            if(event.has("server_time"))
+                e.server_time = event.getLong("server_time");
+            else
+                e.server_time = 0;
 
             e.chan = event.getString("chan");
             if (event.has("newnick"))

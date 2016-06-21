@@ -353,7 +353,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public synchronized void addItem(long eid, Event e) {
             Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(eid / 1000);
+            calendar.setTimeInMillis(e.getTime());
             int insert_pos = -1;
             SimpleDateFormat formatter = null;
             if (e.timestamp == null || e.timestamp.length() == 0) {
@@ -382,7 +382,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
             if (currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
-                calendar.setTimeInMillis(e.eid / 1000);
+                calendar.setTimeInMillis(e.getTime());
                 lastDay = e.day;
                 data.remove(currentGroupPosition);
                 data.add(currentGroupPosition, e);
@@ -1301,7 +1301,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     }
 
                     Calendar calendar = Calendar.getInstance();
-                    calendar.setTimeInMillis(eid / 1000);
+                    calendar.setTimeInMillis(event.getTime());
 
                     if (pref_expandJoinPart)
                         expandedSectionEids.clear();
@@ -2047,7 +2047,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         String type = (next == null) ? "" : next.type;
 
                         if (next != null && currentCollapsedEid != -1 && !expandedSectionEids.contains(currentCollapsedEid) && (type.equalsIgnoreCase("joined_channel") || type.equalsIgnoreCase("parted_channel") || type.equalsIgnoreCase("nickchange") || type.equalsIgnoreCase("quit") || type.equalsIgnoreCase("user_channel_mode"))) {
-                            calendar.setTimeInMillis(next.eid / 1000);
+                            calendar.setTimeInMillis(next.getTime());
                             insertEvent(adapter, e, true, calendar.get(Calendar.DAY_OF_YEAR) == lastCollapsedDay);
                         } else {
                             insertEvent(adapter, e, true, false);
