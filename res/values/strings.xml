@@ -56,4 +56,204 @@
     <string name="title_activity_imageviewer">Image Viewer</string>
     <string name="title_activity_video_player">Video Player</string>
     <string name="leak_canary_display_activity_label">IRCCloud Leaks</string>
+    <string name="licenses">IRCCloud\n\
+Copyright &#169; 2016 IRCCloud, Ltd.\n\
+\n\
+Licensed under the Apache License, Version 2.0 (the "License");\n\
+you may not use this file except in compliance with the License.\n\
+You may obtain a copy of the License at\n\
+\n\
+http://www.apache.org/licenses/LICENSE-2.0\n\
+\n\
+Unless required by applicable law or agreed to in writing, software\n\
+distributed under the License is distributed on an "AS IS" BASIS,\n\
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
+See the License for the specific language governing permissions and\n\
+limitations under the License.\n\
+\n\
+You should have received a copy of the GNU General Public License\n\
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.\n\
+\n\\n\
+HybiParser.java: draft-ietf-hybi-thewebsocketprotocol-13 parser\n\
+\n\
+Based on code from the faye project.\n\
+https://github.com/faye/faye-websocket-node\n\
+Copyright &#169; 2009-2012 James Coglan\n\
+\n\
+Ported from Javascript to Java by Eric Butler &lt;eric@codebutler.com&gt;\n\
+\n\
+(The MIT License)\n\
+\n\
+Permission is hereby granted, free of charge, to any person obtaining\n\
+a copy of this software and associated documentation files (the\n\
+"Software"), to deal in the Software without restriction, including\n\
+without limitation the rights to use, copy, modify, merge, publish,\n\
+distribute, sublicense, and/or sell copies of the Software, and to\n\
+permit persons to whom the Software is furnished to do so, subject to\n\
+the following conditions:\n\
+\n\
+The above copyright notice and this permission notice shall be\n\
+included in all copies or substantial portions of the Software.\n\
+\n\
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,\n\
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\n\
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\n\
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE\n\
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION\n\
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\n\
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\
+\n\\n\
+Sony LiveWare library\n\
+Copyright &#169; 2011, Sony Ericsson Mobile Communications AB\n\
+Copyright &#169; 2012-2013 Sony Mobile Communications AB\n\
+\n\
+All rights reserved.\n\
+\n\
+Redistribution and use in source and binary forms, with or without\n\
+modification, are permitted provided that the following conditions are met:\n\
+\n\
+* Redistributions of source code must retain the above copyright notice, this\n\
+  list of conditions and the following disclaimer.\n\
+\n\
+* Redistributions in binary form must reproduce the above copyright notice,\n\
+  this list of conditions and the following disclaimer in the documentation\n\
+  and/or other materials provided with the distribution.\n\
+\n\
+* Neither the name of the Sony Ericsson Mobile Communications AB nor the names\n\
+  of its contributors may be used to endorse or promote products derived from\n\
+  this software without specific prior written permission.\n\
+\n\
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND\n\
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n\
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n\
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE\n\
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL\n\
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR\n\
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER\n\
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,\n\
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\n\
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n\
+\n\\n\
+AsyncTaskEx\n\
+Copyright &#169; 2008-2009 CommonsWare, LLC\n\
+Portions &#169; 2009 Google, Inc.\n\
+Licensed under the Apache License, Version 2.0 (the "License"); you may\n\
+not use this file except in compliance with the License. You may obtain\n\
+a copy of the License at\n\
+http://www.apache.org/licenses/LICENSE-2.0\n\
+Unless required by applicable law or agreed to in writing, software\n\
+distributed under the License is distributed on an "AS IS" BASIS,\n\
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
+See the License for the specific language governing permissions and\n\
+limitations under the License.\n\
+A subclass of the Android ListView component that enables drag\n\
+and drop re-ordering of list items.\n\
+\n\\n\
+DragSortListView\n\
+Copyright 2012 Carl Bauer\n\
+\n\
+Licensed under the Apache License, Version 2.0 (the "License");\n\
+you may not use this file except in compliance with the License.\n\
+You may obtain a copy of the License at\n\
+\n\
+http://www.apache.org/licenses/LICENSE-2.0\n\
+\n\
+Unless required by applicable law or agreed to in writing, software\n\
+distributed under the License is distributed on an "AS IS" BASIS,\n\
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
+See the License for the specific language governing permissions and\n\
+limitations under the License.\n\\n\
+Jackson JSON Parser by FasterXML\n\
+\n\
+Licensed under the Apache License, Version 2.0 (the "License");\n\
+you may not use this file except in compliance with the License.\n\
+You may obtain a copy of the License at\n\
+\n\
+http://www.apache.org/licenses/LICENSE-2.0\n\
+\n\
+Unless required by applicable law or agreed to in writing, software\n\
+distributed under the License is distributed on an "AS IS" BASIS,\n\
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
+See the License for the specific language governing permissions and\n\
+limitations under the License.\n\\n\
+SeekBarPreference by RoboBunny\n\\n\
+SwitchPreferenceCompat by Christian Gollner\n\\n\
+The MIT License (MIT)\n\
+\n\
+Copyright &#169; 2014 Andrew Chen\n\
+\n\
+Permission is hereby granted, free of charge, to any person obtaining a copy\n\
+of this software and associated documentation files (the "Software"), to deal\n\
+in the Software without restriction, including without limitation the rights\n\
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n\
+copies of the Software, and to permit persons to whom the Software is\n\
+furnished to do so, subject to the following conditions:\n\
+\n\
+The above copyright notice and this permission notice shall be included in all\n\
+copies or substantial portions of the Software.\n\
+\n\
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n\
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n\
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n\
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n\
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n\
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n\
+SOFTWARE.\n\
+\n\
+Handy URI Templates\n\
+Copyright 2011-2013 Ryan J. McDonough\n\
+\n\
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at\n\
+\n\
+http://www.apache.org/licenses/LICENSE-2.0\n\
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.\n\
+\n\
+DBFlow
+The MIT License (MIT)\n\
+Copyright &#169; 2014 Raizlabs\n\
+\n\
+Permission is hereby granted, free of charge, to any person obtaining a copy\n\
+of this software and associated documentation files (the "Software"), to deal\n\
+in the Software without restriction, including without limitation the rights\n\
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n\
+copies of the Software, and to permit persons to whom the Software is\n\
+furnished to do so, subject to the following conditions:\n\
+\n\
+The above copyright notice and this permission notice shall be included in all\n\
+copies or substantial portions of the Software.\n\
+\n\
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n\
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n\
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n\
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n\
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n\
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n\
+SOFTWARE.\n\
+\n\
+Source Sans Pro\n\
+Copyright 2010, 2012, 2014 Adobe Systems Incorporated (http://www.adobe.com/), with Reserved Font Name 'Source'. All Rights Reserved. Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries.\n\
+\n\
+This Font Software is licensed under the SIL Open Font License, Version 1.1.\n\
+\n\
+This license is available with a FAQ at: http://scripts.sil.org/OFL\n\
+\n\
+\n\
+Font Awesome by Dave Gandy - http://fontawesome.io\n\
+\n\
+\n\
+CustomTabsHelper\n\
+Copyright 2015 Google Inc. All Rights Reserved.\n\
+\n\
+Licensed under the Apache License, Version 2.0 (the "License");\n\
+you may not use this file except in compliance with the License.\n\
+You may obtain a copy of the License at\n\
+\n\
+http://www.apache.org/licenses/LICENSE-2.0\n\
+n\
+Unless required by applicable law or agreed to in writing, software\n\
+distributed under the License is distributed on an "AS IS" BASIS,\n\
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n\
+See the License for the specific language governing permissions and\n\
+limitations under the License.\n\
+</string>
 </resources>
