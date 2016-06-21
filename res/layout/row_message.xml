@@ -83,7 +83,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                android:clickable="false" />
+                android:clickable="false"
+                android:ellipsize="end"
+                android:singleLine="true"/>
 
         </LinearLayout>
 
@@ -91,6 +93,15 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/avatar_small"
+                android:layout_gravity="right|top"
+                android:layout_marginRight="4dp"
+                android:contentDescription="user icon"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/message"

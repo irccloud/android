@@ -217,6 +217,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             TextView realname;
             ImageView failed;
             ImageView avatar;
+            ImageView avatar_small;
         }
 
         public MessageAdapter(ListFragment context, int capacity) {
@@ -588,6 +589,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.realname = (TextView) row.findViewById(R.id.realname);
                     holder.failed = (ImageView) row.findViewById(R.id.failed);
                     holder.avatar = (ImageView) row.findViewById(R.id.avatar);
+                    holder.avatar_small = (ImageView) row.findViewById(R.id.avatar_small);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -768,6 +770,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.realname.setVisibility(View.GONE);
                     if (holder.avatar != null)
                         holder.avatar.setVisibility((pref_avatarsOff || (pref_chatOneLine && e.group_eid > 0)) ? View.GONE : View.VISIBLE);
+                }
+
+                if (holder.avatar_small != null) {
+                    if(pref_avatarsOff || pref_chatOneLine || !e.type.equals("buffer_me_msg")) {
+                        holder.avatar_small.setImageBitmap(null);
+                        holder.avatar_small.setVisibility(View.GONE);
+                    } else {
+                        Avatar a = mAvatarsList.getAvatar(e.cid, e.nick);
+                        holder.avatar_small.setTag(a);
+                        holder.avatar_small.setImageBitmap(a.getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4), getResources().getDisplayMetrics()), e.self));
+                        holder.avatar_small.setVisibility(View.VISIBLE);
+                    }
                 }
 
                 return row;
@@ -1078,7 +1092,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                         Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * 2, getResources().getDisplayMetrics()));
                         int topMargin, leftMargin;
-                        int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics());
+                        int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
                         if (v.getHeight() + v.getTop() < (height + offset)) {
                             topMargin = v.getTop() + v.getHeight() - height;
                         } else {
