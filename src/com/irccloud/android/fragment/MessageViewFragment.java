@@ -482,17 +482,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentGroupPosition++;
             }
 
-            if(insert_pos > 0) {
-                Event prev = data.get(insert_pos - 1);
-                e.header = (e.row_type == ROW_MESSAGE && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from));
-            }
+            if(!buffer.getType().equals("console")) {
+                if (insert_pos > 0) {
+                    Event prev = data.get(insert_pos - 1);
+                    e.header = (e.row_type == ROW_MESSAGE && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from));
+                }
 
-            if(insert_pos < (data.size() - 1)) {
-                Event next = data.get(insert_pos + 1);
-                if(e.row_type != ROW_MESSAGE) {
-                    next.header = (next.row_type == ROW_MESSAGE && next.from != null && next.from.length() > 0 && next.group_eid < 1);
-                } else if(next.from != null && next.from.equals(e.from)) {
-                    next.header = false;
+                if (insert_pos < (data.size() - 1)) {
+                    Event next = data.get(insert_pos + 1);
+                    if (e.row_type != ROW_MESSAGE) {
+                        next.header = (next.row_type == ROW_MESSAGE && next.from != null && next.from.length() > 0 && next.group_eid < 1);
+                    } else if (next.from != null && next.from.equals(e.from)) {
+                        next.header = false;
+                    }
                 }
             }
         }
@@ -1409,7 +1411,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
                     if (event.html == null) {
-                        if (pref_chatOneLine && event.from != null && event.from.length() > 0)
+                        if (((pref_chatOneLine || buffer.getType().equals("console")) || buffer.getType().equals("console")) && event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg;
                         else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + event.msg;
@@ -1454,7 +1456,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg + "</i>";
                         break;
                     case "notice":
-                        if (pref_chatOneLine && event.from != null && event.from.length() > 0)
+                        if ((pref_chatOneLine || buffer.getType().equals("console")) && event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
                         else
                             event.html = "";
