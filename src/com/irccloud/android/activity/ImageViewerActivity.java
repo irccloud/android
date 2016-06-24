@@ -565,8 +565,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             } else if (lower.startsWith("cl.ly")) {
                 new ClLyTask().execute(url);
                 return;
-            } else if (url.contains("/wiki/File:")) {
-                new WikiTask().execute(url.replace("/wiki/", "/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles="));
+            } else if (url.matches(".*/wiki/.*/File:.*")) {
+                new WikiTask().execute(url.replaceAll("/wiki/.*/File:", "/w/api.php?action=query&format=json&prop=imageinfo&iiprop=url&titles=File:"));
             } else if (lower.startsWith("leetfiles.com/") || lower.startsWith("www.leetfiles.com/")) {
                 url = url.replace("www.", "").replace("leetfiles.com/image/", "i.leetfiles.com/").replace("?id=", "");
             } else if (lower.startsWith("leetfil.es/") || lower.startsWith("www.leetfil.es/")) {
