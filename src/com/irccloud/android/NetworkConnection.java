@@ -2051,7 +2051,7 @@ public class NetworkConnection {
         //Misc. popup alerts
         put("bad_channel_key", new BroadcastParser(EVENT_BADCHANNELKEY));
         put("invalid_nick", new BroadcastParser(EVENT_INVALIDNICK));
-        Parser alert = new BroadcastParser(EVENT_ALERT);
+        final Parser alert = new BroadcastParser(EVENT_ALERT);
         String[] alerts = {"too_many_channels",
                 "no_such_channel",
                 "no_such_nick",
@@ -2237,69 +2237,73 @@ public class NetworkConnection {
                 Event event = mEvents.addEvent(object);
                 Buffer b = mBuffers.getBuffer(object.bid());
 
-                if (b != null && event.eid > b.getLast_seen_eid() && event.isImportant(b.getType())) {
-                    if ((event.highlight || b.isConversation())) {
-                        if (newEvent) {
-                            b.setHighlights(b.getHighlights() + 1);
-                            b.setUnread(1);
-                        }
-                        if(!backlog) {
-                            JSONObject bufferDisabledMap = null;
-                            boolean show = true;
-                            if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
-                                bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
-                                if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
-                                    show = false;
+                if(event.eid == -1) {
+                    alert.parse(object);
+                } else {
+                    if (b != null && event.eid > b.getLast_seen_eid() && event.isImportant(b.getType())) {
+                        if ((event.highlight || b.isConversation())) {
+                            if (newEvent) {
+                                b.setHighlights(b.getHighlights() + 1);
+                                b.setUnread(1);
                             }
-                            if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
-                                show = false;
-                            if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
-                                String message = ColorFormatter.irc_to_html(event.msg);
-                                message = ColorFormatter.html_to_spanned(message).toString();
-                                String server_name = b.getServer().getName();
-                                if(server_name == null || server_name.length() == 0)
-                                    server_name = b.getServer().getHostname();
-                                String from = event.nick;
-                                if(from == null)
-                                    from = (event.from != null) ? event.from : event.server;
+                            if (!backlog) {
+                                JSONObject bufferDisabledMap = null;
+                                boolean show = true;
+                                if (userInfo != null && userInfo.prefs != null && userInfo.prefs.has("buffer-disableTrackUnread")) {
+                                    bufferDisabledMap = userInfo.prefs.getJSONObject("buffer-disableTrackUnread");
+                                    if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
+                                        show = false;
+                                }
+                                if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
+                                    show = false;
+                                if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
+                                    String message = ColorFormatter.irc_to_html(event.msg);
+                                    message = ColorFormatter.html_to_spanned(message).toString();
+                                    String server_name = b.getServer().getName();
+                                    if (server_name == null || server_name.length() == 0)
+                                        server_name = b.getServer().getHostname();
+                                    String from = event.nick;
+                                    if (from == null)
+                                        from = (event.from != null) ? event.from : event.server;
 
-                                NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name);
-                                switch (b.getType()) {
-                                    case "conversation":
-                                        if (event.type.equals("buffer_me_msg"))
-                                            NotificationsList.getInstance().showNotifications("— " + b.getName() + " " + message);
-                                        else
-                                            NotificationsList.getInstance().showNotifications(b.getName() + ": " + message);
-                                        break;
-                                    case "console":
-                                        if (event.from == null || event.from.length() == 0) {
-                                            Server s = mServers.getServer(event.cid);
-                                            if (s.getName() != null && s.getName().length() > 0)
-                                                NotificationsList.getInstance().showNotifications(s.getName() + ": " + message);
+                                    NotificationsList.getInstance().addNotification(event.cid, event.bid, event.eid, (event.nick != null) ? event.nick : event.from, message, b.getName(), b.getType(), event.type, server_name);
+                                    switch (b.getType()) {
+                                        case "conversation":
+                                            if (event.type.equals("buffer_me_msg"))
+                                                NotificationsList.getInstance().showNotifications("— " + b.getName() + " " + message);
                                             else
-                                                NotificationsList.getInstance().showNotifications(s.getHostname() + ": " + message);
-                                        } else {
-                                            NotificationsList.getInstance().showNotifications(event.from + ": " + message);
-                                        }
-                                        break;
-                                    default:
-                                        if (event.type.equals("buffer_me_msg"))
-                                            NotificationsList.getInstance().showNotifications(b.getName() + ": — " + event.nick + " " + message);
-                                        else
-                                            NotificationsList.getInstance().showNotifications(b.getName() + ": <" + event.from + "> " + message);
-                                        break;
+                                                NotificationsList.getInstance().showNotifications(b.getName() + ": " + message);
+                                            break;
+                                        case "console":
+                                            if (event.from == null || event.from.length() == 0) {
+                                                Server s = mServers.getServer(event.cid);
+                                                if (s.getName() != null && s.getName().length() > 0)
+                                                    NotificationsList.getInstance().showNotifications(s.getName() + ": " + message);
+                                                else
+                                                    NotificationsList.getInstance().showNotifications(s.getHostname() + ": " + message);
+                                            } else {
+                                                NotificationsList.getInstance().showNotifications(event.from + ": " + message);
+                                            }
+                                            break;
+                                        default:
+                                            if (event.type.equals("buffer_me_msg"))
+                                                NotificationsList.getInstance().showNotifications(b.getName() + ": — " + event.nick + " " + message);
+                                            else
+                                                NotificationsList.getInstance().showNotifications(b.getName() + ": <" + event.from + "> " + message);
+                                            break;
+                                    }
                                 }
                             }
+                        } else {
+                            b.setUnread(1);
                         }
-                    } else {
-                        b.setUnread(1);
+                    } else if (b == null && !oobTasks.containsKey(-1)) {
+                        Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
+                        notifyHandlers(EVENT_BACKLOG_FAILED, null);
+                        streamId = null;
+                        if (client != null)
+                            client.disconnect();
                     }
-                } else if (b == null && !oobTasks.containsKey(-1)) {
-                    Log.e("IRCCloud", "Got a message for a buffer that doesn't exist, reconnecting!");
-                    notifyHandlers(EVENT_BACKLOG_FAILED, null);
-                    streamId = null;
-                    if (client != null)
-                        client.disconnect();
                 }
 
                 if (handlers.size() == 0 && b != null && !b.getScrolledUp() && mEvents.getSizeOfBuffer(b.getBid()) > 200)

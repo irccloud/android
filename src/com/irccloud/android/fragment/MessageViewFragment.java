@@ -482,19 +482,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     currentGroupPosition++;
             }
 
-            if(!buffer.getType().equals("console")) {
-                if (insert_pos > 0) {
-                    Event prev = data.get(insert_pos - 1);
-                    e.header = (e.row_type == ROW_MESSAGE && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from));
-                }
+            if (insert_pos > 0) {
+                Event prev = data.get(insert_pos - 1);
+                e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from));
+            }
 
-                if (insert_pos < (data.size() - 1)) {
-                    Event next = data.get(insert_pos + 1);
-                    if (e.row_type != ROW_MESSAGE) {
-                        next.header = (next.row_type == ROW_MESSAGE && next.from != null && next.from.length() > 0 && next.group_eid < 1);
-                    } else if (next.from != null && next.from.equals(e.from)) {
-                        next.header = false;
-                    }
+            if (insert_pos < (data.size() - 1)) {
+                Event next = data.get(insert_pos + 1);
+                if (!e.isMessage()) {
+                    next.header = (next.isMessage() && next.from != null && next.from.length() > 0 && next.group_eid < 1);
+                }
+                if (next.from != null && next.from.equals(e.from)) {
+                    next.header = false;
                 }
             }
         }
@@ -724,7 +723,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if (holder.avatar != null) {
                     ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams)holder.avatar.getLayoutParams();
-                    if(pref_avatarsOff) {
+                    if(pref_avatarsOff || (e.row_type == ROW_SOCKETCLOSED && (e.msg == null || e.msg.length() == 0))) {
                         holder.avatar.setImageBitmap(null);
                         lp.topMargin = lp.width = lp.height = 0;
                     } else {
@@ -1071,11 +1070,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
                     MessageAdapter.ViewHolder top_vh = vh;
                     Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
-                    if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.from != null && e.from.length() > 0) {
+                    if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.isMessage() && e.from != null && e.from.length() > 0) {
                         for (i = first; i < adapter.getCount(); i++) {
                             e = (Event) adapter.getItem(i);
                             Event e1 = (Event) adapter.getItem(i + 1);
-                            if (e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
+                            if (e.from != null && e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
                                 View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
                                 if (v1 != null) {
                                     MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
@@ -1092,7 +1091,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
                         }
 
-                        Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * 2, getResources().getDisplayMetrics()));
+                        Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, (textSize + 4) * 2, getResources().getDisplayMetrics()), e.self);
                         int topMargin, leftMargin;
                         int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
                         if (v.getHeight() + v.getTop() < (height + offset)) {
@@ -1411,7 +1410,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     lastCollapsedEid = -1;
                     collapsedEvents.clear();
                     if (event.html == null) {
-                        if (((pref_chatOneLine || buffer.getType().equals("console")) || buffer.getType().equals("console")) && event.from != null && event.from.length() > 0)
+                        if ((pref_chatOneLine || !event.isMessage()) && event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg;
                         else if (pref_chatOneLine && event.type.equals("buffer_msg") && event.server != null && event.server.length() > 0)
                             event.html = "<b>" + event.server + "</b> " + event.msg;
@@ -1432,7 +1431,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (from == null || from.length() == 0)
                     from = event.nick;
 
-                if (from != null && event.hostmask != null && (type.equals("buffer_msg") || type.equals("buffer_me_msg") || type.equals("notice") || type.equals("channel_invite") || type.equals("callerid") || type.equals("wallops")) && buffer.getType() != null && !buffer.isConversation()) {
+                if (from != null && event.hostmask != null && event.isMessage() && buffer.getType() != null && !buffer.isConversation()) {
                     String usermask = from + "!" + event.hostmask;
                     if (ignore.match(usermask)) {
                         if (unreadTopView != null && unreadTopView.getVisibility() == View.GONE && unreadBottomView != null && unreadBottomView.getVisibility() == View.GONE) {
@@ -1456,12 +1455,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg + "</i>";
                         break;
                     case "notice":
-                        if ((pref_chatOneLine || buffer.getType().equals("console")) && event.from != null && event.from.length() > 0)
+                        if (pref_chatOneLine && event.from != null && event.from.length() > 0)
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
                         else
                             event.html = "";
                         if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
-                            event.html += event.chan + "&#xfe55; " + event.msg;
+                            event.html += "<b>" + event.chan + "</b>: " + event.msg;
+                        } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
+                            event.html += "<b>" + event.nick + "</b>: " + event.msg;
                         } else {
                             event.html += event.msg;
                         }

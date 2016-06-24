@@ -207,6 +207,8 @@ public class Event /*extends ObservableBaseModel*/ {
                 " group_eid: " + group_eid +
                 " group_msg: " + group_msg +
                 " pending: " + pending +
+                " self: " + self +
+                " header: " + header +
                 "}";
     }
 
@@ -245,6 +247,10 @@ public class Event /*extends ObservableBaseModel*/ {
             if (buffer_type.equalsIgnoreCase("console") && (to_chan || to_buffer))
                 return false;
         }
+        return isMessage();
+    }
+
+    public boolean isMessage() {
         return (type.equals("buffer_msg") ||
                 type.equals("buffer_me_msg") ||
                 type.equals("notice") ||

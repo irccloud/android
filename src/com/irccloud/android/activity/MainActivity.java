@@ -2050,14 +2050,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 break;
             case NetworkConnection.EVENT_PROGRESS:
                 final float progress = (Float) obj;
-                if (progressBar.getProgress() < progress) {
+                if (progressBar != null && progressBar.getProgress() < progress) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            progressBar.setIndeterminate(false);
-                            progressBar.setProgress((int) progress);
-                            if (progressBar.getVisibility() != View.VISIBLE && progress < 1000) {
-                                progressBar.setVisibility(View.VISIBLE);
+                            if (progressBar != null) {
+                                progressBar.setIndeterminate(false);
+                                progressBar.setProgress((int) progress);
+                                if (progressBar.getVisibility() != View.VISIBLE && progress < 1000) {
+                                    progressBar.setVisibility(View.VISIBLE);
+                                }
                             }
                         }
                     });
@@ -2067,7 +2069,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        progressBar.setProgress(0);
+                    if (progressBar != null)
+                            progressBar.setProgress(0);
                     }
                 });
                 break;

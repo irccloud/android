@@ -172,6 +172,7 @@ public class EventsList {
                     e.from = event.getString("nick");
                 }
                 e.msg = "is already in use";
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -190,6 +191,7 @@ public class EventsList {
                         msg.append(event.getString("msg"));
                     e.msg = msg.toString();
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -200,6 +202,7 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 e.from = "";
                 e.msg = "Cancelled";
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -504,7 +507,11 @@ public class EventsList {
             public void format(IRCCloudJSONObject event, Event e) {
                 if(event != null) {
                     e.chan = event.getString("target");
-                    e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
+                    e.nick = event.getString("target");
+                    if(event.has("op_only") && event.getInt("op_only") == 1)
+                        e.msg = "<pre><b>(Ops)</b>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
+                    else
+                        e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
                 }
                 e.bg_color = colorScheme.noticeBackgroundColor;
             }
@@ -623,6 +630,7 @@ public class EventsList {
                     e.from = event.getString("target_nick");
                     e.msg = "<pre>" + e.msg + "</pre>";
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -634,6 +642,7 @@ public class EventsList {
                     e.from = event.getString("target_nick");
                     e.msg = "<pre>" + e.msg + "</pre>";
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -650,6 +659,7 @@ public class EventsList {
                         }
                     }
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -782,6 +792,7 @@ public class EventsList {
                 if(event != null) {
                     e.from = "";
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         };
@@ -806,6 +817,7 @@ public class EventsList {
                 if(event != null) {
                     e.from = event.getString("services_name");
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -818,6 +830,7 @@ public class EventsList {
                     if (event.has("flag"))
                         e.msg = "<b>" + event.getString("flag") + "</b> " + e.msg;
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -828,6 +841,7 @@ public class EventsList {
                 if(event != null) {
                     e.from = event.getString("channel");
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -838,6 +852,7 @@ public class EventsList {
                 if(event != null) {
                     e.from = event.getString("channel");
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -848,6 +863,7 @@ public class EventsList {
                 if(event != null) {
                     e.from = event.getString("channel");
                 }
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });
@@ -902,6 +918,7 @@ public class EventsList {
         put("error", new Formatter() {
             @Override
             public void format(IRCCloudJSONObject event, Event e) {
+                e.color = colorScheme.networkErrorColor;
                 e.bg_color = colorScheme.errorBackgroundColor;
             }
         });

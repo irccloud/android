@@ -31,6 +31,7 @@ import java.util.HashMap;
 public class Avatar {
     private HashMap<Integer, Bitmap> bitmaps_dark = new HashMap<>();
     private HashMap<Integer, Bitmap> bitmaps_light = new HashMap<>();
+    private HashMap<Integer, Bitmap> bitmaps_self = new HashMap<>();
     private static Typeface font = null;
 
     public long lastAccessTime = 0;
@@ -76,7 +77,7 @@ public class Avatar {
 
     public Bitmap getBitmap(boolean isDarkTheme, int size, boolean self) {
         lastAccessTime = System.currentTimeMillis();
-        HashMap<Integer, Bitmap> bitmaps = isDarkTheme?bitmaps_dark:bitmaps_light;
+        HashMap<Integer, Bitmap> bitmaps = self?bitmaps_self:(isDarkTheme?bitmaps_dark:bitmaps_light);
 
         if(!bitmaps.containsKey(size) && nick != null && nick.length() > 0) {
             String normalizedNick = nick.toUpperCase().replaceAll("[_\\W]+", "");

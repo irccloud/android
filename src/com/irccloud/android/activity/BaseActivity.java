@@ -463,6 +463,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         showAlert(o.cid(), o.getString("nick") + " is already a member of " + o.getString("channel"));
                     else if (type.equalsIgnoreCase("no_nick_given"))
                         showAlert(o.cid(), "No nickname given");
+                    else if (type.equalsIgnoreCase("nickname_in_use"))
+                        showAlert(o.cid(), o.getString("nick") + " is already in use");
                     else if (type.equalsIgnoreCase("silence")) {
                         String mask = o.getString("usermask");
                         if (mask.startsWith("-"))
