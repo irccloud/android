@@ -62,6 +62,9 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
     private String realname;
 
     @Column
+    private String server_realname;
+
+    @Column
     private ObjectNode fail_info;
 
     @Column
@@ -217,6 +220,14 @@ public class Server extends BaseObservable /*extends ObservableBaseModel*/ imple
 
     public void setRealname(String realname) {
         this.realname = realname;
+    }
+
+    public String getServerRealname() {
+        return server_realname;
+    }
+
+    public void setServerRealname(String server_realname) {
+        this.server_realname = server_realname;
     }
 
     public String getAway() {

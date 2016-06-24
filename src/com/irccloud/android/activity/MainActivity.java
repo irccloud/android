@@ -1192,6 +1192,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 e.self = true;
                 e.from = server.getNick();
                 e.nick = server.getNick();
+                e.from_realname = server.getServerRealname();
                 if (!buffer.isConsole())
                     e.chan = buffer.getName();
                 if (u != null)
