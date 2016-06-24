@@ -400,8 +400,11 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 findPreference("theme").setSummary(ColorScheme.getUserTheme());
             if(findPreference("chat-oneline") != null) {
                 if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
-                    ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(true);
-                    findPreference("time-left").setEnabled(false);
+                    if(((SwitchPreferenceCompat) findPreference("avatars-off")).isChecked()) {
+                        findPreference("time-left").setEnabled(false);
+                    } else {
+                        findPreference("time-left").setEnabled(true);
+                    }
                 } else {
                     findPreference("time-left").setEnabled(true);
                 }
@@ -448,8 +451,11 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                     findPreference("theme").setSummary(ColorScheme.getUserTheme());
                                     if(findPreference("chat-oneline") != null) {
                                         if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
-                                            ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(true);
-                                            findPreference("time-left").setEnabled(false);
+                                            if(((SwitchPreferenceCompat) findPreference("avatars-off")).isChecked()) {
+                                                findPreference("time-left").setEnabled(false);
+                                            } else {
+                                                findPreference("time-left").setEnabled(true);
+                                            }
                                         } else {
                                             findPreference("time-left").setEnabled(true);
                                         }
@@ -543,14 +549,22 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
 
     Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(findPreference("chat-oneline") != null) {
-                if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
-                    ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(true);
-                    findPreference("time-left").setEnabled(false);
-                } else {
-                    findPreference("time-left").setEnabled(true);
+            getListView().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if(findPreference("chat-oneline") != null) {
+                        if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
+                            if(((SwitchPreferenceCompat) findPreference("avatars-off")).isChecked()) {
+                                findPreference("time-left").setEnabled(false);
+                            } else {
+                                findPreference("time-left").setEnabled(true);
+                            }
+                        } else {
+                            findPreference("time-left").setEnabled(true);
+                        }
+                    }
                 }
-            }
+            }, 100);
             if (conn == null || conn.getUserInfo() == null) {
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;

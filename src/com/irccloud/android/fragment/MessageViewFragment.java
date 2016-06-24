@@ -647,11 +647,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.timestamp.setTextSize(textSize - 2);
 
                         if (timestamp_width == -1) {
-                            String s = "88:88";
+                            String s = " 88:88";
                             if (pref_seconds)
                                 s += ":88";
                             if (!pref_24hr)
-                                s += " 88";
+                                s += " MM";
                             timestamp_width = (int) holder.timestamp.getPaint().measureText(s);
                         }
                         holder.timestamp.setMinWidth(timestamp_width);
@@ -1455,10 +1455,21 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg + "</i>";
                         break;
                     case "notice":
+                        event.html = "";
+                        if(server.PREFIX.has(server.MODE_OPER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
+                            event.html = collapsedEvents.formatNick("Opers", server.MODE_OPER, false) + " ";
+                        if(server.PREFIX.has(server.MODE_OWNER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
+                            event.html = collapsedEvents.formatNick("Owners", server.MODE_OWNER, false) + " ";
+                        if(server.PREFIX.has(server.MODE_ADMIN) && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
+                            event.html = collapsedEvents.formatNick("Admins", server.MODE_ADMIN, false) + " ";
+                        if(server.PREFIX.has(server.MODE_OP) && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
+                            event.html = collapsedEvents.formatNick("Ops", server.MODE_OP, false) + " ";
+                        if(server.PREFIX.has(server.MODE_HALFOP) && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
+                            event.html = collapsedEvents.formatNick("Half Ops", server.MODE_HALFOP, false) + " ";
+                        if(server.PREFIX.has(server.MODE_VOICED) && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
+                            event.html = collapsedEvents.formatNick("Voiced", server.MODE_VOICED, false) + " ";
                         if (pref_chatOneLine && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
-                        else
-                            event.html = "";
+                            event.html += "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
                         if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
                             event.html += "<b>" + event.chan + "</b>: " + event.msg;
                         } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {
@@ -1466,18 +1477,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } else {
                             event.html += event.msg;
                         }
-                        if(server.PREFIX.has(server.MODE_OPER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
-                            event.html = collapsedEvents.formatNick("Opers", server.MODE_OPER, false) + " " + event.html;
-                        if(server.PREFIX.has(server.MODE_OWNER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
-                            event.html = collapsedEvents.formatNick("Owners", server.MODE_OWNER, false) + " " + event.html;
-                        if(server.PREFIX.has(server.MODE_ADMIN) && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
-                            event.html = collapsedEvents.formatNick("Admins", server.MODE_ADMIN, false) + " " + event.html;
-                        if(server.PREFIX.has(server.MODE_OP) && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
-                            event.html = collapsedEvents.formatNick("Ops", server.MODE_OP, false) + " " + event.html;
-                        if(server.PREFIX.has(server.MODE_HALFOP) && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
-                            event.html = collapsedEvents.formatNick("Half Ops", server.MODE_HALFOP, false) + " " + event.html;
-                        if(server.PREFIX.has(server.MODE_VOICED) && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
-                            event.html = collapsedEvents.formatNick("Voiced", server.MODE_VOICED, false) + " " + event.html;
                         break;
                     case "kicked_channel":
                         event.html = "← ";
