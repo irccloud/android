@@ -484,7 +484,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
             if (insert_pos > 0) {
                 Event prev = data.get(insert_pos - 1);
-                e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from));
+                e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from) || !prev.type.equals(e.type));
             }
 
             if (insert_pos < (data.size() - 1)) {
@@ -492,7 +492,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (!e.isMessage()) {
                     next.header = (next.isMessage() && next.from != null && next.from.length() > 0 && next.group_eid < 1);
                 }
-                if (next.from != null && next.from.equals(e.from)) {
+                if (next.from != null && next.from.equals(e.from) && next.type.equals(e.type)) {
                     next.header = false;
                 }
             }
@@ -1466,6 +1466,18 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         } else {
                             event.html += event.msg;
                         }
+                        if(server.PREFIX.has(server.MODE_OPER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
+                            event.html = collapsedEvents.formatNick("Opers", server.MODE_OPER, false) + " " + event.html;
+                        if(server.PREFIX.has(server.MODE_OWNER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
+                            event.html = collapsedEvents.formatNick("Owners", server.MODE_OWNER, false) + " " + event.html;
+                        if(server.PREFIX.has(server.MODE_ADMIN) && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
+                            event.html = collapsedEvents.formatNick("Admins", server.MODE_ADMIN, false) + " " + event.html;
+                        if(server.PREFIX.has(server.MODE_OP) && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
+                            event.html = collapsedEvents.formatNick("Ops", server.MODE_OP, false) + " " + event.html;
+                        if(server.PREFIX.has(server.MODE_HALFOP) && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
+                            event.html = collapsedEvents.formatNick("Half Ops", server.MODE_HALFOP, false) + " " + event.html;
+                        if(server.PREFIX.has(server.MODE_VOICED) && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
+                            event.html = collapsedEvents.formatNick("Voiced", server.MODE_VOICED, false) + " " + event.html;
                         break;
                     case "kicked_channel":
                         event.html = "← ";

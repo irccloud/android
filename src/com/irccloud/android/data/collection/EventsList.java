@@ -508,10 +508,8 @@ public class EventsList {
                 if(event != null) {
                     e.chan = event.getString("target");
                     e.nick = event.getString("target");
-                    if(event.has("op_only") && event.getInt("op_only") == 1)
-                        e.msg = "<pre><b>(Ops)</b>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
-                    else
-                        e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
+                    e.target_mode = event.getString("statusmsg");
+                    e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
                 }
                 e.bg_color = colorScheme.noticeBackgroundColor;
             }
@@ -1021,7 +1019,7 @@ public class EventsList {
             if (e.highlight)
                 e.bg_color = colorScheme.highlightBackgroundColor;
 
-            if (e.self)
+            if (e.self && !e.type.equals("notice"))
                 e.bg_color = colorScheme.selfBackgroundColor;
 
             return e;
