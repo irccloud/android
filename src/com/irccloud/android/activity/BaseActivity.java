@@ -30,6 +30,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.content.FileProvider;
 import android.support.v4.os.BuildCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -78,7 +79,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     private boolean mResolvingError;
     private static final int REQUEST_RESOLVE_ERROR = 1001;
     private static final int REQUEST_SEND_FEEDBACK = 1002;
-    private static final String LOG_FILENAME = "log.txt";
+    private static final String LOG_FILENAME = "logs/log.txt";
 
     private SMultiWindow mMultiWindow = null;
     private SMultiWindowActivity mMultiWindowActivity = null;
@@ -243,9 +244,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
     public void onResume() {
         super.onResume();
         IRCCloudApplication.getInstance().onResume(this);
-        if(getFileStreamPath(LOG_FILENAME).exists()) {
+        File f = new File(getFilesDir(), LOG_FILENAME);
+        if(f.exists()) {
             android.util.Log.d("IRCCloud", "Removing stale log file");
-            getFileStreamPath(LOG_FILENAME).delete();
+            f.delete();
         }
         String session = getSharedPreferences("prefs", 0).getString("session_key", "");
         if (session.length() > 0) {
@@ -620,12 +622,17 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         }
                     }
 
+                    File f = new File(getFilesDir(), "logs");
+                    f.mkdirs();
+                    f = new File(getFilesDir(), LOG_FILENAME);
                     if(log != null) {
                         byte[] b = new byte[1];
 
-                        FileOutputStream out = openFileOutput(LOG_FILENAME, MODE_WORLD_READABLE);
+                        FileOutputStream out = new FileOutputStream(f);
                         FileInputStream is = new FileInputStream(log);
                         is.skip(5);
+                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                            f.setReadable(true, false);
 
                         while(is.available() > 0 && is.read(b,0,1) > 0) {
                             if (b[0] == ' ') {
@@ -647,7 +654,10 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                     email.putExtra(Intent.EXTRA_TEXT, bugReport.toString());
                     email.putExtra(Intent.EXTRA_SUBJECT, "IRCCloud for Android");
                     if(log != null)
-                        email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + getFileStreamPath(LOG_FILENAME).getAbsolutePath()));
+                        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+                            email.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + getFileStreamPath(LOG_FILENAME).getAbsolutePath()));
+                        else
+                            email.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this,getPackageName() + ".fileprovider",f));
                     startActivityForResult(Intent.createChooser(email, "Send Feedback:"), 0);
                 } catch (Exception e) {
                     NetworkConnection.printStackTraceToCrashlytics(e);
