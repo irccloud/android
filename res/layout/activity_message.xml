@@ -104,8 +104,8 @@
                             android:scaleType="center"
                             android:contentDescription="Insert Photo"
                             app:srcCompat="@drawable/ic_action_photo"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginRight="10dp"
+                            android:layout_marginLeft="11dp"
+                            android:layout_marginRight="11dp"
                             android:paddingTop="4dp"/>
 
                         <!-- Dummy item to prevent ActionEditText from receiving focus on launch -->
