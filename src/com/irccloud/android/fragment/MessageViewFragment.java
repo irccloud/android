@@ -1973,11 +1973,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 JSONObject prefs = NetworkConnection.getInstance().getUserInfo().prefs;
                 pref_24hr = (prefs.has("time-24hr") && prefs.get("time-24hr") instanceof Boolean && prefs.getBoolean("time-24hr"));
                 pref_seconds = (prefs.has("time-seconds") && prefs.get("time-seconds") instanceof Boolean && prefs.getBoolean("time-seconds"));
-                pref_timeLeft = (prefs.has("time-left") && prefs.get("time-left") instanceof Boolean && prefs.getBoolean("time-left"));
+                pref_timeLeft = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("time-left", true);
                 pref_nickColors = (prefs.has("nick-colors") && prefs.get("nick-colors") instanceof Boolean && prefs.getBoolean("nick-colors"));
-                pref_avatarsOff = (prefs.has("avatars-off") && prefs.get("avatars-off") instanceof Boolean && prefs.getBoolean("avatars-off"));
-                pref_chatOneLine = (prefs.has("chat-oneline") && prefs.get("chat-oneline") instanceof Boolean && prefs.getBoolean("chat-oneline"));
-                pref_norealname = (prefs.has("chat-norealname") && prefs.get("chat-norealname") instanceof Boolean && prefs.getBoolean("chat-norealname"));
+                pref_avatarsOff = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("avatars-off", true);
+                pref_chatOneLine = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-oneline", true);
+                pref_norealname = !PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("chat-norealname", true);
                 if(prefs.has("channel-disableTrackUnread")) {
                     JSONObject disabledMap = prefs.getJSONObject("channel-disableTrackUnread");
                     if (disabledMap.has(String.valueOf(buffer.getBid())) && disabledMap.getBoolean(String.valueOf(buffer.getBid()))) {

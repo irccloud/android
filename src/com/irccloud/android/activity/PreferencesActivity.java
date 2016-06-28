@@ -254,10 +254,10 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
             findPreference("emoji-disableconvert").setSummary(":thumbsup: → \uD83D\uDC4D");
         }
         findPreference("nick-colors").setOnPreferenceChangeListener(prefstoggle);
-        findPreference("time-left").setOnPreferenceChangeListener(prefstoggle);
-        findPreference("avatars-off").setOnPreferenceChangeListener(prefstoggle);
-        findPreference("chat-oneline").setOnPreferenceChangeListener(prefstoggle);
-        findPreference("chat-norealname").setOnPreferenceChangeListener(prefstoggle);
+        findPreference("time-left").setOnPreferenceChangeListener(messagelayouttoggle);
+        findPreference("avatars-off").setOnPreferenceChangeListener(messagelayouttoggle);
+        findPreference("chat-oneline").setOnPreferenceChangeListener(messagelayouttoggle);
+        findPreference("chat-norealname").setOnPreferenceChangeListener(messagelayouttoggle);
         findPreference("faq").setOnPreferenceClickListener(urlClick);
         findPreference("feedback").setOnPreferenceClickListener(urlClick);
         findPreference("licenses").setOnPreferenceClickListener(licensesClick);
@@ -547,8 +547,9 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         }
     };
 
-    Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
-        public boolean onPreferenceChange(Preference preference, Object newValue) {
+    Preference.OnPreferenceChangeListener messagelayouttoggle = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object o) {
             getListView().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -565,6 +566,13 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                     }
                 }
             }, 100);
+            EventsList.getInstance().clearCaches();
+            return true;
+        }
+    };
+
+    Preference.OnPreferenceChangeListener prefstoggle = new Preference.OnPreferenceChangeListener() {
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
             if (conn == null || conn.getUserInfo() == null) {
                 Toast.makeText(PreferencesActivity.this, "An error occurred while saving settings.  Please try again shortly", Toast.LENGTH_SHORT).show();
                 return false;

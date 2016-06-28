@@ -1901,10 +1901,6 @@ public class NetworkConnection {
                 if (userInfo.prefs != null) {
                     editor.putBoolean("time-24hr", userInfo.prefs.has("time-24hr") && userInfo.prefs.get("time-24hr") instanceof Boolean && userInfo.prefs.getBoolean("time-24hr"));
                     editor.putBoolean("time-seconds", userInfo.prefs.has("time-seconds") && userInfo.prefs.get("time-seconds") instanceof Boolean && userInfo.prefs.getBoolean("time-seconds"));
-                    editor.putBoolean("time-left", !(userInfo.prefs.has("time-left") && userInfo.prefs.get("time-left") instanceof Boolean && userInfo.prefs.getBoolean("time-left")));
-                    editor.putBoolean("avatars-off", !(userInfo.prefs.has("avatars-off") && userInfo.prefs.get("avatars-off") instanceof Boolean && userInfo.prefs.getBoolean("avatars-off")));
-                    editor.putBoolean("chat-oneline", !(userInfo.prefs.has("chat-oneline") && userInfo.prefs.get("chat-oneline") instanceof Boolean && userInfo.prefs.getBoolean("chat-oneline")));
-                    editor.putBoolean("chat-norealname", !(userInfo.prefs.has("chat-norealname") && userInfo.prefs.get("chat-norealname") instanceof Boolean && userInfo.prefs.getBoolean("chat-norealname")));
                     editor.putBoolean("mode-showsymbol", userInfo.prefs.has("mode-showsymbol") && userInfo.prefs.get("mode-showsymbol") instanceof Boolean && userInfo.prefs.getBoolean("mode-showsymbol"));
                     editor.putBoolean("nick-colors", userInfo.prefs.has("nick-colors") && userInfo.prefs.get("nick-colors") instanceof Boolean && userInfo.prefs.getBoolean("nick-colors"));
                     editor.putBoolean("emoji-disableconvert", !(userInfo.prefs.has("emoji-disableconvert") && userInfo.prefs.get("emoji-disableconvert") instanceof Boolean && userInfo.prefs.getBoolean("emoji-disableconvert")));
@@ -1918,6 +1914,14 @@ public class NetworkConnection {
                         editor.putString("theme", userInfo.prefs.getString("theme"));
                     if(userInfo.prefs.has("font") && !prefs.contains("monospace"))
                         editor.putBoolean("monospace", userInfo.prefs.getString("font").equals("mono"));
+                    if(userInfo.prefs.has("time-left") && !prefs.contains("time-left"))
+                        editor.putBoolean("time-left", !(userInfo.prefs.has("time-left") && userInfo.prefs.get("time-left") instanceof Boolean && userInfo.prefs.getBoolean("time-left")));
+                    if(userInfo.prefs.has("avatars-off") && !prefs.contains("avatars-off"))
+                        editor.putBoolean("avatars-off", !(userInfo.prefs.has("avatars-off") && userInfo.prefs.get("avatars-off") instanceof Boolean && userInfo.prefs.getBoolean("avatars-off")));
+                    if(userInfo.prefs.has("chat-oneline") && !prefs.contains("chat-oneline"))
+                        editor.putBoolean("chat-oneline", !(userInfo.prefs.has("chat-oneline") && userInfo.prefs.get("chat-oneline") instanceof Boolean && userInfo.prefs.getBoolean("chat-oneline")));
+                    if(userInfo.prefs.has("chat-norealname") && !prefs.contains("chat-norealname"))
+                        editor.putBoolean("chat-norealname", !(userInfo.prefs.has("chat-norealname") && userInfo.prefs.get("chat-norealname") instanceof Boolean && userInfo.prefs.getBoolean("chat-norealname")));
                 } else {
                     editor.putBoolean("time-24hr", false);
                     editor.putBoolean("time-seconds", false);
