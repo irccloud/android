@@ -731,6 +731,7 @@ public class ColorFormatter {
         put("aquarius", "\u2652\uFE0F");
         put("+1", "\uD83D\uDC4D");
         put("thumbsup", "\uD83D\uDC4D");
+        put("like", "\uD83D\uDC4D");
         put("man", "\uD83D\uDC68");
         put("necktie", "\uD83D\uDC54");
         put("eyes", "\uD83D\uDC40");
@@ -1131,6 +1132,7 @@ public class ColorFormatter {
         put(";)", "\uD83D\uDE09");
         put(";p", "\uD83D\uDE1C");
         put("simple_smile", ":)");
+        put("slightly_smiling_face", ":)");
     }};
 
     public static Pattern EMOJI = null;

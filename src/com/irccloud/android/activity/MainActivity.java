@@ -2137,9 +2137,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             case NetworkConnection.EVENT_OPENBUFFER:
                 event = (IRCCloudJSONObject) obj;
                 try {
-                    bufferToOpen = event.getString("name");
-                    cidToOpen = event.cid();
-                    b = BuffersList.getInstance().getBufferByName(cidToOpen, bufferToOpen);
+                    b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("name"));
                     if (b != null && buffer != null && !bufferToOpen.equalsIgnoreCase(buffer.getName())) {
                         server = null;
                         bufferToOpen = null;
@@ -2151,6 +2149,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 onBufferSelected(bid);
                             }
                         });
+                    } else {
+                        cidToOpen = event.cid();
+                        bufferToOpen = event.getString("name");
                     }
                 } catch (Exception e2) {
                     NetworkConnection.printStackTraceToCrashlytics(e2);
