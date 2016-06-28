@@ -52,9 +52,9 @@ public class Avatar {
             Color.colorToHSV(bgColor, hsv);
             hsv[2] *= 0.8f;
             p.setColor(Color.HSVToColor(hsv));
-            c.drawCircle(size / 2, size / 2, (size / 2) - 4, p);
+            c.drawCircle(size / 2, size / 2, (size / 2) - 2, p);
             p.setColor(bgColor);
-            c.drawCircle(size / 2, (size / 2) - 4, (size / 2) - 4, p);
+            c.drawCircle(size / 2, (size / 2) - 2, (size / 2) - 2, p);
         }
         TextPaint tp = new TextPaint();
         tp.setTextAlign(Paint.Align.CENTER);
