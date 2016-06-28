@@ -213,34 +213,14 @@ public class NotificationsList {
             pending = true;
         }
 
-        List<Notification> notifications = getOtherNotifications();
-
-        if (notifications.size() > 0) {
-            for (Notification n : notifications) {
-                long last_seen_eid = getLastSeenEid(n.bid);
-                Buffer b = BuffersList.getInstance().getBuffer(n.bid);
-                if(b != null)
-                    last_seen_eid = b.getLast_seen_eid();
-                if (n.eid <= last_seen_eid) {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
-                    changed = true;
-                    try {
-                        if (PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext()).getBoolean("notify_sony", false))
-                            NotificationUtil.deleteEvents(IRCCloudApplication.getInstance().getApplicationContext(), com.sonyericsson.extras.liveware.aef.notification.Notification.EventColumns.FRIEND_KEY + " = ?", new String[]{String.valueOf(n.bid)});
-                    } catch (Exception e) {
-                    }
-                }
-            }
-        }
-
-        notifications = getNotifications();
+        List<Notification> notifications = getNotifications();
 
         for (Notification n : notifications) {
             long last_seen_eid = getLastSeenEid(n.bid);
             Buffer b = BuffersList.getInstance().getBuffer(n.bid);
             if(b != null)
                 last_seen_eid = b.getLast_seen_eid();
-            if (n.eid <= last_seen_eid) {
+            if (last_seen_eid == -1 || n.eid <= last_seen_eid) {
                 n.delete();
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
