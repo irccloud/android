@@ -2138,7 +2138,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 event = (IRCCloudJSONObject) obj;
                 try {
                     b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("name"));
-                    if (b != null && buffer != null && !bufferToOpen.equalsIgnoreCase(buffer.getName())) {
+                    if (b != null && buffer != null && bufferToOpen != null && !bufferToOpen.equalsIgnoreCase(buffer.getName())) {
                         server = null;
                         bufferToOpen = null;
                         cidToOpen = -1;
