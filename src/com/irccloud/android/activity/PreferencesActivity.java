@@ -128,7 +128,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         if(ColorScheme.getInstance().theme == null || !ColorScheme.getInstance().theme.equals(theme)) {
             themeChanged = true;
         }
-        setTheme(ColorScheme.getTheme(theme, true));
+        setTheme(ColorScheme.getTheme(theme, false));
         ColorScheme.getInstance().setThemeFromContext(this, theme);
         if(themeChanged)
             EventsList.getInstance().clearCaches();
