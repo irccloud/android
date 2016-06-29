@@ -193,7 +193,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     }
 
     private class MessageAdapter extends BaseAdapter {
-        ArrayList<Event> data;
+        final ArrayList<Event> data;
         private ListFragment ctx;
         private long max_eid = 0;
         private long min_eid = 0;
@@ -227,36 +227,44 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             lastDay = -1;
             lastSeenEidMarkerPosition = -1;
             currentGroupPosition = -1;
-            data.clear();
+            synchronized (data) {
+                data.clear();
+            }
             unseenHighlightPositions.clear();
             avatarContainer.setVisibility(View.GONE);
             avatar.setTag(null);
         }
 
         public void clearPending() {
-            for (int i = 0; i < data.size(); i++) {
-                if (data.get(i).reqid != -1 && data.get(i).color == colorScheme.timestampColor) {
-                    data.remove(i);
-                    i--;
+            synchronized (data) {
+                for (int i = 0; i < data.size(); i++) {
+                    if (data.get(i).reqid != -1 && data.get(i).color == colorScheme.timestampColor) {
+                        data.remove(i);
+                        i--;
+                    }
                 }
             }
         }
 
         public void removeItem(long eid) {
-            for (int i = 0; i < data.size(); i++) {
-                if (data.get(i).eid == eid) {
-                    data.remove(i);
-                    i--;
+            synchronized (data) {
+                for (int i = 0; i < data.size(); i++) {
+                    if (data.get(i).eid == eid) {
+                        data.remove(i);
+                        i--;
+                    }
                 }
             }
         }
 
         public int getBacklogMarkerPosition() {
             try {
-                for (int i = 0; data != null && i < data.size(); i++) {
-                    Event e = data.get(i);
-                    if (e != null && e.row_type == ROW_BACKLOGMARKER) {
-                        return i;
+                synchronized (data) {
+                    for (int i = 0; i < data.size(); i++) {
+                        Event e = data.get(i);
+                        if (e != null && e.row_type == ROW_BACKLOGMARKER) {
+                            return i;
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -268,47 +276,49 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (buffer == null)
                 return -1;
 
-            if (min_eid > 0 && buffer.getLast_seen_eid() > 0 && min_eid >= buffer.getLast_seen_eid()) {
-                lastSeenEidMarkerPosition = 0;
-            } else {
-                for (int i = data.size() - 1; i >= 0; i--) {
-                    if (data.get(i).eid <= buffer.getLast_seen_eid() && data.get(i).row_type != ROW_LASTSEENEID) {
-                        lastSeenEidMarkerPosition = i;
-                        break;
-                    }
-                }
-                if (lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
-                    if (data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
-                        lastSeenEidMarkerPosition--;
-                    if (lastSeenEidMarkerPosition > 0) {
-                        Event e = new Event();
-                        e.bid = buffer.getBid();
-                        e.cid = buffer.getCid();
-                        e.eid = buffer.getLast_seen_eid() + 1;
-                        e.type = TYPE_LASTSEENEID;
-                        e.row_type = ROW_LASTSEENEID;
-                        e.bg_color = colorScheme.socketclosedBackgroundDrawable;
-                        addItem(e.eid, e);
-                        EventsList.getInstance().addEvent(e);
-                        for (int i = 0; i < data.size(); i++) {
-                            if (data.get(i).row_type == ROW_LASTSEENEID && data.get(i) != e) {
-                                EventsList.getInstance().deleteEvent(data.get(i).eid, buffer.getBid());
-                                data.remove(i);
-                            }
+            synchronized (data) {
+                if (min_eid > 0 && buffer.getLast_seen_eid() > 0 && min_eid >= buffer.getLast_seen_eid()) {
+                    lastSeenEidMarkerPosition = 0;
+                } else {
+                    for (int i = data.size() - 1; i >= 0; i--) {
+                        if (data.get(i).eid <= buffer.getLast_seen_eid() && data.get(i).row_type != ROW_LASTSEENEID) {
+                            lastSeenEidMarkerPosition = i;
+                            break;
                         }
                     }
-                } else {
-                    lastSeenEidMarkerPosition = -1;
+                    if (lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition != data.size() - 1 && !data.get(lastSeenEidMarkerPosition).self && !data.get(lastSeenEidMarkerPosition).pending) {
+                        if (data.get(lastSeenEidMarkerPosition - 1).row_type == ROW_TIMESTAMP)
+                            lastSeenEidMarkerPosition--;
+                        if (lastSeenEidMarkerPosition > 0) {
+                            Event e = new Event();
+                            e.bid = buffer.getBid();
+                            e.cid = buffer.getCid();
+                            e.eid = buffer.getLast_seen_eid() + 1;
+                            e.type = TYPE_LASTSEENEID;
+                            e.row_type = ROW_LASTSEENEID;
+                            e.bg_color = colorScheme.socketclosedBackgroundDrawable;
+                            addItem(e.eid, e);
+                            EventsList.getInstance().addEvent(e);
+                            for (int i = 0; i < data.size(); i++) {
+                                if (data.get(i).row_type == ROW_LASTSEENEID && data.get(i) != e) {
+                                    EventsList.getInstance().deleteEvent(data.get(i).eid, buffer.getBid());
+                                    data.remove(i);
+                                }
+                            }
+                        }
+                    } else {
+                        lastSeenEidMarkerPosition = -1;
+                    }
                 }
-            }
-            if (lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition <= currentGroupPosition)
-                currentGroupPosition++;
+                if (lastSeenEidMarkerPosition > 0 && lastSeenEidMarkerPosition <= currentGroupPosition)
+                    currentGroupPosition++;
 
-            if (lastSeenEidMarkerPosition == -1) {
-                for (int i = data.size() - 1; i >= 0; i--) {
-                    if (data.get(i).row_type == ROW_LASTSEENEID) {
-                        lastSeenEidMarkerPosition = i;
-                        break;
+                if (lastSeenEidMarkerPosition == -1) {
+                    for (int i = data.size() - 1; i >= 0; i--) {
+                        if (data.get(i).row_type == ROW_LASTSEENEID) {
+                            lastSeenEidMarkerPosition = i;
+                            break;
+                        }
                     }
                 }
             }
@@ -317,10 +327,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         public void clearLastSeenEIDMarker() {
             if(buffer != null) {
-                for (int i = 0; i < data.size(); i++) {
-                    if (data.get(i).row_type == ROW_LASTSEENEID) {
-                        EventsList.getInstance().deleteEvent(data.get(i).eid, buffer.getBid());
-                        data.remove(i);
+                synchronized (data) {
+                    for (int i = 0; i < data.size(); i++) {
+                        if (data.get(i).row_type == ROW_LASTSEENEID) {
+                            EventsList.getInstance().deleteEvent(data.get(i).eid, buffer.getBid());
+                            data.remove(i);
+                        }
                     }
                 }
                 if (lastSeenEidMarkerPosition > 0)
@@ -347,174 +359,182 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
 
         public synchronized void addItem(long eid, Event e) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(e.getTime());
-            int insert_pos = -1;
-            SimpleDateFormat formatter = null;
-            if (e.timestamp == null || e.timestamp.length() == 0) {
-                formatter = new SimpleDateFormat("h:mm a");
-                if (pref_24hr) {
-                    if (pref_seconds)
-                        formatter = new SimpleDateFormat("HH:mm:ss");
-                    else
-                        formatter = new SimpleDateFormat("HH:mm");
-                } else if (pref_seconds) {
-                    formatter = new SimpleDateFormat("h:mm:ss a");
+            synchronized (data) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(e.getTime());
+                int insert_pos = -1;
+                SimpleDateFormat formatter = null;
+                if (e.timestamp == null || e.timestamp.length() == 0) {
+                    formatter = new SimpleDateFormat("h:mm a");
+                    if (pref_24hr) {
+                        if (pref_seconds)
+                            formatter = new SimpleDateFormat("HH:mm:ss");
+                        else
+                            formatter = new SimpleDateFormat("HH:mm");
+                    } else if (pref_seconds) {
+                        formatter = new SimpleDateFormat("h:mm:ss a");
+                    }
+                    e.timestamp = formatter.format(calendar.getTime());
                 }
-                e.timestamp = formatter.format(calendar.getTime());
-            }
-            e.group_eid = currentCollapsedEid;
-            if (e.group_msg != null && e.html == null)
-                e.html = e.group_msg;
+                e.group_eid = currentCollapsedEid;
+                if (e.group_msg != null && e.html == null)
+                    e.html = e.group_msg;
 
 			/*if(e.html != null) {
                 e.html = ColorFormatter.irc_to_html(e.html);
                 e.formatted = ColorFormatter.html_to_spanned(e.html, e.linkify, server);
 			}*/
 
-            if (e.day < 1) {
-                e.day = calendar.get(Calendar.DAY_OF_YEAR);
-            }
-
-            if (currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
-                calendar.setTimeInMillis(e.getTime());
-                lastDay = e.day;
-                data.remove(currentGroupPosition);
-                data.add(currentGroupPosition, e);
-                insert_pos = currentGroupPosition;
-            } else if (eid > max_eid || data.size() == 0 || eid > data.get(data.size() - 1).eid) { //Message at the bottom
-                if (data.size() > 0) {
-                    lastDay = data.get(data.size() - 1).day;
-                } else {
-                    lastDay = 0;
+                if (e.day < 1) {
+                    e.day = calendar.get(Calendar.DAY_OF_YEAR);
                 }
-                max_eid = eid;
-                data.add(e);
-                insert_pos = data.size() - 1;
-            } else if (min_eid > eid) { //Message goes on top
-                if (data.size() > 1) {
-                    lastDay = data.get(1).day;
-                    if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+
+                if (currentGroupPosition > 0 && eid == currentCollapsedEid && e.eid != eid) { //Shortcut for replacing the current group
+                    calendar.setTimeInMillis(e.getTime());
+                    lastDay = e.day;
+                    data.remove(currentGroupPosition);
+                    data.add(currentGroupPosition, e);
+                    insert_pos = currentGroupPosition;
+                } else if (eid > max_eid || data.size() == 0 || eid > data.get(data.size() - 1).eid) { //Message at the bottom
+                    if (data.size() > 0) {
+                        lastDay = data.get(data.size() - 1).day;
+                    } else {
+                        lastDay = 0;
+                    }
+                    max_eid = eid;
+                    data.add(e);
+                    insert_pos = data.size() - 1;
+                } else if (min_eid > eid) { //Message goes on top
+                    if (data.size() > 1) {
+                        lastDay = data.get(1).day;
+                        if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+                            data.add(0, e);
+                            insert_pos = 0;
+                        } else { //Insert below the dateline
+                            data.add(1, e);
+                            insert_pos = 1;
+                        }
+                    } else {
                         data.add(0, e);
                         insert_pos = 0;
-                    } else { //Insert below the dateline
-                        data.add(1, e);
-                        insert_pos = 1;
                     }
                 } else {
-                    data.add(0, e);
-                    insert_pos = 0;
-                }
-            } else {
-                int i = 0;
-                for (Event e1 : data) {
-                    if (e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid && e1.group_eid != eid) { //Insert the message
-                        if (i > 0 && data.get(i - 1).row_type != ROW_TIMESTAMP) {
-                            lastDay = data.get(i - 1).day;
+                    int i = 0;
+                    for (Event e1 : data) {
+                        if (e1.row_type != ROW_TIMESTAMP && e1.eid > eid && e.eid == eid && e1.group_eid != eid) { //Insert the message
+                            if (i > 0 && data.get(i - 1).row_type != ROW_TIMESTAMP) {
+                                lastDay = data.get(i - 1).day;
+                                data.add(i, e);
+                                insert_pos = i;
+                                break;
+                            } else { //There was a date line above our insertion point
+                                lastDay = e1.day;
+                                if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
+                                    if (i > 1) {
+                                        lastDay = data.get(i - 2).day;
+                                    } else {
+                                        //We're above the first dateline, so we'll need to put a new one on top!
+                                        lastDay = 0;
+                                    }
+                                    data.add(i - 1, e);
+                                    insert_pos = i - 1;
+                                } else { //Insert below the dateline
+                                    data.add(i, e);
+                                    insert_pos = i;
+                                }
+                                break;
+                            }
+                        } else if (e1.row_type != ROW_TIMESTAMP && (e1.eid == eid || e1.group_eid == eid)) { //Replace the message
+                            lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+                            data.remove(i);
                             data.add(i, e);
                             insert_pos = i;
                             break;
-                        } else { //There was a date line above our insertion point
-                            lastDay = e1.day;
-                            if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) { //Insert above the dateline
-                                if (i > 1) {
-                                    lastDay = data.get(i - 2).day;
-                                } else {
-                                    //We're above the first dateline, so we'll need to put a new one on top!
-                                    lastDay = 0;
-                                }
-                                data.add(i - 1, e);
-                                insert_pos = i - 1;
-                            } else { //Insert below the dateline
-                                data.add(i, e);
-                                insert_pos = i;
-                            }
-                            break;
                         }
-                    } else if (e1.row_type != ROW_TIMESTAMP && (e1.eid == eid || e1.group_eid == eid)) { //Replace the message
-                        lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-                        data.remove(i);
-                        data.add(i, e);
-                        insert_pos = i;
-                        break;
+                        i++;
                     }
-                    i++;
                 }
-            }
 
-            if (insert_pos == -1) {
-                Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
-                data.add(e);
-                insert_pos = data.size() - 1;
-            }
-
-            if (eid > buffer.getLast_seen_eid() && e.highlight)
-                unseenHighlightPositions.add(insert_pos);
-
-            if (eid < min_eid || min_eid == 0)
-                min_eid = eid;
-
-            if (eid == currentCollapsedEid && e.eid == eid) {
-                currentGroupPosition = insert_pos;
-            } else if (currentCollapsedEid == -1) {
-                currentGroupPosition = -1;
-            }
-
-            if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
-                if (formatter == null)
-                    formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
-                else
-                    formatter.applyPattern("EEEE, MMMM dd, yyyy");
-                Event d = new Event();
-                d.type = TYPE_TIMESTAMP;
-                d.row_type = ROW_TIMESTAMP;
-                d.eid = eid - 1;
-                d.timestamp = formatter.format(calendar.getTime());
-                d.bg_color = colorScheme.timestampBackgroundDrawable;
-                d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
-                data.add(insert_pos++, d);
-                if (currentGroupPosition > -1)
-                    currentGroupPosition++;
-            }
-
-            if (insert_pos > 0) {
-                Event prev = data.get(insert_pos - 1);
-                e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from) || !prev.type.equals(e.type));
-            }
-
-            if (insert_pos < (data.size() - 1)) {
-                Event next = data.get(insert_pos + 1);
-                if (!e.isMessage()) {
-                    next.header = (next.isMessage() && next.from != null && next.from.length() > 0 && next.group_eid < 1);
+                if (insert_pos == -1) {
+                    Log.e("IRCCloud", "Couldn't insert EID: " + eid + " MSG: " + e.html);
+                    data.add(e);
+                    insert_pos = data.size() - 1;
                 }
-                if (next.from != null && next.from.equals(e.from) && next.type.equals(e.type)) {
-                    next.header = false;
+
+                if (eid > buffer.getLast_seen_eid() && e.highlight)
+                    unseenHighlightPositions.add(insert_pos);
+
+                if (eid < min_eid || min_eid == 0)
+                    min_eid = eid;
+
+                if (eid == currentCollapsedEid && e.eid == eid) {
+                    currentGroupPosition = insert_pos;
+                } else if (currentCollapsedEid == -1) {
+                    currentGroupPosition = -1;
+                }
+
+                if (calendar.get(Calendar.DAY_OF_YEAR) != lastDay) {
+                    if (formatter == null)
+                        formatter = new SimpleDateFormat("EEEE, MMMM dd, yyyy");
+                    else
+                        formatter.applyPattern("EEEE, MMMM dd, yyyy");
+                    Event d = new Event();
+                    d.type = TYPE_TIMESTAMP;
+                    d.row_type = ROW_TIMESTAMP;
+                    d.eid = eid - 1;
+                    d.timestamp = formatter.format(calendar.getTime());
+                    d.bg_color = colorScheme.timestampBackgroundDrawable;
+                    d.day = lastDay = calendar.get(Calendar.DAY_OF_YEAR);
+                    data.add(insert_pos++, d);
+                    if (currentGroupPosition > -1)
+                        currentGroupPosition++;
+                }
+
+                if (insert_pos > 0) {
+                    Event prev = data.get(insert_pos - 1);
+                    e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from) || !prev.type.equals(e.type));
+                }
+
+                if (insert_pos < (data.size() - 1)) {
+                    Event next = data.get(insert_pos + 1);
+                    if (!e.isMessage()) {
+                        next.header = (next.isMessage() && next.from != null && next.from.length() > 0 && next.group_eid < 1);
+                    }
+                    if (next.from != null && next.from.equals(e.from) && next.type.equals(e.type)) {
+                        next.header = false;
+                    }
                 }
             }
         }
 
         @Override
         public int getCount() {
-            if (ctx != null)
-                return data.size();
-            else
-                return 0;
+            synchronized (data) {
+                if (ctx != null)
+                    return data.size();
+                else
+                    return 0;
+            }
         }
 
         @Override
         public Object getItem(int position) {
-            if (position < data.size())
-                return data.get(position);
-            else
-                return null;
+            synchronized (data) {
+                if (position < data.size())
+                    return data.get(position);
+                else
+                    return null;
+            }
         }
 
         @Override
         public long getItemId(int position) {
-            if (position < data.size())
-                return data.get(position).eid;
-            else
-                return -1;
+            synchronized (data) {
+                if (position < data.size())
+                    return data.get(position).eid;
+                else
+                    return -1;
+            }
         }
 
         public void format() {
@@ -544,7 +564,9 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         @Override
         public int getItemViewType(int position) {
-            return data.get(position).row_type;
+            synchronized (data) {
+                return data.get(position).row_type;
+            }
         }
 
         @Override
@@ -552,7 +574,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             if (position >= data.size() || ctx == null)
                 return null;
 
-            Event e = data.get(position);
+            Event e;
+            synchronized (data) {
+                e = data.get(position);
+            }
             synchronized (e) {
                 View row = convertView;
                 ViewHolder holder;
@@ -1046,84 +1071,86 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
             }
 
             if (adapter != null && adapter.data.size() > 0) {
-                if(unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
-                    update_top_unread(firstVisibleItem);
-                    int markerPos = -1;
-                    if (adapter != null)
-                        markerPos = adapter.getLastSeenEIDPosition();
-                    if (markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
-                        unreadTopView.setVisibility(View.GONE);
-                        if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
-                            if (heartbeatTask != null)
-                                heartbeatTask.cancel(true);
-                            heartbeatTask = new HeartbeatTask();
-                            heartbeatTask.execute((Void) null);
-                        }
-                    }
-                }
-
-                if(!pref_chatOneLine && !pref_avatarsOff && firstVisibleItem > ((ListView) view).getHeaderViewsCount()) {
-                    int offset = (unreadTopView.getVisibility() == View.VISIBLE) ? unreadTopView.getHeight() : 0;
-                    View v;
-                    int i = 0;
-                    do {
-                        v = view.getChildAt(i++);
-                    } while(v.getTop() + v.getHeight() <= offset - 1);
-                    int first = firstVisibleItem - ((ListView) view).getHeaderViewsCount() + i - 1;
-                    MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
-                    MessageAdapter.ViewHolder top_vh = vh;
-                    Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
-                    if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.isMessage() && e.from != null && e.from.length() > 0) {
-                        for (i = first; i < adapter.getCount(); i++) {
-                            e = (Event) adapter.getItem(i);
-                            Event e1 = (Event) adapter.getItem(i + 1);
-                            if (e.from != null && e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
-                                View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
-                                if (v1 != null) {
-                                    MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
-                                    if (vh1 != null && vh1.avatar != null) {
-                                        v = v1;
-                                        vh = vh1;
-                                    }
-                                }
-                            } else {
-                                break;
+                synchronized (adapter.data) {
+                    if (unreadTopView != null && unreadTopView.getVisibility() == View.VISIBLE) {
+                        update_top_unread(firstVisibleItem);
+                        int markerPos = -1;
+                        if (adapter != null)
+                            markerPos = adapter.getLastSeenEIDPosition();
+                        if (markerPos > 1 && getListView().getFirstVisiblePosition() <= markerPos) {
+                            unreadTopView.setVisibility(View.GONE);
+                            if (conn.getState() == NetworkConnection.STATE_CONNECTED) {
+                                if (heartbeatTask != null)
+                                    heartbeatTask.cancel(true);
+                                heartbeatTask = new HeartbeatTask();
+                                heartbeatTask.execute((Void) null);
                             }
                         }
-                        if(avatar.getTag() != null && avatar.getTag() != top_vh.avatar) {
-                            ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
-                        }
+                    }
 
-                        Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
-                        int topMargin, leftMargin;
-                        int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-                        if (v.getHeight() + v.getTop() < (height + offset)) {
-                            topMargin = v.getTop() + v.getHeight() - height;
+                    if (!pref_chatOneLine && !pref_avatarsOff && firstVisibleItem > ((ListView) view).getHeaderViewsCount()) {
+                        int offset = (unreadTopView.getVisibility() == View.VISIBLE) ? unreadTopView.getHeight() : 0;
+                        View v;
+                        int i = 0;
+                        do {
+                            v = view.getChildAt(i++);
+                        } while (v.getTop() + v.getHeight() <= offset - 1);
+                        int first = firstVisibleItem - ((ListView) view).getHeaderViewsCount() + i - 1;
+                        MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
+                        MessageAdapter.ViewHolder top_vh = vh;
+                        Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
+                        if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.isMessage() && e.from != null && e.from.length() > 0) {
+                            for (i = first; i < adapter.getCount(); i++) {
+                                e = (Event) adapter.getItem(i);
+                                Event e1 = (Event) adapter.getItem(i + 1);
+                                if (e != null && e1 != null && e.from != null && e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
+                                    View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
+                                    if (v1 != null) {
+                                        MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
+                                        if (vh1 != null && vh1.avatar != null) {
+                                            v = v1;
+                                            vh = vh1;
+                                        }
+                                    }
+                                } else {
+                                    break;
+                                }
+                            }
+                            if (avatar.getTag() != null && avatar.getTag() != top_vh.avatar) {
+                                ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
+                            }
+
+                            Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
+                            int topMargin, leftMargin;
+                            int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+                            if (v.getHeight() + v.getTop() < (height + offset)) {
+                                topMargin = v.getTop() + v.getHeight() - height;
+                            } else {
+                                topMargin = offset;
+                            }
+                            leftMargin = vh.avatar.getLeft();
+                            avatarContainer.offset(leftMargin, topMargin);
+                            if (avatar.getTag() != top_vh.avatar || top_vh.avatar.getVisibility() != View.INVISIBLE) {
+                                avatar.setTag(top_vh.avatar);
+                                avatar.setImageBitmap(bitmap);
+                                avatarContainer.setVisibility(View.VISIBLE);
+                                top_vh.avatar.setVisibility(View.INVISIBLE);
+                            }
                         } else {
-                            topMargin = offset;
-                        }
-                        leftMargin = vh.avatar.getLeft();
-                        avatarContainer.offset(leftMargin, topMargin);
-                        if(avatar.getTag() != top_vh.avatar) {
-                            avatar.setTag(top_vh.avatar);
-                            avatar.setImageBitmap(bitmap);
-                            avatarContainer.setVisibility(View.VISIBLE);
-                            top_vh.avatar.setVisibility(View.INVISIBLE);
+                            if (avatarContainer.getVisibility() != View.GONE)
+                                avatarContainer.setVisibility(View.GONE);
+                            if (avatar.getTag() != null) {
+                                ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
+                                avatar.setTag(null);
+                            }
                         }
                     } else {
-                        if(avatarContainer.getVisibility() != View.GONE)
+                        if (avatarContainer.getVisibility() != View.GONE)
                             avatarContainer.setVisibility(View.GONE);
-                        if(avatar.getTag() != null) {
-                            ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
+                        if (avatar.getTag() != null) {
+                            ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
                             avatar.setTag(null);
                         }
-                    }
-                } else {
-                    if(avatarContainer.getVisibility() != View.GONE)
-                        avatarContainer.setVisibility(View.GONE);
-                    if(avatar.getTag() != null) {
-                        ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
-                        avatar.setTag(null);
                     }
                 }
             } else {
