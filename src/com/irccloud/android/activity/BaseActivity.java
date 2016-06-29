@@ -607,7 +607,7 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
                         "Briefly describe the issue below:\n\n\n\n\n" +
                         "===========\n" +
                         "UID: " + NetworkConnection.getInstance().getUserInfo().id + "\n" +
-                        "App version: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "\n" +
+                        "App version: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + " (" + getPackageManager().getPackageInfo(getPackageName(), 0).versionCode + ")\n" +
                         "Device: " + Build.MODEL + "\n" +
                         "Android version: " + Build.VERSION.RELEASE + "\n" +
                         "Firmware fingerprint: " + Build.FINGERPRINT + "\n");
