@@ -124,6 +124,7 @@ import com.irccloud.android.ActionEditText;
 import com.irccloud.android.AsyncTaskEx;
 import com.irccloud.android.BackgroundTaskService;
 import com.irccloud.android.BuildConfig;
+import com.irccloud.android.CollapsedEventsList;
 import com.irccloud.android.ColorFormatter;
 import com.irccloud.android.ColorScheme;
 import com.irccloud.android.FontAwesome;
@@ -4068,20 +4069,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             String html = event.html;
 
             if (event.type.equals("buffer_msg") && user != null) {
-                if (html.startsWith("<b>")) {
-                    String nick = event.html.substring(0, event.html.indexOf("</b>"));
-                    if (!nick.contains(user.nick) && event.html.indexOf("</b>", nick.length() + 4) > 0)
-                        nick = event.html.substring(0, event.html.indexOf("</b>", nick.length() + 4));
-                    if (nick.contains(user.nick + "<")) {
-                        html = html.substring(nick.length());
-                        nick = "<b>&lt;" + nick.replace("</b> <font", "</b><font").substring(3);
-                        html = nick + "&gt;" + html;
-                    } else if (nick.endsWith(user.nick)) {
-                        html = html.substring(nick.length());
-                        nick = "<b>&lt;" + nick.replace("</b> ", "</b>").substring(3);
-                        html = nick + "&gt;" + html;
-                    }
-                }
+                CollapsedEventsList c = new CollapsedEventsList();
+                html = "<b>&lt;" + ColorFormatter.irc_to_html(c.formatNick(event.from, event.from_mode, false)) + "&gt;</b> " + ColorFormatter.irc_to_html(event.msg);
             }
             showUserPopup(user, ColorFormatter.html_to_spanned(event.timestamp + " " + html, true, ServersList.getInstance().getServer(event.cid)));
         } else {
