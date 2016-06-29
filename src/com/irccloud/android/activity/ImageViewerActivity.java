@@ -53,6 +53,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -580,6 +581,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
     private void loadVideo(String urlStr) {
         try {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if(mCustomTabsSession != null)
                 mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Animation"));
@@ -627,6 +629,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
 
     private void loadImage(String urlStr) {
         try {
+            if(urlStr.toLowerCase().endsWith("gif"))
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if(mCustomTabsSession != null)
                 mCustomTabsSession.mayLaunchUrl(Uri.parse(urlStr), null, null);
             Answers.getInstance().logContentView(new ContentViewEvent().putContentType("Image"));
@@ -749,7 +753,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
     }
 
     private void hide_actionbar() {
-        /*if (mHideTimer != null) {
+        if (mHideTimer != null) {
             if (mHideTimerTask != null)
                 mHideTimerTask.cancel();
             mHideTimerTask = new TimerTask() {
@@ -773,7 +777,7 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
                 }
             };
             mHideTimer.schedule(mHideTimerTask, 3000);
-        }*/
+        }
     }
 
     @Override
