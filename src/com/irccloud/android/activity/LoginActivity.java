@@ -698,6 +698,10 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
                     editor.putString("path", NetworkConnection.IRCCLOUD_PATH);
                     editor.commit();
 
+                    editor = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this).edit();
+                    editor.putBoolean("greeting_3.0", true);
+                    editor.commit();
+
                     final Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     i.putExtra("nosplash", true);
                     i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
