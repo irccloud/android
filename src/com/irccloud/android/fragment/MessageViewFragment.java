@@ -1484,9 +1484,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     case "buffer_me_msg":
                         event.html = "— <i><b>" + collapsedEvents.formatNick(event.nick, event.from_mode, !event.self && pref_nickColors) + "</b> " + event.msg + "</i>";
                         break;
+                    case "buffer_msg":
                     case "notice":
                         if (pref_chatOneLine && event.from != null && event.from.length() > 0)
-                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, false) + "</b> ";
+                            event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors) + "</b> ";
                         else
                             event.html = "";
                         if(server.PREFIX.has(server.MODE_OPER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
