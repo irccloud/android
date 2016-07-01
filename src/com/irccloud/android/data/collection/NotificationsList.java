@@ -221,7 +221,9 @@ public class NotificationsList {
             if(b != null)
                 last_seen_eid = b.getLast_seen_eid();
             if (last_seen_eid == -1 || n.eid <= last_seen_eid) {
-                n.delete();
+                synchronized (dbLock) {
+                    n.delete();
+                }
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(n.bid);
                 NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
                 changed = true;
@@ -305,16 +307,18 @@ public class NotificationsList {
     }
 
     public synchronized void excludeBid(int bid) {
-        excludeBid = -1;
-        List<Notification> notifications = getOtherNotifications();
+        synchronized (dbLock) {
+            excludeBid = -1;
+            List<Notification> notifications = getOtherNotifications();
 
-        if (notifications.size() > 0) {
-            for (Notification n : notifications) {
-                NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
+            if (notifications.size() > 0) {
+                for (Notification n : notifications) {
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel((int) (n.eid / 1000));
+                }
             }
+            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
+            excludeBid = bid;
         }
-        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).cancel(bid);
-        excludeBid = bid;
     }
 
     private String mTicker = null;
@@ -867,7 +871,9 @@ public class NotificationsList {
         try {
             ContentValues cv = new ContentValues();
             cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getLaunchIntentForPackage(IRCCloudApplication.getInstance().getApplicationContext().getPackageName()).getComponent().flattenToString());
-            cv.put("count", new Select().count().from(Notification.class).where(Condition.column(Notification$Table.NICK).isNotNull()).count());
+            synchronized (dbLock) {
+                cv.put("count", new Select().count().from(Notification.class).where(Condition.column(Notification$Table.NICK).isNotNull()).count());
+            }
             IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
         } catch (IllegalArgumentException ex) {
         } catch (Exception ex) {

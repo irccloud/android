@@ -124,24 +124,28 @@ public class IRCCloudApplicationBase extends Application {
             }
         }
 
-        String notification_uri = prefs.getString("notify_ringtone", "");
-        if (notification_uri.startsWith("content://media/")) {
-            Cursor c = getContentResolver().query(
-                    Uri.parse(notification_uri),
-                    new String[]{MediaStore.Audio.Media.TITLE},
-                    null,
-                    null,
-                    null);
+        try {
+            String notification_uri = prefs.getString("notify_ringtone", "");
+            if (notification_uri.startsWith("content://media/")) {
+                Cursor c = getContentResolver().query(
+                        Uri.parse(notification_uri),
+                        new String[]{MediaStore.Audio.Media.TITLE},
+                        null,
+                        null,
+                        null);
 
-            if (c != null && c.moveToFirst()) {
-                if (c.getString(0).equals("IRCCloud")) {
-                    Log.d("IRCCloud", "Migrating notification ringtone setting: " + notification_uri);
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.remove("notify_ringtone");
-                    editor.commit();
+                if (c != null && c.moveToFirst()) {
+                    if (c.getString(0).equals("IRCCloud")) {
+                        Log.d("IRCCloud", "Migrating notification ringtone setting: " + notification_uri);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.remove("notify_ringtone");
+                        editor.commit();
+                    }
+                    c.close();
                 }
-                c.close();
             }
+        } catch (Exception e) {
+            //We might not have permission to query the media DB
         }
 
         try {
