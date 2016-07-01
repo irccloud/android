@@ -273,7 +273,7 @@ public class NotificationsList {
 
     public long count() {
         synchronized (dbLock) {
-            return new Select().count().from(Notification.class).where(Condition.column(Notification$Table.NICK).isNotNull()).count();
+            return new Select().count().from(Notification.class).count();
         }
     }
 
@@ -867,7 +867,7 @@ public class NotificationsList {
         try {
             ContentValues cv = new ContentValues();
             cv.put("tag", IRCCloudApplication.getInstance().getApplicationContext().getPackageManager().getLaunchIntentForPackage(IRCCloudApplication.getInstance().getApplicationContext().getPackageName()).getComponent().flattenToString());
-            cv.put("count", (int)count());
+            cv.put("count", new Select().count().from(Notification.class).where(Condition.column(Notification$Table.NICK).isNotNull()).count());
             IRCCloudApplication.getInstance().getApplicationContext().getContentResolver().insert(Uri.parse("content://com.teslacoilsw.notifier/unread_count"), cv);
         } catch (IllegalArgumentException ex) {
         } catch (Exception ex) {
