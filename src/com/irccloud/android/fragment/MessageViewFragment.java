@@ -647,7 +647,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 boolean mono = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("monospace", false);
 
                 if(holder.timestamp_left != null) {
-                    if(pref_timeLeft && pref_chatOneLine) {
+                    if(pref_timeLeft && (pref_chatOneLine || pref_avatarsOff)) {
                         holder.timestamp_left.setVisibility(View.VISIBLE);
                         holder.timestamp_right.setVisibility(View.GONE);
                         holder.timestamp = holder.timestamp_left;
