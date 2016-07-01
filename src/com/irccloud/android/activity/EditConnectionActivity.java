@@ -24,6 +24,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -56,12 +57,19 @@ public class EditConnectionActivity extends BaseActivity implements NetworkConne
         getSupportActionBar().setElevation(0);
 
         TextView t = (TextView)findViewById(R.id.action_cancel);
-        Drawable d = getResources().getDrawable(R.drawable.ic_action_cancel).mutate();
+        Drawable d;
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_cancel, null).mutate();
+        else
+            d = getResources().getDrawable(R.drawable.ic_action_cancel, null).mutate();
         d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
         t.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 
         t = (TextView)findViewById(R.id.action_done);
-        d = getResources().getDrawable(R.drawable.ic_action_save).mutate();
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            d = VectorDrawableCompat.create(getResources(), R.drawable.ic_action_save, null).mutate();
+        else
+            d = getResources().getDrawable(R.drawable.ic_action_save, null).mutate();
         d.setColorFilter(ColorScheme.getInstance().navBarHeadingColor, PorterDuff.Mode.SRC_ATOP);
         t.setCompoundDrawablesWithIntrinsicBounds(d, null, null, null);
 
