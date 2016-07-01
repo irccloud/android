@@ -76,6 +76,7 @@ public class QuickReplyActivity extends AppCompatActivity {
         private class ViewHolder {
             TextView timestamp;
             TextView message;
+            View avatar;
         }
 
         private ArrayList<Notification> msgs = new ArrayList<>();
@@ -120,6 +121,7 @@ public class QuickReplyActivity extends AppCompatActivity {
                 holder = new ViewHolder();
                 holder.timestamp = (TextView)row.findViewById(R.id.timestamp_right);
                 holder.message = (TextView)row.findViewById(R.id.message);
+                holder.avatar = row.findViewById(R.id.avatar);
 
                 row.setTag(holder);
             } else {
@@ -158,6 +160,7 @@ public class QuickReplyActivity extends AppCompatActivity {
             holder.message.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
             holder.message.setTextColor(ColorScheme.getInstance().messageTextColor);
             holder.message.setLinkTextColor(ColorScheme.getInstance().linkColor);
+            holder.avatar.setVisibility(View.GONE);
             return row;
         }
     }

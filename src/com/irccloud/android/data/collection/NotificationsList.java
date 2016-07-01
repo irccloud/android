@@ -37,6 +37,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -426,7 +427,7 @@ public class NotificationsList {
                         action = null;
                     }
                     if(title != null && text != null)
-                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400)));
+                        NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics())), AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400)));
                 }
                 n.delete();
             }
@@ -443,7 +444,7 @@ public class NotificationsList {
     }
 
     @SuppressLint("NewApi")
-    private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, Notification messages[], NotificationCompat.Action otherAction, Bitmap largeIcon) {
+    private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, Notification messages[], NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
@@ -497,6 +498,7 @@ public class NotificationsList {
         builder.setDeleteIntent(dismissPendingIntent);
 
         WearableExtender wearableExtender = new WearableExtender();
+        wearableExtender.setBackground(wearBackground);
         if(messages != null && messages.length > 0) {
             String weartext = "";
             String servernick = getServerNick(messages[0].cid);
@@ -707,7 +709,7 @@ public class NotificationsList {
                             lines.remove(0);
 
                         try {
-                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400)));
+                            NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(lastbid, buildNotification(ticker, lastbid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics())), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400)));
                         } catch (Exception e) {
                             Crashlytics.logException(e);
                         }
@@ -833,7 +835,7 @@ public class NotificationsList {
                     lines.remove(0);
 
                 try {
-                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400)));
+                    NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify(last.bid, buildNotification(ticker, last.bid, eids, title, body, count, replyIntent, last.network, messages, null, AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics())), AvatarsList.getInstance().getAvatar(last.cid, last.nick).getBitmap(false, 400)));
                 } catch (Exception e) {
                     Crashlytics.logException(e);
                 }
