@@ -1092,7 +1092,9 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             else
                 buffer.setDraft(null);
         }
-        state.putSerializable("backStack", backStack);
+        synchronized (backStack) {
+            state.putSerializable("backStack", backStack);
+        }
         if (imageCaptureURI != null)
             state.putString("imagecaptureuri", imageCaptureURI.toString());
     }
@@ -1103,16 +1105,18 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             drawerLayout.closeDrawers();
             return;
         }
-        while (backStack != null && backStack.size() > 0) {
-            Integer bid = backStack.get(0);
-            backStack.remove(0);
-            if(buffer == null || bid != buffer.getBid()) {
-                Buffer b = BuffersList.getInstance().getBuffer(bid);
-                if (b != null) {
-                    onBufferSelected(bid);
-                    if (backStack.size() > 0)
-                        backStack.remove(0);
-                    return;
+        synchronized (backStack) {
+            while (backStack != null && backStack.size() > 0) {
+                Integer bid = backStack.get(0);
+                backStack.remove(0);
+                if (buffer == null || bid != buffer.getBid()) {
+                    Buffer b = BuffersList.getInstance().getBuffer(bid);
+                    if (b != null) {
+                        onBufferSelected(bid);
+                        if (backStack.size() > 0)
+                            backStack.remove(0);
+                        return;
+                    }
                 }
             }
         }
@@ -1405,8 +1409,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 return;
             } else if (BuffersList.getInstance().getBuffer(new_bid) != null) {
                 Crashlytics.log(Log.DEBUG, "IRCCloud", "Found BID, switching buffers");
-                if (buffer != null && buffer.getBid() != new_bid)
-                    backStack.add(0, buffer.getBid());
+                synchronized (backStack) {
+                    if (buffer != null && buffer.getBid() != new_bid)
+                        backStack.add(0, buffer.getBid());
+                }
                 buffer = BuffersList.getInstance().getBuffer(new_bid);
                 server = buffer.getServer();
             } else {
@@ -1786,8 +1792,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             progressBar.setVisibility(View.GONE);
             errorMsg.setVisibility(View.GONE);
             error = null;
-            if (buffer != null)
-                backStack.add(0, buffer.getBid());
+            synchronized (backStack) {
+                if (buffer != null)
+                    backStack.add(0, buffer.getBid());
+            }
         }
         excludeBIDTask = new ExcludeBIDTask();
         excludeBIDTask.execute(-1);
@@ -1797,8 +1805,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         progressBar.setVisibility(View.GONE);
         errorMsg.setVisibility(View.GONE);
         error = null;
-        if (buffer != null)
-            backStack.add(0, buffer.getBid());
+        synchronized (backStack) {
+            if (buffer != null)
+                backStack.add(0, buffer.getBid());
+        }
     }
 
     public static class ConfigInstance {
@@ -4530,12 +4540,16 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
         if (bid != -1 && conn != null && conn.getUserInfo() != null) {
             conn.getUserInfo().last_selected_bid = bid;
         }
-        for (int i = 0; i < backStack.size(); i++) {
-            if (buffer != null && backStack.get(i) == buffer.getBid())
-                backStack.remove(i);
+        synchronized (backStack) {
+            for (int i = 0; i < backStack.size(); i++) {
+                if (buffer != null && backStack.get(i) == buffer.getBid())
+                    backStack.remove(i);
+            }
         }
         if (buffer != null && buffer.getBid() >= 0 && bid != buffer.getBid()) {
-            backStack.add(0, buffer.getBid());
+            synchronized (backStack) {
+                backStack.add(0, buffer.getBid());
+            }
             buffer.setDraft(messageTxt.getText().toString());
 
             if(shouldMarkAsRead()) {
