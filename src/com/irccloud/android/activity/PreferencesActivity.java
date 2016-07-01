@@ -56,6 +56,7 @@ import android.widget.Toast;
 import com.cgollner.unclouded.preferences.SwitchPreferenceCompat;
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
 import com.crashlytics.android.answers.CustomEvent;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.irccloud.android.AppCompatEditTextPreference;
@@ -817,6 +818,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                 url = "https://play.google.com/apps/testing/" + getPackageName();
             }
             if(url != null) {
+                Answers.getInstance().logCustom(new CustomEvent("prefs_url").putCustomAttribute("url", url));
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
                     CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                     builder.setToolbarColor(ColorScheme.getInstance().navBarColor);

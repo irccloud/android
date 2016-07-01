@@ -116,6 +116,7 @@ import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.crashlytics.android.answers.ShareEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.android.gms.gcm.GcmNetworkManager;
@@ -1670,6 +1671,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        Answers.getInstance().logCustom(new CustomEvent("greeting_settings"));
                         startActivity(new Intent(MainActivity.this, PreferencesActivity.class));
                     }
                 });
@@ -1695,6 +1697,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                             startActivity(intent);
                         }
+                        Answers.getInstance().logCustom(new CustomEvent("greeting_changelog"));
                     }
                 });
                 builder.show();

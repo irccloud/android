@@ -273,7 +273,7 @@ public class NotificationsList {
 
     public long count() {
         synchronized (dbLock) {
-            return new Select().count().from(Notification.class).count();
+            return new Select().count().from(Notification.class).where(Condition.column(Notification$Table.NICK).isNotNull()).count();
         }
     }
 
@@ -734,7 +734,7 @@ public class NotificationsList {
                         n.save();
                     }
 
-                    if (prefs.getBoolean("notify_sony", false)) {
+                    if (n.nick != null && prefs.getBoolean("notify_sony", false)) {
                         long time = System.currentTimeMillis();
                         long sourceId = NotificationUtil.getSourceId(IRCCloudApplication.getInstance().getApplicationContext(), SonyExtensionService.EXTENSION_SPECIFIC_ID);
                         if (sourceId == NotificationUtil.INVALID_ID) {
@@ -774,7 +774,7 @@ public class NotificationsList {
                         }
                     }
 
-                    if (prefs.getBoolean("notify_pebble", false) && ((n.chan != null && n.nick != null) || n.chan == null)) {
+                    if (prefs.getBoolean("notify_pebble", false) && n.nick != null) {
                         String pebbleTitle = n.network + ":\n";
                         String pebbleBody = "";
                         if (n.buffer_type.equals("channel") && n.chan != null && n.chan.length() > 0)
