@@ -85,7 +85,7 @@ public class ServersList {
         TransactionManager.getInstance().saveOnSaveQueue(s);*/
     }
 
-    public Server createServer(int cid, String name, String hostname, int port, String nick, String status, long lag, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order, String server_realname) {
+    public Server createServer(int cid, String name, String hostname, int port, String nick, String status, int ssl, String realname, String server_pass, String nickserv_pass, String join_commands, ObjectNode fail_info, String away, JsonNode ignores, int order, String server_realname) {
         Server s = getServer(cid);
         if (s == null) {
             s = new Server();

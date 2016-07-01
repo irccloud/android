@@ -819,7 +819,8 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
             share.setShareIntent(intent);
         } else {
             MenuItem shareItem = menu.findItem(R.id.action_share);
-            shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
+            if(shareItem != null && shareItem.getIcon() != null)
+                shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
         }
         return true;
     }

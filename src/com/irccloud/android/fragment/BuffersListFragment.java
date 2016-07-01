@@ -571,13 +571,15 @@ public class BuffersListFragment extends Fragment implements NetworkConnection.I
 
             @Override
             public void onClick(View v) {
-                int scrollTo = adapter.unreadPositionBelow(layoutManager.findLastVisibleItemPosition()) + 1;
-                if (scrollTo < adapter.getItemCount())
-                    recyclerView.smoothScrollToPosition(scrollTo);
-                else
-                    recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
+                if(adapter != null) {
+                    int scrollTo = adapter.unreadPositionBelow(layoutManager.findLastVisibleItemPosition()) + 1;
+                    if (scrollTo < adapter.getItemCount())
+                        recyclerView.smoothScrollToPosition(scrollTo);
+                    else
+                        recyclerView.smoothScrollToPosition(adapter.getItemCount() - 1);
 
-                updateUnreadIndicators(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition());
+                    updateUnreadIndicators(layoutManager.findFirstVisibleItemPosition(), layoutManager.findLastVisibleItemPosition());
+                }
             }
 
         });
