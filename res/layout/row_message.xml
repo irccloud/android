@@ -24,15 +24,6 @@
             android:orientation="horizontal"
             >
 
-    <TextView
-        android:id="@+id/timestamp_left"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal|top"
-        android:textColor="?timestampColor"
-        android:layout_marginRight="8dp"
-        android:includeFontPadding="false" />
-
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -42,18 +33,6 @@
         android:layout_marginRight="12dp"
         android:contentDescription="user icon"
         android:visibility="gone"/>
-
-    <TextView
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:id="@+id/expandable"
-        android:layout_gravity="top"
-        android:layout_marginTop="4dp"
-        android:layout_marginRight="2dp"
-        android:visibility="gone"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:contentDescription="expand"/>
 
     <LinearLayout
         android:orientation="vertical"
@@ -94,6 +73,27 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/timestamp_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal|top"
+                android:textColor="?timestampColor"
+                android:layout_marginRight="8dp"
+                android:includeFontPadding="false" />
+
+            <TextView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:id="@+id/expandable"
+                android:layout_gravity="top"
+                android:layout_marginTop="4dp"
+                android:layout_marginRight="2dp"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:contentDescription="expand"/>
 
             <TextView
                 android:id="@+id/message"

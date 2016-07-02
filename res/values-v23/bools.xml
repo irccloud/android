@@ -16,6 +16,5 @@
   -->
 
 <resources>
-    <bool name="isTablet">false</bool>
-    <bool name="directShare">false</bool>
+    <bool name="directShare">true</bool>
 </resources>

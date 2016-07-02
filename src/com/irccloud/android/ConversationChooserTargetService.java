@@ -38,7 +38,7 @@ import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.M)
 public class ConversationChooserTargetService extends ChooserTargetService {
-    private static final Icon channelIcon = Icon.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, 320));
+    private static final Icon channelIcon = Icon.createWithBitmap(Avatar.generateBitmap("#", 0xFFFFFFFF, 0xFFAAAAAA, false, 320, false));
 
     @Override
     public List<ChooserTarget> onGetChooserTargets(ComponentName componentName, IntentFilter intentFilter) {

@@ -486,6 +486,7 @@
         <service
             android:name=".ConversationChooserTargetService"
             android:label="@string/app_name"
+            android:enabled="@bool/directShare"
             android:permission="android.permission.BIND_CHOOSER_TARGET_SERVICE">
             <intent-filter>
                 <action android:name="android.service.chooser.ChooserTargetService" />

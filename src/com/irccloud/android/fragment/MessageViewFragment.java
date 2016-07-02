@@ -784,13 +784,17 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                 if(!pref_chatOneLine && e.header && e.formatted_nick != null && e.formatted_nick.length() > 0 && e.group_eid < 1) {
                     if (holder.nickname != null) {
-                        holder.nickname.setVisibility(pref_chatOneLine ? View.GONE : View.VISIBLE);
+                        holder.nickname.setVisibility(View.VISIBLE);
                         if (mono)
                             holder.nickname.setTypeface(Typeface.MONOSPACE);
                         else
                             holder.nickname.setTypeface(Typeface.DEFAULT);
                         holder.nickname.setTextSize(textSize);
                         holder.nickname.setText(e.formatted_nick);
+
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.nickname.getLayoutParams();
+                        lp.leftMargin = (pref_timeLeft&&pref_avatarsOff)?timestamp_width:0;
+                        holder.nickname.setLayoutParams(lp);
                     }
 
                     if (holder.realname != null) {
@@ -804,13 +808,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.realname.setTextColor(colorScheme.timestampColor);
                         holder.realname.setText(e.formatted_realname);
                     }
-
-                    if (holder.timestamp_left != null) {
-                        holder.nickname.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.timestamp_left.getLayoutParams();
-                        lp.topMargin = holder.nickname.getMeasuredHeight() + (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
-                        holder.timestamp_left.setLayoutParams(lp);
-                    }
                 } else {
                     if (holder.nickname != null)
                         holder.nickname.setVisibility(View.GONE);
@@ -818,10 +815,10 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.realname.setVisibility(View.GONE);
                     if (holder.avatar != null)
                         holder.avatar.setVisibility((pref_avatarsOff || pref_chatOneLine) ? View.GONE : View.VISIBLE);
-                    if (holder.timestamp_left != null) {
-                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.timestamp_left.getLayoutParams();
-                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
-                        holder.timestamp_left.setLayoutParams(lp);
+                    if(holder.message != null) {
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.message.getLayoutParams();
+                        lp.leftMargin = 0;
+                        holder.message.setLayoutParams(lp);
                     }
                 }
 

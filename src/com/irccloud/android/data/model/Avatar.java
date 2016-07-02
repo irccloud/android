@@ -33,21 +33,25 @@ public class Avatar {
     private HashMap<Integer, Bitmap> bitmaps_light = new HashMap<>();
     private HashMap<Integer, Bitmap> bitmaps_self_light = new HashMap<>();
     private HashMap<Integer, Bitmap> bitmaps_self_dark = new HashMap<>();
+    private HashMap<Integer, Bitmap> bitmaps_square = new HashMap<>();
     private static Typeface font = null;
 
     public long lastAccessTime = 0;
     public int cid;
     public String nick;
 
-    public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size) {
+    public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size, boolean round) {
         Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bitmap);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setStyle(Paint.Style.FILL);
 
-        if(isDarkTheme) {
+        if(isDarkTheme || !round) {
             p.setColor(bgColor);
-            c.drawCircle(size / 2, size / 2, size / 2, p);
+            if(round)
+                c.drawCircle(size / 2, size / 2, size / 2, p);
+            else
+                c.drawColor(bgColor);
         } else {
             float[] hsv = new float[3];
             Color.colorToHSV(bgColor, hsv);
@@ -57,13 +61,13 @@ public class Avatar {
             p.setColor(bgColor);
             c.drawCircle(size / 2, (size / 2) - 2, (size / 2) - 2, p);
         }
-        TextPaint tp = new TextPaint();
+        TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         tp.setTextAlign(Paint.Align.CENTER);
         tp.setTypeface(font);
         tp.setTextSize((size / 3) * 2);
         tp.setFakeBoldText(true);
         tp.setColor(textColor);
-        if (isDarkTheme) {
+        if (isDarkTheme || !round) {
             c.drawText(text, size/2, (size/2) - ((tp.descent() + tp.ascent()) / 2), tp);
         } else {
             c.drawText(text, size/2, (size/2) - 4 - ((tp.descent() + tp.ascent()) / 2), tp);
@@ -72,13 +76,21 @@ public class Avatar {
         return bitmap;
     }
 
+    public static Bitmap generateBitmap(String text, int textColor, int bgColor, boolean isDarkTheme, int size) {
+        return generateBitmap(text, textColor, bgColor, isDarkTheme, size, true);
+    }
+
     public Bitmap getBitmap(boolean isDarkTheme, int size) {
         return getBitmap(isDarkTheme, size, false);
     }
 
     public Bitmap getBitmap(boolean isDarkTheme, int size, boolean self) {
+        return getBitmap(isDarkTheme, size, self, true);
+    }
+
+    public Bitmap getBitmap(boolean isDarkTheme, int size, boolean self, boolean round) {
         lastAccessTime = System.currentTimeMillis();
-        HashMap<Integer, Bitmap> bitmaps = self?(isDarkTheme?bitmaps_self_dark:bitmaps_self_light):(isDarkTheme?bitmaps_dark:bitmaps_light);
+        HashMap<Integer, Bitmap> bitmaps = round?(self?(isDarkTheme?bitmaps_self_dark:bitmaps_self_light):(isDarkTheme?bitmaps_dark:bitmaps_light)):bitmaps_square;
 
         if(!bitmaps.containsKey(size) && nick != null && nick.length() > 0) {
             String normalizedNick = nick.toUpperCase().replaceAll("[_\\W]+", "");
@@ -90,9 +102,9 @@ public class Avatar {
             }
 
             if(isDarkTheme) {
-                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), ColorScheme.getInstance().contentBackgroundColor, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, true)), true, size));
+                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), ColorScheme.getInstance().contentBackgroundColor, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, true)), true, size, round));
             } else {
-                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), 0xFFFFFFFF, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, false)), false, size));
+                bitmaps.put(size, generateBitmap(normalizedNick.substring(0, 1), 0xFFFFFFFF, self?ColorScheme.getInstance().messageTextColor:Color.parseColor("#" + ColorScheme.colorForNick(nick, false)), false, size, round));
             }
         }
         return bitmaps.get(size);
