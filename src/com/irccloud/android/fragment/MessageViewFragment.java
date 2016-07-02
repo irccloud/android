@@ -1490,18 +1490,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             event.html = "<b>" + collapsedEvents.formatNick(event.from, event.from_mode, !event.self && pref_nickColors) + "</b> ";
                         else
                             event.html = "";
-                        if(server.PREFIX.has(server.MODE_OPER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
-                            event.html += collapsedEvents.formatNick("Opers", server.MODE_OPER, false) + " ";
-                        else if(server.PREFIX.has(server.MODE_OWNER) && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
-                            event.html += collapsedEvents.formatNick("Owners", server.MODE_OWNER, false) + " ";
-                        else if(server.PREFIX.has(server.MODE_ADMIN) && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
-                            event.html += collapsedEvents.formatNick("Admins", server.MODE_ADMIN, false) + " ";
-                        else if(server.PREFIX.has(server.MODE_OP) && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
-                            event.html += collapsedEvents.formatNick("Ops", server.MODE_OP, false) + " ";
-                        else if(server.PREFIX.has(server.MODE_HALFOP) && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
-                            event.html += collapsedEvents.formatNick("Half Ops", server.MODE_HALFOP, false) + " ";
-                        else if(server.PREFIX.has(server.MODE_VOICED) && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
-                            event.html += collapsedEvents.formatNick("Voiced", server.MODE_VOICED, false) + " ";
+                        if(event.target_mode != null && server != null && server.PREFIX != null) {
+                            if (server.PREFIX.has(server.MODE_OPER) && server.PREFIX.get(server.MODE_OPER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OPER).asText()))
+                                event.html += collapsedEvents.formatNick("Opers", server.MODE_OPER, false) + " ";
+                            else if (server.PREFIX.has(server.MODE_OWNER) && server.PREFIX.get(server.MODE_OWNER) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OWNER).asText()))
+                                event.html += collapsedEvents.formatNick("Owners", server.MODE_OWNER, false) + " ";
+                            else if (server.PREFIX.has(server.MODE_ADMIN) && server.PREFIX.get(server.MODE_ADMIN) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_ADMIN).asText()))
+                                event.html += collapsedEvents.formatNick("Admins", server.MODE_ADMIN, false) + " ";
+                            else if (server.PREFIX.has(server.MODE_OP) && server.PREFIX.get(server.MODE_OP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_OP).asText()))
+                                event.html += collapsedEvents.formatNick("Ops", server.MODE_OP, false) + " ";
+                            else if (server.PREFIX.has(server.MODE_HALFOP) && server.PREFIX.get(server.MODE_HALFOP) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_HALFOP).asText()))
+                                event.html += collapsedEvents.formatNick("Half Ops", server.MODE_HALFOP, false) + " ";
+                            else if (server.PREFIX.has(server.MODE_VOICED) && server.PREFIX.get(server.MODE_VOICED) != null && event.target_mode.equals(server.PREFIX.get(server.MODE_VOICED).asText()))
+                                event.html += collapsedEvents.formatNick("Voiced", server.MODE_VOICED, false) + " ";
+                        }
                         if (buffer.isConsole() && event.to_chan && event.chan != null && event.chan.length() > 0) {
                             event.html += "<b>" + event.chan + "</b>: " + event.msg;
                         } else if (buffer.isConsole() && event.self && event.nick != null && event.nick.length() > 0) {

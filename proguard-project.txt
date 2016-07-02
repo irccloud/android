@@ -23,6 +23,7 @@
 }
 -dontwarn sun.misc.Unsafe
 -keep public class com.google.common.**
+-keep class com.irccloud.**
 -keep class com.irccloud.** { *; }
 -keepattributes *Annotation*,EnclosingMethod
 -keep class com.fasterxml.jackson.** { *; }
