@@ -2266,8 +2266,8 @@ public class NetworkConnection {
                                     if (bufferDisabledMap != null && bufferDisabledMap.has(String.valueOf(b.getBid())) && bufferDisabledMap.getBoolean(String.valueOf(b.getBid())))
                                         show = false;
                                 }
-                                //if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
-                                  //  show = false;
+                                if (InstanceID.getInstance(IRCCloudApplication.getInstance().getApplicationContext()).getId().length() > 0)
+                                    show = false;
                                 if (show && NotificationsList.getInstance().getNotification(event.eid) == null) {
                                     String message = ColorFormatter.irc_to_html(event.msg);
                                     message = ColorFormatter.html_to_spanned(message).toString();
