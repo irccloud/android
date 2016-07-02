@@ -444,7 +444,7 @@ public class NotificationsList {
     }
 
     @SuppressLint("NewApi")
-    private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, Notification messages[], NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
+    private android.app.Notification buildNotification(String ticker, int bid, long[] eids, String title, String text, int count, Intent replyIntent, String network, ArrayList<Notification> messages, NotificationCompat.Action otherAction, Bitmap largeIcon, Bitmap wearBackground) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext())
@@ -499,28 +499,28 @@ public class NotificationsList {
 
         WearableExtender wearableExtender = new WearableExtender();
         wearableExtender.setBackground(wearBackground);
-        if(messages != null && messages.length > 0) {
-            String weartext = "";
-            String servernick = getServerNick(messages[0].cid);
+        if(messages != null && messages.size() > 0) {
+            StringBuilder weartext = new StringBuilder();
+            String servernick = getServerNick(messages.get(0).cid);
             NotificationCompat.MessagingStyle style = new NotificationCompat.MessagingStyle(servernick);
             style.setConversationTitle(title + ((network != null) ? (" (" + network + ")") : ""));
             for(Notification n : messages) {
                 if(n != null && n.message != null && n.message.length() > 0) {
                     if (weartext.length() > 0)
-                        weartext += "<br/>";
+                        weartext.append("<br/>");
                     if (n.message_type.equals("buffer_me_msg")) {
                         style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, "— " + n.nick);
-                        weartext += "<b>— " + ((n.nick == null) ? servernick : n.nick) + "</b> " + n.message;
+                        weartext.append("<b>— ").append((n.nick == null) ? servernick : n.nick).append("</b> ").append(n.message);
                     } else {
                         style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
-                        weartext += "<b>&lt;" + ((n.nick == null) ? servernick : n.nick) + "&gt;</b> " + n.message;
+                        weartext.append("<b>&lt;").append((n.nick == null) ? servernick : n.nick).append("&gt;</b> ").append(n.message);
                     }
                 }
             }
 
-            ArrayList<String> history = new ArrayList<>(messages.length);
-            for(int j = messages.length - 1; j >= 0; j--) {
-                Notification n = messages[j];
+            ArrayList<String> history = new ArrayList<>(messages.size());
+            for(int j = messages.size() - 1; j >= 0; j--) {
+                Notification n = messages.get(j);
                 if(n != null) {
                     if(n.nick == null)
                         history.add(Html.fromHtml(n.message).toString());
@@ -531,30 +531,30 @@ public class NotificationsList {
             builder.setRemoteInputHistory(history.toArray(new String[history.size()]));
             builder.setStyle(style);
 
-            if(messages.length > 1) {
-                wearableExtender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(Html.fromHtml(weartext)).extend(new WearableExtender().setStartScrollBottom(true)).build());
+            if(messages.size() > 1) {
+                wearableExtender.addPage(new NotificationCompat.Builder(IRCCloudApplication.getInstance().getApplicationContext()).setContentText(Html.fromHtml(weartext.toString())).extend(new WearableExtender().setStartScrollBottom(true)).build());
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                weartext = "";
+                weartext.setLength(0);
                 int j = 0;
                 for(Notification n : messages) {
-                    if(messages.length - ++j < 3) {
+                    if(messages.size() - ++j < 3) {
                         if (n != null && n.message != null && n.message.length() > 0) {
-                            style.addMessage(Html.fromHtml(n.message).toString(), n.eid / 1000, n.nick);
                             if (weartext.length() > 0)
-                                weartext += "<br/>";
-                            if (n.message_type.equals("buffer_me_msg"))
-                                weartext += "<b>— " + ((n.nick == null) ? servernick : n.nick) + "</b> " + n.message;
-                            else
-                                weartext += "<b>&lt;" + ((n.nick == null) ? servernick : n.nick) + "&gt;</b> " + n.message;
+                                weartext.append("<br/>");
+                            if (n.message_type.equals("buffer_me_msg")) {
+                                weartext.append("<b>— ").append((n.nick == null) ? servernick : n.nick).append("</b> ").append(n.message);
+                            } else {
+                                weartext.append("<b>&lt;").append((n.nick == null) ? servernick : n.nick).append("&gt;</b> ").append(n.message);
+                            }
                         }
                     }
                 }
 
                 RemoteViews bigContentView = new RemoteViews(IRCCloudApplication.getInstance().getApplicationContext().getPackageName(), R.layout.notification_expanded);
                 bigContentView.setTextViewText(R.id.title, title + (!title.equals(network) ? (" (" + network + ")") : ""));
-                bigContentView.setTextViewText(R.id.text, Html.fromHtml(weartext));
+                bigContentView.setTextViewText(R.id.text, Html.fromHtml(weartext.toString()));
                 bigContentView.setImageViewBitmap(R.id.image, largeIcon);
                 bigContentView.setLong(R.id.time, "setTime", eids[0] / 1000);
                 if (count > 3) {
@@ -670,7 +670,7 @@ public class NotificationsList {
             int lastbid = notifications.get(0).bid;
             int count = 0;
             long[] eids = new long[notifications.size()];
-            Notification[] messages = new Notification[notifications.size()];
+            ArrayList<Notification> messages = new ArrayList<>(notifications.size());
             Notification last = notifications.get(0);
             boolean show = false;
             for (Notification n : notifications) {
@@ -719,7 +719,7 @@ public class NotificationsList {
                     count = 0;
                     eids = new long[notifications.size()];
                     show = false;
-                    messages = new Notification[notifications.size()];
+                    messages.clear();
                 }
 
                 if (text.length() > 0)
@@ -797,7 +797,7 @@ public class NotificationsList {
                             notifyPebble(n.network, pebbleTitle + Html.fromHtml(pebbleBody).toString());
                     }
                 }
-                messages[count] = n;
+                messages.add(n);
                 eids[count++] = n.eid;
                 if(n.nick != null)
                     last = n;
