@@ -5396,7 +5396,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                     .setLocalOnly(true)
                     .setOngoing(true)
                     .setColor(IRCCloudApplication.getInstance().getApplicationContext().getResources().getColor(R.color.notification_icon_bg))
-                    .addAction(R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT))
+                    .addAction(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP?R.drawable.ic_action_cancel_upload:R.drawable.ic_action_cancel, "Cancel", PendingIntent.getBroadcast(activity, 0, new Intent(activity.getPackageName() + ".cancel_upload"), PendingIntent.FLAG_UPDATE_CURRENT))
                     .setSmallIcon(android.R.drawable.stat_sys_upload);
 
             Intent i = new Intent();
