@@ -804,6 +804,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.realname.setTextColor(colorScheme.timestampColor);
                         holder.realname.setText(e.formatted_realname);
                     }
+
+                    if (holder.timestamp_left != null) {
+                        holder.nickname.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.timestamp_left.getLayoutParams();
+                        lp.topMargin = holder.nickname.getMeasuredHeight() + (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+                        holder.timestamp_left.setLayoutParams(lp);
+                    }
                 } else {
                     if (holder.nickname != null)
                         holder.nickname.setVisibility(View.GONE);
@@ -811,6 +818,11 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.realname.setVisibility(View.GONE);
                     if (holder.avatar != null)
                         holder.avatar.setVisibility((pref_avatarsOff || pref_chatOneLine) ? View.GONE : View.VISIBLE);
+                    if (holder.timestamp_left != null) {
+                        ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.timestamp_left.getLayoutParams();
+                        lp.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
+                        holder.timestamp_left.setLayoutParams(lp);
+                    }
                 }
 
                 return row;
