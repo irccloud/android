@@ -396,7 +396,8 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
         public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
             client.warmup(0);
             mCustomTabsSession = client.newSession(null);
-            mCustomTabsSession.mayLaunchUrl(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")), null, null);
+            if(mCustomTabsSession != null)
+                mCustomTabsSession.mayLaunchUrl(Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.VIDEO_SCHEME), "http")), null, null);
         }
 
         @Override
@@ -477,7 +478,8 @@ public class VideoPlayerActivity extends BaseActivity implements ShareActionProv
             share.setShareIntent(intent);
         } else {
             MenuItem shareItem = menu.findItem(R.id.action_share);
-            shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
+            if(shareItem != null && shareItem.getIcon() != null)
+                shareItem.getIcon().mutate().setColorFilter(0xFFCCCCCC, PorterDuff.Mode.SRC_ATOP);
         }
         return true;
     }

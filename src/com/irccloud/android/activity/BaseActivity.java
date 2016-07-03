@@ -106,7 +106,8 @@ public class BaseActivity extends AppCompatActivity implements NetworkConnection
             getWindow().setStatusBarColor(ColorScheme.getInstance().statusBarColor);
             getWindow().setNavigationBarColor(getResources().getColor(android.R.color.black));
         }
-        getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
+        if(ColorScheme.getInstance().windowBackgroundDrawable != 0)
+            getWindow().setBackgroundDrawableResource(ColorScheme.getInstance().windowBackgroundDrawable);
         if(Build.VERSION.SDK_INT >= 23) {
             if(theme.equals("dawn"))
                 getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);

@@ -417,9 +417,9 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         } else if (getArchived() == 1) {
             return (type_int == Type.CHANNEL) ? colorScheme.archivedChannelTextColor : colorScheme.archivedBufferTextColor;
         } else if (isConsole()) {
-            if(getServer().isFailed())
+            if(getServer() != null && getServer().isFailed())
                 return colorScheme.networkErrorColor;
-            else if(!getServer().isConnected())
+            else if(getServer() == null || !getServer().isConnected())
                 return colorScheme.inactiveBufferTextColor;
             else
                 return colorScheme.bufferTextColor;
@@ -445,7 +445,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
         if(isChannel() || isConversation())
             return colorScheme.bufferBackgroundDrawable;
         else if(isConsole())
-            return getServer().isFailed() ? R.drawable.row_failed_bg : colorScheme.serverBackgroundDrawable;
+            return (getServer() != null && getServer().isFailed()) ? R.drawable.row_failed_bg : colorScheme.serverBackgroundDrawable;
         else if(type_int == Type.JOIN_CHANNEL)
             return colorScheme.bufferBackgroundDrawable;
         else if(type_int == Type.ARCHIVES_HEADER)
@@ -457,7 +457,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getSelectedBackgroundResource() {
         if(isConsole())
-            return getServer().isFailed() ? R.drawable.status_fail_bg : colorScheme.selectedBackgroundDrawable;
+            return (getServer() != null && getServer().isFailed()) ? R.drawable.status_fail_bg : colorScheme.selectedBackgroundDrawable;
         else
             return colorScheme.selectedBackgroundDrawable;
     }
@@ -465,7 +465,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getSelectedBorderResource() {
         if(isConsole())
-            return getServer().isFailed() ? R.drawable.status_fail_bg : colorScheme.selectedBorderDrawable;
+            return (getServer() != null && getServer().isFailed()) ? R.drawable.status_fail_bg : colorScheme.selectedBorderDrawable;
         else
             return colorScheme.selectedBorderDrawable;
     }
@@ -473,7 +473,7 @@ public class Buffer extends BaseObservable /*extends ObservableBaseModel*/ {
     @Bindable
     public int getBorderResource() {
         if(isConsole())
-            return getServer().isFailed() ? R.drawable.networkErrorBorder : colorScheme.serverBorderDrawable;
+            return (getServer() != null && getServer().isFailed()) ? R.drawable.networkErrorBorder : colorScheme.serverBorderDrawable;
         else
             return colorScheme.bufferBorderDrawable;
     }
