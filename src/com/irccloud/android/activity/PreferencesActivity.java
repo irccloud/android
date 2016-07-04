@@ -445,22 +445,6 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
                                         ((SwitchPreferenceCompat) findPreference("emoji-disableconvert")).setChecked(!(prefs.has("emoji-disableconvert") && prefs.get("emoji-disableconvert").getClass().equals(Boolean.class) && prefs.getBoolean("emoji-disableconvert")));
                                     ((SwitchPreferenceCompat) findPreference("hideJoinPart")).setChecked(!(prefs.has("hideJoinPart") && prefs.get("hideJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("hideJoinPart")));
                                     ((SwitchPreferenceCompat) findPreference("expandJoinPart")).setChecked(!(prefs.has("expandJoinPart") && prefs.get("expandJoinPart").getClass().equals(Boolean.class) && prefs.getBoolean("expandJoinPart")));
-                                    ((SwitchPreferenceCompat) findPreference("time-left")).setChecked(!(prefs.has("time-left") && prefs.get("time-left").getClass().equals(Boolean.class) && prefs.getBoolean("time-left")));
-                                    ((SwitchPreferenceCompat) findPreference("chat-oneline")).setChecked(!(prefs.has("chat-oneline") && prefs.get("chat-oneline").getClass().equals(Boolean.class) && prefs.getBoolean("chat-oneline")));
-                                    ((SwitchPreferenceCompat) findPreference("chat-norealname")).setChecked(!(prefs.has("chat-norealname") && prefs.get("chat-norealname").getClass().equals(Boolean.class) && prefs.getBoolean("chat-norealname")));
-                                    ((SwitchPreferenceCompat) findPreference("avatars-off")).setChecked(!(prefs.has("avatars-off") && prefs.get("avatars-off").getClass().equals(Boolean.class) && prefs.getBoolean("avatars-off")));
-                                    findPreference("theme").setSummary(ColorScheme.getUserTheme());
-                                    if(findPreference("chat-oneline") != null) {
-                                        if(((SwitchPreferenceCompat) findPreference("chat-oneline")).isChecked()) {
-                                            if(((SwitchPreferenceCompat) findPreference("avatars-off")).isChecked()) {
-                                                findPreference("time-left").setEnabled(false);
-                                            } else {
-                                                findPreference("time-left").setEnabled(true);
-                                            }
-                                        } else {
-                                            findPreference("time-left").setEnabled(true);
-                                        }
-                                    }
                                 } catch (JSONException e) {
                                     NetworkConnection.printStackTraceToCrashlytics(e);
                                 }
