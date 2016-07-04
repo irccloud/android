@@ -18,6 +18,7 @@ package com.irccloud.android;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.ListView;
@@ -77,5 +78,15 @@ public class ListViewHax extends ListView {
         } catch (Exception e) {
             //Work around an Android bug
         }
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        try {
+            return super.onInterceptTouchEvent(ev);
+        } catch (Exception e) {
+            //Work around an Android bug
+        }
+        return false;
     }
 }

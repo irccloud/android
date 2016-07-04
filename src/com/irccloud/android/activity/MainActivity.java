@@ -1381,7 +1381,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
 
         @Override
         protected Void doInBackground(Integer... params) {
-            NotificationsList.getInstance().excludeBid(params[0]);
+            try {
+                NotificationsList.getInstance().excludeBid(params[0]);
+            } catch (Exception e) {
+            }
             excludeBIDTask = null;
             return null;
         }
@@ -1521,8 +1524,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             } else {
                 Intent i = (getIntent() != null) ? getIntent() : new Intent(this, MainActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                if (isMultiWindow())
-                    makeMultiWindowIntent(i);
                 i.putExtra("nosplash", true);
                 finish();
                 overridePendingTransition(0, 0);
@@ -2568,8 +2569,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             } else {
                                 Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
                                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                if (isMultiWindow())
-                                    makeMultiWindowIntent(i);
                                 i.putExtra("nosplash", true);
                                 finish();
                                 overridePendingTransition(0, 0);
@@ -2688,8 +2687,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                             } else {
                                 Intent i = (getIntent() != null) ? getIntent() : new Intent(MainActivity.this, MainActivity.class);
                                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                                if (isMultiWindow())
-                                    makeMultiWindowIntent(i);
                                 i.putExtra("nosplash", true);
                                 finish();
                                 overridePendingTransition(0, 0);
