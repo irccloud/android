@@ -630,7 +630,12 @@ public class NotificationsList {
         }
 
         if(otherAction != null) {
-            builder.addAction(new NotificationCompat.Action(0, otherAction.getTitle(), otherAction.getActionIntent()));
+            int drawable = 0;
+            if(otherAction.getIcon() == R.drawable.ic_wearable_add)
+                drawable = R.drawable.ic_action_add;
+            else if(otherAction.getIcon() == R.drawable.ic_wearable_reply)
+                drawable = R.drawable.ic_action_reply;
+            builder.addAction(new NotificationCompat.Action(drawable, otherAction.getTitle(), otherAction.getActionIntent()));
             wearableExtender.addAction(otherAction);
         }
 
