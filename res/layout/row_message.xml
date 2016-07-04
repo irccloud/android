@@ -81,6 +81,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal|top"
                 android:textColor="?timestampColor"
+                android:layout_marginTop="2sp"
                 android:layout_marginRight="8dp"
                 android:includeFontPadding="false" />
 
@@ -125,7 +126,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="right|top"
                 android:textColor="?timestampColor"
-                android:includeFontPadding="false"
+                android:layout_marginTop="2sp"
                 android:layout_marginLeft="8dp"
                 android:visibility="gone"/>
         </LinearLayout>

@@ -284,7 +284,7 @@ public class PreferencesActivity extends PreferenceActivity implements AppCompat
         }
 
         try {
-            final String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "(" + getPackageManager().getPackageInfo(getPackageName(), 0).versionCode + ")";
+            final String version = getPackageManager().getPackageInfo(getPackageName(), 0).versionName + " (" + getPackageManager().getPackageInfo(getPackageName(), 0).versionCode + ")";
             findPreference("version").setSummary(version);
             findPreference("version").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
