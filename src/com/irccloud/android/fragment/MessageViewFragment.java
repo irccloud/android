@@ -1024,16 +1024,20 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
         }
     }
 
+    private void hide_avatar() {
+        if (avatarContainer.getVisibility() != View.GONE)
+            avatarContainer.setVisibility(View.GONE);
+        if (avatar.getTag() != null) {
+            ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
+            avatar.setTag(null);
+        }
+    }
+
     private OnScrollListener mOnScrollListener = new OnScrollListener() {
         @Override
         public void onScroll(final AbsListView view, final int firstVisibleItem, int visibleItemCount, int totalItemCount) {
             if (!ready || buffer == null || adapter == null || visibleItemCount < 0) {
-                if(avatarContainer.getVisibility() != View.GONE)
-                    avatarContainer.setVisibility(View.GONE);
-                if(avatar.getTag() != null) {
-                    ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
-                    avatar.setTag(null);
-                }
+                hide_avatar();
                 return;
             }
 
@@ -1041,12 +1045,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 if (firstVisibleItem == 0 && headerView.getVisibility() == View.VISIBLE && conn.getState() == NetworkConnection.STATE_CONNECTED) {
                     requestingBacklog = true;
                     conn.request_backlog(buffer.getCid(), buffer.getBid(), earliest_eid);
-                    if(avatarContainer.getVisibility() != View.GONE)
-                        avatarContainer.setVisibility(View.GONE);
-                    if(avatar.getTag() != null) {
-                        ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
-                        avatar.setTag(null);
-                    }
+                    hide_avatar();
                     return;
                 } else if(firstVisibleItem > 0 && loadBacklogButton.getVisibility() == View.VISIBLE) {
                     loadBacklogButton.setVisibility(View.GONE);
@@ -1103,72 +1102,61 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         int i = 0;
                         do {
                             v = view.getChildAt(i++);
-                        } while (v.getTop() + v.getHeight() <= offset - 1);
-                        int first = firstVisibleItem - ((ListView) view).getHeaderViewsCount() + i - 1;
-                        MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
-                        MessageAdapter.ViewHolder top_vh = vh;
-                        Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
-                        if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.isMessage() && e.from != null && e.from.length() > 0) {
-                            for (i = first; i < adapter.getCount(); i++) {
-                                e = (Event) adapter.getItem(i);
-                                Event e1 = (Event) adapter.getItem(i + 1);
-                                if (e != null && e1 != null && e.from != null && e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
-                                    View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
-                                    if (v1 != null) {
-                                        MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
-                                        if (vh1 != null && vh1.avatar != null) {
-                                            v = v1;
-                                            vh = vh1;
+                        } while (v != null && v.getTop() + v.getHeight() <= offset - 1);
+                        if(v != null) {
+                            int first = firstVisibleItem - ((ListView) view).getHeaderViewsCount() + i - 1;
+                            MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
+                            MessageAdapter.ViewHolder top_vh = vh;
+                            Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
+                            if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.isMessage() && e.from != null && e.from.length() > 0) {
+                                for (i = first; i < adapter.getCount(); i++) {
+                                    e = (Event) adapter.getItem(i);
+                                    Event e1 = (Event) adapter.getItem(i + 1);
+                                    if (e != null && e1 != null && e.from != null && e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
+                                        View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
+                                        if (v1 != null) {
+                                            MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
+                                            if (vh1 != null && vh1.avatar != null) {
+                                                v = v1;
+                                                vh = vh1;
+                                            }
                                         }
+                                    } else {
+                                        break;
                                     }
-                                } else {
-                                    break;
                                 }
-                            }
-                            if (avatar.getTag() != null && avatar.getTag() != top_vh.avatar) {
-                                ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
-                            }
+                                if (avatar.getTag() != null && avatar.getTag() != top_vh.avatar) {
+                                    ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
+                                }
 
-                            Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
-                            int topMargin, leftMargin;
-                            int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-                            if (v.getHeight() + v.getTop() < (height + offset)) {
-                                topMargin = v.getTop() + v.getHeight() - height;
+                                Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
+                                int topMargin, leftMargin;
+                                int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+                                if (v.getHeight() + v.getTop() < (height + offset)) {
+                                    topMargin = v.getTop() + v.getHeight() - height;
+                                } else {
+                                    topMargin = offset;
+                                }
+                                leftMargin = vh.avatar.getLeft();
+                                avatarContainer.offset(leftMargin, topMargin);
+                                if (avatar.getTag() != top_vh.avatar || top_vh.avatar.getVisibility() != View.INVISIBLE) {
+                                    avatar.setTag(top_vh.avatar);
+                                    avatar.setImageBitmap(bitmap);
+                                    avatarContainer.setVisibility(View.VISIBLE);
+                                    top_vh.avatar.setVisibility(View.INVISIBLE);
+                                }
                             } else {
-                                topMargin = offset;
-                            }
-                            leftMargin = vh.avatar.getLeft();
-                            avatarContainer.offset(leftMargin, topMargin);
-                            if (avatar.getTag() != top_vh.avatar || top_vh.avatar.getVisibility() != View.INVISIBLE) {
-                                avatar.setTag(top_vh.avatar);
-                                avatar.setImageBitmap(bitmap);
-                                avatarContainer.setVisibility(View.VISIBLE);
-                                top_vh.avatar.setVisibility(View.INVISIBLE);
+                                hide_avatar();
                             }
                         } else {
-                            if (avatarContainer.getVisibility() != View.GONE)
-                                avatarContainer.setVisibility(View.GONE);
-                            if (avatar.getTag() != null) {
-                                ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
-                                avatar.setTag(null);
-                            }
+                            hide_avatar();
                         }
                     } else {
-                        if (avatarContainer.getVisibility() != View.GONE)
-                            avatarContainer.setVisibility(View.GONE);
-                        if (avatar.getTag() != null) {
-                            ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
-                            avatar.setTag(null);
-                        }
+                        hide_avatar();
                     }
                 }
             } else {
-                if(avatarContainer.getVisibility() != View.GONE)
-                    avatarContainer.setVisibility(View.GONE);
-                if(avatar.getTag() != null) {
-                    ((ImageView)avatar.getTag()).setVisibility(View.VISIBLE);
-                    avatar.setTag(null);
-                }
+                hide_avatar();
             }
         }
 
