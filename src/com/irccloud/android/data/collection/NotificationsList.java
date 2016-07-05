@@ -151,6 +151,9 @@ public class NotificationsList {
     }
 
     public String getServerNick(int cid) {
+        Server s = ServersList.getInstance().getServer(cid);
+        if(s != null && s.getNick() != null && s.getNick().length() > 0)
+            return s.getNick();
         synchronized (dbLock) {
             Notification_ServerNick nick = new Select().from(Notification_ServerNick.class).where(Condition.column(Notification_ServerNick$Table.CID).is(cid)).querySingle();
             if (nick != null)

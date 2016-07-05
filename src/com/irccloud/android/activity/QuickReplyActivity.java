@@ -153,10 +153,14 @@ public class QuickReplyActivity extends AppCompatActivity {
                holder.timestamp.setText(formatter.format(calendar.getTime()));
                holder.timestamp.setTextColor(ColorScheme.getInstance().timestampColor);
             }
-           String nick = msg.nick;
-           if(nick == null)
-               nick = NotificationsList.getInstance().getServerNick(msg.cid);
-            holder.message.setText(ColorFormatter.html_to_spanned("<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(nick, null, nickColors)) + "</b> " + msg.message, true, server));
+            String nick = msg.nick;
+            if(nick == null)
+                nick = NotificationsList.getInstance().getServerNick(msg.cid);
+            if(nick != null)
+                nick = "<b>" + ColorFormatter.irc_to_html(collapsedEventsList.formatNick(nick, null, nickColors)) + "</b> ";
+            else
+                nick = "";
+            holder.message.setText(ColorFormatter.html_to_spanned(nick + msg.message, true, server));
             holder.message.setMovementMethod(IRCCloudLinkMovementMethod.getInstance());
             holder.message.setTextColor(ColorScheme.getInstance().messageTextColor);
             holder.message.setLinkTextColor(ColorScheme.getInstance().linkColor);

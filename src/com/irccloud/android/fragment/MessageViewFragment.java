@@ -709,7 +709,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         holder.message.setLinkTextColor(colorScheme.linkColor);
 
                     Spanned formatted = e.formatted;
-                    if(!pref_avatarsOff && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
+                    if(formatted != null && !pref_avatarsOff && ((e.from != null && e.from.length() > 0) || e.type.equals("buffer_me_msg")) && e.group_eid < 0 && (pref_chatOneLine || e.type.equals("buffer_me_msg"))) {
                         Bitmap b = mAvatarsList.getAvatar(e.cid, e.type.equals("buffer_me_msg")?e.nick:e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, textSize+4, getResources().getDisplayMetrics()), e.self);
                         if(b != null) {
                             SpannableStringBuilder s = new SpannableStringBuilder(formatted);
