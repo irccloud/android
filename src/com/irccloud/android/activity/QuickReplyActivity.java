@@ -174,6 +174,7 @@ public class QuickReplyActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        setIntent(intent);
         cid = intent.getIntExtra("cid", -1);
         bid = intent.getIntExtra("bid", -1);
         to = intent.getStringExtra("to");
