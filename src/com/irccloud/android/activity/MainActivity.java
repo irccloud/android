@@ -534,6 +534,8 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                         case DragEvent.ACTION_DRAG_STARTED:
                             if(dragEvent.getLocalState() == null) {
                                 ClipDescription d = dragEvent.getClipDescription();
+                                if(d == null)
+                                    return false;
                                 for (int i = 0; i < d.getMimeTypeCount(); i++) {
                                     if (d.getMimeType(i).startsWith("text/") || d.getMimeType(i).startsWith("image/") || d.getMimeType(i).startsWith("video/") || d.getMimeType(i).startsWith("application/")) {
                                         findViewById(R.id.drop_target).setVisibility(View.VISIBLE);
@@ -602,21 +604,24 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
     }
 
     private void adjustTabletLayout() {
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
-            ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(null);
-            findViewById(R.id.BuffersListDocked).setVisibility(View.VISIBLE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
-        } else {
-            ((Toolbar) findViewById(R.id.toolbar)).setNavigationIcon(upDrawable);
-            ((Toolbar) findViewById(R.id.toolbar)).setNavigationContentDescription("Show navigation drawer");
-            findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
-            if(actionBar != null)
-                actionBar.setHomeButtonEnabled(true);
-            if (refreshUpIndicatorTask != null)
-                refreshUpIndicatorTask.cancel(true);
-            refreshUpIndicatorTask = new RefreshUpIndicatorTask();
-            refreshUpIndicatorTask.execute((Void) null);
+        Toolbar toolbar = ((Toolbar) findViewById(R.id.toolbar));
+        if(toolbar != null) {
+            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && getResources().getBoolean(R.bool.isTablet) && PreferenceManager.getDefaultSharedPreferences(this).getBoolean("tabletMode", true) && !isMultiWindow()) {
+                toolbar.setNavigationIcon(null);
+                findViewById(R.id.BuffersListDocked).setVisibility(View.VISIBLE);
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
+            } else {
+                toolbar.setNavigationIcon(upDrawable);
+                toolbar.setNavigationContentDescription("Show navigation drawer");
+                findViewById(R.id.BuffersListDocked).setVisibility(View.GONE);
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED, Gravity.LEFT);
+                if (actionBar != null)
+                    actionBar.setHomeButtonEnabled(true);
+                if (refreshUpIndicatorTask != null)
+                    refreshUpIndicatorTask.cancel(true);
+                refreshUpIndicatorTask = new RefreshUpIndicatorTask();
+                refreshUpIndicatorTask.execute((Void) null);
+            }
         }
     }
 
@@ -4557,7 +4562,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 }
             }
         }
-        if (buffer != null && buffer.getBid() == bid && findViewById(R.id.splash).getVisibility() == View.GONE)
+        if (buffer != null && buffer.getBid() == bid && findViewById(R.id.splash) != null && findViewById(R.id.splash).getVisibility() == View.GONE)
             shouldFadeIn = false;
         else
             shouldFadeIn = true;

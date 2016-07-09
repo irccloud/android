@@ -882,14 +882,24 @@ import java.util.TimerTask;public class ImageViewerActivity extends BaseActivity
         } else if (item.getItemId() == R.id.action_copy) {
             if (Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
                 android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                clipboard.setText(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http"));
+                if(clipboard != null) {
+                    clipboard.setText(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http"));
+                    Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+                    Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
+                } else {
+                    Toast.makeText(ImageViewerActivity.this, "Clipboard service unavailable, please try again", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 @SuppressLint("ServiceCast") android.content.ClipboardManager clipboard = (android.content.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Image URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
-                clipboard.setPrimaryClip(clip);
+                if(clipboard != null) {
+                    android.content.ClipData clip = android.content.ClipData.newRawUri("IRCCloud Image URL", Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
+                    Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
+                } else {
+                    Toast.makeText(ImageViewerActivity.this, "Clipboard service unavailable, please try again", Toast.LENGTH_SHORT).show();
+                }
             }
-            Toast.makeText(ImageViewerActivity.this, "Link copied to clipboard", Toast.LENGTH_SHORT).show();
-            Answers.getInstance().logShare(new ShareEvent().putContentType((player != null) ? "Animation" : "Image").putMethod("Copy to Clipboard"));
         } else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && item.getItemId() == R.id.action_share) {
             Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse(getIntent().getDataString().replace(getResources().getString(R.string.IMAGE_SCHEME), "http")));
             intent.setType("text/plain");
