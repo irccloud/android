@@ -2193,7 +2193,10 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                 event = (IRCCloudJSONObject) obj;
                 try {
                     b = BuffersList.getInstance().getBufferByName(event.cid(), event.getString("name"));
-                    if (b != null && buffer != null && bufferToOpen != null && !bufferToOpen.equalsIgnoreCase(buffer.getName())) {
+                    if (b == null) {
+                        cidToOpen = event.cid();
+                        bufferToOpen = event.getString("name");
+                    } else if (b != buffer) {
                         server = null;
                         bufferToOpen = null;
                         cidToOpen = -1;
@@ -2204,9 +2207,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
                                 onBufferSelected(bid);
                             }
                         });
-                    } else {
-                        cidToOpen = event.cid();
-                        bufferToOpen = event.getString("name");
                     }
                 } catch (Exception e2) {
                     NetworkConnection.printStackTraceToCrashlytics(e2);
