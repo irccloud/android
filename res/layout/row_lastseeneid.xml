@@ -17,18 +17,24 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?lastSeenEIDBackgroundDrawable"
-    android:gravity="center"
-    android:minHeight="28dp" >
+    android:layout_height="wrap_content">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?contentBackgroundColor"
-        android:paddingLeft="6dp"
-        android:paddingRight="6dp"
-        android:text="New Messages"
-        android:textColor="?timestampColor" />
+    <LinearLayout
+        android:id="@+id/lastSeenEidWrapper"
+        android:gravity="center"
+        android:minHeight="28dp"
+        android:background="?lastSeenEIDBackgroundDrawable"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?contentBackgroundColor"
+            android:paddingLeft="6dp"
+            android:paddingRight="6dp"
+            android:text="New Messages"
+            android:textColor="?timestampColor" />
+    </LinearLayout>
 
 </LinearLayout>

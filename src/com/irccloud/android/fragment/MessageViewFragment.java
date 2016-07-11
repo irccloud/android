@@ -58,6 +58,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -204,6 +205,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
         private class ViewHolder {
             int type;
+            LinearLayout lastSeenEidWrapper;
             TextView timestamp;
             TextView timestamp_left;
             TextView timestamp_right;
@@ -296,6 +298,8 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             e.eid = buffer.getLast_seen_eid() + 1;
                             e.type = TYPE_LASTSEENEID;
                             e.row_type = ROW_LASTSEENEID;
+                            if(EventsList.getInstance().getEvent(buffer.getLast_seen_eid(), buffer.getBid()) != null)
+                                e.from = EventsList.getInstance().getEvent(buffer.getLast_seen_eid(), buffer.getBid()).from;
                             e.bg_color = colorScheme.socketclosedBackgroundDrawable;
                             addItem(e.eid, e);
                             EventsList.getInstance().addEvent(e);
@@ -491,13 +495,13 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                 }
 
                 if (insert_pos > 0) {
-                    Event prev = data.get(insert_pos - 1);
+                    Event prev = data.get(insert_pos - ((e.row_type == ROW_LASTSEENEID)?2:1));
                     e.header = (e.isMessage() && e.from != null && e.from.length() > 0 && e.group_eid < 1) && (prev.from == null || !prev.from.equals(e.from) || !prev.type.equals(e.type));
                 }
 
                 if (insert_pos < (data.size() - 1)) {
                     Event next = data.get(insert_pos + 1);
-                    if (!e.isMessage()) {
+                    if (!e.isMessage() && e.row_type != ROW_LASTSEENEID) {
                         next.header = (next.isMessage() && next.from != null && next.from.length() > 0 && next.group_eid < 1);
                     }
                     if (next.from != null && next.from.equals(e.from) && next.type.equals(e.type)) {
@@ -610,6 +614,7 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                     holder.realname = (TextView) row.findViewById(R.id.realname);
                     holder.failed = (ImageView) row.findViewById(R.id.failed);
                     holder.avatar = (ImageView) row.findViewById(R.id.avatar);
+                    holder.lastSeenEidWrapper = (LinearLayout) row.findViewById(R.id.lastSeenEidWrapper);
                     holder.type = e.row_type;
 
                     row.setTag(holder);
@@ -820,6 +825,15 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                         lp.leftMargin = 0;
                         holder.message.setLayoutParams(lp);
                     }
+                }
+
+                if(holder.lastSeenEidWrapper != null) {
+                    ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) holder.lastSeenEidWrapper.getLayoutParams();
+                    if(!pref_avatarsOff && !pref_chatOneLine)
+                        lp.leftMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 48, getResources().getDisplayMetrics());
+                    else
+                        lp.leftMargin = 0;
+                    holder.lastSeenEidWrapper.setLayoutParams(lp);
                 }
 
                 return row;
@@ -1108,12 +1122,19 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                             MessageAdapter.ViewHolder vh = (MessageAdapter.ViewHolder) v.getTag();
                             MessageAdapter.ViewHolder top_vh = vh;
                             Event e = first >= 0 ? (Event) adapter.getItem(first) : null;
-                            if (first > 0 && vh != null && vh.avatar != null && v.getTop() <= offset - 1 && e != null && e.group_eid < 1 && e.isMessage() && e.from != null && e.from.length() > 0) {
-                                for (i = first; i < adapter.getCount(); i++) {
+                            if (first > 0 && vh != null && v.getTop() <= offset && e != null && ((vh.avatar != null && e.group_eid < 1 && e.isMessage() && e.from != null && e.from.length() > 0) || e.row_type == ROW_LASTSEENEID)) {
+                                for (i = first; i < adapter.getCount() && i < first + 4; i++) {
                                     e = (Event) adapter.getItem(i);
-                                    Event e1 = (Event) adapter.getItem(i + 1);
+                                    if(e.row_type == ROW_LASTSEENEID)
+                                        e = (Event) adapter.getItem(i-1);
+                                    int next = i + 1;
+                                    Event e1 = (Event) adapter.getItem(next);
+                                    if(e1.row_type == ROW_LASTSEENEID) {
+                                        next++;
+                                        e1 = (Event) adapter.getItem(next);
+                                    }
                                     if (e != null && e1 != null && e.from != null && e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
-                                        View v1 = view.getChildAt(i - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()) + 1);
+                                        View v1 = view.getChildAt(next - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()));
                                         if (v1 != null) {
                                             MessageAdapter.ViewHolder vh1 = (MessageAdapter.ViewHolder) v1.getTag();
                                             if (vh1 != null && vh1.avatar != null) {
@@ -1129,21 +1150,28 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                     ((ImageView) avatar.getTag()).setVisibility(View.VISIBLE);
                                 }
 
-                                Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
-                                int topMargin, leftMargin;
-                                int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-                                if (v.getHeight() + v.getTop() < (height + offset)) {
-                                    topMargin = v.getTop() + v.getHeight() - height;
-                                } else {
-                                    topMargin = offset;
-                                }
-                                leftMargin = vh.avatar.getLeft();
-                                avatarContainer.offset(leftMargin, topMargin);
-                                if (avatar.getTag() != top_vh.avatar || top_vh.avatar.getVisibility() != View.INVISIBLE) {
-                                    avatar.setTag(top_vh.avatar);
-                                    avatar.setImageBitmap(bitmap);
-                                    avatarContainer.setVisibility(View.VISIBLE);
-                                    top_vh.avatar.setVisibility(View.INVISIBLE);
+                                if(e != null) {
+                                    Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
+                                    int topMargin, leftMargin;
+                                    int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+                                    if (v.getHeight() + v.getTop() < (height + offset)) {
+                                        topMargin = v.getTop() + v.getHeight() - height;
+                                    } else {
+                                        topMargin = offset;
+                                    }
+                                    if(vh.avatar != null) {
+                                        leftMargin = vh.avatar.getLeft();
+                                        avatarContainer.offset(leftMargin, topMargin);
+                                        if (top_vh.avatar == null || (avatar.getTag() != top_vh.avatar || top_vh.avatar.getVisibility() != View.INVISIBLE)) {
+                                            avatar.setTag(top_vh.avatar);
+                                            avatar.setImageBitmap(bitmap);
+                                            avatarContainer.setVisibility(View.VISIBLE);
+                                            if(top_vh.avatar != null)
+                                                top_vh.avatar.setVisibility(View.INVISIBLE);
+                                        }
+                                    } else {
+                                        hide_avatar();
+                                    }
                                 }
                             } else {
                                 hide_avatar();
