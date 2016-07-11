@@ -51,6 +51,7 @@ import com.irccloud.android.RemoteInputService;
 import com.irccloud.android.SonyExtensionService;
 import com.irccloud.android.activity.MainActivity;
 import com.irccloud.android.activity.QuickReplyActivity;
+import com.irccloud.android.data.IRCCloudDatabase;
 import com.irccloud.android.data.model.Buffer;
 import com.irccloud.android.data.model.Notification;
 import com.irccloud.android.data.model.Notification$Table;
@@ -145,8 +146,13 @@ public class NotificationsList {
         Notification_LastSeenEID n = new Notification_LastSeenEID();
         n.bid = bid;
         n.eid = eid;
-        synchronized (dbLock) {
-            n.save();
+        Buffer b = BuffersList.getInstance().getBuffer(bid);
+        if(b != null) {
+            TransactionManager.getInstance().saveOnSaveQueue(n);
+        } else {
+            synchronized (dbLock) {
+                n.save();
+            }
         }
     }
 
@@ -167,8 +173,13 @@ public class NotificationsList {
         Notification_ServerNick n = new Notification_ServerNick();
         n.cid = cid;
         n.nick = nick;
-        synchronized (dbLock) {
-            n.save();
+        Server s = ServersList.getInstance().getServer(cid);
+        if(s != null) {
+            TransactionManager.getInstance().saveOnSaveQueue(n);
+        } else {
+            synchronized (dbLock) {
+                n.save();
+            }
         }
     }
 
@@ -370,7 +381,7 @@ public class NotificationsList {
         String ticker;
         NotificationCompat.Action action = null;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
-        List<Notification> notifications = getOtherNotifications();
+        final List<Notification> notifications = getOtherNotifications();
 
         int notify_type = Integer.parseInt(prefs.getString("notify_type", "1"));
         boolean notify = false;
@@ -433,8 +444,15 @@ public class NotificationsList {
                     if(title != null && text != null)
                         NotificationManagerCompat.from(IRCCloudApplication.getInstance().getApplicationContext()).notify((int) (n.eid / 1000), buildNotification(ticker, n.bid, new long[]{n.eid}, title, text, 1, null, n.network, null, action, AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 64, IRCCloudApplication.getInstance().getApplicationContext().getResources().getDisplayMetrics()), false, Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP), AvatarsList.getInstance().getAvatar(n.cid, n.nick).getBitmap(false, 400, false, false)));
                 }
-                n.delete();
             }
+            TransactionManager.transact(IRCCloudDatabase.NAME, new Runnable() {
+                @Override
+                public void run() {
+                    for(Notification n : notifications) {
+                        n.delete();
+                    }
+                }
+            });
         }
     }
 
@@ -668,7 +686,7 @@ public class NotificationsList {
     private void showMessageNotifications(String ticker) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(IRCCloudApplication.getInstance().getApplicationContext());
         String text = "";
-        List<Notification> notifications = getMessageNotifications();
+        final List<Notification> notifications = getMessageNotifications();
 
         int notify_type = Integer.parseInt(prefs.getString("notify_type", "1"));
         boolean notify = false;
@@ -746,9 +764,6 @@ public class NotificationsList {
                 if (!n.shown) {
                     n.shown = true;
                     show = true;
-                    synchronized (dbLock) {
-                        n.save();
-                    }
 
                     if (n.nick != null && prefs.getBoolean("notify_sony", false)) {
                         long time = System.currentTimeMillis();
@@ -851,6 +866,15 @@ public class NotificationsList {
                     Crashlytics.logException(e);
                 }
             }
+
+            TransactionManager.transact(IRCCloudDatabase.NAME, new Runnable() {
+                @Override
+                public void run() {
+                    for(Notification n : notifications) {
+                        n.save();
+                    }
+                }
+            });
         }
     }
 
