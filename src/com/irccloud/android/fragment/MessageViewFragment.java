@@ -1129,9 +1129,12 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
                                         e = (Event) adapter.getItem(i-1);
                                     int next = i + 1;
                                     Event e1 = (Event) adapter.getItem(next);
-                                    if(e1.row_type == ROW_LASTSEENEID) {
+                                    if(e1 != null && e1.row_type == ROW_LASTSEENEID) {
                                         next++;
-                                        e1 = (Event) adapter.getItem(next);
+                                        if(next < adapter.getCount())
+                                            e1 = (Event) adapter.getItem(next);
+                                        else
+                                            break;
                                     }
                                     if (e != null && e1 != null && e.from != null && e.from.equals(e1.from) && e1.group_eid < 1 && !e1.header) {
                                         View v1 = view.getChildAt(next - (firstVisibleItem - ((ListView) view).getHeaderViewsCount()));
