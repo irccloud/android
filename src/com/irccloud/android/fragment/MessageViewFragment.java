@@ -1155,14 +1155,14 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
 
                                 if(e != null) {
                                     Bitmap bitmap = mAvatarsList.getAvatar(e.cid, e.from).getBitmap(ColorScheme.getInstance().isDarkTheme, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, getResources().getDisplayMetrics()), e.self);
-                                    int topMargin, leftMargin;
-                                    int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
-                                    if (v.getHeight() + v.getTop() < (height + offset)) {
-                                        topMargin = v.getTop() + v.getHeight() - height;
-                                    } else {
-                                        topMargin = offset;
-                                    }
-                                    if(vh.avatar != null) {
+                                    if(vh.avatar != null && bitmap != null) {
+                                        int topMargin, leftMargin;
+                                        int height = bitmap.getHeight() + (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+                                        if (v.getHeight() + v.getTop() < (height + offset)) {
+                                            topMargin = v.getTop() + v.getHeight() - height;
+                                        } else {
+                                            topMargin = offset;
+                                        }
                                         leftMargin = vh.avatar.getLeft();
                                         avatarContainer.offset(leftMargin, topMargin);
                                         if (top_vh.avatar == null || (avatar.getTag() != top_vh.avatar || top_vh.avatar.getVisibility() != View.INVISIBLE)) {
