@@ -518,7 +518,7 @@ public class EventsList {
                     e.chan = event.getString("target");
                     e.nick = event.getString("target");
                     e.target_mode = event.getString("statusmsg");
-                    e.msg = "<pre>" + e.msg.replace("  ", " &nbsp;") + "</pre>";
+                    e.msg = "<pre>" + e.msg + "</pre>";
                 }
                 e.bg_color = colorScheme.noticeBackgroundColor;
             }
@@ -1015,7 +1015,7 @@ public class EventsList {
                 e.from = TextUtils.htmlEncode(e.from);
 
             if (e.msg != null)
-                e.msg = TextUtils.htmlEncode(e.msg);
+                e.msg = TextUtils.htmlEncode(e.msg).replace("  ", " &nbsp;");
 
             Formatter f = formatterMap.get(e.type);
             if (f != null)
