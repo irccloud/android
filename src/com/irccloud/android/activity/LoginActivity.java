@@ -152,7 +152,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         password.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    new LoginTask().execute((Void) null);
+                    login.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            new LoginTask().execute((Void) null);
+                        }
+                    });
                     return true;
                 }
                 return false;
@@ -169,7 +174,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         host.setOnEditorActionListener(new OnEditorActionListener() {
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    new LoginTask().execute((Void) null);
+                    login.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            new LoginTask().execute((Void) null);
+                        }
+                    });
                     return true;
                 }
                 return false;
@@ -187,7 +197,12 @@ public class LoginActivity extends FragmentActivity implements GoogleApiClient.C
         loginBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                new LoginTask().execute((Void) null);
+                login.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        new LoginTask().execute((Void) null);
+                    }
+                });
             }
         });
         loginBtn.setFocusable(true);
