@@ -25,6 +25,7 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
@@ -1267,7 +1268,7 @@ public class ColorFormatter {
     }
 
     public static String strip(String msg) {
-        return html_to_spanned(irc_to_html(emojify(msg))).toString();
+        return html_to_spanned(irc_to_html(TextUtils.htmlEncode(emojify(msg)))).toString();
     }
 
     public static Spanned html_to_spanned(String msg, boolean linkify, final Server server, final JsonNode entities) {
