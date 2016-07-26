@@ -1709,7 +1709,6 @@ public class MessageViewFragment extends ListFragment implements NetworkConnecti
     @SuppressWarnings("unchecked")
     public void onResume() {
         super.onResume();
-        getListView().requestFocus();
         getListView().setOnScrollListener(mOnScrollListener);
         update_global_msg();
         if (buffer != null && adapter != null) {

@@ -108,11 +108,6 @@
                             android:layout_marginRight="11dp"
                             android:paddingTop="4dp"/>
 
-                        <!-- Dummy item to prevent ActionEditText from receiving focus on launch -->
-                        <LinearLayout
-                            android:focusable="true" android:focusableInTouchMode="true"
-                            android:layout_width="0px" android:layout_height="0px"/>
-
                         <com.irccloud.android.ActionEditText
                             android:id="@+id/messageTxt"
                             style="@style/messageTxt"

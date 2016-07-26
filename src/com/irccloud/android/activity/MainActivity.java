@@ -1648,7 +1648,6 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
                 fileUploadTask.show_dialog();
         }
-        messageTxt.clearFocus();
         messageTxt.setEnabled(true);
 
         if(pastebinResult != null) {
