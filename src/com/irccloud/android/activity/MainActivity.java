@@ -1648,7 +1648,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             if(fileUploadTask.metadataDialog == null && !fileUploadTask.filenameSet && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
                 fileUploadTask.show_dialog();
         }
-        messageTxt.setEnabled(true);
+        messageTxt.setEnabled(buffer != null);
 
         if(pastebinResult != null) {
             String text = "";
@@ -4712,6 +4712,7 @@ public class MainActivity extends BaseActivity implements UsersListFragment.OnUs
             }
         }
         update_suggestions(false);
+        messageTxt.setEnabled(buffer != null);
     }
 
     @Override
